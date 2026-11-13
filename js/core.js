@@ -61520,7 +61520,7 @@ function propulsionPreview(ship,S,preset='combat'){
  p.fuel=fuelProfileFromStats(S);const H=heatProfileOf(p,S);if(H)p.heat=H;
  result.maximumSpeedMps=propulsionTerminalSpeed(p);result.fundedAccelerationMps2=healthyMotionPlan(p)?.accelerationMps2||0;
  if(S.craft){
-  const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:storeDefault(st.fit)[0],n:storeDefault(st.fit)[1]})),ordMass=craftOrdnance({stations,load},load).reduce((n,x)=>n+x.n*x.mass,0),loaded=ordMass>0?reactorSupplyProfile({...p,propulsion:{...p.propulsion,massKg:p.propulsion.massKg+ordMass*1000}}):p;
+  const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]})),ordMass=craftOrdnance({stations,load},load).reduce((n,x)=>n+x.n*x.mass,0),loaded=ordMass>0?reactorSupplyProfile({...p,propulsion:{...p.propulsion,massKg:p.propulsion.massKg+ordMass*1000}}):p;
   result.loadedMassKg=loaded.propulsion.massKg;result.loadedMaximumSpeedMps=propulsionTerminalSpeed(loaded);result.loadedPlanningAccelerationMps2=Math.min(loaded.propulsion.ratedAccelMps2,loaded.propulsion.accelerationLimitMps2);
  }
  return result;
@@ -64698,8 +64698,8 @@ function storeCapacity(store,kind){
 // What a station takes by default when nothing else is known (a design of the player's own).
 const STORE_DEFAULT={ctorp:['ptorp',3],cmsl:['cmsl',6],cbomb:['bomb',8],cpylon:['cmsl',2]};
 // A station's default load: the table above, else the fitting's own ordnance as many as its store takes (the
-// ship launcher shipMsl and any later store fitting; a missing entry threw "reading '0'" in craftLoadout).
-function storeDefault(fit){const d=STORE_DEFAULT[fit];if(d)return d;const f=FITS[fit],k=f?.ordnance;return f?.store&&ORDNANCE[k]?[k,storeCapacity(f.store,k)]:[null,0];}
+// ship launcher shipMsl and any later store fitting, sized by the station's own store (a shipMsl holds 6 per cell); a missing entry threw "reading '0'" in craftLoadout).
+function storeDefault(fit,store=null){const d=STORE_DEFAULT[fit];if(d)return d;const f=FITS[fit],k=f?.ordnance,s=store||f?.store;return s&&ORDNANCE[k]?[k,storeCapacity(s,k)]:[null,0];}
 // A craft's store stations: identical fittings in one group, in a fixed order (tubes, missile tubes, bay, pylons).
 // v24 Pylons group by mirrored pair (each pair or single pylon is its own station, so the order of battle can load
 // them differently); bomb bays are interior compartments (bombBay) grouped by their inner size.
@@ -64713,6 +64713,8 @@ function craftStations(ship,S){
  const groups=new Map(),order=[];const add=(key,st)=>{if(!groups.has(key)){groups.set(key,{...st,count:0});order.push(key);}groups.get(key).count++;};
  for(const f of ship?.fits||[]){const d=FITS[f.k];if(!d?.store||f.float||S?.info?.[f.id]?.overlap)continue;
   if(f.k==='cpylon'){const m=mirrorP(f.p),pair=ship.fits.find(g=>g!==f&&g.k==='cpylon'&&(g.id===f.tw||len(sub(g.p,m))<.02)),id=pair?Math.min(f.id,pair.id):f.id;add('cpylon:'+id,{fit:'cpylon',mount:'wing'});}
+  // A ship launcher holds 6 rounds per cell (fitSpec, runtime): launchers with different cell counts are separate stations.
+  else if(f.k==='shipMsl'){const store=fitSpec(f).store;add('shipMsl:'+store.slots,{fit:'shipMsl',mount:store.mount,store});}
   else add(f.k,{fit:f.k,mount:d.store.mount});}
  for(const p of ship?.parts||[])if(p.k==='bombBay'&&!S?.info?.[p.id]?.overlap&&bombBayOpen(ship,p)){const box=bombBayBox(p);add('bay:'+box.join('x'),{fit:'cbomb',mount:'bay',store:{mount:'bay',box}});}
  const rank=k=>{const f=k.split(':')[0];return f==='bay'?STORE_FITS.indexOf('cbomb'):STORE_FITS.indexOf(f);};
@@ -64761,15 +64763,15 @@ function craftLoadout(x){
  if(x==null)return null;
  if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count])=>({fit,mount:FITS[fit].store.mount,count})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
  if(Array.isArray(x.fits)){const stations=craftStations(x),t=craftTypeOf(x.reference),c=t&&CRAFT_LOADOUT[t],same=c&&c.st.length===stations.length&&c.st.every(([fit,n],i)=>stations[i].fit===fit&&stations[i].count===n);
-  return {stations,load:same?loadPairs(c.load):stations.map(st=>({k:storeDefault(st.fit)[0],n:storeDefault(st.fit)[1]})),canon:!!same,type:t,src:same?c.src:'',mass:null};}
- if(Array.isArray(x.stations))return {stations:x.stations,load:Array.isArray(x.load)?x.load:x.stations.map(st=>({k:storeDefault(st.fit)[0],n:storeDefault(st.fit)[1]||0})),canon:!!x.canonLoad,type:null,src:'',mass:x.mass??null};
+  return {stations,load:same?loadPairs(c.load):stations.map(st=>({k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]})),canon:!!same,type:t,src:same?c.src:'',mass:null};}
+ if(Array.isArray(x.stations))return {stations:x.stations,load:Array.isArray(x.load)?x.load:x.stations.map(st=>({k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]||0})),canon:!!x.canonLoad,type:null,src:'',mass:x.mass??null};
  return null;
 }
 // A chosen loadout checked against the stations: each station's kind must fit it and its count is held to what it
 // takes (a station left out falls back to the default; 'auto' or nothing is the default throughout).
 function normalizeLoad(stations,load,base){
  const L=Array.isArray(load)?load:null;
- return (stations||[]).map((st,i)=>{const s=stationStore(st),b=base?.[i]||{k:storeDefault(st.fit)[0],n:storeDefault(st.fit)[1]||0},q=L?.[i]&&typeof L[i]==='object'?L[i]:b,k=ORDNANCE[q.k]?q.k:b.k,cap=storeCapacity(s,k);return {k,n:cap>0?clamp(Math.round(+q.n||0),0,cap):0};});
+ return (stations||[]).map((st,i)=>{const s=stationStore(st),b=base?.[i]||{k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]||0},q=L?.[i]&&typeof L[i]==='object'?L[i]:b,k=ORDNANCE[q.k]?q.k:b.k,cap=storeCapacity(s,k);return {k,n:cap>0?clamp(Math.round(+q.n||0),0,cap):0};});
 }
 // v22 What a craft carries, round by round: [{kind, n (per craft), mount, dims: [length, diameter], …}].
 // craftKeyOrDesign: a craft type key ('xwing'), an example key ('craft_xwing'), a design (ship), or a loadout
@@ -64848,7 +64850,7 @@ function craftCombat(ship,S,options={}){
  const speedKey=ship.reference||'',speedReference={...sublightReference(speedKey)},shipSpeed=(g,massKg)=>g>0&&motionResistanceRate(massKg)>0?g*G0*FLEET_RULES.accelScale/motionResistanceRate(massKg):0;
  const systems=cleanCraftSystems(S.craftSystems),fireK=systems?.fireK??1,turnK=systems?.turnK??1;
  const air=clamp(1.2*(.55+.05*Math.min(A,12))*Math.pow(Math.max(1,G)/3700,.8)*(sh?1.1:1)*(role==='bomber'?.55:1)*fireK*Math.sqrt(turnK),.05,1.8);
- const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:storeDefault(st.fit)[0],n:storeDefault(st.fit)[1]})),ord=craftOrdnance({stations,load},load);
+ const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]})),ord=craftOrdnance({stations,load},load);
  const gun=armed?Math.round((6+A+(shipGun?(S.alphaTot||0)+(S.ionTot||0)/3:0))*fireK):0,salvo=ord.reduce((n,x)=>n+ordnanceSalvo(x,role)*x.tt,0),ordMass=ord.reduce((n,x)=>n+x.n*x.mass,0);
  const dims=cleanDims(S.dims)||cleanDims([ship.hull.L,ship.hull.W,ship.hull.H]);if(!dims)return null;
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1)*(small?1:Math.cbrt(Math.max(1,Math.max(...dims)/25))),.3,small?3:20);
