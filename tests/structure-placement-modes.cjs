@@ -50,7 +50,9 @@ test('parent movement, rotation, and resized top keep descendants at their world
  const s=fixture(),child=add(s),grand=add(s,child.id,'horizontal',[0,100,0],[0,-1,0],box([4,4,4]));s.parts.push({...box([20,20,10]),id:s.nextId++,c:[100,0,0]});const separate=add(s,s.parts.at(-1).id,'horizontal',[100,100,0],[0,-1,0],box([4,4,4])),otherKey=C.publicJSON(separate.placement),before=child.c.slice(),grandBefore=grand.c.slice();
  const kept=label=>{before.forEach((v,i)=>near(child.c[i],v));grandBefore.forEach((v,i)=>near(grand.c[i],v));assert.equal(child.roll||0,0,label);assert.equal(grand.roll||0,0,label);};
  // Moved 12 m: the 80 m parent still touches the 10 m child, which stays where it is and connected.
- s.parts[0].c[0]+=12;let update=C.updatePlacementChildren(s,1);assert.equal(update.ok,true,JSON.stringify(update));kept('moved');assert.equal(C.publicJSON(separate.placement),otherKey);assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
+ // 2026-11-13 (no parent relation, contact only): the separate branch stands on a box floating in space, so it is red by
+ // contact on every refresh; only this branch's parts are checked here.
+ s.parts[0].c[0]+=12;let update=C.updatePlacementChildren(s,1);assert.ok(!update.failed.some(f=>[child.id,grand.id].includes(f.partId)),JSON.stringify(update));kept('moved');assert.equal(C.publicJSON(separate.placement),otherKey);assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
  // A taller parent swallows part of the child: an overlap is a contact; the child is not lifted.
  s.parts[0].s[2]=30;update=C.updatePlacementChildren(s,1);kept('resized');assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
  // A rolled parent: the child keeps its world orientation.
@@ -62,7 +64,7 @@ test('surface-mode descendants keep their world orientation when the parent rota
 });
 
 test('a missing saved parent retains repairable children; cycles and lost faces cannot silently reconnect',()=>{
- const s=fixture(),child=add(s),grand=add(s,child.id,'horizontal',[0,100,0],[0,-1,0],box([4,4,4])),original=C.publicJSON(child.placement.requestedGeometry);s.parts=s.parts.filter(p=>p.id!==1);const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,false);assert.equal(s.parts.length,2);assert.equal(C.publicJSON(child.placement.requestedGeometry),original);assert.equal(C.placementDiagnostics(s).find(p=>p.partId===child.id).connected,false);assert.equal(grand._placementError,'parent-unresolved');
+ const s=fixture(),child=add(s),grand=add(s,child.id,'horizontal',[0,100,0],[0,-1,0],box([4,4,4])),original=C.publicJSON(child.placement.requestedGeometry);s.parts=s.parts.filter(p=>p.id!==1);const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,false);assert.equal(s.parts.length,2);assert.equal(C.publicJSON(child.placement.requestedGeometry),original);assert.equal(C.placementDiagnostics(s).find(p=>p.partId===child.id).connected,false);/* 2026-11-13 (contact only): the grandchild is red by contact (no parent-unresolved state) */assert.ok(grand._placementError);assert.equal(C.placementDiagnostics(s).find(p=>p.partId===grand.id).connected,false);
  const t=fixture(),q=add(t);t.parts[0].placement={...plain(q.placement),parentStructureId:q.id,root:false};assert.equal(C.solvePlacement(t,q,{mode:'horizontal',parentStructureId:1}).code,'parent-cycle');
  const u=fixture();assert.equal(C.solvePlacement(u,box(),{mode:'horizontal',parentStructureId:1,hostSurfaceId:'p1:missing:0',hit:{p:[0,10,0],n:[0,1,0]}}).code,'surface-missing');
 });
@@ -94,10 +96,12 @@ test('contact calibration covers small and large ships and translated coordinate
  for(const scale of [.01,1,100])for(const offset of [0,50000]){const parent={...box([20*scale,20*scale,20*scale]),id:1,c:[offset,offset,offset]},s=fixture(parent),touch={...box([10*scale,10*scale,10*scale]),id:2,c:[offset,offset+15*scale,offset]},contact=C.placementContact(s,touch,parent);assert.equal(contact.connected,true,`scale ${scale} at ${offset}`);touch.c[1]+=Math.max(.0001,scale*.0001);const gap=C.placementContact(s,touch,parent);assert.equal(gap.connected,false,`gap scale ${scale} at ${offset}: ${JSON.stringify(gap)}`);}
 });
 
-test('a failed free edit becomes the saved repair source and later parent motion cannot undo it',()=>{
- const s=fixture(),child=add(s);child.c[0]=90;const moved=Array.from(child.c),r=C.refreshPlacementGeometry(s);assert.equal(r.ok,false);assert.equal(child.placement.repairRequired,true);assert.deepEqual(Array.from(child.placement.requestedGeometry.c),moved);
+test('a free edit off the body is kept where the user put it (red by contact) and later body motion cannot undo it',()=>{
+ // 2026-11-13 (no parent relation, contact only): an edit that touches nothing is not a stored repair state; it is
+ // kept as the new request and judged by contact (red).
+ const s=fixture(),child=add(s);child.c[0]=90;const moved=Array.from(child.c),r=C.refreshPlacementGeometry(s);assert.equal(r.ok,false);assert.ok(r.failed.some(f=>f.partId===child.id));assert.equal(child.placement.repairRequired,undefined);assert.deepEqual(Array.from(child.placement.requestedGeometry.c),moved);
  // 2026-11-12: the repair child is not carried by its parent's motion; it stays where the user left it.
- s.parts[0].c[0]+=12;C.refreshPlacementGeometry(s);near(child.c[0],moved[0]);assert.equal(child.placement.repairRequired,true);
+ s.parts[0].c[0]+=12;C.refreshPlacementGeometry(s);near(child.c[0],moved[0]);assert.ok(child._placementError,'still red');
  const restored=C.deserialize(C.serialize(s)),restoredChild=restored.parts.find(p=>p.id===child.id);near(restoredChild.c[0],moved[0]);assert.equal(C.placementDiagnostics(restored).find(p=>p.partId===child.id).connected,false);
  const solve=C.solvePlacement(restored,restoredChild,{mode:'horizontal',parentStructureId:1,hit:C.rayPart([12,100,0],[0,-1,0],restored.parts[0])});assert.equal(solve.ok,true,solve.error);const accepted=C.acceptPlacementResult(restored,solve);assert.equal(accepted.ok,true,accepted.error);assert.equal(accepted.part.id,child.id);assert.equal(accepted.part.placement.repairRequired,undefined);assert.equal(accepted.part.placement.parentStructureId,1);
 });
@@ -129,7 +133,7 @@ test('horizontal wedge fitting keeps volume across ship scales and a translated 
 });
 
 test('a partial child pasted into an empty design stays repairable instead of being promoted to a root',()=>{
- const s=fixture(),child=add(s),capture=C.assemblyCapture(s,{parts:[child.id],fits:[]},{name:'Detached child'});assert.equal(capture.error,undefined);const dest=fixture(null),placed=C.assemblyPlace(dest,capture.template,[0,0,0]);assert.equal(placed.error,undefined,placed.error);assert.equal(placed.parts[0].placement.parentStructureId,undefined);const result=C.refreshPlacementGeometry(dest);assert.equal(result.ok,false);assert.equal(placed.parts[0].placement.root,undefined);assert.equal(placed.parts[0]._placementError,'parent-required');const loaded=C.deserialize(C.serialize(dest));assert.equal(loaded.parts.length,1);assert.equal(C.placementDiagnostics(loaded)[0].connected,false);
+ const s=fixture(),child=add(s),capture=C.assemblyCapture(s,{parts:[child.id],fits:[]},{name:'Detached child'});assert.equal(capture.error,undefined);const dest=fixture(null),placed=C.assemblyPlace(dest,capture.template,[0,0,0]);assert.equal(placed.error,undefined,placed.error);assert.equal(placed.parts[0].placement.parentStructureId,undefined);const result=C.refreshPlacementGeometry(dest);assert.equal(result.ok,false);assert.equal(placed.parts[0].placement.root,undefined);/* 2026-11-13 (contact only): it touches nothing, so it is red by contact (no parent-required state) */assert.ok(placed.parts[0]._placementError);const loaded=C.deserialize(C.serialize(dest));assert.equal(loaded.parts.length,1);assert.equal(C.placementDiagnostics(loaded)[0].connected,false);
 });
 
 test('new exterior engines use the same catalog dimensions and functional settings as conventional creation',()=>{

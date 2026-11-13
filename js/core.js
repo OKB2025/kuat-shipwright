@@ -63935,6 +63935,7 @@ function placementDiagnostics(ship,graph=null){let red=null;const loose=()=>{if(
   if(p.placement.pendingGeometry)return {partId:p.id,connected:false,pending:true,code:'placement-pending'};
   if(p.placement.validationFailed)return {partId:p.id,connected:false,code:p.placement.repairReason||'placement-failed'};
   if(p._placementError)return {partId:p.id,connected:false,code:p._placementError};
+  if(p.placement.root&&p.placement.parentStructureId==null)return {partId:p.id,connected:true,root:true};/* the grounding root of a design without a hull */
   if(placementCapability(p).kind==='structure'){if(loose().has(p.id))return {partId:p.id,connected:false,code:'contact-zero'};const nb=[...(structuralConnectivity(ship).adj.get(p.id)||[])];return {partId:p.id,connected:true,code:null,via:'contact-graph',neighbours:nb};}
   const contact=placementEquipmentAnyContact(ship,p);return {partId:p.id,...contact,code:contact.connected?null:(contact.reason||'contact-zero')};});}
 // A child whose parent only lost material keeps its pose and fitted shape. If it
@@ -64084,8 +64085,8 @@ function refreshPlacementGeometry(ship,options={}){
   else if((selfChanged||requestChanged)&&!meta.root){/* a root is placed on the ship itself; its edits are the editor's (never re-solved here) */
    delete p._placementError;delete p._placementLoose;/* judged afresh: a red mark from the last pass must not keep it out of the contact graph */
    let input={...placementShape(p),placement:meta};const request={...meta,keepTransform:!requestChanged,geometryRevision:(meta.geometryRevision||0)+1,parentGeometryRevision:parent?.placement?.geometryRevision||0};
-   if(structure&&meta.mode==='surface'){for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];input.placement={...meta};for(const key of ['contactFit','contactOffset','contactAxis'])delete input.placement[key];}
    if(requestChanged&&!selfChanged)input={...placementShape(meta.requestedGeometry),id:p.id,placement:meta};
+   if(structure&&meta.mode==='surface'){for(const key of ['contactFit','contactOffset','contactAxis'])delete request[key];input.placement={...meta};for(const key of ['contactFit','contactOffset','contactAxis'])delete input.placement[key];}
    // A structure with no tapped body (a copy whose source body was not copied) is kept exactly where the user put it:
    // its request becomes the new shape and the contact graph judges it (no sink without a body to sink to).
    const r=!parent&&structure?{ok:false,code:'contact-zero',keepAsPut:true}:!parent?placementFailure('parent-required','追加元の面を選び直してください'):legacyExteriorShieldAttachment(input)?solveExteriorEquipmentPlacement(ship,placementShape(input),request,{...publicCopyOf(meta),geometryRevision:request.geometryRevision,requestedGeometry:placementShape(input)},{old:meta,existing:p,inputKey:placementShapeKey(p)}):solvePlacement(ship,input,request);
