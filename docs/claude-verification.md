@@ -69,6 +69,7 @@ node scripts/browser-<name>.cjs http://127.0.0.1:8765/ "$OUT/<name>.json"
 | 世代管理・古い結果の破棄 | `node --test tests/placement-worker-generations.cjs tests/placement-worker-priority.cjs tests/placement-worker-integration.cjs tests/editor-worker-snapshots.cjs` |
 | 準備済み設計・キャッシュ | `tests/prepared-ship-cache.cjs`、`tests/structural-survey-cache.cjs`、`tests/surface-client-cache-core.cjs`、`tests/startup-preload.cjs` |
 | 実 Worker | `scripts/browser-prepared-ship-cache.cjs`、`browser-full-placement-latency.cjs`、`browser-mass-drag-throttle.cjs` |
+| 構造物移動の応答（2026-11-12） | `node --test tests/interior-incremental.cjs tests/engine-structure-first.cjs`（区画・機関台座の局所再計算が全再計算と一致、構造物の先行表示、古い世代の中断）。時間測定は `node scripts/benchmark-edit-latency.cjs OUT.json [--designs imperial,user] [--moves N] [--profile DIR]`（Node・vm 上の実 engine.js）と `node scripts/browser-edit-latency.cjs URL OUT.json`（ヘッドレス Chromium・実 Worker）。どちらも出力先は必須。`user` は `tests/helpers/edit-latency-fixtures.cjs` の設計。`interior-incremental.cjs` の「親の移動に子が追従する」場合は暫定（ユーザー決定 2026-11-12：構造物の親子関係は後続 PR で廃止）。廃止時に削除・書き換える |
 
 ### 作例形状・STL（reference-fidelity-reviewer の証拠）
 

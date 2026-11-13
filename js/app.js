@@ -2103,7 +2103,7 @@ function sendEngineUpdate() {
   eng.scheduled = false;
   if (!eng.ready || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
-  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true}};
+  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
   eng.what.clear(); eng.reset = false;
   YardEngineClient.post(msg);
 }
@@ -2113,7 +2113,7 @@ function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
   const geo = eng.geoGen < eng.gen || !!eng.uploading, stats = eng.statsGen < eng.gen;
   el.hidden = !(geo || stats) || fleet.mode !== 'design';
-  el.textContent = !eng.ready ? '設計エンジンを起動中…' : geo ? '形状を計算中…' : '性能を計算中…';
+  el.textContent = !eng.ready ? '設計エンジンを起動中…' : geo ? (eng.structGen === eng.gen && !eng.uploading ? '内装と装備を計算中…' : '形状を計算中…') : '性能を計算中…';
   el.classList.toggle('geo', geo);
   $('#statstrip')?.classList.toggle('stale', stats);
   $('#specSide')?.classList.toggle('stale', stats);
@@ -2125,12 +2125,12 @@ function uploadStored() {
   if (meshStore.glow) view.setGlow(meshStore.glow, C.engineGlowRGB(ship?.engineGlow));
   if (meshStore.grid) view.setLines('grid', meshStore.grid);
 }
-function applyGeometry(msg) {
+function applyGeometry(msg, guard) {
   const source=ship,entries=Object.entries(msg.geos||{}).filter(([,g])=>g),clock=()=>typeof performance!=='undefined'?performance.now():Date.now();
   const large=entries.length>8||entries.reduce((n,[,g])=>n+(g.pos?.byteLength||0)+(g.idx?.byteLength||0),0)>2e6;
   let index=0,settled=false;if(large)eng.uploading=(eng.uploading||0)+1;
   const settle=ok=>{if(!settled){settled=true;if(large)eng.uploading=Math.max(0,(eng.uploading||0)-1);engineStatus();}return ok;};
-  const valid=()=>ship===source&&(msg.gen==null||msg.gen===eng.gen);
+  const valid=()=>ship===source&&(msg.gen==null||msg.gen===eng.gen)&&(!guard||guard());
   const finish=()=>{
     if(!valid())return settle(false);
     if(msg.glow){meshStore.glow=msg.glow;view?.setGlow(msg.glow,C.engineGlowRGB(ship?.engineGlow));}
@@ -2247,8 +2247,39 @@ function onEngineGeometry(msg) {
     engineStatus();
   };
   let completion;
-  if(!dragSnap&&msg.gen===eng.gen&&msg.gen>=eng.geoGen){const applied=applyGeometry(msg);completion=applied&&typeof applied.then==='function'?applied.then(ready):ready(applied);}
+  if(!dragSnap&&msg.gen===eng.gen&&msg.gen>=eng.geoGen){eng.fullGeoGen=Math.max(eng.fullGeoGen||0,msg.gen);const applied=applyGeometry(msg);completion=applied&&typeof applied.then==='function'?applied.then(ready):ready(applied);}
   if(eng.gen>eng.sentGen)kickEngine();engineStatus();return completion;
+}
+// 2026-11-12 Structures first: the Worker sends the struct, plate and reference-structure meshes of the
+// current generation right after resolving placements, before compartments and equipment. They replace
+// only those groups (and those groups' part ranges); the full geometry packet that follows replaces
+// everything. A packet for an older generation, during a drag, or after the full geometry is ignored.
+function onEngineStructureGeometry(msg) {
+  // The full geometry of this generation may start uploading while these sliced uploads are still
+  // running: from then on no structure slice, range table or status is written.
+  const current=()=>msg.gen===eng.gen&&msg.gen>eng.geoGen&&!((eng.fullGeoGen||0)>=msg.gen);
+  if(!ship||dragSnap||!current()||(msg.designId!=null&&ship.saveId!=null&&msg.designId!==ship.saveId))return false;
+  const groups=msg.groups||Object.keys(msg.geos||{}),ranges={};
+  for(const [id,list] of Object.entries(meshStore.ranges||{})){const kept=list.filter(([k])=>!groups.includes(k));if(kept.length)ranges[id]=kept;}
+  for(const [id,list] of Object.entries(msg.ranges||{}))(ranges[id]||(ranges[id]=[])).push(...list);
+  const done=applied=>{
+    if(!applied||!current()||dragSnap)return false;
+    eng.structGen=msg.gen;
+    // The settled structures replace their drag preview. Other previewed items (attached equipment,
+    // removed parts) stay previewed until the full geometry arrives.
+    if(live.active){
+      const shapes=new Set(live.parts.filter(p=>C.isShapePart(p)).map(p=>p.id));
+      // While the S-foils are shown stowed, the preview holds the posed copies: leave it to the full geometry
+      // (onEngineGeometry keeps it the same way), or the stow view is dropped or its parts left hidden.
+      if(shapes.size&&st.foilView!=='stow'){
+        if(shapes.size===live.parts.length&&!live.fits.length&&!live.hide.fits.size&&[...live.hide.parts].every(id=>shapes.has(id)))clearPreview();
+        else{live.parts=live.parts.filter(p=>!shapes.has(p.id));for(const id of shapes)live.hide.parts.delete(id);showPreview({});}
+      }
+    }
+    engineStatus();requestDraw();return true;
+  };
+  const applied=applyGeometry({gen:msg.gen,geos:msg.geos,ranges},()=>current()&&!dragSnap);
+  return applied&&typeof applied.then==='function'?applied.then(done):done(applied);
 }
 function onEngineSurfaceGeometry(msg) {
   if(!ship||msg.gen!==eng.gen)return;
@@ -2297,6 +2328,7 @@ function engineHello(mode) {
   YardEngineClient.on('geometry', onEngineGeometry);
   YardEngineClient.on('authoringGeometry', onEngineAuthoringGeometry);
   YardEngineClient.on('surfaceGeometry', onEngineSurfaceGeometry);
+  YardEngineClient.on('structureGeometry', onEngineStructureGeometry);
   YardEngineClient.on('stats', onEngineStats);
   YardEngineClient.on('error', onEngineError);
   kickEngine(); engineStatus();

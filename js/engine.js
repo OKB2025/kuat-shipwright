@@ -311,7 +311,7 @@ function applyState(job) {
     if (!(ship && C.publicJSON(ship) === job.state)) { ship = JSON.parse(job.state); hullKey = ''; authoringKey = null; lastInfo = null; lastOverlap = ''; settledState = null; }
   } else { C.patchShip(ship, JSON.parse(job.state)); settledState = null; }
 }
-function deriveState(job) {
+async function deriveState(job) {
   const what = new Set(job.what || []);
   const any = (...k) => k.some(w => what.has(w));
   const flags = {hull: false, parts: false, hatches: false, fits: false};
@@ -325,10 +325,16 @@ function deriveState(job) {
   if(any('parts','fits')&&(ship.surfaces?.patches||[]).some(p=>p.id.startsWith('hull:')&&p.functionMode==='equipment')){flags.hull=true;hullKey='';}
   const sync = job.reset || any('hull', 'all', 'parts', 'fits', 'hatches');
   const mount = job.reset || any('hull', 'all', 'parts', 'hatches');
-  const t0 = now(), settled = settledState !== null && settledState === job.state; settledState = null;
-  if (sync && !settled) C.syncCompartments(ship);
-  if (mount && !settled) { C.remount(ship); C.syncCompartments(ship); }
-  return {flags, syncMs: now() - t0, touched: sync || mount};
+  const settled = settledState !== null && settledState === job.state; settledState = null;
+  let syncMs = 0;
+  const timed = fn => { const t = now(); fn(); syncMs += now() - t; };
+  if (sync && !settled) timed(() => C.syncCompartments(ship));
+  // A newer edit can arrive between the compartments and the mounts: stop here for it.
+  if (mount && !settled) {
+    if (sync && !settled) { await phaseYield(); if (supersede(job)) return null; }
+    timed(() => { C.remount(ship); C.syncCompartments(ship); });
+  }
+  return {flags, syncMs, touched: sync || mount};
 }
 function finishGeometry(job, out, options) {
   // Build the ray-cast hierarchy here so the editor never has to.
@@ -341,6 +347,29 @@ function finishGeometry(job, out, options) {
   out.packMs = now() - t0;
 }
 
+// 2026-11-12 One edit runs in phases (placement resolution, structures, compartments, mounts, meshes,
+// surfaces, statistics). Between phases the engine yields so a newer edit can be received; a
+// superseded edit stops at the next boundary, hands its dirty flags to the newer one and posts
+// nothing more for its generation. `abandoned` records where (tests and diagnostics).
+const abandoned = [];
+function phaseYield() { return new Promise(resolve => setTimeout(resolve, 0)); }
+function supersede(job, phase = 'derive') {
+  const next = queue.find(j => j.type === 'update');
+  if (!next) return false;
+  next.what = Array.from(new Set([...(job.reset ? ['all'] : job.what || []), ...(next.what || [])]));
+  abandoned.push({gen: job.gen, phase}); if (abandoned.length > 32) abandoned.shift();
+  return true;
+}
+let lastStructureHullKey = null;
+// The hull state an early structures packet is valid against: the ship's hull and its cuts, and each hull
+// structure's own profile and hull data (its trenches, cuts and skin), so an edit of those (a trench through
+// 'all') sends the full geometry only (independent check 2026-11-12).
+function structureHullKey(s) { return JSON.stringify([s.hull, s.cuts, s.subs, s.trenches, s.solidCuts, s.hullSkin, s.hullBands, (s.parts || []).filter(p => C.isHullStructure(p)).map(p => [p.id, p.hullProfile, p.hullData])], (k, v) => k[0] === '_' ? undefined : v); }
+function structurePass(job) {
+  const t0 = now(), transfer = [], m = G.meshStructures(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation}), geos = {};
+  for (const k of Object.keys(m.g)) geos[k] = geoOut(m.g[k], transfer);
+  post({type: 'structureGeometry', gen: job.gen, designId: job.designId, geos, ranges: m.ranges, groups: m.groups, meshMs: now() - t0}, transfer);
+}
 async function yieldGeometry() {
   await new Promise(resolve => setTimeout(resolve, 0));
   if (!inlineHost) return;
@@ -384,15 +413,24 @@ async function handleUpdate(job) {
   if (job.view) view = job.view;
   if (authoringGeometry(job)) {
     await yieldGeometry();
-    const next = queue.find(j => j.type === 'update');
-    if (next) {
-      // The early mesh may already be useful to a newer plain-gun edit. Keep
-      // all dirty flags when skipping the expensive obsolete engineering pass.
-      next.what = Array.from(new Set([...(job.reset ? ['all'] : job.what || []), ...(next.what || [])]));
-      return;
-    }
+    // The early mesh may already be useful to a newer plain-gun edit. Keep
+    // all dirty flags when skipping the expensive obsolete engineering pass.
+    if (supersede(job)) return;
   }
-  const d = deriveState(job);
+  // 2026-11-12 Structures first: the moved structure and its resolved attachments are shown before
+  // the compartments, mounts and equipment are derived (the full geometry packet follows).
+  // A hull edit (or any change to the hull profile, cuts, trenches, subs or skin) re-meshes the hull
+  // and can re-cut every structure: no early structure packet then, only the full geometry.
+  // The reference is the hull of the last geometry packet actually posted: a superseded hull edit
+  // posts none, so the next parts-only edit still sees the hull as changed.
+  const hullSame = structureHullKey(ship) === lastStructureHullKey;
+  if (job.view?.structureFirst && !job.reset && hullSame && !(job.what || []).includes('hull') && (job.what || []).some(w => w === 'parts' || w === 'all')) {
+    structurePass(job);
+    await phaseYield();
+    if (supersede(job)) return;
+  }
+  const d = await deriveState(job);
+  if (!d) return;
   const any = Object.values(d.flags).some(Boolean);
   const deferSurfaces = job.view?.deferSurfaces === true;
   if (any || d.touched || job.reset) {
@@ -401,6 +439,7 @@ async function handleUpdate(job) {
     out.syncMs = d.syncMs; out.totalMs = now() - t0;
     const transfer = out.transfer; delete out.transfer;
     post(out, transfer);
+    lastStructureHullKey = structureHullKey(ship);
   } else {
     post({type: 'geometry', gen: job.gen, geos: {}, state: C.publicJSON(ship), caches: null, totalMs: now() - t0, noop: true});
   }
@@ -421,11 +460,15 @@ async function handleUpdate(job) {
   if (queue.some(j => j.type === 'update')) return;
   const t1 = now();
   const S = C.computeStats(ship);
+  const statsMs = now() - t1;
+  // An edit that arrived during the calculation makes these figures obsolete: never post them.
+  await phaseYield();
+  if (queue.some(j => j.type === 'update')) { abandoned.push({gen: job.gen, phase: 'stats'}); return; }
   lastInfo = S.info;
   const placementDraftStatus = typeof C.placementDraftStatus === 'function' ? C.placementDraftStatus(ship) : {ok: true, ready: true, pending: [], failed: []};
   const profile = placementDraftStatus.ok ? C.fleetProfile(S, ship.name, ship) : null;
   lastStats = {S, profile, gen: shipGen};
-  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), profile, provisional: !placementDraftStatus.ok, placementDraftStatus, statsMs: now() - t1};
+  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), profile, provisional: !placementDraftStatus.ok, placementDraftStatus, statsMs};
   const transfer = [];
   if (overlapSig(S.info) !== lastOverlap) {
     const m = meshPartsRanged(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation});
@@ -929,7 +972,7 @@ function connectInline(deliver) {
 }
 // Read-only diagnostic for tests: each kept fleet record's counted size, its size measured now and whether it holds a profile.
 function fleetRecordSizes() { return [...new Set(fleetBuilt.values())].map(r => ({bytes: r.bytes || 0, profile: !!r.profile, measured: cacheBytes({state: r.state, caches: r.caches, profile: r.profile, displayStats: r.displayStats, serial: r.serial})})); }
-return {listenWorker, connectInline, packCaches, disk: DISK, fleetRecordSizes};
+return {listenWorker, connectInline, packCaches, disk: DISK, fleetRecordSizes, abandoned};
 })();
 if (typeof self !== 'undefined' && typeof window === 'undefined' && typeof importScripts === 'function' && self.__ksWorker) YardEngine.listenWorker(self);
 
