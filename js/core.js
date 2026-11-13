@@ -65062,7 +65062,7 @@ function cleanDesignCraft(d){
   // muzzle positions and cadence even when the saved weapon id stays the same.
   // A stale electrical revision also means its cached combat ratings may still
   // describe the former output of an otherwise canonical weapon such as PD.
-  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);/* a build from the craft blueprint: it seats (stage C keeps poses only on load/Worker remounts of a design) */syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=WEAPON_PROFILE_VERSION;}catch(e){return null;}
+  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship,{keepFitPose:true});/* user decision 2026-11-13 (b): a craft blueprint is a loaded design too; its fittings keep their saved poses (a gap is a floating warning, no one-time migration) */syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=WEAPON_PROFILE_VERSION;}catch(e){return null;}
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count,...(st.store?.mount==='bay'&&Array.isArray(st.store.box)&&st.store.box.length===3&&st.store.box.every(v=>Number.isFinite(v)&&v>0&&v<=40)?{store:{mount:'bay',box:st.store.box.slice()}}:{}),

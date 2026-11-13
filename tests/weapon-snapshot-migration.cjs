@@ -23,7 +23,10 @@ function legacySnapshot() {
   ship.parts = [];
   ship.fits = [];
   const blueprint = plain(C.serialize(ship));
-  blueprint.fits = [{id: 1, k: 'refISDh', p: [300, 60, 0], a: 2, ped: 0, base: 0, low: 0, float: false}];
+  // User decision 2026-11-13 (b): a loaded blueprint keeps its fittings' saved poses (no seating, no one-time migration);
+  // a pose off the surface is a floating warning. The legacy weapon therefore sits on the hull top (y 120) here, as the
+  // seated save would have; before stage C it was stored 60 m inside the hull and seated by the rebuild.
+  blueprint.fits = [{id: 1, k: 'refISDh', p: [300, 120, 0], a: 2, ped: 0, base: 0, low: 0, float: false}];
   blueprint.nextId = 2;
   return {ref: 'save:legacy-gunboat', name: 'Embarked gunboat', dims: [600, 400, 120], blueprint, craft: {
     role: 'fighter', speed: 1500, aa: 1.1, strike: 356, gun: 356, armor: 1.2, crew: 8,
