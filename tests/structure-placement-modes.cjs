@@ -142,14 +142,17 @@ test('clipboard coordinate scaling remaps local anchors and keeps an unseated co
 
 // 2026-11-12: a vertex edit of the parent does not move its children (world pose kept); the raised face now
 // overlaps the child, which is a contact.
-test('a parent vertex edit keeps the child where it is, on the same stable face, and refits it',()=>{
+test('a parent vertex edit keeps the child where it is, on the same stable face (stage B: with its stored fitted shape)',()=>{
  const parent={...box([80,80,20]),id:1};parent.mesh=C.structToMesh(parent);parent.form='mesh';const s=fixture(parent),face=C.surfacePatches(s,true).find(p=>p.host==='p1'&&p.normal[1]>.99),hit=C.rayPart([0,100,0],[0,-1,0],parent),result=C.commitPlacement(s,box(),{mode:'horizontal',parentStructureId:1,hostSurfaceId:face.id,hit});assert.equal(result.ok,true,result.error);const child=result.part,before=child.c[1];const selected=parent.mesh.v.map((v,i)=>v[1]>.49&&v[0]>.49?i:-1).filter(i=>i>=0),edited=C.meshMoveVertices(parent,selected,[0,2,0]);assert.equal(edited.error,undefined,edited.error);parent.mesh=edited.mesh;const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child.placement.hostSurfaceId,face.id);near(child.c[1],before);assert.equal(child.roll,0);assert.equal(C.placementContact(s,child,parent).connected,true);
  // Reviewed spec change (user rule 2026-11-11, docs/design-placement-v1.2.md "削りと接続"): a stored
  // face id is only a hint. Patch ids are positional and a cut renumbers them, so a lost id keeps the
  // stored pose and the child stands on its real contact with the parent. Previously (ATTACH-03 before
  // 2026-11-11) a lost face was a repair state ('surface-missing') even while the child still touched.
  const kept=child.c.slice();child.placement.hostSurfaceId='p1:removed-face:0';const lost=C.refreshPlacementGeometry(s);assert.equal(lost.ok,true,JSON.stringify(lost));assert.equal(child._placementError,undefined);
- for(let i=0;i<3;i++)near(child.c[i],kept[i]);assert.equal(C.placementContact(s,child,parent).connected,true);assert.equal(child.placement.hostSurfaceId,face.id,'the hint is rebound to the one face under the kept anchor');
+ for(let i=0;i<3;i++)near(child.c[i],kept[i]);assert.equal(C.placementContact(s,child,parent).connected,true);
+ // Stage B (2026-11-13): a re-solve that is not the user's writes nothing authored, so the lost hint is left as
+ // written (until stage B it was rebound to the one face under the kept anchor); the child stands on real contact.
+ assert.equal(child.placement.hostSurfaceId,'p1:removed-face:0','the hint is not rewritten');
 });
 
 test('surface placement records the tapped structure and exact face point through save and regeneration',()=>{

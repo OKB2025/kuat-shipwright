@@ -59,7 +59,10 @@ test('actual fitted exterior geometry crosses the Worker boundary and commits wi
   assert.equal(C.placementContact(restored, rebuilt, restored.parts[0]).connected, true);
 });
 
-test('strict Worker interference follows legacy exterior shields after their catalogue moves to interior', async () => {
+// Stage B (2026-11-13, user decision 2026-11-12): exterior equipment, legacy exterior shields included, does not
+// follow its parent. Until stage B this test moved the parent and expected the Worker's check to use the shield
+// carried to the moved parent; now the shield stays where it was and the check uses that place.
+test('strict Worker interference uses legacy exterior shields where they stand after their catalogue moves to interior', async () => {
   let ship = fixture([30, 20, 10]);
   const shield = {id: 2, k: 'shield', c: [0, 5.5, 4], d: 1};
   shield.placement = {modelVersion: C.PLACEMENT_MODEL_VERSION, mode: 'direct', parentStructureId: 1,
@@ -69,12 +72,12 @@ test('strict Worker interference follows legacy exterior shields after their cat
   ship.parts.push(shield); ship.nextId = 3; ship = C.deserialize(C.serialize(ship));
   ship.parts[0].c[0] = 5;
   assert.equal(C.placementCapability(ship.parts[1]).space, 'interior');
-  assert.equal(ship.parts[1].c[0], 0, 'authoring snapshot is still waiting for child follow');
+  assert.equal(ship.parts[1].c[0], 0, 'the shield stays where it was');
   const source = C.publicJSON(ship), reply = await solve(ship,
-    {id: -1, k: 'struct', form: 'box', c: [5, 0, 4], s: [2, 2, 2]},
-    {mode: 'horizontal', parentStructureId: 1, parentGeometryRevision: 0, hit: {p: [5, 5, 4], n: [0, 1, 0]}});
+    {id: -1, k: 'struct', form: 'box', c: [0, 0, 4], s: [2, 2, 2]},
+    {mode: 'horizontal', parentStructureId: 1, parentGeometryRevision: 0, hit: {p: [0, 5, 4], n: [0, 1, 0]}});
   assert.equal(reply.result.ok, false); assert.equal(reply.result.code, 'placement-interference');
-  assert.equal(C.publicJSON(ship), source, 'failed strict placement does not commit the temporary follow');
+  assert.equal(C.publicJSON(ship), source, 'failed strict placement commits nothing');
 });
 
 test('an actual weapon fitting validates in the Worker and adopts the exact tapped host and pose', async () => {
@@ -177,7 +180,7 @@ test('parts-only Worker updates follow and delete attached weapons in the return
   assert.equal(deleted.geos.fits.n, 0); assert.equal(deleted.geos.refFits.n, 0);
 });
 
-test('ordinary exterior equipment uses the same Worker result and follows its parent after adoption', async () => {
+test('ordinary exterior equipment uses the same Worker result and stays where it is when its parent moves after adoption (stage B)', async () => {
   const ship = fixture(), source = {id: -1, k: 'sensor', c: [2, 11.84, 3], d: 4};
   const reply = await solve(ship, source, {mode: 'direct', parentStructureId: 1, geometryRevision: 1,
     parentGeometryRevision: 0, hit: {p: [2, 10, 3], n: [0, 1, 0]}});
@@ -185,7 +188,7 @@ test('ordinary exterior equipment uses the same Worker result and follows its pa
   const accepted = C.acceptPlacementResult(ship, reply.result); assert.equal(accepted.ok, true, accepted.error);
   assert.equal(accepted.part.placement.parentStructureId, 1); const before = Array.from(accepted.part.c);
   ship.parts[0].c[0] += 13; const refreshed = C.refreshPlacementGeometry(ship);
-  assert.equal(refreshed.ok, true, JSON.stringify(refreshed)); near(accepted.part.c[0], before[0] + 13);
+  near(accepted.part.c[0], before[0]); assert.equal(C.placementDiagnostics(ship).find(q => q.partId === accepted.part.id).connected, refreshed.ok);
   near(accepted.part.c[1], before[1]); near(accepted.part.c[2], before[2]); assert.equal(accepted.part.d, 4);
 });
 

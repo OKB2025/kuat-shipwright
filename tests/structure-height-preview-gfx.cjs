@@ -36,12 +36,15 @@ test('replacement of derived fitting data rebuilds the fallback mesh with unchan
 });
 
 test('removal of derived fitting data with unchanged public input does not retain the old cut mesh',()=>{
- const r=fixture(),{C,part}=r;assert.deepEqual(yBounds(preview(r)),[10,40]);const before=C.publicJSON(part);delete part._placementGeometry;assert.equal(C.publicJSON(part),before);assert.deepEqual(yBounds(preview(r)),[0,40]);assert.equal(part._placementGeometry,undefined);
+ // Stage B (2026-11-13): the fitted solid is stored with the part (placement.fittedGeometry). Dropping only the
+ // private cache rebuilds that same stored solid; dropping the stored record previews the request, never an old mesh.
+ const r=fixture(),{C,part}=r;assert.deepEqual(yBounds(preview(r)),[10,40]);const before=C.publicJSON(part);delete part._placementGeometry;assert.equal(C.publicJSON(part),before);assert.deepEqual(yBounds(preview(r)),[10,40]);
+ delete part._placementGeometry;delete part.placement.fittedGeometry;assert.deepEqual(yBounds(preview(r)),[0,40]);assert.equal(part._placementGeometry,undefined);
 });
 
 test('progressive previews adopt derived-only replacements without rebuilding an unchanged frame',()=>{
  const r=fixture(),{C,part}=r,reads=[],triangles=C.structTriangles,opt={progressive:true,incremental:true,revision:1,budgetMs:1000};C.structTriangles=function(p,...args){if(p.id===part.id)reads.push(p._placementGeometry);return triangles.call(this,p,...args);};
  assert.deepEqual(yBounds(preview(r,opt)),[10,40]);const first=reads.length;assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.equal(reads.length,first,'the unchanged progressive plan stays warm');
  const replacement={...part._placementGeometry,local:part._placementGeometry.local.slice()};part._placementGeometry=replacement;assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.ok(reads.length>first);assert.ok(reads.slice(first).every(geometry=>geometry===replacement));const rebuilt=reads.length;
- assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.equal(reads.length,rebuilt);delete part._placementGeometry;assert.deepEqual(yBounds(preview(r,opt)),[0,40]);
+ assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.equal(reads.length,rebuilt);delete part._placementGeometry;delete part.placement.fittedGeometry;assert.deepEqual(yBounds(preview(r,opt)),[0,40]);
 });

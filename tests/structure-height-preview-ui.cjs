@@ -31,7 +31,9 @@ test('an authoritative fitting cache replacement is adopted without another auth
 });
 
 test('an authoritative fitting cache removal also updates the stable editor proxy',()=>{
- const r=fixture(),{C,part,request}=r,proxy=request(part),before=C.publicJSON(part);delete part._placementGeometry;assert.equal(C.publicJSON(part),before);assert.equal(request(part),proxy);assert.equal(proxy._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,40]);
+ // Stage B (2026-11-13): the fitted solid is public (placement.fittedGeometry); removing it is the authoritative
+ // removal now, and the proxy follows it.
+ const r=fixture(),{C,part,request,bump}=r,proxy=request(part);delete part._placementGeometry;delete part.placement.fittedGeometry;bump();const now=request(part);assert.equal(now._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,40]);
 });
 
 test('a label-only edit retains the unchanged fitted solid and keeps the source authoritative',()=>{

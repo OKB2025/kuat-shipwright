@@ -63052,8 +63052,12 @@ function fitSeveredByCut(ship,f){
 function placementSeveredByCut(ship,p,parent){
  if(!parent||!p?.placement)return false;const structure=placementCapability(p).kind==='structure';
  if(!placementHasCuts(ship,parent))return false;
- const key=publicJSON([placementShapeKey(p),placementRequestKey(p),p.placement?.fitRemovalIds??null,p._placementGeometry?.volume??null,placementDependencyKey(parent),(ship.solidCuts||[]).length,ship.subs?.length||0]);if(p._placementSeveredCheck?.key===key)return p._placementSeveredCheck.value;
- const bare=placementUncutParent(ship,parent,false,Array.isArray(p.placement?.fitRemovalIds)?p.placement.fitRemovalIds:null),child={...placementShape(p),id:p.id,placement:p.placement,_solidCutShip:bare.ship};if(p._placementGeometry)child._placementGeometry=p._placementGeometry;if(p.engineMountSupport)child.engineMountSupport=p.engineMountSupport;
+ const key=publicJSON([placementShapeKey(p),placementRequestKey(p),p.placement?.fitRemovalIds??null,p.placement?.fittedGeometry?.removals??null,p._placementGeometry?.volume??null,placementDependencyKey(parent),(ship.solidCuts||[]).length,ship.subs?.length||0]);if(p._placementSeveredCheck?.key===key)return p._placementSeveredCheck.value;
+ // With a stored fitted shape (stage B) the body it was fitted to keeps only the recorded removals that are still
+ // unchanged; a recorded removal edited since the fit is a cut made after it.
+ let keepIds=Array.isArray(p.placement?.fitRemovalIds)?p.placement.fitRemovalIds:null;const fitted=p.placement?.fittedGeometry?.removals;
+ if(keepIds&&fitted&&typeof fitted==='object'){const now=new Map(placementRemovalEntries(parent).map(e=>[e.id,placementKeyHash(publicJSON(e.item))]));keepIds=keepIds.filter(id=>fitted[id]!=null&&now.get(id)===fitted[id]);}
+ const bare=placementUncutParent(ship,parent,false,keepIds),child={...placementShape(p),id:p.id,placement:p.placement,_solidCutShip:bare.ship};if(p._placementGeometry)child._placementGeometry=p._placementGeometry;if(p.engineMountSupport)child.engineMountSupport=p.engineMountSupport;
  let value=false;try{value=!!(structure?placementContact(bare.ship,child,bare.parent):placementEquipmentContact(bare.ship,child,bare.parent)).connected;}catch(e){value=false;}
  p._placementSeveredCheck={key,value};return value;
 }
@@ -63441,20 +63445,21 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 function placementFitShapeKey(p){const q=placementShape(p);for(const k of ['id','c','yaw','pitch','roll','surfaceNormal','label','name'])delete q[k];
  const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;
  return JSON.stringify(canon(q));}
-// Stored compactly: v a flat [x,y,z,...] list rounded to 1 µm (PLACEMENT_FIT_QUANTUM), f a flat list of vertex
-// indices, three per face. The live part is always rebuilt from the record, so live and reload are the same solid.
-const PLACEMENT_FIT_QUANTUM=1e-6;
+// Stored as v, a flat [x,y,z,...] list of exact part-local coordinates, and f, a flat list of vertex indices,
+// three per face. Not rounded: a fitted base often lies exactly on a face of the body (a filled recess), and the
+// structural union that counts mass once needs those faces exactly coplanar (1 µm rounding changed a ship's mass
+// by 189 t in tests/placement-cut-keeps-connection.cjs). The live part is always rebuilt from the record.
 function placementFittedRecord(part){
  const g=part._placementGeometry;if(!g?.local)return null;
  // Kept whole (wholly inside or joined by overlap without a cut): no mesh, the part's own solid is the shape.
  {const whole=placementWholeGeometry(part);if(whole&&Math.abs(whole.volume-g.volume)<=1e-9*Math.max(1,whole.volume)&&g.local.length===whole.local.length&&g.local.every((x,i)=>Math.abs(x-whole.local[i])<=1e-9*Math.max(1,Math.abs(x))))return {shape:placementFitShapeKey(part),whole:true};}
- const v=[],f=[],index=new Map(),L=g.local,q=x=>Math.round(x/PLACEMENT_FIT_QUANTUM)*PLACEMENT_FIT_QUANTUM;
- const vertex=i=>{const r=[q(L[i]),q(L[i+1]),q(L[i+2])].map(x=>Number(x.toFixed(6))),key=r.join(',');let id=index.get(key);if(id==null){id=v.length/3;index.set(key,id);v.push(...r);}return id;};
+ const v=[],f=[],index=new Map(),L=g.local;
+ const vertex=i=>{const r=[L[i],L[i+1],L[i+2]],key=r.join(',');let id=index.get(key);if(id==null){id=v.length/3;index.set(key,id);v.push(...r);}return id;};
  for(let i=0;i<L.length;i+=9){const t=[vertex(i),vertex(i+3),vertex(i+6)];if(new Set(t).size===3)f.push(...t);}
  return f.length>=12?{shape:placementFitShapeKey(part),v,f}:null;
 }
 function placementWholeGeometry(part){const T=placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);return {local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
-function placementFittedValid(rec){if(rec&&rec.whole===true&&typeof rec.shape==='string')return true;if(!rec||typeof rec.shape!=='string'||!Array.isArray(rec.v)||!Array.isArray(rec.f)||rec.v.length%3||rec.f.length%3||rec.f.length<12)return false;const n=rec.v.length/3;return rec.v.every(Number.isFinite)&&rec.f.every(i=>Number.isInteger(i)&&i>=0&&i<n);}
+function placementFittedValid(rec){if(rec?.removals!=null&&(typeof rec.removals!=='object'||Array.isArray(rec.removals)||!Object.values(rec.removals).every(v=>typeof v==='string')))return false;if(rec&&rec.whole===true&&typeof rec.shape==='string')return true;if(!rec||typeof rec.shape!=='string'||!Array.isArray(rec.v)||!Array.isArray(rec.f)||rec.v.length%3||rec.f.length%3||rec.f.length<12)return false;const n=rec.v.length/3;return rec.v.every(Number.isFinite)&&rec.f.every(i=>Number.isInteger(i)&&i>=0&&i<n);}
 function placementRestoreFitted(part,rec){
  if(rec.whole===true){const w=placementWholeGeometry(part);part._placementGeometry=w;part._placementFittedSource=rec;return;}
  const local=new Float64Array(rec.f.length*3);rec.f.forEach((i,j)=>{local[j*3]=rec.v[i*3];local[j*3+1]=rec.v[i*3+1];local[j*3+2]=rec.v[i*3+2];});
@@ -63819,7 +63824,9 @@ function solvePlacement(ship,input,request={}){
  if(mode!=='surface'&&placementUseStoredFit(old,part,request,mode,contactSide,contactFit,parentId)){metadata.fittedGeometry=old.fittedGeometry;placementRestoreFitted(part,old.fittedGeometry);}
  else if(mode!=='surface'){delete metadata.fittedGeometry;delete part._placementGeometry;metadata.fitRemovalIds=removalIds;const all=removalIds.length===current.length,fitParent=all?parent:placementUncutParent(ship,parent,true,removalIds).parent;const r=fitPlacementContact(ship,part,fitParent,hit,mode,contactSide);if(!r.ok){const joined=contactFit==='cut'&&placementOverlapFallback(ship,part,fitParent,r);if(!joined)return r;}
   // The new fit is stored and read back, so the live part and a reload have the same solid (stage B).
-  const rec=placementFittedRecord(part);if(rec){metadata.fittedGeometry=rec;placementRestoreFitted(part,rec);}else delete metadata.fittedGeometry;}
+  // The removals of the body the shape was fitted to are recorded by content (removals: id -> hash), so a later
+  // edit of one of them is known as a cut made after the fit (placementSeveredByCut).
+  const rec=placementFittedRecord(part);if(rec){if(removalIds.length)rec.removals=Object.fromEntries(placementRemovalEntries(parent).filter(e=>removalIds.includes(e.id)).map(e=>[e.id,placementKeyHash(publicJSON(e.item))]));metadata.fittedGeometry=rec;placementRestoreFitted(part,rec);}else delete metadata.fittedGeometry;}
  else{delete metadata.fitRemovalIds;delete metadata.fittedGeometry;const checked=placementValidateSolid(part);if(!checked.ok)return checked;}
  // The solved (fitted) pose travels with the failure so a refresh can tell a part severed by a cut
  // (a warning, kept exactly as solved) from a real gap (a failure).
@@ -64122,7 +64129,8 @@ function placementCopyClosure(ship,selection={}){
 function placementRestoreMaterialized(part){
  // A structure with a stored fitted shape (stage B) has that solid whatever its placement state (also while it is
  // in error, judged where it stands), as long as the stored shape belongs to its present dimensions.
- if(!part.placement?.materializedGeometry&&part.placement?.fittedGeometry){const rec=part.placement.fittedGeometry;if(placementFittedValid(rec)&&['horizontal','vertical'].includes(part.placement.mode)&&rec.shape===placementFitShapeKey(part))placementRestoreFitted(part,rec);return;}
+ // A pending edit previews its request: it never borrows the stored solid of the earlier placement.
+ if(!part.placement?.materializedGeometry&&part.placement?.fittedGeometry){const rec=part.placement.fittedGeometry;if(!part.placement.pendingGeometry&&placementFittedValid(rec)&&['horizontal','vertical'].includes(part.placement.mode)&&rec.shape===placementFitShapeKey(part))placementRestoreFitted(part,rec);return;}
  const mesh=part.placement?.materializedGeometry||part.mesh;if(!mesh)return;const key=publicJSON([mesh,part.s]);if(part._placementMaterializedSourceKey===key&&part._placementGeometry)return;const T=meshStructTriangles({...placementShape(part),form:'mesh',mesh,c:[0,0,0],yaw:0,pitch:0,roll:0,surfaceNormal:undefined}),local=Float64Array.from(T);part._placementGeometry={local,volume:meshVolume(local),area:solidMeshArea(local)};part._placementMaterializedSourceKey=key;
 }
 function placementMaterializeAttachment(part){
@@ -64241,7 +64249,7 @@ function reflectPlacementMetadata(source,out,ship,axis){
  {const fa=placementFitAxisWorld(source);if(fa)meta.fitAxis=norm(placementLocalNormal(out,reflect(fa)));else delete meta.fitAxis;}
  // The stored fitted shape (stage B) is reflected with the part: each vertex is taken to the world, reflected
  // and read back in the copy's frame; the reflection turns the faces inside out, so each face is reversed.
- if(sourceMeta.fittedGeometry?.whole===true)meta.fittedGeometry={shape:placementFitShapeKey(out),whole:true};else if(placementFittedValid(sourceMeta.fittedGeometry)){const g=sourceMeta.fittedGeometry;const v=[],f=[];for(let i=0;i<g.v.length;i+=3)v.push(...localStruct(out,point(worldStruct(source,g.v.slice(i,i+3)))).map(x=>Number((Math.round(x/PLACEMENT_FIT_QUANTUM)*PLACEMENT_FIT_QUANTUM).toFixed(6))));for(let i=0;i<g.f.length;i+=3)f.push(g.f[i],g.f[i+2],g.f[i+1]);meta.fittedGeometry={shape:placementFitShapeKey(out),v,f};}else delete meta.fittedGeometry;
+ if(sourceMeta.fittedGeometry?.whole===true)meta.fittedGeometry={shape:placementFitShapeKey(out),whole:true};else if(placementFittedValid(sourceMeta.fittedGeometry)){const g=sourceMeta.fittedGeometry;const v=[],f=[];for(let i=0;i<g.v.length;i+=3)v.push(...localStruct(out,point(worldStruct(source,g.v.slice(i,i+3)))));for(let i=0;i<g.f.length;i+=3)f.push(g.f[i],g.f[i+2],g.f[i+1]);meta.fittedGeometry={shape:placementFitShapeKey(out),v,f};}else delete meta.fittedGeometry;
  if(target&&parent){meta.parentStructureId=target.id;for(const key of ['surfaceAnchor','parentLocalAnchor'])if(sourceMeta[key])meta[key]=localStruct(target,point(worldStruct(parent,sourceMeta[key])));const n=sourceMeta.contactLocalNormal?placementWorldNormal(parent,sourceMeta.contactLocalNormal):sourceMeta.contactNormal;if(n){meta.contactNormal=reflect(n);meta.contactLocalNormal=placementLocalNormal(target,meta.contactNormal);}if(target.s)meta.anchorDimensions=[target.s[0],target.s[2],target.s[1]];
   if(sourceMeta.hostSurfaceId){const patches=surfacePatches(ship,true),patch=patches.find(p=>p.id===sourceMeta.hostSurfaceId),frames=patch?[{id:patch.baseId||patch.id.split('/')[0],u:patch.u,v:patch.v}]:null;meta.hostSurfaceId=surfaceRemapPatchId(sourceMeta.hostSurfaceId,{parts:new Map([[parent.id,target.id]])},axis===1?'y':'z',patches,frames)||sourceMeta.hostSurfaceId;}
  }else if(meta.root){delete meta.root;meta.unresolvedParentId=source.id;out._placementError='parent-required';}

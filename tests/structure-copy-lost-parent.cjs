@@ -178,8 +178,12 @@ test('a 45° array copy set level again is cut like a part tapped level there, a
  const p=ship.parts.find(q=>q.id===res.parts[0]);assert.equal(p.roll,45);
  // A tap re-seat at the same place gives the level reference.
  const tap=C.solvePlacement(ship,JSON.parse(C.publicJSON(p)),{...p.placement,hit:{p:C.worldStruct(ship.parts[0],p.placement.surfaceAnchor),n:p.placement.contactNormal}});assert.equal(tap.ok,true,tap.error);
- // 「水平へ戻す」: pitch and roll 0 → cut like the tapped part.
- p.pitch=0;p.roll=0;C.refreshPlacementGeometry(ship);assert.ok(Math.abs(p._placementGeometry.volume-tap.part._placementGeometry.volume)<1e-3,`${p._placementGeometry.volume} vs tap ${tap.part._placementGeometry.volume}`);
+ // 「水平へ戻す」: pitch and roll 0. Stage B (2026-11-13, user decision: turning never re-fits): the stored fitted
+ // shape turns with the part and is not re-fitted; until stage B it was cut like the tapped part. A tap re-fits it
+ // (the tap above is that reference).
+ const stored=C.publicJSON(p.placement.fittedGeometry),turnedVolume=p._placementGeometry.volume;
+ p.pitch=0;p.roll=0;C.refreshPlacementGeometry(ship);assert.equal(C.publicJSON(p.placement.fittedGeometry),stored);assert.ok(Math.abs(p._placementGeometry.volume-turnedVolume)<1e-9*turnedVolume,'same stored solid');
+ assert.ok(Math.abs(tap.part._placementGeometry.volume-turnedVolume)>1e-3,'a tap would fit it anew');
  // The rotate tool turns the 90° copy 10° more about x and writes surfaceNormal + yaw: the pose and the cut survive a reload.
  const q=ship.parts.find(x=>x.id===res.parts[1]),f0=C.structFrame(q),a=10*Math.PI/180,R=v=>[v[0],v[1]*Math.cos(a)-v[2]*Math.sin(a),v[1]*Math.sin(a)+v[2]*Math.cos(a)],fw=R(f0.fw),up=C.norm(R(f0.up));
  let b=C.sub([1,0,0],C.mul(up,up[0]));if(C.len(b)<.001)b=C.sub([0,0,1],C.mul(up,up[2]));b=C.norm(b);const rt=C.norm(C.cross(b,up));q.surfaceNormal=up;q.yaw=Math.atan2(C.dot(fw,rt),C.dot(fw,b))*180/Math.PI;delete q.pitch;delete q.roll;
