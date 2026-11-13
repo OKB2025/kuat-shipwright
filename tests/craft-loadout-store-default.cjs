@@ -19,3 +19,12 @@ test('a multi-cell ship launcher holds 6 rounds per cell, as fitSpec and the run
  assert.equal(JSON.stringify(L.load),JSON.stringify([{k:'cmsl',n:24},{k:'cmsl',n:6}]));
  assert.equal(JSON.stringify(C.normalizeLoad(L.stations,[{k:'cmsl',n:99},{k:'cmsl',n:99}])),JSON.stringify([{k:'cmsl',n:24},{k:'cmsl',n:6}]),'held to the store');
 });
+test('a saved craft snapshot keeps each ship launcher station at 6 rounds per cell through cleaning (physics review 2026-11-13)',()=>{
+ const s=C.newShip(Object.assign({},C.HULLS.wedge,{L:60,W:20,H:10}),'t');s.fits=[{id:900,k:'shipMsl',p:[30,5,0],a:2,launcherCols:2,launcherRows:2},{id:901,k:'shipMsl',p:[20,5,0],a:2}];s.nextId=902;
+ const S=C.computeStats(s),direct=C.craftCombat(s,S),snap=C.designCraftSnapshot(s,S),clean=C.cleanDesignCraft(JSON.parse(JSON.stringify(snap)));
+ const view=x=>JSON.stringify({stations:x.stations.map(t=>[t.fit,t.count,t.store?.slots]),load:x.load});
+ assert.equal(view(direct),JSON.stringify({stations:[['shipMsl',1,24],['shipMsl',1,6]],load:[{k:'cmsl',n:24},{k:'cmsl',n:6}]}));
+ assert.equal(view(snap.craft),view(direct),'snapshot');assert.equal(view(clean.craft),view(direct),'after cleaning');
+ // A forged store is not kept: slots must be a multiple of 6 within 6…1536.
+ const bad=JSON.parse(JSON.stringify(snap));bad.craft.stations[0].store.slots=25;assert.equal(C.cleanDesignCraft(bad).craft.stations[0].store,undefined);
+});
