@@ -64158,8 +64158,17 @@ function removeParts(ship,inputIds){
  const dropFits=()=>{for(const {fit,up,reach} of drops){
   const start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),h=rayEnv(ship,start,mul(up,-1),{maxT:reach,structOnly:true});
   if(h&&!h.part?.plate){
-   if(isAnchoredFit(fit)&&isShapePart(h.part)){const before=fit.p.slice();fit.p=h.p.slice();delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,h.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:h.part.id,moved:true});continue;}fit.p=before;}
-   else if(!isAnchoredFit(fit)){fit.p=h.p.slice();delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const keep=ship._keepFitPose;ship._keepFitPose=true;/* seated exactly on the hit: keep mode only checks that seat and rebuilds the support (no long ray that could land it on a roof) */try{mountFit(ship,fit);}finally{if(keep)ship._keepFitPose=keep;else delete ship._keepFitPose;}if(!fit.float){reparented.push({list:"fits",fitId:fit.id,parentStructureId:isShapePart(h.part)?h.part.id:null,moved:true});continue;}}
+   if(isAnchoredFit(fit)){const before=fit.p.slice();
+    if(isShapePart(h.part)){fit.p=h.p.slice();delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,h.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:h.part.id,moved:true});continue;}fit.p=before;}
+    // Physics review (2026-11-13): onto the hull or a sloped face a user-placed weapon is placed again at the hit point,
+    // exactly as the user's own placement there (the delete is a user action), keeping its id and settings.
+    if(typeof solveFitPlacement==='function'){const host=isShapePart(h.part)?h.part.id:'hull',input={...publicCopyOf(fit),p:h.p.slice(),n:norm(h.n)};delete input.mountSupport;const r=solveFitPlacement(ship,input,{mode:'direct',hostId:host,hit:{p:h.p.slice(),n:norm(h.n)},geometryRevision:(fit.placement?.geometryRevision||0)+1,parentGeometryRevision:isShapePart(h.part)?(h.part.placement?.geometryRevision||0):0});
+     if(r.ok){const a=acceptFitPlacementResult(ship,r);if(a.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:isShapePart(h.part)?h.part.id:null,moved:true});continue;}}}
+    fit.p=before;
+    // A procedural hull carries no anchored weapons: landing on it, the weapon becomes an ordinary hull-mounted fitting,
+    // as the user's own placement on that hull gives.
+    if(!isShapePart(h.part)){delete fit.placement;delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;}}
+   if(!isAnchoredFit(fit)){fit.p=h.p.slice();delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const keep=ship._keepFitPose;ship._keepFitPose=true;/* seated exactly on the hit: keep mode only checks that seat and rebuilds the support (no long ray that could land it on a roof) */try{mountFit(ship,fit);}finally{if(keep)ship._keepFitPose=keep;else delete ship._keepFitPose;}if(!fit.float){reparented.push({list:"fits",fitId:fit.id,parentStructureId:isShapePart(h.part)?h.part.id:null,moved:true});continue;}}
   }
   fit.float=true;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;
   if(fit.host!=null&&removed.has(fit.host)){const old=fit.host;delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;if(fit.placement){fit.placement.unresolvedHostId=old;fit.placement.repairRequired=true;delete fit.placement.hostSurfaceId;delete fit.placement.parentGeometryKey;delete fit.placement.parentGeometryRevision;}}

@@ -89,3 +89,17 @@ test('the drop reach is the depth of the structure the fitting stood on, not of 
 test('mirroring a ship launcher flips its tilt once (n and tilt agree)',()=>{
  const t=C.norm([0,1,.3]),m=C.assemblyMirrorFit({id:1,k:'shipMsl',p:[10,5,8],n:t.slice(),tilt:t.slice(),a:2});assert.ok(m.tilt[2]<0);assert.deepEqual(r3(m.tilt),r3(m.n));
 });
+
+// Physics review (2026-11-13): user-placed (anchored) weapons drop like any other onto a sloped structure or the hull.
+{
+ const place=(S,host,hitPart,k,x)=>{const top=C.rayPart([x,500,0],[0,-1,0],hitPart);const r=C.solveFitPlacement(S,{id:-1,k,p:[0,0,0],n:[0,1,0],a:2,ped:.3},{mode:'direct',hostId:host,hit:{p:Array.from(top.p),n:Array.from(C.norm(top.n))},geometryRevision:0,parentGeometryRevision:0});assert.equal(r.ok,true,r.error);return C.acceptFitPlacementResult(S,r);};
+ for(const roll of [0,12])for(const k of ['pd','triple70'])test(`a user-placed ${k} drops onto a structure rolled ${roll}° when the one under it is deleted`,()=>{
+  const s=C.newShip({L:300,W:200,H:100,assembly:true},'a');s.parts=[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20],roll},{id:2,k:'struct',form:'box',c:[100,30,0],s:[60,40,20]}];s.fits=[];s.links=[];s.armor={hull:0,cit:0};s.nextId=10;s.detail=0;
+  const S=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));C.refreshPlacementGeometry(S);place(S,2,S.parts[1],k,100);const r=C.removeParts(S,[2]),g=S.fits[0];
+  assert.ok(r.reparented.some(q=>q.list==='fits'),'dropped');assert.equal(g.float,false);assert.equal(g.host,1);assert.ok(g.p[1]<21,'landed on the lower structure');
+  C.refreshPlacementGeometry(S);C.remount(S,{keepFitPose:true});assert.equal(S.fits[0].float,false,'still supported after a load remount');});
+ for(const k of ['pd','triple70'])test(`a user-placed ${k} drops onto the procedural hull as an ordinary hull fitting`,()=>{
+  const s=C.newShip({L:600,W:400,H:120,plan:'rect',sec:'rect'},'hull');s.parts=[{id:1,k:'struct',form:'box',c:[300,130,0],s:[40,40,20]}];s.fits=[];s.nextId=2;s.detail=0;
+  const S=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));C.refreshPlacementGeometry(S);place(S,1,S.parts[0],k,300);C.removeParts(S,[1]);const g=S.fits[0];
+  assert.equal(g.float,false);near(g.p[1],120,1e-6);assert.equal(g.placement,undefined);C.remount(S,{keepFitPose:true});assert.equal(S.fits[0].float,false);});
+}
