@@ -54,8 +54,10 @@ test('a parent deleted before background calculation cannot be revived and the q
  const ship=fixture(gable()),part=append(ship,C.preparePlacementDraft(ship,child(),cutRequest())),id=part.id,source=plain(part.placement.requestedGeometry);ship.parts=ship.parts.filter(p=>p.id!==1);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,false);assert.equal(ship.parts.some(p=>p.id===1),false);assert.equal(ship.parts.find(p=>p.id===id),part);assert.ok(['parent-missing','parent-unresolved'].includes(part._placementError));assert.deepEqual(plain(part.placement.requestedGeometry),source);assert.equal(C.placementDiagnostics(ship)[0].connected,false);
 });
 
-test('a deliberate parent deletion removes an unsupported pending child and a later refresh cannot restore either ID',()=>{
- const ship=fixture(gable()),part=append(ship,C.preparePlacementDraft(ship,child(),cutRequest())),id=part.id,next=ship.nextId;C.removeParts(ship,[1]);assert.equal(ship.parts.some(p=>p.id===1||p.id===id),false);C.refreshPlacementGeometry(ship);assert.equal(ship.parts.some(p=>p.id===1||p.id===id),false);assert.equal(ship.nextId,next);
+// 2026-11-13 user decision (stage B, no parent relation): a delete removes only the selected parts; the pending draft
+// stays (red) and a later refresh cannot restore the deleted body's ID.
+test('a deliberate body deletion keeps the pending draft that stood on it, and a later refresh cannot restore the deleted ID',()=>{
+ const ship=fixture(gable()),part=append(ship,C.preparePlacementDraft(ship,child(),cutRequest())),id=part.id,next=ship.nextId;C.removeParts(ship,[1]);assert.equal(ship.parts.some(p=>p.id===1),false);assert.equal(ship.parts.some(p=>p.id===id),true);C.refreshPlacementGeometry(ship);assert.equal(ship.parts.some(p=>p.id===1),false);assert.equal(ship.nextId,next);
 });
 
 test('ordinary engines are authored immediately with their real settings while support and contact stay deferred',()=>{

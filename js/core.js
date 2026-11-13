@@ -63884,6 +63884,7 @@ function commitPlacement(ship,part,request={},options={}){const result=solvePlac
 // edit re-measures only the pairs it changed. Same broad phase as removeParts.
 function structuralCutSignature(ship){return placementKeyHash(publicJSON([(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures),(ship.subs||[]).filter(c=>ship.hull?.assembly||c.structures)]));}
 function structuralConnectivity(ship,options={}){
+ for(const p of ship.parts||[])if(isShapePart(p))p._solidCutShip=ship;/* contact is measured on the carved shapes (ship-level cuts carve structures in assembly ships) */
  const structures=(ship.parts||[]).filter(p=>p.id>0&&isShapePart(p)),explicit=p=>!!p.placement&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p));
  // Pair results stay valid until something that can change that pair's contact changes: either part's
  // pose and outer form (its shape without its own removals), its fitted shape or failure state, or a
@@ -63896,7 +63897,7 @@ function structuralConnectivity(ship,options={}){
   removalsOf.set(p.id,list);return list;};
  const shipCuts=[...(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures).map(c=>({key:'ship:'+placementKeyHash(publicJSON(c)),b:(()=>{const inst=compiledSolidCut(c).instances;return inst.reduce((a,q)=>a?[0,1,2].map(i=>Math.min(a[i],q.bounds[i])).concat([3,4,5].map(i=>Math.max(a[i],q.bounds[i]))):q.bounds.slice(),null);})()})),...(ship.subs||[]).filter(c=>ship.hull?.assembly||c.structures).map(c=>({key:'shipsub:'+placementKeyHash(publicJSON(c)),b:c.b.slice()}))];
  const bounds=new Map(),bound=p=>{if(!bounds.has(p.id)){let b=null;try{b=partAABB(p);}catch(e){b=null;}bounds.set(p.id,b);}return bounds.get(p.id);};
- const near=(a,b)=>{const A=bound(a),B=bound(b);if(!A||!B)return false;const epsilon=Math.max(1e-6,...A.map(Math.abs),...B.map(Math.abs))*1e-8;return [0,1,2].every(i=>A[i]<=B[i+3]+epsilon&&A[i+3]>=B[i]-epsilon);};
+ const near=(a,b)=>{const A=bound(a),B=bound(b);if(!A||!B||!A.every(Number.isFinite)||!B.every(Number.isFinite))return false;/* a part carved to nothing touches nothing */const epsilon=Math.max(1e-6,...A.map(Math.abs),...B.map(Math.abs))*1e-8;return [0,1,2].every(i=>A[i]<=B[i+3]+epsilon&&A[i+3]>=B[i]-epsilon);};
  const overlapBox=(a,b)=>{const A=bound(a),B=bound(b),pad=Math.max(.05,...[0,1,2].map(i=>Math.min(A[i+3]-A[i],B[i+3]-B[i])*.01));return [0,1,2].map(i=>Math.max(A[i],B[i])-pad).concat([0,1,2].map(i=>Math.min(A[i+3],B[i+3])+pad));};
  const meets=(box,b)=>!b||[0,1,2].every(i=>b[i]<=box[i+3]&&b[i+3]>=box[i]);
  const adj=new Map(structures.map(p=>[p.id,new Set()]));let measured=0,reused=0;
@@ -64060,7 +64061,7 @@ function refreshPlacementGeometry(ship,options={}){
  // placement packets. Legacy engines have no parent metadata to visit, but
  // their repaired body position must still reach the same generation.
  const embedded=syncEmbeddedEngineMachinery(ship);for(const id of embedded.updated)if(!ship.parts.find(p=>p.id===id)?.placement){updated.push(id);resolvedParts.push(id);}for(const row of embedded.failed)if(!ship.parts.find(p=>p.id===row.partId)?.placement){failed.push(row);resolvedParts.push(row.partId);}
- const visit=p=>{if(done.has(p.id)||!eligible(p))return;if(active.has(p.id)){p._placementError='parent-cycle';failed.push({partId:p.id,code:'parent-cycle'});return;}active.add(p.id);/* stage B: no parent adoption (a lost parent stays as saved; contact alone judges the part) */const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent)visit(parent);
+ const visit=p=>{if(done.has(p.id)||active.has(p.id)||!eligible(p))return;active.add(p.id);/* stage B: no parent adoption and no parent cycle (the tapped body is only a sink target); a pending draft waits for a pending tapped body only */const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent&&meta.pendingGeometry&&parent.placement?.pendingGeometry)visit(parent);
   const interior=explicitInteriorPlacement(p);
   let keepPose=!!p._placementAdoptKeepPose;delete p._placementAdoptKeepPose;
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||interior&&meta.parentGeometryKey!==interiorEnvelopeKey(ship)||meta.newPlacement&&parent&&meta.parentGeometryKey!==placementDependencyKey(parent))){/* a refused new draft (the user's unfinished placement) is retried when the body it was tapped on changes *//* stage B: a refused exterior item is solved again when the user edits it, not when the body it was tapped on changes */meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;keepPose=!meta.root&&!meta.newPlacement&&Array.isArray(meta.parentLocalAnchor);}

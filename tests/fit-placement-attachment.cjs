@@ -132,10 +132,12 @@ test('cross-ship fitting copies remap the nested stable face and keep the copied
  copyParent.c=C.add(copyParent.c,[7,5,-3]);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,false);vector(loaded.p,C.add(C.add(tap,delta),[7,5,-3]));assert.equal(loaded.assetYaw,17);near(loaded.ped,.3);
 });
 
-test('default subtree templates include descendants and remap their hosted fitting and semantic face into an empty ship',()=>{
+// 2026-11-13 user decision (stage B, no parent relation): a selection takes the selected parts only, so the parent, child
+// and grandchild are selected together; the weapon follows its host.
+test('templates of a selected parent, child and grandchild remap their hosted fitting and semantic face into an empty ship',()=>{
  const s=fixture(),add=(parentId,p,size)=>{const r=C.commitPlacement(s,{id:-1,k:'struct',form:'box',c:[0,0,0],s:size},{mode:'horizontal',parentStructureId:parentId,hit:{p,n:[0,1,0]}});assert.equal(r.ok,true,r.error);return r.part;},child=add(1,[80,20,20],[40,40,10]),grand=add(child.id,[80,30,20],[20,20,10]),face=C.surfacePatches(s).find(p=>p.host==='p'+grand.id&&p.normal[1]>.99),weapon=place(s,{hostId:grand.id,hit:{p:[80,40,20],n:[0,1,0]},hostSurfaceId:face.id});
- const selected=C.surfaceCopySelection(s,{parts:[1],fits:[]});assert.equal(selected.parts.length,3);assert.equal(selected.fits.length,1);assert.equal(selected.fits[0].id,weapon.id);
- const captured=C.assemblyCapture(s,{parts:[1],fits:[]},{name:'Parent and every descendant'});assert.ok(captured.template,captured.error);const template=C.normalizeAssemblyTemplate(plain(captured.template)),target=fixture();target.parts=[];target.fits=[];target.nextId=50;
+ const selected=C.surfaceCopySelection(s,{parts:[1,child.id,grand.id],fits:[]});assert.equal(selected.parts.length,3);assert.equal(selected.fits.length,1);assert.equal(selected.fits[0].id,weapon.id);
+ const captured=C.assemblyCapture(s,{parts:[1,child.id,grand.id],fits:[]},{name:'Parent and every descendant'});assert.ok(captured.template,captured.error);const template=C.normalizeAssemblyTemplate(plain(captured.template)),target=fixture();target.parts=[];target.fits=[];target.nextId=50;
  const result=C.assemblyPlace(target,template,[500,80,120],{allowOverlap:true});assert.equal(result.error,undefined);assert.equal(target.parts.length,3);assert.equal(target.fits.length,1);const fit=target.fits[0];assert.ok(target.parts.some(p=>p.id===fit.host));assert.match(fit.placement.hostSurfaceId,new RegExp('^p'+fit.host+':'));assert.equal(new Set([...target.parts,...target.fits].map(p=>p.id)).size,4);
  const restored=C.deserialize(plain(C.serialize(target)));C.refreshPlacementGeometry(restored);const loaded=restored.fits[0];assert.equal(loaded.float,false);assert.match(loaded.placement.hostSurfaceId,new RegExp('^p'+loaded.host+':'));const parent=restored.parts.find(p=>p.id===loaded.host),old=loaded.p.slice();parent.c=C.add(parent.c,[5,0,0]);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,false);vector(loaded.p,C.add(old,[5,0,0]));
 });

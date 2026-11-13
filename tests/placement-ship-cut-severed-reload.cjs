@@ -12,12 +12,14 @@ function build(mode){
  const d=C.preparePlacementDraft(ship,part,{mode,parentStructureId:hull.id,hostId:hull.id,hit,...(mode==='surface'?{}:{contactFit:'cut',position:part.c.slice()}),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});
  assert.equal(d.ok,true,d.error);ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);return {ship,box:ship.parts.at(-1)};
 }
-for(const mode of ['horizontal','surface'])test(`${mode}: a ship-level cut under the structure is severed in the session and after a reload, unmoved`,()=>{
+// 2026-11-13 user decision (stage B, no parent relation, no severed category): the structure a ship-level cut leaves
+// touching nothing is red by contact alone, the same in the session and after a reload, and it is not moved.
+for(const mode of ['horizontal','surface'])test(`${mode}: a ship-level cut under the structure makes it red in the session and after a reload, unmoved`,()=>{
  const {ship,box}=build(mode),pose=JSON.stringify(['c','s','yaw','pitch','roll'].map(k=>box[k]));
  ship.solidCuts=[{shape:'box',c:[110,30,0],s:[40,12,40],rotation:[0,0,0],mirror:false,structures:false,id:ship.nextId++}];ship._cache=null;C.refreshPlacementGeometry(ship);
  const check=(s,label)=>{const b=s.parts.find(p=>p.id===box.id),S={warnings:[]};C.groundingStats(s,S);
-  assert.equal(b._placementError,undefined,label+': '+b._placementError);same(S.ungrounded.parts,[],label+': no red frame');same(S.severed,[box.id],label+': severed warning');
+  same(S.ungrounded.parts,[box.id],label+': red by contact');same(S.severed,[],label+': no severed category');
   assert.equal(JSON.stringify(['c','s','yaw','pitch','roll'].map(k=>b[k])),pose,label+': not moved');};
  check(ship,'session');
- const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))));const r=C.refreshPlacementGeometry(L);assert.equal(r.ok,true,JSON.stringify(r.failed));check(L,'reload');
+ const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))));const r=C.refreshPlacementGeometry(L);assert.ok(r.failed.some(f=>f.partId===box.id),JSON.stringify(r.failed));check(L,'reload');
 });
