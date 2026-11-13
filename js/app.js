@@ -8663,21 +8663,17 @@ function trialGunsLayout(hud,gn,force){
  // Measure translated labels before the observer's asynchronous update.
  window.KSI18n?.localize(hud);
  const hr=hud.getBoundingClientRect(),box=s=>{const e=hud.querySelector(s);if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return r.width?r:null;};
- const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl'),box('.th-sw'),box('.th-swmode')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top'),rudder=box('.th-rudderbar');if(!pad||!hr.width)return;
- // Longer damage reports stay between the top controls and the helm pad.
- const self=hud.querySelector('.th-self');if(self&&!self.hidden&&!trial.spectate){const y=(top?top.bottom:hr.top+60)+6;Object.assign(self.style,{top:(y-hr.top)+'px',transform:'none',maxHeight:Math.max(48,pad.top-y-8)+'px'});}
- const lo=pad.right+10,hi=(right.length?Math.min(...right.map(r=>r.left)):hr.right)-10,gap=hi-lo;
+ // 2026-11-13 layout (user request): helm column at the left edge (throttle, gauges, rudder below), stick and
+ // fire buttons at the right, menu buttons at the top right, the fire-control status small along the bottom edge.
+ const left=box('.th-left'),right=[box('.th-fire'),box('.th-msl'),box('.th-sw'),box('.th-swmode')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top'),actions=box('.th-actions'),stick=box('.th-stick');if(!hr.width)return;
+ // Own-ship damage reports sit on the right, between the menu buttons and the stick.
+ const self=hud.querySelector('.th-self');if(self&&!self.hidden&&!trial.spectate){const y=(actions?actions.bottom:top?top.bottom:hr.top+60)+6,limit=stick?stick.top-8:hr.top+hr.height/2;Object.assign(self.style,{top:(y-hr.top)+'px',transform:'none',maxHeight:Math.max(48,limit-y)+'px'});}
+ const edge=parseFloat(getComputedStyle(hud).getPropertyValue('--th-gb'))||8,band=36,
+  lo=(left&&left.bottom>hr.bottom-edge-band?left.right:hr.left)+10,hi=(right.length?Math.min(...right.map(r=>r.left)):hr.right)-10,gap=Math.max(0,hi-lo);
  const fit=(compact,wrap)=>{gn.classList.toggle('compact',compact);Object.assign(gn.style,{width:wrap?Math.floor(wrap)+'px':'auto',maxWidth:'none',whiteSpace:wrap?'normal':'nowrap',flexWrap:wrap?'wrap':'nowrap'});return {w:gn.offsetWidth,h:gn.offsetHeight};};
- let m=fit(false,0),band=m.w<=gap;
- if(!band){m=fit(true,0);band=m.w<=gap;}
- if(!band&&gap>=170){m=fit(true,gap);band=m.h<=Math.max(44,pad.height*.6);}
- let x,bottom;const cy=hr.top+hr.height/2,clear=74;
- if(band){x=C.clamp(hr.left+hr.width/2,lo+m.w/2,hi-m.w/2);bottom=hr.bottom-pad.bottom+4;if(keys&&keys.left<x+m.w/2&&keys.right>x-m.w/2)bottom=hr.bottom-keys.top+6;
-  // 4a The rudder gauge sits at the bottom centre: the turret status goes above it where they meet.
-  if(rudder&&rudder.left<x+m.w/2&&rudder.right>x-m.w/2)bottom=Math.max(bottom,hr.bottom-rudder.top+6);}
- else{const wide=Math.min(hr.width-24,420);m=fit(true,wide);x=hr.left+hr.width/2;bottom=hr.bottom-pad.top+8;
-  // Above the pad would reach the reticle: sit under the top bar instead.
-  if(hr.bottom-bottom-m.h<cy+clear){const y=(top?top.bottom:hr.top+60)+6;bottom=hr.bottom-y-m.h;}}
+ let m=fit(true,0);if(m.w>gap)m=fit(true,Math.max(160,gap));
+ const x=C.clamp(hr.left+hr.width/2,lo+m.w/2,Math.max(lo+m.w/2,hi-m.w/2));let bottom=edge;
+ if(keys&&keys.left<x+m.w/2&&keys.right>x-m.w/2)bottom=hr.bottom-keys.top+6;
  Object.assign(gn.style,{top:'auto',left:(x-hr.left).toFixed(0)+'px',bottom:bottom.toFixed(0)+'px'});
 }
 // v21.3 The views of a flight: 追従 (the chase camera turns with the ship),
@@ -8901,7 +8897,9 @@ function trialSetDefense(enabled){const u=trialSystemsUnit();if(!u)return;C.setA
 function trialJumpReadiness(){const unit=trialSystemsUnit();return typeof trialHyperspaceReadiness==='function'?trialHyperspaceReadiness():unit&&C.hyperspaceReadiness?.(unit,trial.V,trial.jump?.dir||trialCol(trial.R,0));}
 function trialJumpReadinessText(r=trialJumpReadiness()){const j=trial.jump;if(j&&(j.follow||C.hyperspaceCommitted(j)))return trialHyperText(j,SYSTEMS[j.dest]?.name||'',Math.max(0,trialTunnelLeft(j)));if(!r)return 'ジャンプ待機';const pct=Number.isFinite(r.speedFraction)?Math.max(0,r.speedFraction)*100:r.requiredForwardSpeedMps>0?Math.max(0,r.forwardSpeedMps)/r.requiredForwardSpeedMps*70:0,reason={'disabled':'航行不能','hyper-unpowered':'ハイパードライブ給電停止','shield-recharge':'シールド再生中','weapon-recharge':'兵装使用・充電中','propulsion-power':'推進電力不足','accelerating':'ジャンプ速度へ加速中','hyper-charging':r.escorts?.some(x=>x.reason==='hyper-charging')&&r.escort?'随伴艦のハイパードライブ充電中':'ハイパードライブ充電中'}[r.reason];return `${reason||(r.ready?'ジャンプ速度に到達':'ジャンプ待機')} · ${pct.toFixed(0)}% / 70%`;}
 function trialFlightReadouts(hud){
- const unit=trialSystemsUnit(),heat=C.heatStatus(unit),el=hud.querySelector('[data-th="heat"]');if(el){const text=storedHeatText(heat);if(sourceText(el)!==text)el.textContent=text;el.dataset.heatJ=String(heat?.qJ??'');el.dataset.capacityJ=String(heat?.capacityJ??'');}
+ const unit=trialSystemsUnit(),heat=C.heatStatus(unit),el=hud.querySelector('[data-th="heat"]');if(el){const ok=heat&&Number.isFinite(heat.qJ)&&heat.capacityJ>0,frac=ok?C.clamp(heat.qJ/heat.capacityJ,0,1):0,text=ok?`蓄熱 ${Math.round(frac*100)}%`:'蓄熱 —',full=storedHeatText(heat);if(sourceText(el)!==text)el.textContent=text;el.dataset.heatJ=String(heat?.qJ??'');el.dataset.capacityJ=String(heat?.capacityJ??'');
+  // The gauge beside the reactor-load meter: the bar is the stored heat's share of the ship's capacity, the full figures are its title.
+  const g=hud.querySelector('[data-th-heat]'),bar=hud.querySelector('[data-th="heatbar"]');if(g){g.title=full;g.setAttribute('aria-valuenow',String(Math.round(frac*100)));g.dataset.level=!ok?'none':frac>=.9?'ng':frac>=.7?'wait':'ok';}if(bar)bar.style.height=(frac*100).toFixed(1)+'%';}
  const pd=hud.querySelector('[data-trial-cmd="pd-auto"]'),enabled=trialDefenseEnabled();if(pd){pd.setAttribute('aria-pressed',String(enabled));const text=enabled?'自動迎撃 ON':'自動迎撃 OFF';if(sourceText(pd)!==text)pd.textContent=text;}
  const readiness=trialJumpReadiness();for(const target of hud.querySelectorAll('[data-th="jump-ready"],[data-jump-readiness]')){const text=trialJumpReadinessText(readiness);if(sourceText(target)!==text)target.textContent=text;target.dataset.ready=String(!!readiness?.ready);}
 }
@@ -8917,9 +8915,9 @@ function trialMissileHudState(){
 }
 function trialHudHTML(){
  return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
- <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl><p class="th-heat" data-th="heat">蓄熱 —</p></div>
- <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="給電優先順">⚡ 給電優先順</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
- <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">給電優先順 <kbd>P</kbd></p><p class="th-power-policy">シールド・艦内設備 → 兵装 → 航行</p><p class="note">シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。</p><p class="th-jump-ready" data-th="jump-ready">ジャンプ待機</p></div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
+ <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl></div>
+ <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
+ <button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
  <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 ${trialCamName(trial.camMode)}</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
  <div class="th-flash" data-th="flash" aria-hidden="true"></div>${trial.mode==='battle'||trial.pat?'<div class="th-cine" aria-hidden="true"><i class="bar top"></i><i class="bar bot"></i><b>敵艦隊　ハイパースペースより出現</b></div>':''}<div class="th-hit" data-th="hit" aria-hidden="true"></div>
@@ -8928,16 +8926,15 @@ function trialHudHTML(){
  <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="pd-auto" aria-pressed="${trialDefenseEnabled()}" aria-label="点防御の自動迎撃">${trialDefenseEnabled()?'自動迎撃 ON':'自動迎撃 OFF'}</button><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
- <div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div><div class="th-load" data-th-load role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" title="炉心負荷（使用中の電力÷現在の発電可能出力・全反応炉）"><div class="th-load-bar"><i data-th="loadbar"></i><b class="th-load-full"></b></div><small data-th="load">炉心 —</small></div>
-  <div class="th-dpad"><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">出力0%</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div></div>
- <div class="th-card th-rudderbar" data-th-rudderbar><div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div><button type="button" class="th-btn th-center" data-trial-cmd="center" aria-keyshortcuts="X">中央に戻す（X）</button></div>
+ <div class="th-left" data-th-left><div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div><div class="th-load" data-th-load role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" title="炉心負荷（使用中の電力÷現在の発電可能出力・全反応炉）"><div class="th-load-bar"><i data-th="loadbar"></i><b class="th-load-full"></b></div><small data-th="load">炉心 —</small></div><div class="th-load th-heatg" data-th-heat role="meter" aria-label="蓄熱" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="th-load-bar"><i data-th="heatbar"></i></div><small data-th="heat">蓄熱 —</small></div><b class="th-dmid" data-th="tele">出力0%</b></div>
+ <div class="th-card th-rudderbar" data-th-rudderbar><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button></div></div>
  <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
- <button type="button" class="th-btn th-level" data-trial-cmd="level">水平</button>
+ <button type="button" class="th-btn th-level" data-trial-cmd="neutral" aria-keyshortcuts="Z X" title="水平に戻し、舵を中央に戻す（Z・X）">水平・舵中央</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
  <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trialMissileHudState().text}</small></button>
  ${trialSwKinds().length?`<button type="button" class="th-sw" data-trial-cmd="sw" data-th="sw" aria-label="超兵器発射">超兵器<small data-th="swstate">充電</small></button>${(trial.p?.sw?.length||0)>1?`<button type="button" class="th-swmode" data-trial-cmd="swnext" data-th="swmode" aria-label="発射する超兵器を選択">全門</button>`:''}<p class="th-swinfo${trialSwKinds().includes('sbeam')?'':' low'}" data-th="swinfo" aria-live="off" hidden></p>`:''}
  <i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
- <p class="th-keys">W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+((trial.p?.sw?.length||0)>1?' · N 発射する砲を選択':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · P 給電優先順 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
+ <p class="th-keys">W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+((trial.p?.sw?.length||0)>1?' · N 発射する砲を選択':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
 }
 function trialBindHud(hud){
  const throttle=hud.querySelector('[data-th-throttle]');
@@ -8976,16 +8973,18 @@ function trialHudUpdate(full){
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
  const w=q('warn');if(w){const hint=trialArcHint(),txt=trialPropulsionWarning()||trialCraftSystemsWarning()||trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(sourceText(w) !== String(txt))w.textContent=txt;}
  const bar=q('speedbar');if(bar)bar.style.height=(trialMainOutput()*100).toFixed(1)+'%';
- const throttle=trialThrottleCommand(),lever=hud.querySelector('[data-th-throttle]');if(lever&&Number(lever.value)!==throttle*100)lever.value=String(throttle*100);set('tele',(throttle<0?'後進 ':'')+(Math.abs(throttle)*100).toFixed(1)+'%');
+ const throttle=trialThrottleCommand(),lever=hud.querySelector('[data-th-throttle]');if(lever&&Number(lever.value)!==throttle*100)lever.value=String(throttle*100);
  const row=hud.querySelector('[data-th-row="rudder"]');if(row){row.querySelector('.ord').style.left=((trial.rudder+2)/4*100)+'%';row.querySelector('.act').style.left=(C.clamp(trial.w[1]/(max[1]||1),-1,1)*50+50).toFixed(1)+'%';}set('rudder',TRIAL_RUDDER[trial.rudder+2]);
  const aim=trial.aim,held=trial.heldLock;if(held&&held!==aim?.lock)set('range',`${GUN_MODES.enemy.name} · ${held.ship?'敵艦':'標的'} ${(tv.len(tv.sub(held.pos,trial.P))/1000).toFixed(1)} km`);else set('range',aim?(aim.lock?(aim.lock.ship?'敵艦 ':aim.lock.kind==='craft'?(trial.battle?'敵機 ':'標的機 '):'標的 '):'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
  const all=trial.turrets,ts=all.filter(t=>!t.pd),pdl=all.filter(t=>t.pd&&!t.dead),pdOn=pdl.filter(t=>t.pdTarget).length,pdFire=pdl.filter(t=>t.firing).length,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
  const pw=trial.power,en=trial.energy,ef=en&&en.cap>0?en.E/en.cap:0,load=pw?.load||0,nochg=ts.filter(t=>t.charge<=0).length,starved=ts.filter(t=>t.ready&&t.reload<=0&&en&&en.E<trialShotEnergyTT(t)*(t.costK??1)).length,fireable=Math.max(0,loaded-starved),thrust=pw?.engF??0;
  trialLoadMeter(hud,pw);
+ // The throttle readout under the lever, with the thrust limit when the reactor cannot feed the whole order.
+ {const t=trialThrottleCommand();set('tele',(t<0?'後進 ':'')+(Math.abs(t)*100).toFixed(1)+'%'+(thrust<.98&&Math.abs(t)>0?` · 推力 ${Math.round(thrust*100)}%`:''));}
  const gn=q('guns'),gs=q('gunstat');if(gn&&gs){
   // Each figure carries a full and a short label; the layout picks which shows.
   const it=(cls,l,sh,v)=>`<span class="${cls}"><em class="l">${l}</em><em class="s">${sh}</em> ${v}</span>`,eCls=ef<.25?'ng':ef<.6?'wait':'ok',lCls=load>=1.15?'ng':load>=.95?'wait':'ok';
-  const html=(ts.length?it('ok','● 射撃可','射撃可',fireable)+it('wait','● 装填・旋回','装填',Math.max(0,ready-loaded+turning-nochg))+(starved?it('wait','● 充電待ち','充電',starved):'')+it('ng','● 遮蔽・射界外','射界外',blocked+out)+(nochg?it('ng','● 充電装置なし','充電なし',nochg):''):'<span class="ng">主砲なし</span>')+(pdl.length?it(pdOn?'wait':'ok','● 点防御','点防御',pdOn?`射撃 ${pdFire}/${pdl.length}`:pdl.length):'')+it(eCls,'⚡ 兵装エネルギー','⚡',Math.round(ef*100)+'%')+it(lCls,'炉心負荷','炉心',Math.round(load*100)+'%')+(thrust<.98?it('wait','推力','推力',Math.round(thrust*100)+'%'):'')+trialCraftSystemsHTML();
+  const html=(ts.length?it('ok','● 射撃可','射撃可',fireable)+it('wait','● 装填・旋回','装填',Math.max(0,ready-loaded+turning-nochg))+(starved?it('wait','● 充電待ち','充電',starved):'')+it('ng','● 遮蔽・射界外','射界外',blocked+out)+(nochg?it('ng','● 充電装置なし','充電なし',nochg):''):'<span class="ng">主砲なし</span>')+(pdl.length?it(pdOn?'wait':'ok','● 点防御','点防御',pdOn?`射撃 ${pdFire}/${pdl.length}`:pdl.length):'')+it(eCls,'⚡ 兵装エネルギー','⚡',Math.round(ef*100)+'%')+trialCraftSystemsHTML();
   const grew=gs._sourceHTML?.length!==html.length;setHTML(gs,html);const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm)setHTML(gm,gl);gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');const vb=q('volley'),vs=trial.volley==='salvo',vl=`<em class="l">${vs?'斉射':'連続射撃'}</em><em class="s">${vs?'斉射':'連続'}</em>`;if(vb)setHTML(vb,vl);vb?.classList.toggle('on',vs);
   // v21.1 Escorts' behaviour (shown in a battle with escorts of ours).
   const eb=q('escort'),B=trial.battle,hasEsc=!!(B&&!trial.rts&&B.me&&B.b.units.some(u=>!u.manual&&u.team===B.me.team&&!u.dead&&!u.absent));if(eb){if(eb.hidden===hasEsc)eb.hidden=!hasEsc;const ef=!!trial.escortFree,el=`<em class="l">随伴艦 ${ef?'自由攻撃':'護衛'}</em><em class="s">${ef?'攻撃':'護衛'}</em>`;setHTML(eb,el);eb.classList.toggle('on',!ef);}
@@ -9072,13 +9071,14 @@ function trialCommand(cmd){
  else if(cmd==='rudder+'||cmd==='rudder-')trial.rudder=C.clamp(trial.rudder+(cmd.endsWith('+')?1:-1),-2,2);
  else if(cmd==='level')trial.level=true;
  else if(cmd==='center'){trial.rudder=0;trial.level=false;}
+ else if(cmd==='neutral'){trial.rudder=0;trial.level=true;}
  else if(cmd==='cam'){trialSetCam(TRIAL_CAMS[(TRIAL_CAMS.indexOf(trial.camMode)+1)%TRIAL_CAMS.length]);toast('視点：'+trialCamName(trial.camMode));}
  else if(cmd==='reset'){if(trial.rts){toast('艦隊戦の途中では再開始できません');return;}trialReset();}
  else if(cmd==='foil'||cmd==='foil:open'||cmd==='foil:close'){trialFoilCommand(cmd.split(':')[1]);return;}
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
- else if(cmd==='power'){const m=$('#thPower'),b=document.querySelector('[data-trial-cmd="power"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
- else if(cmd==='pnext'){trialCommand('power');return;}
+ // The power order is fixed (シールド・艦内設備 → 兵装 → 航行) and has no control in the piloting HUD (2026-11-13).
+ else if(cmd==='power'||cmd==='pnext')return;
  else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));}
  else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
  else if(cmd==='volley'){trialVolley();}
@@ -10248,7 +10248,7 @@ async function spaceBattleLaunch(){
  await fleetSetMode('design');await trialStart({design:asset.design,battle:plan,system:fleet.system||'coruscant',returnTo:'tactical'});
 }
 function trialSetPower(){trial.powerMode='balanced';toast('給電優先順：シールド・艦内設備 → 兵装 → 航行');}
-const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
+const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
@@ -11535,7 +11535,7 @@ const PAD_HOST = {
       const menu = padHudMenu();
       if (menu && ['confirm', 'up', 'down', 'left', 'right'].includes(a)) return false;   // the focus ring works the open menu
       if (a === 'cancel') { if (menu) { if (menu.id === 'thMap') trialMapShow(false); else if (menu.id) padClose(menu); else menu.hidden = true; } return true; }
-      const cmd = {up: 'level', down: 'center', left: 'rudder-', right: 'rudder+', trigL: 'tele-', trigR: 'tele+', mode: 'gunmode', menu: 'menu', select: 'pnext', l3: 'missile', r3: 'cam'}[a];
+      const cmd = {up: 'level', down: 'center', left: 'rudder-', right: 'rudder+', trigL: 'tele-', trigR: 'tele+', mode: 'gunmode', menu: 'menu', l3: 'missile', r3: 'cam'}[a];
       if (a === 'confirm') { if (!repeat) trial.fire = true; return true; }
       if (a === 'action') { padTarget(0); return true; }
       if (a === 'prev' || a === 'next') { padTarget(a === 'next' ? 1 : -1); return true; }
@@ -12359,7 +12359,7 @@ function voyLoadPresets(c) {
  const st = c.stations || [], base = c.load || [], out = [];
  (c.alt || []).forEach((a, j) => out.push({id: 'alt:' + j, name: a.name, load: C.normalizeLoad(st, a.load, base)}));
  const own = new Set([...base.map(q => q.k), ...(c.alt || []).flatMap(a => a.load.map(q => q.k))]);
- for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(stationStoreOf(x), k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(C.FITS[x.fit].store, k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
+ for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(stationStoreOf(x), k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(stationStoreOf(x), k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
  out.push({id: 'none', name: '搭載なし', load: st.map((x, i) => ({k: C.normalizeLoad(st, base, base)[i]?.k, n: 0}))});
  return out;
 }
