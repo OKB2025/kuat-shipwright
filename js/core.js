@@ -50263,7 +50263,11 @@ function mountTurretSupport(ship,f,big){
  let top=0;const polys=[];for(let i=0;i<candidates.length;i++){const own=candidates[i];let pieces=[own.poly];for(let j=0;j<candidates.length&&pieces.length;j++){if(i===j)continue;const other=candidates[j],da=other.A-own.A,db=other.B-own.B,dd=other.D-own.D,coplanar=Math.abs(da)+Math.abs(db)+Math.abs(dd)<1e-7;if(coplanar&&j>i)continue;const cover=coplanar?other.poly:supportClip(other.poly,da,db,dd-1e-7);if(cover.length<3||Math.abs(supportArea(cover))<1e-7)continue;pieces=pieces.flatMap(p=>supportSubtract(p,cover));}
   for(const poly of pieces){const p=poly.map(q=>[q[0],q[1],own.A*q[0]+own.B*q[1]+own.D]);for(const q of p)top=Math.max(top,q[2]);polys.push(p);}
  }
- if(!polys.length||top<=1e-5&&!polys.some(p=>p.some(q=>q[2]<-1e-3)))return;top=Math.max(0,top);f.mountSupport={version:1,top,polys};f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
+ if(!polys.length||top<=1e-5&&!polys.some(p=>p.some(q=>q[2]<-1e-3)))return;top=Math.max(0,top);
+ // User decision 2026-11-13: the support is not cut to the surface. It is one block of the weapon's footprint from
+ // its root (top, the highest surface point under the footprint) down to the surface point farthest from the root
+ // (low, the lowest one), so it meets the surface everywhere and overlaps the body on the higher side.
+ const low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.mountSupport={version:1,top,polys:[foot.map(q=>[q[0],q[1],low])]};f.base=top;f.low=low;f.slope=top-low;
 }
 function turretSupportGeometry(f){
  if(!turretSupportEligible(f)||!validTurretSupport(f.mountSupport))return null;const s=f.mountSupport,fr=fitFrameOf(f),key=JSON.stringify([f.p,fr.up,fr.fw,fr.rt]),cached=TURRET_SUPPORT_GEOMETRY.get(s);if(cached?.key===key)return cached.geometry;
