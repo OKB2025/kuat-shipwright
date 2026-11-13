@@ -105,7 +105,10 @@ test('an in-session refusal kept through an Undo/Redo patch is not re-solved',()
  const p=ship.parts.find(q=>q.id===100);assert.equal(p._placementFailure,record,'the in-session failure record is kept');assert.equal(p.placement.validationFailed,true);
 });
 
-function look(ship){const S=grounding(ship);return SUNK.map(id=>{const p=ship.parts.find(q=>q.id===id),d=S.placementDiagnostics.find(x=>x.partId===id);return {id,error:p._placementError||null,failed:!!p.placement.validationFailed,connected:d.connected,code:d.code,red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id),volume:+C.partVolume(p).toFixed(3)};});}
+// 2026-11-13 user decision: no fitting. Volumes are compared to 7 significant digits (was 3 decimals): a structure's
+// solid built before a structure-carving ship cut existed (live) and after it (reload) differ only by Float32 rounding of
+// the world base (18511.721 vs 18511.720 m³, 5e-8 relative).
+function look(ship){const S=grounding(ship);return SUNK.map(id=>{const p=ship.parts.find(q=>q.id===id),d=S.placementDiagnostics.find(x=>x.partId===id);return {id,error:p._placementError||null,failed:!!p.placement.validationFailed,connected:d.connected,code:d.code,red:S.ungrounded.parts.includes(id),severed:S.severed.includes(id),volume:+C.partVolume(p).toPrecision(7)};});}
 test('cuts through a recovered structure follow the cut rules, live = reload',()=>{
  // (a) a ship-level cut (all structures) through the middle of both structures: still touching, connected.
  {const ship=C.deserialize(saved());ship.solidCuts=[...(ship.solidCuts||[]),{id:ship.nextId++,shape:'box',c:[87.66,14.6,0],s:[10,40,60],rotation:[0,0,0],mirror:false,structures:true}];ship._cache=null;

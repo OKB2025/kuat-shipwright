@@ -230,12 +230,15 @@ for(const [name,cc,cs,opts,expected] of [
   assert.ok(Array.isArray(box.placement.fitRemovalIds)&&box.placement.fitRemovalIds.length===1,'the recess is recorded with the placement');
  });
 
-test('a design saved by origin/main with a box placed over an existing recess loads connected and unchanged',()=>{
+// 2026-11-13 user decision: no fitting; old saves migrate keeping their pose (handoff-2026-11-12 §4 stage B). This box
+// was saved by main hovering 0.5 m over the recess floor, which main fitted down to the floor (c [110,22.5,0], fitted
+// 108 m³, connected). It now loads where it was saved, keeps its requested solid, and is reported severed by the
+// recess (a warning, never red, never moved); the same after a reload.
+test('a design saved by origin/main with a box placed over an existing recess loads where it was saved, severed by the recess (a warning)',()=>{
  const saved=require('./fixtures/recess-hover-saved-by-main-3e82bf1.json');assert.equal(JSON.stringify(saved).includes('fitRemovalIds'),false,'an old save without the record');
- const L=C.deserialize(JSON.parse(JSON.stringify(saved)),{deferPlacementGeometry:true}),r=C.refreshPlacementGeometry(L),p=L.parts.find(q=>q.id===3),S=grounding(L);
- assert.equal(r.ok,true,JSON.stringify(r.failed));same(r.severed,[]);assert.equal(p._placementError,undefined);assert.ok(!S.ungrounded.parts.includes(3));same(S.severed,[]);
- // origin/main 3e82bf1 on the same file: c [110,22.5,0], fitted 108 m3, connected, mass 106306.933 t, volume 134752.362 m3, cost 374077.
- same(p.c.map(v=>+v.toFixed(4)),[110,22.5,0]);closeTo(p._placementGeometry.volume,108,'fitted volume');const st=statsOf(L);closeTo(st.mass,106306.933,'mass');closeTo(st.volume,134752.362,'volume');assert.equal(st.cost,374077);
+ const raw=JSON.parse(JSON.stringify(saved)).parts.find(q=>q.id===3),L=C.deserialize(JSON.parse(JSON.stringify(saved)),{deferPlacementGeometry:true}),r=C.refreshPlacementGeometry(L),p=L.parts.find(q=>q.id===3);
+ assert.equal(r.ok,true,JSON.stringify(r.failed));assert.equal(p._placementError,undefined);same(p.c.map(v=>+v.toFixed(4)),raw.c.map(v=>+v.toFixed(4)));assert.ok(r.severed.some(q=>q.partId===3),'severed (a warning)');
+ const again=C.deserialize(JSON.parse(C.publicJSON(C.serialize(L))),{deferPlacementGeometry:true}),r2=C.refreshPlacementGeometry(again);assert.ok(r2.severed.some(q=>q.partId===3));same(again.parts.find(q=>q.id===3).c,p.c);
 });
 
 test('a cut made after placing into a recess still does not re-fit the child (live = reload)',()=>{
@@ -267,7 +270,7 @@ for(const [name,lift,newC,newS,expected,severed=false] of [
   const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);
   const box=ship.parts.at(-1);same(box.placement.fitRemovalIds,['solidCuts:'+id]);
   C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:newC,s:newS,rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));assert.equal(r.severed.some(q=>q.partId===box.id),severed,'severed by the edited cut');
-  const live=shapeOf(ship,box,hull);same(expected.vol==null?{c:live.c,contact:live.contact}:live,expected,'position kept (and as on main where main kept it)');assert.equal(box._placementError,undefined);
+  const live=shapeOf(ship,box,hull);same(expected.vol==null?{c:live.c,contact:live.contact}:{c:live.c,vol:live.vol,contact:live.contact},expected,'position kept, requested solid');assert.equal(box._placementError,undefined);
   const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);same(shapeOf(D,D.parts.find(q=>q.id===box.id),D.parts[0]),live,'reload');
  });
 

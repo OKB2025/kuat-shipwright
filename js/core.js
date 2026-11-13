@@ -63819,7 +63819,9 @@ function solvePlacement(ship,input,request={}){
  // keeps the stored pose and shape writes nothing authored. The placement record keeps the values of the
  // user's last placement or edit; the private keys below still track the body it now stands on.
  if(storedPose&&old.requestedGeometry&&placementSameShape(old.requestedGeometry,part))
-  for(const key of PLACEMENT_AUTHORED_ANCHOR_KEYS){if(Object.hasOwn(old,key))metadata[key]=publicCopyOf(old[key]);else delete metadata[key];}
+  // Bookkeeping an older record lacks (the removals present at placement) is written once, here, and then kept, so a
+  // reload gives the same judgement as the live design (a save from before the record existed: migration).
+  for(const key of PLACEMENT_AUTHORED_ANCHOR_KEYS){if(Object.hasOwn(old,key))metadata[key]=publicCopyOf(old[key]);else if(key!=='fitRemovalIds'&&key!=='fitRemovalHashes')delete metadata[key];}
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);part._placementFitRemovalKey=placementFitRemovalKey(part,parent);
  return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(metadata.requestedGeometry),effectiveVolume:partVolume(part)};
 }
