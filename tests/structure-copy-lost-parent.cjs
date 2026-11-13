@@ -167,6 +167,23 @@ test('an array of a box and the child on it: child copies keep the turned fit th
 });
 test('mirroring a turned array copy reflects its fit axis with the pose',()=>{
  const {ship,box}=cigarWithBox(),res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count:4,axis:0,center:[110,16,0]});C.refreshPlacementGeometry(ship);
- const p=ship.parts.find(q=>q.id===res.parts[0]),m=C.mirrorPart(p,ship);assert.ok(Array.isArray(p.placement.fitAxis));
- assert.equal(JSON.stringify(m.placement.fitAxis.map(n=>+n.toFixed(9))),JSON.stringify([p.placement.fitAxis[0],p.placement.fitAxis[1],-p.placement.fitAxis[2]].map(n=>+n.toFixed(9))));
+ // fitAxis is kept in the part's own frame: compare the world axes (left-right and vertical mirror).
+ const W=q=>C.norm(C.worldStruct({...q,c:[0,0,0]},q.placement.fitAxis)).map(n=>+n.toFixed(9)),p=ship.parts.find(q=>q.id===res.parts[0]);assert.ok(Array.isArray(p.placement.fitAxis));const w=W(p);
+ assert.equal(JSON.stringify(W(C.mirrorPart(p,ship))),JSON.stringify([w[0],w[1],-w[2]].map(n=>+n.toFixed(9))),'left-right mirror');
+ assert.equal(JSON.stringify(W(C.vmirrorPart(p,ship))),JSON.stringify([w[0],-w[1],w[2]].map(n=>+n.toFixed(9))),'vertical mirror');
+});
+// High review 2026-11-13 (D2, D3): the turned fit axis follows the part's own frame and yields when it no longer faces out.
+test('a 45° array copy set level again is cut like a part tapped level there, and a rotate-tool turn survives a reload (high review D2, D3)',()=>{
+ const {ship,box}=cigarWithBox(),res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count:8,axis:0,center:[110,16,0]});assert.equal(res.ok,true,res.error);C.refreshPlacementGeometry(ship);
+ const p=ship.parts.find(q=>q.id===res.parts[0]);assert.equal(p.roll,45);
+ // A tap re-seat at the same place gives the level reference.
+ const tap=C.solvePlacement(ship,JSON.parse(C.publicJSON(p)),{...p.placement,hit:{p:C.worldStruct(ship.parts[0],p.placement.surfaceAnchor),n:p.placement.contactNormal}});assert.equal(tap.ok,true,tap.error);
+ // 「水平へ戻す」: pitch and roll 0 → cut like the tapped part.
+ p.pitch=0;p.roll=0;C.refreshPlacementGeometry(ship);assert.ok(Math.abs(p._placementGeometry.volume-tap.part._placementGeometry.volume)<1e-3,`${p._placementGeometry.volume} vs tap ${tap.part._placementGeometry.volume}`);
+ // The rotate tool turns the 90° copy 10° more about x and writes surfaceNormal + yaw: the pose and the cut survive a reload.
+ const q=ship.parts.find(x=>x.id===res.parts[1]),f0=C.structFrame(q),a=10*Math.PI/180,R=v=>[v[0],v[1]*Math.cos(a)-v[2]*Math.sin(a),v[1]*Math.sin(a)+v[2]*Math.cos(a)],fw=R(f0.fw),up=C.norm(R(f0.up));
+ let b=C.sub([1,0,0],C.mul(up,up[0]));if(C.len(b)<.001)b=C.sub([0,0,1],C.mul(up,up[2]));b=C.norm(b);const rt=C.norm(C.cross(b,up));q.surfaceNormal=up;q.yaw=Math.atan2(C.dot(fw,rt),C.dot(fw,b))*180/Math.PI;delete q.pitch;delete q.roll;
+ C.refreshPlacementGeometry(ship);const before=[C.structFrame(q).fw,C.structFrame(q).up].map(v=>v.map(n=>+n.toFixed(6))),vol=q._placementGeometry.volume;
+ const L=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship)))),u=L.parts.find(x=>x.id===q.id),fu=C.structFrame(u);
+ assert.equal(JSON.stringify([fu.fw,fu.up].map(v=>v.map(n=>+n.toFixed(6)))),JSON.stringify(before),'same pose after a reload');assert.ok(Math.abs(u._placementGeometry.volume-vol)<1e-6*vol,`same cut ${u._placementGeometry.volume} vs ${vol}`);
 });
