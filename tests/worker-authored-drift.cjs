@@ -17,8 +17,8 @@ const ALLOWED={
  // child's c no longer moves, so 'c' left this entry.
  'root resized across, sunk child elsewhere':{first:[['parts',2,'changed','placement']],edit:[['parts',2,'changed','placement']]},
  'unrelated structure moved':{first:[['parts',2,'changed','placement']],edit:[]},
- // Phase C (fit host-follow): the weapon follows its moved host.
- 'weapon on a moved structure':{first:[],edit:[['fits',2,'changed','p,placement']]},
+ // Phase C (2026-11-13) removed the fit host-follow: the weapon stays where it was when its host moves.
+ 'weapon on a moved structure':{first:[],edit:[]},
  // Phase B (equipment parent follow) and phase F (nozzle foundation regeneration).
  'engine support under a turned structure':{first:[['parts',2,'changed','c,engineMountSupport,placement,roll']],edit:[['parts',2,'changed','c,dir,engineMountSupport,placement']]},
 };

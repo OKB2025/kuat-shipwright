@@ -7767,7 +7767,7 @@ function editDuplicate(){
  for(const l of ['parts','fits'])for(const o of made[l]){for(const r of ['tw','vt']){if(o[r]==null)continue;const n=map[l].get(o[r]);if(n!=null)o[r]=n;else delete o[r];}
   if(Array.isArray(o.surfacePoint))o.surfacePoint=o.surfacePoint.map((v,i)=>v+off[i]);
   if(l==='parts'){o.c=o.c.map((v,i)=>v+off[i]);copyWingLinks(o,map,p=>p.map((v,i)=>v+off[i]));for(const key of ['reactor','machineryId'])if(map.parts.has(o[key]))o[key]=map.parts.get(o[key]);}
-  else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}}}
+  else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}else if(!o.placement)o.p=o.p.map((v,i)=>v+off[i]);/* stage C: mountFit no longer places a fitting from its host */}}
  for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,interiorAnchor:C.interiorAnchorHostId?.(ship)});
  const sourceFits=new Map(src.fits.map(f=>[map.fits.get(f.id),f]));
  for(const f of made.fits)if(f.placement){const source=sourceFits.get(f.id);f.p=source.p.map((v,i)=>v+off[i]);C.remapFitPlacementCopy?.(f,map.parts,{sourceHostId:source.host,sourceParts:src.parts,targetParts:[...ship.parts,...made.parts]});}

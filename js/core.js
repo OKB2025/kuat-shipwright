@@ -50274,7 +50274,9 @@ function turretSupportGeometry(f){
 function baseMountFit(ship,f){
  normalizeFitMount(f);const d=fitSpec(f),fr=fitFrameOf(f),R=d.r,gun=d.cat==='w',flush=gun&&!fitHasPedestal(f),big=f.localMount||d.casemate||flush?Math.max(2,Math.min(6,R*.25)):Math.max(ship.hull.H,ship.hull.W,200)*2,h0=isAnchoredFit(f)?fitAttachmentHit(ship,f):rayEnv(ship,add(f.p,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});
  delete f._onPlate;if(!h0){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}if(h0.part?.plate){f.float=true;f._onPlate=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
- f.float=false;f.p=h0.p;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
+ // Stage C: p is kept; the surface below must lie within FIT_SUPPORT_GAP_M of it along the fitting's up axis.
+ if(!isAnchoredFit(f)&&Math.abs(dot(sub(h0.p,f.p),fr.up))>FIT_SUPPORT_GAP_M){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
+ f.float=false;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
  let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=rayEnv(ship,add(q,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
 }
 function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, fitHasPedestal(f)?(f.base||0)+(f.ped||0):0)); }
@@ -51669,9 +51671,9 @@ function mountFit(ship,f){
  if(isTrenchBatteryGroup(f))return f;
  if(isAnchoredFit(f)&&!prepareFitAttachment(ship,f))return f;
  let host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
- if(host&&f.local&&Array.isArray(f.localForward)&&f.localForward.length===3&&f.localForward.every(Number.isFinite))f.frameForward=norm(worldStruct({...host,c:[0,0,0]},[f.localForward[0]*host.s[0],f.localForward[1]*host.s[2],f.localForward[2]*host.s[1]]));
+ if(host&&f.local&&!Array.isArray(f.frameForward)&&Array.isArray(f.localForward)&&f.localForward.length===3&&f.localForward.every(Number.isFinite))f.frameForward=norm(worldStruct({...host,c:[0,0,0]},[f.localForward[0]*host.s[0],f.localForward[1]*host.s[2],f.localForward[2]*host.s[1]]));
  const out=mountFitUnframed(ship,f);host=ship.parts.find(p=>p.id===out.host&&isShapePart(p));
- if(host&&!out.float&&Array.isArray(out.frameForward)&&!(isAnchoredFit(out)&&Array.isArray(out.localForward))){const v=localStruct({...host,c:[0,0,0]},out.frameForward);out.localForward=[v[0]/host.s[0],v[1]/host.s[2],v[2]/host.s[1]];}else if(!host)delete out.localForward;
+ if(host&&!out.float&&Array.isArray(out.frameForward)&&!Array.isArray(out.localForward)){const v=localStruct({...host,c:[0,0,0]},out.frameForward);out.localForward=[v[0]/host.s[0],v[1]/host.s[2],v[2]/host.s[1]];}else if(!host)delete out.localForward;
  return out;
 }
 function mountFitUnframed(ship,f){
@@ -51685,13 +51687,13 @@ function mountFitUnframed(ship,f){
   let p=f.p,n=f.n||AXES[f.a],host=f.host?ship.parts.find(q=>q.id===f.host):null,h=null;
   if(f.host&&!host){f.float=true;return f;}
   if(isAnchoredFit(f))h=fitAttachmentHit(ship,f);
-  else if(host&&f.local){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
+  else if(host&&f.local&&!fitPoseValid(f)){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
   else h=rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:12,structOnly:true});
   // Command pods belong to exposed structure walls, never hull skins, roofs or armoured plating.
   const valid=isShapePart(h?.part)&&!h.part.plate&&Math.abs(dot(h.n,structFrame(h.part).up))<.65;
   if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;
   f.float=!valid;f.base=0;f.low=0;f.ped=0;
-  if(!valid)return f;f.p=h.p;f.n=h.n;f._wallUp=structFrame(h.part).up;
+  if(!valid)return f;if(!fitPoseValid(f)){f.p=h.p;f.n=h.n;}f._wallUp=structFrame(h.part).up;
   if(isShapePart(h.part)&&!f.local){f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
   return f;
 }
@@ -64132,7 +64134,15 @@ function removeParts(ship,inputIds){
   while(ordered.length){const id=ordered.shift(),parent=byId.get(id);for(const next of adj.get(id).keys()){if(visited.has(next))continue;visited.add(next);ordered.push(next);if(affected.has(next)){const p=byId.get(next),contact=adj.get(next).get(id);placementReparentStructure(ship,p,parent,contact);reparented.push({list:'parts',partId:p.id,parentStructureId:parent.id});}}}
  }
  const supports=structures.filter(p=>!removed.has(p.id));for(const part of ship.parts.filter(p=>affected.has(p.id)&&placementCapability(p).kind!=='structure')){const parent=supports.filter(q=>near(part,q)).map(q=>({parent:q,contact:placementAlternateEquipmentContact(ship,part,q)})).find(q=>q.contact.connected);if(!parent){removed.add(part.id);continue;}const meta=part.placement,hit=parent.contact;meta.parentStructureId=parent.parent.id;meta.surfaceAnchor=localStruct(parent.parent,hit.anchor);meta.contactNormal=hit.normal;meta.contactLocalNormal=placementLocalNormal(parent.parent,hit.normal);meta.parentLocalAnchor=localStruct(parent.parent,part.c);meta.anchorDimensions=meshScale(parent.parent);meta.rigidPose=placementEquipmentPose(parent.parent,part,hit.anchor);meta.parentGeometryRevision=parent.parent.placement?.geometryRevision||0;meta.parentGeometryKey=placementDependencyKey(parent.parent);delete meta.hostSurfaceId;if(part.engineMountSupport){part.engineMountSupport={...part.engineMountSupport,parentId:parent.parent.id,sourceKey:engineSupportSourceKey(ship,part,parent.parent)};delete part._engineMountSupportGeometry;}delete part._placementError;part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);part._placementParentKey=meta.parentGeometryKey;reparented.push({list:'parts',partId:part.id,parentStructureId:parent.parent.id});}
- for(const fit of ship.fits.filter(f=>closure.fits.includes(f.id))){const parent=supports.filter(p=>{const A=fitAABB(fit),B=bound(p);return [0,1,2].every(i=>A[i]<=B[i+3]+1e-4&&A[i+3]>=B[i]-1e-4);}).map(p=>({part:p,contact:typeof placementFitContact==='function'?placementFitContact(ship,fit,p):{connected:false}})).find(p=>p.contact.connected);if(parent&&typeof rehostFitPlacement==='function'){const r=rehostFitPlacement(ship,fit,parent.part);if(r.ok){reparented.push({list:'fits',fitId:fit.id,parentStructureId:parent.part.id});continue;}}removedFits.add(fit.id);}
+ // Stage C (user decision 2026-11-13): a fitting whose structure is deleted is neither deleted nor re-attached to
+ // whatever it touches. It moves along its own height axis (down, against its up) onto the first structure below
+ // within reach and is mounted there; with nothing below it stays where it is, floating (a warning).
+ for(const fit of ship.fits.filter(f=>removed.has(f.host))){
+  const up=norm(fitUp(fit)),start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),down=mul(up,-1);let best=null;
+  for(const q of supports){if(q.plate)continue;q._solidCutShip=ship;const h=rayPart(start,down,q);if(h){const t=dot(sub(start,h.p),up);if(t>=0&&(!best||t<best.t))best={t,p:h.p,part:q};}}
+  if(best){const before={p:fit.p.slice()};fit.p=best.p.slice();const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,best.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:best.part.id,moved:true});continue;}fit.p=before.p;}
+  fit.float=true;
+ }
  ship._placementDeleting=true;try{for(const id of removedFits)removeItem(ship,'fits',id,false);for(const id of removed)removeItem(ship,'parts',id,false);}finally{delete ship._placementDeleting;}for(const g of ship.groups||[]){g.parts=g.parts.filter(id=>!removed.has(id));g.fits=g.fits.filter(id=>!removedFits.has(id));}if(ship.links)ship.links=ship.links.filter(l=>![l.from,l.to].some(id=>/^p\d+$/.test(id)&&removed.has(+id.slice(1))||/^f\d+$/.test(id)&&removedFits.has(+id.slice(1))));ship._cache=null;delete ship._interiorKey;return {ok:true,removed:[...removed],removedFits:[...removedFits],reparented};
 }
 function updatePlacementChildren(ship,parentId,options={}){const result=refreshPlacementGeometry(ship);ship._cache=null;delete ship._interiorKey;return result;}
@@ -64164,6 +64174,13 @@ function reflectPlacementMetadata(source,out,ship,axis){
 }
 // Conventional exterior fittings retain their native mount and support rules.
 // host/local/localNormal/localForward remain the single attachment transform.
+// Stage C of the no-recompute plan (2026-11-13, user decisions 2026-11-12 "親子関係は持たない" and 2026-11-13):
+// a fitting has no parent. Its world pose (p, n, a, tilt, frameForward) is the user's and is decided only when the
+// user places, moves, seats or slides it. Remounting (load, reload, Worker, a host edited, moved, turned or resized)
+// keeps that pose and only judges where it stands: supported when the surface below lies within FIT_SUPPORT_GAP_M
+// of it (user decision 2026-11-12: a gap of a few cm counts as contact), else floating (a warning).
+const FIT_SUPPORT_GAP_M=.05;
+function fitPoseValid(f){return Array.isArray(f?.p)&&f.p.length===3&&f.p.every(Number.isFinite)&&Array.isArray(f.n)&&f.n.length===3&&f.n.every(Number.isFinite)&&len(f.n)>1e-8;}
 function isAnchoredFit(f){return !!(f?.placement&&FITS[f.k]&&f.placement.mode==='direct'&&f.placement.modelVersion===PLACEMENT_MODEL_VERSION);}
 function fitAttachmentLocal(host,point){const q=localStruct(host,point);return [q[0]/host.s[0],q[1]/host.s[2],q[2]/host.s[1]];}
 function fitAttachmentNormal(host,n){const q=localStruct({...host,c:[0,0,0]},n);return [q[0]*host.s[0],q[1]*host.s[2],q[2]*host.s[1]];}
@@ -64231,6 +64248,8 @@ function fitAttachmentHit(ship,f){
 function prepareFitAttachment(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
  if(!host||!f.local||!f.localNormal){f.float=true;f._fitPlacementError={code:'parent-missing',error:'装備の追加元が失われています'};return false;}
+ // Stage C: the stored world pose stands; the host-local anchor only seeds a fitting that has none.
+ if(fitPoseValid(f))return true;
  f.p=fitAttachmentPoint(host,f);f.n=fitAttachmentWorldNormal(host,f);
  if(f.placement.localUp){const up=norm(worldStruct({...host,c:[0,0,0]},f.placement.localUp));f.a=AXES.reduce((best,n,i)=>dot(n,up)>dot(AXES[best],up)?i:best,0);if(len(sub(up,AXES[f.a]))>1e-8)f.tilt=up;else delete f.tilt;}
  return true;
@@ -64331,7 +64350,7 @@ function refreshFitPlacementAttachments(ship){
    if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;delete fit._placementFailure;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
   }
   if(fit.placement.validationFailed){failed.push({fitId:fit.id,code:fit.placement.repairReason||'placement-failed'});continue;}
-  mountFit(ship,fit);if(fit.float){if(fitSeveredByCut(ship,fit))severed.push({fitId:fit.id,code:'severed'});else failed.push({fitId:fit.id,code:fit._fitPlacementError?.code||'contact-zero'});continue;}const parent=ship.parts.find(p=>p.id===fit.host);fit.placement.parentGeometryRevision=parent.placement?.geometryRevision??parent.geometryRevision??0;fit.placement.parentGeometryKey=placementDependencyKey(parent);updated.push(fit.id);
+  mountFit(ship,fit);if(fit.float){if(fitSeveredByCut(ship,fit))severed.push({fitId:fit.id,code:'severed'});else failed.push({fitId:fit.id,code:fit._fitPlacementError?.code||'contact-zero'});continue;}updated.push(fit.id);
  }return {ok:!failed.length,updated,failed,severed,resolvedFits};
 }
 function remapFitPlacementCopy(fit,mapping,options={}){
