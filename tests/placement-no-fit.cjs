@@ -80,12 +80,14 @@ test('exterior equipment does not follow the structure it was mounted on',()=>{
 // Stage B regression review (2026-11-13): a structure refused after another edit (here: a gap opened under it) and
 // re-solved after a further edit of its body keeps its pose. Only the user's own draft sinks; the refused structure
 // stays where it was, red, until the user moves it.
-test('a stored refused structure is not sunk by a reload or by a later body edit (pose kept, still refused)',()=>{
+// 2026-11-13 (no parent relation, contact only): an old contact-type refusal is dropped on load; the structure is judged
+// by contact (red: a 0.5 m gap) and is never sunk by a reload or a later body edit.
+test('a stored refused structure is not sunk by a reload or by a later body edit (pose kept, red by contact)',()=>{
  const {ship,parent,part}=fixture(0);part.c=[part.c[0],part.c[1]+0.5,part.c[2]];Object.assign(part.placement,{validationFailed:true,repairRequired:true,repairReason:'contact-zero'});
- const c0=plain(part.c),L=C.deserialize(structuredClone(C.serialize(ship))),q=()=>L.parts.find(p=>p.id===2);C.refreshPlacementGeometry(L);
- assert.deepEqual(plain(q().c),c0,'reload keeps the refused pose');assert.equal(q().placement.validationFailed,true);
- L.parts[0].s=[130,80,20];C.refreshPlacementGeometry(L);
- assert.deepEqual(plain(q().c),c0,'a body edit does not sink it');assert.equal(q().placement.validationFailed,true,'still refused');
+ const c0=plain(part.c),L=C.deserialize(structuredClone(C.serialize(ship))),q=()=>L.parts.find(p=>p.id===2);let r=C.refreshPlacementGeometry(L);
+ assert.deepEqual(plain(q().c),c0,'reload keeps the pose');assert.equal(q().placement.validationFailed,undefined,'the obsolete refusal is dropped');assert.ok(r.failed.some(f=>f.partId===2),'red by contact');
+ L.parts[0].s=[130,80,20];r=C.refreshPlacementGeometry(L);
+ assert.deepEqual(plain(q().c),c0,'a body edit does not sink it');assert.ok(r.failed.some(f=>f.partId===2),'still red');
 });
 
 test('placementSameShape ignores key order, defaults and empty arrays (one definition only)',()=>{
