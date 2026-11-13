@@ -64154,7 +64154,7 @@ function removeParts(ship,inputIds){
  // and loses its host link (repairable for anchored fittings).
  const seatPart=f=>{const up=norm(fitUp(f)),o=add(f.p,mul(up,FIT_SUPPORT_GAP_M));let best=null;for(const q of ship.parts){if(!isShapePart(q)||q.plate)continue;q._solidCutShip=ship;const h=rayPart(o,mul(up,-1),q);if(h){const t=dot(sub(o,h.p),up);if(t>=0&&t<=2*FIT_SUPPORT_GAP_M&&(!best||t<best.t))best={t,part:q};}}return best?.part||null;};
  const depthAlong=(q,up)=>{const T=structTriangles(q);let lo=Infinity,hi=-Infinity;for(let i=0;i<T.length;i+=3){const v=T[i]*up[0]+T[i+1]*up[1]+T[i+2]*up[2];if(v<lo)lo=v;if(v>hi)hi=v;}return hi>lo?hi-lo:0;};
- const drops=[];for(const fit of ship.fits){const seat=seatPart(fit),stand=seat&&removed.has(seat.id)?seat:removed.has(fit.host)?ship.parts.find(q=>q.id===fit.host):null;if(!stand)continue;const up=norm(fitUp(fit));drops.push({fit,up,reach:depthAlong(stand,up)+2*FIT_SUPPORT_GAP_M});}
+ const drops=[];for(const fit of ship.fits){if(isTrenchBatteryGroup(fit))continue;/* a trench group fitting is derived from its armament and rebuilt with it, never dropped */const seat=seatPart(fit),stand=seat&&removed.has(seat.id)?seat:removed.has(fit.host)?ship.parts.find(q=>q.id===fit.host):null;if(!stand)continue;const up=norm(fitUp(fit));drops.push({fit,up,reach:depthAlong(stand,up)+2*FIT_SUPPORT_GAP_M});}
  const dropFits=()=>{for(const {fit,up,reach} of drops){
   const start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),h=rayEnv(ship,start,mul(up,-1),{maxT:reach,structOnly:true});
   if(h&&!h.part?.plate){
