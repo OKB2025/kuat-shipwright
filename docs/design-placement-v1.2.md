@@ -305,13 +305,15 @@
 |項目|規則|実装|
 |---|---|---|
 |成形結果の保存|水平・垂直配置の構造物の成形結果（親に合わせて削った実形状）を、部品の保存データ `placement.fittedGeometry` に持つ。形式は `{shape, v, f}`：部品座標の頂点（`v`、x,y,z の平坦な列、丸めない。1 µm に丸めると、凹みを埋める子の面が親の面と同一平面でなくなり、構造の合併の質量が 189 t ずれた）。丸ごと残す部品は `{shape, whole:true}`、3 つずつの頂点番号（`f`）、作った時の部品自身の形のキー（`shape`、`placementFitShapeKey`。位置・向き・名前・ID を除き、キーの順と既定値に依らない）。編集中の部品も、保存した記録から形を作り直すので、編集中と再読込は同じ立体になる|`placementFittedRecord`、`placementRestoreFitted`、`placementFittedValid`、`normalizePlacementMetadata`|
-|成形する時|新しく置いた時（ドラフト、面のタップ、配置方式・接触側・成形方法・親の変更）、ユーザーが動かした時（ドラッグ `request.position`、部品自身の位置の変更）、構造物自身の寸法を変えた時（`shape` が変わる）だけ。回転、再読込、Worker、再検査、他の部品の編集（下の本体の移動・回転・寸法変更・削り）では成形し直さない|`placementUseStoredFit`（`solvePlacement`）|
+|成形する時|新しく置いた時（ドラフト、面のタップ、配置方式・接触側・成形方法・親の変更）、ユーザーが動かした時（ドラッグ `request.position`、部品自身の位置の変更）、構造物自身の寸法を変えた時（`shape` が変わる）だけ。回転、再読込、Worker、再検査、他の部品の編集（下の本体の移動・回転・寸法変更・削り）では成形し直さない。判定は、記録に残した成形時のワールド位置（`fittedGeometry.c`）と今の位置の比較で行う。その場での回転は位置が変わらないので成形し直さず、部品の中心以外を軸にした回転、複数選択での移動、コピー・貼り付け・配列複製で別の場所に置いたものは、位置が変わるので成形し直す（ユーザーの操作）。ミラー複製は、元の記録が今の形と位置に合っている時だけ鏡映して写し、そうでなければ複製側で成形する|`placementUseStoredFit`（`solvePlacement`）|
 |成形しない時の判定|保存した形のまま、その場で接触を判定する。触れていなければ従来どおり警告か赤枠。赤枠の間も、保存した形を表示・計算に使う（以前は要求形状に戻っていた）。ドラフト（`pendingGeometry`）の間は要求形状を表示し、前の形を借りない|`placementRestoreMaterialized`|
 |削り|保存した形を、構造物に効く艦レベルの立体カットがその上から削る。削りを足しても消しても成形し直さない（削りを消すと元の形に正確に戻る）。`fitRemovalIds` は成形した時の記録として残る|`solvePlacement`|
 |作者データを書き換えない|ユーザーの操作でない解き直しで、姿勢と形を保った時は、配置記録（`geometryRevision`、`parentGeometryKey`、`parentPoseKey`、`parentLocalAnchor`、`anchorDimensions`、`surfaceAnchor`、`contactOffset`、`contactAxis`、`contactNormal`、`contactLocalNormal`、`hostSurfaceId`、`fitRemovalIds`、`requestedGeometry`）を前の値のまま残す。下の本体を追う値は非公開のキー（`_placementParentKey` など）だけが持つ。面ID（`hostSurfaceId`）が失われても書き直さない（段階 0 の「面IDを付け直す」はユーザーの操作の時だけになる）。成形した時の削りは内容のハッシュで記録し（`fittedGeometry.removals`）、その後に編集された削りは「後から加えた削り」として切り離しの判定に使う（削りを深くして離れた子は赤枠でなく `severed` の警告）|`PLACEMENT_AUTHORED_ANCHOR_KEYS`、`placementSeveredByCut`|
 |外装機器|機関・センサーなど外装機器も、取り付けた本体に追従しない。ユーザーの配置（タップ、ドラッグ、ドラフト、別の本体の選択）だけが姿勢を決める。それ以外の解き直しはワールドの姿勢（`c`・`dir`・`roll` など）と配置記録（`rigidPose` を含む）を保つ。機関の台座の作り直し（`engineMountSupport`）は段階 F で扱う|`solveExteriorEquipmentPlacement` の `kept`|
 |ミラー|左右・上下のミラー複製は、保存した形をワールドで鏡映して複製の座標で持つ（面の向きを裏返す）|`reflectPlacementMetadata`|
 |旧保存データの移行|`fittedGeometry` の無い保存データは、最初の解き直しで、姿勢を保ったまま置いた本体に 1 回だけ成形し、結果を保存する。その後は成形し直さない。形の正しくない記録は捨てて、同じく 1 回だけ成形する|`placementUseStoredFit`、`normalizePlacementMetadata`|
+
+**成形の基になる形と順序（2026-11-13、物理・回帰レビュー）**：成形は、構造物自身の削っていない形（艦レベルで構造物に効くカットとハッチの開口を除いた形、`placementChildFitTriangles`）を、その時点の親（親自身の削りや艦レベルのカットを含む）に合わせて行う。記録には艦レベルのカットもハッチの開口も焼き込まず、実行時に上から削る。そのため、カットを消すと子の材料は戻る。一方、親がその時点で削られていれば、子はその凹みに合わせて成形されるので、同じ最終状態でも作った順序で記録が違うことがある（例：`physfix/precut.cjs`。成形時に親を削っていたカットを後から消すと、子の基部が親に重なり、合併で 1 回だけ数えるので艦の質量はカットなしで置いた設計と一致する。カットを後から足した場合は、置いた時の形を保ったまま削るので、main の再成形とは形が違い、艦の質量も違う）。これは「置いた時と編集した時だけ決まる」決定による。成形の結果が閉じた立体（外向き、体積が正）でなければ記録しない。
 
 **保存データの大きさ**：曲面の船体に合わせた成形は面数が多い。ユーザーの設計（`tests/fixtures/copied-structure-lost-parent-2026-11-13.json.gz`、構造物 8 個に成形結果）では、保存 JSON が 89 KB から 299 KB（gzip 5 KB から 77 KB）になる。最大は面取りの複製 2 個の各 2208 面。作例 28 隻と艦載機は配置記録を持たないので変わらない。
 

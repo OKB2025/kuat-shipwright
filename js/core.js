@@ -63394,11 +63394,13 @@ function placementLateralContactAxis(part,hit){
 // Stage B (physics review 2026-11-13): the fitted solid that is stored is the child's own, uncut body fitted to the
 // parent. Ship-level cuts that carve structures are applied on top at run time, so they must not be baked into the
 // record (removing or moving such a cut later would otherwise leave the child's material missing).
-// The child's own solid for fitting: when the ship has cuts that carve structures, the very base structTriangles would
-// carve (same numeric path as before stage B), uncarved; otherwise the ordinary triangles.
+// The child's own solid for fitting: when ship cuts carve structures, or the part has hatch openings (_apertures),
+// the unpierced, uncarved base (the same numeric path structTriangles starts from); openings and cuts are applied on
+// top at run time and are never baked into the record (physics and regression reviews 2026-11-13). Otherwise the
+// ordinary triangles.
 function placementChildFitTriangles(ship,part){
- const carves=c=>ship.hull?.assembly||c.structures;part._solidCutShip=ship;
- if(!isHullStructure(part)&&!part._apertures?.length&&((ship.solidCuts||[]).some(carves)||(ship.subs||[]).some(carves)))return uncutSolidStructTriangles(part);
+ part._solidCutShip=ship;
+ if(!isHullStructure(part)&&(part._apertures?.length||(ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures)))return unpiercedStructTriangles(part);
  return placementTriangles(part);
 }
 function placementFitContactAlong(ship,part,parent,hit,n){
@@ -63467,7 +63469,8 @@ function placementFittedRecord(part){
  const v=[],f=[],index=new Map(),L=g.local;
  const vertex=i=>{const r=[L[i],L[i+1],L[i+2]],key=r.join(',');let id=index.get(key);if(id==null){id=v.length/3;index.set(key,id);v.push(...r);}return id;};
  for(let i=0;i<L.length;i+=9){const t=[vertex(i),vertex(i+3),vertex(i+6)];if(new Set(t).size===3)f.push(...t);}
- return f.length>=12?{shape:placementFitShapeKey(part),c:part.c.slice(),v,f}:null;
+ // A record that is not a closed solid with outward faces is not stored (it would be dropped on load and re-fitted).
+ const rec=f.length>=12?{shape:placementFitShapeKey(part),c:part.c.slice(),v,f}:null;return rec&&placementFittedSolid(rec)?rec:null;
 }
 function placementWholeGeometry(part){const T=placementTriangles(placementShape(part)),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const L=Float64Array.from(local);return {local:L,volume:meshVolume(L),area:solidMeshArea(T)};}
 function placementFittedValid(rec){if(!Array.isArray(rec?.c)||rec.c.length!==3||!rec.c.every(Number.isFinite))return false;if(rec?.removals!=null&&(typeof rec.removals!=='object'||Array.isArray(rec.removals)||!Object.values(rec.removals).every(v=>typeof v==='string')))return false;if(rec&&rec.whole===true&&typeof rec.shape==='string')return true;if(!rec||typeof rec.shape!=='string'||!Array.isArray(rec.v)||!Array.isArray(rec.f)||rec.v.length%3||rec.f.length%3||rec.f.length<12)return false;const n=rec.v.length/3;return rec.v.every(Number.isFinite)&&rec.f.every(i=>Number.isInteger(i)&&i>=0&&i<n);}
@@ -64149,8 +64152,8 @@ function placementRestoreMaterialized(part){
  // A record that does not apply (another shape, mode or a draft) is remembered per record and cheap shape probe, so
  // the hot callers (inStruct, partBodyAABB, volume) do not recompute the key at every sample point.
  if(!part.placement?.materializedGeometry&&part.placement?.fittedGeometry){const rec=part.placement.fittedGeometry;if(part.placement.pendingGeometry)return;
-  const probe=JSON.stringify([part.s,part.form,part.taper,part.angles,part.placement.mode,part.mesh?.v?.length,part.mesh?.f?.length]);if(part._placementFittedMiss?.rec===rec&&part._placementFittedMiss.probe===probe)return;
-  if(placementFittedValid(rec)&&['horizontal','vertical'].includes(part.placement.mode)&&rec.shape===placementFitShapeKey(part)){delete part._placementFittedMiss;placementRestoreFitted(part,rec);}else part._placementFittedMiss={rec,probe};return;}
+  const probe=JSON.stringify([part.c,part.s,part.form,part.taper,part.angles,part.placement.mode,part.mesh?.v?.length,part.mesh?.f?.length]);if(part._placementFittedMiss?.rec===rec&&part._placementFittedMiss.probe===probe)return;
+  if(placementFittedValid(rec)&&['horizontal','vertical'].includes(part.placement.mode)&&rec.shape===placementFitShapeKey(part)&&Array.isArray(part.c)&&len(sub(rec.c,part.c))<=PLACEMENT_TOLERANCES.coordinate){delete part._placementFittedMiss;placementRestoreFitted(part,rec);}else part._placementFittedMiss={rec,probe};return;}
  const mesh=part.placement?.materializedGeometry||part.mesh;if(!mesh)return;const key=publicJSON([mesh,part.s]);if(part._placementMaterializedSourceKey===key&&part._placementGeometry)return;const T=meshStructTriangles({...placementShape(part),form:'mesh',mesh,c:[0,0,0],yaw:0,pitch:0,roll:0,surfaceNormal:undefined}),local=Float64Array.from(T);part._placementGeometry={local,volume:meshVolume(local),area:solidMeshArea(local)};part._placementMaterializedSourceKey=key;
 }
 function placementMaterializeAttachment(part){
