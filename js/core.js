@@ -63437,11 +63437,14 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 // The user's own seat (a tap, a drag, a new draft) of a horizontal or vertical structure (user decision 2026-11-13,
 // no contact-face cut): the structure is moved along its contact axis until its whole base reaches the body below,
 // probed on a grid over its footprint; it then overlaps the body on the higher side (counted once by the union).
+// The same shape and pose for the no-rewrite rule, whatever the key order and the defaults a load adds (0, false,
+// empty) or the id.
+function placementSameShape(a,b){const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='id'&&!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;return JSON.stringify(canon(placementShape(a)))===JSON.stringify(canon(placementShape(b)));}
 function placementSinkToSurface(ship,part,parent,axis){
  const a=norm(axis),ref=Math.abs(a[1])<.9?[0,1,0]:[1,0,0],e1=norm(cross(a,ref)),e2=cross(a,e1),b=partAABB(part),corners=[];for(let i=0;i<8;i++)corners.push([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]);
  const pr=v=>[dot(v,e1),dot(v,e2),dot(v,a)],P=corners.map(pr),lo=[0,1,2].map(i=>Math.min(...P.map(q=>q[i]))),hi=[0,1,2].map(i=>Math.max(...P.map(q=>q[i]))),span=hi[2]-lo[2]+1,N=7;let depth=0,any=false;
  parent._solidCutShip=ship;part._solidCutShip=ship;
- for(let i=0;i<N;i++)for(let j=0;j<N;j++){const u=lo[0]+(hi[0]-lo[0])*(i+.5)/N,v=lo[1]+(hi[1]-lo[1])*(j+.5)/N,o=add(add(mul(e1,u),mul(e2,v)),mul(a,lo[2]-span)),hb=rayPart(o,a,part);if(!hb)continue;
+ for(let i=0;i<N;i++)for(let j=0;j<N;j++){const t=k=>1e-4+(1-2e-4)*k/(N-1),u=lo[0]+(hi[0]-lo[0])*t(i),v=lo[1]+(hi[1]-lo[1])*t(j),o=add(add(mul(e1,u),mul(e2,v)),mul(a,lo[2]-span)),hb=rayPart(o,a,part);if(!hb)continue;
   const hp=rayPart(add(hb.p,mul(a,span)),mul(a,-1),parent);if(!hp)continue;any=true;depth=Math.max(depth,dot(sub(hb.p,hp.p),a));}
  if(any&&depth>0)part.c=sub(part.c,mul(a,depth));
 }
@@ -63581,7 +63584,7 @@ function solveExteriorEquipmentPlacement(ship,input,request,metadata,context){
  // The parent-relative anchors of equipment describe where it meets the body (its contact is judged from them), so
  // after a real change of that body they are re-expressed for the unchanged world pose. Values that differ only by
  // numeric noise keep the stored ones, so a reload or a Worker pass writes nothing.
- if(kept&&placementShapeKey(old.requestedGeometry)===placementShapeKey(part))for(const key of [...PLACEMENT_AUTHORED_ANCHOR_KEYS,'rigidPose']){if(Object.hasOwn(old,key)&&(['geometryRevision','parentGeometryRevision','parentGeometryKey','parentPoseKey','anchorDimensions','requestedGeometry','hostSurfaceId'].includes(key)||!Object.hasOwn(metadata,key)||authoredValueDiff(publicCopyOf(old[key]),publicCopyOf(metadata[key]))<2))metadata[key]=publicCopyOf(old[key]);}
+ if(kept&&placementSameShape(old.requestedGeometry,part))for(const key of [...PLACEMENT_AUTHORED_ANCHOR_KEYS,'rigidPose']){if(Object.hasOwn(old,key)&&(['geometryRevision','parentGeometryRevision','parentGeometryKey','parentPoseKey','anchorDimensions','requestedGeometry','hostSurfaceId'].includes(key)||!Object.hasOwn(metadata,key)||authoredValueDiff(publicCopyOf(old[key]),publicCopyOf(metadata[key]))<2))metadata[key]=publicCopyOf(old[key]);}
  part.placement=metadata;
  if(part.k==='engine')buildEngineMountSupport(ship,part,parent);const contact=placementEquipmentContact(ship,part,parent);if(!contact.connected)return placementFailure(contact.reason||'contact-zero','追加元との通常取付の接触がありません。位置や向きを修正してください',{contact});
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);
@@ -63801,7 +63804,7 @@ function solvePlacement(ship,input,request={}){
  // Stage B (2026-11-13): a re-solve that is not the user's (reload, Worker, re-check, another part edited) and
  // keeps the stored pose and shape writes nothing authored. The placement record keeps the values of the
  // user's last placement or edit; the private keys below still track the body it now stands on.
- if(storedPose&&old.requestedGeometry&&placementShapeKey(old.requestedGeometry)===placementShapeKey(part))
+ if(storedPose&&old.requestedGeometry&&placementSameShape(old.requestedGeometry,part))
   for(const key of PLACEMENT_AUTHORED_ANCHOR_KEYS){if(Object.hasOwn(old,key))metadata[key]=publicCopyOf(old[key]);else delete metadata[key];}
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);part._placementFitRemovalKey=placementFitRemovalKey(part,parent);
  return {ok:true,part,contact,inputKey,existingId:existing?input.id:null,parentId,parentKey:placementDependencyKey(parent),requestedVolume:unclippedPartVolume(metadata.requestedGeometry),effectiveVolume:partVolume(part)};
