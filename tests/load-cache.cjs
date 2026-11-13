@@ -5,14 +5,18 @@ const read=f=>fs.readFileSync(path.join(root,f),'utf8'),plain=x=>JSON.parse(JSON
 
 // A minimal IndexedDB (one database, object stores keyed by 'id', asynchronous callbacks, structured clones),
 // shared between engine instances as a browser profile shares it between visits.
+// One store map per database name, as in a browser: ks-built and ks-derived are separate databases (each
+// trims only its own records). .stores is the ks-built database's stores, which the tests below inspect.
 function fakeIDB(){
- const stores=new Map(),later=f=>setTimeout(f,0);
+ const dbs=new Map(),later=f=>setTimeout(f,0);
+ const database=dbName=>{if(dbs.has(dbName))return dbs.get(dbName);const stores=new Map();
  const store=name=>{if(!stores.has(name))stores.set(name,new Map());const m=stores.get(name);return {
   get(id){const q={};later(()=>{q.result=m.has(id)?structuredClone(m.get(id)):undefined;q.onsuccess?.();});return q;},
   put(v){m.set(v.id,structuredClone(v));return {};},delete(id){m.delete(id);return {};},
   getAll(){const q={};later(()=>{q.result=[...m.values()].map(v=>structuredClone(v));q.onsuccess?.();});return q;}};};
  const db={transaction(){const tx={objectStore:store};later(()=>later(()=>tx.oncomplete?.()));return tx;},close(){}};
- return {stores,open(){const rq={};later(()=>{if(!stores.size){rq.result={createObjectStore:store};rq.onupgradeneeded?.();}rq.result=db;rq.onsuccess?.();});return rq;}};
+ const entry={stores,store,db};dbs.set(dbName,entry);return entry;};
+ return {get stores(){return database('ks-built').stores;},open(dbName='ks-built'){const d=database(dbName),rq={};later(()=>{if(!d.stores.size){rq.result={createObjectStore:d.store};rq.onupgradeneeded?.();}rq.result=d.db;rq.onsuccess?.();});return rq;}};
 }
 function engine(idb,files={},options={}){
  const sources=['data/reference.js','data/imperial2.js','js/core.js','js/gfx.js','js/engine.js'];
@@ -20,7 +24,8 @@ function engine(idb,files={},options={}){
  const stamp=hash(Buffer.concat(sources.map(f=>hash(files[f]??read(f))))).toString('hex').slice(0,20);
  const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone,URL,crypto:globalThis.crypto,importScripts(){},
   ...(idb?{indexedDB:idb}:{}),KS_SOURCE_STAMP:options.noStamp?null:stamp,
-  fetch:async()=>{throw new Error('disk identity must use loaded bytes, never refetch sources');}});
+  fetch:async()=>{throw new Error('disk identity must use loaded bytes, never refetch sources');},
+  ...require('./helpers/example-reader.cjs')(root)});
  cx.self=cx;cx.self.location={href:'http://x/app/js/worker.js'};
  for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(files[f]??read(f),cx,{filename:f});
  const source=read('js/engine.js');vm.runInContext(source.slice(0,source.indexOf('/* Interface-side connection')),cx,{filename:'js/engine.js'});
