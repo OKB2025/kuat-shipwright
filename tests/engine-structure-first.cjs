@@ -67,7 +67,8 @@ test('early structure meshes equal the full meshes with sensors, a cockpit and a
  for(const [id,list] of Object.entries(early.ranges))assert.deepEqual(list,full.ranges[id].filter(([k])=>early.groups.includes(k)),'ranges of #'+id);
  for(const id of ['2','6','7','8'])assert.equal(!!early.ranges[id],!!full.ranges[id]?.some(([k])=>early.groups.includes(k)),'#'+id+' in both or neither');
  assert.ok(early.ranges[6],'the carried sensor is in the early structure group');
- const sensor=JSON.parse(full.state).parts.find(p=>p.id===6);assert.ok(sensor.c[0]>60,'the sensor followed its carrier');
+ // Stage B (2026-11-13, user decision 2026-11-12): exterior equipment no longer follows its carrier; it stays where it was.
+ const sensor=JSON.parse(full.state).parts.find(p=>p.id===6);assert.deepEqual(sensor.c,derived.parts.find(p=>p.id===6).c,'the sensor stays where it was');
 });
 
 test('no early structure packet for a hull edit or when the hull changed',async()=>{

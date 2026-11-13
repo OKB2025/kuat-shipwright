@@ -291,3 +291,30 @@
 - `ALLOWED` のシナリオは、段階 B、C、F だけを扱う。D（ハッチ）、E（船体カット）、G（surfaces と publicJSON）、H（ミラー）のシナリオはまだ無い。ハーネスは `geometry` の応答だけを比べ、`surfaceGeometry` の応答は比べない。したがって、`ALLOWED` が空になっても、段階 A2 の完了を意味しない。
 - 段階 B の PR は、F2（除外をキー単位に絞る）、F3（`surfaceGeometry` の比較と D・E・G・H のシナリオ）、F4（許容差の方針の統一）への対応を受け入れ条件にする。それまでは「`ALLOWED` の行を消したら段階完了」という判定を使わない。
 - 上の基準値と「2 回目の往復では変わらなかった」は、`example-invariance.cjs` の許容差（相対 1e-9）の中での話。誤差なしで比べると、subjugator は Worker の往復のたびに約 220 個の装備（p、base、low、mountSupport）が最大 2.5e-12 だけゆらぎ続ける。lucrehulk は 2 個。main からある Worker の挙動で、段階 C で扱う。検出器とテストは誤差なしで比べるので、許容差の方針は段階 B の前にそろえる。
+
+**A1 の検出器の限界への対応（2026-11-13、段階 B の PR）**
+- F2（除外をキー単位に絞る）：Worker が解いた項目（ドラフト `pendingGeometry`、拒否の再検査 `validationFailed`）は、解いた結果が担うキー（`Core.AUTHORED_SOLVE_KEYS`。部品は `c`・`yaw`・`pitch`・`roll`・`surfaceNormal`・`placement`・`hullProfile`・`hullData`、装備は `p`・`n`・`host`・`frameForward`・`localForward`・`placement`）だけを除く。それ以外のキーの変化は数える。
+- F3（`surfaceGeometry` の比較と D・E・G・H のシナリオ）：`tests/helpers/worker-harness.cjs` は 2 つの応答（`geometry` と後の `surfaceGeometry`）の公開状態を両方返し、`tests/worker-authored-drift.cjs` は両方を比べる。シナリオに、格納庫のハッチ（D）、構造物に効く艦レベルの立体カット（E）、表面 159 件を持つユーザー設計（G）、左右対称の 2 部品（H）を足した。`scripts/example-invariance.cjs` も `surfaceGeometry` の状態を比べる（`workerSurface`、`roundTripSurface`）。
+- F4（許容差の方針の統一）：値は誤差なしで比べる。すべての数値の差が相対 `Core.AUTHORED_DRIFT_NOISE`（1e-9、`max(1,|a|,|b|)` に対して）以内のキーは `noiseKeys` に分けて出す。ゆらぎも変化として一覧に残し、捨てない。`example-invariance.cjs` も同じ値を使い、許容差内の差を `noise` に分けて記録する。
+- 見つかったもの：ハッチ（D）は、無関係な構造物の移動で `a`・`b`・`w` が書き換わる（`ALLOWED` に段階 D として記載）。E・H のシナリオでは、書き換えは無かった。
+
+## 段階 B：構造物の親子関係をなくし、成形結果を部品に保存する（2026-11-13）
+
+ユーザー決定（2026-11-12、handoff-2026-11-12.md §1）と、2026-11-13 の追加の決定（ドラッグでも成形し直す）による。
+
+|項目|規則|実装|
+|---|---|---|
+|成形結果の保存|水平・垂直配置の構造物の成形結果（親に合わせて削った実形状）を、部品の保存データ `placement.fittedGeometry` に持つ。形式は `{shape, v, f}`：部品座標の頂点（`v`、x,y,z の平坦な列、1 µm に丸める）、3 つずつの頂点番号（`f`）、作った時の部品自身の形のキー（`shape`、`placementFitShapeKey`。位置・向き・名前・ID を除き、キーの順と既定値に依らない）。編集中の部品も、保存した記録から形を作り直すので、編集中と再読込は同じ立体になる|`placementFittedRecord`、`placementRestoreFitted`、`placementFittedValid`、`normalizePlacementMetadata`|
+|成形する時|新しく置いた時（ドラフト、面のタップ、配置方式・接触側・成形方法・親の変更）、ユーザーが動かした時（ドラッグ `request.position`、部品自身の位置の変更）、構造物自身の寸法を変えた時（`shape` が変わる）だけ。回転、再読込、Worker、再検査、他の部品の編集（下の本体の移動・回転・寸法変更・削り）では成形し直さない|`placementUseStoredFit`（`solvePlacement`）|
+|成形しない時の判定|保存した形のまま、その場で接触を判定する。触れていなければ従来どおり警告か赤枠。赤枠の間も、保存した形を表示・計算に使う（以前は要求形状に戻っていた）|`placementRestoreMaterialized`|
+|削り|保存した形を、構造物に効く艦レベルの立体カットがその上から削る。削りを足しても消しても成形し直さない（削りを消すと元の形に正確に戻る）。`fitRemovalIds` は成形した時の記録として残る|`solvePlacement`|
+|作者データを書き換えない|ユーザーの操作でない解き直しで、姿勢と形を保った時は、配置記録（`geometryRevision`、`parentGeometryKey`、`parentPoseKey`、`parentLocalAnchor`、`anchorDimensions`、`surfaceAnchor`、`contactOffset`、`contactAxis`、`contactNormal`、`contactLocalNormal`、`hostSurfaceId`、`fitRemovalIds`、`requestedGeometry`）を前の値のまま残す。下の本体を追う値は非公開のキー（`_placementParentKey` など）だけが持つ|`PLACEMENT_AUTHORED_ANCHOR_KEYS`|
+|外装機器|機関・センサーなど外装機器も、取り付けた本体に追従しない。ユーザーの配置（タップ、ドラッグ、ドラフト、別の本体の選択）だけが姿勢を決める。それ以外の解き直しはワールドの姿勢（`c`・`dir`・`roll` など）と配置記録（`rigidPose` を含む）を保つ。機関の台座の作り直し（`engineMountSupport`）は段階 F で扱う|`solveExteriorEquipmentPlacement` の `kept`|
+|ミラー|左右・上下のミラー複製は、保存した形をワールドで鏡映して複製の座標で持つ（面の向きを裏返す）|`reflectPlacementMetadata`|
+|旧保存データの移行|`fittedGeometry` の無い保存データは、最初の解き直しで、姿勢を保ったまま置いた本体に 1 回だけ成形し、結果を保存する。その後は成形し直さない。形の正しくない記録は捨てて、同じく 1 回だけ成形する|`placementUseStoredFit`、`normalizePlacementMetadata`|
+
+**保存データの大きさ**：曲面の船体に合わせた成形は面数が多い。ユーザーの設計（`tests/fixtures/copied-structure-lost-parent-2026-11-13.json.gz`、構造物 8 個に成形結果）では、保存 JSON が 89 KB から 199 KB（gzip 5 KB から 48 KB）になる。最大は面取りの複製 2 個の各 2208 面。作例 28 隻と艦載機は配置記録を持たないので変わらない。
+
+**残っている親の記録（この段階では残す）**：`parentStructureId` は「置いた本体」の記録として残り、ユーザー自身の操作の時だけ使う：成形・寸法変更で合わせる本体、接触の判定（触れていなければ接触の網、`structuralConnectivity`）、コピーの範囲（`placementCopyClosure`）、削除時の付け替え（`removeParts`）、親を失ったコピーの付け直し（`placementAdoptContactParent`）、UI の「追加元」。どれも再計算で作者データを書き換えるものではない。コピー・削除での扱いを親によらない形にするかは、別途決める（handoff-2026-11-13.md §3 の 2）。
+
+検査：`tests/placement-stored-fit.cjs`（新規）、`tests/structure-height-anchor.cjs`（仮の期待値 15 m を 10 m に戻した）、`tests/worker-authored-drift.cjs`（段階 B の行を空にした）。

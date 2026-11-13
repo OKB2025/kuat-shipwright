@@ -19,7 +19,10 @@ function designWorker(root,C){
  let gen=0;
  async function update(state,{reset=false,what=['parts','fits','hatches'],designId='worker-harness'}={}){
   const g=++gen;send({type:'update',gen:g,designId,state:typeof state==='string'?state:JSON.stringify(state),reset,what,stats:false,view:{deferSurfaces:true}});
-  const reply=await wait('geometry',g);return {reply,state:JSON.parse(reply.state)};
+  // The Worker answers twice: 'geometry' (structures, placements) and then 'surfaceGeometry' (the surface pass,
+  // which can rewrite hatches, surfaces and other state). Both answers carry the public state (F3, 2026-11-13).
+  const reply=await wait('geometry',g),surface=await wait('surfaceGeometry',g);
+  return {reply,state:JSON.parse(reply.state),surfaceReply:surface,surfaceState:surface.state?JSON.parse(surface.state):null};
  }
  return {send,wait,update,context};
 }
