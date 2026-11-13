@@ -66732,7 +66732,8 @@ function heatStats(ship,S){
  S.heat.mode='strict';S.heat.dissipatorPower=rated;S.heat.feedLossW=net.src.filter(s=>s.k==='feed').reduce((n,s)=>n+(s.rated.combat||0),0);
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:inspectionTargets(ship,S,{code:'heat',text})});
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
- if(S.heat.power.broken)warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
+ // A load without any source is already reported as 「ジェネレーターがありません」 (S.Vgen <= 0): not a second, broken-line warning.
+ if(S.heat.power.broken&&!(S.Vgen<=0&&net.links.filter(l=>l.kind==='power'&&!l.ok).every(l=>l.why==='no-source')))warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
  if(S.heat.heat.broken)warn('warn',`接続できない熱輸送路が ${S.heat.heat.broken} 本あります（相手がない、または放熱翼に適さない廃熱）。`);
  if(c.overCount)warn('warn',`戦闘負荷で ${c.overCount} 系統の廃熱が処理しきれず蓄熱します（最短 ${f(c.over[0].t)} で出力制限）。散逸装置か熱輸送路を足してください。`);
  else if(m.overCount)warn('info',`最大出力では ${m.overCount} 系統が蓄熱します（最短 ${f(m.over[0].t)} で出力制限）。散逸装置を足すと全力運転を続けられます。`);
