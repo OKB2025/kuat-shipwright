@@ -50,3 +50,12 @@ test('a mirrored template keeps the tilt of a sloped non-turret fitting mirrored
  const f={id:1,k:'cmsl',p:[10,5,8],n:C.norm([0,1,.3]),tilt:C.norm([0,1,.3]),a:2,placement:{mode:'direct',modelVersion:C.PLACEMENT_MODEL_VERSION}},m=C.assemblyMirrorFit(f);
  if(!C.fitCanRotate(f)){near(m.tilt[2],-f.tilt[2]);near(m.tilt[1],f.tilt[1]);}
 });
+
+// Physics review 2026-11-13: a pedestalled gun on a sloped structure keeps no support block when it is left floating,
+// and one whose structure sits on another drops onto it and is mounted there.
+test('a pedestalled gun left floating by a deletion keeps no support; dropped onto a lower structure it is mounted there',()=>{
+ const make=withBase=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'Pedestal delete');s.parts=withBase?[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20]}]:[];s.parts.push({id:2,k:'struct',form:'box',c:[100,40,0],s:[60,40,20],pitch:20});s.fits=[];s.links=[];s.armor={hull:0,cit:0};s.nextId=3;s.detail=0;C.refreshPlacementGeometry(s);
+  const hit=C.rayPart([100,200,0],[0,-1,0],s.parts.find(p=>p.id===2)),r=C.solveFitPlacement(s,{id:-1,k:'triple70',p:[0,0,0],n:[0,1,0],a:2,ped:2,mountMode:'top'},{mode:'direct',hostId:2,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},geometryRevision:0,parentGeometryRevision:0});assert.equal(r.ok,true,r.error);C.acceptFitPlacementResult(s,r);return s;};
+ const a=make(false);assert.ok(a.fits[0].mountSupport,'a support on the slope');C.removeParts(a,[2]);C.remount(a,{keepFitPose:true});assert.equal(a.fits[0].float,true);assert.equal(a.fits[0].mountSupport,undefined);assert.equal(a.fits[0].base,0);assert.equal(a.fits[0].low,0);/* pedVol keeps only the manual pedestal (ped 2) */
+ const b=make(true),r=C.removeParts(b,[2]);assert.ok(r.reparented.some(q=>q.list==='fits'),'dropped and mounted');near(b.fits[0].p[1],20,1e-6);assert.equal(b.fits[0].host,1);C.remount(b,{keepFitPose:true});assert.equal(b.fits[0].float,false);
+});

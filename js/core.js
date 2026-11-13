@@ -64149,8 +64149,8 @@ function removeParts(ship,inputIds){
   // a wall never jumps across the interior to a far wall.
   const up=norm(fitUp(fit)),start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),down=mul(up,-1),reach=Math.max(0,...removedParts.map(q=>{const b=partAABB(q);return Math.abs(dot(sub(b.slice(3),b.slice(0,3)),up));}))+2*FIT_SUPPORT_GAP_M;let best=null;
   for(const q of supports){if(q.plate)continue;q._solidCutShip=ship;const h=rayPart(start,down,q);if(h){const t=dot(sub(start,h.p),up);if(t>=0&&t<=reach&&(!best||t<best.t))best={t,p:h.p,part:q};}}
-  if(best){const before={p:fit.p.slice()};fit.p=best.p.slice();const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,best.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:best.part.id,moved:true});continue;}fit.p=before.p;}
-  fit.float=true;
+  if(best){const before={p:fit.p.slice(),support:fit.mountSupport,base:fit.base,low:fit.low,slope:fit.slope};fit.p=best.p.slice();delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,best.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:best.part.id,moved:true});continue;}fit.p=before.p;if(before.support)fit.mountSupport=before.support;fit.base=before.base;fit.low=before.low;fit.slope=before.slope;}
+  fit.float=true;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;
  }
  ship._placementDeleting=true;try{for(const id of removedFits)removeItem(ship,'fits',id,false);for(const id of removed)removeItem(ship,'parts',id,false);}finally{delete ship._placementDeleting;}for(const g of ship.groups||[]){g.parts=g.parts.filter(id=>!removed.has(id));g.fits=g.fits.filter(id=>!removedFits.has(id));}if(ship.links)ship.links=ship.links.filter(l=>![l.from,l.to].some(id=>/^p\d+$/.test(id)&&removed.has(+id.slice(1))||/^f\d+$/.test(id)&&removedFits.has(+id.slice(1))));ship._cache=null;delete ship._interiorKey;return {ok:true,removed:[...removed],removedFits:[...removedFits],reparented};
 }
@@ -64187,9 +64187,10 @@ function reflectPlacementMetadata(source,out,ship,axis){
 // a fitting has no parent. Its world pose (p, n, a, tilt, frameForward) is the user's and is decided only when the
 // user places, moves, seats or slides it. Remounting (load, reload, Worker, a host edited, moved, turned or resized)
 // keeps that pose and only judges where it stands: supported when the surface below lies within FIT_SUPPORT_GAP_M
-// of it (user decision 2026-11-12: a gap of a few cm counts as contact), else floating (a warning). Anchored fittings
+// of it, else floating (a warning). FIT_SUPPORT_GAP_M is a numeric tolerance only (it absorbs rounding of a stored
+// position); a real gap is not contact (the few-cm gap rule was withdrawn by the user on 2026-11-13). Anchored fittings
 // (placement.mode 'direct') never take their pose from the host; other fittings keep it under remount(ship,{keepFitPose}).
-const FIT_SUPPORT_GAP_M=.05;
+const FIT_SUPPORT_GAP_M=1e-3;
 function fitPoseValid(f){return Array.isArray(f?.p)&&f.p.length===3&&f.p.every(Number.isFinite)&&Array.isArray(f.n)&&f.n.length===3&&f.n.every(Number.isFinite)&&len(f.n)>1e-8;}
 function isAnchoredFit(f){return !!(f?.placement&&FITS[f.k]&&f.placement.mode==='direct'&&f.placement.modelVersion===PLACEMENT_MODEL_VERSION);}
 function fitAttachmentLocal(host,point){const q=localStruct(host,point);return [q[0]/host.s[0],q[1]/host.s[2],q[2]/host.s[1]];}
@@ -64257,7 +64258,7 @@ function fitAttachmentHit(ship,f){
 }
 function prepareFitAttachment(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
- if(!host||!f.local||!f.localNormal){f.float=true;f._fitPlacementError={code:'parent-missing',error:'装備の追加元が失われています'};return false;}
+ if(!host||!f.local||!f.localNormal){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;f._fitPlacementError={code:'parent-missing',error:'装備の追加元が失われています'};return false;}
  // Stage C: the stored world pose stands; the host-local anchor only seeds a fitting that has none.
  if(fitPoseValid(f))return true;
  f.p=fitAttachmentPoint(host,f);f.n=fitAttachmentWorldNormal(host,f);
