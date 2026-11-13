@@ -270,7 +270,7 @@ test('id-less removals: deleting an earlier one or editing the fitted one re-sol
  hull.hullData.subs=[{structures:false,b:[20,24,-3,30,40,3]},{structures:false,b:[100,20,-3,120,40,3]}];ship._cache=null;C.refreshPlacementGeometry(ship);
  const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+2.5,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
  const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const box=ship.parts.at(-1);
- assert.equal(box.placement.fitRemovalIds.length,2,'content-named ids');const fitted=box.placement.fitRemovalIds[1];// the recess at x 100..120, under the boxassert.ok(box.placement.fitRemovalIds.every(id=>/^subs:#/.test(id)));
+ assert.equal(box.placement.fitRemovalIds.length,2,'content-named ids');const fitted=box.placement.fitRemovalIds[1];/* the recess at x 100..120, under the box */assert.ok(box.placement.fitRemovalIds.every(id=>/^subs:#/.test(id)));
  const look=()=>({c:box.c.map(v=>+v.toFixed(4)),vol:+(box._placementGeometry?.volume??C.partVolume(box)).toFixed(4),err:box._placementError||null,contact:C.placementContact(ship,box,hull).connected,stats:[+statsOf(ship).mass.toFixed(3),+statsOf(ship).volume.toFixed(3),statsOf(ship).cost]});
  same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105945.301,135045.945,372662]},'placed (main)');
  hull.hullData.subs=hull.hullData.subs.slice(1);ship._cache=null;let r=C.refreshPlacementGeometry(ship);assert.ok(r.updated.includes(box.id),'re-solved');

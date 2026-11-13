@@ -63441,8 +63441,9 @@ function placementOverlapFallback(ship,part,parent,failure){
 // fitted once against the body it was placed on, keeping its pose, and the result is stored (migration).
 const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision','parentGeometryKey','parentLocalAnchor','anchorDimensions','contactNormal','contactLocalNormal','parentPoseKey','surfaceAnchor','contactOffset','contactAxis','hostSurfaceId','fitRemovalIds','requestedGeometry'];
 // Canonical: key order and the defaults a load adds (0, false, empty) do not matter; the id does not either (a copy
-// keeps the shape of its source).
-function placementFitShapeKey(p){const q=placementShape(p);for(const k of ['id','c','yaw','pitch','roll','surfaceNormal','label','name'])delete q[k];
+// keeps the shape of its source). Round trip through save/load and the Worker: tests/placement-stored-fit.cjs.
+// Appearance, mass-only and link fields (paint, skin, light structure, mirror twins) never change the fitted solid.
+function placementFitShapeKey(p){const q=placementShape(p);for(const k of ['id','c','yaw','pitch','roll','surfaceNormal','label','name','paint','bandPaint','bands','skin','skinAsset','light','tw','vt'])delete q[k];
  const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;
  return JSON.stringify(canon(q));}
 // Stored as v, a flat [x,y,z,...] list of exact part-local coordinates, and f, a flat list of vertex indices,
@@ -63471,7 +63472,7 @@ function placementUseStoredFit(old,part,request,mode,contactSide,contactFit,pare
  const rec=old.fittedGeometry;if(!placementFittedValid(rec))return false;
  // A tap or a drag by the user (request.hit not derived from the stored anchor, request.position) fits anew at
  // the new place (user decision 2026-11-13); turning, reload and edits of other parts do not.
- if(request.hit&&!request._storedHit||request.position!=null||old.pendingGeometry||old.newPlacement||request._refit)return false;
+ if(request.hit&&!request._storedHit||request.position!=null||old.pendingGeometry||old.newPlacement)return false;
  if(old.mode!==mode||old.contactSide!==contactSide||(old.contactFit??'legacy-fit')!==contactFit||old.parentStructureId!==parentId)return false;
  // The part itself moved since its last solve (an edit of its position, whatever the tool): a user move, fitted anew.
  const at=old.requestedGeometry?.c;if(!Array.isArray(at)||!Array.isArray(part.c)||len(sub(at,part.c))>PLACEMENT_TOLERANCES.coordinate)return false;
@@ -64130,7 +64131,11 @@ function placementRestoreMaterialized(part){
  // A structure with a stored fitted shape (stage B) has that solid whatever its placement state (also while it is
  // in error, judged where it stands), as long as the stored shape belongs to its present dimensions.
  // A pending edit previews its request: it never borrows the stored solid of the earlier placement.
- if(!part.placement?.materializedGeometry&&part.placement?.fittedGeometry){const rec=part.placement.fittedGeometry;if(!part.placement.pendingGeometry&&placementFittedValid(rec)&&['horizontal','vertical'].includes(part.placement.mode)&&rec.shape===placementFitShapeKey(part))placementRestoreFitted(part,rec);return;}
+ // A record that does not apply (another shape, mode or a draft) is remembered per record and cheap shape probe, so
+ // the hot callers (inStruct, partBodyAABB, volume) do not recompute the key at every sample point.
+ if(!part.placement?.materializedGeometry&&part.placement?.fittedGeometry){const rec=part.placement.fittedGeometry;if(part.placement.pendingGeometry)return;
+  const probe=JSON.stringify([part.s,part.form,part.taper,part.angles,part.placement.mode,part.mesh?.v?.length,part.mesh?.f?.length]);if(part._placementFittedMiss?.rec===rec&&part._placementFittedMiss.probe===probe)return;
+  if(placementFittedValid(rec)&&['horizontal','vertical'].includes(part.placement.mode)&&rec.shape===placementFitShapeKey(part)){delete part._placementFittedMiss;placementRestoreFitted(part,rec);}else part._placementFittedMiss={rec,probe};return;}
  const mesh=part.placement?.materializedGeometry||part.mesh;if(!mesh)return;const key=publicJSON([mesh,part.s]);if(part._placementMaterializedSourceKey===key&&part._placementGeometry)return;const T=meshStructTriangles({...placementShape(part),form:'mesh',mesh,c:[0,0,0],yaw:0,pitch:0,roll:0,surfaceNormal:undefined}),local=Float64Array.from(T);part._placementGeometry={local,volume:meshVolume(local),area:solidMeshArea(local)};part._placementMaterializedSourceKey=key;
 }
 function placementMaterializeAttachment(part){

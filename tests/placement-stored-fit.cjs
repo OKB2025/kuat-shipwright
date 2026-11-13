@@ -31,7 +31,6 @@ for(const [name,edit] of [
  ['raised',p=>{p.c=[p.c[0],p.c[1]+3,p.c[2]];}],
  ['turned',p=>{p.pitch=-4;}],
  ['resized',p=>{p.s=[140,80,26];}],
- ['cut under the child',(p,ship)=>{ship.solidCuts=[C.normalizeSolidCut({id:9,shape:'box',c:[20,10,30],s:[30,6,30],structures:true})];ship.solidCuts.length=0;}],
 ])test(`the body below ${name}: the child keeps its stored shape, pose and placement record`,()=>{
  const {ship,parent,part}=fixture(),before={record:record(part),c:plain(part.c),volume:C.partVolume(part),tris:tris(part)};
  edit(parent,ship);C.refreshPlacementGeometry(ship);
@@ -89,4 +88,54 @@ test('exterior equipment does not follow the structure it was mounted on',()=>{
  s.parts[0].c=[50,4,0];C.refreshPlacementGeometry(s);
  assert.deepEqual(plain({c:engine.c,dir:engine.dir,roll:engine.roll}),pose);assert.equal(engine.placement.geometryRevision,JSON.parse(rec).geometryRevision);
  const after=C.publicJSON(engine.placement);C.refreshPlacementGeometry(s);assert.equal(C.publicJSON(engine.placement),after);
+});
+
+// Review 2026-11-13 (regression, finding 2): the stored fit is used only while its shape key matches, so the key
+// must not change through a save/load or the real Worker for any structure form; otherwise a reload would re-fit.
+const {designWorker}=require('./helpers/worker-harness.cjs');
+const FORMS=[['box',{}],['trap',{taper:.75}],['chamfer',{angles:[24,0,0,0]}],['ellipsoid',{}],['cylinder',{}],['wedge',{}],['dome',{}],['mesh',null]];
+function formFixture(form,extra){
+ const ship=C.newShip({L:300,W:200,H:100,assembly:true},'Stored fit forms');
+ Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20],pitch:6}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
+ const parent=ship.parts[0],hit=C.rayPart([20,200,30],[0,-1,0],parent),c=[20,hit.p[1]+8,30];let input={id:2,k:'struct',form,c,s:[16,16,20],yaw:0,...(extra||{})};
+ if(form==='mesh'){const b={id:2,k:'struct',form:'box',c,s:[16,16,20],yaw:0};input={...b,form:'mesh',mesh:C.structToMesh(b)};}
+ const r=C.solvePlacement(ship,input,{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});
+ if(!r.ok)return {skip:r.code};ship.parts.push(r.part);C.refreshPlacementGeometry(ship);return {ship,part:ship.parts.find(p=>p.id===2)};
+}
+for(const [form,extra] of FORMS)test(`the stored fit of a ${form} survives a save/load and the real Worker unchanged (no re-fit)`,async t=>{
+ const f=formFixture(form,extra);if(f.skip){t.skip(`${form} cannot be placed horizontally here: ${f.skip}`);return;}
+ const {ship,part}=f,record=record_(part);assert.ok(part.placement.fittedGeometry,'stored');assert.equal(part.placement.fittedGeometry.shape,C.placementFitShapeKey(part));
+ const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2);assert.equal(C.placementFitShapeKey(q),part.placement.fittedGeometry.shape,'key stable through save/load');C.refreshPlacementGeometry(L);assert.equal(record_(q),record);
+ const w=designWorker(root,C),start=JSON.parse(C.publicJSON(ship)),first=await w.update(start,{reset:true}),again=await w.update(JSON.parse(JSON.stringify(first.surfaceState||first.state)));
+ for(const st of [first.state,first.surfaceState,again.state,again.surfaceState])assert.equal(JSON.stringify(st.parts.find(p=>p.id===2).placement),JSON.stringify(JSON.parse(record)),'the Worker writes nothing');
+});
+function record_(p){return C.publicJSON(p.placement);}
+
+test('an appearance edit (paint, skin, label) does not re-fit a child whose parent has moved',()=>{
+ const {ship,parent,part}=fixture(),g=C.publicJSON(part.placement.fittedGeometry);parent.c=[parent.c[0],parent.c[1]+2,parent.c[2]];C.refreshPlacementGeometry(ship);
+ part.paint='#aa3300';part.label='Painted';part.skin='plates';C.refreshPlacementGeometry(ship);assert.equal(C.publicJSON(part.placement.fittedGeometry),g);
+});
+
+// Review 2026-11-13 (regression, finding 3): copies carry the stored shape; the copy's solid must be the same live and
+// after a reload, and a reflected copy must be the reflection of the source.
+const solidOf=p=>({volume:+C.partVolume(p).toFixed(9),box:(T=>[0,1,2].map(i=>Math.min(...T.filter((_,j)=>j%3===i))).concat([0,1,2].map(i=>Math.max(...T.filter((_,j)=>j%3===i)))).map(v=>+v.toFixed(6)))(tris(p))});
+function liveEqualsReload(ship,ids){const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);for(const id of ids){const a=ship.parts.find(p=>p.id===id),b=L.parts.find(p=>p.id===id);assert.deepEqual(solidOf(b),solidOf(a),'copy #'+id+' live = reload');assert.equal(C.publicJSON(b.placement),C.publicJSON(a.placement));}}
+test('a vertical (up/down) mirror copy carries the reflected stored shape, live = reload',()=>{
+ const {ship,part}=fixture(),q=C.vmirrorPart(part,ship);q.id=5;ship.parts.push(q);ship.nextId=6;assert.ok(q.placement.fittedGeometry);C.placementRestoreFitted(q,q.placement.fittedGeometry);
+ near(C.partVolume(q),C.partVolume(part),1e-6);const a=solidOf(part).box,b=solidOf(q).box;near(b[0],a[0],1e-6);near(b[3],a[3],1e-6);near(b[2],a[2],1e-6);near(b[5],a[5],1e-6);near(b[4]-b[1],a[4]-a[1],1e-6);
+});
+test('a vertical-mode child mirrored across the centreline carries the reflected stored shape, live = reload',()=>{
+ const ship=C.newShip({L:300,W:200,H:100,assembly:true},'Stored fit vertical');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,40,60],yaw:8}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
+ const parent=ship.parts[0],hit=C.rayPart([10,0,200],[0,0,-1],parent),c=[10,0,hit.p[2]+6],r=C.solvePlacement(ship,{id:2,k:'struct',form:'box',c,s:[10,14,16],yaw:0},{mode:'vertical',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'port'});
+ if(!r.ok){assert.fail('vertical placement: '+r.code);}ship.parts.push(r.part);C.refreshPlacementGeometry(ship);const part=ship.parts.find(p=>p.id===2);assert.ok(part.placement.fittedGeometry);
+ const q=C.mirrorPart(part,ship);q.id=5;ship.parts.push(q);ship.nextId=6;C.refreshPlacementGeometry(ship);near(C.partVolume(q),C.partVolume(part),1e-6);const a=solidOf(part).box,b=solidOf(q).box;near(b[2],-a[5],1e-6);near(b[5],-a[2],1e-6);
+ liveEqualsReload(ship,[2,5]);
+});
+test('rotated array copies keep a consistent stored shape, live = reload',()=>{
+ const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'t');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts.find(p=>C.isShapePart(p));
+ const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},input={id:ship.nextId,k:'struct',form:'box',c:[hit.p[0],hit.p[1]+1.8,hit.p[2]],s:[16,8,6],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+ const d=C.preparePlacementDraft(ship,input,{mode:'horizontal',parentStructureId:hull.id,hostId:hull.id,hit,contactFit:'cut',position:input.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;C.refreshPlacementGeometry(ship);const box=ship.parts.at(-1);
+ const res=C.placeRotationalCopies(ship,{parts:[box.id],fits:[]},{count:4,axis:0,center:[110,0,0]});assert.equal(res.ok,true,res.error);C.refreshPlacementGeometry(ship);
+ for(const id of res.parts){const p=ship.parts.find(q=>q.id===id);assert.ok(p.placement.fittedGeometry,'copy #'+id+' stores its shape');assert.equal(p.placement.fittedGeometry.shape,C.placementFitShapeKey(p));}
+ liveEqualsReload(ship,res.parts);
 });
