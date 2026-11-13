@@ -44,15 +44,21 @@ test('face fitting preserves shape and uses the selected surface normal without 
  assert.equal(r.ok,true,r.error);assert.equal(r.part._placementGeometry,undefined);near(C.partVolume(r.part),1000);near(r.part.surfaceNormal[0],hit.n[0]);near(r.part.surfaceNormal[1],hit.n[1]);
 });
 
-test('parent movement, rotation, and resized top update descendants and leave another branch alone',()=>{
- const s=fixture(),child=add(s),grand=add(s,child.id,'horizontal',[0,100,0],[0,-1,0],box([4,4,4]));s.parts.push({...box([20,20,10]),id:s.nextId++,c:[100,0,0]});const separate=add(s,s.parts.at(-1).id,'horizontal',[100,100,0],[0,-1,0],box([4,4,4])),otherKey=C.publicJSON(separate.placement),before=child.c.slice();
- s.parts[0].c[0]+=12;let update=C.updatePlacementChildren(s,1);assert.equal(update.ok,true,JSON.stringify(update));near(child.c[0],before[0]+12);near(grand.c[0],12);assert.equal(C.publicJSON(separate.placement),otherKey);
- s.parts[0].s[2]=30;update=C.updatePlacementChildren(s,1);assert.equal(update.ok,true,JSON.stringify(update));near(child.c[1],20);assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
- s.parts[0].roll=10;update=C.updatePlacementChildren(s,1);assert.equal(update.ok,true,JSON.stringify(update));assert.equal(child.roll,0);assert.equal(grand.roll,0);assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
+// 2026-11-12 user decision (replaces decision 1 of 2026-11-11): children do not follow their parent; parts are
+// moved together by multi-selection. A re-solve keeps each child's world pose; it is judged where it is.
+test('parent movement, rotation, and resized top keep descendants at their world pose and leave another branch alone',()=>{
+ const s=fixture(),child=add(s),grand=add(s,child.id,'horizontal',[0,100,0],[0,-1,0],box([4,4,4]));s.parts.push({...box([20,20,10]),id:s.nextId++,c:[100,0,0]});const separate=add(s,s.parts.at(-1).id,'horizontal',[100,100,0],[0,-1,0],box([4,4,4])),otherKey=C.publicJSON(separate.placement),before=child.c.slice(),grandBefore=grand.c.slice();
+ const kept=label=>{before.forEach((v,i)=>near(child.c[i],v));grandBefore.forEach((v,i)=>near(grand.c[i],v));assert.equal(child.roll||0,0,label);assert.equal(grand.roll||0,0,label);};
+ // Moved 12 m: the 80 m parent still touches the 10 m child, which stays where it is and connected.
+ s.parts[0].c[0]+=12;let update=C.updatePlacementChildren(s,1);assert.equal(update.ok,true,JSON.stringify(update));kept('moved');assert.equal(C.publicJSON(separate.placement),otherKey);assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
+ // A taller parent swallows part of the child: an overlap is a contact; the child is not lifted.
+ s.parts[0].s[2]=30;update=C.updatePlacementChildren(s,1);kept('resized');assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
+ // A rolled parent: the child keeps its world orientation.
+ s.parts[0].roll=10;update=C.updatePlacementChildren(s,1);kept('rolled');
 });
 
-test('surface-mode descendants follow a parent rotation through a saved local normal',()=>{
- const s=fixture(),child=add(s,1,'surface');s.parts[0].roll=15;const r=C.updatePlacementChildren(s,1);assert.equal(r.ok,true,JSON.stringify(r));const up=C.worldStruct({...s.parts[0],c:[0,0,0]},[0,1,0]);near(child.surfaceNormal[1],up[1]);near(child.surfaceNormal[2],up[2]);assert.equal(C.placementContact(s,child,s.parts[0]).connected,true);
+test('surface-mode descendants keep their world orientation when the parent rotates (no re-seat)',()=>{
+ const s=fixture(),child=add(s,1,'surface'),normal=child.surfaceNormal.slice(),c=child.c.slice();s.parts[0].roll=15;C.updatePlacementChildren(s,1);normal.forEach((v,i)=>near(child.surfaceNormal[i],v));c.forEach((v,i)=>near(child.c[i],v));
 });
 
 test('a missing saved parent retains repairable children; cycles and lost faces cannot silently reconnect',()=>{
@@ -90,8 +96,9 @@ test('contact calibration covers small and large ships and translated coordinate
 
 test('a failed free edit becomes the saved repair source and later parent motion cannot undo it',()=>{
  const s=fixture(),child=add(s);child.c[0]=90;const moved=Array.from(child.c),r=C.refreshPlacementGeometry(s);assert.equal(r.ok,false);assert.equal(child.placement.repairRequired,true);assert.deepEqual(Array.from(child.placement.requestedGeometry.c),moved);
- s.parts[0].c[0]+=12;C.refreshPlacementGeometry(s);near(child.c[0],moved[0]+12);assert.equal(child.placement.repairRequired,true);
- const restored=C.deserialize(C.serialize(s)),restoredChild=restored.parts.find(p=>p.id===child.id);near(restoredChild.c[0],moved[0]+12);assert.equal(C.placementDiagnostics(restored).find(p=>p.partId===child.id).connected,false);
+ // 2026-11-12: the repair child is not carried by its parent's motion; it stays where the user left it.
+ s.parts[0].c[0]+=12;C.refreshPlacementGeometry(s);near(child.c[0],moved[0]);assert.equal(child.placement.repairRequired,true);
+ const restored=C.deserialize(C.serialize(s)),restoredChild=restored.parts.find(p=>p.id===child.id);near(restoredChild.c[0],moved[0]);assert.equal(C.placementDiagnostics(restored).find(p=>p.partId===child.id).connected,false);
  const solve=C.solvePlacement(restored,restoredChild,{mode:'horizontal',parentStructureId:1,hit:C.rayPart([12,100,0],[0,-1,0],restored.parts[0])});assert.equal(solve.ok,true,solve.error);const accepted=C.acceptPlacementResult(restored,solve);assert.equal(accepted.ok,true,accepted.error);assert.equal(accepted.part.id,child.id);assert.equal(accepted.part.placement.repairRequired,undefined);assert.equal(accepted.part.placement.parentStructureId,1);
 });
 
@@ -133,8 +140,10 @@ test('clipboard coordinate scaling remaps local anchors and keeps an unseated co
  const s=fixture(),child=add(s,1,'surface'),copies=plain(s.parts),map=new Map([[1,100],[child.id,101]]),scale=p=>p.map(v=>v*2);for(const p of copies){p.id=map.get(p.id);p.c=scale(p.c);}for(const p of copies)C.remapPlacementCopy(p,map,{detachRoots:true,point:scale,sourceParts:s.parts,targetParts:copies});const dest=fixture(null);dest.parts=copies;dest.nextId=102;const q=dest.parts.find(p=>p.id===101),position=q.c.slice();assert.equal(q.placement.parentStructureId,100);const result=C.refreshPlacementGeometry(dest);assert.equal(result.ok,false);assert.deepEqual(Array.from(q.c),position);assert.equal(C.placementDiagnostics(dest).find(p=>p.partId===101).connected,false);assert.equal(q.placement.requestedGeometry.c[1],position[1]);
 });
 
-test('a parent vertex edit reprojects the anchor onto the same stable face and refits descendants',()=>{
- const parent={...box([80,80,20]),id:1};parent.mesh=C.structToMesh(parent);parent.form='mesh';const s=fixture(parent),face=C.surfacePatches(s,true).find(p=>p.host==='p1'&&p.normal[1]>.99),hit=C.rayPart([0,100,0],[0,-1,0],parent),result=C.commitPlacement(s,box(),{mode:'horizontal',parentStructureId:1,hostSurfaceId:face.id,hit});assert.equal(result.ok,true,result.error);const child=result.part,before=child.c[1];const selected=parent.mesh.v.map((v,i)=>v[1]>.49&&v[0]>.49?i:-1).filter(i=>i>=0),edited=C.meshMoveVertices(parent,selected,[0,2,0]);assert.equal(edited.error,undefined,edited.error);parent.mesh=edited.mesh;const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child.placement.hostSurfaceId,face.id);assert.ok(child.c[1]>before+.9);assert.equal(child.roll,0);assert.equal(C.placementContact(s,child,parent).connected,true);
+// 2026-11-12: a vertex edit of the parent does not move its children (world pose kept); the raised face now
+// overlaps the child, which is a contact.
+test('a parent vertex edit keeps the child where it is, on the same stable face, and refits it',()=>{
+ const parent={...box([80,80,20]),id:1};parent.mesh=C.structToMesh(parent);parent.form='mesh';const s=fixture(parent),face=C.surfacePatches(s,true).find(p=>p.host==='p1'&&p.normal[1]>.99),hit=C.rayPart([0,100,0],[0,-1,0],parent),result=C.commitPlacement(s,box(),{mode:'horizontal',parentStructureId:1,hostSurfaceId:face.id,hit});assert.equal(result.ok,true,result.error);const child=result.part,before=child.c[1];const selected=parent.mesh.v.map((v,i)=>v[1]>.49&&v[0]>.49?i:-1).filter(i=>i>=0),edited=C.meshMoveVertices(parent,selected,[0,2,0]);assert.equal(edited.error,undefined,edited.error);parent.mesh=edited.mesh;const r=C.refreshPlacementGeometry(s);assert.equal(r.ok,true,JSON.stringify(r));assert.equal(child.placement.hostSurfaceId,face.id);near(child.c[1],before);assert.equal(child.roll,0);assert.equal(C.placementContact(s,child,parent).connected,true);
  // Reviewed spec change (user rule 2026-11-11, docs/design-placement-v1.2.md "削りと接続"): a stored
  // face id is only a hint. Patch ids are positional and a cut renumbers them, so a lost id keeps the
  // stored pose and the child stands on its real contact with the parent. Previously (ATTACH-03 before

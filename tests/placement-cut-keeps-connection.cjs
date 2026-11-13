@@ -149,14 +149,17 @@ for(const [name,cc,cs] of [['half-under',[118,30,0],[12,8,10]],['edge-sliver',[1
   for(const [label,s] of [['reload',L],['deferred',D]]){const other=pick(s,s.parts.find(p=>p.id===box.id));same(other.c,live.c,label+' pose');assert.equal(other.err,live.err,label);assert.equal(other.sev,live.sev,label);closeTo(other.vol,live.vol,label+' fitted volume');for(const k of ['mass','volume','cost'])closeTo(other[k],live[k],label+' '+k);}
  });
 
+// 2026-11-12 user decision (replaces decision 1): children do not follow their parent. A severed child whose
+// parent then moves away stays where it is; touching neither the cut nor the uncut parent, it is a red failure,
+// stable refresh after refresh and after reload.
 for(const mode of ['horizontal','surface'])
- test(`${mode}: a severed child whose parent then moves is carried with it and stays a warning, refresh after refresh and after reload`,()=>{
+ test(`${mode}: a severed child whose parent then moves away stays where it is and is reported, refresh after refresh and after reload`,()=>{
   const {ship,hull,box}=build(mode);hullCut(ship,hull,[110,30,0],[40,12,40]);ship._cache=null;C.refreshPlacementGeometry(ship);assert.equal(box._placementSevered,true);
-  const c0=box.c.slice();hull.c=[hull.c[0],hull.c[1],hull.c[2]+40];ship._cache=null;
-  const states=[];for(let i=0;i<2;i++){ship._cache=null;const r=C.refreshPlacementGeometry(ship);states.push({failed:r.failed.length,severed:r.severed.map(q=>q.partId),err:box._placementError||null,c:box.c.map(v=>+v.toFixed(6))});}
-  same(states[0],states[1],'a second refresh with no change agrees');assert.equal(states[0].err,null);same(states[0].severed,[box.id]);closeTo(box.c[2]-c0[2],40,'carried with the parent');
-  const S=grounding(ship);assert.ok(!S.ungrounded.parts.includes(box.id));same(S.severed,[box.id]);
-  const {L}=reload(ship),b=L.parts.find(p=>p.id===box.id);assert.equal(b._placementError,undefined);assert.equal(b._placementSevered,true);same(b.c.map(v=>+v.toFixed(6)),states[0].c,'reload agrees');
+  const c0=box.c.map(v=>+v.toFixed(6));hull.c=[hull.c[0],hull.c[1],hull.c[2]+40];ship._cache=null;
+  const states=[];for(let i=0;i<2;i++){ship._cache=null;const r=C.refreshPlacementGeometry(ship);states.push({failed:r.failed.map(q=>q.partId),severed:r.severed.map(q=>q.partId),err:!!box._placementError,c:box.c.map(v=>+v.toFixed(6))});}
+  same(states[0],states[1],'a second refresh with no change agrees');same(states[0].c,c0,'not carried with the parent');assert.ok(states[0].err,'reported');same(states[0].severed,[]);
+  const S=grounding(ship);assert.ok(S.ungrounded.parts.includes(box.id),'red');
+  const {L}=reload(ship),b=L.parts.find(p=>p.id===box.id);assert.ok(b._placementError,'reload agrees: reported');same(b.c.map(v=>+v.toFixed(6)),c0,'reload agrees: not moved');
  });
 
 test('a child that lost contact for any other reason is a failure, not severed, even after a cut elsewhere (no stale mark)',()=>{
@@ -238,11 +241,14 @@ test('a cut made after placing into a recess still does not re-fit the child (li
  for(const k of ['mass','volume','cost'])closeTo(statsOf(L)[k],statsOf(ship)[k],k);
 });
 
-// Round-3 review (c785801): editing a removal the child was fitted into (same id) re-solves the child as
-// origin/main does; expected values are main 3e82bf1's for the same steps.
+// Round-3 review (c785801): editing a removal the child was fitted into (same id) re-solves the child; expected
+// values were main 3e82bf1's for the same steps. 2026-11-12 user decision: a re-solve never moves a placed
+// child (main moved the hovering box down onto the deepened floor, and lifted the box on the floor out of the
+// raised floor, i.e. un-sank it). Now the child keeps its position in all three cases and is re-fitted where it
+// is; the widened recess (position unchanged on main too) keeps main's full values.
 for(const [name,lift,newC,newS,expected] of [
- ['deepen the recess by 2 m (hovering box)',2.5,[110,29,0],[20,6,22],{c:[110,20.5,0],vol:108,contact:true,mass:106664.53}],
- ['raise the recess floor by 1 m (box on the floor)',1.2,[110,30.5,0],[20,6,19],{c:[110,22.2,0],vol:76.8,contact:true,mass:106014.25}],
+ ['deepen the recess by 2 m (hovering box)',2.5,[110,29,0],[20,6,22],{c:[110,22.5,0],contact:true}],
+ ['raise the recess floor by 1 m (box on the floor)',1.2,[110,30.5,0],[20,6,19],{c:[110,21.2,0],contact:true}],
  ['widen the recess (hovering box)',2.5,[110,30,0],[30,6,20],{c:[110,22.5,0],vol:108,contact:true,mass:107075.22}],
 ])
  test(`editing the recess a child was fitted into: ${name} — live = reload = main`,()=>{
@@ -252,7 +258,7 @@ for(const [name,lift,newC,newS,expected] of [
   const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);
   const box=ship.parts.at(-1);same(box.placement.fitRemovalIds,['solidCuts:'+id]);
   C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:newC,s:newS,rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;const r=C.refreshPlacementGeometry(ship);assert.equal(r.ok,true,JSON.stringify(r.failed));
-  const live=shapeOf(ship,box,hull);same(live,expected,'as on main');assert.equal(box._placementError,undefined);
+  const live=shapeOf(ship,box,hull);same(expected.vol==null?{c:live.c,contact:live.contact}:live,expected,'position kept (and as on main where main kept it)');assert.equal(box._placementError,undefined);
   const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);same(shapeOf(D,D.parts.find(q=>q.id===box.id),D.parts[0]),live,'reload');
  });
 
@@ -269,6 +275,7 @@ test('id-less removals: deleting an earlier one or editing the fitted one re-sol
  same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105363.924,135325.581,370378]},'earlier one deleted (main)');
  const ids=placementIds(box);assert.equal(ids.length,1,'the fitted recess keeps its content id after the earlier one is gone');
  hull.hullData.subs=[{structures:false,b:[100,21,-3,120,40,3]}];ship._cache=null;r=C.refreshPlacementGeometry(ship);assert.ok(r.updated.includes(box.id),'re-solved after the edit');
- same(look(),{c:[110,23.5,0],vol:96,err:null,contact:true,stats:[105228.334,135381.863,369845]},'fitted one edited (main)');
+ // 2026-11-12: the raised floor no longer lifts the child (main: c y 23.5); it stays at 22.5, overlapping the floor.
+ same(look(),{c:[110,22.5,0],vol:96,err:null,contact:true,stats:[105181.203,135368.297,369671]},'fitted one edited (position kept)');
 });
 function placementIds(b){return b.placement.fitRemovalIds||[];}
