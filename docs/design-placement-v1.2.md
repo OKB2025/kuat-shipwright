@@ -298,25 +298,21 @@
 - F4（許容差の方針の統一）：値は誤差なしで比べる。すべての数値の差が相対 `Core.AUTHORED_DRIFT_NOISE`（1e-9、`max(1,|a|,|b|)` に対して）以内のキーは `noiseKeys` に分けて出す。ゆらぎも変化として一覧に残し、捨てない。`example-invariance.cjs` も同じ値を使い、許容差内の差を `noise` に分けて記録する。
 - 見つかったもの：ハッチ（D）は、無関係な構造物の移動で `a`・`b`・`w` が書き換わる（`ALLOWED` に段階 D として記載）。E・H のシナリオでは、書き換えは無かった。
 
-## 段階 B：構造物の親子関係をなくし、成形結果を部品に保存する（2026-11-13）
+## 段階 B：構造物の親子関係をなくす（成形の廃止、2026-11-13）
 
-ユーザー決定（2026-11-12、handoff-2026-11-12.md §1）と、2026-11-13 の追加の決定（ドラッグでも成形し直す）による。
+ユーザー決定（2026-11-12、handoff-2026-11-12.md §1）と、2026-11-13 の追加の決定による。2026-11-13 の途中までは「成形結果を部品に保存する」方式で作ったが、同日のユーザー決定「成形そのものをなくす」（「接触面のカットをなくした」「基本重ねて配置すればいいだけ」）で置き換えた。
 
 |項目|規則|実装|
 |---|---|---|
-|成形結果の保存|水平・垂直配置の構造物の成形結果（親に合わせて削った実形状）を、部品の保存データ `placement.fittedGeometry` に持つ。形式は `{shape, v, f}`：部品座標の頂点（`v`、x,y,z の平坦な列、丸めない。1 µm に丸めると、凹みを埋める子の面が親の面と同一平面でなくなり、構造の合併の質量が 189 t ずれた）。丸ごと残す部品は `{shape, whole:true}`、3 つずつの頂点番号（`f`）、作った時の部品自身の形のキー（`shape`、`placementFitShapeKey`。位置・向き・名前・ID を除き、キーの順と既定値に依らない）。編集中の部品も、保存した記録から形を作り直すので、編集中と再読込は同じ立体になる|`placementFittedRecord`、`placementRestoreFitted`、`placementFittedValid`、`normalizePlacementMetadata`|
-|成形する時|新しく置いた時（ドラフト、面のタップ、配置方式・接触側・成形方法・親の変更）、ユーザーが動かした時（ドラッグ `request.position`、部品自身の位置の変更）、構造物自身の寸法を変えた時（`shape` が変わる）だけ。回転、再読込、Worker、再検査、他の部品の編集（下の本体の移動・回転・寸法変更・削り）では成形し直さない。判定は、記録に残した成形時のワールド位置（`fittedGeometry.c`）と今の位置の比較で行う。その場での回転は位置が変わらないので成形し直さず、部品の中心以外を軸にした回転、複数選択での移動、コピー・貼り付け・配列複製で別の場所に置いたものは、位置が変わるので成形し直す（ユーザーの操作）。ミラー複製は、元の記録が今の形と位置に合っている時だけ鏡映して写し、そうでなければ複製側で成形する|`placementUseStoredFit`（`solvePlacement`）|
-|成形しない時の判定|保存した形のまま、その場で接触を判定する。触れていなければ従来どおり警告か赤枠。赤枠の間も、保存した形を表示・計算に使う（以前は要求形状に戻っていた）。ドラフト（`pendingGeometry`）の間は要求形状を表示し、前の形を借りない|`placementRestoreMaterialized`|
-|削り|保存した形を、構造物に効く艦レベルの立体カットがその上から削る。削りを足しても消しても成形し直さない（削りを消すと元の形に正確に戻る）。`fitRemovalIds` は成形した時の記録として残る|`solvePlacement`|
-|作者データを書き換えない|ユーザーの操作でない解き直しで、姿勢と形を保った時は、配置記録（`geometryRevision`、`parentGeometryKey`、`parentPoseKey`、`parentLocalAnchor`、`anchorDimensions`、`surfaceAnchor`、`contactOffset`、`contactAxis`、`contactNormal`、`contactLocalNormal`、`hostSurfaceId`、`fitRemovalIds`、`requestedGeometry`）を前の値のまま残す。下の本体を追う値は非公開のキー（`_placementParentKey` など）だけが持つ。面ID（`hostSurfaceId`）が失われても書き直さない（段階 0 の「面IDを付け直す」はユーザーの操作の時だけになる）。成形した時の削りは内容のハッシュで記録し（`fittedGeometry.removals`）、その後に編集された削りは「後から加えた削り」として切り離しの判定に使う（削りを深くして離れた子は赤枠でなく `severed` の警告）|`PLACEMENT_AUTHORED_ANCHOR_KEYS`、`placementSeveredByCut`|
-|外装機器|機関・センサーなど外装機器も、取り付けた本体に追従しない。ユーザーの配置（タップ、ドラッグ、ドラフト、別の本体の選択）だけが姿勢を決める。それ以外の解き直しはワールドの姿勢（`c`・`dir`・`roll` など）と配置記録（`rigidPose` を含む）を保つ。機関の台座の作り直し（`engineMountSupport`）は段階 F で扱う|`solveExteriorEquipmentPlacement` の `kept`|
-|ミラー|左右・上下のミラー複製は、保存した形をワールドで鏡映して複製の座標で持つ（面の向きを裏返す）|`reflectPlacementMetadata`|
-|旧保存データの移行|`fittedGeometry` の無い保存データは、最初の解き直しで、姿勢を保ったまま置いた本体に 1 回だけ成形し、結果を保存する。その後は成形し直さない。形の正しくない記録は捨てて、同じく 1 回だけ成形する|`placementUseStoredFit`、`normalizePlacementMetadata`|
+|成形の廃止|水平・垂直配置の構造物を、親の面に合わせて削らない（接触面のカットをしない）。構造物は要求した形のまま。親と重なれば接続（構造の合併で質量は 1 回だけ数える）。触れていなければ従来どおり警告か赤枠|`solvePlacement`（`fitPlacementContact` を呼ばない）|
+|置く時の高さ|ユーザー自身の配置（面のタップ、ドラッグ、新しいドラフトの最初の解き）では、接触の軸に沿って、底面の全体が下の本体に届くまで沈める（底面の範囲を 7×7 の格子で調べ、本体の外側から当てる。メッシュの継ぎ目をすり抜けないよう、各点で少しずらした 2 本の光線の小さい方を使う）。高い側は本体に埋まる。ドラフトの沈め込みは Worker の最初の解きで行い、ドラフトの準備（主スレッド）では行わない|`placementSinkToSurface`、`solvePlacement`、`preparePlacementDraft`|
+|沈めない時|回転、再読込、Worker、再検査、他の部品の編集（下の本体の移動・回転・寸法変更・削り）。姿勢を保ち、その場で判定する|`solvePlacement` の `storedPose`|
+|作者データを書き換えない|ユーザーの操作でない解き直しは、配置記録（`geometryRevision`、`parentGeometryKey`、`parentPoseKey`、`parentLocalAnchor`、`anchorDimensions`、`surfaceAnchor`、`contactOffset`、`contactAxis`、`contactNormal`、`contactLocalNormal`、`hostSurfaceId`、`fitRemovalIds`、`fitRemovalHashes`、`requestedGeometry`）を前の値のまま残す。形と姿勢の比較は、キーの順と読み込みが足す既定値によらない（`placementSameShape`）。記録の無い旧データでは、置いた時の削りの記録だけを 1 回書き、以後は保つ（再読込と編集中の判定を一致させる）|`PLACEMENT_AUTHORED_ANCHOR_KEYS`|
+|削りによる切り離し|置いた時にあった削りを内容のハッシュで記録する（`fitRemovalIds`、`fitRemovalHashes`）。その後に加えた削りや、記録した削りの編集で離れた構造物は、赤枠でなく `severed` の警告|`placementSeveredByCut`|
+|形の受け渡し|解いた構造物は要求した形を配置の形（`_placementGeometry`）として持つ。Worker の結果がそれを運ぶので、置いた直後の構造物をすぐに選べる。形は、その部品が持たない時に使うのと同じ数値の経路で作る（冷えた読み込みと温かい Worker の通過で接点が一致する）|`solvePlacement`|
+|外装機器|機関・センサーなど外装機器は、取り付けた本体に追従しない。ユーザーの配置だけが姿勢を決める。本体が実際に変わった時は、同じワールドの姿勢に対する本体相対のアンカーを言い直す（接触はそれで判定するため）。数値の誤差だけの違いは前の値を保つ。機関の台座の作り直しは段階 F|`solveExteriorEquipmentPlacement` の `kept`|
+|旧保存データ|姿勢を保ったまま読み込む（沈め込みも成形もしない）。main で成形により床まで伸ばされていた構造物は、保存された位置のまま要求した形になり、離れていれば `severed` の警告になることがある（`placement-cut-keeps-connection` の main の保存データ）。未公開の段階 B の版が書いた `fittedGeometry` は無視する|`normalizePlacementMetadata`|
 
-**成形の基になる形と順序（2026-11-13、物理・回帰レビュー）**：成形は、構造物自身の削っていない形（艦レベルで構造物に効くカットとハッチの開口を除いた形、`placementChildFitTriangles`）を、その時点の親（親自身の削りや艦レベルのカットを含む）に合わせて行う。記録には艦レベルのカットもハッチの開口も焼き込まず、実行時に上から削る。そのため、カットを消すと子の材料は戻る。一方、成形はその時点の親（艦レベルのカットで削られた親）に対して行うので、同じ最終状態でも作った順序で記録が違うことがある。例（`physfix/precut.cjs`、`order2.cjs`）：親と子を貫く縦の溝（艦レベルのカット）がある時に置くと、溝のせいで底面の成形が作れず、重なりによる接続（`placementOverlapFallback`）で要求どおりの箱（5120 m³）が記録される。溝なしで置けば底面を削った形（4608 m³）になる。溝を後から消すと、前者は基部が親に重なり、合併で 1 回だけ数えるので艦の質量は溝なしの設計と一致する。溝を後から足すと、置いた時の形を保ったまま削るので main の再成形とは形が違う。両者の質量の差（1259.4 t）はすべて露出面の装甲（`armorMass`）で、材料の容積は同じ。これは「置いた時と編集した時だけ決まる」決定による。成形の結果が閉じた立体（外向き、体積が正）でなければ記録しない。
+**既知の限界**：段階 B は親の記録 `parentStructureId` を「置いた本体」として残している。コピーの範囲、削除時の付け替え、親を失ったコピーの付け直し、UI の「追加元」で使う。どれもユーザーの操作の時だけで、再計算で作者データを書き換えない。カットを頂点に焼き込む変更（ユーザー決定 2026-11-13、別の段階）で、削りの記録（`fitRemovalIds`/`fitRemovalHashes`）は不要になる。
 
-**保存データの大きさ**：曲面の船体に合わせた成形は面数が多い。ユーザーの設計（`tests/fixtures/copied-structure-lost-parent-2026-11-13.json.gz`、構造物 8 個に成形結果）では、保存 JSON が 89 KB から 299 KB（gzip 5 KB から 77 KB）になる。最大は面取りの複製 2 個の各 2208 面。作例 28 隻と艦載機は配置記録を持たないので変わらない。
-
-**残っている親の記録（この段階では残す）**：`parentStructureId` は「置いた本体」の記録として残り、ユーザー自身の操作の時だけ使う：成形・寸法変更で合わせる本体、接触の判定（触れていなければ接触の網、`structuralConnectivity`）、コピーの範囲（`placementCopyClosure`）、削除時の付け替え（`removeParts`）、親を失ったコピーの付け直し（`placementAdoptContactParent`）、UI の「追加元」。どれも再計算で作者データを書き換えるものではない。コピー・削除での扱いを親によらない形にするかは、別途決める（handoff-2026-11-13.md §3 の 2）。
-
-検査：`tests/placement-stored-fit.cjs`（新規）、`tests/structure-height-anchor.cjs`（仮の期待値 15 m を 10 m に戻した）、`tests/worker-authored-drift.cjs`（段階 B の行を空にした）。
+検査：`tests/placement-no-fit.cjs`（新規）、`tests/worker-authored-drift.cjs`（段階 B の行を空にした）。成形を前提にしていた 23 ファイルの期待値は、それぞれ「2026-11-13 user decision: no fitting」のコメント付きで書き直した。`tests/structure-height-anchor.cjs` の仮の期待値（下端 15 m）は、引き継ぎでは 10 m に戻す予定だったが、成形の廃止で子の下端は自分の要求した下端（そのテストでは 5 m、親に 5 m 沈む）になり、親を変えても変わらないことを確かめる形にした。
