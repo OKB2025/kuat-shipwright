@@ -3,6 +3,11 @@ const assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),TT=4.184e21;
+// 2026-11-14 (heat model, user decision 2026-11-12: a converter draws power for the heat it actually converts, not its
+// rating): these tests assumed the cooler reserved its 20 TT/s rating on the shared trunk. It now reserves what the
+// offered heat needs (0.84 TT/s here), so the amounts left for the banks are written from the reservation the unit
+// reports (cooling(u)); the budget inequalities are unchanged.
+const cooling=u=>{const c=u.pw.coolingReserved/TT;assert.ok(c>0&&c<20,'the cooler reserves less than its 20 TT/s rating: '+c);return c;};
 const near=(a,b,label='value')=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(a),Math.abs(b))*1e-10,`${label}: ${a} != ${b}`);
 
 function unit(trunkW=100*TT){
@@ -18,7 +23,7 @@ function unit(trunkW=100*TT){
 for(const trunkTT of [100,90])test(`fleet charging respects each isolated source and a ${trunkTT} TT/s shared engine/cooling trunk`,()=>{
  const u=unit(trunkTT*TT);C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);
  const chargedA=u.surfaceBanks[4],chargedB=u.surfaceBanks[5]-999,engineA=u.propulsion.actualInputW/TT,coolingA=u.pw.coolingReserved/TT;
- near(chargedA,trunkTT-20,'first domain accepted charge before navigation');near(engineA,0,'active weapon recharge has priority over navigation');near(chargedB,1,'second domain bank room');
+ near(chargedA,trunkTT-cooling(u),'first domain accepted charge before navigation');near(engineA,0,'active weapon recharge has priority over navigation');near(chargedB,1,'second domain bank room');
  assert.ok(engineA+coolingA+chargedA<=trunkTT+1e-8,'the trunk cannot be spent again by the surface banks');
  assert.ok(engineA+coolingA+chargedA<=100+1e-8,'the first reactor cannot supply the second domain grant');
  assert.ok(chargedB<=100+1e-8);near(u.pw.wpn/TT,chargedA+chargedB,'accepted weapon input');
@@ -26,9 +31,9 @@ for(const trunkTT of [100,90])test(`fleet charging respects each isolated source
 
 test('direct surface charging uses the same per-module grants and does not borrow unused charge',()=>{
  const u=unit(),allocation=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:200*TT,shields:0,deferHeat:true},1,'balanced');
- near(allocation.got.weapons/TT,81,'only usable per-bank electrical input is requested');
+ const cool=cooling(u);near(allocation.got.weapons/TT,101-cool,'only usable per-bank electrical input is requested');
  const accepted=C.surfaceManualCharge(u,allocation.got.weapons,1);
- near(u.surfaceBanks[4],80,'first domain charge');near(u.surfaceBanks[5],1000,'second domain charge');near(accepted,81,'all requested input fits the receiving banks');
+ near(u.surfaceBanks[4],100-cool,'first domain charge');near(u.surfaceBanks[5],1000,'second domain charge');near(accepted,101-cool,'all requested input fits the receiving banks');
 });
 
 test('an explicit zero module grant remains zero when another domain has unused weapon power',()=>{
@@ -39,15 +44,15 @@ test('an explicit zero module grant remains zero when another domain has unused 
 test('repeated charging cannot spend one allocated module input a second time',()=>{
  const u=unit();u.surfaceBanks[5]=0;u.energy=0;
  const {got}=C.allocateShipPower(u,C.fleetSystems(u),{throttle:1,weapons:200*TT,shields:0,deferHeat:true},1,'balanced');
- near(C.surfaceManualCharge(u,got.weapons,1),180);near(C.surfaceManualCharge(u,got.weapons,1),0);
- near(u.surfaceBanks[4],80);near(u.surfaceBanks[5],100);
+ const cool=cooling(u);near(C.surfaceManualCharge(u,got.weapons,1),200-cool);near(C.surfaceManualCharge(u,got.weapons,1),0);
+ near(u.surfaceBanks[4],100-cool);near(u.surfaceBanks[5],100);
 });
 
 test('accepted surface charge retains funding attribution and only actual cooling consumption heats the common reservoir',()=>{
  const u=unit();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);
- near(u.ht.reactorE[3],.04*80*TT,'first source accepted engine and weapon input');near(u.ht.reactorE[4],.04*TT,'second source accepted weapon input');
+ const cool=cooling(u);near(u.ht.reactorE[3],.04*(100-cool)*TT,'first source accepted engine and weapon input');near(u.ht.reactorE[4],.04*TT,'second source accepted weapon input');
  C.heatTick({time:1},u,1,1);const coolingInput=u.ht.cooling.inputJ;
- near(u.ht.actualGeneratedElectricalJ,81*TT+coolingInput,'unused weapon grants are not generated');near(u.ht.reactorHeatJ,.04*(81*TT+coolingInput),'reactor heat follows actual source draw');near(u.ht.cooling.reactorWasteJ,.04*coolingInput,'cooling is charged only when used');
+ near(u.ht.actualGeneratedElectricalJ,(101-cool)*TT+coolingInput,'unused weapon grants are not generated');near(u.ht.reactorHeatJ,.04*((101-cool)*TT+coolingInput),'reactor heat follows actual source draw');near(u.ht.cooling.reactorWasteJ,.04*coolingInput,'cooling is charged only when used');
  assert.equal(u.ht.st,undefined,'source attribution no longer creates retired local heat stores');
 });
 
