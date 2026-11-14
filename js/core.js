@@ -51682,7 +51682,13 @@ function mountFit(ship,f){
  if(isAnchoredFit(f)&&!prepareFitAttachment(ship,f))return f;
  let host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
  if(host&&f.local&&!Array.isArray(f.frameForward)&&Array.isArray(f.localForward)&&f.localForward.length===3&&f.localForward.every(Number.isFinite))f.frameForward=norm(worldStruct({...host,c:[0,0,0]},[f.localForward[0]*host.s[0],f.localForward[1]*host.s[2],f.localForward[2]*host.s[1]]));
- const out=mountFitUnframed(ship,f);host=ship.parts.find(p=>p.id===out.host&&isShapePart(p));
+ const out=mountFitUnframed(ship,f);
+ // 2026-11-14 user decision: a weapon or other fitting whose seat is an ungrounded (red) structure cannot function. It
+ // counts as floating (no performance) with its own warning. The structure's mark (_placementLoose) is derived by the
+ // full grounding pass of refreshPlacementGeometry, so this is re-judged at every mount.
+ delete out._onLoose;if(!out.float){const lock=ship._rayLock,any=lock?(lock.anyLoose??=ship.parts.some(p=>p._placementLoose&&isShapePart(p))):ship.parts.some(p=>p._placementLoose&&isShapePart(p));
+  if(any){const up=norm(fitUp(out)||[0,1,0]),seat=sub(out.p,mul(up,!isAnchoredFit(out)&&out.mountAxis!=null?(out.mountOffset||0):0)),h=rayEnv(ship,add(seat,mul(up,2*FIT_SUPPORT_GAP_M)),mul(up,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true}),on=h?.part&&isShapePart(h.part)?h.part:ship.parts.find(p=>p.id===out.host&&isShapePart(p));if(on?._placementLoose){out.float=true;out._onLoose=true;}}}
+ host=ship.parts.find(p=>p.id===out.host&&isShapePart(p));
  if(host&&!out.float&&Array.isArray(out.frameForward)&&!Array.isArray(out.localForward)){const v=localStruct({...host,c:[0,0,0]},out.frameForward);out.localForward=[v[0]/host.s[0],v[1]/host.s[2],v[2]/host.s[1]];}else if(!host)delete out.localForward;
  return out;
 }
@@ -65339,7 +65345,7 @@ function groundingStats(ship,S){
  // A fitting whose recorded attachment failed (its host surface was cut away, or it could not be
  // resolved) is floating even though it is flagged float; it is reported, not skipped.
  const severedFits=[];
- for(const f of ship.fits){if(f.float){if(isAnchoredFit(f)&&(f._fitPlacementError||f.placement?.validationFailed)){if(fitSeveredByCut(ship,f))severedFits.push(f.id);else floatingFits.push(f.id);}continue;}const up=FITS[f.k]?.window?(f.n||AXES[f.a]):fitUp(f),hung=(f.mountOffset||0)>tol,probes=[...(hung?[]:[Math.min(tol,.05),Math.min(tol,.25),tol,tol*3,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)))),...(hung?bodyProbes(f,up):[])];
+ for(const f of ship.fits){if(f.float&&f._onLoose){looseFits.push(f.id);continue;}if(f.float){if(isAnchoredFit(f)&&(f._fitPlacementError||f.placement?.validationFailed)){if(fitSeveredByCut(ship,f))severedFits.push(f.id);else floatingFits.push(f.id);}continue;}const up=FITS[f.k]?.window?(f.n||AXES[f.a]):fitUp(f),hung=(f.mountOffset||0)>tol,probes=[...(hung?[]:[Math.min(tol,.05),Math.min(tol,.25),tol,tol*3,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)))),...(hung?bodyProbes(f,up):[])];
   if(hullOK&&probes.some(q=>inHull(ship,q)))continue;let onGround=false,onLoose=false;
   for(const p of parts){const b=box.get(p.id);if(!b)continue;for(const q of probes){if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!safeIn(p,q))continue;if(looseSet.has(p.id))onLoose=true;else onGround=true;}if(onGround)break;}
   if(!onGround&&onLoose)looseFits.push(f.id);else if(!onGround)floatingFits.push(f.id);}
