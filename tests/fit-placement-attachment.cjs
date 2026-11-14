@@ -58,10 +58,13 @@ test('command pods retain normal wall mounting and cannot use a roof as a valid 
  const p=[83,10,80],n=[0,0,1],side=solve(s,{hit:{p,n}},{k:'podBridge',assetYaw:undefined,ped:0,p,n,a:4});assert.equal(side.ok,true,side.error);assert.equal(side.fit.host,1);assert.equal(side.fit.float,false);vector(side.fit.p,p);vector(side.fit.n,n);assert.equal(side.fit.placement.mode,'direct');
 });
 
-test('parent translation and full rotation carry the saved local anchor, normal and heading',()=>{
- const s=fixture(),fit=place(s),parent=s.parts[0],originalLocal=plain(fit.local),originalNormal=plain(fit.localNormal),originalForward=plain(fit.localForward);
- parent.c=C.add(parent.c,[11,7,-13]);C.refreshFitPlacementAttachments(s);const moved=s.fits.find(f=>f.id===fit.id);vector(moved.p,C.add(tap,[11,7,-13]));assert.equal(moved.host,1);assert.equal(moved.float,false);
- Object.assign(parent,{yaw:31,pitch:19,roll:-12});C.refreshFitPlacementAttachments(s);const rotated=s.fits.find(f=>f.id===fit.id),normal=expectedNormal(parent,{localNormal:originalNormal}),forward=C.norm(C.worldStruct({...parent,c:[0,0,0]},[originalForward[0]*parent.s[0],originalForward[1]*parent.s[2],originalForward[2]*parent.s[1]]));vector(rotated.p,expectedAnchor(parent,{local:originalLocal}));vector(rotated.n,normal);vector(C.fitUp(rotated),normal);vector(C.fitFrameOf(rotated).fw,forward);assert.equal(rotated.host,1);assert.equal(rotated.float,false);vector(rotated.local,originalLocal);vector(rotated.localNormal,originalNormal);vector(rotated.localForward,originalForward);assert.equal(rotated.assetYaw,17);
+// Stage C (2026-11-13, user decisions 2026-11-12/13): a fitting has no parent; it keeps its world pose when its host
+// moves, turns or is resized, and is judged where it stands. Until stage C these tests checked that it followed.
+test('parent translation and full rotation leave the fitting where it is, keeping its pose and saved anchors',()=>{
+ const s=fixture(),fit=place(s),parent=s.parts[0],originalLocal=plain(fit.local),originalNormal=plain(fit.localNormal),originalForward=plain(fit.localForward),pose=plain({p:fit.p,n:fit.n,frame:C.fitFrameOf(fit)});
+ parent.c=C.add(parent.c,[11,7,-13]);C.refreshFitPlacementAttachments(s);const moved=s.fits.find(f=>f.id===fit.id);vector(moved.p,tap);assert.equal(moved.host,1);assert.equal(moved.float,true,'the raised host left it floating');
+ Object.assign(parent,{yaw:31,pitch:19,roll:-12});C.refreshFitPlacementAttachments(s);const rotated=s.fits.find(f=>f.id===fit.id);assert.deepEqual(plain({p:rotated.p,n:rotated.n,frame:C.fitFrameOf(rotated)}),pose);vector(rotated.local,originalLocal);vector(rotated.localNormal,originalNormal);vector(rotated.localForward,originalForward);assert.equal(rotated.assetYaw,17);
+ Object.assign(parent,{c:[100,10,0],yaw:0,pitch:0,roll:0});C.refreshFitPlacementAttachments(s);assert.equal(rotated.float,false,'put back, the host supports it again');
 });
 
 test('fit host, semantic surface, transform and placement mode survive saving and loading',()=>{
@@ -102,15 +105,14 @@ test('strict attachment refresh preserves unconverted legacy fitting data',()=>{
  const s=fixture(),placed=C.placeFit(s,'pd',tap,[0,1,0],.3,false,{assetYaw:17});assert.ok(placed.fit,placed.err);assert.equal(placed.fit.placement,undefined);const before=state(s.fits);C.refreshFitPlacementAttachments(s);assert.equal(state(s.fits),before);assert.equal(s.fits[0].placement,undefined);
 });
 
-test('real model pivots, muzzles and the fitted pedestal follow the parent rigidly without applying heading twice',()=>{
+test('real model pivots and muzzles stay where they are when the parent moves and turns (stage C), and return with it',()=>{
  const s=fixture(),parent=s.parts[0];parent.roll=12;const hit=C.rayPart([83,100,23],[0,-1,0],parent);assert.ok(hit);
  const f=place(s,{hit},{k:'triple70',mountMode:'top',ped:2,n:[0,1,0]}),joint=C.authoredTurretGeometry(f);assert.ok(joint?.muzzles.length);assert.ok(f.mountSupport?.polys?.length,'the real gun has a foundation fitted to the sloped parent');
  const oldParent=plain(parent),before={yawPivot:plain(joint.yawPivot),elevationPivot:plain(joint.elevationPivot),muzzles:plain(joint.muzzles)},oldBase=f.base,oldSupport=C.turretSupportGeometry(f);assert.ok(oldSupport?.triangles.length);
  parent.c=C.add(parent.c,[23,7,-11]);parent.yaw=29;parent.pitch=-13;parent.roll=21;const point=p=>C.worldStruct(parent,C.localStruct(oldParent,p));
- C.refreshFitPlacementAttachments(s);assert.equal(f.float,false);assert.equal(f.assetYaw,17);near(f.ped,2);near(f.base,oldBase,.001);const after=C.authoredTurretGeometry(f);
- vector(after.yawPivot,point(before.yawPivot),.002);vector(after.elevationPivot,point(before.elevationPivot),.002);after.muzzles.forEach((p,i)=>vector(p,point(before.muzzles[i]),.002));
- const support=C.turretSupportGeometry(f);assert.ok(support?.triangles.length);near(support.volume,oldSupport.volume,.003);
- const restored=C.deserialize(plain(C.serialize(s)));C.refreshFitPlacementAttachments(restored);const loaded=restored.fits.find(q=>q.id===f.id),loadedJoint=C.authoredTurretGeometry(loaded);vector(loadedJoint.yawPivot,after.yawPivot,.002);loadedJoint.muzzles.forEach((p,i)=>vector(p,after.muzzles[i],.002));
+ const pose=plain({p:f.p,n:f.n});C.refreshFitPlacementAttachments(s);assert.deepEqual(plain({p:f.p,n:f.n}),pose);assert.equal(f.float,true);assert.equal(f.assetYaw,17);near(f.ped,2);
+ Object.assign(parent,{yaw:0,pitch:0},oldParent);C.refreshFitPlacementAttachments(s);assert.equal(f.float,false);near(f.base,oldBase,.001);const after=C.authoredTurretGeometry(f);
+ vector(after.yawPivot,before.yawPivot,.002);vector(after.elevationPivot,before.elevationPivot,.002);after.muzzles.forEach((p,i)=>vector(p,before.muzzles[i],.002));
 });
 
 test('alternate fitting support requires positive current footprint contact and never seats across a gap',()=>{
@@ -129,7 +131,8 @@ test('cross-ship fitting copies remap the nested stable face and keep the copied
  assert.equal(fit.host,20);assert.match(fit.placement.hostSurfaceId,/^p20:/);assert.equal(fit.placement.hostId,undefined);assert.equal(fit.placement.parentStructureId,undefined);
  C.refreshFitPlacementAttachments(target);assert.equal(fit.float,false);vector(fit.p,C.add(tap,delta));
  const restored=C.deserialize(plain(C.serialize(target))),loaded=restored.fits.find(f=>f.id===21),copyParent=restored.parts.find(p=>p.id===20);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,false);assert.equal(loaded.host,20);assert.match(loaded.placement.hostSurfaceId,/^p20:/);
- copyParent.c=C.add(copyParent.c,[7,5,-3]);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,false);vector(loaded.p,C.add(C.add(tap,delta),[7,5,-3]));assert.equal(loaded.assetYaw,17);near(loaded.ped,.3);
+ // Stage C: moving the copied host does not carry the fitting.
+ copyParent.c=C.add(copyParent.c,[7,5,-3]);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,true);vector(loaded.p,C.add(tap,delta));assert.equal(loaded.assetYaw,17);near(loaded.ped,.3);
 });
 
 // 2026-11-13 user decision (stage B, no parent relation): a selection takes the selected parts only, so the parent, child
@@ -139,14 +142,17 @@ test('templates of a selected parent, child and grandchild remap their hosted fi
  const selected=C.surfaceCopySelection(s,{parts:[1,child.id,grand.id],fits:[]});assert.equal(selected.parts.length,3);assert.equal(selected.fits.length,1);assert.equal(selected.fits[0].id,weapon.id);
  const captured=C.assemblyCapture(s,{parts:[1,child.id,grand.id],fits:[]},{name:'Parent and every descendant'});assert.ok(captured.template,captured.error);const template=C.normalizeAssemblyTemplate(plain(captured.template)),target=fixture();target.parts=[];target.fits=[];target.nextId=50;
  const result=C.assemblyPlace(target,template,[500,80,120],{allowOverlap:true});assert.equal(result.error,undefined);assert.equal(target.parts.length,3);assert.equal(target.fits.length,1);const fit=target.fits[0];assert.ok(target.parts.some(p=>p.id===fit.host));assert.match(fit.placement.hostSurfaceId,new RegExp('^p'+fit.host+':'));assert.equal(new Set([...target.parts,...target.fits].map(p=>p.id)).size,4);
- const restored=C.deserialize(plain(C.serialize(target)));C.refreshPlacementGeometry(restored);const loaded=restored.fits[0];assert.equal(loaded.float,false);assert.match(loaded.placement.hostSurfaceId,new RegExp('^p'+loaded.host+':'));const parent=restored.parts.find(p=>p.id===loaded.host),old=loaded.p.slice();parent.c=C.add(parent.c,[5,0,0]);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,false);vector(loaded.p,C.add(old,[5,0,0]));
+ const restored=C.deserialize(plain(C.serialize(target)));C.refreshPlacementGeometry(restored);const loaded=restored.fits[0];assert.equal(loaded.float,false);assert.match(loaded.placement.hostSurfaceId,new RegExp('^p'+loaded.host+':'));const parent=restored.parts.find(p=>p.id===loaded.host),old=loaded.p.slice();parent.c=C.add(parent.c,[5,0,0]);C.refreshFitPlacementAttachments(restored);assert.equal(loaded.float,false,'still on the moved top');vector(loaded.p,old,1e-9);
 });
 
-test('parent refresh records the current dependency generation without making derived world caches a new fitting edit',()=>{
- const s=fixture(),f=place(s),key=C.fitPlacementShapeKey(f),ownRevision=f.placement.geometryRevision,parent=s.parts[0],oldParentKey=f.placement.parentGeometryKey;parent.c=C.add(parent.c,[10,7,-2]);parent.yaw=18;parent.placement={modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'surface',root:true,geometryRevision:3,requestedGeometry:plain(parent)};
- C.refreshFitPlacementAttachments(s);assert.equal(f.float,false);assert.equal(f.placement.parentGeometryRevision,3);assert.notEqual(f.placement.parentGeometryKey,oldParentKey);assert.equal(f.placement.geometryRevision,ownRevision,'parent motion changes the parent generation, not the original fitting request');assert.equal(C.fitPlacementShapeKey(f),key,'Worker adoption of parent-derived pose must not invalidate the authoring token');
- const saved=plain(C.serialize(s)),restored=C.deserialize(saved),fit=restored.fits[0];assert.equal(fit.placement.parentGeometryRevision,3);vector(fit.p,f.p);
- const hit={p:f.p.slice(),n:f.n.slice()},r=C.solveFitPlacement(s,f,{mode:'direct',hostId:1,hit,parentGeometryRevision:3,geometryRevision:ownRevision+1});assert.equal(r.ok,true,r.error);f.placement.geometryRevision++;const before=state(s),late=C.acceptFitPlacementResult(s,r);assert.equal(late.ok,false,'a newer intrinsic fitting request still invalidates a late result');assert.equal(state(s),before);
+test('a parent refresh writes nothing in the fitting (stage C): no dependency generation, no pose, no authoring token change',()=>{
+ const s=fixture(),f=place(s),key=C.fitPlacementShapeKey(f),ownRevision=f.placement.geometryRevision,parent=s.parts[0],oldParentKey=f.placement.parentGeometryKey,oldParentRevision=f.placement.parentGeometryRevision,record=C.publicJSON(f);parent.c=C.add(parent.c,[10,7,-2]);parent.yaw=18;parent.placement={modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'surface',root:true,geometryRevision:3,requestedGeometry:plain(parent)};
+ C.refreshFitPlacementAttachments(s);assert.equal(f.float,true);assert.equal(f.placement.parentGeometryRevision,oldParentRevision);assert.equal(f.placement.parentGeometryKey,oldParentKey);assert.equal(f.placement.geometryRevision,ownRevision);assert.equal(C.fitPlacementShapeKey(f),key);
+ const after=JSON.parse(C.publicJSON(f)),was=JSON.parse(record);delete after.float;delete was.float;assert.deepEqual(after,was,'only the derived support state changed');
+ const saved=plain(C.serialize(s)),restored=C.deserialize(saved),fit=restored.fits[0];assert.equal(fit.placement.parentGeometryRevision,oldParentRevision);vector(fit.p,f.p);
+ // Stage C high review M3: the fitting floats now (it did not follow the parent), so the user's new request seats it on
+ // the moved parent's real surface; the solve must succeed for the late-result check to mean anything.
+ const top=C.rayPart(C.add(f.p,[0,200,0]),[0,-1,0],parent),hit={p:Array.from(top.p),n:Array.from(C.norm(top.n))},r=C.solveFitPlacement(s,f,{mode:'direct',hostId:1,hit,parentGeometryRevision:3,geometryRevision:ownRevision+1});assert.equal(r.ok,true,r.error);f.placement.geometryRevision++;const before=state(s),late=C.acceptFitPlacementResult(s,r);assert.equal(late.ok,false,'a newer intrinsic fitting request still invalidates a late result');assert.equal(state(s),before);
 });
 
 test('Core exposed and clipped surface picks round-trip into strict fitting validation across scale and large world coordinates',()=>{

@@ -25,3 +25,12 @@ test('rectangular base packing rejects area-only false positives with a compress
  const valid=C.trenchArmamentPacking(4800,120,[{kind:'utl',count:50},{kind:'pd',count:500}]);assert.ok(valid.ok);assert.ok(valid.usedHeight<=120);for(const [kind,rows] of valid.placements){assert.equal(rows.reduce((n,r)=>n+r.count,0),kind==='utl'?50:500);for(const r of rows){assert.ok(r.x+r.perRow*r.width<=4800+1e-6);assert.ok(r.y+(r.rows-1)*r.rowPitch+r.height<=120+1e-6);}}
  const million=C.trenchArmamentPacking(1e8,1e4,[{kind:'pd',count:1000000},{kind:'monCal34',count:1000000}]);assert.ok(million.ok);assert.ok(million.shelfBlocks<=4);assert.ok([...million.placements.values()].reduce((n,r)=>n+r.length,0)<=4,'million-base counts do not expand rows or individual placements');
 });
+
+// Stage C regression review (2026-11-13): deleting the structure that owns a trench does not run the weapon drop rule
+// on its derived group fittings (they are rebuilt from the armament): a group that survives the delete keeps its
+// host reference and local frame unchanged.
+test('deleting the owning hull leaves derived trench group fittings to the armament rules (no drop, no host strip)',()=>{
+ const s=fixture(true);configure(s,undefined,1);const before=new Map(groups(s).map(f=>[f.id,JSON.stringify([f.host,f.local??null,f.localForward??null])]));assert.ok(before.size>0);
+ const r=C.removeParts(s,[1]);assert.equal(r.ok,true);assert.ok(!(r.reparented||[]).some(q=>q.list==='fits'&&before.has(q.fitId)),'no group fitting is dropped');
+ for(const f of groups(s))assert.equal(JSON.stringify([f.host,f.local??null,f.localForward??null]),before.get(f.id),'#'+f.id+' unchanged');
+});

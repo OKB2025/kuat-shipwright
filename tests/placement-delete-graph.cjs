@@ -40,8 +40,10 @@ test('the copy closure takes the selected parts only (weapons hosted on them sti
 function sensor(s,parentId=1,p=[0,10,0]){const r=C.commitPlacement(s,{id:-1,k:'sensor',c:[p[0],p[1]+1,p[2]],d:2},{mode:'direct',parentStructureId:parentId,hit:{p,n:[0,1,0]}});assert.equal(r.ok,true,r.error);return r.part;}
 function gun(s,parentId=1,p=[0,10,0]){const r=C.solveFitPlacement(s,{id:-1,k:'pd',p:[0,0,0],a:2,n:[0,1,0],ped:0},{mode:'direct',hostId:parentId,hit:{p,n:[0,1,0]}});assert.equal(r.ok,true,r.error);const fit=C.acceptFitPlacementResult(s,r);assert.equal(fit.ok,true,fit.error);return fit.fit;}
 
-test('equipment on a deleted only support stays where it is (red); a weapon hosted on it is removed (stage C owns weapons)',()=>{
- const s=ship(),equipment=sensor(s,1,[-8,10,0]),weapon=gun(s,1,[8,10,0]),saved=C.serialize(s),r=C.removeParts(s,[1]);assert.ok(!r.removed.includes(equipment.id));assert.ok(r.removedFits.includes(weapon.id));assert.equal(s.parts.length,1);assert.equal(s.fits.length,0);assert.ok(C.refreshPlacementGeometry(s).failed.some(f=>f.partId===equipment.id));const undo=C.deserialize(saved);assert.equal(undo.parts.find(p=>p.id===equipment.id).placement.parentStructureId,1);assert.equal(undo.fits.find(f=>f.id===weapon.id).host,1);
+// Stages B and C merged (2026-11-14): equipment on a deleted only support stays where it is (red, stage B); a mounted
+// weapon on it stays floating, not deleted (stage C).
+test('equipment on a deleted only support stays where it is (red); a mounted weapon on it stays floating',()=>{
+ const s=ship(),equipment=sensor(s,1,[-8,10,0]),weapon=gun(s,1,[8,10,0]),mount=Array.from(weapon.p),saved=C.serialize(s),r=C.removeParts(s,[1]);assert.ok(!r.removed.includes(equipment.id));assert.ok(!r.removedFits.includes(weapon.id));assert.equal(s.parts.length,1);assert.equal(s.fits.length,1);assert.deepEqual(Array.from(s.fits[0].p),mount);assert.equal(s.fits[0].float,true);assert.ok(C.refreshPlacementGeometry(s).failed.some(f=>f.partId===equipment.id));const undo=C.deserialize(saved);assert.equal(undo.parts.find(p=>p.id===equipment.id).placement.parentStructureId,1);assert.equal(undo.fits.find(f=>f.id===weapon.id).host,1);
 });
 
 test('equipment and weapons reparent to real alternate support without changing IDs, world pose or settings',()=>{

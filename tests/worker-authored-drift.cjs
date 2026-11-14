@@ -21,8 +21,8 @@ const ALLOWED={
  // The edited structure itself (id 58, moved by the edit) is solved again at its new place (a user edit; no fitting)
  // and its record follows the user's move. No other item changes.
  'user design with surfaces, one structure moved':{...E,edit:[['parts',58,'changed','placement','']],editSurface:[['parts',58,'changed','placement','']]},
- // Phase C (fit host-follow): the weapon follows its moved host.
- 'weapon on a moved structure':{...E,edit:[['fits',2,'changed','p,placement','']],editSurface:[['fits',2,'changed','p,placement','']]},
+ // Phase C (2026-11-13) removed the fit host-follow: the weapon stays where it was when its host moves.
+ 'weapon on a moved structure':E,
  // Phase F (nozzle foundation regeneration). The engine itself no longer follows the turned structure (stage B).
  'engine support under a turned structure':{...E,edit:[['parts',2,'changed','engineMountSupport','']],editSurface:[['parts',2,'changed','engineMountSupport','']]},
  // Phase D (hatches have one owner and fixed values): the hangar's hatch is rewritten by an unrelated edit.
