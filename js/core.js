@@ -50598,7 +50598,10 @@ function baseComputeStats(ship,options={}) {
   const inAccepted=p=>{for(let i=0;i<accepted.length;i++){const b=acceptedBounds[i];if(p[0]>=b[0]-1e-4&&p[0]<=b[3]+1e-4&&p[1]>=b[1]-1e-4&&p[1]<=b[4]+1e-4&&p[2]>=b[2]-1e-4&&p[2]<=b[5]+1e-4&&inPart(accepted[i],p))return true;}return false;};
   // User decision 2026-11-13: exterior equipment (engines, sensors, command) that does not stand on its body (refused,
   // e.g. the body moved away and it did not follow) is a warning and gives no performance: no thrust, no function.
-  const invalid=new Set(occupied.filter(p=>p._interiorPlacementError||p._placementError&&p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior').map(p=>p.id));
+  const invalid=new Set(occupied.filter(p=>p._interiorPlacementError).map(p=>p.id));
+  // Placed exterior equipment that does not stand on a grounded body (refused, or carried by a red structure) gives no
+  // function: a separate set, so it is not reported as an overlap (physics review 2026-11-14).
+  const detached=new Set(occupied.filter(p=>p._placementError&&p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior').map(p=>p.id));
   for(let i=0;i<occupied.length;i++)for(let j=i+1;j<occupied.length;j++){
     const a=occupied[i],b=occupied[j];
     if((a.k==='machinery'&&(b.id===a.reactor||b.id===a.nozzle||a.sourcePartIds?.includes(b.id)||b.k==='machinery'))||(b.k==='machinery'&&(a.id===b.reactor||a.id===b.nozzle||b.sourcePartIds?.includes(a.id))))continue;
@@ -50619,7 +50622,7 @@ function baseComputeStats(ship,options={}) {
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
     const ss = pt.distributedWiring?[]:surfSamples(pt); let out = 0; for (const p of ss) if (!inEnv(ship, p, pt)) out++;
     const expF=pt.distributedWiring?0:pt.surfacePatch&&!pt.surfaceUnplaced&&Number.isFinite(pt.surfaceExposure)?clamp(pt.surfaceExposure,0,1):ss.length?out/ss.length:1,A=partArea(pt);
-    info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id)};
+    info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id),...(detached.has(pt.id)?{detached:true}:{})};
     exposedArea += A * expF;
     if (isStructuralPart(pt) && pt.plate) {
       // Independent plate hardware keeps its material when buried, while only
@@ -50653,7 +50656,7 @@ function baseComputeStats(ship,options={}) {
       critProt += V * deep / Math.max(1,sh.length);
       if (pt.k === 'gen') genExpFrac = Math.max(genExpFrac, expF);
     }
-    if (invalid.has(pt.id)) continue;
+    if (invalid.has(pt.id)||detached.has(pt.id)) continue;
     if (isReactor(pt)) {Vgen+=V;reactorOutput+=reactorPower(pt);reactorVolumes.push(V);}
     else if (pt.k === 'shield'||pt.k==='localShield') {Vsh += V;shieldCapacity+=shieldLoad(pt);if(Number.isFinite(pt.shieldDissipationW)&&pt.shieldDissipationW>=0)shieldDissipationW=(shieldDissipationW||0)+pt.shieldDissipationW;}
     else if (pt.k === 'hyper') {Vhyp += V;hyperEffectiveVolume+=hyperCapacity(pt);}
@@ -50661,7 +50664,7 @@ function baseComputeStats(ship,options={}) {
     else if (pt.k === 'engine') {
       engN++; Veng += V;
       const spec=resolveEngineSpec(pt,ship),source=ship.parts.find(r=>isReactor(r)&&r.id===spec.reactorId),path=enginePaths(ship).find(r=>r.nozzle===spec.machineryId);
-      let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id))&&!invalid.has(pt.id)&&!(pt.placement&&info[pt.id].floating);/* user decision 2026-11-13: a placed engine that does not stand on its body gives no thrust */
+      let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id))&&!invalid.has(pt.id)&&!detached.has(pt.id);/* thrust follows the placement connection judgment exactly (no separate geometric test) *//* user decision 2026-11-13: a placed engine that does not stand on its body gives no thrust */
       info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;
       if(ok){ventEng+=V;if(!countedMachinery.has(spec.machineryId)){countedMachinery.add(spec.machineryId);availableThrust+=spec.ratedThrustN;engineDemand+=spec.valid?spec.ratedInputW:0;}info[pt.id].powerRatio=1;}
     }
@@ -50752,10 +50755,10 @@ function baseComputeStats(ship,options={}) {
   // v21.2 Target-tracking domes and sensor arrays (the ISD's globes over its bridge) work like a modern warship's
   // fire-control radar: each one lets the ship engage more targets at once, by its size against the ISD's globe
   // (a communications antenna alone does not count).
-  for(const p of ship.parts)if(p.k==='sensor'&&!invalid.has(p.id)){const lb=p.label||'';if(/通信/.test(lb)&&!/センサー|標的|追跡|走査|索敵/.test(lb))continue;const V=partVolume(p);if(!(V>0))continue;aaCh+=AA_CHANNELS.pod*(p._surfaceAdapter?.tracking??clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2));}
+  for(const p of ship.parts)if(p.k==='sensor'&&!invalid.has(p.id)&&!detached.has(p.id)){const lb=p.label||'';if(/通信/.test(lb)&&!/センサー|標的|追跡|走査|索敵/.test(lb))continue;const V=partVolume(p);if(!(V>0))continue;aaCh+=AA_CHANNELS.pod*(p._surfaceAdapter?.tracking??clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2));}
   // v23 Air control (AIR_CTL): the squadrons the ship can direct in the air at once.
   let airCtl=AIR_CTL.base;for(const c of Object.values(commandInfo))airCtl+=(AIR_CTL.w[c.role]||0)*clamp(c.ratio||0,0,1);
-  for(const p of ship.parts){if(invalid.has(p.id)||(p.k!=='command'&&p.k!=='sensor'))continue;const V=partVolume(p);if(!(V>0))continue;const r=clamp(V/Math.max(1,unclippedPartVolume(p)),0,1);
+  for(const p of ship.parts){if(invalid.has(p.id)||detached.has(p.id)||(p.k!=='command'&&p.k!=='sensor'))continue;const V=partVolume(p);if(!(V>0))continue;const r=clamp(V/Math.max(1,unclippedPartVolume(p)),0,1);
    if(p.k==='sensor')airCtl+=AIR_CTL.pod*(p._surfaceAdapter?.channels??clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2));else if(AIR_CTL.droidRe.test(p.label||''))airCtl+=V/AIR_CTL.droidRef;else airCtl+=AIR_CTL.room*clamp(Math.cbrt(V/AIR_CTL.roomRef),.3,3)*r;}
   // armour
   // The exposed skin is also binned along the length and by facing (bow, stern,
@@ -54219,7 +54222,7 @@ function resolvePropulsion(requests,actualInputs={},massKg){
 }
 function propulsionProfile(ship,S={}){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return propulsionProfile(surfaceWorkingShip(ship),S);
- const massKg=Number.isFinite(S.mass)&&S.mass>0?S.mass*1000:0,parts=ship?.parts||[],paths=engineMachineryPaths(ship),electrical=engineTransmission(ship),drive=engineDriveRoutes(ship),mods=fleetModules(ship,S),cores=propulsionOwners(ship).map(p=>{const spec=resolveEngineSpec(p,ship,massKg),source=parts.find(r=>isReactor(r)&&r.id===spec.reactorId),body=paths.find(r=>r.nozzle===p.id),moduleIndex=mods.findIndex(m=>m.part===p.id),machineryModuleIndex=p.k==='engineCore'?moduleIndex:mods.findIndex(m=>m.part===-p.id),feed=electrical.cores?.[p.id]||electrical.engines[p.id],available=spec.valid&&!!source&&!S.info?.[p.id]?.overlap&&!S.info?.[source?.id]?.overlap&&!S.info?.[body?.id]?.overlap;return {...spec,moduleIndex,machineryModuleIndex,available:available&&feed?.connected===true,connected:feed?.connected===true,outletAvailable:true,pathCapacityW:Math.min(spec.maxInputW,feed?.capacityW||0),transmissionRouteIds:feed?.routeIds||[]};}),byCore=new Map(cores.map(c=>[c.id,c])),engines=parts.filter(p=>p.k==='engine').map(p=>{const spec=resolveEngineSpec(p,ship,massKg),core=byCore.get(spec.machineryId),route=drive.routes.find(r=>r.nozzleId===p.id),integrated=integratedEngine(p),moduleIndex=mods.findIndex(m=>m.part===p.id),shaftModuleIndices=route?.partId!=null?[mods.findIndex(m=>m.part===route.partId)].filter(i=>i>=0):[],available=!!core&&core.valid&&engineVented(ship,p)&&!S.info?.[p.id]?.overlap&&(integrated?integratedEngineContact(p,ship):route?.ok===true),shaftCapacityW=integrated?nozzleShaftCapacity(p):route?.capacityW||0;return {...spec,moduleIndex,coreModuleIndex:core?.moduleIndex??-1,machineryModuleIndex:core?.machineryModuleIndex??-1,shaftModuleIndices,nozzleShaftCapacityW:nozzleShaftCapacity(p),shaftCapacityW,ratedShaftCapacityW:integrated?shaftCapacityW:route?.requestedCapacityW||0,shaftRouteId:route?.id||null,available,connected:!!core?.connected&&(integrated||route?.ok===true),outletAvailable:engineVented(ship,p),pathCapacityW:core?.pathCapacityW||0};});
+ const massKg=Number.isFinite(S.mass)&&S.mass>0?S.mass*1000:0,parts=ship?.parts||[],paths=engineMachineryPaths(ship),electrical=engineTransmission(ship),drive=engineDriveRoutes(ship),mods=fleetModules(ship,S),cores=propulsionOwners(ship).map(p=>{const spec=resolveEngineSpec(p,ship,massKg),source=parts.find(r=>isReactor(r)&&r.id===spec.reactorId),body=paths.find(r=>r.nozzle===p.id),moduleIndex=mods.findIndex(m=>m.part===p.id),machineryModuleIndex=p.k==='engineCore'?moduleIndex:mods.findIndex(m=>m.part===-p.id),feed=electrical.cores?.[p.id]||electrical.engines[p.id],available=spec.valid&&!!source&&!(S.info?.[p.id]?.overlap||S.info?.[p.id]?.detached)&&!(S.info?.[source?.id]?.overlap||S.info?.[source?.id]?.detached)&&!(S.info?.[body?.id]?.overlap||S.info?.[body?.id]?.detached);return {...spec,moduleIndex,machineryModuleIndex,available:available&&feed?.connected===true,connected:feed?.connected===true,outletAvailable:true,pathCapacityW:Math.min(spec.maxInputW,feed?.capacityW||0),transmissionRouteIds:feed?.routeIds||[]};}),byCore=new Map(cores.map(c=>[c.id,c])),engines=parts.filter(p=>p.k==='engine').map(p=>{const spec=resolveEngineSpec(p,ship,massKg),core=byCore.get(spec.machineryId),route=drive.routes.find(r=>r.nozzleId===p.id),integrated=integratedEngine(p),moduleIndex=mods.findIndex(m=>m.part===p.id),shaftModuleIndices=route?.partId!=null?[mods.findIndex(m=>m.part===route.partId)].filter(i=>i>=0):[],available=!!core&&core.valid&&engineVented(ship,p)&&!(S.info?.[p.id]?.overlap||S.info?.[p.id]?.detached)&&(integrated?integratedEngineContact(p,ship):route?.ok===true),shaftCapacityW=integrated?nozzleShaftCapacity(p):route?.capacityW||0;return {...spec,moduleIndex,coreModuleIndex:core?.moduleIndex??-1,machineryModuleIndex:core?.machineryModuleIndex??-1,shaftModuleIndices,nozzleShaftCapacityW:nozzleShaftCapacity(p),shaftCapacityW,ratedShaftCapacityW:integrated?shaftCapacityW:route?.requestedCapacityW||0,shaftRouteId:route?.id||null,available,connected:!!core?.connected&&(integrated||route?.ok===true),outletAvailable:engineVented(ship,p),pathCapacityW:core?.pathCapacityW||0};});
  const ratedThrustN=cores.reduce((n,c)=>n+c.ratedThrustN,0),ratedAccelMps2=massKg>0?ratedThrustN/massKg:0,inertialFactor=S.inertialSupport==null?1:clamp(S.inertialSupport/Math.max(1,S.mass),0,1),structuralAccelerationLimitMps2=Number.isFinite(S.aStruct)?Math.max(0,S.aStruct):1e9,accelerationLimitMps2=Math.min(structuralAccelerationLimitMps2,ratedAccelMps2)*inertialFactor;
  const raw={version:PROPULSION_MODEL_VERSION,inputModelVersion:ENGINE_INPUT_MODEL_VERSION,architectureVersion:2,cores,engines,massKg,ratedThrustN,ratedAccelMps2,structuralAccelerationLimitMps2,inertialFactor,accelerationLimitMps2};return reactorSupplyProfile({modules:mods,grid:{P:S.power||0,domains:powerDomainProfile(ship,S,mods),powerPaths:electrical.powerLinks||[]},propulsion:raw},true).propulsion;
 }
@@ -64120,9 +64123,31 @@ function refreshPlacementGeometry(ship,options={}){
   // Stage B contact-only judgment of placed structures: the same contact graph from the hull as 点検 (groundingStats).
   // A loose structure is reported (red) but keeps its pose, record and place in the graph (_placementLoose is derived).
   {const placed=ship.parts.filter(p=>p.placement&&isShapePart(p)&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))&&done.has(p.id));for(const p of placed)delete p._placementLoose;
-   if(placed.length&&options.ids==null){const S={warnings:[]};groundingStats(ship,S);/* a targeted refresh (ids) rebuilds its branch only; the next full refresh judges contact */const red=new Set(S.ungrounded?.parts||[]);
+   if((placed.length||ship.parts.some(p=>p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior'&&done.has(p.id)))&&options.ids==null){const S={warnings:[]};groundingStats(ship,S);/* a targeted refresh (ids) rebuilds its branch only; the next full refresh judges contact */const red=new Set(S.ungrounded?.parts||[]);
+    const equipment=ship.parts.filter(p=>p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior'&&done.has(p.id)&&!p._placementError&&red.has(p.id));for(const p of equipment){p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});}/* equipment carried only by red structures is not grounded either: no function (2026-11-13 decision) */
     for(const p of placed){if(!done.has(p.id)||p._placementError||p.placement.pendingGeometry||p.placement.validationFailed||!red.has(p.id))continue;/* a targeted refresh marks only what it visited */p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});/* red like any refusal; a loose part grounds nothing, so leaving it out of the graph changes no other result */}}}
   if(options.includeFits!==false){const fits=refreshFitPlacementAttachments(ship);for(const q of fits.failed)failed.push(q);for(const q of fits.severed||[])severed.push(q);resolvedFits.push(...fits.resolvedFits);}}finally{delete ship._refreshingPlacement;}return {ok:!failed.length,updated,failed,severed,resolvedParts,resolvedFits};
+}
+// 2026-11-13 user decision (no parent relation): after a delete, the placed parts that lost their grounding and are
+// connected to something that stood on a removed structure drop together as one piece (shapes and relative positions
+// kept) along the seed's contact axis, until the first member's base reaches a grounded body (the same sink as a user
+// placement), at most the removed structure's depth; with nothing in reach the piece stays where it is (red).
+function placementDropPieces(ship,seeds,reachOf,axisOf,reparented){if(!seeds.length)return;
+ const S={warnings:[]};groundingStats(ship,S);const red=new Set(S.ungrounded?.parts||[]),byId=new Map(ship.parts.map(p=>[p.id,p]));
+ const placed=q=>q&&q.placement&&(placementCapability(q).space==='exterior'||legacyExteriorShieldAttachment(q));
+ const box=p=>{try{return partAABB(p);}catch(e){return null;}},near=(p,q)=>{const A=box(p),B=box(q);return !!A&&!!B&&A.every(Number.isFinite)&&B.every(Number.isFinite)&&[0,1,2].every(i=>A[i]<=B[i+3]+1e-3&&A[i+3]>=B[i]-1e-3);};
+ const touches=(p,q)=>{p._solidCutShip=ship;q._solidCutShip=ship;try{if(isShapePart(p)&&isShapePart(q))return !!placementContact(ship,p,q).connected;const e=isShapePart(p)?q:p,b=isShapePart(p)?p:q;return isShapePart(b)&&!!placementEquipmentContact(ship,e,b).connected;}catch(e){return false;}};
+ const done=new Set();
+ for(const seedId of seeds){if(done.has(seedId)||!red.has(seedId))continue;const seed=byId.get(seedId),a=axisOf(seed);if(!a)continue;
+  const piece=[seed],queue=[seed];done.add(seedId);while(queue.length){const p=queue.shift();for(const q of ship.parts){if(done.has(q.id)||!red.has(q.id)||!placed(q)||!near(p,q)||!touches(p,q))continue;done.add(q.id);piece.push(q);queue.push(q);}}
+  const reach=Math.max(...piece.map(p=>reachOf.get(p.id)||0));if(!(reach>0))continue;const inPiece=new Set(piece.map(p=>p.id));let best=null;
+  for(const m of piece){if(!isShapePart(m))continue;const A=box(m);if(!A)continue;
+   for(const q of ship.parts){if(inPiece.has(q.id)||!isShapePart(q)||q.plate||red.has(q.id)||q._placementError)continue;const B=box(q);if(!B||!B.every(Number.isFinite))continue;
+    if(![0,1,2].every(i=>Math.min(A[i],A[i]-a[i]*reach)-1e-3<=B[i+3]&&Math.max(A[i+3],A[i+3]-a[i]*reach)+1e-3>=B[i]))continue;
+    const probe={...m,c:m.c.slice()};delete probe._placementGeometry;try{placementSinkToSurface(ship,probe,q,a);}catch(e){continue;}const d=dot(sub(m.c,probe.c),a);if(d>1e-9&&d<=reach&&(!best||d<best.d))best={d,q,m};}}
+  if(!best)continue;const delta=mul(a,-best.d);
+  for(const p of piece){p.c=add(p.c,delta);const m=p.placement;if(p.id===best.m.id){m.parentStructureId=best.q.id;m.parentGeometryRevision=best.q.placement?.geometryRevision||0;delete m.hostSurfaceId;}m.requestedGeometry=placementShape(p);m.geometryRevision=(m.geometryRevision||0)+1;delete p._placementGeometry;delete p._placementError;delete p._placementLoose;delete p._engineMountSupportGeometry;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);reparented.push({list:'parts',partId:p.id,parentStructureId:p.id===best.m.id?best.q.id:m.parentStructureId,moved:true});}
+ }
 }
 function placementCopyClosure(ship,selection={}){
  const parts=new Set((selection.parts||[]).map(p=>typeof p==='object'?p.id:p)),fits=new Set((selection.fits||[]).map(f=>typeof f==='object'?f.id:f));let changed=true;
@@ -64224,6 +64249,7 @@ function removeParts(ship,inputIds){
  const touches=(p,q)=>{q._solidCutShip=ship;p._solidCutShip=ship;try{return placementCapability(p).kind==='structure'?!!placementContact(ship,p,q).connected:!!placementEquipmentContact(ship,p,q).connected;}catch(e){return false;}};
  const axisOf=p=>{const m=p.placement||{};if(placementCapability(p).kind!=='structure')return Array.isArray(m.contactNormal)?norm(m.contactNormal):null;if(m.mode==='horizontal')return m.contactSide==='top'?[0,-1,0]:[0,1,0];if(m.mode==='vertical'&&Array.isArray(m.contactNormal))return norm([m.contactNormal[0],0,m.contactNormal[2]]);if(p.surfaceNormal)return norm(p.surfaceNormal);return [0,1,0];};
  const extent=(q,a)=>{const B=bound(q),h=[0,1,2].map(i=>(B[i+3]-B[i])/2);return 2*(Math.abs(a[0])*h[0]+Math.abs(a[1])*h[1]+Math.abs(a[2])*h[2]);};
+const pendingDrop=[];const reachOf=new Map();
  const onRemoved=ship.parts.filter(p=>!removed.has(p.id)&&p.placement&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))&&removedStructs.some(q=>near(p,q,1e-3)&&touches(p,q)));
  const sinkDepth=(p,q,a)=>{const probe={...p,c:p.c.slice()};delete probe._placementGeometry;placementSinkToSurface(ship,probe,q,a);return dot(sub(p.c,probe.c),a);};
  for(const p of onRemoved){const still=remaining.find(q=>q.id!==p.id&&near(p,q,1e-3)&&touches(p,q));
@@ -64231,15 +64257,12 @@ function removeParts(ship,inputIds){
   // foundation (derived support) at that body when theirs was removed.
   if(still){const m=p.placement;if(removed.has(m.parentStructureId)){m.parentStructureId=still.id;m.parentGeometryRevision=still.placement?.geometryRevision||0;delete m.hostSurfaceId;reparented.push({list:'parts',partId:p.id,parentStructureId:still.id});}
    if(p.engineMountSupport&&removed.has(p.engineMountSupport.parentId)){p.engineMountSupport={...p.engineMountSupport,parentId:still.id,sourceKey:engineSupportSourceKey(ship,p,still)};delete p._engineMountSupportGeometry;}
-   continue;}
-  const a=axisOf(p);if(!a)continue;
-  const reach=Math.max(...removedStructs.filter(q=>near(p,q,1e-3)).map(q=>extent(q,a)))+PLACEMENT_TOLERANCES.coordinate*4;let best=null;
-  if(placementCapability(p).kind==='structure'){for(const q of remaining){if(q.id===p.id)continue;const swept={...p,c:sub(p.c,mul(a,reach/2))};let B;try{B=partAABB(swept);}catch(e){continue;}const Q=bound(q),A0=bound(p);if(![0,1,2].every(i=>Math.min(A0[i],B[i])-reach<=Q[i+3]&&Math.max(A0[i+3],B[i+3])+reach>=Q[i]))continue;let d;try{d=sinkDepth(p,q,a);}catch(e){continue;}if(d>1e-9&&d<=reach&&(!best||d<best.d))best={d,q};}}
-  else{const seat=add(p.c,mul(a,-1e-3)),h=rayEnv(ship,seat,mul(a,-1),{maxT:reach+extent(p,a),structOnly:true});if(h&&h.part&&!removed.has(h.part.id)&&isShapePart(h.part)){const before=p.c.slice(),probeDepth=dot(sub(p.c,h.p),a)-extent(p,a)/2;if(probeDepth>0&&probeDepth<=reach)best={d:probeDepth,q:h.part};p.c=before;}}
-  if(!best)continue;p.c=sub(p.c,mul(a,best.d));const m=p.placement;m.parentStructureId=best.q.id;m.requestedGeometry=placementShape(p);m.parentLocalAnchor=localStruct(best.q,p.c);if(best.q.s)m.anchorDimensions=[best.q.s[0],best.q.s[2],best.q.s[1]];m.geometryRevision=(m.geometryRevision||0)+1;delete m.hostSurfaceId;delete p._placementGeometry;delete p._placementError;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);reparented.push({list:'parts',partId:p.id,parentStructureId:best.q.id,moved:true});}
+}
+  pendingDrop.push(p.id);/* every part that stood on a removed structure seeds the group drop; only parts that lost their grounding move */}
  const supports=remaining;
  for(const fit of ship.fits.filter(f=>closure.fits.includes(f.id))){const parent=supports.filter(p=>{const A=fitAABB(fit),B=bound(p);return [0,1,2].every(i=>A[i]<=B[i+3]+1e-4&&A[i+3]>=B[i]-1e-4);}).map(p=>({part:p,contact:typeof placementFitContact==='function'?placementFitContact(ship,fit,p):{connected:false}})).find(p=>p.contact.connected);if(parent&&typeof rehostFitPlacement==='function'){const r=rehostFitPlacement(ship,fit,parent.part);if(r.ok){reparented.push({list:'fits',fitId:fit.id,parentStructureId:parent.part.id});continue;}}removedFits.add(fit.id);}
- ship._placementDeleting=true;try{for(const id of removedFits)removeItem(ship,'fits',id,false);for(const id of removed)removeItem(ship,'parts',id,false);}finally{delete ship._placementDeleting;}for(const g of ship.groups||[]){g.parts=g.parts.filter(id=>!removed.has(id));g.fits=g.fits.filter(id=>!removedFits.has(id));}if(ship.links)ship.links=ship.links.filter(l=>![l.from,l.to].some(id=>/^p\d+$/.test(id)&&removed.has(+id.slice(1))||/^f\d+$/.test(id)&&removedFits.has(+id.slice(1))));ship._cache=null;delete ship._interiorKey;return {ok:true,removed:[...removed],removedFits:[...removedFits],reparented};
+ for(const id of pendingDrop){const p=ship.parts.find(q=>q.id===id),a=axisOf(p);if(a)reachOf.set(id,Math.max(...removedStructs.filter(q=>near(p,q,1e-3)).map(q=>extent(q,a)))+PLACEMENT_TOLERANCES.coordinate*4);}
+ ship._placementDeleting=true;try{for(const id of removedFits)removeItem(ship,'fits',id,false);for(const id of removed)removeItem(ship,'parts',id,false);ship._cache=null;placementDropPieces(ship,pendingDrop,reachOf,axisOf,reparented);}finally{delete ship._placementDeleting;}for(const g of ship.groups||[]){g.parts=g.parts.filter(id=>!removed.has(id));g.fits=g.fits.filter(id=>!removedFits.has(id));}if(ship.links)ship.links=ship.links.filter(l=>![l.from,l.to].some(id=>/^p\d+$/.test(id)&&removed.has(+id.slice(1))||/^f\d+$/.test(id)&&removedFits.has(+id.slice(1))));ship._cache=null;delete ship._interiorKey;return {ok:true,removed:[...removed],removedFits:[...removedFits],reparented};
 }
 function updatePlacementChildren(ship,parentId,options={}){const result=refreshPlacementGeometry(ship);ship._cache=null;delete ship._interiorKey;return result;}
 // Every copy path uses this one reference remapping rule. An omitted
@@ -65200,7 +65223,7 @@ function groundingStats(ship,S){
  // contact graph), not only its own parent; placed equipment still mounts on its parent.
  let graph=null;const contactGraph=()=>graph||(graph=structuralConnectivity(ship));
  const structureExplicit=p=>explicit(p)&&placementCapability(p).kind==='structure';
- const touch=(a,b)=>{if(explicit(a)){if(a._placementError)return false;if(structureExplicit(a)&&isShapePart(b))return !b._placementError&&!!contactGraph().adj.get(a.id)?.has(b.id);if(!isShapePart(b)||b.plate)return false;b._solidCutShip=ship;try{return placementEquipmentContact(ship,a,b).connected;}catch(e){return false;}}/* equipment touches any structure at its seat (no parent relation) */if(explicit(b)&&isShapePart(a)){if(b._placementError)return false;if(structureExplicit(b))return !!contactGraph().adj.get(b.id)?.has(a.id);return placementContact(ship,b,a).connected;}if(!near(a,b))return false;if(a.k==='engine'||b.k==='engine'){const engine=a.k==='engine'?a:b,other=engine===a?b:a;return sm(engine).some(q=>nearSolid(other,q));}
+ const touch=(a,b)=>{if(explicit(a)){if(a._placementError)return false;if(structureExplicit(a)&&isShapePart(b))return !b._placementError&&!!contactGraph().adj.get(a.id)?.has(b.id);if(!isShapePart(b)||b.plate)return false;b._solidCutShip=ship;try{return placementEquipmentContact(ship,a,b).connected;}catch(e){return false;}}/* equipment touches any structure at its seat (no parent relation) */if(explicit(b)&&isShapePart(a)){if(b._placementError)return false;if(structureExplicit(b))return !!contactGraph().adj.get(b.id)?.has(a.id);if(a.plate)return false;a._solidCutShip=ship;try{return isShapePart(b)?placementContact(ship,b,a).connected:placementEquipmentContact(ship,b,a).connected;}catch(e){return false;}}/* equipment is judged by its mounting contact, never as a solid */if(!near(a,b))return false;if(a.k==='engine'||b.k==='engine'){const engine=a.k==='engine'?a:b,other=engine===a?b:a;return sm(engine).some(q=>nearSolid(other,q));}
  // v24 Two structures touch only where their shapes do, not where their bounding boxes overlap: a thin slab lying
  // inside another structure's box but clear of its shape (a measured layer floating over a tower) is loose.
  if(isShapePart(a)&&isShapePart(b))return sm(a).some(q=>nearSolid(b,q))||sm(b).some(q=>nearSolid(a,q));return true;};

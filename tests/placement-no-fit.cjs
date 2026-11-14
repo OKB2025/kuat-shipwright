@@ -184,3 +184,27 @@ for(const reason of ['minimum-thickness','contact-shape'])test(`an old fit failu
  const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
  assert.equal(q.placement.repairRequired,undefined);assert.equal(q._placementError,undefined);assert.ok(!r.failed.some(f=>f.partId===2));
 });
+
+// 2026-11-14 user decision: what stood on a deleted structure and lost its grounding drops together as one piece (shapes
+// and relative positions kept): a chain (B on the deleted body, C on B) and touching siblings both land.
+{
+ const base=()=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'piece');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,18,0],s:[60,40,16]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);return s;};
+ const put=(s,parentId,x,size)=>{const parent=s.parts.find(p=>p.id===parentId),hit=C.rayPart([x,200,0],[0,-1,0],parent),c=[x,hit.p[1]+size[2]/2,0],id=s.nextId++,r=C.solvePlacement(s,{id,k:'struct',form:'box',c,s:size,yaw:0},{mode:'horizontal',parentStructureId:parentId,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);s.parts.push(r.part);C.refreshPlacementGeometry(s);return s.parts.find(p=>p.id===id);};
+ const red=s=>{const S={warnings:[]};C.groundingStats(s,S);return Array.from(S.ungrounded?.parts||[]);};
+ test('a chain on a deleted structure drops together (relative position kept) and is grounded',()=>{
+  const s=base(),b=put(s,2,0,[20,20,6]),c=put(s,b.id,0,[6,6,4]),gap=c.c[1]-b.c[1],b0=b.c[1];C.removeParts(s,[2]);
+  assert.ok(b.c[1]<b0-10,'B dropped');near(c.c[1]-b.c[1],gap,1e-9);C.refreshPlacementGeometry(s);assert.deepEqual(red(s),[]);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);assert.deepEqual(red(L),[]);});
+ test('touching siblings on a deleted structure drop together and are grounded',()=>{
+  const s=base(),a=put(s,2,-6,[12,12,6]),b=put(s,2,5.9,[12,12,6]),y0=[a.c[1],b.c[1]];C.removeParts(s,[2]);
+  assert.ok(a.c[1]<y0[0]-10&&b.c[1]<y0[1]-10,'both dropped');near(a.c[1]-b.c[1],y0[0]-y0[1],1e-9);C.refreshPlacementGeometry(s);assert.deepEqual(red(s),[]);});
+}
+
+// Physics review 2026-11-14: equipment carried only by a red (ungrounded) structure is not grounded either; it is red,
+// gives no function, and it is not reported as an overlap.
+test('an engine on a floating structure is red and gives no function; refused equipment is not an overlap',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'float eq');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,80]},{id:2,k:'struct',form:'box',c:[0,200,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const h=C.rayPart([-100,200,0],[1,0,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[-62,200,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);
+ const e=s.parts.find(p=>p.k==='engine'),f=C.refreshPlacementGeometry(s);assert.ok(f.failed.some(q=>q.partId===e.id),'red');assert.ok(e._placementError);
+ const st=C.computeStats(s);assert.equal(st.info[e.id]?.overlap,false,'not an overlap');assert.equal(st.overlap||0,0);
+});
