@@ -15,13 +15,19 @@ test('all normal exterior kinds keep direct mode and reject the three structure 
  for(const k of ['shield','localShield']){assert.equal(C.placementCapability({k}).space,'interior',k+' is now an interior generator');const s=fixture(),p={...equipment(k),c:[0,0,0]};assert.equal(C.solvePlacement(s,p,{mode:'direct',hostId:1}).ok,true);for(const mode of ['horizontal','vertical','surface'])assert.equal(C.solvePlacement(s,p,{mode,hostId:1}).code,'placement-mode');}
 });
 
-test('parent translation and rotation carry exterior sensors through a saved rigid pose',()=>{
- const s=fixture(),p=add(s),local=p.placement.parentLocalAnchor.slice();s.parts[0].c=[5,7,-4];let result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));vector(p.c,C.worldStruct(s.parts[0],local));
- s.parts[0].roll=38;s.parts[0].pitch=17;s.parts[0].yaw=29;result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));vector(p.c,C.worldStruct(s.parts[0],local));vector(C.worldStruct({...p,c:[0,0,0]},[0,1,0]),C.worldStruct({...s.parts[0],c:[0,0,0]},[0,1,0]));assert.equal(C.placementDiagnostics(s).find(q=>q.partId===p.id).connected,true);assert.equal(p.d,4);
+// Stage B (2026-11-13, user decision 2026-11-12 "親子関係は持たない"): exterior equipment does not follow the structure
+// it is mounted on. Until stage B these tests checked the follow; now the equipment keeps its world pose and its
+// placement record and is judged where it stands.
+test('a moved or turned parent leaves exterior sensors where they are and judges them there',()=>{
+ const s=fixture(),p=add(s),pose=plain({c:p.c,frame:C.worldStruct({...p,c:[0,0,0]},[0,1,0])}),record=C.publicJSON(p.placement);s.parts[0].c=[5,7,-4];C.updatePlacementChildren(s,1);
+ assert.deepEqual(plain({c:p.c,frame:C.worldStruct({...p,c:[0,0,0]},[0,1,0])}),pose);assert.equal(C.publicJSON(p.placement),record);assert.equal(C.placementDiagnostics(s).find(q=>q.partId===p.id).connected,false);
+ s.parts[0].roll=38;s.parts[0].pitch=17;s.parts[0].yaw=29;C.updatePlacementChildren(s,1);assert.deepEqual(plain(p.c),pose.c);assert.equal(p.d,4);
+ // Put back, the parent meets the sensor again where it was left.
+ s.parts[0].c=[0,0,0];s.parts[0].roll=0;s.parts[0].pitch=0;s.parts[0].yaw=0;const back=C.updatePlacementChildren(s,1);assert.equal(back.ok,true,JSON.stringify(back));assert.deepEqual(plain(p.c),pose.c);assert.equal(C.placementDiagnostics(s).find(q=>q.partId===p.id).connected,true);
 });
 
-test('nozzle direction follows the parent without changing its power ratings or ownership',()=>{
- const s=fixture(),p=add(s,'engine'),keys=['d','reactor','machineryId','ratedInputW','shaftCapacityW','nozzleShare','propulsionModelVersion'],saved=Object.fromEntries(keys.map(k=>[k,p[k]]));s.parts[0].yaw=63;s.parts[0].roll=12;const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));vector(p.dir,C.worldStruct({...s.parts[0],c:[0,0,0]},[-1,0,0]));for(const key of keys)assert.equal(p[key],saved[key],key);
+test('a turned parent leaves the nozzle direction and its power ratings unchanged',()=>{
+ const s=fixture(),p=add(s,'engine'),keys=['d','reactor','machineryId','ratedInputW','shaftCapacityW','nozzleShare','propulsionModelVersion'],saved=Object.fromEntries(keys.map(k=>[k,p[k]])),dir=plain(p.dir);s.parts[0].yaw=63;s.parts[0].roll=12;C.updatePlacementChildren(s,1);vector(p.dir,dir);for(const key of keys)assert.equal(p[key],saved[key],key);
 });
 
 test('a missing parent preserves exterior hardware and its editable settings for reconnection',()=>{
@@ -29,8 +35,9 @@ test('a missing parent preserves exterior hardware and its editable settings for
  s.parts.unshift({id:9,k:'struct',form:'box',c:[0,0,0],s:[20,20,20]});const reconnected=C.commitPlacement(s,p,request({parentStructureId:9}),{replaceId:p.id});assert.equal(reconnected.ok,true,reconnected.error);assert.equal(reconnected.part.id,p.id);assert.equal(reconnected.part.placement.parentStructureId,9);
 });
 
-test('parent pose, local equipment basis and normal attachment survive save and readback',()=>{
- const s=fixture(),p=add(s);s.parts[0].roll=31;assert.equal(C.updatePlacementChildren(s,1).ok,true);const saved=plain(C.serialize(s)),loaded=C.deserialize(saved),q=loaded.parts.find(q=>q.id===p.id);assert.ok(q.placement.rigidPose);assert.equal(q.placement.parentStructureId,1);vector(q.c,p.c);assert.equal(C.updatePlacementChildren(loaded,1).ok,true);vector(q.c,p.c);assert.equal(C.placementDiagnostics(loaded).find(v=>v.partId===q.id).connected,true);
+test('equipment left by a turned parent keeps its pose and record through save and readback',()=>{
+ const s=fixture(),p=add(s);s.parts[0].roll=31;C.updatePlacementChildren(s,1);const record=C.publicJSON(p.placement),saved=plain(C.serialize(s)),loaded=C.deserialize(saved),q=loaded.parts.find(q=>q.id===p.id);assert.ok(q.placement.rigidPose);assert.equal(q.placement.parentStructureId,1);vector(q.c,p.c);C.updatePlacementChildren(loaded,1);vector(q.c,p.c);assert.equal(C.publicJSON(q.placement),record);
+ assert.equal(C.placementDiagnostics(loaded).find(v=>v.partId===q.id).connected,C.placementDiagnostics(s).find(v=>v.partId===p.id).connected);
 });
 
 test('partial copying cannot keep an equipment parent from another design',()=>{
@@ -43,15 +50,15 @@ test('a late normal-equipment result cannot commit after its parent changes',()=
 
 test('a catalogue bridge body keeps its real reference dimensions through ordinary mounting and parent rotation',()=>{
  const s=fixture();s.parts[0].s=[2000,2000,1000];const hit={p:[0,500,0],n:[0,1,0]},source=C.alignStructure({id:-1,...C.equipmentOptions('isdBridge')},hit,'surface'),size=plain(source.s),r=C.commitPlacement(s,source,{mode:'direct',parentStructureId:1,hit});assert.equal(r.ok,true,r.error);const p=r.part;assert.equal(p.equipmentId,'isdBridge');assert.deepEqual(plain(p.s),size);assert.equal(p._placementGeometry,undefined);
- s.parts[0].roll=27;const updated=C.updatePlacementChildren(s,1);assert.equal(updated.ok,true,JSON.stringify(updated));assert.deepEqual(plain(p.s),size);assert.equal(p.placement.mode,'direct');assert.equal(C.placementDiagnostics(s).find(q=>q.partId===p.id).connected,true);
+ const c=plain(p.c);s.parts[0].roll=27;C.updatePlacementChildren(s,1);assert.deepEqual(plain(p.s),size);assert.equal(p.placement.mode,'direct');assert.deepEqual(plain(p.c),c,'stage B: not carried by the turned parent');
 });
 
-test('resizing the parent moves the mounting skin without scaling the equipment or its offset',()=>{
- const s=fixture(),p=add(s);s.parts[0].s[2]=30;const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));near(p.c[1],16.84);assert.equal(p.d,4);near(p.placement.rigidPose.offset[1],1.84);assert.equal(C.placementDiagnostics(s).find(q=>q.partId===p.id).connected,true);
+test('resizing the parent neither moves nor scales the equipment or its offset',()=>{
+ const s=fixture(),p=add(s);s.parts[0].s[2]=30;C.updatePlacementChildren(s,1);near(p.c[1],11.84);assert.equal(p.d,4);near(p.placement.rigidPose.offset[1],1.84);
 });
 
-test('moving a single equipment along the skin updates its local anchor for later parent movement',()=>{
- const s=fixture(),p=add(s);p.c[0]+=3;let result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));near(p.placement.surfaceAnchor[0],5);s.parts[0].c[0]+=7;result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));near(p.c[0],12);
+test('moving a single equipment along the skin updates its local anchor; a later parent move does not carry it',()=>{
+ const s=fixture(),p=add(s);p.c[0]+=3;let result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));near(p.placement.surfaceAnchor[0],5);s.parts[0].c[0]+=7;result=C.updatePlacementChildren(s,1);assert.equal(result.ok,true,JSON.stringify(result));near(p.c[0],5);assert.equal(C.placementDiagnostics(s).find(q=>q.partId===p.id).connected,true);
 });
 
 test('whole-parent copies remap equipment references and retain the copied local pose',()=>{
@@ -59,5 +66,5 @@ test('whole-parent copies remap equipment references and retain the copied local
 });
 
 test('mirrored equipment retains its mirrored rigid basis on cold regeneration',()=>{
- const s=fixture();s.parts[0].c[2]=30;const r=C.commitPlacement(s,{...equipment(),c:[2,10.92,33],yaw:27,skinSize:[4,2,1]},request({hit:{p:[2,10,33],n:[0,1,0]}}));assert.equal(r.ok,true,r.error);const parent=s.parts[0],mirroredParent=C.mirrorPart(parent,s);mirroredParent.id=s.nextId++;parent.tw=mirroredParent.id;mirroredParent.tw=parent.id;s.parts.push(mirroredParent);const mirrored=C.mirrorPart(r.part,s);mirrored.id=s.nextId++;s.parts.push(mirrored);const expected=C.worldStruct({...mirrored,c:[0,0,0]},[1,0,0]),result=C.updatePlacementChildren(s,parent.id);assert.equal(result.ok,true,JSON.stringify(result));vector(C.worldStruct({...mirrored,c:[0,0,0]},[1,0,0]),expected);assert.equal(mirrored.placement.parentStructureId,mirroredParent.id);assert.equal(C.placementDiagnostics(s).find(q=>q.partId===mirrored.id).connected,true);
+ const s=fixture();s.parts[0].c[2]=30;const r=C.commitPlacement(s,{...equipment(),c:[2,10.92,33],yaw:27,skinSize:[4,2,1]},request({hit:{p:[2,10,33],n:[0,1,0]}}));assert.equal(r.ok,true,r.error);const parent=s.parts[0],mirroredParent=C.mirrorPart(parent,s);mirroredParent.id=s.nextId++;parent.tw=mirroredParent.id;mirroredParent.tw=parent.id;s.parts.push(mirroredParent);const mirrored=C.mirrorPart(r.part,s);mirrored.id=s.nextId++;s.parts.push(mirrored);const expected=C.worldStruct({...mirrored,c:[0,0,0]},[1,0,0]),result=C.updatePlacementChildren(s,parent.id);/* 2026-11-13 (contact only): the mirrored parent box floats 60 m from the grounded one, so the mirrored equipment is red by contact; only grounding refusals are allowed here */assert.ok(result.failed.every(f=>f.code==='contact-zero'),JSON.stringify(result));vector(C.worldStruct({...mirrored,c:[0,0,0]},[1,0,0]),expected);assert.equal(mirrored.placement.parentStructureId,mirroredParent.id);/* red by contact on the floating mirrored box (2026-11-13) */assert.equal(C.placementDiagnostics(s).find(q=>q.partId===mirrored.id).connected,false);
 });

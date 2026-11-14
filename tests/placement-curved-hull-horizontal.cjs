@@ -22,42 +22,49 @@ function place(spec,o,d,{lift=null,normalOffset=false}={}){
  const placed=ship.parts.at(-1),stats={warnings:[]};C.groundingStats(ship,stats);
  return {ship,hull,hit:{...hit,n},part:placed,ungrounded:(stats.ungrounded?.parts||[]).includes(placed.id)};
 }
-function assertGroundedCut(r,label){
+// 2026-11-13 user decision: no fitting (no contact-face cut). Until then these structures were cut to the hull (the
+// overlap removed, no material inside the hull). Now the requested body is kept whole and joined to the hull by the
+// overlap, which the structural union counts once.
+function assertGroundedWhole(r,label){
  assert.equal(r.part._placementError,undefined,label+': '+r.part._placementError);assert.equal(r.ungrounded,false,label+' is grounded');
  assert.equal(C.placementDiagnostics(r.ship).find(q=>q.partId===r.part.id).connected,true,label+' is connected');
  const requested=C.partVolume(r.part.placement.requestedGeometry),effective=C.partVolume(r.part);
- assert.ok(effective>0&&effective<requested*(1-1e-6),`${label}: the overlap is removed (${effective} of ${requested})`);
- // The tapped point itself is buried in the hull, so it is not inside the cut body,
- // while a point just outside the hull along the normal is.
- assert.equal(C.inPart(r.part,C.sub(r.hit.p,C.mul(r.hit.n,r.ship.hull.W*.02))),false,label+': no material inside the hull');
+ assert.ok(Math.abs(effective-requested)<=requested*1e-6,`${label}: kept whole (${effective} of ${requested})`);
+ assert.ok(C.placementContact(r.ship,r.part,r.hull).overlap,label+': joined by its overlap with the hull');
 }
 
 for(const [name,spec,taps] of [
  ['cigar/ellipse',CIGAR,[['steep top x.7 z+.45',[.7,5,.45],[0,-1,0]],['steep top x.7 z-.45 (mirror)',[.7,5,-.45],[0,-1,0]],['side x.4 mid-height',[.4,.5,5],[0,0,-1]],['side x.6 mid-height (port mirror)',[.6,.5,-5],[0,0,1]]]],
  ['ellipse/ellipse',ELLIPSE,[['steep top x.3 z+.45',[.3,5,.45],[0,-1,0]],['steep top x.7 z+.45',[.7,5,.45],[0,-1,0]],['steep top x.7 z-.45 (mirror)',[.7,5,-.45],[0,-1,0]],['side x.6 y.5',[.6,.5,5],[0,0,-1]],['side x.4 y.5 (port mirror)',[.4,.5,-5],[0,0,1]],['side x.4 y.7',[.4,.7,5],[0,0,-1]],['side x.6 y.7',[.6,.7,5],[0,0,-1]]]],
  ['default wedge/rect',undefined,[['side x.4 mid-height',[.4,.5,5],[0,0,-1]],['side x.4 mid-height (port mirror)',[.4,.5,-5],[0,0,1]]]],
-])test(`${name}: horizontal structures tapped on the curved/steep hull side are cut to the hull and grounded`,()=>{
+])test(`${name}: horizontal structures tapped on the curved/steep hull side are kept whole and grounded by the overlap`,()=>{
  const h=C.newShip(spec,'new').hull;
- for(const [label,o,d] of taps){const origin=[h.L*o[0],h.H*o[1],h.W*o[2]],r=place(spec,origin,d);assertGroundedCut(r,label);}
+ for(const [label,o,d] of taps){const origin=[h.L*o[0],h.H*o[1],h.W*o[2]],r=place(spec,origin,d);assertGroundedWhole(r,label);}
 });
 
 test('the reported along-normal pose (repro script) is also grounded on the steep elliptic shoulder',()=>{
- const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{normalOffset:true});assertGroundedCut(r,'cigar x.7 z.45 along normal');
+ const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{normalOffset:true});assertGroundedWhole(r,'cigar x.7 z.45 along normal');
 });
 
-test('the cut keeps the authored outward faces and upright pose of the requested body',()=>{
+test('the requested body keeps its outward faces and upright pose; the ship grows by less than its volume (overlap counted once)',()=>{
  const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.4,h.H*.5,h.W*5],[0,0,-1]),req=r.part.placement.requestedGeometry;
- // Mass/volume use the hull-structure union: the ship grows by the cut body only.
- const without=C.computeStats({...r.ship,parts:r.ship.parts.filter(p=>p.id!==r.part.id),_cache:null}).volume,withPart=C.computeStats(r.ship).volume,effective=C.partVolume(r.part);
- assert.ok(Math.abs(withPart-without-effective)<=Math.max(1,effective*1e-6),`ship volume grows by ${withPart-without}, cut body ${effective}, requested ${C.partVolume(req)}`);
+ const without=C.computeStats({...r.ship,parts:r.ship.parts.filter(p=>p.id!==r.part.id),_cache:null}).volume,withPart=C.computeStats(r.ship).volume,whole=C.partVolume(r.part);
+ assert.ok(withPart-without>0&&withPart-without<whole*(1-1e-6),`ship volume grows by ${withPart-without}, body ${whole}`);
  assert.deepEqual(Array.from(r.part.c),Array.from(req.c),'the requested position is kept');assert.equal(r.part.pitch||0,0);assert.equal(r.part.roll||0,0);
  const outer=req.c[2]+req.s[1]/2,face=C.rayPart([req.c[0],req.c[1],h.W*5],[0,0,-1],r.part);assert.ok(face);assert.ok(Math.abs(face.p[2]-outer)<1e-4,'outer side face unchanged');
 });
 
-test('a structure with a real gap from the steep hull side is still refused (not grounded, not moved)',()=>{
+// 2026-11-13 user decision: no fitting; the user's own seat (a draft) brings the whole base down to the body along its
+// contact axis. A horizontal draft beside the steep wall has a vertical contact axis and a lateral gap: no column under
+// its footprint meets the hull, so the seat cannot close it and it is still refused, not moved (as before). A draft
+// lifted above the top is brought down by the seat and joined (until then it was refused with a placement error).
+test('a lateral gap from the steep hull side is still refused (not grounded, not moved); a gap above the top is closed by the seat',()=>{
  for(const spec of [CIGAR,ELLIPSE,undefined]){const h=C.newShip(spec,'new').hull,size=h.W*.25,r=place(spec,[h.L*.4,h.H*.5,h.W*5],[0,0,-1],{lift:[0,0,size*.5+h.W*.05]});
   assert.ok(r.part._placementError,'a floating structure keeps a placement error');assert.equal(r.ungrounded,true,'and is reported ungrounded');}
- const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{lift:[0,h.H*.6,0]});assert.ok(r.part._placementError);assert.equal(r.ungrounded,true);
+ const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.7,h.H*5,h.W*.45],[0,-1,0],{lift:[0,h.H*.6,0]});
+ assert.equal(r.part._placementError,undefined,'the seat closes the gap above the top');assert.equal(r.ungrounded,false);assert.equal(C.placementContact(r.ship,r.part,r.hull).connected,true);
+ // The same gap made afterwards (the hull moved down) is refused where the structure stands.
+ const c=JSON.stringify(r.part.c);r.hull.c=C.add(r.hull.c,[0,-h.H,0]);r.ship._cache=null;C.refreshPlacementGeometry(r.ship);assert.equal(JSON.stringify(r.part.c),c,'not moved');assert.ok(r.part._placementError,'a gap made afterwards is refused in place');
 });
 
 // Changed 2026-11-11 (user decision: buried structures, wholly buried ones included,
@@ -87,22 +94,25 @@ test('residual mid-height taps are never accepted with an open cut: they join th
   assert.equal(r.ok,true,JSON.stringify(o)+': '+r.code);assert.ok(Math.abs(C.partVolume(r.part)-size[0]*size[1]*size[2])<=size[0]*size[1]*size[2]*1e-6,'the whole closed body is kept, not an open cut');
   assert.equal(r.contact.overlap,true,'connected by its real overlap with the hull');assert.ok(r.contact.volume>0&&r.contact.volume<C.partVolume(r.part));}
 });
-test('residual mid-height taps whose lateral cut leaves a sliver hole',{todo:'placementExtendedContactSolid sliver at exact mid-height taps'},()=>{
- for(const [spec,o,d,normalOffset] of RESIDUAL){const h=C.newShip(spec,'new').hull;assertGroundedCut(place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d,{normalOffset}),JSON.stringify(o));}
+// 2026-11-13 user decision: no fitting, so there is no lateral cut and no sliver; the todo became an ordinary check.
+test('residual mid-height taps are grounded whole through the editor path',()=>{
+ for(const [spec,o,d,normalOffset] of RESIDUAL){const h=C.newShip(spec,'new').hull;assertGroundedWhole(place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d,{normalOffset}),JSON.stringify(o));}
 });
 
-test('a laterally cut structure can be dragged along the hull wall and stays grounded',()=>{
+test('a structure on the hull wall can be dragged along it and stays grounded',()=>{
  for(const [spec,o,d] of [[CIGAR,[.4,.5,5],[0,0,-1]],[CIGAR,[.7,5,.45],[0,-1,0]]]){
-  const h=C.newShip(spec,'new').hull,r=place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d);assertGroundedCut(r,'before drag');
+  const h=C.newShip(spec,'new').hull,r=place(spec,[h.L*o[0],h.H*o[1],h.W*o[2]],d);assertGroundedWhole(r,'before drag');
   const start=Array.from(r.part.c),target=C.add(start,[h.L*.02,0,0]);r.part.c=target.slice();const refreshed=C.refreshPlacementGeometry(r.ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));
   assert.ok(Math.abs(r.part.c[0]-target[0])<1e-6,`the drag is not clamped back: ${r.part.c[0]} vs ${target[0]} (start ${start[0]})`);
-  assertGroundedCut({...r,ungrounded:(()=>{const st={warnings:[]};C.groundingStats(r.ship,st);return (st.ungrounded?.parts||[]).includes(r.part.id);})()},'after drag');}
+  assertGroundedWhole({...r,ungrounded:(()=>{const st={warnings:[]};C.groundingStats(r.ship,st);return (st.ungrounded?.parts||[]).includes(r.part.id);})()},'after drag');}
 });
 
-test('the lateral cut leaves no material inside the hull',()=>{
+// 2026-11-13 user decision: no fitting. Until then the lateral cut left no material inside the hull; now the requested
+// body overlaps the hull (the union counts the shared volume once).
+test('the requested body overlaps the hull instead of being cut back to its skin',()=>{
  const h=C.newShip(CIGAR,'new').hull,r=place(CIGAR,[h.L*.4,h.H*.5,h.W*5],[0,0,-1]),req=r.part.placement.requestedGeometry,N=7;let inside=0,both=0;
  for(let i=0;i<N;i++)for(let j=0;j<N;j++)for(let k=0;k<N;k++){const q=[0,1,2].map((a,m)=>req.c[a]+req.s[[0,2,1][a]]*(([i,j,k][m]+.5+.0371*m)/N-.5));if(C.inPart(r.part,q)){inside++;if(C.inPart(r.hull,q))both++;}}
- assert.ok(inside>N*N,'the sample reaches the cut body: '+inside);assert.equal(both,0,'no sampled body point lies inside the hull');
+ assert.equal(inside,N*N*N,'every sample of the requested body is part of it');assert.ok(both>0,'some of the body lies inside the hull');
 });
 
 test('save/load and a mirrored copy re-solve the lateral cut to the same grounded volume',()=>{
@@ -123,7 +133,8 @@ test('a near-flat roof is never cut sideways: a parent piercing a thin plate kee
  const ship=C.newShip({L:100,W:100,H:100,assembly:true});ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[60,60,20],roll:10}];ship.fits=[];ship.nextId=2;
  const hit=C.rayPart([0,100,0],[0,-1,0],ship.parts[0]),n=C.norm(hit.n);assert.ok(Math.hypot(n[0],n[2])<.3&&Math.hypot(n[0],n[2])>.1,'a gentle slope with a real horizontal component');
  const r=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:hit.p.slice(),s:[20,20,1]},{mode:'horizontal',contactFit:'cut',position:hit.p.slice(),parentStructureId:1,hit:{p:hit.p,n}});
- assert.equal(r.ok,true,r.code);assert.ok(Math.abs(C.partVolume(r.part)-400)<1e-6,'the plate is not cut: '+C.partVolume(r.part));assert.equal(r.contact.overlap,true);
- // The same plate lifted clear of the roof is still refused.
- const lifted=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:C.add(hit.p,[0,15,0]),s:[20,20,1]},{mode:'horizontal',contactFit:'cut',position:C.add(hit.p,[0,15,0]),parentStructureId:1,hit:{p:hit.p,n}});assert.equal(lifted.ok,false);
+ assert.equal(r.ok,true,r.code);assert.ok(Math.abs(C.partVolume(r.part)-400)<400*1e-6,'the plate is not cut: '+C.partVolume(r.part));assert.equal(r.contact.overlap,true);
+ // 2026-11-13 user decision: the user's seat (here a drag position) sinks the plate until its whole base reaches the
+ // roof, so the same plate dragged 15 m above the roof is seated on it and joined (until then it was refused).
+ const lifted=C.solvePlacement(ship,{id:-1,k:'struct',form:'box',c:C.add(hit.p,[0,15,0]),s:[20,20,1]},{mode:'horizontal',contactFit:'cut',position:C.add(hit.p,[0,15,0]),parentStructureId:1,hit:{p:hit.p,n}});assert.equal(lifted.ok,true,lifted.code);assert.ok(C.partAABB(lifted.part)[1]<hit.p[1],'seated down onto the roof');
 });

@@ -67,11 +67,11 @@ test('a structural batch uses existing dependent deletion and excludes every exp
  Object.assign(designUI,{space:'exterior'});st.sel=null;st.multi={parts:new Set(),fits:new Set()};
  `);
  const childId=r.run('child.part.id'),gunId=r.run('ship.fits[0].id');remove(r,'parts','struct');
- assert.equal(r.run('ship.parts.length'),0,'a support also scheduled for deletion is never retained as a reparenting destination');
+ /* Stage B (2026-11-13/14 user decisions, merged with stage C): only the selected parts are removed; the sensor on them stays where it is, red (nothing below it). Neither removed structure is kept as a destination. */assert.equal(r.run('JSON.stringify(ship.parts.map(p=>p.id))'),JSON.stringify([childId]),'a support also scheduled for deletion is never retained as a reparenting destination');/* its red mark comes from the Worker's refresh (covered in placement-delete-graph) */
  // Stage C (user decision 2026-11-13): a weapon whose support is deleted with nothing below stays where it is, floating (a warning).
  // Stage C high review M5: it keeps no dangling host id; the placement records the lost host for repair.
  assert.equal(r.run('ship.fits.length'),1);assert.equal(r.run('ship.fits[0].host'),undefined);assert.equal(r.run('ship.fits[0].float'),true);assert.equal(r.run('ship.fits[0].placement.unresolvedHostId'),1);assert.equal(r.run('ship.fits[0].placement.repairRequired'),true);assert.equal(r.run('undoStack.length'),1);
- assert.deepEqual(plain(r.run('previews.at(-1)[2]')),{parts:[1,2,childId],fits:[]});
+ assert.deepEqual(plain(r.run('previews.at(-1)[2]')),{parts:[1,2],fits:[]});
  r.run('undo()');assert.equal(r.run(`ship.parts.find(p=>p.id===${childId}).placement.parentStructureId`),1);assert.equal(r.run(`ship.fits.find(f=>f.id===${gunId}).host`),1);
 });
 

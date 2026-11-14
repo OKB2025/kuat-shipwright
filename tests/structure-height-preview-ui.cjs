@@ -15,28 +15,27 @@ function fixture(){
 }
 function renderedY(r){const g=r.G.meshPreview(r.ship,[r.part],[],{requestedPart:r.request}).preview;assert.ok(g.ni>0);let min=Infinity,max=-Infinity;for(let i=0;i<g.ni;i++){const y=g.pos[g.idx[i]*3+1];assert.ok(Number.isFinite(y));min=Math.min(min,y);max=Math.max(max,y);}return [min,max];}
 
-test('the real editor proxy and preview grow from the installed base instead of moving the former cut slab',()=>{
- const r=fixture(),{C,part,request,bump}=r,sourceBefore=C.publicJSON(r.ship.parts[0]);assert.deepEqual(renderedY(r),[10,40]);
- C.resizeStructureHeightAtContact(part,100);bump();const proxy=request(part);assert.equal(proxy._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,100],'requested-height preview replaces the former Y40..70 floating slab');assert.equal(C.publicJSON(r.ship.parts[0]),sourceBefore);
- const result=C.refreshPlacementGeometry(r.ship);assert.equal(result.ok,true,JSON.stringify(result.failed));const authoritative=part._placementGeometry;assert.ok(authoritative);assert.equal(request(part)._placementGeometry,authoritative,'same hull context must not hide the new fitted result');assert.deepEqual(renderedY(r),[10,100]);
+// 2026-11-13 user decision: no fitting. The child keeps its requested solid (Y 0..40, sunk 10 m, joined by overlap); there
+// is no fitted cache (_placementGeometry). Expectations of Y 10.. (the cut base) became the requested body. Removed tests
+// (they only covered the fitted cache): 'an authoritative fitting cache replacement is adopted…', 'a label-only edit
+// retains the unchanged fitted solid…'.
+test('the real editor proxy and preview grow from the installed base',()=>{
+ const r=fixture(),{C,part,request,bump}=r,sourceBefore=C.publicJSON(r.ship.parts[0]);assert.deepEqual(renderedY(r),[0,40]);
+ C.resizeStructureHeightAtContact(part,100);bump();const proxy=request(part);/* 2026-11-13 user decision: no fitting; the solve carries the requested solid as the placement geometry */assert.equal(C.placementCachedGeometryInputCurrent(proxy),false,'the 40 m solid of the last solve is not current for the resized body');assert.deepEqual(renderedY(r),[0,100],'requested-height preview replaces the former Y40..70 floating slab');assert.equal(C.publicJSON(r.ship.parts[0]),sourceBefore);
+ const result=C.refreshPlacementGeometry(r.ship);assert.equal(result.ok,true,JSON.stringify(result.failed));assert.ok(Math.abs(part._placementGeometry.volume-C.partVolume({...part,_placementGeometry:undefined}))<=1e-6*part._placementGeometry.volume,'the carried solid is the requested one');assert.deepEqual(renderedY(r),[0,100]);
 });
 
 test('direct dimension edits clear the detached editor fit while preserving the source last-valid solid',()=>{
  const r=fixture(),{part,request,bump}=r,cache=part._placementGeometry;request(part);part.s[2]=100;part.c[1]=50;bump();assert.equal(request(part)._placementGeometry,undefined);assert.equal(part._placementGeometry,cache);assert.deepEqual(renderedY(r),[0,100]);
 });
 
-test('an authoritative fitting cache replacement is adopted without another authoring revision or context change',()=>{
- const r=fixture(),{C,part,request}=r,proxy=request(part),before=C.publicJSON(part),replacement={...part._placementGeometry,local:part._placementGeometry.local.slice()};
- part._placementGeometry=replacement;assert.equal(C.publicJSON(part),before);assert.equal(request(part),proxy,'the stable editor proxy is retained');assert.equal(proxy._placementGeometry,replacement);assert.deepEqual(renderedY(r),[10,40]);
-});
 
 test('an authoritative fitting cache removal also updates the stable editor proxy',()=>{
- const r=fixture(),{C,part,request}=r,proxy=request(part),before=C.publicJSON(part);delete part._placementGeometry;assert.equal(C.publicJSON(part),before);assert.equal(request(part),proxy);assert.equal(proxy._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,40]);
+ // Stage B (2026-11-13, no fitting): the solve's carried solid (_placementGeometry) is the cache; removing it is the
+ // authoritative removal, and the proxy follows it. (placement.fittedGeometry no longer exists; deleting it is a no-op.)
+ const r=fixture(),{C,part,request,bump}=r,proxy=request(part);delete part._placementGeometry;delete part.placement.fittedGeometry;bump();const now=request(part);assert.equal(now._placementGeometry,undefined);assert.deepEqual(renderedY(r),[0,40]);
 });
 
-test('a label-only edit retains the unchanged fitted solid and keeps the source authoritative',()=>{
- const r=fixture(),{part,request,bump}=r,proxy=request(part),geometry=part._placementGeometry;part.label='Resized deckhouse';bump();assert.equal(request(part),proxy);assert.equal(proxy._placementGeometry,geometry);assert.equal(part._placementGeometry,geometry);assert.deepEqual(renderedY(r),[10,40]);
-});
 
 test('a pending placement edit previews its request and cannot borrow an earlier finalized solid',()=>{
  const r=fixture(),{part,request,bump}=r,geometry=part._placementGeometry;request(part);part.placement.pendingGeometry=true;bump();assert.equal(request(part)._placementGeometry,undefined);assert.equal(part._placementGeometry,geometry);assert.deepEqual(renderedY(r),[0,40]);

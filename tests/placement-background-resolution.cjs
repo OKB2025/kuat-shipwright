@@ -10,7 +10,7 @@ function setup(){
  ship.parts=[{id:1,k:'struct',form:'box',c:[0,0,0],s:[200,200,20]}];ship.fits=[];ship.hatches=[];ship.links=[];ship.groups=[];ship.nextId=2;
  return{C,E,ship,scope,messages,wait,send};
 }
-test('a placed draft resolves before heavy geometry and transports exact geometry with the original source guard',async()=>{
+test('a placed draft resolves before heavy geometry with the original source guard',async()=>{
  const f=setup(),{C,ship}=f,prepared=C.preparePlacementDraft(ship,{id:2,k:'struct',form:'box',c:[0,11,0],s:[4,4,4]},
   {mode:'horizontal',position:[0,11,0],parentStructureId:1,hit:{p:[0,10,0],n:[0,1,0]},geometryRevision:1});
  assert.equal(prepared.ok,true);ship.parts.push(prepared.part);ship.nextId=3;const state=C.publicJSON(ship),input=C.placementPendingInputKey(prepared.part);let resolved=false;
@@ -20,7 +20,9 @@ test('a placed draft resolves before heavy geometry and transports exact geometr
  const packet=await f.wait('placementResolution'),row=packet.rows.find(row=>row.id===2);
  assert.equal(packet.gen,1);assert.equal(packet.designId,'draft-A');assert.equal(row.sourceKey,input);assert.equal(row.list,'parts');assert.equal(row.part.id,2);
  assert.equal(row.part.placement.pendingGeometry,undefined);assert.equal(row.part.placement.validationFailed,undefined);assert.ok(row.part.placement.hostSurfaceId);
- assert.equal(ArrayBuffer.isView(row.effectiveGeometry.placement.local),true);assert.ok(Math.abs(row.effectiveGeometry.placement.volume-48)<1e-6);assert.ok(row.geometryKeys.self);
+ // 2026-11-13 user decision: no fitting. Until then the row carried the fitted solid (effectiveGeometry.placement, 48 m3);
+ // the structure now keeps its requested 4x4x4 solid, and that solid travels with the row as the placement geometry.
+ assert.ok(Math.abs(row.effectiveGeometry.placement.volume-64)<1e-6);assert.ok(Math.abs(C.partVolume(row.part)-64)<1e-6);assert.ok(row.geometryKeys.self);
  assert.equal(packet.placementDraftStatus.ok,true);assert.equal(C.publicJSON(ship),state,'background resolution never mutates the editor source');
  await f.wait('geometry');assert.ok(f.messages.findIndex(m=>m.type==='placementResolution')<f.messages.findIndex(m=>m.type==='geometry'));
 });

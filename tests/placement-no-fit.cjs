@@ -1,0 +1,282 @@
+// Stage B of the no-recompute plan, as decided 2026-11-13: structures are not fitted (no contact-face cut). A
+// structure keeps the solid it was given; overlapping the body below is its connection, counted once by the structural
+// union. The user's own seat (a tap, a drag, a new draft) moves a horizontal or vertical structure along its contact
+// axis until its whole base reaches the body below. Any other re-solve (reload, Worker, re-check, another part edited)
+// keeps its pose and writes nothing authored. Exterior equipment does not follow the body it was mounted on.
+const assert=require('node:assert/strict'),path=require('node:path'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),{C}=require('../scripts/update-ship-examples.cjs').loadRuntime(root);
+const plain=v=>JSON.parse(C.publicJSON(v)),near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<=e,`${a} != ${b}`),record=p=>C.publicJSON(p.placement);
+const SIZE=[16,16,20];
+function fixture(pitch=6){
+ const ship=C.newShip({L:300,W:200,H:100,assembly:true},'No fit');
+ Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20],pitch}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
+ const parent=ship.parts[0],hit=C.rayPart([20,200,30],[0,-1,0],parent),c=[20,hit.p[1]+SIZE[2]/2,30];
+ const r=C.solvePlacement(ship,{id:2,k:'struct',form:'box',c,s:SIZE,yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});
+ assert.equal(r.ok,true,r.error);ship.parts.push(r.part);assert.ok(C.refreshPlacementGeometry(ship).ok);return {ship,parent,part:ship.parts.find(p=>p.id===2),hit};
+}
+// Height of the parent's top surface under a footprint point (x,z), and of the child's base there.
+const surfaceY=(ship,x,z)=>C.rayPart([x,500,z],[0,-1,0],ship.parts[0]).p[1];
+
+test('a structure keeps its requested solid: no cut, no stored shape',()=>{
+ const {part}=fixture();near(C.partVolume(part),SIZE[0]*SIZE[1]*SIZE[2],1e-6);assert.equal(part.placement.fittedGeometry,undefined);
+ // The solve carries the requested solid itself as the placement geometry (transport, early pick): same volume and bounds.
+ assert.ok(part._placementGeometry);near(part._placementGeometry.volume,SIZE[0]*SIZE[1]*SIZE[2],1e-6*SIZE[0]*SIZE[1]*SIZE[2]);
+});
+
+test('the seat sinks the base until the whole footprint reaches the sloped body, and it is connected by overlap',()=>{
+ const {ship,part}=fixture(),b=C.partAABB(part);let lowest=Infinity;for(const x of [b[0]+1e-3,b[3]-1e-3])for(const z of [b[2]+1e-3,b[5]-1e-3])lowest=Math.min(lowest,surfaceY(ship,x,z));
+ near(b[1],lowest,1e-3);const contact=C.placementContact(ship,part,ship.parts[0]);assert.equal(contact.connected,true);assert.ok(contact.overlap,'joined by overlap');
+ // On a flat body the seat is flush.
+ const flat=fixture(0);near(C.partAABB(flat.part)[1],surfaceY(flat.ship,20,30),1e-6);
+});
+
+for(const [name,edit] of [['raised',p=>{p.c=[p.c[0],p.c[1]+3,p.c[2]];}],['turned',p=>{p.pitch=-4;}],['resized',p=>{p.s=[140,80,26];}]])
+ test(`the body below ${name}: the child keeps its pose, solid and placement record, also after a reload`,()=>{
+  const {ship,parent,part}=fixture(),before={record:record(part),c:plain(part.c),volume:C.partVolume(part)};edit(parent);C.refreshPlacementGeometry(ship);
+  assert.equal(record(part),before.record);assert.deepEqual(plain(part.c),before.c);assert.equal(C.partVolume(part),before.volume);
+  const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2);C.refreshPlacementGeometry(L);assert.equal(record(q),before.record);assert.deepEqual(plain(q.c),before.c);
+ });
+
+test('a reload and repeated refreshes write nothing',()=>{
+ const {ship,part}=fixture(),r0=record(part),c0=plain(part.c);for(let i=0;i<3;i++)C.refreshPlacementGeometry(ship);assert.equal(record(part),r0);
+ const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);const q=L.parts.find(p=>p.id===2);assert.equal(record(q),r0);assert.deepEqual(plain(q.c),c0);
+});
+
+test('a drag by the user seats the structure again at the new place; turning in place does not move it',()=>{
+ const {ship,part}=fixture(),to=[-30,part.c[1]+5,-20],dragged=C.solvePlacement(ship,part,{mode:'horizontal',position:to});assert.equal(dragged.ok,true,dragged.error);
+ const b=C.partAABB(dragged.part);assert.ok(b[1]<=surfaceY(ship,-30,-20)+1e-6,'reaches the body at the new place');
+ const turned=C.solvePlacement(ship,{...part,yaw:25},{mode:'horizontal'});assert.equal(turned.ok,true,turned.error);assert.deepEqual(plain(turned.part.c),plain(part.c));
+});
+
+test('a field stored by an unreleased stored-fit build is ignored on load',()=>{
+ const {ship,part}=fixture(),saved=structuredClone(C.serialize(ship));saved.parts.find(p=>p.id===2).placement.fittedGeometry={shape:'x',c:[0,0,0],whole:true};
+ const L=C.deserialize(saved),q=L.parts.find(p=>p.id===2);assert.equal(q.placement.fittedGeometry,undefined);near(C.partVolume(q),C.partVolume(part));
+});
+
+// 2026-11-13 user decision: no parent relation and no severed category (cuts will be baked into the parts). A
+// structure that a later cut separates from everything is judged by contact alone: red, not moved, nothing recorded.
+test('a structure a later cut leaves touching nothing is red by contact alone, without moving it (no removal bookkeeping)',()=>{
+ const CIGAR={L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},ship=C.newShip(CIGAR,'recess');ship.fits=[];C.ensurePrimaryHull(ship);const hull=ship.parts[0],id=ship.nextId++;
+ C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:[110,30,0],s:[20,6,20],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;C.refreshPlacementGeometry(ship);
+ const raw=C.rayPart([110,500,0],[0,-1,0],hull),hit={p:raw.p,n:C.norm(raw.n)},part={id:ship.nextId,k:'struct',form:'box',c:[110,hit.p[1]+2,0],s:[6,4,4],yaw:0,pitch:0,offsetX:0,offsetZ:0};
+ const d=C.preparePlacementDraft(ship,part,{mode:'horizontal',parentStructureId:1,hostId:1,hit,contactFit:'cut',position:part.c.slice(),placementModelVersion:C.PLACEMENT_MODEL_VERSION,geometryRevision:1});ship.parts.push(d.part);ship.nextId++;assert.equal(C.refreshPlacementGeometry(ship).ok,true);
+ const box=ship.parts.at(-1),c=plain(box.c);assert.equal(box.placement.fitRemovalHashes,undefined,'no removal bookkeeping');assert.equal(box.placement.fitRemovalIds,undefined);
+ C.hullOwnSolidCut(ship,hull,{id,shape:'box',c:[110,29,0],s:[20,6,24],rotation:[0,0,0],mirror:false,structures:false});ship._cache=null;const r=C.refreshPlacementGeometry(ship);
+ assert.deepEqual(plain(box.c),c,'not moved');assert.ok(r.failed.some(q=>q.partId===box.id),'red: touches nothing');assert.ok(!(r.severed||[]).length,'no severed category');
+ const L=C.deserialize(structuredClone(C.serialize(ship)));const rl=C.refreshPlacementGeometry(L);assert.ok(rl.failed.some(q=>q.partId===box.id),'the same after a reload');
+});
+
+test('exterior equipment does not follow the structure it was mounted on',()=>{
+ const s=C.newShip({L:200,W:100,H:100,assembly:true},'Stored equipment pose');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[50,0,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});
+ const h=C.rayPart([-100,0,0],[1,0,0],s.parts[0]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[-12,0,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:1,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});
+ assert.equal(r.ok,true,r.error);assert.equal(C.acceptPlacementResult(s,r).ok,true);
+ const engine=s.parts.find(p=>p.k==='engine'),pose=plain({c:engine.c,dir:engine.dir,roll:engine.roll}),rec=C.publicJSON(engine.placement);
+ C.refreshPlacementGeometry(s);assert.equal(C.publicJSON(engine.placement),rec);
+ const loaded=C.deserialize(structuredClone(C.serialize(s))),le=loaded.parts.find(p=>p.k==='engine');C.refreshPlacementGeometry(loaded);assert.equal(C.publicJSON(le.placement),rec);
+ s.parts[0].c=[50,4,0];C.refreshPlacementGeometry(s);assert.deepEqual(plain({c:engine.c,dir:engine.dir,roll:engine.roll}),pose);assert.equal(engine.placement.geometryRevision,JSON.parse(rec).geometryRevision);
+ const after=C.publicJSON(engine.placement);C.refreshPlacementGeometry(s);assert.equal(C.publicJSON(engine.placement),after);
+});
+
+// Stage B regression review (2026-11-13): a structure refused after another edit (here: a gap opened under it) and
+// re-solved after a further edit of its body keeps its pose. Only the user's own draft sinks; the refused structure
+// stays where it was, red, until the user moves it.
+// 2026-11-13 (no parent relation, contact only): an old contact-type refusal is dropped on load; the structure is judged
+// by contact (red: a 0.5 m gap) and is never sunk by a reload or a later body edit.
+test('a stored refused structure is not sunk by a reload or by a later body edit (pose kept, red by contact)',()=>{
+ const {ship,parent,part}=fixture(0);part.c=[part.c[0],part.c[1]+0.5,part.c[2]];Object.assign(part.placement,{validationFailed:true,repairRequired:true,repairReason:'contact-zero'});
+ const c0=plain(part.c),L=C.deserialize(structuredClone(C.serialize(ship))),q=()=>L.parts.find(p=>p.id===2);let r=C.refreshPlacementGeometry(L);
+ assert.deepEqual(plain(q().c),c0,'reload keeps the pose');assert.equal(q().placement.validationFailed,undefined,'the obsolete refusal is dropped');assert.ok(r.failed.some(f=>f.partId===2),'red by contact');
+ L.parts[0].s=[130,80,20];r=C.refreshPlacementGeometry(L);
+ assert.deepEqual(plain(q().c),c0,'a body edit does not sink it');assert.ok(r.failed.some(f=>f.partId===2),'still red');
+});
+
+test('placementSameShape ignores key order, defaults and empty arrays (one definition only)',()=>{
+ const a={k:'struct',form:'box',s:[16,16,20],yaw:0},b={yaw:0,s:[16,16,20],form:'box',k:'struct',taper:0,mirror:false};
+ assert.equal(C.placementSameShape(a,b),true);assert.equal(C.placementSameShape(a,{...a,s:[16,16,21]}),false);
+ // A reload may add empty lists and nested defaults; the shape is still the same (the replaced top-level-only version did not see this).
+ assert.equal(C.placementSameShape({...a,outline:[[0,0],[1,0],[0,1]]},{...a,outline:[[0,0],[1,0],[0,1]],holes:[],label:''}),true,'empty list and empty string are defaults');
+ assert.equal(C.placementSameShape({...a,outline:[[0,0],[1,0],[0,1]]},{...a,outline:[[0,0],[1,0],[0,2]]}),false,'a nested change is seen');
+});
+
+// Physics review 2026-11-13: without fitting, a wing / solar panel / plate seated horizontally on its parent would count
+// its buried root twice (the parent's material and its own). It counts only its increment in the structural union, so
+// its material volume equals what it adds to the ship's volume.
+for(const [name,extra] of [['wing',{k:'wing',form:'trap',s:[20,12,2],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}}],['plate',{k:'struct',form:'box',plate:true,s:[16,10,1.5]}]])
+ test(`a ${name} seated on a curved hull counts its buried root once (material volume = added ship volume)`,()=>{
+  const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'once');ship.fits=[];C.ensurePrimaryHull(ship);C.refreshPlacementGeometry(ship);
+  const stats=s=>{const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);},v0=stats(ship).volume;
+  const raw=C.rayPart([100,500,0],[0,-1,0],ship.parts[0]),hit={p:Array.from(raw.p),n:Array.from(C.norm(raw.n))},id=ship.nextId++,part={id,c:[100,raw.p[1]+extra.s[2]/2-0.5,0],yaw:0,pitch:0,...extra};
+  const r=C.solvePlacement(ship,part,{mode:'horizontal',parentStructureId:1,position:part.c.slice(),hit,contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);
+  const st=stats(ship),mv=st.info[id].materialVolume;assert.ok(mv<C.partVolume(r.part)-1e-6,'the buried root is not counted again');near(mv,st.volume-v0,1e-6*Math.max(1,st.volume));
+ });
+
+// ---- Stage B Opus/high review (2026-11-13) ----
+// H1: the overlap with the body a part was placed on is counted once and does not depend on ids or the parent's mode.
+{
+ const WING={k:'wing',form:'trap',s:[20,12,2],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}},PLATE={k:'struct',form:'box',plate:true,s:[30,20,1.5]},BOX={k:'struct',form:'box',s:[16,10,4]};
+ const stats=s=>{const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
+ const put=(ship,spec,id,parentId,mode,sinkBy)=>{const parent=ship.parts.find(p=>p.id===parentId),raw=C.rayPart([0,500,0],[0,-1,0],parent),hit={p:Array.from(raw.p),n:Array.from(C.norm(raw.n))},part={id,c:[0,raw.p[1]+spec.s[2]/2-sinkBy,0],yaw:0,pitch:0,...structuredClone(spec)};
+  const req=mode==='surface'?{mode,parentStructureId:parentId,hit,position:part.c.slice()}:{mode,parentStructureId:parentId,position:part.c.slice(),hit,contactFit:'cut',contactSide:'bottom'};const r=C.solvePlacement(ship,part,req);assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);};
+ const run=(pSpec,pId,pMode,cSpec,cId)=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'order');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]}],fits:[],hatches:[],links:[],groups:[],nextId:40,autoHabitation:false,detail:0});C.refreshPlacementGeometry(ship);
+  put(ship,pSpec,pId,1,pMode,0);const s0=stats(ship);put(ship,cSpec,cId,pId,'horizontal',0.5);const s1=stats(ship);return {child:s1.info[cId].materialVolume,parentDelta:s1.info[pId].materialVolume-s0.info[pId].materialVolume,ship:s1.volume-s0.volume,mass:s1.mass-s0.mass};};
+ for(const [name,args] of [['a box on a surface plate',[PLATE,10,'surface',BOX,31]],['a box on a horizontal plate',[PLATE,10,'horizontal',BOX,31]],['a wing on a surface wing',[WING,10,'surface',WING,31]]])
+  test(`H1: ${name} counts the overlap once (child material + parent change = added ship volume)`,()=>{const r=run(...args);/* 2026-11-14 user decision: a structure owns its overlap with a wing or plate, so a box on a plate takes the overlap from it */near(r.child+r.parentDelta,r.ship,1e-6*Math.max(1,r.ship));});
+ test('H1: the result does not depend on whether the child id is smaller than the parent id',()=>{const a=run(WING,10,'surface',WING,5),b=run(WING,10,'surface',WING,31);/* 2026-11-14: between two wings the owner follows the id, the mass does not. The union is merged in a different order, which moves the total by ~1e-7 of the ship (0.015 of 192283 m3), so the deltas are compared to 0.05 (m3 and t, ~3e-7 of the ship). */near(a.mass,b.mass,0.05);near(a.ship,b.ship,0.05);});
+}
+// H2: the drag clamp works after the body changed and on a copy (the saved parent key is the last user seat, or absent).
+{
+ const fx=()=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'clamp');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
+  const parent=ship.parts[0],hit=C.rayPart([20,200,30],[0,-1,0],parent),c=[20,hit.p[1]+8,30],r=C.solvePlacement(ship,{id:2,k:'struct',form:'box',c,s:[16,16,16],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);return ship;};
+ const drag=(ship,id,dx)=>{const p=ship.parts.find(q=>q.id===id);p.c=[p.c[0]+dx,p.c[1],p.c[2]];ship._cache=null;const r=C.refreshPlacementGeometry(ship);return {x:p.c[0],failed:r.failed.length,err:p._placementError||null};};
+ test('H2: after the body was resized, dragging past its edge stops at the edge (still connected)',()=>{const s=fx();s.parts[0].s=[124,80,20];s._cache=null;C.refreshPlacementGeometry(s);const r=drag(s,2,100);assert.equal(r.err,null);assert.ok(r.x<75,`stopped at ${r.x}`);});
+ test('H2: a copy dragged past the edge stops at the edge',()=>{const s=fx(),o=JSON.parse(C.publicJSON(s.parts[1]));o.id=5;o.c=[o.c[0]-40,o.c[1],o.c[2]];C.remapPlacementCopy(o,new Map(),{keepExternal:true});s.parts.push(o);s.nextId=6;s._cache=null;C.refreshPlacementGeometry(s);const r=drag(s,5,-100);assert.equal(r.err,null);assert.ok(r.x>-75,`stopped at ${r.x}`);});
+}
+// H3 and the 2026-11-13 decision on floating exterior equipment.
+{
+ const fx=()=>{const s=C.newShip({L:200,W:100,H:100,assembly:true},'eq');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[50,0,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});
+  const h=C.rayPart([-100,0,0],[1,0,0],s.parts[0]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[-12,0,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:1,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(C.acceptPlacementResult(s,r).ok,true);return s;};
+ test('H3: an engine still touching its body after the body turned (yaw 180, face in the same plane) is accepted, live and reloaded',()=>{
+  const s=fx(),e=s.parts.find(p=>p.k==='engine'),c0=plain(e.c);s.parts[0].yaw=180;C.refreshPlacementGeometry(s);assert.equal(e._placementError??null,null);assert.deepEqual(plain(e.c),c0);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);assert.equal(L.parts.find(p=>p.k==='engine')._placementError??null,null);});
+ test('an engine left behind by its body (refused) is a warning and is not in the performance figures',()=>{
+  const s=fx(),e=s.parts.find(p=>p.k==='engine');s.parts[0].c=[80,0,0];C.refreshPlacementGeometry(s);assert.ok(e._placementError,'refused where it stands');
+  const st=C.computeStats(s);assert.notEqual(st.info[e.id]?.vent,true,'no thrust from a refused engine');});
+}
+test('refused placed engines on a powered example (cr90) give no rated thrust; unplaced example engines are unchanged',()=>{
+ const zlib=require('node:zlib'),fs=require('node:fs'),raw=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples/cr90/design.json.gz')))),mk=()=>C.deserialize(structuredClone(raw.design||raw.ship||raw));
+ const base=C.computeStats(mk());assert.ok(base.ratedThrustN>0);const s=mk();for(const e of s.parts.filter(p=>p.k==='engine')){e.placement={modelVersion:1,mode:'direct'};e._placementError={code:'surface-missing'};}
+ assert.equal(C.computeStats(s).ratedThrustN,0);
+});
+
+// User report 2026-11-13 (screenshot, design 建造中): a mirrored copy that visibly overlaps its deck was red ("接地して
+// いない部品"). The deck under the original is one-sided and its mirrored counterpart is a separate part without a twin
+// link, so the mirror kept the original's deck as parent, which is not under the copy. Overlap with any structure is
+// the connection (no parent relation): the copy is accepted, live and after a reload.
+test('a mirrored copy over a separately built mirrored deck (no twin link) is connected, live and reloaded',()=>{
+ const s=C.newShip({L:600,W:200,H:80,plan:'wedge',sec:'rect'},'mirror deck');s.fits=[];C.ensurePrimaryHull(s);C.refreshPlacementGeometry(s);
+ const top=C.rayPart([250,500,0],[0,-1,0],s.parts[0]).p[1];s.parts.push({id:2,k:'struct',form:'box',c:[250,top+8,-30],s:[80,20,30],label:'deck port'},{id:3,k:'struct',form:'box',c:[250,top+8,30],s:[80,20,30],label:'deck stbd'});s.nextId=10;C.refreshPlacementGeometry(s);
+ const deck=s.parts.find(p=>p.id===2),hit=C.rayPart([250,500,-30],[0,-1,0],deck),c=[250,hit.p[1]+4,-30],r=C.solvePlacement(s,{id:10,k:'struct',form:'box',c,s:[30,20,10],yaw:0},{mode:'horizontal',parentStructureId:2,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});
+ assert.equal(r.ok,true,r.error);s.parts.push(r.part);const twin=C.mirrorPart(r.part,s);twin.id=11;r.part.tw=11;twin.tw=10;s.parts.push(twin);s.nextId=12;
+ assert.equal(twin.placement.parentStructureId,3,'the mirror records the separately built mirrored deck it really stands on');
+ const res=C.refreshPlacementGeometry(s),S={warnings:[]};C.groundingStats(s,S);assert.deepEqual(Array.from(res.failed,f=>f.code),[]);assert.equal(s.parts.find(p=>p.id===11)._placementError??null,null);assert.deepEqual(Array.from(S.ungrounded?.parts||[]),[]);
+ const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);const S2={warnings:[]};C.groundingStats(L,S2);assert.equal(L.parts.find(p=>p.id===11)._placementError??null,null);assert.deepEqual(Array.from(S2.ungrounded?.parts||[]),[]);
+});
+
+// 2026-11-13 user decision: no parent relation. Deleting a structure removes only it; a structure that stood on it
+// drops along its own contact axis onto the body below (like a weapon), or stays where it is (red) when nothing is there.
+{
+ const fx=(lowerTop)=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,10+lowerTop/2,0],s:[40,40,lowerTop]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+  const mid=s.parts[1],hit=C.rayPart([0,200,0],[0,-1,0],mid),c=[0,hit.p[1]+3,0],r=C.solvePlacement(s,{id:3,k:'struct',form:'box',c,s:[10,10,6],yaw:0},{mode:'horizontal',parentStructureId:2,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);s.parts.push(r.part);s.nextId=4;C.refreshPlacementGeometry(s);return s;};
+ test('deleting the structure under another drops it onto the body below; only the selected part is removed',()=>{
+  const s=fx(8),top=s.parts.find(p=>p.id===3),y0=top.c[1],r=C.removeParts(s,[2]);assert.deepEqual(Array.from(r.removed),[2]);assert.ok(s.parts.some(p=>p.id===3),'the structure on top is kept');
+  near(top.c[1],y0-8,1e-6);C.refreshPlacementGeometry(s);const S={warnings:[]};C.groundingStats(s,S);assert.deepEqual(Array.from(S.ungrounded?.parts||[]),[]);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);near(L.parts.find(p=>p.id===3).c[1],y0-8,1e-6);});
+ // Physics review 2026-11-14: a targeted refresh (ids) does not re-judge contact, so it keeps a red structure red.
+ test('a red structure stays red through repeated targeted refreshes until a full refresh re-judges it',()=>{
+  const s=fx(8);s.parts[0].c=[0,-200,0];C.refreshPlacementGeometry(s);C.removeParts(s,[2]);C.refreshPlacementGeometry(s);const top=()=>s.parts.find(p=>p.id===3);assert.equal(top()._placementError,'contact-zero');
+  for(let i=0;i<2;i++){C.refreshPlacementGeometry(s,{ids:[3]});assert.equal(top()._placementError,'contact-zero','targeted pass '+(i+1));}
+  s.parts[0].c=[0,10,0];s._cache=null;C.refreshPlacementGeometry(s);assert.equal(top()._placementError,undefined,'a full pass re-judges it');});
+ test('with nothing below within the removed structure\'s depth, it stays where it is and is red',()=>{
+  const s=fx(8);s.parts[0].c=[0,-200,0];C.refreshPlacementGeometry(s);const top=s.parts.find(p=>p.id===3),c0=plain(top.c);C.removeParts(s,[2]);assert.deepEqual(plain(top.c),c0);
+  const r=C.refreshPlacementGeometry(s);assert.ok(r.failed.some(q=>q.partId===3));});
+}
+
+// User design check 2026-11-14 (アリコーン, part 136): a repair state written by the old contact fit
+// (minimum-thickness, contact-shape) is obsolete without fitting; a structure whose requested solid is valid loads
+// without it and is judged by contact.
+for(const reason of ['minimum-thickness','contact-shape'])test(`an old fit failure (${reason}) on a valid requested solid is dropped on load`,()=>{
+ const {ship,part}=fixture(0);Object.assign(part.placement,{repairRequired:true,repairReason:reason});
+ const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
+ assert.equal(q.placement.repairRequired,undefined);assert.equal(q._placementError,undefined);assert.ok(!r.failed.some(f=>f.partId===2));
+});
+
+// 2026-11-14 user decision: what stood on a deleted structure and lost its grounding drops together as one piece (shapes
+// and relative positions kept): a chain (B on the deleted body, C on B) and touching siblings both land.
+{
+ const base=()=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'piece');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,18,0],s:[60,40,16]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);return s;};
+ const put=(s,parentId,x,size)=>{const parent=s.parts.find(p=>p.id===parentId),hit=C.rayPart([x,200,0],[0,-1,0],parent),c=[x,hit.p[1]+size[2]/2,0],id=s.nextId++,r=C.solvePlacement(s,{id,k:'struct',form:'box',c,s:size,yaw:0},{mode:'horizontal',parentStructureId:parentId,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);s.parts.push(r.part);C.refreshPlacementGeometry(s);return s.parts.find(p=>p.id===id);};
+ const red=s=>{const S={warnings:[]};C.groundingStats(s,S);return Array.from(S.ungrounded?.parts||[]);};
+ // Stages B and C merged (2026-11-14): weapons on a piece that drops move with it and stand where it lands; a weapon
+ // standing directly on the deleted structure drops along its own axis (stage C). Neither floats; both survive a reload.
+ for(const [label,mk] of [['an ordinary pd',(s,b)=>{const top=C.rayPart([0,200,0],[0,-1,0],b);s.fits.push({id:50,k:'pd',p:Array.from(top.p),n:[0,1,0],a:2,ped:0});C.remount(s);return s.fits[0];}],['an anchored triple70',(s,b)=>{const top=C.rayPart([0,200,0],[0,-1,0],b),r=C.solveFitPlacement(s,{id:-1,k:'triple70',p:[0,0,0],n:[0,1,0],a:2,ped:.3},{mode:'direct',hostId:b.id,hit:{p:Array.from(top.p),n:Array.from(C.norm(top.n))},geometryRevision:0,parentGeometryRevision:0});assert.equal(r.ok,true,r.error);const a=C.acceptFitPlacementResult(s,r);assert.equal(a.ok,true,a.error);return s.fits[0];}]])
+  test(`${label} on a piece that drops with the delete moves with it and is not floating`,()=>{
+   const s=base(),b=put(s,2,0,[30,30,6]);const fit=mk(s,b),gap=fit.p[1]-b.c[1],b0=b.c[1],d0=C.rayPart([30,200,10],[0,-1,0],s.parts[1]);s.fits.push({id:51,k:'pd',p:Array.from(d0.p),n:[0,1,0],a:2,ped:0});C.remount(s);
+   C.removeParts(s,[2]);const f=s.fits.find(q=>q.id===fit.id),g=s.fits.find(q=>q.id===51);assert.ok(b.c[1]<b0-10,'the piece dropped');near(f.p[1]-b.c[1],gap,1e-6);assert.equal(f.float,false,'rides with the piece');near(g.p[1],10,1e-6);assert.equal(g.float,false,'drops onto the deck');
+   const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);C.remount(L,{keepFitPose:true});for(const id of [fit.id,51]){const q=L.fits.find(x=>x.id===id);assert.equal(q.float,false,'after reload '+id);assert.equal(JSON.stringify(q.p.map(v=>+v.toFixed(6))),JSON.stringify(s.fits.find(x=>x.id===id).p.map(v=>+v.toFixed(6))));}
+  });
+ // Regression review (merge 2026-11-14): a weapon on the upper member of a dropping chain moves with it too.
+ test('a weapon on the upper member of a dropping chain moves with the chain and is not floating',()=>{
+  const s=base(),b=put(s,2,0,[30,30,6]),c=put(s,b.id,0,[16,16,4]),top=C.rayPart([0,200,0],[0,-1,0],c);s.fits.push({id:60,k:'pd',p:Array.from(top.p),n:[0,1,0],a:2,ped:0});C.remount(s);
+  const gap=s.fits[0].p[1]-c.c[1],c0=c.c[1];C.removeParts(s,[2]);const f=s.fits[0];assert.ok(c.c[1]<c0-10,'the chain dropped');near(f.p[1]-c.c[1],gap,1e-6);assert.equal(f.float,false);
+ });
+ // Regression review (merge 2026-11-14): a weapon on a structure that stays, flush with a dropping one, stays put.
+ test('a weapon on a structure that stays, flush with a structure that drops, stays where it is',()=>{
+  const s=base(),b=put(s,2,0,[30,30,6]),top=C.rayPart([0,200,0],[0,-1,0],b);s.parts.push({id:70,k:'struct',form:'box',c:[0,b.c[1],20],s:[30,30,6]});s.nextId=71;C.refreshPlacementGeometry(s);
+  /* 70 is a free structure standing in the overlap region beside b, its top flush with b's top; the weapon stands on both */s.fits.push({id:61,k:'pd',p:[0,top.p[1],10],n:[0,1,0],a:2,ped:0});C.remount(s);const y0=s.fits[0].p[1];
+  C.removeParts(s,[2]);const f=s.fits[0];near(f.p[1],y0,1e-9);assert.equal(f.float,false);
+ });
+ test('a chain on a deleted structure drops together (relative position kept) and is grounded',()=>{
+  const s=base(),b=put(s,2,0,[20,20,6]),c=put(s,b.id,0,[6,6,4]),gap=c.c[1]-b.c[1],b0=b.c[1];C.removeParts(s,[2]);
+  assert.ok(b.c[1]<b0-10,'B dropped');near(c.c[1]-b.c[1],gap,1e-9);C.refreshPlacementGeometry(s);assert.deepEqual(red(s),[]);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);assert.deepEqual(red(L),[]);});
+ test('touching siblings on a deleted structure drop together and are grounded',()=>{
+  const s=base(),a=put(s,2,-6,[12,12,6]),b=put(s,2,5.9,[12,12,6]),y0=[a.c[1],b.c[1]];C.removeParts(s,[2]);
+  assert.ok(a.c[1]<y0[0]-10&&b.c[1]<y0[1]-10,'both dropped');near(a.c[1]-b.c[1],y0[0]-y0[1],1e-9);C.refreshPlacementGeometry(s);assert.deepEqual(red(s),[]);});
+}
+
+// Physics review 2026-11-14: equipment carried only by a red (ungrounded) structure is not grounded either; it is red,
+// gives no function, and it is not reported as an overlap.
+test('an engine on a floating structure is red and gives no function; refused equipment is not an overlap',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'float eq');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,80]},{id:2,k:'struct',form:'box',c:[0,200,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const h=C.rayPart([-100,200,0],[1,0,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[-62,200,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);
+ const e=s.parts.find(p=>p.k==='engine'),f=C.refreshPlacementGeometry(s);assert.ok(f.failed.some(q=>q.partId===e.id),'red');assert.ok(e._placementError);
+ const st=C.computeStats(s);assert.equal(st.info[e.id]?.detached,true,'detached');assert.equal(st.overlap||0,0,'not counted as an overlap warning');
+});
+
+// Stage B Opus/high review 3 (2026-11-14).
+test('H1: touching siblings placed by the editor draft path stay connected after their body is deleted (no parent cycle, nothing written)',()=>{
+ const s=C.newShip({L:300,W:300,H:100,assembly:true},'rk');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[40,40,20]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const draft=(x,size)=>{const c=[x,10+size[2]/2-1,0],d=C.preparePlacementDraft(s,{id:s.nextId,k:'struct',form:'box',c,s:size,yaw:0,pitch:0},{mode:'horizontal',parentStructureId:1,hostId:1,hit:{p:[x,10,0],n:[0,1,0]},contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(d.ok,true,d.error);s.parts.push(d.part);s.nextId++;C.refreshPlacementGeometry(s);return s.parts.at(-1);};
+ const a=draft(-5,[10,10,10]),b=draft(5,[10,10,10]);s.parts.push({id:s.nextId++,k:'struct',form:'box',c:[40,0,0],s:[60,80,80]});C.refreshPlacementGeometry(s);
+ C.removeParts(s,[1]);const pub=()=>C.publicJSON(s.parts.filter(p=>p.id===a.id||p.id===b.id)),after=pub(),f=C.refreshPlacementGeometry(s);
+ assert.deepEqual(Array.from(f.failed),[]);assert.equal(pub(),after,'the refresh writes nothing');assert.equal(a.placement.repairRequired,undefined);
+ const L=C.deserialize(structuredClone(C.serialize(s)));assert.deepEqual(Array.from(C.refreshPlacementGeometry(L).failed),[]);
+});
+test('H1: an old save with a parent-cycle repair state loads without it',()=>{
+ const {ship,part}=fixture(0);Object.assign(part.placement,{repairRequired:true,repairReason:'parent-cycle'});const L=C.deserialize(structuredClone(C.serialize(ship)));assert.equal(L.parts.find(p=>p.id===2).placement.repairRequired,undefined);
+});
+// Regression review 2026-11-14: the drop starts from the engine's real seat also when the deleted body was turned.
+test('an engine on a turned (yaw 30°) structure drops onto the body below and stays grounded through save and load',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[10,14,5],s:[40,30,8],yaw:30}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const h=C.rayPart([15,200,8],[0,-1,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[15,h.p[1]+6,8],d:4,nozzleLength:3,dir:[0,1,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);C.refreshPlacementGeometry(s);
+ const e=s.parts.find(p=>p.k==='engine'),c0=e.c.slice();C.removeParts(s,[2]);near(e.c[0],c0[0],1e-6);near(e.c[2],c0[2],1e-6);near(e.c[1],c0[1]-8,1e-6);assert.deepEqual(Array.from(C.refreshPlacementGeometry(s).failed),[]);
+ const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);const g=L.parts.find(p=>p.k==='engine');assert.deepEqual(plain(g.c),plain(e.c));assert.equal(g._placementError,undefined);assert.ok(!C.computeStats(L).info[g.id].detached,'it functions');
+});
+test('H2: an engine on top of a deleted structure drops onto the body below',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,14,0],s:[40,40,8]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const h=C.rayPart([0,200,0],[0,-1,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[0,h.p[1]+6,0],d:4,nozzleLength:3,dir:[0,1,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);C.refreshPlacementGeometry(s);
+ const e=s.parts.find(p=>p.k==='engine'),y0=e.c[1];C.removeParts(s,[2]);near(e.c[1],y0-8,1e-6);assert.deepEqual(Array.from(C.refreshPlacementGeometry(s).failed),[]);
+});
+test('M1: a horizontally placed wing counts its buried root once with or without a recorded tapped body',()=>{
+ const WING={k:'wing',form:'trap',s:[20,12,2],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}};
+ const mk=keep=>{const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'w');ship.fits=[];C.ensurePrimaryHull(ship);C.refreshPlacementGeometry(ship);const raw=C.rayPart([100,500,0],[0,-1,0],ship.parts[0]),hit={p:Array.from(raw.p),n:Array.from(C.norm(raw.n))},id=ship.nextId++;
+  const r=C.solvePlacement(ship,{id,c:[100,raw.p[1]+0.5,0],yaw:0,pitch:0,...structuredClone(WING)},{mode:'horizontal',parentStructureId:1,position:[100,raw.p[1]+0.5,0],hit,contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);if(!keep){delete r.part.placement.parentStructureId;r.part.placement.unresolvedParentId=1;}ship.parts.push(r.part);
+  const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
+ const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);
+});
+
+// Physics review 2026-11-14: every calculation that excludes non-functioning parts excludes detached equipment too
+// (a sensor on a floating structure adds no sensor volume).
+test('a sensor on a floating structure adds no sensor volume',()=>{
+ const mk=floating=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'float sensor');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,80]},{id:2,k:'struct',form:'box',c:[0,floating?200:80,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+  const top=C.rayPart([0,500,0],[0,-1,0],s.parts[1]),r=C.commitPlacement(s,{id:-1,k:'sensor',c:[0,top.p[1]+1,0],d:2},{mode:'direct',parentStructureId:2,hit:{p:Array.from(top.p),n:[0,1,0]}});assert.equal(r.ok,true,r.error);C.refreshPlacementGeometry(s);return C.computeStats(s);};
+ const grounded=mk(false),floating=mk(true);assert.ok(grounded.sensorVolume>0,'grounded sensor counts');assert.equal(floating.sensorVolume||0,0,'floating sensor does not');
+});
+
+// 2026-11-14 user decision: a structure owns its overlap with a plate or wing the user placed, with or without the tapped body.
+test('an overlap between a light structure and a placed plate counts as structure, with or without a recorded body',()=>{
+ const mk=keep=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'dens');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20],light:true}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+  const hit=C.rayPart([0,200,0],[0,-1,0],s.parts[0]),c=[0,hit.p[1]+0.5,0],r=C.solvePlacement(s,{id:5,k:'struct',form:'box',plate:true,c,s:[20,20,2],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);if(!keep){delete r.part.placement.parentStructureId;r.part.placement.unresolvedParentId=1;}s.parts.push(r.part);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
+ const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);assert.ok(a.info[5].materialVolume<C.partVolume({k:'struct',form:'box',plate:true,c:[0,0,0],s:[20,20,2]})-1e-6,'the structure owns the overlap (2026-11-14 user decision)');
+});

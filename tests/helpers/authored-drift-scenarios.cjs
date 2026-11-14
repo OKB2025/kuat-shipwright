@@ -33,6 +33,23 @@ function scenarios(C){
     const r=C.solvePlacement(s,{id:-1,k:'engine',c:[-12,0,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:1,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});
     if(!r.ok)throw new Error('engine: '+r.error);const a=C.acceptPlacementResult(s,r);if(!a.ok)throw new Error(a.error);return s;},
    edit(st){st.parts.find(q=>q.id===1).pitch=28;return st;}},
+  // F3 (2026-11-13): scenarios for the later phases D (hatches), E (hull cuts), G (surfaces, publicJSON) and H
+  // (mirrors). Each makes one edit away from the item it watches.
+  {name:'hangar hatch, unrelated structure moved',build(){
+    const s=C.newShip({L:100,W:100,H:100,assembly:true},'Drift: hatch');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[16,20,10]},{id:3,k:'struct',form:'box',c:[0,40,0],s:[4,4,4]}],fits:[],hatches:[],links:[],groups:[],nextId:4,detail:0,autoHabitation:false});
+    const solved=C.solvePlacement(s,{id:2,k:'hangar',c:[0,0,0],d:Math.cbrt(4000),room:[20,20,10]},{mode:'clip',hostId:1});if(!solved.ok)throw new Error('hangar: '+solved.error);s.parts.push(solved.part);C.syncCompartments(s);
+    if(!C.setAviationSurfaceMode(s,solved.part,'top','open'))throw new Error('hatch');return s;},
+   edit(st){const p=st.parts.find(q=>q.id===3);p.c=[p.c[0]+2,p.c[1],p.c[2]];return st;}},
+  {name:'ship-level cut, unrelated structure moved',build(){
+    const {s,root}=rootBox(C);s.solidCuts=[C.normalizeSolidCut({id:7,shape:'box',c:[50,0,0],s:[4,60,40],structures:true})];s.parts.push({id:s.nextId++,k:'struct',form:'box',c:[0,60,0],s:[4,4,4]});return s;},
+   edit(st){const p=st.parts.find(q=>!q.placement);p.c=[p.c[0]+3,p.c[1],p.c[2]];return st;}},
+  {name:'user design with surfaces, one structure moved',build(){
+    const fs=require('node:fs'),zlib=require('node:zlib'),path=require('node:path');
+    return C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'../fixtures/copied-structure-lost-parent-2026-11-13.json.gz')))));},
+   edit(st){const p=st.parts.find(q=>q.placement?.mode==='horizontal');p.c=[p.c[0]+1,p.c[1],p.c[2]];return st;}},
+  {name:'mirrored pair, one side resized',build(){
+    const {s}=rootBox(C);s.parts.push({id:s.nextId++,k:'struct',form:'box',label:'port pod',c:[0,0,40],s:[10,6,6]},{id:s.nextId++,k:'struct',form:'box',label:'starboard pod',c:[0,0,-40],s:[10,6,6]});return s;},
+   edit(st){const p=st.parts.find(q=>q.label==='port pod');p.s=[12,6,6];return st;}},
  ].map(x=>({...x,plain}));
 }
 module.exports={scenarios,rootBox,sunkChild};

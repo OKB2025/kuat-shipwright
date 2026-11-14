@@ -3335,7 +3335,7 @@ function partInfoHTML(pt) {
   if (pt.k === 'hangar') h += `<div class="ins-row">${esc(C.AVIATION_ROLES[pt.airRole]||'格納・発着兼用')} · 容量 ${C.hangarCapacity(pt).toFixed(2)} サイズ${inf ? (inf.acc ? '・発着路接続' : '・発着路未接続') : ''}</div>`;
   if(['engine','engineCore'].includes(pt.k)){const r=C.reactorFor(ship,pt);h+=`<div class="ins-row">${r?'接続炉 #'+r.id:'炉に未接続'}</div>`;}
   if (pt.k === 'engine' && inf) h += `<div class="ins-row">${inf.vent ? '噴射口が開いています' : '噴射口が塞がり推力ゼロ'}</div>`;
-  if (inf && !C.isShapePart(pt)) h += `<div class="ins-row">船体内 ${fPct(inf.inside)}・表面の露出 ${fPct(inf.exposed)}${inf.overlap ? '・<span class="neg">他の区画と重なっています</span>' : ''}</div>`;
+  if (inf && !C.isShapePart(pt)) h += `<div class="ins-row">船体内 ${fPct(inf.inside)}・表面の露出 ${fPct(inf.exposed)}${inf.detached ? '・<span class="neg">接地した本体に接していないため機能しません</span>' : inf.overlap ? '・<span class="neg">他の区画と重なっています</span>' : ''}</div>`;
   if (pt.k === 'struct' && pt.plate) h += `<div class="ins-row">装甲外板・厚さ ${num(C.plateThickness(pt), 1)} m${inf ? `・表面の露出 ${fPct(inf.exposed)}` : ''}<br>武装・艦橋ポッドは取り付けられません</div>`;
   else if (pt.k === 'struct' && pt.light) h += `<div class="ins-row">軽構造・質量と強度は通常の構造物の ¼</div>`;
   return h;

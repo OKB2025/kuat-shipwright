@@ -15,7 +15,9 @@
 // <root> is the checkout to measure (KS_TEST_ROOT style). Each key runs in its own child process.
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),{execFileSync}=require('node:child_process');
-const TOL=1e-9;
+// F4 (2026-11-13): the same tolerance policy as Core.authoredStateDrift: exact comparison, differences within the
+// relative noise tolerance (Core.AUTHORED_DRIFT_NOISE, 1e-9) reported apart as noise, never dropped.
+let TOL=1e-9;
 
 function loadWorker(root){
  const {C,R}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
@@ -24,10 +26,13 @@ function loadWorker(root){
  vm.runInContext(fs.readFileSync(path.join(root,'js/engine.js'),'utf8'),context);
  const messages=[],scope={postMessage(m){messages.push(m);}};
  context.scope=scope;vm.runInContext('YardEngine.listenWorker(scope)',context);
- async function wait(gen){
+ if(Number.isFinite(C.AUTHORED_DRIFT_NOISE))TOL=C.AUTHORED_DRIFT_NOISE;
+ // F3 (2026-11-13): each update answers twice ('geometry', then 'surfaceGeometry' after the surface pass); both
+ // carry the public state.
+ async function wait(gen,type='geometry'){
   for(let i=0;i<600000;i++){
    const failure=messages.find(m=>m.type==='error');if(failure)throw new Error('Worker error: '+failure.message);
-   const reply=messages.find(m=>m.type==='geometry'&&m.gen===gen);if(reply){messages.length=0;return reply;}
+   const reply=messages.find(m=>m.type===type&&m.gen===gen);if(reply){messages.splice(messages.indexOf(reply),1);return reply;}
    await new Promise(r=>setTimeout(r,2));
   }
   throw new Error('Worker reply timeout '+gen);
@@ -41,7 +46,7 @@ const LISTS=['parts','fits','hatches'];
 // Field-level differences with a relative numeric tolerance. Returns [{path, before, after}].
 function diff(a,b,p='',out=[],limit=4000){
  if(out.length>=limit)return out;
- if(typeof a==='number'&&typeof b==='number'){if(Math.abs(a-b)>TOL*Math.max(1,Math.abs(a),Math.abs(b)))out.push({path:p,before:a,after:b});return out;}
+ if(typeof a==='number'&&typeof b==='number'){if(a!==b)out.push({path:p,before:a,after:b,...(Math.abs(a-b)<=TOL*Math.max(1,Math.abs(a),Math.abs(b))?{noise:true}:{})});return out;}
  if(a===b)return out;
  if(Array.isArray(a)&&Array.isArray(b)&&a.length===b.length){a.forEach((x,i)=>diff(x,b[i],p+'['+i+']',out,limit));return out;}
  if(a&&b&&typeof a==='object'&&typeof b==='object'&&!Array.isArray(a)&&!Array.isArray(b)){
@@ -66,15 +71,19 @@ async function runKey(root,key){
  const stored=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples',key,'design.json.gz'))));
  const ship=C.deserialize(JSON.parse(JSON.stringify(stored))),loaded=authored(JSON.parse(C.publicJSON(ship)));
  send({type:'update',gen:1,designId:'invariance-'+key,state:JSON.stringify(loaded),reset:true,what:['all'],stats:false,view:{deferSurfaces:true}});
- const w1=authored(JSON.parse((await wait(1)).state));
+ const w1=authored(JSON.parse((await wait(1)).state)),s1raw=(await wait(1,'surfaceGeometry')).state,s1=s1raw?authored(JSON.parse(s1raw)):w1;
  send({type:'update',gen:2,designId:'invariance-'+key,state:JSON.stringify(w1),reset:false,what:['parts','fits','hatches'],stats:false,view:{deferSurfaces:true}});
- const w2=authored(JSON.parse((await wait(2)).state));
+ const w2=authored(JSON.parse((await wait(2)).state)),s2raw=(await wait(2,'surfaceGeometry')).state,s2=s2raw?authored(JSON.parse(s2raw)):w2;
  const again=C.deserialize(JSON.parse(JSON.stringify({...stored,...w2,format:stored.format,v:stored.v}))),digest=figuresDigest(C.computeStats(again));
  const storedPlain=authored(stored);
  const h=v=>fnv(JSON.stringify(v));
- const diffs={load:stateDiff(storedPlain,loaded),worker:stateDiff(storedPlain,w2),roundTrip:stateDiff(w1,w2)};
+ const real=list=>list.filter(d=>!d.noise);
+ const all={load:stateDiff(storedPlain,loaded),worker:stateDiff(storedPlain,w2),roundTrip:stateDiff(w1,w2),workerSurface:stateDiff(storedPlain,s2),roundTripSurface:stateDiff(s1,s2)};
+ // diffs: beyond the noise tolerance (as before F4); noise: the differences within it, listed apart.
+ const diffs=Object.fromEntries(Object.entries(all).map(([k,v])=>[k,real(v)])),noise=Object.fromEntries(Object.entries(all).map(([k,v])=>[k,v.filter(d=>d.noise)]));
+ const drift=typeof C.authoredStateDrift==='function'?{worker1:C.authoredStateDrift(loaded,w1),surface1:C.authoredStateDrift(loaded,s1),worker2:C.authoredStateDrift(w1,w2)}:null;
  return {key,ms:Date.now()-t0,hash:{stored:h(storedPlain),loaded:h(loaded),worker1:h(w1),worker2:h(w2)},
-  counts:Object.fromEntries(LISTS.map(l=>[l,(w2[l]||[]).length])),diffCount:Object.fromEntries(Object.entries(diffs).map(([k,v])=>[k,v.length])),diffs,digest};
+  counts:Object.fromEntries(LISTS.map(l=>[l,(w2[l]||[]).length])),diffCount:Object.fromEntries(Object.entries(diffs).map(([k,v])=>[k,v.length])),noiseCount:Object.fromEntries(Object.entries(noise).map(([k,v])=>[k,v.length])),diffs,noise:Object.fromEntries(Object.entries(noise).map(([k,v])=>[k,v.slice(0,200)])),drift,digest};
 }
 function keysOf(root){return fs.readdirSync(path.join(root,'data/examples')).filter(k=>fs.existsSync(path.join(root,'data/examples',k,'design.json.gz'))).sort();}
 function compare(base,head){
@@ -84,7 +93,7 @@ function compare(base,head){
   if(b.error||h.error){rows.push({key:h.key,status:'error',base:b.error,head:h.error});continue;}
   const fig=figuresDiff(b.digest,h.digest,1e-9);
   // Authored state after the Worker, compared head vs base field by field.
-  const workerChanged=JSON.stringify(b.diffs.worker)!==JSON.stringify(h.diffs.worker);
+  const workerChanged=JSON.stringify(b.diffs.worker)!==JSON.stringify(h.diffs.worker)||!!(b.diffs.workerSurface&&h.diffs.workerSurface&&JSON.stringify(b.diffs.workerSurface)!==JSON.stringify(h.diffs.workerSurface));
   rows.push({key:h.key,status:!fig.length&&!workerChanged&&b.hash.worker2===h.hash.worker2?'same':'changed',
    storedHashSame:b.hash.stored===h.hash.stored,worker2HashSame:b.hash.worker2===h.hash.worker2,figures:fig.slice(0,40),
    workerDiffBase:b.diffCount.worker,workerDiffHead:h.diffCount.worker,
@@ -100,7 +109,7 @@ async function main(){
   const root=path.resolve(rootArg),list=keys.length?keys:keysOf(root),examples=[];
   let commit=null;try{commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
   for(const key of list){const raw=execFileSync(process.execPath,['--max-old-space-size=4096',__filename,'one',root,key],{encoding:'utf8',maxBuffer:1<<30});const r=JSON.parse(raw);examples.push(r);
-   process.stderr.write(`${key}: ${r.error?'ERROR '+r.error.split('\n')[0]:`${r.ms} ms, diffs load ${r.diffCount.load} worker ${r.diffCount.worker} roundTrip ${r.diffCount.roundTrip}`}\n`);
+   process.stderr.write(`${key}: ${r.error?'ERROR '+r.error.split('\n')[0]:`${r.ms} ms, diffs load ${r.diffCount.load} worker ${r.diffCount.worker} roundTrip ${r.diffCount.roundTrip} surface ${r.diffCount.workerSurface} surfaceRoundTrip ${r.diffCount.roundTripSurface} noise(worker) ${r.noiseCount.worker}`}\n`);
    fs.mkdirSync(path.dirname(path.resolve(out)),{recursive:true});fs.writeFileSync(path.resolve(out),JSON.stringify({root,commit,generatedAt:new Date().toISOString(),examples},null,1)+'\n');}
   return;}
  if(mode==='compare'){const [a,b,out]=args;const r=compare(JSON.parse(fs.readFileSync(a,'utf8')),JSON.parse(fs.readFileSync(b,'utf8')));const text=JSON.stringify(r,null,1)+'\n';if(out)fs.writeFileSync(out,text);console.log(JSON.stringify(r.summary));return;}

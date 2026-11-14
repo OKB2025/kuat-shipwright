@@ -4524,6 +4524,7 @@ root.KS_EN={
   "噴射口が塞がり推力ゼロ": "Exhaust Blocked: No Thrust",
   "船体内 {0}・表面の露出 {1}{2}": "Inside Hull {0} · Surface Exposure {1}{2}",
   "他の区画と重なっています": "Overlaps other compartments",
+  "接地した本体に接していないため機能しません": "Not touching a grounded body, so it does not function",
   "装甲外板・厚さ {0} m{1}": "Armor Plating · Thickness {0} m{1}",
   "武装・艦橋ポッドは取り付けられません": "Weapons and bridge pods cannot be attached",
   "・表面の露出 {0}": "· Surface Exposure {0}",

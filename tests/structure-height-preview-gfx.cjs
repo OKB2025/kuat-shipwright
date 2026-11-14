@@ -13,35 +13,24 @@ function yBounds(geometry){
 }
 const plain=value=>JSON.parse(JSON.stringify(value)),preview=(r,options={})=>r.G.meshPreview(r.ship,[r.part],[],options).preview;
 
-test('unchanged fitted child keeps the real cut shape in the fallback miniature without its parent in the model',()=>{
- const r=fixture(),{C,G,ship,part}=r,cache=part._placementGeometry,before=C.publicJSON(ship),mini={...ship,parts:[part]};
- assert.equal(C.placementCachedGeometryInputCurrent(part),true);assert.equal(C.placementCachedGeometryCurrent(mini,part),false,'isolated miniature has no parent to validate');assert.deepEqual(yBounds(G.meshPreview(mini,[part],[]).preview),[10,40]);assert.equal(part._placementGeometry,cache);assert.equal(C.publicJSON(ship),before);
-});
+// 2026-11-13 user decision: no fitting. A structure keeps its requested solid (here Y 0..40, sunk 10 m into the
+// parent, joined by overlap); there is no derived fitted cache (_placementGeometry). Removed tests (they only covered
+// that cache): 'unchanged fitted child keeps the real cut shape in the fallback miniature…' (was Y 10..40),
+// 'replacement of derived fitting data rebuilds the fallback mesh…', 'removal of derived fitting data … does not retain
+// the old cut mesh'. The two height-edit tests below expected Y 10.. after the Worker fit; they now expect the requested body.
 
-test('height editing previews the new requested body rather than translating the former fitted slab',()=>{
+test('height editing previews the new requested body from the same base',()=>{
  const r=fixture(),{C,part,parent}=r,parentBefore=C.publicJSON(parent),parentCache=parent._geom;
- assert.deepEqual(yBounds(preview(r)),[10,40]);assert.equal(C.resizeStructureHeightAtContact(part,100),true);assert.deepEqual(plain(part.c),[0,50,0]);assert.deepEqual(yBounds(preview(r)),[0,100],'the old local fitted solid would incorrectly float at Y40..70');assert.equal(C.publicJSON(parent),parentBefore);assert.equal(parent._geom,parentCache);
- const refreshed=C.refreshPlacementGeometry(r.ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.deepEqual(yBounds(preview(r)),[10,100],'the Worker-computed fit restores the actual parent contact');assert.deepEqual(plain(part.c),[0,50,0]);
+ assert.deepEqual(yBounds(preview(r)),[0,40]);assert.equal(C.resizeStructureHeightAtContact(part,100),true);assert.deepEqual(plain(part.c),[0,50,0]);assert.deepEqual(yBounds(preview(r)),[0,100]);assert.equal(C.publicJSON(parent),parentBefore);assert.equal(parent._geom,parentCache);
+ const refreshed=C.refreshPlacementGeometry(r.ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.deepEqual(yBounds(preview(r)),[0,100],'no fit: the requested body stays');assert.deepEqual(plain(part.c),[0,50,0]);
 });
 
-test('a direct dimension edit cannot reuse an old fitted cache even before Core invalidates that source cache',()=>{
- const r=fixture(),{C,part}=r,cache=part._placementGeometry;assert.deepEqual(yBounds(preview(r)),[10,40]);part.s[2]=100;part.c[1]=50;
- assert.equal(part._placementGeometry,cache,'the editor may still retain its last authoritative result');assert.equal(C.placementCachedGeometryInputCurrent(part),false);assert.deepEqual(yBounds(preview(r)),[0,100]);assert.equal(part._placementGeometry,cache,'the renderer does not mutate authoritative geometry');
+test('a direct dimension edit previews the edited requested body',()=>{
+ const r=fixture(),{part}=r;assert.deepEqual(yBounds(preview(r)),[0,40]);part.s[2]=100;part.c[1]=50;assert.deepEqual(yBounds(preview(r)),[0,100]);/* 2026-11-13 user decision: no fitting; the solve carries the requested solid as the placement geometry */assert.equal(r.C.placementCachedGeometryInputCurrent(part),false,'the 40 m solid of the last solve is not current for the edited body');
 });
 
-test('replacement of derived fitting data rebuilds the fallback mesh with unchanged public authoring input',()=>{
- const r=fixture(),{C,part}=r,reads=[],triangles=C.structTriangles;C.structTriangles=function(p,...args){if(p.id===part.id)reads.push(p._placementGeometry);return triangles.call(this,p,...args);};
- assert.deepEqual(yBounds(preview(r)),[10,40]);const count=reads.length,before=C.publicJSON(part),replacement={...part._placementGeometry,local:part._placementGeometry.local.slice()};part._placementGeometry=replacement;
- assert.equal(C.publicJSON(part),before);assert.deepEqual(yBounds(preview(r)),[10,40]);assert.ok(reads.length>count,'a changed derived cache is independent of public source keys');assert.ok(reads.slice(count).every(geometry=>geometry===replacement));
-});
-
-test('removal of derived fitting data with unchanged public input does not retain the old cut mesh',()=>{
- const r=fixture(),{C,part}=r;assert.deepEqual(yBounds(preview(r)),[10,40]);const before=C.publicJSON(part);delete part._placementGeometry;assert.equal(C.publicJSON(part),before);assert.deepEqual(yBounds(preview(r)),[0,40]);assert.equal(part._placementGeometry,undefined);
-});
-
-test('progressive previews adopt derived-only replacements without rebuilding an unchanged frame',()=>{
- const r=fixture(),{C,part}=r,reads=[],triangles=C.structTriangles,opt={progressive:true,incremental:true,revision:1,budgetMs:1000};C.structTriangles=function(p,...args){if(p.id===part.id)reads.push(p._placementGeometry);return triangles.call(this,p,...args);};
- assert.deepEqual(yBounds(preview(r,opt)),[10,40]);const first=reads.length;assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.equal(reads.length,first,'the unchanged progressive plan stays warm');
- const replacement={...part._placementGeometry,local:part._placementGeometry.local.slice()};part._placementGeometry=replacement;assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.ok(reads.length>first);assert.ok(reads.slice(first).every(geometry=>geometry===replacement));const rebuilt=reads.length;
- assert.deepEqual(yBounds(preview(r,opt)),[10,40]);assert.equal(reads.length,rebuilt);delete part._placementGeometry;assert.deepEqual(yBounds(preview(r,opt)),[0,40]);
+test('progressive previews keep an unchanged frame warm and rebuild after an edit',()=>{
+ const r=fixture(),{C,part}=r,reads=[],triangles=C.structTriangles,opt={progressive:true,incremental:true,revision:1,budgetMs:1000};C.structTriangles=function(p,...args){if(p.id===part.id)reads.push(1);return triangles.call(this,p,...args);};
+ assert.deepEqual(yBounds(preview(r,opt)),[0,40]);const first=reads.length;assert.deepEqual(yBounds(preview(r,opt)),[0,40]);assert.equal(reads.length,first,'the unchanged progressive plan stays warm');
+ part.s[2]=60;part.c[1]=30;assert.deepEqual(yBounds(preview({...r},{...opt,revision:2})),[0,60]);
 });

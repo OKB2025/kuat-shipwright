@@ -19,7 +19,11 @@ test('editing parent vertices away from the contact keeps the child connected, a
  const t=C.deserialize(C.serialize(s));C.refreshPlacementGeometry(t);assert.deepEqual(ground(t),[]);
 });
 test('lowering the parent bottom keeps the child connected',()=>{const s=setup(),q=toMesh(s,1),ymin=Math.min(...q.mesh.v.map(p=>p[1]));move(s,1,p=>p[1]<ymin+1e-6,[0,-5,0]);assert.deepEqual(ground(s),[]);});
-test('editing the child itself re-seats it on the parent (the placement model does not leave it floating)',()=>{
- const s=setup(),q=toMesh(s,2),ymin=Math.min(...q.mesh.v.map(p=>p[1]));move(s,2,p=>p[1]<ymin+1e-6,[0,5,0]);
- assert.equal(child(s)._placementError||null,null);assert.ok(Math.abs(C.partAABB(child(s))[1]-C.partAABB(s.parts[0])[4])<1e-6,'the child bottom is back on the parent top');assert.deepEqual(ground(s),[]);
+// 2026-11-13 user decision: no fitting. Until then an edit of the child's own vertices re-fitted its base onto the parent
+// top. Now the child keeps the shape it was given (its base is sunk 2.4 m into the parent): an edit that keeps an
+// overlap stays connected; one that lifts the base clear of the parent is not moved and is reported (contact-zero).
+test('editing the child itself keeps its own shape: still overlapping stays connected, lifted clear is reported where it is',()=>{
+ const s=setup(),q=toMesh(s,2),top=C.partAABB(s.parts[0])[4],ymin=Math.min(...q.mesh.v.map(p=>p[1]));assert.ok(C.partAABB(child(s))[1]<top-2,'sunk into the parent, not cut');
+ move(s,2,p=>p[1]<ymin+1e-6,[0,1,0]);assert.equal(child(s)._placementError||null,null);assert.deepEqual(ground(s),[]);
+ const y2=Math.min(...child(s).mesh.v.map(p=>p[1]));move(s,2,p=>p[1]<y2+1e-6,[0,4,0]);assert.ok(Math.abs(C.partAABB(child(s))[1]-(top+2.6))<1e-3,'lifted clear by the edit itself, not re-seated: '+C.partAABB(child(s))[1]);assert.equal(child(s)._placementError,'contact-zero');
 });

@@ -48,9 +48,13 @@ test('targeted refresh rebuilds the requested dependency branch while preserving
   }
   const cold = JSON.parse(C.publicJSON(ship)), source = JSON.stringify(cold.parts.find(p => p.id === 4));
   const result = C.refreshPlacementGeometry(cold, {ids: [2], includeFits: false});
-  assert.equal(result.ok, true); assert.deepEqual(Array.from(result.updated), [2]);
-  assert.ok(cold.parts.find(p => p.id === 2)._placementGeometry);
-  assert.equal(cold.parts.find(p => p.id === 4)._placementGeometry, undefined);
+  // 2026-11-13 (no parent relation): a cold load solves nothing (nothing is written), so nothing is reported updated;
+  // only the requested branch is visited.
+  assert.equal(result.ok, true); assert.deepEqual(Array.from(result.updated), []);
+  // 2026-11-13 user decision: no fitting. The rebuilt branch was recognised by its fitted solid (_placementGeometry);
+  // it is now recognised by the solve's private keys, which only the requested branch receives.
+  assert.equal(typeof cold.parts.find(p => p.id === 2)._placementSelfKey, 'string');
+  assert.equal(cold.parts.find(p => p.id === 4)._placementSelfKey, undefined);
   assert.equal(JSON.stringify(cold.parts.find(p => p.id === 4)), source);
   assert.equal(cold.parts.length, 4);
 });
