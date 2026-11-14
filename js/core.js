@@ -57548,9 +57548,9 @@ registerShipExample({key:'craft_z95',physicalRevision:1,name:'Z-95 ヘッドハ�
 // allowances, not canonical blueprints: supports have 25% mass margin and stores cover ten minutes
 // of laser fire. Existing solar wings, cooling, cells and S-foil actuators stay in their own models.
 const CRAFT_SYSTEM_RECIPES=Object.freeze({
- craft_arc170:{mass:34.51,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
+ craft_arc170:{mass:37.5/* 2026-11-14: was 34.51; the denser craft needs more maneuver and landing support */,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
  craft_awing:{mass:10.23,anchors:[[4.8,1.3,0],[3.1,1,0],[2.6,1.1,0],[5.6,1,0]],landing:3},
- craft_btlb:{mass:52.26,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
+ craft_btlb:{mass:62/* 2026-11-14: was 52.26 */,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
  craft_hyena:{pumpMargin:2.5,mass:29.10,anchors:[[8.4,2.3,1.09],[6.5,2.3,-1.09],[8.5,1.7,-1.09],[4.5,2.4,1.09],[4.5,1.8,-1.09],[7.5,2.6,1.09],[7.5,1.5,-1.09]],landing:4,walking:true},
  craft_tie_in:{mass:17.69,anchors:[[1.7,2.4,.6],[1,2.5,-.6],[1.7,3.2,0],[.5,1.7,0]],landing:2,suit:true,wingStand:true},
  craft_tie_ln:{mass:10.52,anchors:[[1.6,1.7,.5],[1,2,-.5],[1.2,2.6,0],[1.6,1,0]],landing:2,suit:true,wingStand:true},
@@ -57559,7 +57559,7 @@ const CRAFT_SYSTEM_RECIPES=Object.freeze({
  craft_vulture:{pumpMargin:2,mass:9.9,anchors:[[1.45,1.45,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
  craft_vwing:{mass:8.93,anchors:[[4.4,1.25,0],[3.8,.7,0],[5.1,1,0],[6.8,.8,0]],landing:3},
  craft_xwing:{mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
- craft_z95:{mass:19.16,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
+ craft_z95:{mass:21.6/* 2026-11-14: was 19.16 */,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
 });
 // A new stock craft is built around an actual-power plant, not the old nozzle-volume law.
 // These are construction targets for ordinary, editable engine hardware. They are never applied
@@ -57580,7 +57580,9 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 });
 // v24 X-wing exhaust nozzle length; the engine body ahead of it is XW_ENGINE_BODY long.
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.452526541719,craft_awing:0.492755075492,craft_btlb:0.497442660163,craft_hyena:0.557609853665,craft_tie_in:0.483237558946,craft_tie_ln:0.968987683853,craft_tie_sa:0.639542538851,craft_v19:0.472325806770,craft_vulture:0.430086351484,craft_vwing:0.417917416128,craft_xwing:0.393494072058,craft_z95:0.571066159999});
+// 2026-11-14 re-measured after machinery, wings and panels became denser (user decisions): each plant gives its target
+// acceleration at the craft's new mass.
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.523312403891,craft_awing:0.538664339405,craft_btlb:0.685970578757,craft_hyena:0.597749864827,craft_tie_in:0.548541177799,craft_tie_ln:1.110450092375,craft_tie_sa:0.665449910775,craft_v19:0.545597532744,craft_vulture:0.459408756390,craft_vwing:0.467385256009,craft_xwing:0.457785068838,craft_z95:0.692077052102});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
@@ -57601,6 +57603,9 @@ function refitCraftInterior(ship,key){
  // acceleration (as the TIE/ln's reactor was); measured once on the completed craft against the
  // component-rated acceleration of its combat preview (S.propulsion), cooling and token shields included.
  if(CRAFT_REACTOR_SCALE[key])for(const p of reactors)p.d*=CRAFT_REACTOR_SCALE[key];
+ // 2026-11-14 The Y-wing's main reactor sits right above its bomb bay: it keeps its earlier size (0.746 m) and the two
+ // nacelle reactors carry the growth the denser craft needs.
+ if(key==='craft_btlb')reactors[2].d=1.5*0.497442660163;
  // The four X-wing exhaust tubes project aft of both its fuselage and intake nacelles. v24 The
  // nozzle is the tube's aft end; ahead of it an engine casing (the tube's outer wall) carries the
  // engine body into the nacelle. The casing travels with the same S-foil.
