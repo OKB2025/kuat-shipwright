@@ -14,6 +14,9 @@
 // carried load added to the ship's mass in battle). The ships in this battle changed mass and plant, so every tick
 // differs from the 734081a recording from tick 0. Two recordings in a row gave the same file
 // (same sha256 both times). The earlier recording is not comparable tick by tick.
+// Re-recorded again for the heat model (2026-11-14, PR #107: no hull-skin cooling, converters draw power for the heat
+// they convert, wing coefficient curve, heat paths without a capacity limit, regenerated examples). Every tick differs
+// from the earlier recording from tick 0; two recordings in a row gave the same file.
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
