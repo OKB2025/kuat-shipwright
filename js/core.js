@@ -59003,6 +59003,10 @@ function lucrehulkBuild(opt={}){
  for(const [x,n] of [[322,'第1'],[552,'第2']])for(const sg of [1,-1]){const bay=part('hangar',(sg>0?'右舷':'左舷')+'環状船体 C-9979 上陸艇格納甲板（'+n+'区画）',[x,402.5,sg*1005],30,{room:[216,400,395],airRole:'storage'});openBay(s,bay,'bottom','open');}
  s.airWings=LUC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(LUC_GROUND);
  }
+ // 2026-11-14 user decision: the ring of this converted freighter is mostly holds. Cargo holds follow the ring (turned
+ // to its tangent) in the free arcs between the bow opening, the landing-ship decks, the inertial units and the aft
+ // block's rooms: mid radius 1,077 m about the core axis, 560 m of the ring's 653 m radial depth, 395 m high.
+ {const cx=X(1609),rm=1077;for(const [a,t,n] of [[120.5,220,'後部']])/* the forward arcs are taken by the arms' fighter racks */for(const sg of [1,-1]){const r=a*Math.PI/180;part('cargo',(sg>0?'右舷':'左舷')+'環状船体 貨物倉（'+n+'）',[cx+rm*Math.cos(r),402.5,sg*rm*Math.sin(r)],30,{room:[t,560,395],yaw:sg*(a-90)});}}
  delete s._building;adoptEquipment(s,true);remount(s);calibrateReferenceRatings(s);syncCompartments(s);
  return s;
 
