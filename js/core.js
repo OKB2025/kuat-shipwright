@@ -222,7 +222,7 @@ const COST_K = {crew: 1000};
 const COST_MODEL=Object.freeze({version:17,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,powerBus:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserL:3000,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
-function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+((p.k==='engineCore'||p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id))?resolveEngineSpec(p).cost:0):0;}
+function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea+wingConverterM3(p)*(PARTS.hdis?.cost||0):0)+((p.k==='engineCore'||p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id))?resolveEngineSpec(p).cost:0):0;}
 function fitBuildCost(f,spec){const d=spec||(FITS[f?.k]?fitSpec(f):null);return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command'])*(isTrenchBatteryGroup(f)?f.aggregateCount:1):0;}
 function costBreakdown(total,source){
  const keys=Object.keys(COST_CATS).filter(k=>k!=='crew'),raw=keys.map(k=>Number.isFinite(source?.[k])?Math.max(0,source[k]):0),sum=raw.reduce((a,b)=>a+b,0),target=Number.isFinite(total)?Math.max(0,Math.round(total)):0;
@@ -1320,7 +1320,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p9",
-       "cap": 926246744578151.9,
+       "cap": 1389370116867227.8,
        "auto": true,
        "ok": true,
        "routeId": "p28>p9",
@@ -1332,7 +1332,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p10",
-       "cap": 947687641443386.9,
+       "cap": 1421531462165080.2,
        "auto": true,
        "ok": true,
        "routeId": "p29>p10",
@@ -1344,7 +1344,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p11",
-       "cap": 563021081397991.6,
+       "cap": 844531622096987.4,
        "auto": true,
        "ok": true,
        "routeId": "p28>p11",
@@ -1356,7 +1356,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p12",
-       "cap": 563021081397991.8,
+       "cap": 844531622096987.5,
        "auto": true,
        "ok": true,
        "routeId": "p29>p12",
@@ -1368,7 +1368,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p13",
-       "cap": 583469449519152.8,
+       "cap": 875204174278729.1,
        "auto": true,
        "ok": true,
        "routeId": "p28>p13",
@@ -1380,7 +1380,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p14",
-       "cap": 542205697785125.06,
+       "cap": 813308546677687.5,
        "auto": true,
        "ok": true,
        "routeId": "p29>p14",
@@ -1392,7 +1392,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p28",
        "to": "p15",
-       "cap": 561986469407343.94,
+       "cap": 842979704111015.9,
        "auto": true,
        "ok": true,
        "routeId": "p28>p15",
@@ -1404,7 +1404,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p29",
        "to": "p16",
-       "cap": 591659354992051.8,
+       "cap": 887489032488077.5,
        "auto": true,
        "ok": true,
        "routeId": "p29>p16",
@@ -1986,49 +1986,49 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p9",
        "port": "p9",
-       "weight": 926246744578151.9,
+       "weight": 1389370116867227.8,
        "domain": "main"
       },
       {
        "id": "p10",
        "port": "p10",
-       "weight": 947687641443386.9,
+       "weight": 1421531462165080.2,
        "domain": "main"
       },
       {
        "id": "p11",
        "port": "p11",
-       "weight": 563021081397991.6,
+       "weight": 844531622096987.4,
        "domain": "main"
       },
       {
        "id": "p12",
        "port": "p12",
-       "weight": 563021081397991.8,
+       "weight": 844531622096987.5,
        "domain": "main"
       },
       {
        "id": "p13",
        "port": "p13",
-       "weight": 583469449519152.8,
+       "weight": 875204174278729.1,
        "domain": "main"
       },
       {
        "id": "p14",
        "port": "p14",
-       "weight": 542205697785125.06,
+       "weight": 813308546677687.5,
        "domain": "main"
       },
       {
        "id": "p15",
        "port": "p15",
-       "weight": 561986469407343.94,
+       "weight": 842979704111015.9,
        "domain": "main"
       },
       {
        "id": "p16",
        "port": "p16",
-       "weight": 591659354992051.8,
+       "weight": 887489032488077.5,
        "domain": "main"
       }
      ]
@@ -3174,7 +3174,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p37",
        "n": "熱エネルギー変換装置 #37",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 670336475097450800,
        "m": 18,
        "sec": 3,
@@ -3196,84 +3196,84 @@ const CRAFT_PRICE_CATALOG={
        "id": "p9",
        "n": "右舷主翼（内翼） #9",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 92624674457815180,
        "m": 39,
        "sec": 3,
        "src": -1,
-       "power": 926246744578151.9
+       "power": 1389370116867227.8
       },
       {
        "id": "p10",
        "n": "左舷主翼（内翼） #10",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 94768764144338690,
        "m": 40,
        "sec": 3,
        "src": -1,
-       "power": 947687641443386.9
+       "power": 1421531462165080.2
       },
       {
        "id": "p11",
        "n": "右舷主翼（翼端・赤） #11",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 56302108139799160,
        "m": 41,
        "sec": 3,
        "src": -1,
-       "power": 563021081397991.6
+       "power": 844531622096987.4
       },
       {
        "id": "p12",
        "n": "左舷主翼（翼端・赤） #12",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 56302108139799170,
        "m": 42,
        "sec": 3,
        "src": -1,
-       "power": 563021081397991.8
+       "power": 844531622096987.5
       },
       {
        "id": "p13",
        "n": "右舷上部Sフォイル（放熱板） #13",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 58346944951915280,
        "m": 43,
        "sec": 3,
        "src": -1,
-       "power": 583469449519152.8
+       "power": 875204174278729.1
       },
       {
        "id": "p14",
        "n": "左舷上部Sフォイル（放熱板） #14",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 54220569778512504,
        "m": 44,
        "sec": 3,
        "src": -1,
-       "power": 542205697785125.06
+       "power": 813308546677687.5
       },
       {
        "id": "p15",
        "n": "右舷下部Sフォイル（放熱板） #15",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 56198646940734390,
        "m": 45,
        "sec": 3,
        "src": -1,
-       "power": 561986469407343.94
+       "power": 842979704111015.9
       },
       {
        "id": "p16",
        "n": "左舷下部Sフォイル（放熱板） #16",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 59165935499205170,
        "m": 46,
        "sec": 3,
@@ -7789,10 +7789,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3479067543232298,
+      "w": 0.34790675432322976,
       "hits": 1,
       "crew": 0,
-      "size": 3.5322985404301193,
+      "size": 3.532298540430119,
       "at": 0.605,
       "y": -0.13,
       "z": 0,
@@ -9113,7 +9113,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p24",
        "n": "熱エネルギー変換装置 #24",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 184091154473637380,
        "m": 14,
        "sec": 4,
@@ -9226,12 +9226,6 @@ const CRAFT_PRICE_CATALOG={
        "d": 0,
        "cap": 34858208934638870,
        "sec": 4
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 192146162395901900000,
-       "sec": -1
       },
       {
        "s": 7,
@@ -10605,7 +10599,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p3",
-       "cap": 1085478870672318,
+       "cap": 1628218306008476.8,
        "auto": true,
        "ok": true,
        "routeId": "p16>p3",
@@ -10617,7 +10611,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p4",
-       "cap": 1085478870672318,
+       "cap": 1628218306008476.8,
        "auto": true,
        "ok": true,
        "routeId": "p16>p4",
@@ -11287,13 +11281,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p3",
        "port": "p3",
-       "weight": 1085478870672318,
+       "weight": 1628218306008476.8,
        "domain": "main"
       },
       {
        "id": "p4",
        "port": "p4",
-       "weight": 1085478870672318,
+       "weight": 1628218306008476.8,
        "domain": "main"
       }
      ]
@@ -12459,7 +12453,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p20",
        "n": "熱エネルギー変換装置 #20",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 1309250927924708000,
        "m": 16,
        "sec": 4,
@@ -12481,18 +12475,18 @@ const CRAFT_PRICE_CATALOG={
        "id": "p3",
        "n": "主翼（ナセル支持） #3",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 108547887067231790,
        "m": 37,
        "sec": 3,
        "src": -1,
-       "power": 1085478870672318
+       "power": 1628218306008476.8
       },
       {
        "id": "p4",
        "n": "主翼（ナセル支持） #4",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 108547887067231790,
        "m": 38,
        "sec": 3,
@@ -15121,7 +15115,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p3",
-       "cap": 689527598969072.1,
+       "cap": 1034291398453608.2,
        "auto": true,
        "ok": true,
        "routeId": "p17>p3",
@@ -15133,7 +15127,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p4",
-       "cap": 689527598969072.1,
+       "cap": 1034291398453608.2,
        "auto": true,
        "ok": true,
        "routeId": "p18>p4",
@@ -15145,7 +15139,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p5",
-       "cap": 811776248780487.9,
+       "cap": 1217664373170731.8,
        "auto": true,
        "ok": true,
        "routeId": "p17>p5",
@@ -15157,7 +15151,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p24",
        "to": "p6",
-       "cap": 811776248780487.9,
+       "cap": 1217664373170731.8,
        "auto": true,
        "ok": true,
        "routeId": "p24>p6",
@@ -16033,25 +16027,25 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p3",
        "port": "p3",
-       "weight": 689527598969072.1,
+       "weight": 1034291398453608.2,
        "domain": "main"
       },
       {
        "id": "p4",
        "port": "p4",
-       "weight": 689527598969072.1,
+       "weight": 1034291398453608.2,
        "domain": "main"
       },
       {
        "id": "p5",
        "port": "p5",
-       "weight": 811776248780487.9,
+       "weight": 1217664373170731.8,
        "domain": "main"
       },
       {
        "id": "p6",
        "port": "p6",
-       "weight": 811776248780487.9,
+       "weight": 1217664373170731.8,
        "domain": "main"
       }
      ]
@@ -17794,7 +17788,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p14",
        "n": "熱エネルギー変換装置 #14",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 670336475097450800,
        "m": 9,
        "sec": 0,
@@ -17805,40 +17799,40 @@ const CRAFT_PRICE_CATALOG={
        "id": "p3",
        "n": "上翼 #3",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 68952759896907220,
        "m": 37,
        "sec": 3,
        "src": -1,
-       "power": 689527598969072.1
+       "power": 1034291398453608.2
       },
       {
        "id": "p4",
        "n": "上翼 #4",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 68952759896907220,
        "m": 38,
        "sec": 3,
        "src": -1,
-       "power": 689527598969072.1
+       "power": 1034291398453608.2
       },
       {
        "id": "p5",
        "n": "下翼 #5",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 81177624878048780,
        "m": 39,
        "sec": 2,
        "src": -1,
-       "power": 811776248780487.9
+       "power": 1217664373170731.8
       },
       {
        "id": "p6",
        "n": "下翼 #6",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 81177624878048780,
        "m": 40,
        "sec": 2,
@@ -18196,121 +18190,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 11,
        "d": 0,
-       "cap": 17099320263.05579,
+       "cap": 25648980394.583683,
        "sec": 3
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 1758885825.7002969,
+       "cap": 2638328738.5504456,
        "sec": 3
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 1758885825.7002969,
+       "cap": 2638328738.5504456,
        "sec": 3
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 2070724565.2747266,
+       "cap": 3106086847.91209,
        "sec": 3
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 2070724565.2747266,
+       "cap": 3106086847.91209,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 17099320263.05579,
+       "cap": 25648980394.583683,
        "sec": 3
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 1758885825.7002969,
+       "cap": 2638328738.5504456,
        "sec": 3
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 1758885825.7002969,
+       "cap": 2638328738.5504456,
        "sec": 3
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 2070724565.2747266,
+       "cap": 3106086847.91209,
        "sec": 3
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 2070724565.2747266,
+       "cap": 3106086847.91209,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 26905720490.41637,
+       "cap": 40358580735.62455,
        "sec": 2
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 2767600680.7764297,
+       "cap": 4151401021.1646433,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 2767600680.7764297,
+       "cap": 4151401021.1646433,
        "sec": 3
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 3258277844.312633,
+       "cap": 4887416766.468949,
        "sec": 3
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 3258277844.312633,
+       "cap": 4887416766.468949,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 26360760921.432487,
+       "cap": 39541141382.14873,
        "sec": 2
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 2711544554.1749268,
+       "cap": 4067316831.26239,
        "sec": 2
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 2711544554.1749268,
+       "cap": 4067316831.26239,
        "sec": 2
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 3192283339.8986435,
+       "cap": 4788425009.847965,
        "sec": 2
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 3192283339.8986435,
+       "cap": 4788425009.847965,
        "sec": 2
       },
       {
@@ -21171,7 +21165,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p1",
        "to": "p1",
-       "cap": 342923940394227.2,
+       "cap": 514385910591340.75,
        "auto": true,
        "ok": true,
        "routeId": "p1>p1",
@@ -21183,7 +21177,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p2",
        "to": "p2",
-       "cap": 342923940394227.2,
+       "cap": 514385910591340.75,
        "auto": true,
        "ok": true,
        "routeId": "p2>p2",
@@ -21479,13 +21473,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p1",
        "port": "p1",
-       "weight": 342923940394227.2,
+       "weight": 514385910591340.75,
        "domain": "main"
       },
       {
        "id": "p2",
        "port": "p2",
-       "weight": 342923940394227.2,
+       "weight": 514385910591340.75,
        "domain": "main"
       }
      ]
@@ -22191,19 +22185,19 @@ const CRAFT_PRICE_CATALOG={
        "id": "p1",
        "n": "太陽電池翼 #1",
        "k": "solar",
-       "g": "high",
-       "cap": 34292394039422720,
+       "g": "all",
+       "cap": 34292394039422716,
        "m": 25,
        "sec": 4,
        "src": -1,
-       "power": 342923940394227.2
+       "power": 514385910591340.75
       },
       {
        "id": "p2",
        "n": "太陽電池翼 #2",
        "k": "solar",
-       "g": "high",
-       "cap": 34292394039422720,
+       "g": "all",
+       "cap": 34292394039422716,
        "m": 26,
        "sec": 4,
        "src": -1,
@@ -23488,7 +23482,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p1",
        "to": "p1",
-       "cap": 393717542400000,
+       "cap": 590576313600000,
        "auto": true,
        "ok": true,
        "routeId": "p1>p1",
@@ -23500,7 +23494,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p2",
        "to": "p2",
-       "cap": 393717542400000,
+       "cap": 590576313600000,
        "auto": true,
        "ok": true,
        "routeId": "p2>p2",
@@ -23772,13 +23766,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p1",
        "port": "p1",
-       "weight": 393717542400000,
+       "weight": 590576313600000,
        "domain": "main"
       },
       {
        "id": "p2",
        "port": "p2",
-       "weight": 393717542400000,
+       "weight": 590576313600000,
        "domain": "main"
       }
      ]
@@ -24456,18 +24450,18 @@ const CRAFT_PRICE_CATALOG={
        "id": "p1",
        "n": "太陽電池翼 #1",
        "k": "solar",
-       "g": "high",
+       "g": "all",
        "cap": 39371754240000000,
        "m": 23,
        "sec": 1,
        "src": -1,
-       "power": 393717542400000
+       "power": 590576313600000
       },
       {
        "id": "p2",
        "n": "太陽電池翼 #2",
        "k": "solar",
-       "g": "high",
+       "g": "all",
        "cap": 39371754240000000,
        "m": 24,
        "sec": 1,
@@ -25767,7 +25761,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p11",
        "to": "p11",
-       "cap": 357091422823288.94,
+       "cap": 535637134234933.44,
        "auto": true,
        "ok": true,
        "routeId": "p11>p11",
@@ -25779,7 +25773,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p12",
-       "cap": 357091422823288.94,
+       "cap": 535637134234933.44,
        "auto": true,
        "ok": true,
        "routeId": "p12>p12",
@@ -26151,13 +26145,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p11",
        "port": "p11",
-       "weight": 357091422823288.94,
+       "weight": 535637134234933.44,
        "domain": "main"
       },
       {
        "id": "p12",
        "port": "p12",
-       "weight": 357091422823288.94,
+       "weight": 535637134234933.44,
        "domain": "main"
       }
      ]
@@ -26873,7 +26867,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.000679609,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p14>p36"
@@ -26886,7 +26880,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 2.36872e-8,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p15>p36"
@@ -26960,33 +26954,23 @@ const CRAFT_PRICE_CATALOG={
        "id": "p11",
        "n": "太陽電池翼 #11",
        "k": "solar",
-       "g": "high",
-       "cap": 35709142282328892,
+       "g": "all",
+       "cap": 35709142282328896,
        "m": 26,
        "sec": 0,
        "src": -1,
-       "power": 357091422823288.94
+       "power": 535637134234933.44
       },
       {
        "id": "p12",
        "n": "太陽電池翼 #12",
        "k": "solar",
-       "g": "high",
-       "cap": 35709142282328892,
+       "g": "all",
+       "cap": 35709142282328896,
        "m": 27,
        "sec": 0,
        "src": -1,
-       "power": 357091422823288.94
-      },
-      {
-       "id": "skin",
-       "n": "外殻からの放熱",
-       "k": "skin",
-       "g": "low",
-       "cap": 926995031481938300000,
-       "m": -1,
-       "sec": -1,
-       "src": -1
+       "power": 535637134234933.44
       }
      ],
      "ln": [
@@ -27097,12 +27081,6 @@ const CRAFT_PRICE_CATALOG={
        "d": 2,
        "cap": 73313569202250960,
        "sec": 3
-      },
-      {
-       "s": 5,
-       "d": 3,
-       "cap": 926995031481938300000,
-       "sec": -1
       },
       {
        "s": 6,
@@ -28583,7 +28561,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p5",
-       "cap": 245563728807109.12,
+       "cap": 368345593210663.7,
        "auto": true,
        "ok": true,
        "routeId": "p16>p5",
@@ -28595,7 +28573,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p6",
-       "cap": 245563728807109.12,
+       "cap": 368345593210663.7,
        "auto": true,
        "ok": true,
        "routeId": "p17>p6",
@@ -28607,7 +28585,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p7",
-       "cap": 729408761587970.2,
+       "cap": 1094113142381955.4,
        "auto": true,
        "ok": true,
        "routeId": "p16>p7",
@@ -28619,7 +28597,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p17",
        "to": "p8",
-       "cap": 729408761587970.2,
+       "cap": 1094113142381955.4,
        "auto": true,
        "ok": true,
        "routeId": "p17>p8",
@@ -28631,7 +28609,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p18",
        "to": "p9",
-       "cap": 711717583697032.6,
+       "cap": 1067576375545548.9,
        "auto": true,
        "ok": true,
        "routeId": "p18>p9",
@@ -29169,31 +29147,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p5",
        "port": "p5",
-       "weight": 245563728807109.12,
+       "weight": 368345593210663.7,
        "domain": "main"
       },
       {
        "id": "p6",
        "port": "p6",
-       "weight": 245563728807109.12,
+       "weight": 368345593210663.7,
        "domain": "main"
       },
       {
        "id": "p7",
        "port": "p7",
-       "weight": 729408761587970.2,
+       "weight": 1094113142381955.4,
        "domain": "main"
       },
       {
        "id": "p8",
        "port": "p8",
-       "weight": 729408761587970.2,
+       "weight": 1094113142381955.4,
        "domain": "main"
       },
       {
        "id": "p9",
        "port": "p9",
-       "weight": 711717583697032.6,
+       "weight": 1067576375545548.9,
        "domain": "main"
       }
      ]
@@ -30404,7 +30382,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p23",
        "n": "熱エネルギー変換装置 #23",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 282798200431736960,
        "m": 12,
        "sec": 2,
@@ -30415,51 +30393,51 @@ const CRAFT_PRICE_CATALOG={
        "id": "p5",
        "n": "右舷主翼（Sフォイル・付け根） #5",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 24556372880710910,
        "m": 31,
        "sec": 2,
        "src": -1,
-       "power": 245563728807109.12
+       "power": 368345593210663.7
       },
       {
        "id": "p6",
        "n": "左舷主翼（Sフォイル・付け根） #6",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 24556372880710910,
        "m": 32,
        "sec": 2,
        "src": -1,
-       "power": 245563728807109.12
+       "power": 368345593210663.7
       },
       {
        "id": "p7",
        "n": "右舷主翼（Sフォイル） #7",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 72940876158797020,
        "m": 33,
        "sec": 2,
        "src": -1,
-       "power": 729408761587970.2
+       "power": 1094113142381955.4
       },
       {
        "id": "p8",
        "n": "左舷主翼（Sフォイル） #8",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 72940876158797020,
        "m": 34,
        "sec": 2,
        "src": -1,
-       "power": 729408761587970.2
+       "power": 1094113142381955.4
       },
       {
        "id": "p9",
        "n": "腹部Sフォイル（垂直安定板） #9",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 71171758369703260,
        "m": 35,
        "sec": 3,
@@ -30811,181 +30789,181 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 9,
        "d": 0,
-       "cap": 3419261970.254932,
+       "cap": 5128892955.382399,
        "sec": 3
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 296906669.8098814,
+       "cap": 445360004.7148221,
        "sec": 3
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 296906669.8098814,
+       "cap": 445360004.7148221,
        "sec": 3
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 881914961.0785854,
+       "cap": 1322872441.6178782,
        "sec": 3
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 881914961.0785854,
+       "cap": 1322872441.6178782,
        "sec": 3
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 860524877.3796266,
+       "cap": 1290787316.0694401,
        "sec": 4
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 3419261970.254932,
+       "cap": 5128892955.382399,
        "sec": 3
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 296906669.8098814,
+       "cap": 445360004.7148221,
        "sec": 3
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 296906669.8098814,
+       "cap": 445360004.7148221,
        "sec": 3
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 881914961.0785854,
+       "cap": 1322872441.6178782,
        "sec": 3
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 881914961.0785854,
+       "cap": 1322872441.6178782,
        "sec": 3
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 860524877.3796266,
+       "cap": 1290787316.0694401,
        "sec": 4
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 22638047787.690617,
+       "cap": 33957071681.535927,
        "sec": 3
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 1965742150.8241568,
+       "cap": 2948613226.236235,
        "sec": 3
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 1965742150.8241568,
+       "cap": 2948613226.236235,
        "sec": 3
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 5838930508.178581,
+       "cap": 8758395762.267874,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 5838930508.178581,
+       "cap": 8758395762.267874,
        "sec": 4
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 5697312304.843426,
+       "cap": 8545968457.265139,
        "sec": 4
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 22638047787.690617,
+       "cap": 33957071681.535927,
        "sec": 3
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 1965742150.8241568,
+       "cap": 2948613226.236235,
        "sec": 3
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 1965742150.8241568,
+       "cap": 2948613226.236235,
        "sec": 3
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 5838930508.178581,
+       "cap": 8758395762.267874,
        "sec": 4
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 5838930508.178581,
+       "cap": 8758395762.267874,
        "sec": 4
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 5697312304.843426,
+       "cap": 8545968457.265139,
        "sec": 4
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 6720250358.098122,
+       "cap": 10080375537.147182,
        "sec": 3
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 583543224.0843518,
+       "cap": 875314836.1265277,
        "sec": 3
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 583543224.0843518,
+       "cap": 875314836.1265277,
        "sec": 3
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 1733324145.5490394,
+       "cap": 2599986218.323559,
        "sec": 4
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 1733324145.5490394,
+       "cap": 2599986218.323559,
        "sec": 4
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 1691283869.3466988,
+       "cap": 2536925804.020048,
        "sec": 4
       },
       {
@@ -32550,7 +32528,7 @@ const CRAFT_PRICE_CATALOG={
     "power": 15823,
     "drive": 31829,
     "command": 13500,
-    "weapons": 24250,
+    "weapons": 24251,
     "systems": 17000
    },
    "detailed": true,
@@ -33368,7 +33346,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p4",
-       "cap": 220424817679557.97,
+       "cap": 330637226519336.94,
        "auto": true,
        "ok": true,
        "routeId": "p16>p4",
@@ -33380,7 +33358,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p5",
-       "cap": 220424817679557.97,
+       "cap": 330637226519336.94,
        "auto": true,
        "ok": true,
        "routeId": "p16>p5",
@@ -33392,7 +33370,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p6",
-       "cap": 220424817679557.97,
+       "cap": 330637226519336.94,
        "auto": true,
        "ok": true,
        "routeId": "p16>p6",
@@ -33404,7 +33382,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p7",
-       "cap": 220424817679557.97,
+       "cap": 330637226519336.94,
        "auto": true,
        "ok": true,
        "routeId": "p16>p7",
@@ -33748,25 +33726,25 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p4",
        "port": "p4",
-       "weight": 220424817679557.97,
+       "weight": 330637226519336.94,
        "domain": "main"
       },
       {
        "id": "p5",
        "port": "p5",
-       "weight": 220424817679557.97,
+       "weight": 330637226519336.94,
        "domain": "main"
       },
       {
        "id": "p6",
        "port": "p6",
-       "weight": 220424817679557.97,
+       "weight": 330637226519336.94,
        "domain": "main"
       },
       {
        "id": "p7",
        "port": "p7",
-       "weight": 220424817679557.97,
+       "weight": 330637226519336.94,
        "domain": "main"
       }
      ]
@@ -34581,7 +34559,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p13",
        "n": "熱エネルギー変換装置 #13",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 83792059387181340,
        "m": 8,
        "sec": 0,
@@ -34592,40 +34570,40 @@ const CRAFT_PRICE_CATALOG={
        "id": "p4",
        "n": "上翼 #4",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 22042481767955796,
        "m": 29,
        "sec": 3,
        "src": -1,
-       "power": 220424817679557.97
+       "power": 330637226519336.94
       },
       {
        "id": "p5",
        "n": "上翼 #5",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 22042481767955796,
        "m": 30,
        "sec": 3,
        "src": -1,
-       "power": 220424817679557.97
+       "power": 330637226519336.94
       },
       {
        "id": "p6",
        "n": "下翼 #6",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 22042481767955796,
        "m": 31,
        "sec": 3,
        "src": -1,
-       "power": 220424817679557.97
+       "power": 330637226519336.94
       },
       {
        "id": "p7",
        "n": "下翼 #7",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 22042481767955796,
        "m": 32,
        "sec": 3,
@@ -34863,121 +34841,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 0,
-       "cap": 3206619040.325533,
+       "cap": 4809928560.4883,
        "sec": 1
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 3206619040.325533,
+       "cap": 4809928560.4883,
        "sec": 1
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 843538662.8529208,
+       "cap": 1265307994.279381,
        "sec": 2
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 2975687390.9776516,
+       "cap": 4463531086.466477,
        "sec": 1
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 2975687390.9776516,
+       "cap": 4463531086.466477,
        "sec": 1
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 782789390.0981642,
+       "cap": 1174184085.1472464,
        "sec": 2
       },
       {
@@ -36877,7 +36855,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p1",
-       "cap": 176172701534109.3,
+       "cap": 264259052301163.97,
        "auto": true,
        "ok": true,
        "routeId": "p33>p1",
@@ -36889,7 +36867,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p2",
-       "cap": 182144657518316.47,
+       "cap": 273216986277474.72,
        "auto": true,
        "ok": true,
        "routeId": "p32>p2",
@@ -36901,7 +36879,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p33",
        "to": "p3",
-       "cap": 220625409264132.6,
+       "cap": 330938113896198.9,
        "auto": true,
        "ok": true,
        "routeId": "p33>p3",
@@ -36913,7 +36891,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p32",
        "to": "p4",
-       "cap": 220625409264132.6,
+       "cap": 330938113896198.9,
        "auto": true,
        "ok": true,
        "routeId": "p32>p4",
@@ -37971,25 +37949,25 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p1",
        "port": "p1",
-       "weight": 176172701534109.3,
+       "weight": 264259052301163.97,
        "domain": "main"
       },
       {
        "id": "p2",
        "port": "p2",
-       "weight": 182144657518316.47,
+       "weight": 273216986277474.72,
        "domain": "main"
       },
       {
        "id": "p3",
        "port": "p3",
-       "weight": 220625409264132.6,
+       "weight": 330938113896198.9,
        "domain": "main"
       },
       {
        "id": "p4",
        "port": "p4",
-       "weight": 220625409264132.6,
+       "weight": 330938113896198.9,
        "domain": "main"
       }
      ]
@@ -39663,7 +39641,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p27",
        "n": "熱エネルギー変換装置 #27",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 163656365990588500,
        "m": 16,
        "sec": 4,
@@ -39685,40 +39663,40 @@ const CRAFT_PRICE_CATALOG={
        "id": "p1",
        "n": "右舷上部翼（放熱板） #1",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 17617270153410932,
        "m": 38,
        "sec": 1,
        "src": -1,
-       "power": 176172701534109.3
+       "power": 264259052301163.97
       },
       {
        "id": "p2",
        "n": "左舷上部翼（放熱板） #2",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 18214465751831650,
        "m": 39,
        "sec": 1,
        "src": -1,
-       "power": 182144657518316.47
+       "power": 273216986277474.72
       },
       {
        "id": "p3",
        "n": "右舷下部翼（放熱板） #3",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 22062540926413260,
        "m": 40,
        "sec": 1,
        "src": -1,
-       "power": 220625409264132.6
+       "power": 330938113896198.9
       },
       {
        "id": "p4",
        "n": "左舷下部翼（放熱板） #4",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 22062540926413260,
        "m": 41,
        "sec": 1,
@@ -43795,16 +43773,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "熱エネルギー変換装置",
-      "w": 0.1764,
+      "w": 0.07817616000000002,
       "hits": 1,
-      "crew": 0.0000037043999999999996,
-      "size": 0.07408799999999999,
+      "crew": 0.0000010929027168000002,
+      "size": 0.021858054336000004,
       "at": 0.802,
       "part": 41,
       "y": 0.08,
       "z": 0,
-      "r": 0.016,
-      "share": 0.02107864193838033,
+      "r": 0.01,
+      "share": 0.006312599488285838,
       "domain": "main",
       "port": "p41",
       "powerConnected": true
@@ -44132,7 +44110,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.2447303510991028,
+      "share": 0.24842186188635482,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -44150,7 +44128,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.24473035623728132,
+      "share": 0.2484218671020376,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -44168,7 +44146,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.24473032225334654,
+      "share": 0.24842183260548942,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -44186,7 +44164,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.24473032847188905,
+      "share": 0.24842183891783237,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -44402,7 +44380,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p2",
-       "cap": 975772045454545.5,
+       "cap": 1463658068181818,
        "auto": true,
        "ok": true,
        "routeId": "p30>p2",
@@ -44414,7 +44392,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p3",
-       "cap": 999571363636363.8,
+       "cap": 1499357045454545.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p3",
@@ -44426,7 +44404,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p16",
-       "cap": 999571363636363.8,
+       "cap": 1499357045454545.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p16",
@@ -44438,7 +44416,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p17",
-       "cap": 975772045454545.5,
+       "cap": 1463658068181818,
        "auto": true,
        "ok": true,
        "routeId": "p30>p17",
@@ -44762,7 +44740,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p41",
-       "cap": 11639973929770290,
+       "cap": 3434121350644403.5,
        "auto": false,
        "ok": true,
        "routeId": "p30>p41",
@@ -44840,31 +44818,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p41",
        "port": "p41",
-       "weight": 11639973929770290,
+       "weight": 3434121350644403.5,
        "domain": "main"
       },
       {
        "id": "p2",
        "port": "p2",
-       "weight": 975772045454545.5,
+       "weight": 1463658068181818,
        "domain": "main"
       },
       {
        "id": "p3",
        "port": "p3",
-       "weight": 999571363636363.8,
+       "weight": 1499357045454545.5,
        "domain": "main"
       },
       {
        "id": "p16",
        "port": "p16",
-       "weight": 999571363636363.8,
+       "weight": 1499357045454545.5,
        "domain": "main"
       },
       {
        "id": "p17",
        "port": "p17",
-       "weight": 975772045454545.5,
+       "weight": 1463658068181818,
        "domain": "main"
       }
      ]
@@ -46060,18 +46038,18 @@ const CRAFT_PRICE_CATALOG={
        "id": "p41",
        "n": "熱エネルギー変換装置 #41",
        "k": "hdis",
-       "g": "high",
-       "cap": 775998261984686100,
+       "g": "all",
+       "cap": 228941423376293570,
        "m": 17,
        "sec": 4,
        "src": -1,
-       "power": 11639973929770290
+       "power": 3434121350644403.5
       },
       {
        "id": "p2",
        "n": "右舷上翼（Sフォイル） #2",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 97577204545454540,
        "m": 36,
        "sec": 0,
@@ -46079,13 +46057,13 @@ const CRAFT_PRICE_CATALOG={
        "fo": 0,
        "cs": 0.35,
        "sh": 0.6,
-       "power": 975772045454545.5
+       "power": 1463658068181818
       },
       {
        "id": "p3",
        "n": "右舷上翼（Sフォイル） #3",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 99957136363636370,
        "m": 37,
        "sec": 0,
@@ -46093,13 +46071,13 @@ const CRAFT_PRICE_CATALOG={
        "fo": 1,
        "cs": 0.35,
        "sh": 0.6,
-       "power": 999571363636363.8
+       "power": 1499357045454545.5
       },
       {
        "id": "p16",
        "n": "右舷下翼（Sフォイル） #16",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 99957136363636370,
        "m": 38,
        "sec": 0,
@@ -46107,13 +46085,13 @@ const CRAFT_PRICE_CATALOG={
        "fo": 2,
        "cs": 0.35,
        "sh": 0.6,
-       "power": 999571363636363.8
+       "power": 1499357045454545.5
       },
       {
        "id": "p17",
        "n": "右舷下翼（Sフォイル） #17",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 97577204545454540,
        "m": 39,
        "sec": 0,
@@ -46121,17 +46099,7 @@ const CRAFT_PRICE_CATALOG={
        "fo": 3,
        "cs": 0.35,
        "sh": 0.6,
-       "power": 975772045454545.5
-      },
-      {
-       "id": "skin",
-       "n": "外殻からの放熱",
-       "k": "skin",
-       "g": "low",
-       "cap": 844910894710872000000,
-       "m": -1,
-       "sec": -1,
-       "src": -1
+       "power": 1463658068181818
       }
      ],
      "ln": [
@@ -46376,12 +46344,6 @@ const CRAFT_PRICE_CATALOG={
        "sec": 3
       },
       {
-       "s": 7,
-       "d": 5,
-       "cap": 844910894710872000000,
-       "sec": -1
-      },
-      {
        "s": 8,
        "d": 0,
        "cap": 1849268702362.575,
@@ -46414,121 +46376,121 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 9,
        "d": 0,
-       "cap": 30667547496.461697,
+       "cap": 25469712053.34626,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 3856263218.0595527,
+       "cap": 10855454928.56642,
        "sec": 0
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 3950318418.50003,
+       "cap": 11120222121.946089,
        "sec": 0
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 3950318418.50003,
+       "cap": 11120222121.946089,
        "sec": 0
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 3856263218.0595527,
+       "cap": 10855454928.56642,
        "sec": 0
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 31415536459.790035,
+       "cap": 26090924542.452274,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 3950318418.50003,
+       "cap": 11120222121.94609,
        "sec": 0
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 4046667648.2195435,
+       "cap": 11391447051.749655,
        "sec": 0
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 4046667648.2195435,
+       "cap": 11391447051.749655,
        "sec": 0
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 3950318418.50003,
+       "cap": 11120222121.94609,
        "sec": 0
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 30925272194.404552,
+       "cap": 25683755052.591564,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 3888670578.745216,
+       "cap": 10946682270.52521,
        "sec": 0
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 3983516202.6170506,
+       "cap": 11213674521.025826,
        "sec": 0
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 3983516202.6170506,
+       "cap": 11213674521.025826,
        "sec": 0
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 3888670578.745216,
+       "cap": 10946682270.52521,
        "sec": 0
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 30188956189.77587,
+       "cap": 25072237075.148903,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 3796083184.013187,
+       "cap": 10686046978.369846,
        "sec": 0
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 3888670578.745216,
+       "cap": 10946682270.52521,
        "sec": 0
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 3888670578.745216,
+       "cap": 10946682270.52521,
        "sec": 0
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 3796083184.013187,
+       "cap": 10686046978.369846,
        "sec": 0
       },
       {
@@ -47104,31 +47066,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 32,
        "d": 0,
-       "cap": 10564737540868890,
+       "cap": 5849415099488119,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 1328453434106724.5,
+       "cap": 2493081266014023.5,
        "sec": 3
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 1360854737377620.5,
+       "cap": 2553888126160707,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 1360854737377620.5,
+       "cap": 2553888126160707,
        "sec": 3
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 1328453434106724.5,
+       "cap": 2493081266014023.5,
        "sec": 3
       },
       {
@@ -47254,91 +47216,91 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 37,
        "d": 0,
-       "cap": 96591780794.20872,
+       "cap": 53480308325.54148,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 12145846728.909573,
+       "cap": 22793861013.339436,
        "sec": 3
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 12442086893.029318,
+       "cap": 23349808842.933083,
        "sec": 3
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 12442086893.029318,
+       "cap": 23349808842.933083,
        "sec": 3
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 12145846728.909573,
+       "cap": 22793861013.339436,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 96591780794.20872,
+       "cap": 53480308325.54148,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 12145846728.909573,
+       "cap": 22793861013.339436,
        "sec": 3
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 12442086893.029318,
+       "cap": 23349808842.933083,
        "sec": 3
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 12442086893.029318,
+       "cap": 23349808842.933083,
        "sec": 3
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 12145846728.909573,
+       "cap": 22793861013.339436,
        "sec": 3
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 949269996142.9886,
+       "cap": 155062618576.47305,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 119365103145.46967,
+       "cap": 66089293178.37486,
        "sec": 3
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 122276447124.62749,
+       "cap": 67701227158.335236,
        "sec": 3
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 122276447124.62749,
+       "cap": 67701227158.335236,
        "sec": 3
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 119365103145.46967,
+       "cap": 66089293178.37486,
        "sec": 3
       },
       {
@@ -48345,7 +48307,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p21",
        "to": "p7",
-       "cap": 1166928750000000,
+       "cap": 1750393125000000,
        "auto": true,
        "ok": true,
        "routeId": "p21>p7",
@@ -48357,7 +48319,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p22",
        "to": "p8",
-       "cap": 1166928750000000,
+       "cap": 1750393125000000,
        "auto": true,
        "ok": true,
        "routeId": "p22>p8",
@@ -48765,13 +48727,13 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p7",
        "port": "p7",
-       "weight": 1166928750000000,
+       "weight": 1750393125000000,
        "domain": "main"
       },
       {
        "id": "p8",
        "port": "p8",
-       "weight": 1166928750000000,
+       "weight": 1750393125000000,
        "domain": "main"
       }
      ]
@@ -49642,7 +49604,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p28",
        "n": "熱エネルギー変換装置 #28",
        "k": "hdis",
-       "g": "high",
+       "g": "all",
        "cap": 670336475097450800,
        "m": 11,
        "sec": 4,
@@ -49653,18 +49615,18 @@ const CRAFT_PRICE_CATALOG={
        "id": "p7",
        "n": "右舷主翼 #7",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 116692875000000000,
        "m": 28,
        "sec": 2,
        "src": -1,
-       "power": 1166928750000000
+       "power": 1750393125000000
       },
       {
        "id": "p8",
        "n": "右舷主翼 #8",
        "k": "wing",
-       "g": "high",
+       "g": "all",
        "cap": 116692875000000000,
        "m": 29,
        "sec": 2,
@@ -49836,37 +49798,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 8,
        "d": 0,
-       "cap": 25134093906.878048,
+       "cap": 37701140860.31708,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 4375369366.685885,
+       "cap": 6563054050.028828,
        "sec": 3
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 4375369366.685885,
+       "cap": 6563054050.028828,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 25134093906.878048,
+       "cap": 37701140860.31708,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 4375369366.685885,
+       "cap": 6563054050.028828,
        "sec": 3
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 4375369366.685885,
+       "cap": 6563054050.028828,
        "sec": 3
       },
       {
@@ -58754,7 +58716,9 @@ function xwingBuild(opt={}){
  put('inertial','慣性補償装置',[6.35,1.62,0],.38,{dir:[1,0,0],length:.9});
  put('shield','偏向シールド発生器',[8.0,1.98,0],opt.shieldD??.86);
  put('hyper','ハイパードライブ（GBk-585）',[9.65,1.98,0],opt.hyperD??.5,{dir:[1,0,0],length:opt.hyperL??.86});
- put('battery','パワーセル',[10.75,1.98,0],opt.batD??.42,{autoFit:false});
+ // 2026-11-12: this former power cell becomes the X-wing's internal heat-energy converter. 0.2796 m (0.0219 m³,
+ // 2.29e17 W) instead of 0.42 m: with the foils open the craft covers combat heat 1.5×, stowed it does not.
+ put('battery','パワーセル',[10.75,1.98,0],opt.batD??.2796,{autoFit:false});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // ---- weapons ----
  const fit=(k,p,a,tilt,local)=>{const f={id:s.nextId++,k,p:p.slice(),a,ped:0,base:0,low:0,slope:0};if(tilt){f.tilt=norm(tilt);f.n=f.tilt.slice();}if(local)f.localMount=true;mountFit(s,f);if(f.float){s.nextId--;throw new Error('作例の武装が取り付けられません: '+k);}s.fits.push(f);return f;};
@@ -59005,7 +58969,8 @@ function refitCraftInterior(ship,key){
 const CRAFT_COOLING_SIZING='drive',CRAFT_COOLING_MARGIN=1.05;
 function refitCraftThermal(ship,key,S,install=true){
  const net=heatNetwork(ship,S),density=REACTOR_POWER_DENSITY*HEAT.disK.hdis,margin=CRAFT_COOLING_MARGIN;
- const peak=net.src.filter(s=>s.grade==='high').reduce((n,s)=>n+(s.rated[CRAFT_COOLING_SIZING]||0),0),existing=net.dis.filter(d=>d.part!=null&&d.grade==='high'),capacity=existing.reduce((n,d)=>n+d.cap,0);
+ // Every heat grade goes to the converters (no hull-skin path since 2026-11-12), the craft's hotel heat included.
+ const peak=net.src.reduce((n,s)=>n+(s.rated[CRAFT_COOLING_SIZING]||0),0),existing=net.dis.filter(d=>d.part!=null),capacity=existing.reduce((n,d)=>n+d.cap,0);
  if(install&&capacity<peak*margin){
   const old=ship._building;ship._building=true;let installed=capacity;
   try{for(let i=0;i<64&&installed<peak*margin*(1-1e-6);i++){
@@ -59018,7 +58983,7 @@ function refitCraftThermal(ship,key,S,install=true){
    syncCompartments(ship);installed+=dissipatorCap(part,S);
   }}finally{ship._building=old;}
  }
- const now=heatNetwork(ship,computeStats(ship)),banks=now.dis.filter(d=>d.part!=null&&d.grade==='high'),total=banks.reduce((n,d)=>n+d.cap,0),sources=now.src.filter(s=>s.grade==='high'),sourceIds=new Set(sources.map(s=>s.id)),coolerIds=new Set(ship.parts.filter(p=>p.k==='hdis').map(p=>'p'+p.id));
+ const now=heatNetwork(ship,computeStats(ship)),banks=now.dis.filter(d=>d.part!=null),total=banks.reduce((n,d)=>n+d.cap,0),sources=now.src,sourceIds=new Set(sources.map(s=>s.id)),coolerIds=new Set(ship.parts.filter(p=>p.k==='hdis').map(p=>'p'+p.id));
  if(total<peak*(1-1e-6))throw new Error(key+': 実機の高温散逸設備が不足しています');
  ship.links=(ship.links||[]).filter(l=>!(l.kind==='heat'&&sourceIds.has(l.from))&&!(l.kind==='power'&&coolerIds.has(l.to)));
  // Heat transports keep their earlier 20% headroom over each source's largest load; only the final
@@ -59729,7 +59694,8 @@ function refitShipThermal(ship,key,options={}){
  const feedBound=shipElectricalFeedHeatBound(ship,reactorFactor),engineSpecs=propulsionOwners(ship).map(p=>resolveEngineSpec(p,ship)).filter(e=>e.valid),engineRated=engineSpecs.reduce((n,e)=>n+e.ratedInputW,0);
  let requestedCapacityW=0,operatingPresets={};
  for(let iteration=0;iteration<24;iteration++){
-  const coolingInputW=Math.max(existingCapacity,requestedCapacityW)*HEAT.disPowerK.hdis,presets={};let peak=0;
+  // Converter input follows the heat converted (user decision 2026-11-12): the peak load, not the rating.
+  const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0;
   for(const pr of HEAT_SIZING){
    const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
    const feedHeatW=load.engine>0?Math.min(feedBound.heatW,load.engine*feedBound.maxFraction/Math.max(1e-12,1-feedBound.maxFraction)):0,generatedW=waste.reactor+waste.engine+waste.weapon+waste.shield+waste.hotel+feedHeatW+(HEAT.waste.reactor+HEAT.waste.sw)*chargeW;
@@ -62545,8 +62511,32 @@ function shieldReceive(u,packet={},ctx){
 function shieldStatus(u){
  return {...(Number.isFinite(u?.p?.shieldDissipationW)?{dissipationW:Math.max(0,u.p.shieldDissipationW),activeDissipationW:shieldDissipationRate(u)}:{}),defense:u?.shield||0,capacity:u?.shieldMax||0,transient:u?.shieldTransient||0,defenseJ:Math.max(0,u?.shield||0)*TT,capacityJ:Math.max(0,u?.shieldMax||0)*TT,transientJ:Math.max(0,u?.shieldTransient||0)*TT,transientCapacity:(u?.shieldMax||0)*SHIELD_MODEL.transientShare,transientCapacityJ:Math.max(0,u?.shieldMax||0)*SHIELD_MODEL.transientShare*TT,unit:'J',legacyUnit:'TT',ledger:u?.shieldLedger?{...u.shieldLedger}:null,last:u?.lastShieldHit?{...u.lastShieldHit}:null};
 }
+// Electricity reserved for each converter before this step's heat solve, from THIS step's requested
+// loads (no lag; the whole-vessel store holds well under a second of ship heat). The heat they can make:
+// the heat already accrued in the ledger since the last solve, the fixed (hotel) load in full, the shield and weapon requests × their waste shares, the engines'
+// requested input × the drive's waste fraction, the reactor's conversion loss on all of it, and the
+// stored heat offered to the converters (qJ / drainS plus the converters' own last input). Those rows are
+// spread over the profile's heat sources as the battle solve does and solved through the real paths, so a
+// converter is funded for the heat that can actually reach it (an hdis on a source's auto path is not
+// starved by a large wing elsewhere). Each converter reserves disPowerK × that heat × HEAT.coolingHeadroom
+// (feed and superweapon heat are covered by the headroom), never above its rating; only the heat actually
+// converted draws, heats and burns fuel (heatTick). The result is kept on the unit for this step.
+// Heat already accrued in the source ledger since the last heat solve (J); it is solved at the next one.
+function pendingLedgerJ(h){if(!h)return 0;let J=0;for(const v of Object.values(h.e||{}))J+=Math.max(0,v||0);for(const k of ['engineE','reactorE','feedE','esw'])for(const v of h[k]||[])J+=Math.max(0,v||0);return J;}
+function coolingDemandW(u,H,want){
+ const dis=H?.dis||[],src=H?.src||[];if(!dis.some(d=>d.power>0&&d.cap>0))return u&&(u._coolingDemandW=dis.map(()=>0)),dis.map(()=>0);
+ if(!want&&Array.isArray(u?._coolingDemandW)&&u._coolingDemandW.length===dis.length)return u._coolingDemandW.slice();
+ const p=u?.p||{},g=p.grid||{},W=HEAT.waste,w=want||{},fixed=Math.max(0,(g.fixed||0)-(g.cooling||0)),shields=Math.max(0,w.shields||0),weapons=Array.isArray(w.weaponLoads)?w.weaponLoads.reduce((n,r)=>n+Math.max(0,r.requestedInputW||0),0):Math.max(0,w.weapons||0),engines=clamp(w.throttle??u?.maneuver??0,0,1)*Math.max(0,g.De||0);
+ const kind={hotel:W.hotel*fixed,shield:W.shield*shields,weapon:W.weapon*weapons,engine:PROPULSION.wasteFraction*engines,reactor:W.reactor*(fixed+shields+weapons+engines)},weights={};
+ for(const s of src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
+ const D=src.map(s=>(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:Math.max(0,l.cap||0)})));
+ // kinds with no source row of their own (an old profile) and the stored heat reach any spare converter
+ const unrouted=Object.entries(kind).reduce((n,[k,v])=>n+(weights[k]>0?0:v),0)+Math.max(0,u?.ht?.qJ||0)/Math.max(1e-9,HEAT.drainS)+Math.max(0,u?.ht?.coolingSelfW||0)+Math.max(0,u?.ht?.towWantW||0)+D.reduce((n,v,i)=>n+v-r.out[i],0)+pendingLedgerJ(u?.ht)/HEAT.dt;
+ const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,v)=>a+v,0),used=r.used.map((v,j)=>v+(room>0?Math.min(unrouted,room)*spare[j]/room:0));
+ const out=dis.map((d,j)=>d.power>0&&d.cap>0?Math.min(d.power,used[j]*d.power/d.cap*HEAT.coolingHeadroom):0);if(u)u._coolingDemandW=out;return out.slice();
+}
 function coolingPowerReserve(u,got,g,dt,supplyW=g?.P||0){
- const rated=(heatProfile(u?.p)?.dis||[]).reduce((n,d)=>n+Math.max(0,d.power||0),0);if(!u||!(rated>0))return {fixed:Math.max(0,g?.fixed||0),reserved:0,draw:0,sourceDraw:0};
+ const rated=coolingDemandW(u,heatProfile(u?.p)).reduce((n,W)=>n+W,0);if(!u||!(rated>0))return {fixed:Math.max(0,g?.fixed||0),reserved:0,draw:0,sourceDraw:0};
  const fixed=got.fixedGranted??Math.max(0,(g.fixed||0)-(g.cooling||0)),reserved=got.coolingGranted??Math.min(rated,Math.max(0,Math.min(g.fixed||0,got.draw||0)-fixed)),h=heatOf(u),c=h?(h.cooling||(h.cooling={reserveJ:0,reservedJ:0,inputJ:0,sourceInputJ:0,heatJ:0,feedLossJ:0,reactorWasteJ:0,handledJ:0,lastDraw:0,lastSourceDraw:0})):null;
  const seconds=Math.max(0,dt||0),sourceReserved=got.coolingInputs?.length?got.coolingInputs.reduce((n,q)=>n+(q.sourceInputs?Object.values(q.sourceInputs).reduce((sum,W)=>sum+Math.max(0,W),0):Math.max(0,q.W||0)),0):reserved;
  // The allocator reserves received electricity and the larger source draw.
@@ -62836,7 +62826,7 @@ function syncPowerLossDisabled(u,ctx=null){
 function shipPowerLoads(u,want={}){
  const p=u.p,g=p.grid||{},mods=p.modules||[],loads=[],add=(kind,total,rows)=>{if(!(total>0))return;const all=rows.reduce((a,r)=>a+Math.max(0,r.weight||0),0);if(!rows.length){loads.push({id:kind,kind,domain:'main',requestedInputW:total});return;}for(const r of rows)loads.push({id:kind+':'+r.id,kind,port:r.port,domain:r.domain||'main',requestedInputW:total*Math.max(0,r.weight||0)/Math.max(1e-30,all)});};
  const rows=kind=>mods.map((m,i)=>({m,i})).filter(x=>x.m.k===kind).map(({m,i})=>({id:i,port:m.port||(m.part!=null?'p'+m.part:m.fit!=null?'f'+m.fit:null),domain:m.domain||'main',weight:Math.max(0,kind==='weapon'&&Number.isFinite(m.weaponPowerW)?m.weaponPowerW:(m.share??m.size??1))*(powerFactor(u,kind,i)>0?1:0)}));
- const coolers=(heatProfile(p)?.dis||[]).filter(d=>d.power>0&&d.m>=0),cooling=coolers.reduce((n,d)=>n+d.power,0),coolingRows=coolers.map(d=>({id:d.id||d.m,port:d.id||mods[d.m]?.port||(mods[d.m]?.part!=null?'p'+mods[d.m].part:null),domain:mods[d.m]?.domain||'main',weight:d.power}));
+ const H=heatProfile(p),demand=coolingDemandW(u,H,want),coolers=(H?.dis||[]).map((d,j)=>({d,W:demand[j]})).filter(({d,W})=>d.power>0&&d.m>=0&&W>0),cooling=coolers.reduce((n,c)=>n+c.W,0),coolingRows=coolers.map(({d,W})=>({id:d.id||d.m,port:d.id||mods[d.m]?.port||(mods[d.m]?.part!=null?'p'+mods[d.m].part:null),domain:mods[d.m]?.domain||'main',weight:W}));
  add('fixed',Math.max(0,(g.fixed||0)-(g.cooling||0)),g.fixedLoads||[]);add('cooling',cooling,coolingRows);add('shields',Math.max(0,want.shields||0),rows('shield'));if(Array.isArray(want.weaponLoads))for(const row of want.weaponLoads)loads.push({...row,kind:'weapons'});else add('weapons',Math.max(0,want.weapons||0),rows('weapon'));return loads;
 }
 function attachShipPowerProfile(out,ship,S){
@@ -67800,15 +67790,21 @@ const HEAT={
  swShot:.02,         // share of a superweapon shot's energy left in its generator's direct system when it fires
  grade:{reactor:'high',weapon:'high',shield:'high',engine:'high',feed:'high',sw:'high',hotel:'low'},
  // Compatibility cooling is retired. These zero values retain readable old
- // configuration keys; only physical dissipators and the low-grade hull skin remove heat.
+ // configuration keys. Only heat-energy converters remove heat: hdis inside the hull
+ // and the discharge surface of a wing (user decision 2026-11-12, docs/heat-converters.md).
  strictOnly:true,
  integral:{reactor:0,weapon:0,shield:0,engine:0,feed:0,sw:0,hotel:0},
  storeS:0,           // retired source-local storage; capacity follows whole-vessel mass
- // Dissipator ratings, W per m³, as multiples of the yard's reactor power density (fictional): internal
- // high-energy (ENG-003), external high-energy (ENG-004, × its exposed share), ordinary radiator (ENG-005, low grade only).
+ // Converter ratings, W per m³, as multiples of the yard's reactor power density (fictional). hdis is the
+ // internal converter; radiator is the weaker 'low' wing type (its discharge surface rating, × disK.radiator/disK.hdis).
+ // Every converter accepts every heat grade (user decision 2026-11-12): there is no grade-restricted path.
  disK:{hdis:2,radiator:.1},
- disPowerK:{hdis:.015,radiator:.002,wing:.01}, // provisional electrical W per rated W handled, strict designs
- skinW:3e18,         // W per m² of exposed hull skin radiating low-grade heat (the Executor's hotel load is 1.9e18 W/m²: ~1.5× margin)
+ // Electrical W a converter draws per W of heat it ACTUALLY converts (user decision 2026-11-12), the same
+ // for the internal hdis and every wing discharge surface. The input becomes low-grade heat aboard that the
+ // converters must also take; nothing is counted twice (heat-converters.md). Old keys are kept readable.
+ disPowerK:{hdis:.015,radiator:.015,wing:.015,solar:.015},
+ skinW:0,            // retired (user decision 2026-11-12): the hull skin removes no heat; any shortfall needs converters
+ coolingHeadroom:1.1, // battle: converter power reserved for this step's requested-load heat, × this, never above the rating
  autoLinks:2,        // auto-generated heat paths: each source to its nearest dissipators…
  linkK:1.5,          // …each sized to this many times the source's 'max' waste
  limitAt:.7,minOut:.60,crit:1,restartAt:.90, // store fill (of capacity): output limiting starts, floor of limiting, critical, restart
@@ -67831,12 +67827,22 @@ const HEAT_PRESETS={cruise:{name:'通常航行',mode:'cruise',eng:.6,sh:1,wpn:0,
  drive:{hidden:true,mode:'balanced',eng:1,sh:1,wpn:0,sw:0}};
 const HEAT_SIZING=['cruise','combat','hold','defend','evade','drive'];
 const HEAT_KINDS={reactor:'反応炉',weapon:'武装',shield:'シールド',engine:'推進',feed:'推進配電路',hotel:'生活・電子設備',sw:'超兵器'};
-const DISSIPATORS={hdis:{grade:'high',ext:false}};
+const DISSIPATORS={hdis:{grade:'all',ext:false}};
 addComp('hdis','熱エネルギー変換装置','cube',1,[214,96,120],'power','船体内部に置く熱エネルギー変換装置（スター・ウォーズの架空技術）。内部容積・質量を使い、近くの熱源から熱輸送路で廃熱を受けて処理します。武装・反応炉・推進・シールド・超兵器のどの熱も扱えます。',{def:30,crew:.05,cost:3});
 INTERNAL_PARTS.add('hdis');
 Object.assign(MODULE_PART_KIND,{hdis:'dissipator'});
 Object.assign(MODULE_LABEL,{dissipator:'熱エネルギー変換装置',radiator:'放熱翼'});
-function dissipatorCap(p,S,ex){if(isWing(p))return wingCap(p,S,ex);if(!DISSIPATORS[p.k])return 0;const base=partVolume(p)*REACTOR_POWER_DENSITY*HEAT.disK[p.k],e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1);return p.k==='radiator'?base*(.3+.7*e):base;}
+function dissipatorCap(p,S,ex){if(isWing(p))return wingCap(p,S,ex);if(!DISSIPATORS[p.k])return 0;return partVolume(p)*REACTOR_POWER_DENSITY*HEAT.disK[p.k];}
+// Electrical input of a converter at a heat flow it actually converts (W).
+function converterPowerW(k,heatW){return Math.max(0,heatW||0)*(HEAT.disPowerK[k]??HEAT.disPowerK.hdis);}
+// Added hdis needed for a heat shortfall Q (W). The added converter's own input K·C becomes heat aboard,
+// with the reactor's conversion loss on it: C = Q / (1 - K·(1 + waste.reactor)). Returns the converter
+// rating, volume and electrical input, and whether that input fits the plant's spare output at that load.
+function converterShortfall(Q,power={}){
+ const q=Math.max(0,Q||0),K=HEAT.disPowerK.hdis,density=REACTOR_POWER_DENSITY*HEAT.disK.hdis,capW=q>0?q/Math.max(1e-9,1-K*(1+HEAT.waste.reactor)):0,powerW=capW*K,spareW=Math.max(0,(power.supplyW||0)-(power.drawW||0));
+ return {capW,volumeM3:capW/density,powerW,spareW,powerShortW:Math.max(0,powerW-spareW)};
+}
+const heatPowerText=w=>!Number.isFinite(w)?'—':w===0?'0 W':w.toExponential(2).replace('e+','e')+' W';
 // Power each kind draws at a load preset, from the same distribution rules the battles use (powerSplit).
 // g: {P, fixed, De, Ds, Dw}; sw: [{k, Pshare, n, E, chargeT}] (superweapons charging at 'combat'/'max').
 function heatLoads(g,pr,sw=[]){
@@ -67884,7 +67890,9 @@ function heatNetwork(ship,S){
  // v25 dissipators inside a functional wing radiate through its skin; an S-foil's stowed state masks them (WING)
  const WM=wingMap(ship),foils=ship.parts.filter(isFoil);
  const sws=(S.superweapons||[]).filter(w=>w.ok),swIn=sws.map(w=>({k:w.k,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),n:sws.filter(x=>x.reactor===w.reactor).length,E:w.k==='hion'?w.Emax:w.E,chargeT:w.chargeT}));
- const g={P:S.power||0,fixed:(S.draw?.hotel||0)+(S.draw?.ray||0),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict};
+ // S.draw.hotel carries the converters' own input once the statistics are complete; the presets below
+ // charge that input from the heat each preset actually converts, so it is taken out of the fixed load here.
+ const g={P:S.power||0,fixed:Math.max(0,(S.draw?.hotel||0)+(S.draw?.ray||0)-Math.max(0,S.dissipatorPower||0)),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict};
  const W={},presetLoads={};for(const pr in HEAT_PRESETS){presetLoads[pr]=heatLoads(g,pr,swIn);W[pr]=heatWaste(presetLoads[pr]);}
  const addSrc=(k,id,name,at,w,extra={})=>src.push({k,id,name,at,w,grade:HEAT.grade[k],sec:sec(at),...extra});
  for(const p of ship.parts){if(bad(p.id))continue;
@@ -67900,28 +67908,25 @@ function heatNetwork(ship,S){
  const tot={};for(const s of src)if(s.k!=='sw')tot[s.k]=(tot[s.k]||0)+s.w;
  for(const s of src){s.rated={};for(const pr in W)s.rated[pr]=s.k==='sw'?W[pr].sw[s.sw]||0:s.k==='feed'?s.w:s.k==='engine'?presetLoads[pr].engine*s.w/Math.max(1e-30,tot.engine)*s.wasteFraction:W[pr][s.k]*s.w/Math.max(1e-30,tot[s.k]);s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=0;}
  for(const pr in W)W[pr].engine=src.filter(s=>s.k==='engine').reduce((n,s)=>n+(s.rated[pr]||0),0);
- // Dissipators: installed physical parts and the low-grade hull skin.
+ // Heat-energy converters: hdis parts inside the hull and wing discharge surfaces. The hull skin removes nothing.
  for(const p of ship.parts){if(!DISSIPATORS[p.k]||bad(p.id))continue;const w=WM.get(p.id),e0=info[p.id]?.exposed??0,e=w&&DISSIPATORS[p.k].ext?Math.max(e0,WING.expose):e0,fo=w?foils.indexOf(w):-1;
   dis.push({k:p.k,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:DISSIPATORS[p.k].grade,cap:dissipatorCap(p,S,e)*(w?Math.min(1,w.wing.feed??1):1),part:p.id,ext:DISSIPATORS[p.k].ext,exposed:e,sec:sec(p.c),wing:w?.id??null,fo,cs:fo>=0?WING.stowK[p.k]??1:1,sh:fo>=0?WING.shade[p.k]??0:0});}
  // The wing IS the dissipator. Solar collection and cooling share one node and one damageable part.
- for(const p of ship.parts){if(!isWing(p)||bad(p.id))continue;const fo=foils.indexOf(p),low=!p.wing.solar&&p.wing.thermal==='low',kind=p.wing.solar?'solar':low?'radiator':'wing',e=clamp(info[p.id]?.exposed??1,0,1);dis.push({k:kind,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:low?'low':'high',cap:wingCap(p,S)*Math.min(1,p.wing.feed??1),part:p.id,ext:true,exposed:e,sec:sec(p.c),wing:p.id,fo,cs:fo>=0?WING.stowK[low?'radiator':'wing']:1,sh:fo>=0?WING.shade[low?'radiator':'wing']:0});}
- dis.push({k:'skin',id:'skin',name:'外殻からの放熱',at:mid,grade:'low',cap:(S.area||0)*HEAT.skinW,sec:-1});
+ for(const p of ship.parts){if(!isWing(p)||bad(p.id))continue;const fo=foils.indexOf(p),low=!p.wing.solar&&p.wing.thermal==='low',kind=p.wing.solar?'solar':low?'radiator':'wing',e=clamp(info[p.id]?.exposed??1,0,1);dis.push({k:kind,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:'all',cap:wingCap(p,S)*Math.min(1,p.wing.feed??1),part:p.id,ext:true,exposed:e,sec:sec(p.c),wing:p.id,fo,cs:fo>=0?WING.stowK[low?'radiator':'wing']:1,sh:fo>=0?WING.shade[low?'radiator':'wing']:0});}
  const portIx=new Map();src.forEach((s,i)=>portIx.set(s.id,i));const disIx=new Map();dis.forEach((d,j)=>disIx.set(d.id,j));
  const manual=normalizeLinks(ship.links)||[],manualHeat=new Set();
- for(const l of manual){if(l.kind!=='heat')continue;const s=portIx.get(l.from),d=disIx.get(l.to),ok=s!=null&&d!=null&&!(dis[d]?.grade==='low'&&src[s]?.grade==='high');
-  links.push({kind:'heat',from:l.from,to:l.to,s:s??-1,d:d??-1,cap:l.cap??(s!=null?HEAT.linkK*Math.max(src[s].rated.max,src[s].size):0),auto:false,ok,why:ok?null:s==null||d==null?'missing':'grade'});if(s!=null)manualHeat.add(s);}
+ for(const l of manual){if(l.kind!=='heat')continue;const s=portIx.get(l.from),d=disIx.get(l.to),ok=s!=null&&d!=null;
+  links.push({kind:'heat',from:l.from,to:l.to,s:s??-1,d:d??-1,cap:l.cap??(s!=null?HEAT.linkK*Math.max(src[s].rated.max,src[s].size):0),auto:false,ok,why:ok?null:'missing'});if(s!=null)manualHeat.add(s);}
  src.forEach((s,i)=>{
   if(manualHeat.has(i))return;
-  const cand=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null&&(d.grade==='high'||s.grade==='low')).sort((a,b)=>len(sub(a.d.at,s.at))-len(sub(b.d.at,s.at))||a.j-b.j).slice(0,s.grade==='low'||s.k==='feed'?Infinity:HEAT.autoLinks);
+  const cand=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null).sort((a,b)=>len(sub(a.d.at,s.at))-len(sub(b.d.at,s.at))||a.j-b.j).slice(0,s.grade==='low'||s.k==='feed'?Infinity:HEAT.autoLinks);
   // v25 sized on the heaviest load the source sees (s.size), not only on 'max': at 'max' shields can take all the power and a gun
   // group's path would get no capacity at all
   const feedSinkCapacity=s.k==='feed'?cand.reduce((n,{d})=>n+d.cap,0):0;
   for(const {d,j} of cand)links.push({kind:'heat',from:s.id,to:d.id,s:i,d:j,cap:HEAT.linkK*Math.max(s.rated.max,s.size)*(s.k==='feed'?d.cap/Math.max(1,feedSinkCapacity):1),auto:true,ok:true,l:len(sub(d.at,s.at))});
-  if(s.grade==='low')links.push({kind:'heat',from:s.id,to:'skin',s:i,d:disIx.get('skin'),cap:dis[disIx.get('skin')].cap,auto:true,ok:true});   // finite: profiles are JSON
  });
  // Power paths: weapons from their conduits (feedConduits), nozzles through their machinery, superweapons on
  // their direct line, shields and the hotel load from the nearest reactor. A consumer with no source is broken.
- if(strict)for(const d of dis)if(d.k==='radiator'&&d.ext){const e=clamp(d.exposed||0,0,1);d.cap*=e/Math.max(.3,.3+.7*e);}
  const fd=feedConduits(ship),rs=ship.parts.filter(p=>electricalSourcePower(p)>0&&!bad(p.id)),wiredEnginePorts=new Set(engineOwners.filter(p=>p.busFeed===true).map(p=>'p'+p.id)),wiredBusPorts=new Set(manual.filter(l=>l.kind==='power'&&wiredEnginePorts.has(l.to)).map(l=>l.from)),near=(q,owner)=>['battery','powerBus'].includes(owner?.k)&&wiredBusPorts.has('p'+owner.id)?null:rs.filter(r=>domains.of(r)===domains.of(owner||{powerDomain:'main'})).sort((a,b)=>len(sub(a.c,q))-len(sub(b.c,q)))[0]||null;
  for(const w of fd.rows||[])for(const k of w.links)links.push({kind:'power',from:'p'+k.src,to:'f'+w.id,cap:k.P,auto:true,ok:true,l:k.l});
  for(const s of src){if(s.k==='weapon'){if(!(fd.rows||[]).some(w=>'f'+w.id===s.id&&w.links.length))links.push({kind:'power',from:null,to:s.id,cap:0,auto:true,ok:false,why:'no-source'});continue;}
@@ -67945,18 +67950,22 @@ function heatNetwork(ship,S){
  }
  for(const row of feedRows.values()){
   const i=src.length;addSrc('feed','feed:'+row.id,'送電損失 '+row.id,row.at,row.w,{routeId:row.id});const source=src[i];source.rated=Object.fromEntries(Object.keys(HEAT_PRESETS).map(pr=>[pr,row.w]));source.size=row.w;source.store=0;
-  const candidates=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null&&(d.grade==='high'||source.grade==='low')),capacity=candidates.reduce((n,{d})=>n+d.cap,0);
+  const candidates=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null),capacity=candidates.reduce((n,{d})=>n+d.cap,0);
   for(const {d,j}of candidates)links.push({kind:'heat',from:source.id,to:d.id,s:i,d:j,cap:HEAT.linkK*row.w*d.cap/Math.max(1,capacity),auto:true,ok:true,l:len(sub(d.at,row.at))});
-  if(source.grade==='low'){const j=disIx.get('skin');links.push({kind:'heat',from:source.id,to:'skin',s:i,d:j,cap:dis[j].cap,auto:true,ok:true});}
  }
  for(const l of links){if(l.kind!=='heat'||l.sec!=null)continue;const a=src[l.s]?.at,b=dis[l.d]?.at;l.sec=l.dedicated||dis[l.d]?.k==='skin'?-1:a&&b?sec(mul(add(a,b),.5)):-1;}
  // Designer loads use the same connected ledger as a cold runtime tick.
  // In particular, a disconnected plant cannot size or heat another domain's
  // engine, and the source's actual input fixes its local five-percent waste.
- const fuelPresets={},profile=S.propulsion?.version===PROPULSION_MODEL_VERSION?S.propulsion:propulsionProfile(ship,S),powerLinks=links.filter(l=>l.kind==='power'),coolingRated=dis.reduce((a,d)=>a+Math.max(0,d.power||0),0);
+ const fuelPresets={},profile=S.propulsion?.version===PROPULSION_MODEL_VERSION?S.propulsion:propulsionProfile(ship,S),powerLinks=links.filter(l=>l.kind==='power'),heatLinks=links.filter(l=>l.kind==='heat'&&l.ok&&l.s>=0&&l.d>=0),coolingLoad={},presetPower={};
+ // Converter input follows the heat each converter actually converts at the preset (user decision
+ // 2026-11-12). Pass 0 solves the plant without converter input; pass 1 charges each converter
+ // disPowerK × the heat it converts at pass 0's loads; the input's own heat is missing from that basis, an
+ // error of disPowerK² (~2e-4) of the heat, disPowerK (~1.5%) of the converter input.
+ for(let pass=0;pass<2;pass++){
  for(const pr in HEAT_PRESETS){const X=HEAT_PRESETS[pr],mode=POWER_MODES[X.mode],loads=[];
-  for(const [kind,total,k] of [['fixed',Math.max(0,g.fixed-coolingRated),'hotel'],['shields',g.Ds*X.sh,'shield'],['weapons',g.Dw*mode.weapons*X.wpn,'weapon']]){const rows=src.filter(s=>s.k===k),weight=rows.reduce((a,s)=>a+s.w,0);for(const s of rows)loads.push({id:kind+':'+s.id,kind,port:s.id,domain:domains.of(ship.parts.find(p=>p.id===s.part)||ship.fits.find(f=>f.id===s.fit)||{powerDomain:'main'}),requestedInputW:total*s.w/Math.max(1e-30,weight)});}
-  for(const d of dis)if(d.power>0)loads.push({id:'cooling:'+d.id,kind:'cooling',port:d.id,domain:domains.of(ship.parts.find(p=>p.id===d.part)||{powerDomain:'main'}),requestedInputW:d.power});
+  for(const [kind,total,k] of [['fixed',g.fixed,'hotel'],['shields',g.Ds*X.sh,'shield'],['weapons',g.Dw*mode.weapons*X.wpn,'weapon']]){const rows=src.filter(s=>s.k===k),weight=rows.reduce((a,s)=>a+s.w,0);for(const s of rows)loads.push({id:kind+':'+s.id,kind,port:s.id,domain:domains.of(ship.parts.find(p=>p.id===s.part)||ship.fits.find(f=>f.id===s.fit)||{powerDomain:'main'}),requestedInputW:total*s.w/Math.max(1e-30,weight)});}
+  dis.forEach((d,j)=>{const W=coolingLoad[pr]?.[j]||0;if(d.power>0&&W>0)loads.push({id:'cooling:'+d.id,kind:'cooling',port:d.id,domain:domains.of(ship.parts.find(p=>p.id===d.part)||{powerDomain:'main'}),requestedInputW:Math.min(d.power,W)});});
   const sources=rs.map(r=>({id:'p'+r.id,domain:domains.of(r),powerW:Math.max(0,electricalSourcePower(r)-(X.sw?sws.filter(w=>w.reactor===r.id).reduce((a,w)=>a+Math.max(0,w.chargeW||SW_COMBAT[w.k].share*electricalSourcePower(r)/Math.max(1,sws.filter(v=>v.reactor===r.id).length)),0):0))})),propulsion=solveShipPropulsion(profile,{sources,links:powerLinks,otherLoads:loads,mode:X.mode,throttle:X.eng}),power=propulsion.power,engineHeat=new Map(),feedHeat=new Map();
   for(const body of propulsion.cores||propulsion.engines||[]){const spec=profile.cores?.find(e=>e.id===body.id)||profile.engines.find(e=>e.id===body.id),id=body.heatNode||spec?.heatNode||'p'+body.id;engineHeat.set(id,(engineHeat.get(id)||0)+Math.max(0,body.wasteHeatW||0));}
   for(const loss of power.edgeLosses||[])if(loss.routeId!=null)feedHeat.set(loss.routeId,(feedHeat.get(loss.routeId)||0)+Math.max(0,loss.heatW||0));
@@ -67967,9 +67976,12 @@ function heatNetwork(ship,S){
   W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,feedLossW:power.feedLossW,fixed:power.fixed+power.cooling,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0)});
   W[pr].engine=[...engineHeat.values()].reduce((n,w)=>n+w,0);const generatedElectricalW=power.sources.reduce((n,r)=>n+(ship.parts.some(p=>'p'+p.id===r.id&&isReactor(p))?Math.max(0,r.drawW||0):0),0);fuelPresets[pr]=fuelOperatingSummary(fuelProfileFromStats(S),generatedElectricalW,HEAT.waste.reactor*generatedElectricalW);
   for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='feed')s.rated[pr]=feedHeat.get(s.routeId)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=HEAT.waste.weapon*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*((power.granted['fixed:'+s.id]||0)+power.cooling*s.w/Math.max(1e-30,tot.hotel||1));}
+  presetPower[pr]={supplyW:Math.max(0,power.P||0),drawW:Math.max(0,power.draw||0),coolingW:Math.max(0,power.cooling||0),coolingRequestedW:loads.filter(l=>l.kind==='cooling').reduce((n,l)=>n+l.requestedInputW,0),fixedW:Math.max(0,power.fixed||0),shieldsW:Math.max(0,power.shields||0),weaponsW:Math.max(0,power.weapons||0),enginesW:Math.max(0,power.engines||0),enginesRequestedW:Math.max(0,propulsion.totalRequestedInputW||0)};
+ }
+ if(pass===0)for(const pr in HEAT_PRESETS){const used=heatSolve(src.map(s=>s.rated[pr]||0),dis.map(d=>d.cap),heatLinks).used;coolingLoad[pr]=dis.map((d,j)=>d.power>0?converterPowerW(d.k,used[j]):0);}
  }
  for(const s of src){s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=0;}
- return {src,dis,links,waste:W,g,massKg:Math.max(0,S.mass||0)*1000,capacityJ:Math.max(0,S.mass||0)*1000*HEAT.qAllowJPerKg,fuelPresets};
+ return {src,dis,links,waste:W,g,massKg:Math.max(0,S.mass||0)*1000,capacityJ:Math.max(0,S.mass||0)*1000*HEAT.qAllowJPerKg,fuelPresets,presetPower};
 }
 // The network at a load preset, in steady state: what each source makes, what its paths and dissipators take,
 // what it stores (and how soon its output is limited), the margin and the low-emission endurance (how long
@@ -68005,11 +68017,14 @@ function heatStats(ship,S){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return heatStats(surfaceWorkingShip(ship),S);
  const strict=true,rated=ship.parts.filter(p=>!p.surfaceUnplaced&&(DISSIPATORS[p.k]||isWing(p))).reduce((a,p)=>a+dissipatorCap(p,S)*(HEAT.disPowerK[p.k]??HEAT.disPowerK.wing),0);
  if(ship.surfaces?.mode==='strict'&&!S.energyInputAdjusted){S.draw=S.draw||{};S.draw.weapons=(S.draw.weapons||0)/ENERGY_MODEL.eta;S.energyInputAdjusted=true;}
- S.draw=S.draw||{};S.draw.hotel=Math.max(0,(S.draw.hotel||0)-(S.dissipatorPower||0))+rated;S.draw.dissipators=rated;S.dissipatorPower=rated;
- let net;try{net=heatNetwork(ship,S);}catch(e){S.heat=null;return S;}S.fuel=fuelProfileFromStats(S);S.fuelPresets=net.fuelPresets;S.fuelHours=(net.fuelPresets?.cruise?.enduranceSeconds??0)/3600;S.fuelHoursBasis='actual-reactor-generation-and-conversion-loss';
+ // Converter input is charged from the heat actually converted (combat preset), not from the rating.
+ S.draw=S.draw||{};const baseHotel=Math.max(0,(S.draw.hotel||0)-(S.dissipatorPower||0));S.draw.hotel=baseHotel;S.dissipatorPower=0;S.dissipatorRatedPower=rated;
+ let net;try{net=heatNetwork(ship,S);}catch(e){S.draw.dissipators=0;S.heat=null;return S;}
+ const converterW=net.presetPower?.combat?.coolingW||0;S.draw.hotel=baseHotel+converterW;S.draw.dissipators=converterW;S.dissipatorPower=converterW;S.fuel=fuelProfileFromStats(S);S.fuelPresets=net.fuelPresets;S.fuelHours=(net.fuelPresets?.cruise?.enduranceSeconds??0)/3600;S.fuelHoursBasis='actual-reactor-generation-and-conversion-loss';
  // v25 each preset with the S-foils deployed (as modelled) and stowed, and the band signatures of what is actually shed (SENS-001)
  const hasFoil=net.dis.some(d=>d.fo>=0),capS=net.dis.map(d=>d.cap*(d.fo>=0?d.cs:1)),sig=(e,stow)=>{const b=emitBands(net.dis,e.flow.used,stow?net.dis.map(()=>0):null);return {nu:b.nu,ir:b.ir,em:b.em};};
- const presets={};for(const pr in HEAT_PRESETS){if(HEAT_PRESETS[pr].hidden)continue;const e=heatEvaluate(net,pr);presets[pr]={name:HEAT_PRESETS[pr].name,gen:e.gen,out:e.out,cap:e.cap,used:e.used,margin:e.margin,stored:e.stored,capacityJ:e.capacityJ,limitSeconds:e.limitSeconds,endurance:e.endurance,over:e.over.slice(0,8).map(x=>({name:x.name,k:x.k,gen:x.gen,stored:x.stored,t:x.t})),overCount:e.over.length,sig:sig(e,false)};
+ const presets={};for(const pr in HEAT_PRESETS){if(HEAT_PRESETS[pr].hidden)continue;const e=heatEvaluate(net,pr),pw=net.presetPower?.[pr]||{},stored=e.stored>e.gen*1e-6?e.stored:0,need=converterShortfall(stored,pw);presets[pr]={name:HEAT_PRESETS[pr].name,gen:e.gen,out:e.out,cap:e.cap,used:e.used,margin:e.margin,stored:e.stored,capacityJ:e.capacityJ,limitSeconds:e.limitSeconds,endurance:e.endurance,
+  shortfallW:stored,pathLimited:stored>0&&e.cap>=e.gen*(1-1e-9),converterW:pw.coolingW||0,converterRequestedW:pw.coolingRequestedW||0,supplyW:pw.supplyW||0,drawW:pw.drawW||0,enginesW:pw.enginesW||0,enginesRequestedW:pw.enginesRequestedW||0,addConverterM3:need.volumeM3,addConverterW:need.powerW,addConverterCapW:need.capW,over:e.over.slice(0,8).map(x=>({name:x.name,k:x.k,gen:x.gen,stored:x.stored,t:x.t})),overCount:e.over.length,sig:sig(e,false)};
   if(hasFoil){const z=heatEvaluate(net,pr,capS);presets[pr].stow={cap:z.cap,out:z.out,margin:z.margin,stored:z.stored,overCount:z.over.length,over:z.over.slice(0,4).map(x=>({name:x.name,t:x.t})),sig:sig(z,true)};}}
  const pw=net.links.filter(l=>l.kind==='power'),ht=net.links.filter(l=>l.kind==='heat');
  const explicit=net.dis.filter(d=>d.part!=null);
@@ -68024,15 +68039,21 @@ function heatStats(ship,S){
  S.heat.powerPaths=pw.map(l=>({kind:'power',from:l.from,to:l.to,cap:l.cap,auto:l.auto,ok:l.ok,...(l.capacityGroup!=null?{capacityGroup:l.capacityGroup,groupCap:l.groupCap}:{}),...(l.routeId!=null?{routeId:l.routeId,model:'source-distance',lengthM:l.lengthM}:{}),...(l.efficiency!=null?{efficiency:l.efficiency}:{})}));
  for(let i=0;i<net.src.length;i++)S.heat.net.src[i].powerWeight=net.src[i].w;
  for(let i=0;i<net.dis.length;i++)if(net.dis[i].power>0)S.heat.net.dis[i].power=net.dis[i].power;
- S.heat.mode='strict';S.heat.dissipatorPower=rated;S.heat.feedLossW=net.src.filter(s=>s.k==='feed').reduce((n,s)=>n+(s.rated.combat||0),0);
+ S.heat.mode='strict';S.heat.dissipatorPower=S.dissipatorPower;S.heat.dissipatorRatedPower=rated;S.heat.feedLossW=net.src.filter(s=>s.k==='feed').reduce((n,s)=>n+(s.rated.combat||0),0);
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:inspectionTargets(ship,S,{code:'heat',text})});
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
  // Without a generator (「ジェネレーターがありません」, S.Vgen <= 0) the ship's own living/electronics load (hotel) has no
  // source by definition: that alone is not a second, broken-line warning. Unpowered equipment still is.
  if(S.heat.power.broken&&!(S.Vgen<=0&&net.links.filter(l=>l.kind==='power'&&!l.ok).every(l=>l.why==='no-source'&&l.to==='hotel')))warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
- if(S.heat.heat.broken)warn('warn',`接続できない熱輸送路が ${S.heat.heat.broken} 本あります（相手がない、または放熱翼に適さない廃熱）。`);
- if(c.overCount)warn('warn',`戦闘負荷で ${c.overCount} 系統の廃熱が処理しきれず蓄熱します（最短 ${f(c.over[0].t)} で出力制限）。散逸装置か熱輸送路を足してください。`);
- else if(m.overCount)warn('info',`最大出力では ${m.overCount} 系統が蓄熱します（最短 ${f(m.over[0].t)} で出力制限）。散逸装置を足すと全力運転を続けられます。`);
+ if(S.heat.heat.broken)warn('warn',`接続できない熱輸送路が ${S.heat.heat.broken} 本あります（相手の設備がありません）。`);
+ // The shortfall, the converter volume that covers it, and whether the plant can feed that converter.
+ const short=(e,label,lv,tail)=>{const t=e.over.length?e.over[0].t:e.limitSeconds,base=`${label}で廃熱 ${heatPowerText(e.gen)} に対し変換 ${heatPowerText(e.out)}、不足 ${heatPowerText(e.shortfallW)}（最短 ${f(t)} で出力制限）。`;
+  if(e.pathLimited)return warn(lv,base+'変換能力は足りています。熱輸送路を足してください。');
+  const power=e.addConverterW>Math.max(0,e.supplyW-e.drawW)*(1+1e-9)?`その消費電力 ${heatPowerText(e.addConverterW)} は反応炉の余力 ${heatPowerText(Math.max(0,e.supplyW-e.drawW))} を超え、推進・武装の出力が削られます。`:`その消費電力は ${heatPowerText(e.addConverterW)} です。`;
+  warn(lv,base+`熱エネルギー変換装置を約 ${e.addConverterM3<10?e.addConverterM3.toPrecision(2):Math.ceil(e.addConverterM3).toLocaleString('ja-JP')} m³ 追加すると解消します。`+power+tail);};
+ if(c.shortfallW>0)short(c,'戦闘負荷','warn','');
+ else if(m.shortfallW>0)short(m,'最大出力','info','追加しない場合は熱の危険を受け入れた運用になります。');
+ if(c.converterRequestedW>0&&c.converterW<c.converterRequestedW*.99)warn('warn',`戦闘負荷で熱エネルギー変換装置への給電が ${heatPowerText(c.converterRequestedW-c.converterW)} 不足し、その分の熱を変換できません。`);
  return S;
 }
 function heatDrawLinks(ship,net){const out=[];const at=id=>{if(id==null)return null;const p=id[0]==='p'?ship.parts.find(q=>'p'+q.id===id):id[0]==='f'?ship.fits.find(q=>'f'+q.id===id):null;return p?(p.c||p.p):null;};
@@ -68091,24 +68112,23 @@ function heatLegacy(p){
  const tot={};for(const s of src)if(s.k!=='sw')tot[s.k]=(tot[s.k]||0)+s.w;
  for(const s of src){s.rated={};for(const pr in W)s.rated[pr]=s.k==='sw'?W[pr].sw[s.sw]||0:s.k==='engine'?s.engineSpec?engineOperatingPoint(s.engineSpec,presetLoads[pr].engine*s.w/Math.max(1e-30,tot.engine)).wasteHeatW:presetLoads[pr].engine*s.w/Math.max(1e-30,tot.engine)*(s.wasteFraction??1):W[pr][s.k]*s.w/Math.max(1e-30,tot[s.k]);s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=0;}
  for(const pr in W)W[pr].engine=src.filter(s=>s.k==='engine').reduce((n,s)=>n+(s.rated[pr]||0),0);
- for(const [m,i]of byK('dissipator'))if(Number.isInteger(m.part)&&Number.isFinite(m.size)&&m.size>0){const cap=m.size*REACTOR_POWER_DENSITY*HEAT.disK.hdis;dis.push({k:'hdis',id:'p'+m.part,name:m.name||'散逸装置',grade:'high',cap,part:m.part,sec:sec(m),power:cap*HEAT.disPowerK.hdis});}
- for(let i=0;i<src.length;i++){const s=src[i],m=mods[s.ix],candidates=dis.map((d,j)=>({d,j})).filter(({d})=>(d.grade==='high'||s.grade==='low')&&(mods.find(q=>q.part===d.part)?.domain||'main')===(m?.domain||'main')).sort((a,b)=>Math.abs(a.d.sec-s.sec)-Math.abs(b.d.sec-s.sec)).slice(0,HEAT.autoLinks);for(const {d,j}of candidates)links.push({s:i,d:j,cap:HEAT.linkK*Math.max(s.rated.max,s.size),sec:s.sec});}
- const area=(p.zA||[]).reduce((a,b)=>a+b,0)||(p.len||100)*(p.width||35)*4;
- dis.push({k:'skin',id:'skin',name:'外殻からの放熱',grade:'low',cap:area*HEAT.skinW,sec:-1});src.forEach((s,i)=>{if(s.grade==='low')links.push({s:i,d:dis.length-1,cap:dis[dis.length-1].cap});});
+ for(const [m,i]of byK('dissipator'))if(Number.isInteger(m.part)&&Number.isFinite(m.size)&&m.size>0){const cap=m.size*REACTOR_POWER_DENSITY*HEAT.disK.hdis;dis.push({k:'hdis',id:'p'+m.part,name:m.name||'散逸装置',grade:'all',cap,part:m.part,sec:sec(m),power:cap*HEAT.disPowerK.hdis});}
+ for(let i=0;i<src.length;i++){const s=src[i],m=mods[s.ix],candidates=dis.map((d,j)=>({d,j})).filter(({d})=>(mods.find(q=>q.part===d.part)?.domain||'main')===(m?.domain||'main')).sort((a,b)=>Math.abs(a.d.sec-s.sec)-Math.abs(b.d.sec-s.sec)).slice(0,HEAT.autoLinks);for(const {d,j}of candidates)links.push({s:i,d:j,cap:HEAT.linkK*Math.max(s.rated.max,s.size),sec:s.sec});}
  const net={capacityJ:shipHeatMassKg({p})*HEAT.qAllowJPerKg,src:src.map(s=>({...s,part:s.part??null,fit:null})),dis,links:links.map(l=>({...l,sec:-1}))};
  return heatGroup(p,net,s=>s.ix??-1);
 }
 // Migrate cached thermal networks without inventing hardware. Keep existing
-// physical dissipators and their finite paths, remove retired phantom sinks,
+// physical dissipators and their finite paths, remove retired phantom sinks
+// (the hull skin is one since 2026-11-12: a cached 'skin' entry and its paths are dropped),
 // and charge their actual electrical input even if an old snapshot omitted it.
 function strictHeatProfile(raw,p){
  if(!raw||!Array.isArray(raw.src)||!Array.isArray(raw.dis))return null;
  const dis=[],index=new Map(),mods=p.modules||[];
- for(let j=0;j<raw.dis.length;j++){const d=raw.dis[j];if(!d||!Number.isFinite(d.cap)||d.cap<0)continue;const skin=d.k==='skin',m=mods[d.m],physical=Number.isInteger(d.m)&&d.m>=0&&(d.k==='radiator'?m?.k==='radiator':m?.k==='dissipator');
-  if(!skin&&(!physical||!['hdis','radiator','wing','solar'].includes(d.k)))continue;
-  const q={...d,cap:Math.max(0,d.cap),...(skin?{m:-1,g:'low',power:0}:{power:Math.max(d.cap*(HEAT.disPowerK[d.k]??HEAT.disPowerK.wing),Number.isFinite(d.power)?d.power:0)})};delete q.legacy;index.set(j,dis.length);dis.push(q);
+ for(let j=0;j<raw.dis.length;j++){const d=raw.dis[j];if(!d||!Number.isFinite(d.cap)||d.cap<0)continue;const m=mods[d.m],physical=Number.isInteger(d.m)&&d.m>=0&&(d.k==='radiator'?m?.k==='radiator':m?.k==='dissipator');
+  if(!physical||!['hdis','radiator','wing','solar'].includes(d.k))continue;
+  const q={...d,cap:Math.max(0,d.cap),g:'all',power:Math.max(d.cap*(HEAT.disPowerK[d.k]??HEAT.disPowerK.wing),Number.isFinite(d.power)?d.power:0)};delete q.legacy;index.set(j,dis.length);dis.push(q);
  }
- const ln=[];for(const l of Array.isArray(raw.ln)?raw.ln:Array.isArray(raw.links)?raw.links:[]){const d=index.get(l?.d);if(d==null||!Number.isInteger(l.s)||l.s<0||l.s>=raw.src.length||!Number.isFinite(l.cap)||l.cap<0||dis[d].g==='low'&&raw.src[l.s]?.g==='high')continue;ln.push(d===l.d?l:{...l,d});}
+ const ln=[];for(const l of Array.isArray(raw.ln)?raw.ln:Array.isArray(raw.links)?raw.links:[]){const d=index.get(l?.d);if(d==null||!Number.isInteger(l.s)||l.s<0||l.s>=raw.src.length||!Number.isFinite(l.cap)||l.cap<0)continue;ln.push(d===l.d?l:{...l,d});}
  const src=raw.src.map(({st,store,thermalStoreJ,...source})=>source);const out={...raw,v:HEAT_V,mode:'strict',capacityModel:'whole-ship-mass',src,dis,ln};strictHeatNetworks.add(out);return out;
 }
 function heatProfile(p){
@@ -68252,6 +68272,21 @@ function shipHeatRecoveryTick(u,dt,ctx){
  const h=shipHeatUpdate(u,ctx);if(!h||h.online||!(dt>0))return false;h.restartWork=Math.min(1,(h.restartWork||0)+shipHeatCrewFraction(u)*dt/300);
  if(h.restartWork>=1&&h.qJ<=.90*h.capacityJ){h.online=true;shipHeatUpdate(u,ctx);ctx?.ev?.(u,'全艦の復旧作業完了・電源再起動（熱損傷による出力上限を維持）');return true;}return false;
 }
+// Restart after a full store (user decision 2026-11-12): with no hull-skin path a blacked-out ship has
+// no powered converter and cannot cool itself, so it stays dead on its own. Only a friendly ship towing it
+// with a tractor beam (the existing 'tow' mode) can restore it: the tower takes the towed ship's stored heat
+// into its own store, up to its converters' spare rating in its last solve and never past the point where
+// its own automatic governor would start. It is offered to the tower's converters on its next solve,
+// so the tower pays the conversion power. Once the towed store is at or below 90% the ship's crew can
+// finish the ordinary restart work. Returns the joules moved.
+function towHeatRelief(tower,towed,dt){
+ if(!(dt>0)||!tower||!towed||tower===towed||tower.dead||towed.dead||tower.side!==towed.side)return 0;
+ const a=heatOf(tower),b=heatOf(towed);if(!a||!b||a.online===false||!(b.qJ>0))return 0;
+ // the tower asks its converters for the towed store spread over drainS; that reaches its next reservation
+ a.towWantW=b.qJ/Math.max(1e-9,HEAT.drainS);a.towWantAt=(a.towWantAt||0)+1;
+ const spareW=Math.max(0,(a.cap||0)-(a.emit||0)),room=Math.max(0,HEAT.governStart*a.capacityJ-a.qJ),J=Math.min(b.qJ,spareW*dt,room,a.towWantW*dt);if(!(J>0))return 0;
+ b.qJ-=J;a.qJ+=J;a.towPendingJ=(a.towPendingJ||0)+J;b.towReliefJ=(b.towReliefJ||0)+J;a.towLoadJ=(a.towLoadJ||0)+J;shipHeatUpdate(towed);return J;
+}
 function shipHeatRepairNeed(u){const h=heatOf(u);return h?clamp((1-h.damageLimit)/.40,0,1)*(1-clamp(h.repairProgress||0,0,1)):0;}
 function shipHeatRepairComplete(u,ctx){const h=heatOf(u);if(!h)return false;h.damageLimit=1;h.repairProgress=0;shipHeatUpdate(u,ctx);return true;}
 function shipHeatRepairProgress(u,fraction,ctx){
@@ -68319,14 +68354,20 @@ function heatTick(ctx,u,dt,interval=null){
  const allPending=Object.values(h.e).reduce((a,J)=>a+Math.max(0,J||0),0)+[h.engineE,h.reactorE,h.feedE,h.esw].reduce((a,row)=>a+row.reduce((b,J)=>b+Math.max(0,J||0),0),0),assigned=gen.reduce((a,W)=>a+W,0)*T,unassigned=Math.max(0,allPending-assigned);
  const integ=fleetIntegrity(u),secOk=si=>si<0||!u.sec?.[si]||!u.secLost?.includes(si)&&u.sec[si].s>=u.sec[si].max*HEAT.linkBreak,em=EMCON[emconOf(u)],fd=u.fo?.d;
  const cap=H.dis.map(d=>Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):d.k==='skin'?integ:0)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
- const cooling=h.cooling,coolingRated=H.dis.reduce((a,d)=>a+Math.max(0,d.power||0),0),reservedW=cooling?Math.max(0,cooling.reserveJ||0)/T:0,coolingNode=d=>{const m=d.m>=0?u.p.modules[d.m]:null;return d.id||m?.port||(m?.part!=null?'p'+m.part:d.m>=0?'cooling:'+d.m:null);};
+ const cooling=h.cooling,coolingRated=coolingDemandW(u,H).reduce((a,W)=>a+W,0),reservedW=cooling?Math.max(0,cooling.reserveJ||0)/T:0,coolingNode=d=>{const m=d.m>=0?u.p.modules[d.m]:null;return d.id||m?.port||(m?.part!=null?'p'+m.part:d.m>=0?'cooling:'+d.m:null);};
  for(let i=0;i<H.dis.length;i++){const d=H.dis[i];if(d.power>0){const node=coolingNode(d),reserve=cooling?.reserveByNodeJ,local=reserve&&node&&(Object.hasOwn(reserve,node)||!Object.hasOwn(reserve,'cooling'))?Math.max(0,reserve[node]||0)/T:null;cap[i]*=(h.online?1:0)*(d.m>=0?powerFactor(u,'cooling',d.m):powerFactor(u,'source-terminal'))*clamp(local==null?reservedW/Math.max(1e-30,coolingRated):local/d.power,0,1);}}
- // Common stored heat may enter every surviving installed route. Heat moves
- // inside the ship for free in this aggregate model, but only final exterior
- // rejection (r.used) reduces Q. Stopped heat sources do not sever their pipes.
- const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?Math.max(0,l.cap||0):0})),routeWeight=new Array(n).fill(0);
- for(const l of L)if(l.s>=0&&l.s<n&&cap[l.d]>0)routeWeight[l.s]+=Math.min(l.cap,cap[l.d]);
- const totalWeight=routeWeight.reduce((a,W)=>a+W,0),drain=Math.min(h.qJ/T,h.qJ/Math.max(1e-9,HEAT.drainS*em.drain)),D=gen.map((W,i)=>W+(totalWeight>0?drain*routeWeight[i]/totalWeight:0)),r=heatSolve(D,cap,L);
+ // Heat moves inside the ship for free in this aggregate model, but only final
+ // exterior rejection (r.used) reduces Q. What the sources make now goes through
+ // their finite installed paths; the common stored heat (offered at qJ/drainS)
+ // then reaches the spare capacity of every working converter directly
+ // (2026-11-12: before, the hull skin's unlimited low-grade path carried it).
+ // The converters' own electrical input (with the reactor and feed losses that
+ // fund it) is put into the store as it is drawn; the next solve offers that
+ // much again on top of qJ/drainS, so a converter's own heat does not pile up
+ // behind the 20 s drain (the store holds well under a second of ship heat).
+ const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?Math.max(0,l.cap||0):0}));
+ const drain=Math.min(h.qJ/T,h.qJ/Math.max(1e-9,HEAT.drainS*em.drain)+Math.max(0,h.coolingSelfW||0)+Math.max(0,h.towPendingJ||0)/T),r=heatSolve(gen,cap,L);h.towPendingJ=0;if(h.towWantAt)h.towWantAt=0;else h.towWantW=0;
+ {const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,W)=>a+W,0),take=Math.min(drain,room);if(take>0)for(let j=0;j<spare.length;j++)r.used[j]+=take*spare[j]/room;}
  h.emit=r.used.reduce((a,W)=>a+W,0);h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,W)=>a+W,0);h.sourceGenerationW=gen.slice();h.sourceFlowW=r.out.slice();h.linkFlowW=r.flow.slice();h.dissipatorFlowW=r.used.slice();let coolingHeat=0;
  if(cooling){const inputs=H.dis.map((d,i)=>d.power>0&&d.cap>0?r.used[i]*d.power/d.cap*T:0),want=inputs.reduce((a,J)=>a+J,0),input=h.online?Math.min(cooling.reserveJ||0,want):0,scale=want>0?input/want:0;let reactorHeat=0,sourceInput=0,feedHeat=0;
   for(let j=0;j<H.dis.length;j++){const J=inputs[j]*scale,node=coolingNode(H.dis[j]),key=node&&Object.hasOwn(cooling.reserveByNodeJ||{},node)?node:'cooling',received=Math.max(0,cooling.reserveByNodeJ?.[key]??cooling.reserveJ??0),bySource=cooling.reserveByNodeSourceJ?.[key],byFeed=cooling.reserveByNodeFeedJ?.[key],fraction=received>0?clamp(J/received,0,1):0;
@@ -68334,7 +68375,7 @@ function heatTick(ctx,u,dt,interval=null){
    else if(J>0){sourceInput+=J;reactorHeat+=reactorInputHeat(h,H,null,J,true);}
    if(byFeed&&fraction>0)feedHeat+=accrueFeedHeat(h,H,Object.entries(byFeed).map(([routeId,reservedJ])=>({routeId,heatW:Math.max(0,reservedJ)*fraction})),1,true);
   }
-  h.qJ+=input;coolingHeat=input+reactorHeat+feedHeat;cooling.inputJ=(cooling.inputJ||0)+input;cooling.heatJ=(cooling.heatJ||0)+input;cooling.sourceInputJ=(cooling.sourceInputJ||0)+sourceInput;cooling.feedLossJ=(cooling.feedLossJ||0)+feedHeat;cooling.reactorWasteJ=(cooling.reactorWasteJ||0)+reactorHeat;cooling.handledJ=(cooling.handledJ||0)+r.used.reduce((a,W,i)=>a+(H.dis[i].power>0?W*T:0),0);cooling.lastDraw=input/T;cooling.lastSourceDraw=sourceInput/T;cooling.reserveJ=0;cooling.reserveByNodeJ={};cooling.reserveByNodeSourceJ={};cooling.reserveByNodeFeedJ={};
+  h.qJ+=input;coolingHeat=input+reactorHeat+feedHeat;h.coolingSelfW=coolingHeat/T;cooling.inputJ=(cooling.inputJ||0)+input;cooling.heatJ=(cooling.heatJ||0)+input;cooling.sourceInputJ=(cooling.sourceInputJ||0)+sourceInput;cooling.feedLossJ=(cooling.feedLossJ||0)+feedHeat;cooling.reactorWasteJ=(cooling.reactorWasteJ||0)+reactorHeat;cooling.handledJ=(cooling.handledJ||0)+r.used.reduce((a,W,i)=>a+(H.dis[i].power>0?W*T:0),0);cooling.lastDraw=input/T;cooling.lastSourceDraw=sourceInput/T;cooling.reserveJ=0;cooling.reserveByNodeJ={};cooling.reserveByNodeSourceJ={};cooling.reserveByNodeFeedJ={};
   if(u.pw){u.pw.cooling=cooling.lastDraw;u.pw.coolingSource=cooling.lastSourceDraw;u.pw.fixed=Math.max(0,(u.p.grid?.fixed||0)-(u.p.grid?.cooling||0))+cooling.lastDraw;u.pw.draw=(u.pw.drawNonCooling||0)+cooling.lastSourceDraw;u.load=u.pw.P>0?u.pw.draw/u.pw.P:0;}
  }
  const generated=gen.reduce((a,W)=>a+W,0)*T+unassigned,rejected=Math.min(h.qJ+generated,h.emit*T);h.qJ=Math.max(0,h.qJ+generated-rejected);h.operatingHeatJ=(h.operatingHeatJ||0)+generated+coolingHeat;h.rejectedHeatJ=(h.rejectedHeatJ||0)+rejected;
@@ -68391,7 +68432,15 @@ function squadHeatStep(s,H,firing,battle,dt){H=H||CRAFT_HEAT.def;s.foil=H.T>0?cl
 // ============================================================
 const WING={
  expose:.85,
- highW:5e15,lowW:2.5e14, // provisional W/m² of the actual wing surface; fictional technology
+ // A wing's surface IS its heat-energy converter and discharge device (user decision 2026-11-12), not a
+ // passive radiator: capacity = exposed discharge area × the hdis converter density × dischargeDepthM.
+ // Calibrated on the X-wing (second user decision 2026-11-12: the S-foils must matter): 5.0e15 W/m², a
+ // converter layer 0.477 mm deep, so its four foils open (3.95e17 W) plus its reduced 0.0219 m³ hdis
+ // (2.29e17 W) cover combat heat 1.5× and, stowed (× WING.stowK.wing), fall 12% short of it while still
+ // covering cruise. A wing's converter material (that layer) carries hdis mass and price per m³ (wingConverterM3).
+ // dischargeK keeps the relative strengths of the 'low' wing (disK.radiator/disK.hdis = 0.05) and of a
+ // solar collector panel (0.078). Fictional technology.
+ dischargeDepthM:4.773722031961334e-4,dischargeK:{wing:1,radiator:.05,solar:.078},
  stowK:{hdis:1,wing:.35,radiator:.4},
  shade:{hdis:.25,wing:.6,radiator:.6},
  rho:.6,            // structural mass of a wing, × the ship's mean density × its volume (light structures ¼)
@@ -68611,7 +68660,7 @@ function aeroPanelRibs(p){
 }
 // v24 Collector panels shed about 1.05 times the TIE/ln's full-thrust heat (they shed 6.4 times before),
 // so a craft's sustained thrust sits close to its cooling limit.
-const SOLAR={W:6e14,disW:3.9e14};
+const SOLAR={W:6e14}; // W per m² of one collecting face; the panel's cooling is a wing discharge surface (wingCap)
 function normalizeAeroPart(p){
  if(!p)return p;
  if(p.k==='struct'&&p.wing)p.k=p.wing.solar?'solarPanel':'wing';
@@ -68646,9 +68695,18 @@ function migrateAeroParts(o){
 }
 function solarArea(p){return isAeroPart(p)?aeroArea(p):isShapePart(p)?partArea(p)/2:0;}
 function solarPower(p){return p?.wing?.solar?solarArea(p)*SOLAR.W:0;}
-function solarCap(p,S){return p?.wing?.solar?solarArea(p)*2*SOLAR.disW*clamp(S?.info?.[p.id]?.exposed??1,.25,1):0;}
+function solarCap(p,S,ex){return p?.wing?.solar?wingCap(p,S,ex):0;}
+// Discharge surface of a wing (m², both faces): an aero wing's planform twice, a solar panel's cell area
+// twice, any other wing shape its whole surface.
+function wingDischargeArea(p){return p?.wing?.solar?solarArea(p)*2:isAeroPart(p)?aeroArea(p)*2:partArea(p);}
+function wingDischargeKind(p){return p?.wing?.solar?'solar':p?.wing?.thermal==='low'?'radiator':'wing';}
+function wingDischargeW(){return REACTOR_POWER_DENSITY*HEAT.disK.hdis*WING.dischargeDepthM;}
+// The converter material a wing carries: the equivalent hdis volume of its full rating (exposure 1).
+function wingConverterM3(p){return isWing(p)?wingDischargeArea(p)*WING.dischargeDepthM*(WING.dischargeK[wingDischargeKind(p)]??1):0;}
 function solarStats(ship,S){let P=0;for(const p of ship.parts)P+=solarPower(p);S.solarPower=P;if(P>0){S.power=(S.power||0)+P;if(S.reactorSplit)S.reactorSplit={...S.reactorSplit,aux:(S.reactorSplit.aux||0)+P};}return S;}
-function wingCap(p,S,ex){if(!isWing(p))return 0;if(p.wing.solar)return solarCap(p,S);const e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1),area=isAeroPart(p)?aeroArea(p)*2:partArea(p);return area*(p.wing.thermal==='low'?WING.lowW:WING.highW)*e;}
+// Exposed discharge area × the converter rating per m². A stowed S-foil's masked faces lower it further
+// in the heat network (WING.stowK), so an S-foil's capacity follows its deployment.
+function wingCap(p,S,ex){if(!isWing(p))return 0;const e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1);return wingDischargeArea(p)*wingDischargeW()*(WING.dischargeK[wingDischargeKind(p)]??1)*e;}
 // Migrate the retired external-box model before the normal loader filters unknown catalogue kinds.
 // Nested boxes become their host wing's function. Standalone boxes keep their shape, ID and links as wings.
 function migrateExternalDissipators(o){
@@ -68795,8 +68853,9 @@ function wingStatsRaw(ship,S){
   const mDis=M.parts.filter(q=>DISSIPATORS[q.k]).reduce((n,q)=>n+partVolume(q)*rho,0)+m0*.3,mCarry=M.parts.concat(M.structs).reduce((n,q)=>n+partVolume(q)*rho*(isShapePart(q)?WING.rho:1),0);
   const feed=mDis*WING.feedK*W.feed,reinf=m0*WING.reinfK*W.reinf,b=wingBounds(w),span=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]);
   const Tref=WING.actT*Math.sqrt(Math.max(.1,span)/10),act=W.foil?(m0+mCarry)*WING.actK*Math.sqrt(Tref/Math.max(.1,W.T)):0,sweep=W.foil?foilSweep(ship,w):null;
-  extra+=feed+reinf+act;
-  out.push({id:w.id,name:partLabel(w),foil:!!W.foil,solar:!!W.solar,solarP:solarPower(w),area:solarArea(w),vol:V,mass:m0,feed:W.feed,feedMass:feed,reinf:W.reinf,reinfMass:reinf,act,T:W.foil?W.T:0,axis:W.axis||null,stow:W.stow??null,open:W.open??null,
+  const convM3=wingConverterM3(w),convMass=convM3*(PARTS.hdis?.dens||0);
+  extra+=feed+reinf+act+convMass;
+  out.push({id:w.id,name:partLabel(w),foil:!!W.foil,solar:!!W.solar,solarP:solarPower(w),area:solarArea(w),vol:V,mass:m0,converterM3:convM3,converterMass:convMass,feed:W.feed,feedMass:feed,reinf:W.reinf,reinfMass:reinf,act,T:W.foil?W.T:0,axis:W.axis||null,stow:W.stow??null,open:W.open??null,
    pivot:W.foil?wingPivot(ship,w).map(v=>+v.toFixed(2)):null,span,jamAt:WING.jamAt*(1-.5*W.reinf),dis:ds.map(d=>({id:d.part,k:d.k,cap:d.cap,capS:d.cap*(d.cs??1)})),capOpen:capO,capStow:capS,
    parts:M.parts.map(q=>q.id),structs:M.structs.map(q=>q.id),fits:M.fits.map(f=>f.id),hits:sweep?.hits||[]});}
  S.wings=out;S.wingMass=extra;
@@ -68895,7 +68954,7 @@ initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceShell,fleetPrepareCollision,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
  withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
-   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT,
+   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT, converterPowerW, converterShortfall, coolingDemandW, towHeatRelief, wingConverterM3, wingDischargeArea, wingDischargeW,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   loadedShipProfile, motionMassKg, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, EXAMPLE_PROFILE_VERSION, profileModelKey, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
   HYPERSPACE_ENTRY_SPEED_FRACTION, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep,
@@ -70906,6 +70965,7 @@ function tractorTick(w, u, dt) {
   return;
  }
  t.pos = add(u.pos, frameVec([Math.cos(u.yaw), 0, Math.sin(u.yaw)], tr.off));t.velocity = [...u.velocity];t.yaw = u.yaw + (tr.dyaw || 0);
+ if (tr.mode === 'tow' && t.side === u.side) C.towHeatRelief(u, t, dt);
  if (tr.mode === 'capture' && t.side !== u.side) {
   boardTractor(w, u, t, tr, dt);
  }
