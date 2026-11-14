@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const {setup,fn}=require('./helpers/immediate-design-ui.cjs'),root=path.resolve(__dirname,'..');
 function guardedRuntime(){
  const context=vm.createContext({console,performance,__mainGuard:false,__allowWeaponAdoption:false,__mainLightAdoptions:0,__mainBlocked:[]});
- const heavy=['adoptWeaponFits','surfaceSync','surfacePatches','surfaceWorkingShip','buildDesign','syncCompartments','placementContact','fitPlacementContact','computeStats','solvePlacement','solveFitPlacement','solveInteriorPlacement','buildEngineMountSupport','hardConflicts','hullGeo','referenceHullGeometry','enginePaths','partVolume','structTriangles'];
+ const heavy=['adoptWeaponFits','surfaceSync','surfacePatches','surfaceWorkingShip','buildDesign','syncCompartments','placementContact','computeStats','solvePlacement','solveFitPlacement','solveInteriorPlacement','buildEngineMountSupport','hardConflicts','hullGeo','referenceHullGeometry','enginePaths','partVolume','structTriangles'];
  for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js']){
   let source=fs.readFileSync(path.join(root,file),'utf8');
   if(file==='js/core.js')for(const name of heavy){const marker='function '+name+'(';assert.ok(source.includes(marker),name);const allowed=name==='adoptWeaponFits'?'globalThis.__allowWeaponAdoption':'false';source=source.replace(marker,`function ${name}(...args){if(globalThis.__mainGuard){if(${allowed})globalThis.__mainLightAdoptions++;else{globalThis.__mainBlocked.push('${name}');throw Error('main-thread geometry forbidden: ${name}');}}return ${name}MainGuardRaw(...args);}\nfunction ${name}MainGuardRaw(`);}

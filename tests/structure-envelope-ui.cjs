@@ -87,7 +87,7 @@ test('planned dimensions and ordinary structure armor controls translate fully i
 
 test('ordinary structures retain their skin and shape controls and expose only six armor-thickness values',()=>{
  const {run}=setup(),before=plain(run('ship.parts[0]')),html=run('partEditor()');
- assert.match(html,/data-editform=/);assert.match(html,/data-editplate="frame"/);assert.match(html,/data-partskin=/);assert.match(html,/data-bands/);assert.match(html,/data-meshconvert/);
+ assert.match(html,/data-editform=/);/* 2026-11-14 user decision: no kinds of structure (light, plate) to choose from */assert.doesNotMatch(html,/data-editplate=|data-structplate=|軽構造|装甲外板/);assert.match(html,/data-partskin=/);assert.match(html,/data-bands/);assert.match(html,/data-meshconvert/);
  assert.match(html,/data-structure-face-armor-editor/);assert.match(html,/0.3 m以下/);
  const inputs=html.match(/<input\b[^>]*data-structure-face-armor="[^"]+"[^>]*>/g)||[];assert.equal(inputs.length,6);
  const faces=inputs.map(tag=>tag.match(/data-structure-face-armor="([^"]+)"/)[1]);assert.deepEqual(faces,['top','bottom','fore','aft','port','stbd']);

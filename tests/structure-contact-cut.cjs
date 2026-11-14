@@ -82,16 +82,19 @@ test('underside height editing grows downward while keeping the top fixed',()=>{
  for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,-100,0],[0,1,0],part).p[1],-60);near(C.rayPart([x,30,0],[0,-1,0],part).p[1],0);}closedPositive(part);
 });
 
-test('dependency refresh clamps a translation away from the parent to the last real contact',()=>{
+// 2026-11-14 user report (replaces a clamp test): a user's move is taken as it is; contact alone decides, and a part
+// that touches nothing is red where the user put it. The clamp to the tapped body pulled parts back.
+test('a part moved away from its body stays where the user put it and is red; saved and loaded the same',()=>{
  const ship=fixture(),r=solve(ship);assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,id=part.id,before=C.publicJSON(ship.parts[0]),size=plain(part.s);part.c=[0,100,0];
- const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(part.id,id);assert.equal(C.publicJSON(ship.parts[0]),before);assert.deepEqual(plain(part.s),size);near(part.c[0],0);near(part.c[2],0);assert.ok(part.c[1]<20&&part.c[1]>19.98,'a point-only apex contact must remain slightly inside the last valid contact boundary');assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);assert.deepEqual(plain(part.placement.requestedGeometry.c),plain(part.c));near(C.partVolume(part.placement.requestedGeometry),4000,.003);assert.ok(C.partVolume(part)>0&&C.partVolume(part)<=4000+.003);closedPositive(part);
- const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),plain(part.c));assert.deepEqual(plain(saved.s),size);near(C.partVolume(saved),C.partVolume(part));assert.equal(C.placementDiagnostics(loaded).find(q=>q.partId===id).connected,true);closedPositive(saved);
+ const refreshed=C.refreshPlacementGeometry(ship);assert.deepEqual(plain(part.c),[0,100,0]);assert.ok(refreshed.failed.some(q=>q.partId===id&&q.code==='contact-zero'),JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(ship.parts[0]),before);assert.deepEqual(plain(part.s),size);near(C.partVolume(part),4000,.003);closedPositive(part);
+ const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),[0,100,0]);assert.deepEqual(plain(saved.s),size);assert.ok(C.refreshPlacementGeometry(loaded).failed.some(q=>q.partId===id));closedPositive(saved);
 });
 
-test('dependency refresh stops a lateral drag at the parent edge instead of leaving the child floating',()=>{
- const ship=fixture(),r=solve(ship);assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,id=part.id,before=C.publicJSON(ship.parts[0]),size=plain(part.s);part.c=[100,10,0];
- const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(part.id,id);assert.equal(C.publicJSON(ship.parts[0]),before);assert.deepEqual(plain(part.s),size);assert.ok(part.c[0]<20&&part.c[0]>19.98,'the finite child must stop before its final edge contact disappears: '+part.c[0]);near(part.c[1],10);near(part.c[2],0);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);assert.deepEqual(plain(part.placement.requestedGeometry.c),plain(part.c));near(C.partVolume(part.placement.requestedGeometry),4000,.003);assert.ok(C.partVolume(part)>0&&C.partVolume(part)<=4000+.003);closedPositive(part);
- const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),plain(part.c));near(C.partVolume(saved),C.partVolume(part));assert.equal(C.placementDiagnostics(loaded).find(q=>q.partId===id).connected,true);
+// 2026-11-14 user report (replaces a clamp test): a user's move is taken as it is; contact alone decides, and a part
+// that touches nothing is red where the user put it. The clamp to the tapped body pulled parts back.
+test('a part dragged sideways off its body stays where the user put it and is red',()=>{
+ const ship=fixture(),r=solve(ship);assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,id=part.id,before=C.publicJSON(ship.parts[0]);part.c=[100,10,0];
+ const refreshed=C.refreshPlacementGeometry(ship);assert.deepEqual(plain(part.c),[100,10,0]);assert.ok(refreshed.failed.some(q=>q.partId===id&&q.code==='contact-zero'),JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(ship.parts[0]),before);near(C.partVolume(part),4000,.003);closedPositive(part);
 });
 
 test('dependency refresh keeps a deeper position without lifting the child roof back up',()=>{
@@ -99,11 +102,11 @@ test('dependency refresh keeps a deeper position without lifting the child roof 
  const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(part.id,id);assert.equal(C.publicJSON(ship.parts[0]),before);assert.deepEqual(plain(part.s),size);assert.deepEqual(plain(part.c),[0,5,0]);assert.deepEqual(plain(part.placement.requestedGeometry.c),[0,5,0]);near(C.partVolume(part),4000,.003);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);for(const x of [-8,-4,0,4,8]){near(C.rayPart([x,100,0],[0,-1,0],part).p[1],15);near(C.rayPart([x,-30,0],[0,1,0],part).p[1],-5);}closedPositive(part);
  const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),[0,5,0]);near(C.partVolume(saved),4000,.003);closedPositive(saved);
 });
-test('a translation stops at an opening instead of jumping across it to another valid contact',()=>{
+// 2026-11-14 user report (replaces a clamp test): a user's move is taken as it is; contact alone decides, and a part
+// that touches nothing is red where the user put it. The clamp to the tapped body pulled parts back.
+test('a part moved across an opening to the other side of a ring goes there and is connected',()=>{
  const parent=ringParent(),ship=fixture(parent),input=child([-10,4,0],[4,4,8]),hit=C.rayPart([-10,100,0],[0,-1,0],parent);near(C.partVolume(parent),7500);closedPositive(parent);const r=solve(ship,input,{hit});assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,before=C.publicJSON(parent),id=part.id;near(C.partVolume(part),128);
- // The destination is supported by the other side of the ring, but the
- // continuous drag first loses all contact over the 10m-wide opening.
- part.c=[10,4,0];const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(parent),before);assert.ok(part.c[0]<-3&&part.c[0]>-3.02,'the child must stop at the first hole edge');near(part.c[1],4);near(part.c[2],0);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);assert.deepEqual(plain(part.placement.requestedGeometry.c),plain(part.c));near(C.partVolume(part),128);closedPositive(part);
+ part.c=[10,4,0];const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,true,JSON.stringify(refreshed.failed));assert.equal(C.publicJSON(parent),before);assert.deepEqual(plain(part.c),[10,4,0]);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);near(C.partVolume(part),128);closedPositive(part);
 });
 
 test('contact cutting is rejected for interior rooms, ordinary exterior equipment and surface placement',()=>{
@@ -124,10 +127,10 @@ test('unpositioned legacy catalog placement and unmarked old saves retain their 
  const legacy=fixture(plain(parent)),authored={id:2,k:'struct',form:'wedge',c:[2,7,0],s:[12,8,6],yaw:17,pitch:3,roll:2};legacy.parts.push(authored);legacy.nextId=3;const old=C.deserialize(plain(C.serialize(legacy))),unchanged=old.parts.find(p=>p.id===2);assert.equal(unchanged.placement,undefined);for(const key of ['form','c','s','yaw','pitch','roll'])assert.deepEqual(plain(unchanged[key]),plain(authored[key]),key);near(C.partVolume(unchanged),C.partVolume(authored),.003);
 });
 
-test('a concave outline can slide along real support and clamps at its final contact without filling its notch',()=>{
+test('a concave outline can slide along real support; moved past the body it stays there without filling its notch',()=>{
  const parent={id:1,k:'struct',form:'box',c:[0,0,0],s:[120,120,40]},ship=fixture(parent),outline=[[-.5,-.5],[.5,-.5],[.5,0],[0,0],[0,.5],[-.5,.5]],input={...child([0,25,0],[20,20,10]),form:'outline',outline,corner:0,taper:0},hit=C.rayPart([0,100,0],[0,-1,0],parent),r=solve(ship,input,{hit});assert.equal(r.ok,true,r.error);const accepted=C.acceptPlacementResult(ship,r);assert.equal(accepted.ok,true,accepted.error);const part=accepted.part,id=part.id,before=C.publicJSON(parent);near(C.partVolume(part),3000);assert.equal(C.inPart(part,[8,25,8]),false);closedPositive(part);
  part.c=[2,25,0];const short=C.refreshPlacementGeometry(ship);assert.equal(short.ok,true,JSON.stringify(short.failed));assert.deepEqual(plain(part.c),[2,25,0]);near(C.partVolume(part),3000);assert.equal(C.inPart(part,[10,25,8]),false);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);
- part.c=[100,25,0];const far=C.refreshPlacementGeometry(ship);assert.equal(far.ok,true,JSON.stringify(far.failed));assert.ok(part.c[0]<70&&part.c[0]>69.98,'the real concave footprint must stop at its last contact: '+part.c[0]);near(part.c[1],25);near(part.c[2],0);assert.equal(C.publicJSON(parent),before);assert.equal(part.form,'outline');assert.deepEqual(plain(part.outline),outline);assert.deepEqual(plain(part.s),[20,20,10]);assert.equal(C.inPart(part,[part.c[0]+8,25,8]),false);near(C.partVolume(part),3000,.003);assert.equal(C.placementDiagnostics(ship).find(q=>q.partId===id).connected,true);closedPositive(part);
+ /* 2026-11-14 user report: no clamp; moved past the body it stays there, red, with its notch */part.c=[100,25,0];const far=C.refreshPlacementGeometry(ship);assert.deepEqual(plain(part.c),[100,25,0]);assert.ok(far.failed.some(q=>q.partId===id&&q.code==='contact-zero'),JSON.stringify(far.failed));assert.equal(C.publicJSON(parent),before);assert.equal(part.form,'outline');assert.deepEqual(plain(part.outline),outline);assert.deepEqual(plain(part.s),[20,20,10]);assert.equal(C.inPart(part,[part.c[0]+8,25,8]),false);near(C.partVolume(part),3000,.003);closedPositive(part);
  const loaded=C.deserialize(plain(C.serialize(ship))),saved=loaded.parts.find(p=>p.id===id);assert.deepEqual(plain(saved.c),plain(part.c));assert.deepEqual(plain(saved.outline),outline);near(C.partVolume(saved),3000,.003);closedPositive(saved);
 });
 

@@ -21,7 +21,7 @@ const plans={
  recusant:{recProw:1,recTwin:1,recKeel:1,refVen:4,pd:30,monCal34:26,monCalPD:10},
  recusantDn:{stl:9,refVen:21,pd:90,monCal34:24},
  lucrehulk:{monCalPD:4,monCal34:28,quad1Rapid:14,trc:6},
- subjugator:{monCalPD:400,monCal34:700,monCal80:20,monCal200Triple:20,cmsl:10,trc:2}
+ /* 2026-11-14 user decision: the dorsal point-defence pair on the nose of the armoured blister is left out (400 -> 398) */subjugator:{monCalPD:398,monCal34:700,monCal80:20,monCal200Triple:20,cmsl:10,trc:2}
 };
 for(const [key,counts] of Object.entries(plans))test(`${key} preserves its curated weapon roster and native spherical seats`,()=>{
  const s=ship(key),weapons=s.fits.filter(f=>C.FITS[f.k]?.cat==='w');

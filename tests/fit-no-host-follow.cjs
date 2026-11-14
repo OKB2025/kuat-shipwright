@@ -143,3 +143,19 @@ test('H-C / M-D: a bridge module on a deck edge over a lower deck, on 50Â° / 40Â
   const top=C.rayEnv(s,[c.x,500,0],[0,-1,0],{structOnly:true});s.fits.push({id:9,k:'brS',p:Array.from(top.p),n:[0,1,0],a:2,ped:.3});C.remount(s);const want=st(s.fits[0]),m0=C.computeStats(s).mass;
   const L=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));C.syncCompartments(L);C.remount(L,{keepFitPose:true});assert.equal(st(L.fits[0]),want,name);near(C.computeStats(L).mass,m0,1e-6*m0);}
 });
+
+// 2026-11-14 user decision: a weapon that cannot function gives no performance. A fitting whose seat is an ungrounded
+// (red) structure counts as floating, like engines and sensors on a body that is not grounded; grounded again, it works.
+for(const anchored of [false,true])test(`a ${anchored?'placed (anchored)':'plain'} weapon on an ungrounded structure does not function; grounded again it does`,()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'loose');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20]}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});s.armor={hull:0,cit:0};C.refreshPlacementGeometry(s);
+ const hit=C.rayPart([100,500,0],[0,-1,0],s.parts[0]),c=[100,hit.p[1]+5,0],r=C.solvePlacement(s,{id:2,k:'struct',form:'box',c,s:[40,40,10],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);s.parts.push(r.part);s.nextId=3;C.refreshPlacementGeometry(s);
+ const top=C.rayPart([100,500,0],[0,-1,0],s.parts[1]);if(anchored)place(s,2,Array.from(top.p));else{s.fits.push({id:9,k:'pd',p:Array.from(top.p),n:[0,1,0],a:2,ped:.3});s.nextId=10;}C.remount(s,{keepFitPose:true});
+ const f=s.fits[0],working=C.computeStats(s);assert.equal(f.float,false);assert.equal(working.floatFits||0,0);const p0=JSON.stringify(f.p);
+ // The deck is moved away: the structure under the weapon is no longer grounded.
+ s.parts[0].c=[100,-300,0];s._cache=null;C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});
+ assert.equal(s.parts[1]._placementError,'contact-zero','the structure is red');assert.equal(f.float,true,'the weapon counts as floating');assert.equal(f._onLoose,true);assert.equal(JSON.stringify(f.p),p0,'it is not moved');
+ const idle=C.computeStats(s);assert.equal(idle.floatFits,1);assert.ok((idle.aa||0)<(working.aa||0)||(idle.weaponCrew||0)<(working.weaponCrew||0),'it gives no performance');
+ const G={warnings:[]};C.groundingStats(s,G);assert.deepEqual(Array.from(G.ungrounded.fits),[f.id],'reported as standing on ungrounded structures');
+ // Grounded again: it functions again, where it was.
+ s.parts[0].c=[100,10,0];s._cache=null;C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.equal(f.float,false);assert.equal(f._onLoose,undefined);assert.equal(JSON.stringify(f.p),p0);assert.equal(C.computeStats(s).floatFits||0,0);
+});

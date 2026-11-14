@@ -2973,7 +2973,7 @@ function hintText() {
       const spec=activeEquipment();if(spec)return `面をタップして${spec.name}を配置${spec.k==='engine'?'（実給電で推力が変化）':''}`;
       if(st.part==='struct'&&isSponsonPlacement())return '壁をタップして水平な張出し砲座を作る';
       const k = st.part, nm = C.PARTS[k].name;
-      if (C.isShapeKind(k)) return `面をタップして${k==='struct'&&st.structPlate ? '装甲外板' : k==='struct'&&st.structLight ? '軽構造' : C.PARTS[k].name}（${st.structSize.map(v => num(v,3)).join('×')} m${k==='struct'&&st.structPlate ? `・装甲 ${num(st.structPlateT, 1)} m` : ''}）を据える`;
+      if (C.isShapeKind(k)) return `面をタップして${C.PARTS[k].name}（${st.structSize.map(v => num(v,3)).join('×')} m）を据える`;
       const size=C.PARTS[k].shape==='cube'?(st.roomSize||[120,60,24]).map(v=>num(v,2)).join('×')+' m':fmtM(pSize(k));return `面をタップして${nm}（${size}・${C.partPlacementMode(k)==='inside'?'内蔵':'露出'}）を置く`;
     }
     case 'select': return st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
@@ -3007,7 +3007,7 @@ function unalignedPartPreview(hit) {
     const [l, w, hh] = st.structSize, n = hit.n, ax = Math.abs(n[1]) >= Math.abs(n[2]) && Math.abs(n[1]) >= Math.abs(n[0]) ? 1 : Math.abs(n[2]) >= Math.abs(n[0]) ? 2 : 0;
     const ext = [l / 2, hh / 2, w / 2][ax], c = hit.p.slice();
     if (hit.kind !== 'section') c[ax] += Math.sign(n[ax] || 1) * ext * 0.6;
-    const part={id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{wingTipSide:st.wingTipSide??1})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(k==='struct'&&st.structPlate?{plate:true,plateT:st.structPlateT}:k==='struct'&&st.structLight?{light:true}:{})};
+    const part={id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{wingTipSide:st.wingTipSide??1})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{})};
     const cap=typeof designPlacementActive==='function'&&designPlacementActive()?designCapability(part):null,mode=cap?.kind==='structure'?(cap.allowedModes.includes(designUI.mode)?designUI.mode:cap.allowedModes[0]):st.surfaceMode;
     if(cap?.kind==='structure'&&['horizontal','vertical'].includes(mode)&&!hit.rootPlane)return designStructureCutPreview(part,hit,mode,designUI.contactSide);
     return C.alignStructure(part,hit,mode);
@@ -3336,8 +3336,6 @@ function partInfoHTML(pt) {
   if(['engine','engineCore'].includes(pt.k)){const r=C.reactorFor(ship,pt);h+=`<div class="ins-row">${r?'接続炉 #'+r.id:'炉に未接続'}</div>`;}
   if (pt.k === 'engine' && inf) h += `<div class="ins-row">${inf.vent ? '噴射口が開いています' : '噴射口が塞がり推力ゼロ'}</div>`;
   if (inf && !C.isShapePart(pt)) h += `<div class="ins-row">船体内 ${fPct(inf.inside)}・表面の露出 ${fPct(inf.exposed)}${inf.detached ? '・<span class="neg">接地した本体に接していないため機能しません</span>' : inf.overlap ? '・<span class="neg">他の区画と重なっています</span>' : ''}</div>`;
-  if (pt.k === 'struct' && pt.plate) h += `<div class="ins-row">装甲外板・厚さ ${num(C.plateThickness(pt), 1)} m${inf ? `・表面の露出 ${fPct(inf.exposed)}` : ''}<br>武装・艦橋ポッドは取り付けられません</div>`;
-  else if (pt.k === 'struct' && pt.light) h += `<div class="ins-row">軽構造・質量と強度は通常の構造物の ¼</div>`;
   return h;
 }
 
@@ -4540,7 +4538,9 @@ function assignMirror(target, q) {
   Object.assign(target, q, {id}); delete target.tw; delete target.vt;
   if (tw != null) target.tw = tw; if (vt != null) target.vt = vt;
 }
-function refreshFitSupport(f){if(C.isShipLauncher?.(f))C.mountFit(editorMountShip(),f);else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')C.mountFit(editorMountShip(),f);else C.normalizeFitMount(f);}
+// Audit 2026-11-14: a setting change rebuilds the support where the fitting is (keep pose). It used to seat the fitting
+// again along its axis, so a floating weapon dropped onto whatever was below when its pedestal slider was touched.
+function refreshFitSupport(f){const mount=()=>{const sh=editorMountShip(),keep=sh._keepFitPose;sh._keepFitPose=true;try{C.mountFit(sh,f);}finally{if(keep)sh._keepFitPose=keep;else delete sh._keepFitPose;}};if(C.isShipLauncher?.(f))mount();else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')mount();else C.normalizeFitMount(f);}
 function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;refreshFitSupport(to); }
 // Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
 // (tw: across the centreline, vt: top/bottom). Edits follow those links unless
@@ -4605,7 +4605,7 @@ function carryToPlace() {
     else if (spec) { st.group = spec.group; st.part = it.k; st.equipmentId = spec.id; if (it.k === 'engine') st.engineSizes[spec.id] = {d: it.d, engineLength: it.engineLength}; }
     else {
       st.equipmentId = null; st.part = it.k; if (st.tab === 'mod') st.group = C.PARTS[it.k].group;
-      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());if(it.k==='wing')st.wingTipSide=C.wingTipSide(it);for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
+      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());if(it.k==='wing')st.wingTipSide=C.wingTipSide(it);for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
       else if (it.room) st.roomSize = it.room.slice(); else if (it.d) setPSize(it.k, it.d);
       if (['engine','engineCore'].includes(it.k) && it.dir) st.engineDir = it.dir.slice();
       if(it.k==='engineCore')st.engineCoreSpec={...engineSpecSnapshot(it),length:it.length};
@@ -5871,14 +5871,9 @@ function structureControls(p,selected){
     ${form==='shell'?`<label class="check-row"><input type="checkbox" data-shellflip="${prefix}" ${p.shellFlip?'checked':''}> 内縁を右舷側に置く（板の向きを左右反転）</label>`:''}
     <p class="note">${form==='outline'?'配置後、輪郭の頂点・前後の甲板傾斜・左右への下げ量を編集できます。':['loft','roundloft'].includes(form)?'配置後、前後断面の幅・天井・床と上端の左右絞りを編集できます。':form==='shell'?'内縁（上端）から外縁（下端）へ湾曲して下がる薄い外殻板です。左右対称で置くと左右一対の板になり、配置後は前後の断面ごとに板の幅・内縁と外縁の高さ・左右位置を変えて、木の葉形などに形を変えられます。反りを 0 にすると平板、負の値で内側へ凹みます。':'傾斜角は垂直からの角度。正の値で内側へ絞ります。各壁は独立して調整できます。'}</p></div>${plateControls(p,selected)}`;
 }
-// Armoured plating: the structure's exposed skin becomes armour of the chosen
-// thickness; weapons and pods cannot be mounted on it.
-function plateControls(p,selected){
-  const kind=selected?(p.plate?'plate':p.light?'light':'frame'):(st.structPlate?'plate':st.structLight?'light':'frame'),on=kind==='plate',t=selected?C.plateThickness(p):st.structPlateT;
-  return `<div class="pgroup plate-options"><h4>構造の種類</h4>${seg(selected?'editplate':'structplate',[['frame','構造物'],['light','軽構造'],['plate','装甲外板']],kind)}
-    ${on?`<div class="sliders">${slider(selected?'plateT':'newPlateT','装甲の厚さ',t,C.PLATE.min,C.PLATE.max,.1,num(t,1)+' m')}</div>${selected?'':'<button type="button" class="btn sm" data-plateflat>板状の寸法にする（120×60×4 m）</button>'}`:''}
-    <p class="note">${kind==='plate'?'装甲外板は、露出した表面が指定の厚さの装甲板になる構造物です。内側は船内として区画を置けますが、外板の上には武装・艦橋ポッドなどの装備を取り付けられません。分離主義艦の曲面外殻のように、骨組みや船体を覆う外装に使います。':kind==='light'?'軽構造は、アンテナ・塔・骨組みのような細い構造物です。質量と強度が通常の構造物の ¼ になり、大きく張り出しても加速を損ないにくい代わりに、被弾で失われやすくなります。':'構造物は船体と同じ密度・強度の張り出しです。外側には武装や艦橋ポッドを取り付けられます。'}</p></div>`;
-}
+// 2026-11-14 user decision: there is one kind of structure. Light structures are abolished and armour is a surface
+// setting (the face armour editor); a saved armour plate is converted on load.
+function plateControls(){return '';}
 // v21 A superweapon's controls: its feeding reactor, energy and fixed firing axis.
 function superweaponControls(p){
   const w=(S?.superweapons||[]).find(x=>x.id===p.id),r=C.reactorFor(ship,p),source=p.reactor==null?'auto':String(p.reactor),aim=C.SUPERWEAPONS[p.k].aim==='bow'?'艦首方向（固定）':p.dir?.[2]<0?'左舷方向（固定）':'右舷方向（固定）';
@@ -6594,9 +6589,6 @@ function bindEngineering(){
     if(d.group){if(d.group==='weapons')st.weaponEntity='fit';st.equipmentId=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.tab='mod';st.group=d.group;if(st.group!=='weapons')st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group);st.partTool='place';renderPanel();}
     if(d.cmdsub){openCommandMenu(d.cmdsub);renderPanel();return;}
     if(d.structform){st.structForm=d.structform;renderPanel();}
-    if(d.structplate){st.structPlate=d.structplate==='plate';st.structLight=d.structplate==='light';if(st.structPlate)st.structWing=null;renderPanel();updateHint();}
-    if('plateflat'in d){st.structSize=[120,60,4];renderPanel();updateHint();}
-    if(d.editplate){const lbl={plate:'装甲外板にする',light:'軽構造にする',frame:'通常の構造物にする'}[d.editplate]||'構造の種類';mutate(lbl,()=>editSel(p=>{if(p.k!=='struct')return;if(d.editplate==='plate'){p.plate=true;p.plateT=C.plateThickness(p);delete p.light;delete p.wing;}else if(d.editplate==='light'){delete p.plate;delete p.plateT;p.light=true;}else{delete p.plate;delete p.plateT;delete p.light;}}),'parts');renderPanel();}
     if(d.editform){if(d.editform==='hull'&&!C.isHullStructure?.(selItem()))return;mutate('構造物の形状',()=>editSel(p=>{p.form=d.editform;if(d.editform!=='reference'){delete p.skinAsset;delete p.equipmentId;}}),'parts');renderPanel();}
     if(d.partaxis){mutate('円筒の向き',()=>editSel(p=>p.dir=d.partaxis==='y'?[0,1,0]:d.partaxis==='z'?[0,0,1]:[1,0,0]),'parts');renderPanel();}
     if(d.duplicate){const p=selItem();if(!p)return;st.multi={parts:new Set([p.id]),fits:new Set()};st.sel={list:'parts',id:p.id};editDuplicate();renderPanel();}
@@ -6767,9 +6759,6 @@ function bindRealism(){
     if(k==='bodyLength'||k==='bodyRadius')live(()=>editSel(p=>p[k]=k==='bodyRadius'?v/200:v));
     if(k==='deckSlope')live(()=>editSel(p=>p.deckSlope=v));
     if(k==='cylLength')live(()=>editSel(p=>p.length=v));
-    if(k==='plateT')live(()=>editSel(p=>{if(p.plate)p.plateT=C.clamp(v,C.PLATE.min,C.PLATE.max);}));
-    if(k==='newPlateT'){st.structPlateT=C.clamp(v,C.PLATE.min,C.PLATE.max);updateHint();}
-    if((k==='plateT'||k==='newPlateT')&&out)out.textContent=num(v,1)+' m';
     if(['deckWidth','keelWidth','belt','chineHeight','hullStart'].includes(k))live(()=>{hullEditorProfile()[k==='hullStart'?'start':k]=v/100;if(k==='deckWidth')for(const row of hullEditorProfile().stations||[])if(row.length>4)row[4]=v/100;if(k==='keelWidth')for(const row of hullEditorProfile().stations||[])if(row.length>5)row[5]=v/100;if(k==='belt')for(const row of hullEditorProfile().stations||[])if(row.length>6)row[6]=v/100;if(k==='chineHeight')for(const row of hullEditorProfile().stations||[])if(row.length>7)row[7]=v/100;},'hull');
     if(k==='yardDetail')live(()=>ship.detail=v,'parts');
     if(t.dataset.door){const h=ship.hatches.find(h=>h.id===+t.dataset.door);if(h&&C.isSlidingHatch(ship,h)&&C.openingBounds(ship,h)){live(()=>{h.open=v/100;},'hatches');if(t.nextElementSibling)t.nextElementSibling.textContent=v+'%';}}
@@ -7445,7 +7434,9 @@ function multiPaste(){
   for(const l of ['parts','fits'])for(const q of made[l]){for(const r of ['tw','vt']){if(q[r]==null)continue;const n=map[l].get(q[r]);if(n!=null)q[r]=n;else delete q[r];}
    if(Array.isArray(q.surfacePoint))q.surfacePoint=sc(q.surfacePoint);
    if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;C.normalizeFitMount(q);}else{q.c=sc(q.c);copyWingLinks(q,map,sc);for(const key of ['reactor','machineryId'])if(map.parts.has(q[key]))q[key]=map.parts.get(q[key]);}
+   if(l==='parts')delete q.light;   // an old clipboard: light structures are abolished (2026-11-14)
    ship[l].push(q);}
+  C.convertArmorPlates?.(ship);     // an old clipboard's armour plate becomes a structure with face armour, as on load
   for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,interiorAnchor:C.interiorAnchorHostId?.(ship),point:sc,sourceParts:c.parts,targetParts:made.parts});
   const sourceFits=new Map(c.fits.map(f=>[map.fits.get(f.id),f]));
   for(const f of made.fits)if(f.placement)C.remapFitPlacementCopy?.(f,map.parts,{sourceHostId:sourceFits.get(f.id)?.host,sourceParts:c.parts,targetParts:ship.parts});
@@ -7644,7 +7635,8 @@ function xfRows(drivers,units,Tof){
  const rows=[],moved=new Set();for(const d of drivers)if(d.list==='parts'){moved.add(d.it.id);for(const f of d.fol)moved.add(f.it.id);}
  for(const u of units)for(const d of u.drivers){const T=Tof(u,d);if(!T)continue;
   if(d.list==='parts'){const out=xfPartOut(d.it,T);rows.push({list:'parts',it:d.it,out});for(const f of d.fol)rows.push({list:'parts',it:f.it,out:xfMirrorOut(out,f)});continue;}
-  if(d.it.host!=null&&moved.has(d.it.host))continue;   // a pod rides its wall
+  // Audit 2026-11-14: a selected fitting is moved with the selection also when its body is selected too. It used to be
+  // skipped ("rides its wall"), but a fitting no longer follows its body (stage C), so it was left behind, floating.
   const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,fw=T.R&&C.fitCanRotate(d.it)?T.R(xfFitForward(d.it)):null,out=xfFitOut(d.it,p,m,fw);rows.push({list:'fits',it:d.it,out});
   for(const f of d.fol){let q=p,k=m,v=fw;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];if(v)v=[v[0],-v[1],v[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);if(v)v=C.mirrorP(v);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k,v)});}
  }
@@ -10940,7 +10932,7 @@ function veDragEnd(cancel){
  renderPanel();refreshVertexOverlay();
 }
 function vertexPanelHTML(){
- const o=veObject();if(!o)return '';const sel=st.ve.sel.filter(i=>i<o.local.length),n=sel.length,one=n===1?o.local[sel[0]]:null,d=st.ve.d,edge=n===2&&o.faces.some(f=>veBoundaryEdge(f,...sel)),face=veSelectedFace(o,sel);
+ const o=veObject();if(!o)return '';const sel=st.ve.sel.filter(i=>i<o.local.length),n=sel.length,one=n===1?o.local[sel[0]]:null,d=st.ve.d,edge=n===2&&(o.faces.some(f=>veBoundaryEdge(f,...sel))||o.kind==='struct'&&o.faces.some(f=>sel.every(i=>f.includes(i)))),face=veSelectedFace(o,sel);/* a diagonal across one face also counts (user report 2026-11-14): it becomes an edge first */
  const axes=[['前後 X',0],['上下 Y',1],['左右 Z',2]];
  const abs=one?`<div class="xf-grid">${axes.map(([l,a])=>`<div class="xf-row"><span>${l}</span><input type="number" step="any" data-veabs="${a}" value="${Math.round(one[a]*1000)/1000}" aria-label="頂点の${l}（m）"></div>`).join('')}</div>`:'';
  const rel=`<div class="xf-grid">${axes.map(([l,a])=>`<div class="xf-row"><span>${l}</span><button type="button" class="btn sm" data-venudge="${a}" data-sign="-1" aria-label="${l} を減らす">−</button><input type="number" step="any" data-ved="${a}" value="${+d[a]||0}" aria-label="${l} の移動量（m）"><button type="button" class="btn sm" data-venudge="${a}" data-sign="1" aria-label="${l} を増やす">＋</button></div>`).join('')}</div>`;
@@ -10971,7 +10963,11 @@ function veButton(a){
  else if((a==='edgeAdd'||a==='edgeRemove')&&sel.length===2){veChangeEdge(o,sel,a==='edgeRemove');}
  else if(a==='move'){const d=st.ve.d.map(v=>+v||0);if(!C.len(d))return;const moves=new Map(sel.map(i=>[i,o.local[i].map((x,k)=>veSnap(x+d[k]))]));if(veCommit(o,moves,`${sel.length} 頂点を移動`))st.ve.d=[0,0,0];}
  else if(a==='split'&&sel.length===2){
-  if(o.kind==='struct'){const [x,y]=sel;if(!o.faces.some(f=>veBoundaryEdge(f,x,y))){toast('辺でつながった2頂点を選んでください');return;}const m=C.meshSplitEdge(o.p.mesh,x,y);mutate('辺に頂点を追加',()=>{ship.parts.find(q=>q.id===o.p.id).mesh=m;},'parts');st.ve.sel=[m.v.length-1];}
+  if(o.kind==='struct'){const [x,y]=sel;let base=o.p.mesh;
+   // User report 2026-11-14: the two ends of a diagonal drawn across a face are not an edge yet (the line is the
+   // face's own division). The diagonal is first added as an edge, then the vertex goes on its middle.
+   if(!o.faces.some(f=>veBoundaryEdge(f,x,y))){if(!o.faces.some(f=>f.includes(x)&&f.includes(y))){toast('辺でつながった2頂点、または同じ面の2頂点を選んでください');return;}const r=C.meshAddEdge(base,x,y);if(r.error){sndUI('ui_error');toast(esc(r.error));return;}base=r.mesh;}
+   const m=C.meshSplitEdge(base,x,y);mutate('辺に頂点を追加',()=>{ship.parts.find(q=>q.id===o.p.id).mesh=m;},'parts');st.ve.sel=[m.v.length-1];}
   else{const [x,y]=sel,mid=o.local[x].map((v,k)=>(v+o.local[y][k])/2),local=o.local.concat([mid]);const r=C.solidCutFromLocal(o.q,local);if(r.error){toast(esc(r.error));return;}st.ve.hist.push(JSON.stringify(o.q));Object.assign(st.solidCutter,r.cut);st.ve.sel=[local.length-1];updateCutterDraft(false);}
  }
  else if(a==='drop'&&sel.length===1){

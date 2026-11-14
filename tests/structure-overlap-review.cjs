@@ -17,8 +17,9 @@ test('touching or separated structural solids keep their complete material inste
  for(const x of [200,210]){const s=ship(),a=box(s),b=box(s,[x,40,0]),S=C.computeStats(s);uniform(S,a,480000,'non-overlapping boxes');near(C.partVolume(a),240000);near(C.partVolume(b),240000);assert.equal(s.parts.length,2);}
 });
 
-test('a normal structural block owns material over a light block without depending on source array order',()=>{
- const s=ship(),light=box(s);light.light=true;const normal=box(s),S=C.computeStats(s);near(S.mass,240000*C.K.structDens,'normal material cannot be replaced by a coincident lighter scaffold');near(S.cost,Math.round(C.partBuildCost(normal,240000)));material(S,light.id,0);material(S,normal.id,240000);s.parts.reverse();const again=C.computeStats(s);near(again.mass,S.mass);near(again.cost,S.cost);material(again,light.id,0);material(again,normal.id,240000);
+// 2026-11-14 user decision: light structures are abolished. A light flag changes nothing: the earlier part owns the overlap.
+test('a light flag changes nothing: the earlier block owns coincident material without depending on source array order',()=>{
+ const s=ship(),first=box(s);first.light=true;const second=box(s),S=C.computeStats(s);near(S.mass,240000*C.K.structDens,'coincident material is counted once at the structure density');near(S.cost,Math.round(C.partBuildCost(first,240000)));material(S,first.id,240000);material(S,second.id,0);s.parts.reverse();const again=C.computeStats(s);near(again.mass,S.mass);near(again.cost,S.cost);material(again,first.id,240000);material(again,second.id,0);
 });
 
 test('rotated and cut solids use their actual closed material rather than overlapping world bounding boxes',()=>{
