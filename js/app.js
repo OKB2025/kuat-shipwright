@@ -4538,7 +4538,9 @@ function assignMirror(target, q) {
   Object.assign(target, q, {id}); delete target.tw; delete target.vt;
   if (tw != null) target.tw = tw; if (vt != null) target.vt = vt;
 }
-function refreshFitSupport(f){if(C.isShipLauncher?.(f))C.mountFit(editorMountShip(),f);else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')C.mountFit(editorMountShip(),f);else C.normalizeFitMount(f);}
+// Audit 2026-11-14: a setting change rebuilds the support where the fitting is (keep pose). It used to seat the fitting
+// again along its axis, so a floating weapon dropped onto whatever was below when its pedestal slider was touched.
+function refreshFitSupport(f){const mount=()=>{const sh=editorMountShip(),keep=sh._keepFitPose;sh._keepFitPose=true;try{C.mountFit(sh,f);}finally{if(keep)sh._keepFitPose=keep;else delete sh._keepFitPose;}};if(C.isShipLauncher?.(f))mount();else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')mount();else C.normalizeFitMount(f);}
 function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;refreshFitSupport(to); }
 // Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
 // (tw: across the centreline, vt: top/bottom). Edits follow those links unless
@@ -7631,7 +7633,8 @@ function xfRows(drivers,units,Tof){
  const rows=[],moved=new Set();for(const d of drivers)if(d.list==='parts'){moved.add(d.it.id);for(const f of d.fol)moved.add(f.it.id);}
  for(const u of units)for(const d of u.drivers){const T=Tof(u,d);if(!T)continue;
   if(d.list==='parts'){const out=xfPartOut(d.it,T);rows.push({list:'parts',it:d.it,out});for(const f of d.fol)rows.push({list:'parts',it:f.it,out:xfMirrorOut(out,f)});continue;}
-  if(d.it.host!=null&&moved.has(d.it.host))continue;   // a pod rides its wall
+  // Audit 2026-11-14: a selected fitting is moved with the selection also when its body is selected too. It used to be
+  // skipped ("rides its wall"), but a fitting no longer follows its body (stage C), so it was left behind, floating.
   const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,fw=T.R&&C.fitCanRotate(d.it)?T.R(xfFitForward(d.it)):null,out=xfFitOut(d.it,p,m,fw);rows.push({list:'fits',it:d.it,out});
   for(const f of d.fol){let q=p,k=m,v=fw;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];if(v)v=[v[0],-v[1],v[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);if(v)v=C.mirrorP(v);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k,v)});}
  }
