@@ -51324,8 +51324,8 @@ const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
    density); between equal kinds the earlier part (lower id) owns it. Structure > light structure > armor plate >
    wing / solar panel and other shapes. This is the order main produced, so example figures are unchanged. Light
    structures and plates are to be removed in a separate PR (plates become surface armor by area). */
-const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,lightStructure:1,plate:2,other:3});
-function structuralOverlapKind(p){return p.plate?'plate':isStructuralPart(p)?(p.light?'lightStructure':'structure'):'other';}
+const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,lightStructure:1,plate:2,other:3,lightOther:4});
+function structuralOverlapKind(p){return p.plate?'plate':isStructuralPart(p)?(p.light?'lightStructure':'structure'):p.light?'lightOther':'other';}/* lightOther: a wing or panel flagged light came after the others in main */
 /* The exterior armor faces keep main's order (densest first: plates cover the structures they lie on) until plates
    become surface armor (separate PR). */
 function structuralSurfaceOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
@@ -64137,7 +64137,7 @@ function refreshPlacementGeometry(ship,options={}){
   for(const p of ship.parts)if(p._placementError&&done.has(p.id)&&!failed.some(q=>q.partId===p.id))failed.push({partId:p.id,code:p._placementError});
   // Stage B contact-only judgment of placed structures: the same contact graph from the hull as 点検 (groundingStats).
   // A loose structure is reported (red) but keeps its pose, record and place in the graph (_placementLoose is derived).
-  {const placed=ship.parts.filter(p=>p.placement&&isShapePart(p)&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))&&done.has(p.id));for(const p of placed)delete p._placementLoose;
+  {const placed=ship.parts.filter(p=>p.placement&&isShapePart(p)&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p))&&done.has(p.id));if(options.ids==null)for(const p of placed)delete p._placementLoose;/* physics review 2026-11-14: only a full pass re-judges; a targeted one keeps the mark (and so the red) */
    if((placed.length||ship.parts.some(p=>p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior'&&done.has(p.id)))&&options.ids==null){const S={warnings:[]};groundingStats(ship,S);/* a targeted refresh (ids) rebuilds its branch only; the next full refresh judges contact */const red=new Set(S.ungrounded?.parts||[]);
     const equipment=ship.parts.filter(p=>p.placement&&!isShapePart(p)&&placementCapability(p).space==='exterior'&&done.has(p.id)&&!p._placementError&&red.has(p.id));for(const p of equipment){p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});}/* equipment carried only by red structures is not grounded either: no function (2026-11-13 decision) */
     for(const p of placed){if(!done.has(p.id)||p._placementError||p.placement.pendingGeometry||p.placement.validationFailed||!red.has(p.id))continue;/* a targeted refresh marks only what it visited */p._placementLoose='contact-zero';p._placementError='contact-zero';failed.push({partId:p.id,code:'contact-zero'});/* red like any refusal; a loose part grounds nothing, so leaving it out of the graph changes no other result */}}}

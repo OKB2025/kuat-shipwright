@@ -171,6 +171,11 @@ test('a mirrored copy over a separately built mirrored deck (no twin link) is co
   const s=fx(8),top=s.parts.find(p=>p.id===3),y0=top.c[1],r=C.removeParts(s,[2]);assert.deepEqual(Array.from(r.removed),[2]);assert.ok(s.parts.some(p=>p.id===3),'the structure on top is kept');
   near(top.c[1],y0-8,1e-6);C.refreshPlacementGeometry(s);const S={warnings:[]};C.groundingStats(s,S);assert.deepEqual(Array.from(S.ungrounded?.parts||[]),[]);
   const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);near(L.parts.find(p=>p.id===3).c[1],y0-8,1e-6);});
+ // Physics review 2026-11-14: a targeted refresh (ids) does not re-judge contact, so it keeps a red structure red.
+ test('a red structure stays red through repeated targeted refreshes until a full refresh re-judges it',()=>{
+  const s=fx(8);s.parts[0].c=[0,-200,0];C.refreshPlacementGeometry(s);C.removeParts(s,[2]);C.refreshPlacementGeometry(s);const top=()=>s.parts.find(p=>p.id===3);assert.equal(top()._placementError,'contact-zero');
+  for(let i=0;i<2;i++){C.refreshPlacementGeometry(s,{ids:[3]});assert.equal(top()._placementError,'contact-zero','targeted pass '+(i+1));}
+  s.parts[0].c=[0,10,0];s._cache=null;C.refreshPlacementGeometry(s);assert.equal(top()._placementError,undefined,'a full pass re-judges it');});
  test('with nothing below within the removed structure\'s depth, it stays where it is and is red',()=>{
   const s=fx(8);s.parts[0].c=[0,-200,0];C.refreshPlacementGeometry(s);const top=s.parts.find(p=>p.id===3),c0=plain(top.c);C.removeParts(s,[2]);assert.deepEqual(plain(top.c),c0);
   const r=C.refreshPlacementGeometry(s);assert.ok(r.failed.some(q=>q.partId===3));});
