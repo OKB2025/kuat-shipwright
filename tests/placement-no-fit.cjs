@@ -128,8 +128,12 @@ for(const [name,extra] of [['wing',{k:'wing',form:'trap',s:[20,12,2],wing:{foil:
  const fx=()=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'clamp');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});
   const parent=ship.parts[0],hit=C.rayPart([20,200,30],[0,-1,0],parent),c=[20,hit.p[1]+8,30],r=C.solvePlacement(ship,{id:2,k:'struct',form:'box',c,s:[16,16,16],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);ship.parts.push(r.part);C.refreshPlacementGeometry(ship);return ship;};
  const drag=(ship,id,dx)=>{const p=ship.parts.find(q=>q.id===id);p.c=[p.c[0]+dx,p.c[1],p.c[2]];ship._cache=null;const r=C.refreshPlacementGeometry(ship);return {x:p.c[0],failed:r.failed.length,err:p._placementError||null};};
- test('H2: after the body was resized, dragging past its edge stops at the edge (still connected)',()=>{const s=fx();s.parts[0].s=[124,80,20];s._cache=null;C.refreshPlacementGeometry(s);const r=drag(s,2,100);assert.equal(r.err,null);assert.ok(r.x<75,`stopped at ${r.x}`);});
- test('H2: a copy dragged past the edge stops at the edge',()=>{const s=fx(),o=JSON.parse(C.publicJSON(s.parts[1]));o.id=5;o.c=[o.c[0]-40,o.c[1],o.c[2]];C.remapPlacementCopy(o,new Map(),{keepExternal:true});s.parts.push(o);s.nextId=6;s._cache=null;C.refreshPlacementGeometry(s);const r=drag(s,5,-100);assert.equal(r.err,null);assert.ok(r.x>-75,`stopped at ${r.x}`);});
+ // User report 2026-11-14 (replaces the two H2 clamp tests): a user's move is taken as it is. The old clamp stopped a
+ // part at the edge of the body it was tapped on, which pulled it back from a place where it touches another body.
+ test('a part dragged past the edge of its body goes where it was put and is red there (no clamp)',()=>{const s=fx();const r=drag(s,2,100);near(r.x,120,1e-9);const f=C.refreshPlacementGeometry(s);assert.ok(f.failed.some(q=>q.partId===2&&q.code==='contact-zero'),'touching nothing: red');});
+ test('moved onto another structure and back again, a part returns to where the user put it',()=>{const s=fx();s.parts.push({id:7,k:'struct',form:'box',c:[70,14,30],s:[40,20,8]});/* overhangs the body's edge (x 50..90; the body ends at 60) */s.nextId=8;s._cache=null;C.refreshPlacementGeometry(s);
+  const p=s.parts.find(q=>q.id===2),c0=p.c.slice();/* over the other structure (touching it, not the tapped body) */p.c=[80,c0[1],30];s._cache=null;let r=C.refreshPlacementGeometry(s);assert.deepEqual(plain(p.c),[80,c0[1],30]);assert.deepEqual(Array.from(r.failed),[]);
+  p.c=c0.slice();s._cache=null;r=C.refreshPlacementGeometry(s);assert.deepEqual(plain(p.c),plain(c0),'back where the user put it');assert.deepEqual(Array.from(r.failed),[]);});
 }
 // H3 and the 2026-11-13 decision on floating exterior equipment.
 {

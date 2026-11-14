@@ -63412,20 +63412,6 @@ function placementTranslationLimit(source,parent,hit,mode,side,target){
  intervals.sort((a,b)=>a[0]-b[0]);let end=0;for(const [low,high]of intervals){if(low>end+eps/distance*4)break;end=Math.max(end,high);}
  return Math.max(0,Math.min(1,end));
 }
-function placementConstrainTranslation(ship,part,parent,hit,mode,side,old,request){
- // Stage B high review H2: the authored start position is where the structure really is (it is never moved by a
- // non-user re-solve), so the clamp does not depend on the saved parent key, which keeps the value of the last user seat
- // (and is absent on copies). probe(0) still guards a start that does not solve against the current parent.
- if(request._skipContactClamp||request.hit||old.contactFit!=='cut'||old.mode!==mode||old.parentStructureId!==parent.id||!old.requestedGeometry?.c)return null;
- const source=placementShape(old.requestedGeometry),shape=placementShape(part),target=part.c.slice(),start=source.c.slice();delete source.id;delete shape.id;delete source.c;delete shape.c;
- if(publicJSON(source)!==publicJSON(shape)||len(sub(target,start))<1e-9)return null;
- const authored={...placementShape(old.requestedGeometry),id:part.id},limit=placementTranslationLimit(authored,parent,hit,mode,side,target),distance=len(sub(target,start)),scale=Math.max(...part.s),margin=Math.max(1e-7,scale*1e-4)/distance;
- const probe=t=>solvePlacement(ship,{...placementShape(part),placement:old},{...request,position:add(start,mul(sub(target,start),t)),keepTransform:true,_skipContactClamp:true});
- let t=limit<1?Math.max(0,limit-margin):1,result=probe(t);if(result.ok){if(t<1)result.clampedPosition=result.part.c.slice();return result;}
- let low=0,high=t,best=probe(0);if(!best.ok)return result;
- for(let i=0;i<18;i++){const mid=(low+high)/2,next=probe(mid);if(next.ok){low=mid;best=next;}else high=mid;if((high-low)*distance<Math.max(1e-5,scale*1e-5))break;}
- best.clampedPosition=best.part.c.slice();return best;
-}
 function fitPlacementContact(ship,part,parent,hit,mode,contactSide){
  // A turned copy (array, 2026-11-13) is cut along its own turned axis (the source's axis turned with it).
  const fa=placementFitAxisWorld(part,hit.n),n=fa?fa:mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);
@@ -63878,7 +63864,7 @@ function solvePlacement(ship,input,request={}){
  // A draft (pendingGeometry, a new placement) is the user's seat even when its first solve keeps the drafted pose: its
  // whole base is brought down to reach the body here, in the solve (the Worker), not in the cheap draft preparation.
  else if(mode!=='surface'&&(old.newPlacement||old.pendingGeometry&&!request._keepPose)){/* only a user's draft (or a pending solve with no pose to keep) sinks; a refused structure re-solved after another edit keeps its pose */const axis=mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]);placementSinkToSurface(ship,part,parent,axis);}
- const constrained=mode!=='surface'&&contactFit==='cut'?placementConstrainTranslation(ship,part,parent,hit,mode,contactSide,old,request):null;if(constrained)return constrained;
+ /* User report 2026-11-14: a user's move is taken as it is. The old clamp ("stop at the edge of the tapped body") pulled a part back when it was moved to a place where it touches another body, or none; contact alone decides, and a part that touches nothing is red (no parent relation). */
  if(mode==='surface'){delete metadata.contactFit;delete metadata.contactOffset;delete metadata.contactAxis;}else{metadata.contactFit=contactFit;if(contactFit==='cut'){metadata.contactOffset=sub(part.c,hit.p);metadata.contactAxis=placementFitAxisWorld({...part,placement:metadata},hit.n)||(mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([normal[0],0,normal[2]]));}}
  metadata.requestedGeometry=placementShape(part);metadata.parentStructureId=parentId;metadata.parentGeometryRevision=parent.placement?.geometryRevision??0;metadata.parentGeometryKey=placementDependencyKey(parent);metadata.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)metadata.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];delete metadata.unresolvedParentId;delete metadata.root;delete metadata.repairRequired;delete metadata.repairReason;metadata.contactNormal=hit.n.slice();metadata.contactLocalNormal=placementLocalNormal(parent,hit.n);metadata.contactSide=contactSide;metadata.parentPoseKey=placementPositionKey(parent);if(surfaceHintLost){const again=placementRebindSurface(ship,parent,hit);if(again)metadata.hostSurfaceId=again;else delete metadata.hostSurfaceId;}else if(surfaceId)metadata.hostSurfaceId=surfaceId;metadata.surfaceAnchor=localStruct(parent,hit.p);
  part.placement=metadata;
