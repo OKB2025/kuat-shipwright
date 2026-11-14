@@ -18,14 +18,17 @@ test('thermal specifications retain real sink ratings rather than the much small
  assert.equal(C.publicJSON(stats),before,'reading a specification does not change operating loads, warnings or heat paths');
 });
 
-test('rated total does not turn a missing converter or a limited heat path into usable cooling',()=>{
+test('rated total does not turn a missing converter into usable cooling; a narrow heat path does not limit a converter',()=>{
  for(const options of [{},{cooler:true,pathCapacity:1e6}]){
   const {stats}=fixture(options),H=stats.heat,before=C.publicJSON(stats),rates=C.heatReadoutRates(H);
   // 2026-11-12: without the hull skin a ship with no converter has zero rejection capacity.
   if(!options.cooler)assert.equal(rates.rejectionCapacityW,0);
-  assert.ok(H.presets.combat.stored>0,'waste still accumulates when its actual route cannot carry it');
-  // no converter: the inspection names the converter volume; converter present but path-limited: add heat paths
-  assert.ok(stats.warnings.some(w=>w.code==='heat'&&(options.cooler?/変換能力は足りています。熱輸送路を足してください。/:/熱エネルギー変換装置を約 .+ m³ 追加すると解消します。/).test(w.text)),JSON.stringify(stats.warnings.filter(w=>w.code==='heat').map(w=>w.text)));
+  // 2026-11-14 (user decision 2026-11-12: the capacity of a heat path is not a constraint): the case with a converter and
+  // a 1e6 W path used to expect accumulation and the "add heat paths" warning. A path that exists now carries what its
+  // converter can take, so that ship sheds its heat; the ship with no converter still accumulates.
+  if(options.cooler){assert.equal(H.presets.combat.stored||0,0,'a narrow path no longer limits the converter');assert.ok(!stats.warnings.some(w=>w.code==='heat'&&/熱輸送路を足してください/.test(w.text)));continue;}
+  assert.ok(H.presets.combat.stored>0,'waste still accumulates without a converter');
+  assert.ok(stats.warnings.some(w=>w.code==='heat'&&/熱エネルギー変換装置を約 .+ m³ 追加すると解消します。/.test(w.text)),JSON.stringify(stats.warnings.filter(w=>w.code==='heat').map(w=>w.text)));
   assert.equal(C.publicJSON(stats),before);
  }
 });
