@@ -184,7 +184,7 @@ test('a mirrored copy over a separately built mirrored deck (no twin link) is co
 // User design check 2026-11-14 (アリコーン, part 136): a repair state written by the old contact fit
 // (minimum-thickness, contact-shape) is obsolete without fitting; a structure whose requested solid is valid loads
 // without it and is judged by contact.
-for(const reason of ['minimum-thickness','contact-shape'])test(`an old fit failure (${reason}) on a valid requested solid is dropped on load`,()=>{
+for(const reason of ['minimum-thickness','contact-shape','geometry-open'/* user report 2026-11-14 */,'geometry-invalid','geometry-complex','geometry-volume'])test(`an old fit failure (${reason}) on a valid requested solid is dropped on load`,()=>{
  const {ship,part}=fixture(0);Object.assign(part.placement,{repairRequired:true,repairReason:reason});
  const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
  assert.equal(q.placement.repairRequired,undefined);assert.equal(q._placementError,undefined);assert.ok(!r.failed.some(f=>f.partId===2));
