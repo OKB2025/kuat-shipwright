@@ -120,8 +120,8 @@ for(const [name,extra] of [['wing',{k:'wing',form:'trap',s:[20,12,2],wing:{foil:
  const run=(pSpec,pId,pMode,cSpec,cId)=>{const ship=C.newShip({L:300,W:200,H:100,assembly:true},'order');Object.assign(ship,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]}],fits:[],hatches:[],links:[],groups:[],nextId:40,autoHabitation:false,detail:0});C.refreshPlacementGeometry(ship);
   put(ship,pSpec,pId,1,pMode,0);const s0=stats(ship);put(ship,cSpec,cId,pId,'horizontal',0.5);const s1=stats(ship);return {child:s1.info[cId].materialVolume,parentDelta:s1.info[pId].materialVolume-s0.info[pId].materialVolume,ship:s1.volume-s0.volume,mass:s1.mass-s0.mass};};
  for(const [name,args] of [['a box on a surface plate',[PLATE,10,'surface',BOX,31]],['a box on a horizontal plate',[PLATE,10,'horizontal',BOX,31]],['a wing on a surface wing',[WING,10,'surface',WING,31]]])
-  test(`H1: ${name} counts the overlap once (child material = added ship volume; parent unchanged)`,()=>{const r=run(...args);near(r.parentDelta,0,1e-6);near(r.child,r.ship,1e-6*Math.max(1,r.ship));});
- test('H1: the result does not depend on whether the child id is smaller than the parent id',()=>{const a=run(WING,10,'surface',WING,5),b=run(WING,10,'surface',WING,31);/* 2026-11-14: the overlap goes to the denser part; between equal densities the owner follows the id, the mass does not. The union is merged in a different order, which moves the total by ~1e-7 of the ship (0.015 of 192283 m3), so the deltas are compared to 0.05 (m3 and t, ~3e-7 of the ship). */near(a.mass,b.mass,0.05);near(a.ship,b.ship,0.05);});
+  test(`H1: ${name} counts the overlap once (child material + parent change = added ship volume)`,()=>{const r=run(...args);/* 2026-11-14 user decision: a structure owns its overlap with a wing or plate, so a box on a plate takes the overlap from it */near(r.child+r.parentDelta,r.ship,1e-6*Math.max(1,r.ship));});
+ test('H1: the result does not depend on whether the child id is smaller than the parent id',()=>{const a=run(WING,10,'surface',WING,5),b=run(WING,10,'surface',WING,31);/* 2026-11-14: between two wings the owner follows the id, the mass does not. The union is merged in a different order, which moves the total by ~1e-7 of the ship (0.015 of 192283 m3), so the deltas are compared to 0.05 (m3 and t, ~3e-7 of the ship). */near(a.mass,b.mass,0.05);near(a.ship,b.ship,0.05);});
 }
 // H2: the drag clamp works after the body changed and on a copy (the saved parent key is the last user seat, or absent).
 {
@@ -242,10 +242,10 @@ test('a sensor on a floating structure adds no sensor volume',()=>{
  const grounded=mk(false),floating=mk(true);assert.ok(grounded.sensorVolume>0,'grounded sensor counts');assert.equal(floating.sensorVolume||0,0,'floating sensor does not');
 });
 
-// 2026-11-14 user decision: an overlap is counted as the denser part's material, with or without placement records.
-test('an overlap between a light structure and a dense plate counts as plate (the denser), with or without a recorded body',()=>{
+// 2026-11-14 user decision: a structure owns its overlap with a plate or wing the user placed, with or without the tapped body.
+test('an overlap between a light structure and a placed plate counts as structure, with or without a recorded body',()=>{
  const mk=keep=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'dens');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20],light:true}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
   const hit=C.rayPart([0,200,0],[0,-1,0],s.parts[0]),c=[0,hit.p[1]+0.5,0],r=C.solvePlacement(s,{id:5,k:'struct',form:'box',plate:true,c,s:[20,20,2],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);if(!keep){delete r.part.placement.parentStructureId;r.part.placement.unresolvedParentId=1;}s.parts.push(r.part);
   const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
- const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);assert.ok(a.info[5].materialVolume>=C.partVolume({k:'struct',form:'box',plate:true,c:[0,0,0],s:[20,20,2]})-1e-6,'the plate keeps its whole volume (denser)');
+ const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);assert.ok(a.info[5].materialVolume<C.partVolume({k:'struct',form:'box',plate:true,c:[0,0,0],s:[20,20,2]})-1e-6,'the structure owns the overlap (2026-11-14 user decision)');
 });

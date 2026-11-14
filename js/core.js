@@ -50616,7 +50616,7 @@ function baseComputeStats(ship,options={}) {
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
-    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):(isAeroPart(pt)||pt.plate)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14: overlaps are counted once, as the denser part (union order); wings, panels and plates count their increment */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):placementBuriedOnce(pt)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14: overlaps are counted once, as the denser part (union order); wings, panels and plates count their increment */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
@@ -51320,8 +51320,6 @@ const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
 // 2026-11-14 user decision: an overlap between structures is counted once, as the denser part's material. The union adds
 // parts densest first (plates, then aero parts by their density, then ordinary and light structures), then by id; no
 // placement record is used.
-function structuralOverlapDensity(p){return p.plate?K.armorDens:isAeroPart(p)?(PARTS[p.k]?.dens||K.structDens):K.structDens*(p.light?.25:1);}
-function structuralOverlapOrder(a,b){return structuralOverlapDensity(b)-structuralOverlapDensity(a)||a.id-b.id;}
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
@@ -51404,7 +51402,7 @@ function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepIn
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
- const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort(structuralOverlapOrder),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
+ const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
  // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
  // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
@@ -63460,7 +63458,11 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 // to the parent, so its buried root would be counted twice (parent material + its own). Like main (which cut it away),
 // it counts only the part outside what was already joined: its increment in the structural union. Unplaced parts
 // (built examples, surface placements) keep their whole volume as before.
-function placementBuriedOnce(pt){const m=pt?.placement;return !!m&&!!m.mode&&m.mode!=='surface'&&!isHullStructure(pt);}/* high review M1: not tied to the recorded tapped body */
+/* 2026-11-14 user decision: where a wing, panel or plate the user placed overlaps a structure, the structure owns the
+   overlap (main's union order: bulk structures first) and the wing/panel/plate counts only what it adds, in every
+   placement mode. Parts without a placement record (examples, older saves) keep main's full hardware mass until the
+   separate PR (plates become surface armor by area, wings take the structure density). */
+function placementBuriedOnce(pt){const m=pt?.placement;return !!m&&!!m.mode&&!isHullStructure(pt);}/* high review M1: not tied to the recorded tapped body */
 function placementSameShape(a,b){const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='id'&&!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;return JSON.stringify(canon(placementShape(a)))===JSON.stringify(canon(placementShape(b)));}
 // The requested solid a placed structure carries as its placement geometry (transport, early pick), built on the numeric
 // base a part without it uses (Float32 world base when ship cuts carve structures or it has openings). The same helper
