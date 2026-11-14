@@ -147,7 +147,7 @@ test('a late weapon Worker result cannot restore a deleted host or overwrite a n
   assert.equal(accepted.ok, false); assert.equal(C.publicJSON(ship), before); assert.equal(ship.fits.length, 0);
 });
 
-test('parts-only Worker updates follow and delete attached weapons in the returned authoring state and real Gfx buffers', async () => {
+test('parts-only Worker updates keep attached weapons in place (no host follow) and keep them, floating, when the host is deleted', async () => {
   const ship = fixture([200, 160, 20]); ship.parts[0].c = [100, 10, 0]; ship.autoHabitation = false; ship.detail = 0;
   const solved = C.solveFitPlacement(ship, {id: -1, k: 'pd', p: [0, 0, 0], n: [0, 1, 0], a: 2, ped: .3, assetYaw: 17},
     {mode: 'direct', hostId: 1, hit: {p: [83, 20, 23], n: [0, 1, 0]}});
@@ -167,19 +167,21 @@ test('parts-only Worker updates follow and delete attached weapons in the return
   }
   const original = await update(1, true, ['all']), before = JSON.parse(original.state).fits[0];
   ship.parts[0].c[0] += 11; ship.parts[0].yaw = 30;
-  const changed = await update(2, false, ['parts']), after = JSON.parse(changed.state).fits[0], parent = ship.parts[0];
-  const expected = C.worldStruct(parent, [before.local[0] * parent.s[0], before.local[1] * parent.s[2], before.local[2] * parent.s[1]]);
-  after.p.forEach((v, i) => near(v, expected[i]));
-  assert.equal(after.host, 1); assert.equal(after.id, before.id);
+  const changed = await update(2, false, ['parts']), after = JSON.parse(changed.state).fits[0];
+  // Stage C (user decision 2026-11-13; this file was not in the stage C test set, updated 2026-11-14 with stage B): the
+  // weapon does not follow its moved host; it stays where it was and is judged there (still on the turned host's top).
+  after.p.forEach((v, i) => near(v, before.p[i]));
+  assert.equal(after.host, 1); assert.equal(after.id, before.id); assert.equal(!!after.float, false);
   const buffer = ['fits', 'refFits'].find(key => changed.geos[key]?.n > 0);
   assert.ok(buffer, 'parts dirty flags include fittings and their reference meshes');
   assert.equal(ArrayBuffer.isView(changed.geos[buffer].pos), true);
-  assert.notDeepEqual(Array.from(changed.geos[buffer].pos), Array.from(original.geos[buffer].pos), 'the Gfx fitting buffer follows its parent pose');
+  assert.deepEqual(Array.from(changed.geos[buffer].pos), Array.from(original.geos[buffer].pos), 'the Gfx fitting buffer stays where the weapon is');
+  // Deleting its only support keeps the weapon where it is, floating (stage C); it is not deleted.
   const removed = C.removeParts(ship, [1]);
-  assert.deepEqual(Array.from(removed.removedFits), [2]);
+  assert.deepEqual(Array.from(removed.removedFits), []);
   const deleted = await update(3, false, ['parts']), remaining = JSON.parse(deleted.state);
-  assert.equal(remaining.parts.length, 0); assert.equal(remaining.fits.length, 0);
-  assert.equal(deleted.geos.fits.n, 0); assert.equal(deleted.geos.refFits.n, 0);
+  assert.equal(remaining.parts.length, 0); assert.equal(remaining.fits.length, 1); assert.equal(remaining.fits[0].float, true);
+  // Gfx draws no body for a floating weapon (main's rule, js/gfx.js), so the fitting buffers are not checked here.
 });
 
 test('ordinary exterior equipment uses the same Worker result and stays where it is when its parent moves after adoption (stage B)', async () => {
