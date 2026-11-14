@@ -51126,7 +51126,7 @@ Object.assign(PARTS.hangar,{group:'air',min:10,max:180,desc:'航空機の格納�
 Object.assign(PARTS.struct,{group:'shape',desc:'機関を包む外殻と支持構造。形状と前後左右の傾斜を指定できます。'});
 const addComp = (k,name,shape,dens,col,group,desc,extra={}) => PARTS[k]={name,shape,dens,col,group,desc,hp:0.65,crew:0.2,cost:1,min:8,max:240,def:40,ratio:1.5,...extra};
 addComp('wing','主翼','box',K.structDens/* 2026-11-14 user decision: a wing has the density of a structure (was .15) */,[192,199,208],'power','翼弦方向の断面を6頂点の翼型に簡略化した主翼。前縁寄りが最も厚く、後縁へ細くなります。寸法・平面の輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。',{min:.02,max:4000,def:4,crew:0,cost:1.4,hp:1});
-addComp('solarPanel','太陽光パネル','box',.12,[70,79,91],'power','集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。',{min:.02,max:4000,def:4,crew:0,cost:1.6,hp:.65});
+addComp('solarPanel','太陽光パネル','box',K.structDens/* 2026-11-14 user decision: a solar panel has the density of a structure too (was .12) */,[70,79,91],'power','集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。',{min:.02,max:4000,def:4,crew:0,cost:1.6,hp:.65});
 Object.assign(CRAFT_PART_SIZE,{wing:[.02,100,4],solarPanel:[.02,100,4]});
 addComp('aux','補助反応炉','sphere',0.9,[243,187,91],'power','主反応炉と同じ容積あたりの出力を持つ補助炉。独立したノズルの接続先にもできます。',{def:48,crit:true});
 addComp('fuel','反応物サイロ','cyl',0.25,[183,135,85],'power','反応物を貯蔵。搭載量と出力から巡航時の持続時間を算出します。',{def:55,crit:true,ratio:2});
