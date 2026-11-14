@@ -82,9 +82,13 @@ test('a newly picked missing face is rejected; a stored lost face id is only a h
  const f=place(s);f.placement.hostSurfaceId=missing;const anchor=plain(f.local);C.refreshFitPlacementAttachments(s);const kept=s.fits.find(q=>q.id===f.id);assert.equal(kept.float,false);assert.equal(kept._fitPlacementError,undefined);assert.equal(kept.host,1);assert.equal(kept.placement.hostSurfaceId,missing);vector(kept.local,anchor);
 });
 
-test('parent loss retains the original fitting for repair and cannot attach it to another structure',()=>{
+// Audit 2026-11-14 (no parent relation): the recorded host is only where the fitting was placed. With its body replaced by
+// another structure under the same seat, the fitting is supported (not floating) and keeps its place and record; with
+// nothing under its seat it floats, still where it was, for repair.
+test('parent loss keeps the fitting where it is: supported by another structure under its seat, floating with none',()=>{
  const s=fixture(),f=place(s),original={host:f.host,local:plain(f.local),normal:plain(f.localNormal),point:plain(f.p),placement:plain(f.placement)};s.parts=[{id:9,k:'struct',form:'box',c:[100,10,0],s:[200,160,20]}];s.nextId=10;C.refreshFitPlacementAttachments(s);
- const orphan=s.fits.find(q=>q.id===f.id);assert.ok(orphan);assert.equal(orphan.host,original.host);assert.equal(orphan.float,true);vector(orphan.local,original.local);vector(orphan.localNormal,original.normal);vector(orphan.p,original.point);assert.deepEqual(plain(orphan.placement),original.placement);assert.equal(s.fits.length,1);
+ const kept=s.fits.find(q=>q.id===f.id);assert.ok(kept);assert.equal(kept.host,original.host);assert.equal(kept.float,false,'another structure is under its seat');vector(kept.p,original.point);assert.deepEqual(plain(kept.placement),original.placement);assert.equal(s.fits.length,1);
+ s.parts=[{id:11,k:'struct',form:'box',c:[100,-200,0],s:[200,160,20]}];s._cache=null;C.refreshFitPlacementAttachments(s);const orphan=s.fits.find(q=>q.id===f.id);assert.equal(orphan.float,true,'nothing under its seat');vector(orphan.p,original.point);vector(orphan.local,original.local);assert.deepEqual(plain(orphan.placement),original.placement);
 });
 
 test('late results cannot commit after the selected parent moves or is deleted',()=>{
