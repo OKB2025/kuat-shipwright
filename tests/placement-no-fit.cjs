@@ -121,7 +121,7 @@ for(const [name,extra] of [['wing',{k:'wing',form:'trap',s:[20,12,2],wing:{foil:
   put(ship,pSpec,pId,1,pMode,0);const s0=stats(ship);put(ship,cSpec,cId,pId,'horizontal',0.5);const s1=stats(ship);return {child:s1.info[cId].materialVolume,parentDelta:s1.info[pId].materialVolume-s0.info[pId].materialVolume,ship:s1.volume-s0.volume,mass:s1.mass-s0.mass};};
  for(const [name,args] of [['a box on a surface plate',[PLATE,10,'surface',BOX,31]],['a box on a horizontal plate',[PLATE,10,'horizontal',BOX,31]],['a wing on a surface wing',[WING,10,'surface',WING,31]]])
   test(`H1: ${name} counts the overlap once (child material = added ship volume; parent unchanged)`,()=>{const r=run(...args);near(r.parentDelta,0,1e-6);near(r.child,r.ship,1e-6*Math.max(1,r.ship));});
- test('H1: the result does not depend on whether the child id is smaller than the parent id',()=>{const a=run(WING,10,'surface',WING,5),b=run(WING,10,'surface',WING,31);near(a.child,b.child,1e-6);near(a.mass,b.mass,1e-6*Math.max(1,b.mass));});
+ test('H1: the result does not depend on whether the child id is smaller than the parent id',()=>{const a=run(WING,10,'surface',WING,5),b=run(WING,10,'surface',WING,31);/* 2026-11-14: the overlap goes to the denser part; between equal densities the owner follows the id, the mass does not. The union is merged in a different order, which moves the total by ~1e-7 of the ship (0.015 of 192283 m3), so the deltas are compared to 0.05 (m3 and t, ~3e-7 of the ship). */near(a.mass,b.mass,0.05);near(a.ship,b.ship,0.05);});
 }
 // H2: the drag clamp works after the body changed and on a copy (the saved parent key is the last user seat, or absent).
 {
@@ -206,7 +206,7 @@ test('an engine on a floating structure is red and gives no function; refused eq
  const s=C.newShip({L:300,W:200,H:100,assembly:true},'float eq');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,80]},{id:2,k:'struct',form:'box',c:[0,200,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
  const h=C.rayPart([-100,200,0],[1,0,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[-62,200,0],d:8,nozzleLength:4,dir:[-1,0,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);
  const e=s.parts.find(p=>p.k==='engine'),f=C.refreshPlacementGeometry(s);assert.ok(f.failed.some(q=>q.partId===e.id),'red');assert.ok(e._placementError);
- const st=C.computeStats(s);assert.equal(st.info[e.id]?.overlap,false,'not an overlap');assert.equal(st.overlap||0,0);
+ const st=C.computeStats(s);assert.equal(st.info[e.id]?.detached,true,'detached');assert.equal(st.overlap||0,0,'not counted as an overlap warning');
 });
 
 // Stage B Opus/high review 3 (2026-11-14).
@@ -232,4 +232,20 @@ test('M1: a horizontally placed wing counts its buried root once with or without
   const r=C.solvePlacement(ship,{id,c:[100,raw.p[1]+0.5,0],yaw:0,pitch:0,...structuredClone(WING)},{mode:'horizontal',parentStructureId:1,position:[100,raw.p[1]+0.5,0],hit,contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);if(!keep){delete r.part.placement.parentStructureId;r.part.placement.unresolvedParentId=1;}ship.parts.push(r.part);
   const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
  const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);
+});
+
+// Physics review 2026-11-14: every calculation that excludes non-functioning parts excludes detached equipment too
+// (a sensor on a floating structure adds no sensor volume).
+test('a sensor on a floating structure adds no sensor volume',()=>{
+ const mk=floating=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'float sensor');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,80]},{id:2,k:'struct',form:'box',c:[0,floating?200:80,0],s:[100,80,80]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+  const top=C.rayPart([0,500,0],[0,-1,0],s.parts[1]),r=C.commitPlacement(s,{id:-1,k:'sensor',c:[0,top.p[1]+1,0],d:2},{mode:'direct',parentStructureId:2,hit:{p:Array.from(top.p),n:[0,1,0]}});assert.equal(r.ok,true,r.error);C.refreshPlacementGeometry(s);return C.computeStats(s);};
+ const grounded=mk(false),floating=mk(true);assert.ok(grounded.sensorVolume>0,'grounded sensor counts');assert.equal(floating.sensorVolume||0,0,'floating sensor does not');
+});
+
+// 2026-11-14 user decision: an overlap is counted as the denser part's material, with or without placement records.
+test('an overlap between a light structure and a dense plate counts as plate (the denser), with or without a recorded body',()=>{
+ const mk=keep=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'dens');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20],light:true}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+  const hit=C.rayPart([0,200,0],[0,-1,0],s.parts[0]),c=[0,hit.p[1]+0.5,0],r=C.solvePlacement(s,{id:5,k:'struct',form:'box',plate:true,c,s:[20,20,2],yaw:0},{mode:'horizontal',parentStructureId:1,position:c,hit:{p:Array.from(hit.p),n:Array.from(hit.n)},contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);if(!keep){delete r.part.placement.parentStructureId;r.part.placement.unresolvedParentId=1;}s.parts.push(r.part);
+  const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
+ const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);assert.ok(a.info[5].materialVolume>=C.partVolume({k:'struct',form:'box',plate:true,c:[0,0,0],s:[20,20,2]})-1e-6,'the plate keeps its whole volume (denser)');
 });

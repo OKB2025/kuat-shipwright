@@ -50616,13 +50616,13 @@ function baseComputeStats(ship,options={}) {
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
-    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):placementBuriedOnce(pt)?(material.envelopeVolumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):(isAeroPart(pt)||pt.plate)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14: overlaps are counted once, as the denser part (union order); wings, panels and plates count their increment */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
     const ss = pt.distributedWiring?[]:surfSamples(pt); let out = 0; for (const p of ss) if (!inEnv(ship, p, pt)) out++;
     const expF=pt.distributedWiring?0:pt.surfacePatch&&!pt.surfaceUnplaced&&Number.isFinite(pt.surfaceExposure)?clamp(pt.surfaceExposure,0,1):ss.length?out/ss.length:1,A=partArea(pt);
-    info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id),...(detached.has(pt.id)?{detached:true}:{})};
+    info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id)||detached.has(pt.id),...(detached.has(pt.id)?{detached:true}:{})};/* physics review 2026-11-14: every reader of info.overlap treats a detached part as inactive; the overlap warning counts invalid only */
     exposedArea += A * expF;
     if (isStructuralPart(pt) && pt.plate) {
       // Independent plate hardware keeps its material when buried, while only
@@ -51317,6 +51317,11 @@ const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
 // Memory for the reused union prefix (provisional: 32 MB, one ship at a time).
 const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
+// 2026-11-14 user decision: an overlap between structures is counted once, as the denser part's material. The union adds
+// parts densest first (plates, then aero parts by their density, then ordinary and light structures), then by id; no
+// placement record is used.
+function structuralOverlapDensity(p){return p.plate?K.armorDens:isAeroPart(p)?(PARTS[p.k]?.dens||K.structDens):K.structDens*(p.light?.25:1);}
+function structuralOverlapOrder(a,b){return structuralOverlapDensity(b)-structuralOverlapDensity(a)||a.id-b.id;}
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
@@ -51399,7 +51404,7 @@ function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepIn
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
- const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=structuralParentFirst(ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b))),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
+ const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort(structuralOverlapOrder),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
  // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
  // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
@@ -63451,7 +63456,6 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 // union adds every placed part after the part it was placed on (its placement parent), keeping the usual order otherwise,
 // so a child's increment never includes its parent's material and the result does not depend on ids. Parts without a
 // placement parent (built examples, roots) keep exactly the previous order.
-function structuralParentFirst(list){const byId=new Map(list.map(p=>[p.id,p])),done=new Set(),out=[],visit=(p,stack)=>{if(done.has(p.id)||stack.has(p.id))return;stack.add(p.id);const parent=byId.get(p.placement?.parentStructureId);if(parent)visit(parent,stack);stack.delete(p.id);done.add(p.id);out.push(p);};for(const p of list)visit(p,new Set());return out;}
 // Stage B (no fitting, 2026-11-13): a wing, solar panel or plate placed horizontally/vertically on a parent is no longer cut
 // to the parent, so its buried root would be counted twice (parent material + its own). Like main (which cut it away),
 // it counts only the part outside what was already joined: its increment in the structural union. Unplaced parts
@@ -64106,9 +64110,9 @@ function refreshPlacementGeometry(ship,options={}){
    if(r.ok){for(const key of Object.keys(p))if(key.startsWith('_')&&!Object.hasOwn(r.part,key))delete p[key];Object.assign(p,r.part);delete p._placementError;}
    else{const contact=placementEquipmentAnyContact(ship,p);if(contact.connected)delete p._placementError;else{p._placementError=contact.reason||r.code||'contact-zero';failed.push({partId:p.id,code:p._placementError});}}
    p._placementParentKey=placementDependencyKey(parent);}
-  else if(!structure){const contact=placementEquipmentAnyContact(ship,p);if(contact.connected)delete p._placementError;else{p._placementError=contact.reason||'contact-zero';failed.push({partId:p.id,code:p._placementError});}}
+  else if(!structure){const contact=placementEquipmentAnyContact(ship,p);if(contact.connected){if(!(options.ids!=null&&p._placementLoose))delete p._placementError;}/* a targeted refresh keeps the red mark of the last full grounding pass */else{p._placementError=contact.reason||'contact-zero';failed.push({partId:p.id,code:p._placementError});}}
   else if(meta.repairRequired&&!PLACEMENT_CONTACT_CODES.has(meta.repairReason)){p._placementError=meta.repairReason||'placement-repair';failed.push({partId:p.id,code:p._placementError});}
-  else{delete p._placementError;if(!p._placementGeometry&&meta.mode!=='surface'&&!isHullStructure(p)&&!meta.root)try{placementStructureGeometry(ship,p);}catch(e){}}/* a kept structure: the contact graph judges it; a loaded one gets the same carried geometry as a solved one */
+  else{if(!(options.ids!=null&&p._placementLoose))delete p._placementError;if(!p._placementGeometry&&meta.mode!=='surface'&&!isHullStructure(p)&&!meta.root)try{placementStructureGeometry(ship,p);}catch(e){}}/* a kept structure: the contact graph judges it; a loaded one gets the same carried geometry as a solved one */
   p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(!p._placementError)delete p._placementSevered;
   active.delete(p.id);done.add(p.id);};
  try{const ids=options.ids==null?null:new Set(options.ids);
@@ -64132,7 +64136,7 @@ function refreshPlacementGeometry(ship,options={}){
 // connected to something that stood on a removed structure drop together as one piece (shapes and relative positions
 // kept) along the seed's contact axis, until the first member's base reaches a grounded body (the same sink as a user
 // placement), at most the removed structure's depth; with nothing in reach the piece stays where it is (red).
-function placementDropPieces(ship,seeds,reachOf,axisOf,reparented){if(!seeds.length)return;
+function placementDropPieces(ship,seeds,reachOf,axisOf,reparented,seats=new Map()){if(!seeds.length)return;
  const S={warnings:[]};groundingStats(ship,S);const red=new Set(S.ungrounded?.parts||[]),byId=new Map(ship.parts.map(p=>[p.id,p]));
  const placed=q=>q&&q.placement&&(placementCapability(q).space==='exterior'||legacyExteriorShieldAttachment(q));
  const box=p=>{try{return partAABB(p);}catch(e){return null;}},near=(p,q)=>{const A=box(p),B=box(q);return !!A&&!!B&&A.every(Number.isFinite)&&B.every(Number.isFinite)&&[0,1,2].every(i=>A[i]<=B[i+3]+1e-3&&A[i+3]>=B[i]-1e-3);};
@@ -64146,10 +64150,10 @@ function placementDropPieces(ship,seeds,reachOf,axisOf,reparented){if(!seeds.len
     if(![0,1,2].every(i=>Math.min(A[i],A[i]-a[i]*reach)-1e-3<=B[i+3]&&Math.max(A[i+3],A[i+3]-a[i]*reach)+1e-3>=B[i]))continue;
     const probe={...m,c:m.c.slice()};delete probe._placementGeometry;try{placementSinkToSurface(ship,probe,q,a);}catch(e){continue;}const d=dot(sub(m.c,probe.c),a);if(d>1e-9&&d<=reach&&(!best||d<best.d))best={d,q,m};}}
   // Engines and sensors in the piece: from their own mounting point along their contact normal to a grounded body.
-  for(const m of piece){if(isShapePart(m))continue;const seat=placementEquipmentWorldSeat(m,{k:'struct',form:'box',c:[0,0,0],s:[1,1,1]},m.placement||{});if(!seat)continue;const nn=norm(seat.normal);if(Math.abs(dot(nn,a))<.9)continue;
+  for(const m of piece){if(isShapePart(m))continue;const seat=seats.get(m.id)||placementEquipmentWorldSeat(m,{k:'struct',form:'box',c:[0,0,0],s:[1,1,1]},m.placement||{});if(!seat)continue;const nn=norm(seat.normal);if(Math.abs(dot(nn,a))<.9)continue;
    const h=rayEnv(ship,add(seat.anchor,mul(a,1e-3)),mul(a,-1),{maxT:reach+1e-3,structOnly:true});if(!h?.part||inPiece.has(h.part.id)||red.has(h.part.id)||h.part.plate)continue;const d=dot(sub(seat.anchor,h.p),a);if(d>1e-9&&d<=reach&&(!best||d<best.d))best={d,q:h.part,m};}
   if(!best)continue;const delta=mul(a,-best.d);
-  for(const p of piece){p.c=add(p.c,delta);const m=p.placement;if(p.id===best.m.id){m.parentStructureId=best.q.id;m.parentGeometryRevision=best.q.placement?.geometryRevision||0;delete m.hostSurfaceId;}m.requestedGeometry=placementShape(p);m.geometryRevision=(m.geometryRevision||0)+1;delete p._placementGeometry;delete p._placementError;delete p._placementLoose;delete p._engineMountSupportGeometry;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);reparented.push({list:'parts',partId:p.id,parentStructureId:p.id===best.m.id?best.q.id:m.parentStructureId,moved:true});}
+  for(const p of piece){p.c=add(p.c,delta);const m=p.placement;if(p.id===best.m.id){m.parentStructureId=best.q.id;m.parentGeometryRevision=best.q.placement?.geometryRevision||0;delete m.hostSurfaceId;if(p.engineMountSupport){p.engineMountSupport={...p.engineMountSupport,parentId:best.q.id,sourceKey:engineSupportSourceKey(ship,p,best.q)};}}m.requestedGeometry=placementShape(p);m.geometryRevision=(m.geometryRevision||0)+1;delete p._placementGeometry;delete p._placementError;delete p._placementLoose;delete p._engineMountSupportGeometry;p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);reparented.push({list:'parts',partId:p.id,parentStructureId:p.id===best.m.id?best.q.id:m.parentStructureId,moved:true});}
  }
 }
 function placementCopyClosure(ship,selection={}){
@@ -64264,8 +64268,9 @@ const pendingDrop=[];const reachOf=new Map();
   pendingDrop.push(p.id);/* every part that stood on a removed structure seeds the group drop; only parts that lost their grounding move */}
  const supports=remaining;
  for(const fit of ship.fits.filter(f=>closure.fits.includes(f.id))){const parent=supports.filter(p=>{const A=fitAABB(fit),B=bound(p);return [0,1,2].every(i=>A[i]<=B[i+3]+1e-4&&A[i+3]>=B[i]-1e-4);}).map(p=>({part:p,contact:typeof placementFitContact==='function'?placementFitContact(ship,fit,p):{connected:false}})).find(p=>p.contact.connected);if(parent&&typeof rehostFitPlacement==='function'){const r=rehostFitPlacement(ship,fit,parent.part);if(r.ok){reparented.push({list:'fits',fitId:fit.id,parentStructureId:parent.part.id});continue;}}removedFits.add(fit.id);}
+ const seatOf=new Map();for(const id of pendingDrop){const p=ship.parts.find(q=>q.id===id);if(p&&!isShapePart(p)){const body=placementParent(ship,p.placement?.parentStructureId);const seat=body?placementEquipmentWorldSeat(p,body,p.placement||{}):null;if(seat)seatOf.set(id,seat);}}/* the mounting point with its real (pre-delete) body */
  for(const id of pendingDrop){const p=ship.parts.find(q=>q.id===id),a=axisOf(p);if(a)reachOf.set(id,Math.max(...removedStructs.filter(q=>near(p,q,1e-3)).map(q=>extent(q,a)))+PLACEMENT_TOLERANCES.coordinate*4);}
- ship._placementDeleting=true;try{for(const id of removedFits)removeItem(ship,'fits',id,false);for(const id of removed)removeItem(ship,'parts',id,false);ship._cache=null;placementDropPieces(ship,pendingDrop,reachOf,axisOf,reparented);}finally{delete ship._placementDeleting;}for(const g of ship.groups||[]){g.parts=g.parts.filter(id=>!removed.has(id));g.fits=g.fits.filter(id=>!removedFits.has(id));}if(ship.links)ship.links=ship.links.filter(l=>![l.from,l.to].some(id=>/^p\d+$/.test(id)&&removed.has(+id.slice(1))||/^f\d+$/.test(id)&&removedFits.has(+id.slice(1))));ship._cache=null;delete ship._interiorKey;return {ok:true,removed:[...removed],removedFits:[...removedFits],reparented};
+ ship._placementDeleting=true;try{for(const id of removedFits)removeItem(ship,'fits',id,false);for(const id of removed)removeItem(ship,'parts',id,false);ship._cache=null;placementDropPieces(ship,pendingDrop,reachOf,axisOf,reparented,seatOf);}finally{delete ship._placementDeleting;}for(const g of ship.groups||[]){g.parts=g.parts.filter(id=>!removed.has(id));g.fits=g.fits.filter(id=>!removedFits.has(id));}if(ship.links)ship.links=ship.links.filter(l=>![l.from,l.to].some(id=>/^p\d+$/.test(id)&&removed.has(+id.slice(1))||/^f\d+$/.test(id)&&removedFits.has(+id.slice(1))));ship._cache=null;delete ship._interiorKey;return {ok:true,removed:[...removed],removedFits:[...removedFits],reparented};
 }
 function updatePlacementChildren(ship,parentId,options={}){const result=refreshPlacementGeometry(ship);ship._cache=null;delete ship._interiorKey;return result;}
 // Every copy path uses this one reference remapping rule. An omitted
