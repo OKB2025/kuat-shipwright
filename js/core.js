@@ -64336,8 +64336,8 @@ const pendingDrop=[];const reachOf=new Map();
  }};
  // Merge of stages B and C (2026-11-14): a fitting standing on a piece that drops with the delete (stage B) moves with
  // that piece by the same offset and is judged where it lands (keep mode); it does not follow its host otherwise.
- const dropping=new Set(pendingDrop),beforeC=new Map(),riders=[];for(const id of pendingDrop){const q=ship.parts.find(x=>x.id===id);if(q)beforeC.set(id,q.c.slice());}
- for(const fit of ship.fits){if(isTrenchBatteryGroup(fit)||drops.some(d=>d.fit===fit))continue;const seat=seatPart(fit);if(seat&&dropping.has(seat.id))riders.push({fit,partId:seat.id});}
+ // Regression review (merge): any part the drop moves counts, not only the seeds (a chain member higher up moves too).
+ const beforeC=new Map(),riders=[];if(pendingDrop.length)for(const fit of ship.fits){if(isTrenchBatteryGroup(fit)||drops.some(d=>d.fit===fit))continue;const seat=seatPart(fit);if(seat&&!removed.has(seat.id)&&placementCapability(seat).kind==='structure'){riders.push({fit,partId:seat.id});if(!beforeC.has(seat.id))beforeC.set(seat.id,seat.c.slice());}}
  const rideFits=()=>{for(const {fit,partId} of riders){const q=ship.parts.find(x=>x.id===partId),c0=beforeC.get(partId);if(!q||!c0)continue;const d=sub(q.c,c0);if(Math.hypot(...d)<=PLACEMENT_TOLERANCES.coordinate)continue;fit.p=add(fit.p,d);const keep=ship._keepFitPose;ship._keepFitPose=true;try{mountFit(ship,fit);}finally{if(keep)ship._keepFitPose=keep;else delete ship._keepFitPose;}reparented.push({list:'fits',fitId:fit.id,parentStructureId:partId,moved:true});}};
  const seatOf=new Map();for(const id of pendingDrop){const p=ship.parts.find(q=>q.id===id);if(p&&!isShapePart(p)){const body=placementParent(ship,p.placement?.parentStructureId);const seat=body?placementEquipmentWorldSeat(p,body,p.placement||{}):null;if(seat)seatOf.set(id,seat);}}/* the mounting point with its real (pre-delete) body */
  for(const id of pendingDrop){const p=ship.parts.find(q=>q.id===id),a=axisOf(p);if(a)reachOf.set(id,Math.max(...removedStructs.filter(q=>near(p,q,1e-3)).map(q=>extent(q,a)))+PLACEMENT_TOLERANCES.coordinate*4);}

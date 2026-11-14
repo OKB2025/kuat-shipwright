@@ -204,6 +204,11 @@ for(const reason of ['minimum-thickness','contact-shape'])test(`an old fit failu
    C.removeParts(s,[2]);const f=s.fits.find(q=>q.id===fit.id),g=s.fits.find(q=>q.id===51);assert.ok(b.c[1]<b0-10,'the piece dropped');near(f.p[1]-b.c[1],gap,1e-6);assert.equal(f.float,false,'rides with the piece');near(g.p[1],10,1e-6);assert.equal(g.float,false,'drops onto the deck');
    const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);C.remount(L,{keepFitPose:true});for(const id of [fit.id,51]){const q=L.fits.find(x=>x.id===id);assert.equal(q.float,false,'after reload '+id);assert.equal(JSON.stringify(q.p.map(v=>+v.toFixed(6))),JSON.stringify(s.fits.find(x=>x.id===id).p.map(v=>+v.toFixed(6))));}
   });
+ // Regression review (merge 2026-11-14): a weapon on the upper member of a dropping chain moves with it too.
+ test('a weapon on the upper member of a dropping chain moves with the chain and is not floating',()=>{
+  const s=base(),b=put(s,2,0,[30,30,6]),c=put(s,b.id,0,[16,16,4]),top=C.rayPart([0,200,0],[0,-1,0],c);s.fits.push({id:60,k:'pd',p:Array.from(top.p),n:[0,1,0],a:2,ped:0});C.remount(s);
+  const gap=s.fits[0].p[1]-c.c[1],c0=c.c[1];C.removeParts(s,[2]);const f=s.fits[0];assert.ok(c.c[1]<c0-10,'the chain dropped');near(f.p[1]-c.c[1],gap,1e-6);assert.equal(f.float,false);
+ });
  test('a chain on a deleted structure drops together (relative position kept) and is grounded',()=>{
   const s=base(),b=put(s,2,0,[20,20,6]),c=put(s,b.id,0,[6,6,4]),gap=c.c[1]-b.c[1],b0=b.c[1];C.removeParts(s,[2]);
   assert.ok(b.c[1]<b0-10,'B dropped');near(c.c[1]-b.c[1],gap,1e-9);C.refreshPlacementGeometry(s);assert.deepEqual(red(s),[]);
