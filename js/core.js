@@ -51951,9 +51951,9 @@ function baseComputeStats(ship,options={}) {
   // The union starts from the hull, so a place inside the hull material belongs to the hull, not to another structure
   // that overlaps the hull there: such a place is not taken off any structure (physics review 2026-11-14). The hull's own
   // material is not reduced by the bays inside it (open question for the user).
-  const voidIn=new Map();{const order=ship.parts.filter(p=>isStructuralPart(p)&&!isHullStructure(p)).sort(structuralMaterialOrder),boxes=new Map(),hulls=ship.parts.filter(isHullStructure);
+  const voidIn=new Map();{const order=ship.parts.filter(p=>isStructuralPart(p)&&!isHullStructure(p)).sort(structuralMaterialOrder),boxes=new Map();
    for(const pt of occupied){if(!VOID_ROOM_KINDS.has(pt.k)||invalid.has(pt.id)||pt.turretRoom)continue;const V=partVolume(pt);if(!(V>0))continue;const vs=volSamples(pt);if(!vs.length)continue;const share=V/vs.length;
-    for(const q of vs){if(hulls.length&&hullMaterialContains(ship,q))continue;for(const st of order){let b=boxes.get(st);if(!b){b=partAABB(st);boxes.set(st,b);}if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!inStruct(st,q))continue;voidIn.set(st.id,(voidIn.get(st.id)||0)+share);break;}}}}
+    for(const q of vs){if(hullMaterialContains(ship,q))continue;for(const st of order){let b=boxes.get(st);if(!b){b=partAABB(st);boxes.set(st,b);}if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!inStruct(st,q))continue;voidIn.set(st.id,(voidIn.get(st.id)||0)+share);break;}}}}
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
     const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)?Math.max(0,(material.volumes.get(pt.id)??V)-(voidIn.get(pt.id)||0)):isAeroPart(pt)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14 user decisions: every overlap is counted once; a structure owns its overlap with a wing or panel, which counts only what it adds (all parts, with or without a placement record) */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);

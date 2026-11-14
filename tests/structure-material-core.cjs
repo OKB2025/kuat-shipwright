@@ -53,3 +53,15 @@ test('face armor follows the merged outer skin while hidden assignments survive 
 test('rigid rotation and a real small gap do not turn overlapping world bounds into shared material',()=>{
  const s=ship(),rotation={yaw:31,pitch:17,roll:23},a=box(s,[100,100,0],[10,10,10],rotation),b=box(s,C.worldStruct(a,[10.01,0,0]),[10,10,10],rotation),S=C.computeStats(s);assert.ok(C.partAABB(a).every(Number.isFinite));near(S.mass,2000*C.K.structDens,'rotated airgap keeps both solids',.003);near(S.volume,2000,'rotated gross volume',.003);near(S.info[a.id].materialVolume,1000,'first solid',.003);near(S.info[b.id].materialVolume,1000,'second solid',.003);
 });
+
+// Physics review 2026-11-14: the union starts from the hull, so a place inside the hull material belongs to the hull.
+// A bay there is not taken off another structure that overlaps the hull at that place (it used to be, a double
+// subtraction hidden by the clamp at 0). A bay in the part of the structure outside the hull still is.
+test('a bay inside the hull is not taken off a structure that overlaps the hull there; a bay outside the hull is',()=>{
+ const mk=at=>{const s=C.deserialize(plain(C.serialize(C.newShip({L:300,W:60,H:40},'void in hull'))));s.autoHabitation=false;s.armor={hull:0,cit:0};const st={id:s.nextId++,k:'struct',form:'box',c:[150,20,0],s:[40,40,40]};s.parts.push(st);let bay=null;if(at){bay={id:s.nextId++,k:'hangar',c:at,room:[20,8,20],s:[20,8,20]};s.parts.push(bay);}const L=C.deserialize(plain(C.serialize(s)));C.syncCompartments(L);const S=C.computeStats(L);return {S,st:S.info[st.id].materialVolume,L,bay};};
+ const none=mk(null),inHull=mk([150,8,0]),outside=mk([150,32,0]);
+ assert.ok(none.st>1000&&none.st<64000-1000,'the structure is partly inside the hull: '+none.st);
+ assert.ok([4.5,8,11.5].every(y=>C.inHull(inHull.L,[150,y,0]))&&![28.5,32,35.5].some(y=>C.inHull(outside.L,[150,y,0])),'the two bay positions are inside and outside the hull');
+ near(inHull.st,none.st,'a bay in the hull leaves the overlapping structure as it is',1);
+ const off=none.st-outside.st;assert.ok(off>.85*20*8*20&&off<=20*8*20+1,'a bay in the structure outside the hull is taken off it (by sample points): '+off);
+});
