@@ -49185,13 +49185,13 @@ function designCost(S) {
 }
 // ---------- parts (compartments) ----------
 const PARTS = {
-  gen: {name: 'ジェネレーター', shape: 'sphere', dens: 0.90, hp: 0.7, crew: 0.5, cost: 8, col: [238, 140, 62], min: 10, max: 400, def: 110, crit: true,
+  gen: {name: 'ジェネレーター', shape: 'sphere', dens: 1.80, hp: 0.7, crew: 0.5, cost: 8, col: [238, 140, 62], min: 10, max: 400, def: 110, crit: true,
     desc: '球形の主反応炉。直径の3乗で出力が増える。一部を船外に張り出させると体積を稼げるが露出が弱点になる。'},
   shield: {name: 'シールド発生器', shape: 'sphere', dens: 0.50, hp: 0.7, crew: 0.4, cost: 6, col: [66, 204, 186], min: 6, max: 200, def: 34, crit: true,
     desc: '艦内に設置する球形の偏向シールド発生器。必要な出力は艦の外表面積に比例。'},
   hyper: {name: 'ハイパードライブ', shape: 'cyl', dens: 0.60, hp: 0.7, crew: 0.3, cost: 6, col: [162, 134, 232], min: 8, max: 220, def: 50, ratio: 1.5, crit: true,
     desc: '円筒形の超空間航行装置。外殻内に収まる実容積と艦の質量からクラスを計算する。クラスは小さいほど高速。'},
-  engine: {name: 'エンジン', shape: 'engine', dens: 0.55, hp: 0.7, crew: 0.4, cost: 4, col: [92, 174, 236], min: 6, max: 220, def: 60, ratio: 1.6,
+  engine: {name: 'エンジン', shape: 'engine', dens: 1.10, hp: 0.7, crew: 0.4, cost: 4, col: [92, 174, 236], min: 6, max: 220, def: 60, ratio: 1.6,
     desc: '円筒形の亜光速エンジン。後端の噴射口が船外に出ているものだけが推力を出す。'},
   hangar: {name: '航空区画', shape: 'cube', dens: 0.05, hp: 0.4, crew: 0.4, cost: 0.4, col: [74, 88, 99], sizes: [20, 30, 45, 60, 90, 120], def: 45,
     desc: '形状を編集できる格納区画。実際のハッチへつながる飛行甲板・格納庫を通って出入りする。'},
@@ -50626,9 +50626,15 @@ function baseComputeStats(ship,options={}) {
   const reactorVolumes=[];let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,shieldDissipationW,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [],countedMachinery=new Set();
+  // 2026-11-14 user decision: a hangar or cargo hold is empty space. The part of it that lies inside a structure is not
+  // structure material: its volume is taken off the structure that owns that place in the union order. (What the
+  // bay carries is added to the ship as load, not here.)
+  const voidIn=new Map();{const order=ship.parts.filter(p=>isStructuralPart(p)&&!isHullStructure(p)).sort(structuralMaterialOrder),boxes=new Map();
+   for(const pt of occupied){if(!VOID_ROOM_KINDS.has(pt.k)||invalid.has(pt.id)||pt.turretRoom)continue;const V=partVolume(pt);if(!(V>0))continue;const vs=volSamples(pt);if(!vs.length)continue;const share=V/vs.length;
+    for(const q of vs)for(const st of order){let b=boxes.get(st);if(!b){b=partAABB(st);boxes.set(st,b);}if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!inStruct(st,q))continue;voidIn.set(st.id,(voidIn.get(st.id)||0)+share);break;}}}
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
-    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)?(material.volumes.get(pt.id)??V):isAeroPart(pt)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14 user decisions: every overlap is counted once; a structure owns its overlap with a wing or panel, which counts only what it adds (all parts, with or without a placement record) */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)?Math.max(0,(material.volumes.get(pt.id)??V)-(voidIn.get(pt.id)||0)):isAeroPart(pt)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14 user decisions: every overlap is counted once; a structure owns its overlap with a wing or panel, which counts only what it adds (all parts, with or without a placement record) */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
@@ -51124,11 +51130,14 @@ Object.assign(PARTS.hyper,{group:'power'});
 Object.assign(PARTS.shield,{group:'support',name:'広域シールド発生器',desc:'船内に設置する広域シールド発生器。実寸が内部空間に収まる位置へ配置します。'});
 Object.assign(PARTS.hangar,{group:'air',min:10,max:180,desc:'航空機の格納区画。自動充填は炉・推進機関・主要区画を避けます。'});
 Object.assign(PARTS.struct,{group:'shape',desc:'機関を包む外殻と支持構造。形状と前後左右の傾斜を指定できます。'});
+// 2026-11-14 user decisions: machinery is dense. Reactors (gen, aux), engines (engine, engineCore, machinery), the heat
+// converter (hdis), automation, fire control, the navigation and targeting computers, sensors and scanner arrays carry twice
+// their earlier density. An empty cargo hold weighs like an empty hangar (0.05); what it carries is added as load.
 const addComp = (k,name,shape,dens,col,group,desc,extra={}) => PARTS[k]={name,shape,dens,col,group,desc,hp:0.65,crew:0.2,cost:1,min:8,max:240,def:40,ratio:1.5,...extra};
 addComp('wing','主翼','box',K.structDens/* 2026-11-14 user decision: a wing has the density of a structure (was .15) */,[192,199,208],'power','翼弦方向の断面を6頂点の翼型に簡略化した主翼。前縁寄りが最も厚く、後縁へ細くなります。寸法・平面の輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。',{min:.02,max:4000,def:4,crew:0,cost:1.4,hp:1});
 addComp('solarPanel','太陽光パネル','box',K.structDens/* 2026-11-14 user decision: a solar panel has the density of a structure too (was .12) */,[70,79,91],'power','集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。',{min:.02,max:4000,def:4,crew:0,cost:1.6,hp:.65});
 Object.assign(CRAFT_PART_SIZE,{wing:[.02,100,4],solarPanel:[.02,100,4]});
-addComp('aux','補助反応炉','sphere',0.9,[243,187,91],'power','主反応炉と同じ容積あたりの出力を持つ補助炉。独立したノズルの接続先にもできます。',{def:48,crit:true});
+addComp('aux','補助反応炉','sphere',1.8,[243,187,91],'power','主反応炉と同じ容積あたりの出力を持つ補助炉。独立したノズルの接続先にもできます。',{def:48,crit:true});
 addComp('fuel','反応物サイロ','cyl',0.25,[183,135,85],'power','反応物を貯蔵。搭載量と出力から巡航時の持続時間を算出します。',{def:55,crit:true,ratio:2});
 addComp('pump','反応物供給設備','cube',0.3,[197,155,95],'power','ポンプ・弁・供給設備。搭載量に応じて燃料供給能力を確保します。',{def:24});
 // v24 Power cells are retired: each turret's own charging capacitor stores its firing energy, and the
@@ -51139,7 +51148,7 @@ addComp('inertial','慣性制御装置','cyl',0.4,[134,158,211],'support','艦�
 addComp('integrity','構造維持装置','cube',0.45,[127,156,177],'support','構造維持フィールドを支える装置。艦体規模との適合を確認できます。',{def:36});
 addComp('repulsor','着陸設備','cyl',0.35,[112,199,202],'support','リパルサーリフトと着陸脚を一体にした設備。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
 addComp('service','航空整備・補給区画','cube',0.1,[79,140,162],'air','航空機の整備・補給能力を確保します。格納庫とは別に空間を使います。',{def:60});
-addComp('cargo','貨物・物資庫','cube',0.18,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
+addComp('cargo','貨物・物資庫','cube',0.05,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
 // Provisional game equipment: rooms reserve existing envelope living volume;
 // they do not create occupants or add free space outside the ship.
 addComp('habitat','居住設備区画','cube',.08,[194,180,144],'support','外壁に接する居住設備。既存の船内容積を居住用に予約し、内装・生命維持・給電設備の質量と費用を持ちます。乗員や部隊は生成しません。',{def:8,min:.02,crew:0,cost:1.5,power:1e15});
@@ -51147,8 +51156,8 @@ addComp('habitat','居住設備区画','cube',.08,[194,180,144],'support','外�
 // troops live in the free internal volume (personVolume); old designs drop them.
 const RETIRED_PARTS=new Set(['crew','troops','powerBus','radiator']);
 addComp('command','無窓式指揮室','cube',0.22,[180,178,213],'command','艦内へ置ける航行・戦闘指揮室。艦橋ポッドや艦橋本体がなくても指揮できます。',{def:24});
-addComp('firecontrol','射撃指揮装置','cube',0.38,[192,118,113],'command','射撃管制と照準処理を一体で受け持つ設備。武装規模に対して処理能力を点検します。',{def:24});
-addComp('automation','自動化装置','cube',0.3,[146,182,206],'command','艦の運用の一部を機械に任せる装置。容積 20 m³ ごとに乗員 1 名分を代わりに受け持ちますが、1 名分あたり 5×10¹⁹ W を常に使い、高価です（乗員の 95% まで）。戦闘で装置が壊れたり、炉の出力が落ちたり、イオン砲を受けたりすると受け持ち分が抜け、人と装置を合わせた乗員の充足率が 35% を割ると操艦不能になります。',{def:40,crew:.05,cost:20,hp:.5});
+addComp('firecontrol','射撃指揮装置','cube',0.76,[192,118,113],'command','射撃管制と照準処理を一体で受け持つ設備。武装規模に対して処理能力を点検します。',{def:24});
+addComp('automation','自動化装置','cube',0.6,[146,182,206],'command','艦の運用の一部を機械に任せる装置。容積 20 m³ ごとに乗員 1 名分を代わりに受け持ちますが、1 名分あたり 5×10¹⁹ W を常に使い、高価です（乗員の 95% まで）。戦闘で装置が壊れたり、炉の出力が落ちたり、イオン砲を受けたりすると受け持ち分が抜け、人と装置を合わせた乗員の充足率が 35% を割ると操艦不能になります。',{def:40,crew:.05,cost:20,hp:.5});
 // v21 Craft parts: the cockpit (its seats are the crew), an astromech socket, a droid brain and troop seats.
 // v24 The cockpit is a crew seat: a fixed box the size of one seated person (COCKPIT_SEAT). It is interior
 // equipment that is never cut or deformed and must lie wholly inside the structures. More crew means more
@@ -51216,8 +51225,8 @@ const CRAFT_SYSTEM_KEYS=Object.freeze(Object.keys(CRAFT_SYSTEMS.power));
 for(const [k,name,dens,col,def,cost,desc] of [
  ['lifeSupport','生命維持装置',.18,[116,196,174],.35,4,'酸素・気圧・温度を維持する装置。容積から対応人数と無補給の持続時間を算出します。宇宙服を使う座席と無人機は船内の生命維持を必要としません。'],
  ['ejectSeat','射出座席・脱出装置',.28,[222,164,104],.28,4,'操縦席から乗員を射出する安全装置。対応する座席数に応じて撃墜時に生還できる乗員の割合が上がります。'],
- ['navComputer','航法コンピューター',.30,[130,164,218],.22,6,'超空間の航路を計算する機器。ハイパードライブで自立航行するには航法計算が必要です。アストロメク、ドロイド中枢、艦の指揮設備も航法を受け持ちます。'],
- ['targetComputer','照準コンピューター',.30,[216,137,128],.26,6,'武装の追跡と照準を処理します。対応できる武装数に対して不足すると命中率が下がります。既存の射撃管制区画も同じ処理能力に加わります。'],
+ ['navComputer','航法コンピューター',.60,[130,164,218],.22,6,'超空間の航路を計算する機器。ハイパードライブで自立航行するには航法計算が必要です。アストロメク、ドロイド中枢、艦の指揮設備も航法を受け持ちます。'],
+ ['targetComputer','照準コンピューター',.60,[216,137,128],.26,6,'武装の追跡と照準を処理します。対応できる武装数に対して不足すると命中率が下がります。既存の射撃管制区画も同じ処理能力に加わります。'],
  ['maneuver','姿勢制御スラスター',.55,[126,179,220],.35,4,'小型推進器と姿勢制御の配管。容積から対応質量を算出し、機体の旋回能力に反映します。主推進やリパルサーの代わりにはなりません。'],
  ['laserGas','レーザーガス供給装置',.30,[210,184,104],.24,4,'小型レーザー砲のガス槽と供給配管。搭載量と砲の出力から同時射撃できる秒数を算出し、母艦で補充します。イオン砲・艦用ターボレーザーは対象外です。'],
  ['landingGear','着陸脚',.65,[160,170,180],.45,3,'地上で機体を支える脚と格納・展開機構。対応質量が足りるかを確認します。飛行・揚陸に必要な推力やリパルサー支持力は別に必要です。']
@@ -51227,8 +51236,8 @@ Object.assign(PARTS.navComputer,{group:'command'});
 // for each combined function. Launcher magazines remain generated equipment.
 PARTS.landingGear.catalogHidden=true;
 PARTS.targetComputer.catalogHidden=true;
-addComp('engineCore','内蔵推進機関','cyl',0.55,[87,164,205],'power','反応炉の電力を受け取り、独立した動力伝達路を通じて一つ以上のノズルを駆動する内蔵機関。入力容量は実寸と機関等級で決まります。',{def:8,min:.1,max:4000,ratio:2,crew:.2,cost:1,hp:1});
-addComp('machinery','自動推進機関','route',0.55,[87,164,205],'power','炉とノズルの間に自動生成される機関。',{def:30,min:1});
+addComp('engineCore','内蔵推進機関','cyl',1.1,[87,164,205],'power','反応炉の電力を受け取り、独立した動力伝達路を通じて一つ以上のノズルを駆動する内蔵機関。入力容量は実寸と機関等級で決まります。',{def:8,min:.1,max:4000,ratio:2,crew:.2,cost:1,hp:1});
+addComp('machinery','自動推進機関','route',1.1,[87,164,205],'power','炉とノズルの間に自動生成される機関。',{def:30,min:1});
 // Command pods: the drum of the Imperial-class bridge, as a part of its own.
 // They seat on the side, fore or aft walls of a structure and keep a command
 // compartment behind that wall. Old window rows load as pods.
@@ -51319,6 +51328,7 @@ const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
 /* 2026-11-14 user decisions: an overlap is counted once and belongs to the part whose kind has the higher priority (a
    fixed rule per kind, not density); between equal kinds the earlier part (lower id) owns it. Structure > armor plate
    (legacy, converted to surface armor on load) > wing / solar panel and other shapes. Light structures are abolished. */
+const VOID_ROOM_KINDS=new Set(['hangar','cargo']);/* 2026-11-14 user decision: empty bays; their volume inside a structure is not structure material */
 const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,other:1});
 function structuralOverlapKind(p){return isStructuralPart(p)?'structure':'other';}
 /* The exterior armor faces keep main's order (densest first: plates cover the structures they lie on) until plates
@@ -51897,12 +51907,12 @@ function profile(S,name){const p=baseProfile(S,name);p.gunRateBest=Math.max(...S
 
 // Parametric shipbuilding: station lofts, shaped rooms, engine bodies and physical bay mouths.
 function aeroMeshPart(p,mesh){const key=JSON.stringify([p.k,p.c,p.s,p.surfaceNormal,p.pitch,p.roll,p.yaw]),old=p._aeroMeshPart;if(old?.mesh===mesh&&old.key===key&&Array.isArray(old.c)&&Array.isArray(old.s))return old;const q={key,k:p.k,c:p.c,s:p.s,surfaceNormal:p.surfaceNormal,pitch:p.pitch||0,roll:p.roll||0,yaw:p.yaw||0,form:'mesh',mesh};p._aeroMeshPart=q;return q;}
-addComp('scanner','指向性通信・走査アレイ','cyl',.15,[93,110,119],'support','方向を持つ通信・索敵機器。直径、長さ、向きを設定できます。',{def:18,ratio:.25});
+addComp('scanner','指向性通信・走査アレイ','cyl',.30,[93,110,119],'support','方向を持つ通信・索敵機器。直径、長さ、向きを設定できます。',{def:18,ratio:.25});
 SECTIONS.warship='装甲楔形（舷側帯付き）';
 STRUCT_SHAPES.chamfer='切隅・平面台形';
 STRUCT_SHAPES.loft='断面ロフト・傾斜甲板';
 STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
-addComp('sensor','センサー・標的追跡装置','sphere',.18,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
+addComp('sensor','センサー・標的追跡装置','sphere',.36,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
 // Active electronics draw and reject heat through the common hotel network.
 PARTS.sensor.power=2e15;PARTS.scanner.power=2e15;
 function partLabel(p){return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':isStructuralPart(p)&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
@@ -66828,7 +66838,7 @@ const HEAT_PRESETS={cruise:{name:'通常航行',mode:'cruise',eng:.6,sh:1,wpn:0,
 const HEAT_SIZING=['cruise','combat','hold','defend','evade','drive'];
 const HEAT_KINDS={reactor:'反応炉',weapon:'武装',shield:'シールド',engine:'推進',feed:'推進配電路',hotel:'生活・電子設備',sw:'超兵器'};
 const DISSIPATORS={hdis:{grade:'high',ext:false}};
-addComp('hdis','熱エネルギー変換装置','cube',.5,[214,96,120],'power','船体内部に置く熱エネルギー変換装置（スター・ウォーズの架空技術）。内部容積・質量を使い、近くの熱源から熱輸送路で廃熱を受けて処理します。武装・反応炉・推進・シールド・超兵器のどの熱も扱えます。',{def:30,crew:.05,cost:3});
+addComp('hdis','熱エネルギー変換装置','cube',1,[214,96,120],'power','船体内部に置く熱エネルギー変換装置（スター・ウォーズの架空技術）。内部容積・質量を使い、近くの熱源から熱輸送路で廃熱を受けて処理します。武装・反応炉・推進・シールド・超兵器のどの熱も扱えます。',{def:30,crew:.05,cost:3});
 INTERNAL_PARTS.add('hdis');
 Object.assign(MODULE_PART_KIND,{hdis:'dissipator'});
 Object.assign(MODULE_LABEL,{dissipator:'熱エネルギー変換装置',radiator:'放熱翼'});

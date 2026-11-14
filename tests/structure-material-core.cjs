@@ -35,6 +35,17 @@ test('coincident wings are counted once: the second adds no material',()=>{
  const mixed=ship(),body=box(mixed,[100,100,0],[20,8,4]),wing=C.placePart(mixed,'wing',[100,100,0],[20,8,.6],{},false),M=C.computeStats(mixed);near(M.info[body.id].materialVolume,640,'the structure owns its overlap with a wing');near(M.info[wing.id].materialVolume,0);
 });
 
+// 2026-11-14 user decisions: a hangar or cargo hold is empty space, so its volume inside a structure is not structure
+// material; an empty cargo hold weighs like an empty hangar; other rooms do not displace structure; machinery is dense.
+test('a hangar or cargo hold inside a structure takes its volume off the structure material; other rooms do not',()=>{
+ const mk=rooms=>{const s=C.newShip({L:300,W:200,H:160,assembly:true},'void');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[100,50,0],s:[100,100,100]}],fits:[],hatches:[],links:[],groups:[],nextId:2,autoHabitation:false,detail:0});s.armor={hull:0,cit:0};for(const k of rooms)s.parts.push({id:s.nextId++,k,c:[100,50,0],room:[90,90,90],s:[90,90,90]});const L=C.deserialize(plain(C.serialize(s)));C.syncCompartments(L);return C.computeStats(L);};
+ const solid=mk([]);near(solid.mass,1e6*C.K.structDens);
+ for(const k of ['hangar','cargo']){const S=mk([k]);near(S.info[1].materialVolume,1e6-729000,k+': the bay volume is not structure');near(S.mass,(1e6-729000)*C.K.structDens+729000*C.PARTS[k].dens,k+': structure around the bay plus the empty bay',1);}
+ assert.equal(C.PARTS.cargo.dens,C.PARTS.hangar.dens,'an empty cargo hold weighs like an empty hangar');
+ const other=mk(['habitat']);near(other.info[1].materialVolume,1e6,'a habitat does not displace structure');
+ assert.deepEqual([C.PARTS.gen.dens,C.PARTS.aux.dens,C.PARTS.engine.dens,C.PARTS.engineCore.dens,C.PARTS.machinery.dens,C.PARTS.hdis.dens,C.PARTS.automation.dens,C.PARTS.firecontrol.dens,C.PARTS.navComputer.dens,C.PARTS.targetComputer.dens,C.PARTS.sensor.dens,C.PARTS.scanner.dens],[1.8,1.8,1.1,1.1,1.1,1,.6,.76,.6,.6,.36,.3],'machinery carries twice its earlier density');
+});
+
 test('face armor follows the merged outer skin while hidden assignments survive and restore when separated',()=>{
  const s=ship(),a=box(s);s.armor.hull=.2;assert.equal(C.enableSurfaceMode(s).ok,true);const original=plain(C.serialize(s).surfaces.patches),single=C.computeStats(s),b=box(s);for(const q of original){const copy=plain(q);copy.id=copy.id.replace('p'+a.id+':','p'+b.id+':');s.surfaces.patches.push(copy);}C.surfaceSync(s);let S=C.computeStats(s);near(S.armorMass,single.armorMass,'coincident armor sheets count once');near(S.mass,single.mass);near(S.cost,single.cost);assert.ok(C.surfacePatches(s).filter(p=>p.host==='p'+b.id).every(p=>!p.exposed));assert.ok(s.surfaces.patches.some(q=>q.id.startsWith('p'+b.id+':')&&q.armor.thickness===.2),'hidden assignments remain editable design data');b.c[0]=105;C.surfaceSync(s);S=C.computeStats(s);near(S.armorMass,800*.2*C.K.armorDens,'partial overlap has an800m² outer union');near(S.mass,1500*C.K.structDens+800*.2*C.K.armorDens);b.c[0]=125;C.surfaceSync(s);S=C.computeStats(s);near(S.armorMass,single.armorMass*2);near(S.mass,single.mass*2);near(S.cost,single.cost*2);assert.equal(s.parts.length,2);
 });
