@@ -208,3 +208,28 @@ test('an engine on a floating structure is red and gives no function; refused eq
  const e=s.parts.find(p=>p.k==='engine'),f=C.refreshPlacementGeometry(s);assert.ok(f.failed.some(q=>q.partId===e.id),'red');assert.ok(e._placementError);
  const st=C.computeStats(s);assert.equal(st.info[e.id]?.overlap,false,'not an overlap');assert.equal(st.overlap||0,0);
 });
+
+// Stage B Opus/high review 3 (2026-11-14).
+test('H1: touching siblings placed by the editor draft path stay connected after their body is deleted (no parent cycle, nothing written)',()=>{
+ const s=C.newShip({L:300,W:300,H:100,assembly:true},'rk');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[40,40,20]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const draft=(x,size)=>{const c=[x,10+size[2]/2-1,0],d=C.preparePlacementDraft(s,{id:s.nextId,k:'struct',form:'box',c,s:size,yaw:0,pitch:0},{mode:'horizontal',parentStructureId:1,hostId:1,hit:{p:[x,10,0],n:[0,1,0]},contactFit:'cut',position:c,placementModelVersion:C.PLACEMENT_MODEL_VERSION});assert.equal(d.ok,true,d.error);s.parts.push(d.part);s.nextId++;C.refreshPlacementGeometry(s);return s.parts.at(-1);};
+ const a=draft(-5,[10,10,10]),b=draft(5,[10,10,10]);s.parts.push({id:s.nextId++,k:'struct',form:'box',c:[40,0,0],s:[60,80,80]});C.refreshPlacementGeometry(s);
+ C.removeParts(s,[1]);const pub=()=>C.publicJSON(s.parts.filter(p=>p.id===a.id||p.id===b.id)),after=pub(),f=C.refreshPlacementGeometry(s);
+ assert.deepEqual(Array.from(f.failed),[]);assert.equal(pub(),after,'the refresh writes nothing');assert.equal(a.placement.repairRequired,undefined);
+ const L=C.deserialize(structuredClone(C.serialize(s)));assert.deepEqual(Array.from(C.refreshPlacementGeometry(L).failed),[]);
+});
+test('H1: an old save with a parent-cycle repair state loads without it',()=>{
+ const {ship,part}=fixture(0);Object.assign(part.placement,{repairRequired:true,repairReason:'parent-cycle'});const L=C.deserialize(structuredClone(C.serialize(ship)));assert.equal(L.parts.find(p=>p.id===2).placement.repairRequired,undefined);
+});
+test('H2: an engine on top of a deleted structure drops onto the body below',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,14,0],s:[40,40,8]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const h=C.rayPart([0,200,0],[0,-1,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[0,h.p[1]+6,0],d:4,nozzleLength:3,dir:[0,1,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);C.refreshPlacementGeometry(s);
+ const e=s.parts.find(p=>p.k==='engine'),y0=e.c[1];C.removeParts(s,[2]);near(e.c[1],y0-8,1e-6);assert.deepEqual(Array.from(C.refreshPlacementGeometry(s).failed),[]);
+});
+test('M1: a horizontally placed wing counts its buried root once with or without a recorded tapped body',()=>{
+ const WING={k:'wing',form:'trap',s:[20,12,2],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}};
+ const mk=keep=>{const ship=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'w');ship.fits=[];C.ensurePrimaryHull(ship);C.refreshPlacementGeometry(ship);const raw=C.rayPart([100,500,0],[0,-1,0],ship.parts[0]),hit={p:Array.from(raw.p),n:Array.from(C.norm(raw.n))},id=ship.nextId++;
+  const r=C.solvePlacement(ship,{id,c:[100,raw.p[1]+0.5,0],yaw:0,pitch:0,...structuredClone(WING)},{mode:'horizontal',parentStructureId:1,position:[100,raw.p[1]+0.5,0],hit,contactFit:'cut',contactSide:'bottom'});assert.equal(r.ok,true,r.error);if(!keep){delete r.part.placement.parentStructureId;r.part.placement.unresolvedParentId=1;}ship.parts.push(r.part);
+  const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
+ const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);
+});

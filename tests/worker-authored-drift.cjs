@@ -11,15 +11,15 @@ const {designWorker}=require('./helpers/worker-harness.cjs');
 const {scenarios}=require('./helpers/authored-drift-scenarios.cjs');
 const E={first:[],firstSurface:[],edit:[],editSurface:[]};
 const ALLOWED={
- // Stage B (2026-11-13) removed the structure rewrites: a placed child is not re-fitted, re-anchored or re-keyed
- // when its parent changes (the fitted shape is stored, placement.fittedGeometry), and exterior equipment does
- // not follow its parent. These scenarios must stay empty.
+ // Stage B (2026-11-13, no fitting and no parent relation): nothing placed is re-solved, re-anchored or re-keyed
+ // when another part changes, and exterior equipment does not follow the body it was placed on. These scenarios
+ // must stay empty.
  'root resized across, sunk child elsewhere':E,
  'unrelated structure moved':E,
  'ship-level cut, unrelated structure moved':E,
  'mirrored pair, one side resized':E,
- // The edited structure itself (id 58, moved by the edit) is re-fitted at its new place and its record follows
- // the user's move (user decision 2026-11-13: a move by the user fits anew). No other item changes.
+ // The edited structure itself (id 58, moved by the edit) is solved again at its new place (a user edit; no fitting)
+ // and its record follows the user's move. No other item changes.
  'user design with surfaces, one structure moved':{...E,edit:[['parts',58,'changed','placement','']],editSurface:[['parts',58,'changed','placement','']]},
  // Phase C (fit host-follow): the weapon follows its moved host.
  'weapon on a moved structure':{...E,edit:[['fits',2,'changed','p,placement','']],editSurface:[['fits',2,'changed','p,placement','']]},
