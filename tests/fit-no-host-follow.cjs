@@ -134,3 +134,12 @@ test('a triple70 dropped onto a 12° slope equals the same gun placed there dire
  const A=mk();place(A,2,A.parts[1]);C.removeParts(A,[2]);C.refreshPlacementGeometry(A);const B=mk();B.parts=B.parts.filter(p=>p.id!==2);C.refreshPlacementGeometry(B);place(B,1,B.parts[0]);
  assert.equal(look(A),look(B));
 });
+// Stage C high review 5 (H-C): a bridge module on a deck edge over a lower deck, and on slopes beyond 45°, keeps its
+// base, low, slope, origin and mass through save and load (the kept measurement equals the seating one).
+test('H-C: a bridge module on a deck edge over a lower deck and on 50° / 40° slopes keeps its figures through save and load',()=>{
+ const cases={edgeOverLower:{parts:[{id:1,k:'struct',form:'box',c:[100,100,0],s:[40,160,20]},{id:2,k:'struct',form:'box',c:[100,10,0],s:[200,160,20]}],x:118},roll50:{parts:[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20],roll:50}],x:100},roll40:{parts:[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20],roll:40}],x:100}};
+ const st=f=>JSON.stringify([+f.base.toFixed(6),+f.low.toFixed(6),+f.slope.toFixed(6),!!f.float,+C.fitOrigin(f)[1].toFixed(6)]);
+ for(const [name,c] of Object.entries(cases)){const s=C.newShip({L:300,W:200,H:100,assembly:true},'p');s.parts=JSON.parse(JSON.stringify(c.parts));s.fits=[];s.links=[];s.armor={hull:0,cit:0};s.nextId=3;s.detail=0;C.refreshPlacementGeometry(s);
+  const top=C.rayEnv(s,[c.x,500,0],[0,-1,0],{structOnly:true});s.fits.push({id:9,k:'brS',p:Array.from(top.p),n:[0,1,0],a:2,ped:.3});C.remount(s);const want=st(s.fits[0]),m0=C.computeStats(s).mass;
+  const L=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));C.syncCompartments(L);C.remount(L,{keepFitPose:true});assert.equal(st(L.fits[0]),want,name);near(C.computeStats(L).mass,m0,1e-6*m0);}
+});
