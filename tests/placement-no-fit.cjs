@@ -221,6 +221,13 @@ test('H1: touching siblings placed by the editor draft path stay connected after
 test('H1: an old save with a parent-cycle repair state loads without it',()=>{
  const {ship,part}=fixture(0);Object.assign(part.placement,{repairRequired:true,repairReason:'parent-cycle'});const L=C.deserialize(structuredClone(C.serialize(ship)));assert.equal(L.parts.find(p=>p.id===2).placement.repairRequired,undefined);
 });
+// Regression review 2026-11-14: the drop starts from the engine's real seat also when the deleted body was turned.
+test('an engine on a turned (yaw 30°) structure drops onto the body below and stays grounded through save and load',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[10,14,5],s:[40,30,8],yaw:30}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
+ const h=C.rayPart([15,200,8],[0,-1,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[15,h.p[1]+6,8],d:4,nozzleLength:3,dir:[0,1,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);C.refreshPlacementGeometry(s);
+ const e=s.parts.find(p=>p.k==='engine'),c0=e.c.slice();C.removeParts(s,[2]);near(e.c[0],c0[0],1e-6);near(e.c[2],c0[2],1e-6);near(e.c[1],c0[1]-8,1e-6);assert.deepEqual(Array.from(C.refreshPlacementGeometry(s).failed),[]);
+ const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);const g=L.parts.find(p=>p.k==='engine');assert.deepEqual(plain(g.c),plain(e.c));assert.equal(g._placementError,undefined);assert.ok(!C.computeStats(L).info[g.id].detached,'it functions');
+});
 test('H2: an engine on top of a deleted structure drops onto the body below',()=>{
  const s=C.newShip({L:300,W:200,H:100,assembly:true},'drop');Object.assign(s,{parts:[{id:1,k:'struct',form:'box',c:[0,0,0],s:[120,80,20]},{id:2,k:'struct',form:'box',c:[0,14,0],s:[40,40,8]}],fits:[],hatches:[],links:[],groups:[],nextId:3,autoHabitation:false,detail:0});C.refreshPlacementGeometry(s);
  const h=C.rayPart([0,200,0],[0,-1,0],s.parts[1]),r=C.solvePlacement(s,{id:-1,k:'engine',c:[0,h.p[1]+6,0],d:4,nozzleLength:3,dir:[0,1,0]},{mode:'direct',parentStructureId:2,geometryRevision:1,parentGeometryRevision:0,placementModelVersion:C.PLACEMENT_MODEL_VERSION,hit:{p:Array.from(h.p),n:Array.from(h.n)}});assert.equal(r.ok,true,r.error);C.acceptPlacementResult(s,r);C.refreshPlacementGeometry(s);
