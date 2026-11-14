@@ -51320,7 +51320,16 @@ const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
 // 2026-11-14 user decision: an overlap between structures is counted once, as the denser part's material. The union adds
 // parts densest first (plates, then aero parts by their density, then ordinary and light structures), then by id; no
 // placement record is used.
-function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
+/* 2026-11-14 user decision: an overlap belongs to the part whose kind has the higher priority (a fixed rule per kind, not
+   density); between equal kinds the earlier part (lower id) owns it. Structure > light structure > armor plate >
+   wing / solar panel and other shapes. This is the order main produced, so example figures are unchanged. Light
+   structures and plates are to be removed in a separate PR (plates become surface armor by area). */
+const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,lightStructure:1,plate:2,other:3});
+function structuralOverlapKind(p){return p.plate?'plate':isStructuralPart(p)?(p.light?'lightStructure':'structure'):'other';}
+/* The exterior armor faces keep main's order (densest first: plates cover the structures they lie on) until plates
+   become surface armor (separate PR). */
+function structuralSurfaceOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
+function structuralMaterialOrder(a,b){return STRUCTURAL_OVERLAP_PRIORITY[structuralOverlapKind(a)]-STRUCTURAL_OVERLAP_PRIORITY[structuralOverlapKind(b)]||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
 // and each ask walked every triangle (planes x triangles: most of a Gozanti's 100 s of figures). The triangles are
@@ -51402,7 +51411,7 @@ function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepIn
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
- const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
+ const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort(structuralMaterialOrder),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
  // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
  // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
@@ -51423,7 +51432,7 @@ function structuralMaterial(ship){
  const result={hull,entries,volumes,envelopeVolumes,extension,boundary};STRUCTURAL_MATERIAL_CACHE.set(ship,result);return result;
 }
 function structuralCoincidentTriangles(ship,patch,T){
- if(!T.length||!isStructuralPart(patch._part))return T;const prior=ship.parts.filter(p=>isStructuralPart(p)&&structuralMaterialOrder(p,patch._part)<0).sort(structuralMaterialOrder);let result=T;if(!ship.hull.assembly)result=structuralClipBoundary(result,hullGeo(ship).tris,true,true);for(const p of prior){result=structuralClipBoundary(result,structTriangles(p),true,true);if(!result.length)break;}return result;
+ if(!T.length||!isStructuralPart(patch._part))return T;const prior=ship.parts.filter(p=>isStructuralPart(p)&&structuralSurfaceOrder(p,patch._part)<0).sort(structuralSurfaceOrder);let result=T;if(!ship.hull.assembly)result=structuralClipBoundary(result,hullGeo(ship).tris,true,true);for(const p of prior){result=structuralClipBoundary(result,structTriangles(p),true,true);if(!result.length)break;}return result;
 }
 function structuralArmorArea(ship,part){return surfacePatches(ship,!ship.surfaces).filter(p=>p._part===part).reduce((n,p)=>n+p.exposedArea,0);}
 function cylinderLocal(pt,p){const q=sub(p,pt.c),f=frameAxis(pt.dir||[1,0,0]);return [dot(q,f.u),dot(q,f.v),dot(q,f.w)];}
@@ -52392,7 +52401,7 @@ function surfacePatches(ship,structuralOnly=false,defaultsOnly=false,hostIds=nul
  // after an edit only the patches the edited parts can reach are clipped again.
  const hostT=new Map(hosts.map(h=>[h.host,h.T])),priorIds=new Map();
  for(const p of out){const T0=hostT.get(p.host),b=solidMeshBounds(p.triangles),probe=1e-6,cands=meshes.filter(m=>m.part!==p._part&&[0,1,2].every(i=>m.b[i]<=b[i+3]+probe&&m.b[i+3]>=b[i]-probe)).map(m=>surfaceMeshId(m.T)).join(',');
-  let prior='';if(isStructuralPart(p._part)){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>isStructuralPart(q)&&structuralMaterialOrder(q,p._part)<0).sort(structuralMaterialOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
+  let prior='';if(isStructuralPart(p._part)){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>isStructuralPart(q)&&structuralSurfaceOrder(q,p._part)<0).sort(structuralSurfaceOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
   const sig=[p.id,p.range.join(','),p.triangles.length,cands,prior].join('|');let memo=T0&&SURFACE_EXPOSED_MEMO.get(T0);if(T0&&!memo)SURFACE_EXPOSED_MEMO.set(T0,memo=new Map());const hit=memo?.get(p.id);
   if(hit?.sig===sig&&hit.n===p.triangles.length&&hit.triangles.every((x,i)=>x===p.triangles[i]))p.exposedTriangles=hit.value;else{p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));memo?.set(p.id,{sig,n:p.triangles.length,triangles:p.triangles,value:p.exposedTriangles});}
   p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
