@@ -65,7 +65,7 @@ test('surface-mode descendants keep their world orientation when the parent rota
 
 test('a missing saved parent retains repairable children; cycles and lost faces cannot silently reconnect',()=>{
  const s=fixture(),child=add(s),grand=add(s,child.id,'horizontal',[0,100,0],[0,-1,0],box([4,4,4])),original=C.publicJSON(child.placement.requestedGeometry);s.parts=s.parts.filter(p=>p.id!==1);const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,false);assert.equal(s.parts.length,2);assert.equal(C.publicJSON(child.placement.requestedGeometry),original);assert.equal(C.placementDiagnostics(s).find(p=>p.partId===child.id).connected,false);/* 2026-11-13 (contact only): the grandchild is red by contact (no parent-unresolved state) */assert.ok(grand._placementError);assert.equal(C.placementDiagnostics(s).find(p=>p.partId===grand.id).connected,false);
- const t=fixture(),q=add(t);t.parts[0].placement={...plain(q.placement),parentStructureId:q.id,root:false};assert.equal(C.solvePlacement(t,q,{mode:'horizontal',parentStructureId:1}).code,'parent-cycle');
+ const t=fixture(),q=add(t);t.parts[0].placement={...plain(q.placement),parentStructureId:q.id,root:false};/* 2026-11-13 (no parent relation): recorded tapped bodies are never walked, so no parent-cycle refusal exists */assert.notEqual(C.solvePlacement(t,q,{mode:'horizontal',parentStructureId:1}).code,'parent-cycle');
  const u=fixture();assert.equal(C.solvePlacement(u,box(),{mode:'horizontal',parentStructureId:1,hostSurfaceId:'p1:missing:0',hit:{p:[0,10,0],n:[0,1,0]}}).code,'surface-missing');
 });
 
