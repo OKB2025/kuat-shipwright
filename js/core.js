@@ -49632,12 +49632,6 @@ function structBox(pt) {   // struct part geometry: centre c, size [l,w,h], tape
   const [l, w, h] = pt.s;
   return {x0: pt.c[0] - l / 2, x1: pt.c[0] + l / 2, y0: pt.c[1] - h / 2, y1: pt.c[1] + h / 2, z0: pt.c[2] - w / 2, z1: pt.c[2] + w / 2, l, w, h, tp: pt.taper || 0};
 }
-function baseInStruct(pt, p) {
-  const b = structBox(pt);
-  if (p[1] < b.y0 || p[1] > b.y1) return false;
-  const f = (p[1] - b.y0) / Math.max(1e-6, b.h), sc = 1 - b.tp * f;
-  return Math.abs(p[0] - pt.c[0]) <= b.l / 2 * sc && Math.abs(p[2] - pt.c[2]) <= b.w / 2 * sc;
-}
 function inEnv(ship, p, skip) {
   if (inHull(ship, p)) return true;
   for (const pt of ship.parts) if (isShapePart(pt) && pt !== skip) { const b = structBounds(pt); if (p[0] >= b[0] && p[0] <= b[3] && p[1] >= b[1] && p[1] <= b[4] && p[2] >= b[2] && p[2] <= b[5] && inStruct(pt, p)) return true; }
@@ -50487,16 +50481,6 @@ function bridgeView(ship, f, hf, obst) {
 // ---------- editing helpers ----------
 function mirrorP(p) { return [p[0], p[1], -p[2]]; }
 function twinOf(ship, item, list) { return item.tw ? list.find(q => q.id === item.tw) : null; }
-function basePlacePart(ship, k, c, size, opts, mirror) {
-  opts = opts || {};
-  const pt = {id: nid(ship), k, c: c.slice()};
-  if (isShapeKind(k)) { pt.s = size.slice(); pt.taper = opts.taper || 0; } else pt.d = size;
-  ship.parts.push(pt);
-  if (mirror && Math.abs(c[2]) > Math.max(1, partDims(pt).r * 0.05)) {
-    const q = JSON.parse(JSON.stringify(pt)); q.id = nid(ship); q.c = mirrorP(c); q.tw = pt.id; pt.tw = q.id; ship.parts.push(q);
-  }
-  return pt;
-}
 function basePlaceFit(ship, k, p, n, ped, mirror, options={}) {
   const d = FITS[k];
   if(ship.fits.length+(mirror?2:1)>DESIGN_LIMITS.fits)return {err:'装備数の上限は'+DESIGN_LIMITS.fits+'基です'};
@@ -50893,21 +50877,6 @@ function warnings(S) {
 }
 
 // ---------- serialization ----------
-function baseSerialize(ship) {
-  const o = {format: 'starship-yard', v: 2};
-  for (const k of ['name', 'hull', 'cuts', 'subs', 'parts', 'hatches', 'fits', 'armor', 'nextId']) o[k] = ship[k];
-  return JSON.parse(JSON.stringify(o));
-}
-function baseDeserialize(o) {
-  if (!o || o.format !== 'starship-yard') throw new Error('設計図の形式が違います');
-  if (o.v !== 2) throw new Error('旧形式（ブロック版）の設計図は読み込めません');
-  const s = newShip(o.hull, o.name);
-  for (const k of ['cuts', 'subs', 'parts', 'hatches', 'fits', 'armor', 'nextId']) if (o[k] != null) s[k] = JSON.parse(JSON.stringify(o[k]));
-  s.parts = s.parts.filter(p => PARTS[p.k]); s.fits = s.fits.filter(f => FITS[f.k]);
-  let mx = 0; for (const l of [s.parts, s.hatches, s.fits, s.cuts, s.subs]) for (const q of l) mx = Math.max(mx, q.id || 0);
-  s.nextId = Math.max(s.nextId || 1, mx + 1);
-  return s;
-}
 
 // ---------- programmatic designs (sample and exercise opponents) ----------
 function deckPoint(ship, x, z, bottom) {
@@ -51052,7 +51021,6 @@ const DESIGNS = {
     gunsSide(s, 'pd', [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], 0.35);
   }},
 };
-function baseBuildDesign(key) { const d = DESIGNS[key], s = newShip(d.hull, d.name); d.build(s); return s; }
 
 // ---------- engagement simulation ----------
 function baseProfile(S, name) {
@@ -51265,19 +51233,6 @@ function reactorFor(ship,p){
   return rs.sort((a,b)=>len(sub(a.c,p.c))-len(sub(b.c,p.c)))[0]||null;
 }
 function frameAxis(axis){const u=norm(axis),v=norm(cross(Math.abs(u[1])<0.9?[0,1,0]:[0,0,1],u));return {u,v,w:cross(u,v)};}
-function v3EnginePaths(ship){
-  const ps=ship.parts.filter(p=>isReactor(p)||p.k==='engine'),key=JSON.stringify(ps);
-  if(ship._engines?.key===key)return ship._engines.paths;
-  const paths=[];
-  for(const e of ps.filter(p=>p.k==='engine')){
-    const r=reactorFor(ship,e);if(!r)continue;
-    const dir=norm(e.dir||[-1,0,0]),b=sub(e.c,mul(dir,e.d*0.16)),u=norm(sub(b,r.c));
-    const a=add(r.c,mul(u,r.d*0.49)),l=len(sub(b,a));if(l<1)continue;
-    const seg={a,b,l,r0:Math.min(r.d*0.23,e.d*0.4),r1:e.d*0.49,...frameAxis(sub(b,a))};
-    paths.push({id:-e.id,k:'machinery',c:mul(add(a,b),0.5),d:e.d,seg,reactor:r.id,nozzle:e.id});
-  }
-  ship._engines={key,paths};return paths;
-}
 function inRoute(seg,p){const q=sub(p,seg.a),t=dot(q,seg.u)/seg.l;if(t<0||t>1)return false;const r=lerp(seg.r0,seg.r1,t);return dot(q,q)-(t*seg.l)**2<=r*r+1e-7;}
 function windowFrame(f){const up=norm(f.n||AXES[f.a]),vertical=norm(sub(f._wallUp||[0,1,0],mul(up,dot(f._wallUp||[0,1,0],up))));const fw=len(vertical)>.01?norm(cross(vertical,up)):[1,0,0];return {up,fw,rt:cross(fw,up)};}
 function windowBay(f){const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm;const depth=f.commandDepth??12,height=f.commandHeight??Math.max(8,h+3);return {id:-100000-f.id,k:'command',c:sub(f.p,mul(fr.up,1+depth/2)),d:1,boxFrame:fr,boxSize:[w,depth,height],windowId:f.id};}
@@ -51439,7 +51394,6 @@ function structuralMaterial(ship){
 function structuralCoincidentTriangles(ship,patch,T){
  if(!T.length||!isStructuralPart(patch._part))return T;const prior=ship.parts.filter(p=>isStructuralPart(p)&&structuralSurfaceOrder(p,patch._part)<0).sort(structuralSurfaceOrder);let result=T;if(!ship.hull.assembly)result=structuralClipBoundary(result,hullGeo(ship).tris,true,true);for(const p of prior){result=structuralClipBoundary(result,structTriangles(p),true,true);if(!result.length)break;}return result;
 }
-function structuralArmorArea(ship,part){return surfacePatches(ship,!ship.surfaces).filter(p=>p._part===part).reduce((n,p)=>n+p.exposedArea,0);}
 function cylinderLocal(pt,p){const q=sub(p,pt.c),f=frameAxis(pt.dir||[1,0,0]);return [dot(q,f.u),dot(q,f.v),dot(q,f.w)];}
 function v3PartDims(pt){if(pt.k==='machinery')return {r:pt.seg.l/2+Math.max(pt.seg.r0,pt.seg.r1),l:pt.seg.l,rad:pt.seg.r1};if(pt.boxSize)return {r:len(pt.boxSize)/2};return basePartDims(pt);}
 function v3PartVolume(pt){if(isShapePart(pt))return structVolume(pt);if(pt.k==='machinery'){const s=pt.seg;return Math.PI*s.l/3*(s.r0*s.r0+s.r0*s.r1+s.r1*s.r1);}if(pt.boxSize)return pt.boxSize.reduce((a,b)=>a*b,1);return basePartVolume(pt);}
@@ -55437,11 +55391,6 @@ function aviationStatus(ship,info){
  for(const r of wingsOut){usedSize+=r.usedSize;embarkedSize+=r.embarkedSize;deployableSize+=r.deployableSize;if(r.kind==='ship'){shipCount+=r.count;shipEmbarked+=r.embarked;shipDeployable+=r.deployable;}else{requestedCount+=r.count;embarkedCount+=r.embarked;deployableCount+=r.deployable;if(isCombatRow(r))combatDeployable+=r.deployable;}}
  const vehicleSize=vehicles.reduce((n,r)=>n+r.stowed*r.size,0);
  return {capacity,connectedCapacity,rawCapacity,rawConnectedCapacity:rawConnected,maxAircraftSize,connectedMaxAircraftSize,usedSize,embarkedSize,deployableSize,remainingSize:Math.max(0,capacity-usedSize-vehicleSize),freeSize:st.bays.reduce((n,b)=>n+Math.max(0,b.sizeLeft),0),overflowSize:Math.max(0,usedSize-capacity),requestedCount,embarkedCount,deployableCount,combatDeployable,shipCount,shipEmbarked,shipDeployable,wings:wingsOut,vehicles,vehicleSize,lift:st.lift,bays:st.bays.map(b=>({id:b.id,capacity:b.capacity,connected:b.connected,dims:b.dims,vol:b.vol,doors:b.doors,sizeLeft:b.sizeLeft,packLeft:b.packLeft}))};
-}
-function smallAircraftWings(count,name='小型機航空隊'){
- const rows=[];let remaining=Math.max(0,Math.floor(count));
- while(remaining>0&&rows.length<AIR_WING_LIMITS.rows){const n=Math.min(remaining,AIR_WING_LIMITS.maxCount),i=rows.length+1;rows.push({id:'air-'+i,name:i===1?name:name+' '+i,size:1,count:n});remaining-=n;}
- return rows;
 }
 // v20 The standard complements of the built-in examples, by type. The Star Destroyer's
 // 72 TIEs (48 fighters, 12 interceptors, 12 bombers), 8 Lambda shuttles, Sentinel landing
@@ -61154,7 +61103,6 @@ function powerDomainProfile(ship,S,mods){
  for(const m of mods){const part=m.part!=null?owners.get('p'+m.part):null,ownerId=m.machineryOwner??(part?.k==='engine'&&part.machineryId!==part.id?part.machineryId:null),owner=ownerId!=null?mods.find(q=>q.k==='engine'&&q.part===ownerId):null;if(owner){m.domain=owner.domain;if(m.machineryOwner!=null)m.port=owner.port;m.powerConnected=owner.powerConnected;}}
  return [...map.values()];
 }
-function powerState(u){return u.gridState||(u.gridState={domains:{},local:{},last:null});}
 function powerDomainWatts(u,id,physicalOnly=false){
  const d=u.p?.grid?.domains?.find(d=>d.id===id);if(!d)return id==='main'?Math.max(0,u.p?.grid?.P||0)*(physicalOnly||!(u.gridState?.domains?.main?.trip>0)?1:0):0;
  const mods=u.p.modules||[],sources=d.sources?.length?d.sources:mods.map((m,i)=>({m,i})).filter(x=>x.m.k==='reactor'&&(x.m.domain||'main')===id).map(x=>({moduleIndex:x.i,P:d.P*Math.max(0,x.m.size||x.m.share||1)/Math.max(1e-30,mods.filter(m=>m.k==='reactor'&&(m.domain||'main')===id).reduce((a,m)=>a+Math.max(0,m.size||m.share||1),0))}));
@@ -61261,14 +61209,6 @@ function coolingPowerReserve(u,got,g,dt,supplyW=g?.P||0){
    for(const q of got.coolingInputs)if(q.id){c.reserveByNodeJ[q.id]=(c.reserveByNodeJ[q.id]||0)+Math.max(0,q.W||0)*seconds;const target=c.reserveByNodeSourceJ[q.id]||(c.reserveByNodeSourceJ[q.id]={}),feeds=c.reserveByNodeFeedJ[q.id]||(c.reserveByNodeFeedJ[q.id]={});for(const [source,W]of Object.entries(q.sourceInputs||{}))target[source]=(target[source]||0)+Math.max(0,W)*seconds;for(const loss of q.feedLosses||[])feeds[loss.routeId]=(feeds[loss.routeId]||0)+Math.max(0,loss.heatW||0)*seconds;}
   }c.sources=Object.fromEntries((got.propulsion?.power?.sources||[]).map(source=>[source.id,source]));
  }return {fixed,reserved,draw:c?.lastDraw||0,sourceDraw:c?.lastSourceDraw||0};
-}
-function ionHitDomain(u,hit={}){
- const mods=u.p.modules||[],domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0,modules:mods.map((_,i)=>i)}];let mi=Number.isInteger(hit.moduleIndex)?hit.moduleIndex:-1;
- const patchDomain=!hit.world&&Array.isArray(hit.point)&&typeof surfaceDomainAt==='function'?surfaceDomainAt(u,hit.point):null;
- if(mi<0&&hit.fitId!=null)mi=mods.findIndex(m=>m.fit===hit.fitId);if(mi<0&&hit.partId!=null)mi=mods.findIndex(m=>m.part===hit.partId);
- if(mi<0&&Array.isArray(hit.point)){const lp=hit.point,c=Math.cos(u.yaw||0),s=Math.sin(u.yaw||0),point=hit.world?lp:add(u.pos,[lp[0]*c-lp[2]*s,lp[1],lp[0]*s+lp[2]*c]);let best=Infinity;for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k==='reactor'||m.k==='hull'||m.k==='quarters')continue;const q=modWorld(u,m),d=dot(sub(q,point),sub(q,point));if(d<best){best=d;mi=i;}}}
- if(mi<0){const pool=mods.map((m,i)=>({m,i})).filter(x=>['weapon','shield','engine','automation','bridge'].includes(x.m.k)&&(!Number.isInteger(hit.section)||u.secOf?.[x.i]===hit.section));mi=pool[0]?.i??-1;}
- const id=hit.domain||patchDomain||mods[mi]?.domain||'main',explicit=Number.isInteger(hit.moduleIndex)||hit.fitId!=null||hit.partId!=null,disconnected=explicit&&mods[mi]?.powerConnected===false;return {mi,domain:disconnected?null:domains.find(d=>d.id===id)||domains.find(d=>d.id==='main')||domains[0],disconnected};
 }
 function ionOverload(u,energy,hit={},ctx){return ionOverloadJ(u,Math.max(0,Number(energy)||0)*TT,hit,ctx);}
 // v24 Hyperdrive charging. The drive stores HYPER_CHARGE.seconds of its rated draw (grid.Dj) and fills only
@@ -63074,7 +63014,6 @@ function hullRemovalWorldBounds(p,e){
  }catch(err){}
  return null;
 }
-function placementRemovalIds(parent){return placementRemovalEntries(parent).map(e=>e.id);}
 // The removals a child was fitted into, with their current content: an edit of one of them (same id,
 // new size), or its deletion, changes this key and re-solves the child as a parent change does.
 function placementFitRemovalKey(p,parent){
@@ -63157,7 +63096,6 @@ function placementTriangles(p){
 }
 function placementEpsilon(T){const b=solidMeshBounds(T),extent=Math.max(0,...[0,1,2].map(i=>b[i+3]-b[i])),magnitude=Math.max(1,...b.map(Math.abs));return Math.max(PLACEMENT_TOLERANCES.coordinate,extent*PLACEMENT_TOLERANCES.relativeCoordinate,magnitude*Number.EPSILON*64);}
 function placementConcat(a,b,reverse=false){const out=new Float64Array(a.length+b.length);out.set(a);out.set(b,a.length);if(reverse)for(let i=a.length;i<out.length;i+=9)for(let j=0;j<3;j++)[out[i+3+j],out[i+6+j]]=[out[i+6+j],out[i+3+j]];return out;}
-function placementDifference(a,b){return placementConcat(structuralClipBoundary(a,b),structuralClipBoundary(b,a,false,false,true),true);}
 function placementCCW(poly){return supportArea(poly)<0?poly.slice().reverse():poly;}
 function placementContact(ship,part,parent){
  if(!parent)return {connected:false,area:0,reason:'parent-missing',regions:[]};
@@ -63261,208 +63199,20 @@ function placementConformingSolid(T){
 // These half-spaces use a distance tolerance, independent of a clipped
 // polygon edge's length. Unnormalised tiny edges can otherwise classify an
 // entire neighbouring crease as overlapping.
-function placementClip2(poly,a,b,c){
- // Snap the classified distance itself before interpolation. Using a
- // tolerant inside flag with an unsnapped negative distance extrapolates
- // intersections beyond both segment endpoints on nearly coincident edges.
- const length=Math.hypot(a,b);if(length<1e-14)return poly;const A=a/length,B=b/length,C=c/length,epsilon=1e-8,signed=p=>{const h=A*p[0]+B*p[1]+C;return Math.abs(h)<=epsilon?0:h;},out=[];if(!poly.length)return out;
- let p=poly.at(-1),hp=signed(p),inside=hp>=0;for(const q of poly){const hq=signed(q),next=hq>=0;if(next!==inside){const t=Math.max(0,Math.min(1,hp/(hp-hq)));out.push([lerp(p[0],q[0],t),lerp(p[1],q[1],t)]);}if(next)out.push(q.slice(0,2));p=q;hp=hq;inside=next;}
- return out.filter((q,i)=>Math.hypot(q[0]-out[(i+out.length-1)%out.length][0],q[1]-out[(i+out.length-1)%out.length][1])>1e-7);
-}
-function placementIntersection2(poly,clip){let out=poly;for(let i=0;i<clip.length&&out.length>=3;i++){const a=clip[i],b=clip[(i+1)%clip.length];out=placementClip2(out,a[1]-b[1],b[0]-a[0],a[0]*b[1]-a[1]*b[0]);}return out;}
-function placementSubtract2(poly,clip){const out=[];let rest=poly;for(let i=0;i<clip.length&&rest.length>=3;i++){const a=clip[i],b=clip[(i+1)%clip.length],A=a[1]-b[1],B=b[0]-a[0],D=a[0]*b[1]-a[1]*b[0],piece=placementClip2(rest,-A,-B,-D);if(piece.length>=3&&Math.abs(supportArea(piece))>1e-12)out.push(piece);rest=placementClip2(rest,A,B,D);}return out;}
 // Split each current finite cell once and retain its complementary pieces.
 // Repeatedly subtracting every fitted patch from the original base creates
 // overlapping slivers along dense sampled hull seams.
-function placementCutContactCells(base,selected,eps){
- const area=p=>Math.abs(supportArea(p)),valid=p=>p.length>=3&&area(p)>eps*eps;let cells=base.map(a=>({poly:a.poly,height:a.height,base:a.height,fitted:false}));
- for(const skin of selected){const next=[];
-  for(const cell of cells){let poly=placementIntersection2(cell.poly,skin.poly);if(!valid(poly)){next.push(cell);continue;}
-   const d=skin.height([0,0])-cell.base([0,0]),x=skin.height([1,0])-cell.base([1,0])-d,y=skin.height([0,1])-cell.base([0,1])-d;poly=placementClip2(poly,x,y,d);if(!valid(poly)){next.push(cell);continue;}
-   if(cell.fitted){if(poly.some(p=>Math.abs(skin.height(p)-cell.height(p))>eps*4))return placementFailure('contact-ambiguous','接触方向に複数の面が重なっています。対象面か接触範囲を選び直してください');next.push(cell);continue;}
-   let remaining=cell.poly;
-   for(let i=0;i<poly.length&&valid(remaining);i++){const a=poly[i],b=poly[(i+1)%poly.length],A=a[1]-b[1],B=b[0]-a[0],D=a[0]*b[1]-a[1]*b[0],outside=placementClip2(remaining,-A,-B,-D);if(valid(outside))next.push({...cell,poly:placementCCW(outside)});remaining=placementClip2(remaining,A,B,D);}
-   if(valid(remaining))next.push({poly:placementCCW(remaining),height:skin.height,base:cell.base,fitted:true});
-  }
-  cells=next;if(cells.length>2048)return placementFailure('geometry-complex','接触領域が複雑すぎます。範囲を分けて配置してください');
- }
- return {ok:true,cells};
-}
-function placementExtendedContactSolid(body,base,selected,axes,eps,cutOnly=false,trimWalls=false){
- // Repeated Boolean unions of shallow triangular prisms leave overlapping
- // coplanar sheets at curved seams. Partition the contact plane once using
- // the same exact intersections. For a body bounded by that plane and a
- // single roof, rebuild only the vertical side boundary; its authored roof
- // and every finite overhang remain unchanged even where the parent rises.
- const cells=[],roof=[],source=[],origin=axes.origin||[0,0,0],world=(p,h)=>add(origin,add(add(mul(axes.u,p[0]),mul(axes.v,p[1])),mul(axes.n,h(p)))),area=p=>Math.abs(supportArea(p)),project=p=>{const q=sub(p,origin);return [dot(q,axes.u),dot(q,axes.v)];};let heightfield=true;
- for(let i=0;i<body.length;i+=9){const P=[0,3,6].map(j=>Array.from(body.slice(i+j,i+j+3))),normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),facing=dot(norm(normal),axes.n);source.push({P,facing});
-  if(facing< -1e-5&&facing>=-.99999)heightfield=false;
-  if(facing>1e-5){const den=dot(normal,axes.n),offset=dot(normal,sub(P[0],origin));roof.push({poly:placementCCW(P.map(project)),height:p=>(offset-dot(normal,add(mul(axes.u,p[0]),mul(axes.v,p[1]))))/den});}
- }
- if(cutOnly&&heightfield){const r=placementCutContactCells(base,selected,eps);if(!r.ok)return r;cells.push(...r.cells);}else{
- for(const a of base){let remaining=[a.poly];
-  for(const skin of selected){let polygon=placementIntersection2(a.poly,skin.poly);if(polygon.length<3||area(polygon)<=eps*eps)continue;
-   // A cut raises the authored contact skin only where the parent actually
-   // enters it. Outside that overlap the original finite base is retained;
-   // no skirt or foundation is grown down to a lower surface.
-   if(cutOnly){const d=skin.height([0,0])-a.height([0,0]),x=skin.height([1,0])-a.height([1,0])-d,y=skin.height([0,1])-a.height([0,1])-d;polygon=placementClip2(polygon,x,y,d);if(polygon.length<3||area(polygon)<=eps*eps)continue;}
-   if(!heightfield&&polygon.some(p=>skin.height(p)>a.height(p)+eps*4))return null;
-   let pieces=[polygon];
-   for(const cell of cells){const overlap=placementIntersection2(polygon,cell.poly);if(overlap.length<3||area(overlap)<=eps*eps)continue;
-    if(overlap.some(p=>Math.abs(skin.height(p)-cell.height(p))>eps*4))return placementFailure('contact-ambiguous','接触方向に複数の面が重なっています。対象面か接触範囲を選び直してください');
-    pieces=pieces.flatMap(p=>placementSubtract2(p,cell.poly));
-   }
-   for(const poly of pieces)if(poly.length>=3&&area(poly)>eps*eps)cells.push({poly:placementCCW(poly),height:skin.height,base:a.height,fitted:true});
-   remaining=remaining.flatMap(p=>placementSubtract2(p,polygon));
-   if(cells.length+remaining.length>768)return placementFailure('geometry-complex','接触領域が複雑すぎます。範囲を分けて配置してください');
-  }
-  for(const poly of remaining)if(poly.length>=3&&area(poly)>eps*eps)cells.push({poly:placementCCW(poly),height:a.height,base:a.height,fitted:false});
- }
-}
- // On tapered/chamfered sources, the parent may cut through a lower
- // sloping wall without reaching the protected opposite face. Intersect
- // each finite column with its actual authored roof and keep only positive
- // column height. No original wall is extended or replaced by a box.
- if(cutOnly&&heightfield&&trimWalls){const clipped=[];for(const cell of cells)for(const face of roof){let poly=placementIntersection2(cell.poly,face.poly);if(poly.length<3||area(poly)<=eps*eps)continue;const d=face.height([0,0])-cell.height([0,0]),x=face.height([1,0])-cell.height([1,0])-d,y=face.height([0,1])-cell.height([0,1])-d;poly=placementClip2(poly,x,y,d);if(poly.length>=3&&area(poly)>eps*eps&&poly.some(p=>face.height(p)-cell.height(p)>eps*4))clipped.push({...cell,poly:placementCCW(poly),roof:face.height});}cells.splice(0,cells.length,...clipped);}
- const out=[],vertices=[],edges=[],tolerance=Math.min(eps*4,placementEpsilon(body)*4),vertex=p=>{let i=vertices.findIndex(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<=tolerance);if(i<0){i=vertices.length;vertices.push(p.slice());}return i;};
- for(const {P,facing} of source)if(!(cutOnly&&heightfield&&trimWalls)&&(heightfield?facing>1e-5:facing>=-.99999))out.push(...P[0],...P[1],...P[2]);
- if(heightfield)for(const face of roof)for(const point of face.poly)vertex(point);
- for(const cell of cells){const ring=cell.poly.map(vertex).filter((id,i,ids)=>!i||id!==ids[i-1]);if(ring.length>1&&ring[0]===ring.at(-1))ring.pop();placementRemoveRingSpurs(ring);if(new Set(ring).size<3)continue;
-  let changed=true;while(changed&&ring.length>3){changed=false;for(let i=0;i<ring.length;i++){const p=vertices[ring[(i+ring.length-1)%ring.length]],q=vertices[ring[i]],r=vertices[ring[(i+1)%ring.length]],dx=r[0]-p[0],dy=r[1]-p[1],dd=dx*dx+dy*dy,t=dd?((q[0]-p[0])*dx+(q[1]-p[1])*dy)/dd:0;if(t>=0&&t<=1&&Math.hypot(q[0]-p[0]-dx*t,q[1]-p[1]-dy*t)<=tolerance){ring.splice(i,1);changed=true;break;}}}
-  const polygon=ring.map(id=>vertices[id]);if(area(polygon)<=tolerance*tolerance)continue;triangulateFan(polygon.map(p=>world(p,cell.height)).reverse(),out);if(cell.roof)triangulateFan(polygon.map(p=>world(p,cell.roof)),out);for(let i=0;i<ring.length;i++)edges.push({a:ring[i],b:ring[(i+1)%ring.length],cell});}
- const segments=new Map();
- for(const edge of edges){const a=vertices[edge.a],b=vertices[edge.b],dx=b[0]-a[0],dy=b[1]-a[1],dd=dx*dx+dy*dy;if(dd<=tolerance*tolerance)continue;const cuts=[{id:edge.a,t:0},{id:edge.b,t:1}];
-  for(let id=0;id<vertices.length;id++){if(id===edge.a||id===edge.b)continue;const p=vertices[id],t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/dd;if(t>0&&t<1&&Math.hypot(p[0]-a[0]-dx*t,p[1]-a[1]-dy*t)<=tolerance)cuts.push({id,t});}
-  cuts.sort((p,q)=>p.t-q.t);for(let i=0;i+1<cuts.length;i++){const A=cuts[i].id,B=cuts[i+1].id;if(A===B)continue;const key=Math.min(A,B)+':'+Math.max(A,B),record={a:A,b:B,cell:edge.cell};if(!segments.has(key))segments.set(key,[]);segments.get(key).push(record);}
- }
- for(let rows of segments.values()){
-  // Opposite incidences on the same actual plane have no side wall. A
-  // vanishing cell split can contribute several such pairs after welding.
-  // Each such pair is an interior seam and is removed on its own; whatever
-  // remains (a real boundary, or a step between two heights) is then
-  // handled as an ordinary one- or two-sided edge. Rows that do not pair
-  // off still fail below, and the finished solid is checked for closure
-  // (placementConformingSolid, called by fitPlacementContact). A pair must
-  // also share its roof (trimmed columns), so a roof step keeps its wall.
-  if(rows.length>2){const a=vertices[rows[0].a],b=vertices[rows[0].b],level=(r,x)=>r.cell.height(x),roof=(r,x)=>r.cell.roof?r.cell.roof(x):null,close=(x,y)=>x===null||y===null?x===y:Math.abs(x-y)<=tolerance,same=(p,q)=>[a,b].every(x=>close(level(p,x),level(q,x))&&close(roof(p,x),roof(q,x)));rows=rows.slice();
-   for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++)if(rows[i].a===rows[j].b&&same(rows[i],rows[j])){rows.splice(j,1);rows.splice(i,1);i=-1;break;}
-   if(!rows.length)continue;}
-  if(rows.length>2)return placementFailure('contact-ambiguous','接触領域の境界が重なっています。対象面か接触範囲を選び直してください');
-  let low=rows[0],upper=low.cell.base;
-  if(rows.length===1&&low.cell.roof)upper=low.cell.roof;
-  else if(rows.length===1&&heightfield){const a=vertices[low.a],b=vertices[low.b],mid=[(a[0]+b[0])/2,(a[1]+b[1])/2],covers=roof.filter(face=>face.poly.every((p,i)=>{const q=face.poly[(i+1)%face.poly.length];return (q[0]-p[0])*(mid[1]-p[1])-(q[1]-p[1])*(mid[0]-p[0])>=-tolerance*Math.hypot(q[0]-p[0],q[1]-p[1]);}));
-   if(!covers.length)return null;upper=covers[0].height;if(covers.some(face=>Math.abs(face.height(mid)-upper(mid))>tolerance))return placementFailure('contact-shape','接触方向に複数の上面があります。接触側か形状を修正してください');
-  }
-  if(rows.length===2){const other=rows[1],a=vertices[low.a],b=vertices[low.b],da=low.cell.height(a)-other.cell.height(a),db=low.cell.height(b)-other.cell.height(b);if(Math.abs(da)<=tolerance&&Math.abs(db)<=tolerance)continue;
-   if(da*db< -tolerance*tolerance)return placementFailure('contact-ambiguous','接触領域の境界が交差しています。対象面か接触範囲を選び直してください');
-   if(da+db>0){upper=low.cell.height;low=other;}else upper=other.cell.height;
-  }
-  const a=vertices[low.a],b=vertices[low.b],bottom=low.cell.height;if(Math.abs(upper(a)-bottom(a))<=tolerance&&Math.abs(upper(b)-bottom(b))<=tolerance)continue;
-  triangulateFan([world(a,upper),world(a,bottom),world(b,bottom),world(b,upper)],out);
- }
- return {ok:true,tris:Float64Array.from(out)};
-}
 // Restrict every contact operation to the tapped skin's connected,
 // outward-facing real triangles. A cavity floor is not another target.
-function placementSelectedContactFaces(parentT,hit,n,eps,project,height){
- const faces=[];
- for(let i=0;i<parentT.length;i+=9){const P=[0,3,6].map(j=>Array.from(parentT.slice(i+j,i+j+3))),nn=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));if(dot(nn,n)>1e-5)faces.push({P,poly:placementCCW(P.map(project)),height:height(P),keys:P.map(q=>q.map(x=>Math.round(x/eps)).join(','))});}
- const hp=project(hit.p),near=faces.filter(f=>supportIntersection([hp,[hp[0]+eps,hp[1]],[hp[0],hp[1]+eps]],f.poly).length>=3||f.P.some(q=>len(sub(q,hit.p))<eps*8)),seed=near.sort((a,b)=>Math.abs(a.height(hp))-Math.abs(b.height(hp)))[0];
- if(!seed||Math.abs(seed.height(hp))>eps*16)return null;
- const links=new Map();for(const f of faces)for(const key of f.keys){if(!links.has(key))links.set(key,[]);links.get(key).push(f);}const selected=new Set([seed]),pending=[seed];while(pending.length){const f=pending.pop();for(const key of f.keys)for(const q of links.get(key))if(!selected.has(q)){selected.add(q);pending.push(q);}}
- return selected;
-}
 // Continuous translation against real skin triangles. A convex source body
 // and triangle have a fixed set of separating axes; intersecting their time
 // intervals finds the first contact gap even if the requested endpoint lands
 // on another part of the same concave parent. This runs only in the Worker
 // solve path, never in the slider's authoring-math handler.
-function placementSweptInterval(A,B,axes,delta,origin,eps){
- let low=0,high=1;for(const axis of axes){const a=A.map(q=>dot(axis,sub(q,origin))),b=B.map(q=>dot(axis,sub(q,origin))),amin=Math.min(...a),amax=Math.max(...a),bmin=Math.min(...b),bmax=Math.max(...b),speed=dot(axis,delta);
-  if(Math.abs(speed)<1e-12){if(amax<bmin-eps||amin>bmax+eps)return null;continue;}
-  const first=(bmin-amax)/speed,last=(bmax-amin)/speed;low=Math.max(low,Math.min(first,last));high=Math.min(high,Math.max(first,last));if(low>high+1e-12)return null;
- }return high>=0&&low<=1?[Math.max(0,low),Math.min(1,high)]:null;
-}
-function placementConcaveTranslationIntervals(T,selected,delta,origin,eps){
- const intervals=[],body=[];for(let i=0;i<T.length;i+=9)body.push([0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))));
- const axis=(axes,a)=>{const l=len(a);if(l>1e-12){const n=mul(a,1/l);if(!axes.some(q=>Math.abs(dot(q,n))>1-1e-8))axes.push(n);}};
- // Boundary/boundary contact uses exact triangle sweeps; unlike a convex
- // hull or bounding box, a source notch remains empty throughout the drag.
- for(const A of body){const ae=A.map((p,i)=>sub(A[(i+1)%3],p)),an=cross(ae[0],ae[1]);for(const {P:B}of selected){const be=B.map((p,i)=>sub(B[(i+1)%3],p)),bn=cross(be[0],be[1]),axes=[];axis(axes,an);axis(axes,bn);for(const a of ae){axis(axes,cross(an,a));for(const b of be)axis(axes,cross(a,b));}for(const b of be)axis(axes,cross(bn,b));const interval=placementSweptInterval(A,B,axes,delta,origin,eps);if(interval)intervals.push(interval);}}
- // A small parent triangle may sit wholly inside the source solid without
- // crossing its boundary. Each parent vertex's inside intervals end exactly
- // at crossings of the unchanged authored source triangles.
- const vertices=[],geometry={tris:T};for(const {P}of selected)for(const point of P)if(!vertices.some(q=>len(sub(q,point))<=eps))vertices.push(point);
- for(const point of vertices){const events=[0,1];for(const P of body){const a=sub(P[1],P[0]),b=sub(P[2],P[0]),normal=cross(a,b),den=-dot(normal,delta);if(Math.abs(den)<1e-14)continue;const t=dot(normal,sub(P[0],point))/den;if(t<=0||t>=1)continue;const q=sub(sub(point,mul(delta,t)),P[0]),aa=dot(a,a),ab=dot(a,b),bb=dot(b,b),qa=dot(q,a),qb=dot(q,b),d=aa*bb-ab*ab;if(d<=1e-24)continue;const u=(bb*qa-ab*qb)/d,v=(aa*qb-ab*qa)/d;if(u>=-1e-8&&v>=-1e-8&&u+v<=1+1e-8)events.push(t);}
-  events.sort((a,b)=>a-b);for(let i=0;i+1<events.length;i++){const low=events[i],high=events[i+1];if(high-low>1e-12&&interiorMeshContains(geometry,sub(point,mul(delta,(low+high)/2))))intervals.push([low,high]);}
- }return intervals;
-}
-function placementTranslationLimit(source,parent,hit,mode,side,target){
- const delta=sub(target,source.c),distance=len(delta);if(distance<1e-9)return 1;
- const T=placementTriangles(source),parentT=placementTriangles(parent),eps=Math.max(placementEpsilon(T),placementEpsilon(parentT)),skin=n=>{const fr=frameAxis(n),project=p=>{const q=sub(p,hit.p);return [dot(q,fr.v),dot(q,fr.w)];},height=P=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],hit.p));return q=>(d-dot(normal,add(mul(fr.v,q[0]),mul(fr.w,q[1]))))/den;};return placementSelectedContactFaces(parentT,hit,n,eps,project,height);};
- // A horizontal body cut across a steep wall (fitPlacementContact) keeps
- // contact with the skin facing its lateral axis, not an upward one.
- let selected=skin(mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]));if(!selected&&mode==='horizontal'){const lateral=placementLateralContactAxis(source,hit);if(lateral)selected=skin(lateral);}
- if(!selected)return 0;
- const vertices=[],planes=[],edges=[],addAxis=(list,a)=>{const length=len(a);if(length<1e-10)return;const axis=mul(a,1/length);if(!list.some(b=>Math.abs(dot(axis,b))>1-1e-8))list.push(axis);};
- for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3)));for(let k=0;k<3;k++){if(!vertices.some(q=>len(sub(q,P[k]))<eps))vertices.push(P[k]);addAxis(edges,sub(P[(k+1)%3],P[k]));}const normal=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));planes.push({normal,point:P[0]});}
- const concave=planes.some(plane=>vertices.some(q=>dot(plane.normal,sub(q,plane.point))>eps*8)),normals=[];for(const plane of planes)addAxis(normals,plane.normal);
- const intervals=concave?placementConcaveTranslationIntervals(T,selected,delta,source.c,eps):[];
- if(!concave)for(const face of selected){const P=face.P,axes=normals.slice();addAxis(axes,cross(sub(P[1],P[0]),sub(P[2],P[0])));for(let j=0;j<3;j++)for(const edge of edges)addAxis(axes,cross(edge,sub(P[(j+1)%3],P[j])));const interval=placementSweptInterval(vertices,P,axes,delta,source.c,eps);if(interval)intervals.push(interval);}
- intervals.sort((a,b)=>a[0]-b[0]);let end=0;for(const [low,high]of intervals){if(low>end+eps/distance*4)break;end=Math.max(end,high);}
- return Math.max(0,Math.min(1,end));
-}
-function fitPlacementContact(ship,part,parent,hit,mode,contactSide){
- // A turned copy (array, 2026-11-13) is cut along its own turned axis (the source's axis turned with it).
- const fa=placementFitAxisWorld(part,hit.n),n=fa?fa:mode==='horizontal'?(contactSide==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]);
- if(len(n)<.1)return placementFailure('contact-side','側面と接触側を選び直してください');
- const result=placementFitContactAlong(ship,part,parent,hit,n);
- // A horizontal cut is built in columns along the vertical axis. A tap on a
- // steep or vertical wall has no parent skin facing that axis there, and on a
- // curved hull the skin rises through the roof towards the body's inboard
- // edge; neither is a missing face or a thin authored body. The same cut is
- // then taken across the wall, along the body's own side face that faces it.
- // The upright pose, position and authored faces stay as requested and no
- // material is added; a real gap still fails the contact check afterwards.
- if(result.ok||mode!=='horizontal'||part.placement?.contactFit!=='cut'||!['surface-missing','minimum-thickness'].includes(result.code))return result;
- const lateral=placementLateralContactAxis(part,hit);if(!lateral)return result;
- const across=placementFitContactAlong(ship,part,parent,hit,lateral);return across.ok?across:result;
-}
 // The lateral cut axis is the inward normal of a vertical face of the body
 // that faces the tapped wall (within 45 degrees of its horizontal normal).
 // A near-flat tap (horizontal normal component below 0.3, i.e. a slope under
 // about 17 degrees) is never cut sideways.
-function placementLateralContactAxis(part,hit){
- const h=[hit.n[0],0,hit.n[2]];if(len(h)<.3)return null;const wall=norm(h),T=placementTriangles(part);let best=null,score=Math.SQRT1_2;
- for(let i=0;i<T.length;i+=9){const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const axis=mul(norm(raw),-1);if(Math.abs(axis[1])>1e-9)continue;const value=dot(axis,wall);if(value>score+1e-9){score=value;best=norm([axis[0],0,axis[2]]);}}
- return best;
-}
-function placementFitContactAlong(ship,part,parent,hit,n){
- const fr=frameAxis(n),axes={n,u:fr.v,v:fr.w,origin:hit.p.slice()},project=p=>{const q=sub(p,axes.origin);return [dot(q,axes.u),dot(q,axes.v)];},height=(P)=>{const normal=cross(sub(P[1],P[0]),sub(P[2],P[0])),den=dot(normal,n),d=dot(normal,sub(P[0],axes.origin));return q=>(d-dot(normal,add(mul(axes.u,q[0]),mul(axes.v,q[1]))))/den;};
- part._solidCutShip=ship;if(!parent._placementUncutCopy)parent._solidCutShip=ship;let body=placementCompactPlanarSolid(placementTriangles(part));const parentT=placementCompactPlanarSolid(placementTriangles(parent)),eps=Math.max(placementEpsilon(body),placementEpsilon(parentT)),base=[],faces=[];
- for(let i=0;i<body.length;i+=9){const P=[0,3,6].map(j=>Array.from(body.slice(i+j,i+j+3))),nn=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));if(dot(nn,n)<-.99999)base.push({poly:placementCCW(P.map(project)),height:height(P)});}
- if(!base.length)return placementFailure('contact-shape','指定した接触側に平らな成形面がありません。接触側か形状を修正してください');
- const selected=placementSelectedContactFaces(parentT,hit,n,eps,project,height);if(!selected)return placementFailure('surface-missing','選択した面を追加元の実形状で解決できません。面を選び直してください');
- // Cutting a high point of the parent through the opposite skin would erase
- // the authored roof/outward design even though some positive volume remains.
- // Both skins are piecewise planar, so the gap's minimum on each projected
- // overlap occurs at a polygon vertex; sparse ray samples can miss the ridge.
- const cutOnly=part.placement?.contactFit==='cut',trimWalls=cutOnly&&['trap','chamfer'].includes(part.form),bounds=solidMeshBounds(body),scale=Math.max(eps,...[0,1,2].map(i=>bounds[i+3]-bounds[i])),settings=part.placement?.fitSettings,
-  minimumThickness=Math.max(eps*4,scale*PLACEMENT_TOLERANCES.minThicknessRelative,Number.isFinite(settings?.minThickness)&&settings.minThickness>0?settings.minThickness:0),opposite=[];
- for(let i=0;i<body.length;i+=9){const P=[0,3,6].map(j=>Array.from(body.slice(i+j,i+j+3))),nn=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));if(dot(nn,n)>1e-5&&(!trimWalls||dot(nn,n)>=Math.max(Math.abs(dot(nn,axes.u)),Math.abs(dot(nn,axes.v)))-1e-6))opposite.push({poly:placementCCW(P.map(project)),height:height(P)});}
- for(const top of opposite)for(const f of selected){const poly=supportIntersection(top.poly,f.poly);if(poly.length<3||Math.abs(supportArea(poly))<=eps*eps)continue;
-  if(poly.some(q=>top.height(q)-f.height(q)<minimumThickness))return placementFailure('minimum-thickness','追加元の凹凸で最小厚みを保てません。位置・寸法・接触側を修正してください',{minimumThickness});
- }
- const extended=placementExtendedContactSolid(body,base,selected,axes,eps,cutOnly,trimWalls);if(extended&&!extended.ok)return extended;
- let pieces=0;if(!cutOnly&&!extended)for(const a of base)for(const f of selected){let poly=supportIntersection(a.poly,f.poly);if(poly.length<3||Math.abs(supportArea(poly))<eps*eps)continue;
-  // Only the region below the authored contact face needs new material.
-  const h0=a.height([0,0])-f.height([0,0]),hx=a.height([1,0])-f.height([1,0])-h0,hy=a.height([0,1])-f.height([0,1])-h0;poly=supportClip(poly,hx,hy,h0);if(poly.length<3||Math.max(...poly.map(q=>a.height(q)-f.height(q)))<=eps)continue;
-  if(++pieces>384)return placementFailure('geometry-complex','接触領域が複雑すぎます。範囲を分けて配置してください');const fill=placementPrism(poly,axes,a.height,f.height);body=structuralJoinBoundary(body,fill);
- }
- body=extended?extended.tris:placementDifference(body,parentT);if(!body.length||meshVolume(body)<=eps**3)return placementFailure('geometry-volume','成形後の有効容積がありません');const conformed=placementConformingSolid(body);if(!conformed.ok)return conformed;body=conformed.tris;
- // The same fitted solid serves drawing, ray picking, contact and material.
- const local=[];for(let i=0;i<body.length;i+=3)local.push(...localStruct(part,Array.from(body.slice(i,i+3))));const volume=meshVolume(local);if(!Number.isFinite(volume)||volume<=eps**3)return placementFailure('geometry-volume','成形後の有効容積がありません');part._placementGeometry={local:Float64Array.from(local),volume,area:solidMeshArea(body)};return {ok:true,part};
-}
 // One contact rule for every placement mode (user decision 2026-11-11): a
 // structure that really overlaps its parent is connected even where the
 // horizontal/vertical contact cut cannot be built (a steep or curved skin, a
@@ -63471,12 +63221,6 @@ function placementFitContactAlong(ship,part,parent,hit,n){
 // closed; the structural union charges the shared volume once and hides its
 // buried faces. A real gap keeps the cut's original failure.
 const PLACEMENT_OVERLAP_FALLBACK_CODES=new Set(['surface-missing','minimum-thickness','contact-shape','geometry-complex','geometry-volume']);
-function placementOverlapFallback(ship,part,parent,failure){
- if(!PLACEMENT_OVERLAP_FALLBACK_CODES.has(failure?.code))return false;delete part._placementGeometry;
- const checked=placementValidateSolid(part);if(!checked.ok)return false;const contact=placementContact(ship,part,parent);if(!contact.connected||!contact.overlap)return false;
- const T=placementTriangles(part),local=[];for(let i=0;i<T.length;i+=3)local.push(...localStruct(part,Array.from(T.slice(i,i+3))));const volume=meshVolume(local);if(!Number.isFinite(volume)||volume<=0)return false;
- part._placementGeometry={local:Float64Array.from(local),volume,area:solidMeshArea(T)};return true;
-}
 // Stage B of the no-recompute plan (2026-11-13): a re-solve that is not the user's keeps these authored placement
 // keys as they were written at the user's last placement or edit (see the end of solvePlacement).
 const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision','parentGeometryKey','parentLocalAnchor','anchorDimensions','contactNormal','contactLocalNormal','parentPoseKey','surfaceAnchor','contactOffset','contactAxis','hostSurfaceId','fitRemovalIds','fitRemovalHashes','requestedGeometry'];
@@ -63921,7 +63665,6 @@ function commitPlacement(ship,part,request={},options={}){const result=solvePlac
 // bounds meet and whose shapes really touch (placementContact: face contact or overlap). Pair results
 // are cached on the ship by both parts' shape signatures and the cuts that carve structures, so an
 // edit re-measures only the pairs it changed. Same broad phase as removeParts.
-function structuralCutSignature(ship){return placementKeyHash(publicJSON([(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures),(ship.subs||[]).filter(c=>ship.hull?.assembly||c.structures)]));}
 function structuralConnectivity(ship,options={}){
  for(const p of ship.parts||[])if(isShapePart(p))p._solidCutShip=ship;/* contact is measured on the carved shapes (ship-level cuts carve structures in assembly ships) */
  const structures=(ship.parts||[]).filter(p=>p.id>0&&isShapePart(p)),explicit=p=>!!p.placement&&placementCapability(p).kind==='structure'&&(placementCapability(p).space==='exterior'||legacyExteriorShieldAttachment(p));
@@ -63989,19 +63732,6 @@ function placementDiagnostics(ship,graph=null){let red=null,conn=null;/* one con
 // touches again, which is then solved normally.
 // A structure that touches a body connected to the root (contact graph) is connected even when its own
 // parent no longer touches it (user rule 2026-11-11). Built once per refresh (refresh.graph).
-function placementTouchesConnected(ship,p,cache){
- // Another body than the parent: contact with the parent itself is judged by the stored pose rules.
- if(placementCapability(p).kind!=='structure')return false;const parentId=p.placement?.parentStructureId;let g=cache?.graph;if(!g){try{g=structuralConnectivity(ship);}catch(e){return false;}if(cache)cache.graph=g;}
- return [...(g.adj.get(p.id)||[])].some(id=>g.connected.has(id)&&id!==p.id&&id!==parentId);
-}
-function placementKeepContact(ship,p,parent,severed,refit,known=null,failed=null,cache=null){
- const contact=known||(placementCapability(p).kind==='structure'?placementContact(ship,p,parent):placementEquipmentContact(ship,p,parent));
- if(contact.connected){if(refit&&p._placementSevered){delete p._placementSevered;return false;}delete p._placementSevered;delete p._placementError;return true;}
- if(placementTouchesConnected(ship,p,cache)){delete p._placementSevered;delete p._placementError;return true;}
- // Only a child that a cut separated is severed (a warning); any other loss of contact is a failure.
- if(!placementSeveredByCut(ship,p,parent)){delete p._placementSevered;delete p._placementLocalHash;p._placementError='contact-zero';failed?.push({partId:p.id,code:'contact-zero'});return true;}
- p._placementSevered=true;delete p._placementError;severed.push({partId:p.id,code:'severed'});return true;
-}
 // After a failed re-solve without any edit of the child: a stored pose that still fits its unchanged
 // parent (same shape as requested, the saved parent-local anchor at the same place, same parent size)
 // and touches the parent with the cuts ignored is severed by a cut, not a failed placement.
@@ -64026,40 +63756,13 @@ const PLACEMENT_FIT_KEEP_CODES=new Set(['surface-missing','contact-zero']);
 // the saved anchor dimensions against the parent's size (s, or the hull profile when there is no s).
 // The key is compared within a session only: a reload rebuilds the parent with normalized fields, so a
 // cold check uses the saved anchor and dimensions (a design is saved with its children solved).
-function placementParentUnchanged(p,parent,cold=false){
- const meta=p.placement;if(!cold&&meta.parentPoseKey!=null)return meta.parentPoseKey===placementPositionKey(parent);
- const tolerance=Math.max(PLACEMENT_TOLERANCES.coordinate,len(parent.s||[1,1,1])*PLACEMENT_TOLERANCES.relativeCoordinate)*8;if(!meta.parentLocalAnchor||len(sub(worldStruct(parent,meta.parentLocalAnchor),p.c))>tolerance)return false;
- const dims=parent.s?[parent.s[0],parent.s[2],parent.s[1]]:parent.hullProfile?[parent.hullProfile.L,parent.hullProfile.H,parent.hullProfile.W]:null;
- if(meta.anchorDimensions&&(!dims||dims.some((v,i)=>Math.abs(v-meta.anchorDimensions[i])>tolerance)))return false;return true;
-}
-function placementStoredPoseKept(ship,p,parent,cold=false){
- const meta=p.placement;if(!meta?.requestedGeometry||!meta.parentLocalAnchor||!placementSameShape(p,meta.requestedGeometry))return false;
- if(!placementParentUnchanged(p,parent,cold))return false;
- const fitted=p._placementGeometry;delete p._placementGeometry;delete p._placementPrecise;
- if(placementContact(ship,p,parent).connected)return true;if(fitted)p._placementGeometry=fitted;return false;
-}
 // Same authored shape regardless of key order and of normalized defaults (a saved request may lack a
 // zero taper or roll that the loaded part carries).
-function placementStoredPoseSevered(ship,p,parent,code){
- // contact-shape: a cut-fit child (contactFit 'cut') whose fit cannot be rebuilt because a cut removed the material
- // under it (a ship-level solid cut on reload, 2026-11-13); the checks below still require no contact at the stored
- // pose and contact without the cuts.
- const meta=p.placement;if(!(PLACEMENT_SEVERABLE_CODES.has(code)||code==='contact-shape')||!meta?.requestedGeometry||!meta.parentLocalAnchor||!placementSameShape(p,meta.requestedGeometry))return false;
- const tolerance=Math.max(PLACEMENT_TOLERANCES.coordinate,len(parent.s||[1,1,1])*PLACEMENT_TOLERANCES.relativeCoordinate)*8;if(len(sub(worldStruct(parent,meta.parentLocalAnchor),p.c))>tolerance)return false;
- if(meta.anchorDimensions&&parent.s&&[parent.s[0],parent.s[2],parent.s[1]].some((v,i)=>Math.abs(v-meta.anchorDimensions[i])>tolerance))return false;
- const structure=placementCapability(p).kind==='structure';
- return !(structure?placementContact(ship,p,parent):placementEquipmentContact(ship,p,parent)).connected&&placementSeveredByCut(ship,p,parent);
-}
 // User decision 1 (2026-11-11, children follow their moved parent) was withdrawn on 2026-11-12: a placed
 // structure keeps its world pose when its parent moves, rotates or is resized, and is judged where it is
 // (severed by a cut is a warning, anything else a failure). See solvePlacement (storedPose).
 // The ship-level cuts that carve structures and reach this child's bounds: the child's fitted shape is
 // built from its body as those cuts leave it, so a change of them re-fits the child.
-function placementChildCutKey(ship,p){
- const cuts=(ship.solidCuts||[]).filter(c=>ship.hull?.assembly||c.structures),subs=(ship.subs||[]).filter(c=>ship.hull?.assembly||c.structures);if(!cuts.length&&!subs.length)return '';let b;try{b=partAABB(p);}catch(e){return '';}
- const pad=Math.max(PLACEMENT_TOLERANCES.coordinate*16,...[0,1,2].map(i=>(b[i+3]-b[i])*.01)),box=[0,1,2].map(i=>b[i]-pad).concat([0,1,2].map(i=>b[i+3]+pad));
- const hit=[...cuts.filter(c=>compiledSolidCut(c).instances.some(q=>solidBoundsOverlap(box,q.bounds,0))),...subs.filter(c=>[0,1,2].every(i=>c.b[i]<=box[i+3]&&c.b[i+3]>=box[i]))];return hit.length?placementKeyHash(publicJSON(hit)):'';
-}
 // Keys of the states (the structure's public state with its placement record, its parent's shape and the
 // equipment its bounds reach: placementRefusalKey) a refused structure was last solved for:
 // _placementRefusalKeys holds the state it was re-checked from and the refused state that came out (or
@@ -64196,21 +63899,6 @@ function placementCopyClosure(ship,selection={}){
 function placementRestoreMaterialized(part){
  const mesh=part.placement?.materializedGeometry||part.mesh;if(!mesh)return;const key=publicJSON([mesh,part.s]);if(part._placementMaterializedSourceKey===key&&part._placementGeometry)return;const T=meshStructTriangles({...placementShape(part),form:'mesh',mesh,c:[0,0,0],yaw:0,pitch:0,roll:0,surfaceNormal:undefined}),local=Float64Array.from(T);part._placementGeometry={local,volume:meshVolume(local),area:solidMeshArea(local)};part._placementMaterializedSourceKey=key;
 }
-function placementMaterializeAttachment(part){
- const previous=part.placement||{},T=placementCompactPlanarSolid(placementTriangles(part)),sc=meshScale(part),v=[],f=[],indices=new Map(),eps=placementEpsilon(T),vertex=q=>{const local=localStruct(part,q).map((x,i)=>x/sc[i]),key=local.map((x,i)=>Math.round(x*sc[i]/eps)).join(',');let id=indices.get(key);if(id==null){id=v.length;indices.set(key,id);v.push(local);}return id;};
- for(let i=0;i<T.length;i+=9){const face=[0,3,6].map(j=>vertex(Array.from(T.slice(i+j,i+j+3))));if(new Set(face).size===3)f.push(face);}
- const mesh={v,f};if(!meshTopology(f).closed)throw new Error('接続を変更する構造物の実形状が閉じていません');
- const history={requestedGeometry:publicCopyOf(previous.requestedGeometry||placementShape(part)),mode:previous.mode,parentStructureId:previous.parentStructureId,hostSurfaceId:previous.hostSurfaceId,contactSide:previous.contactSide};
- if(isHullStructure(part))part.placement={...previous,materializedGeometry:mesh};else{part.form='mesh';part.mesh=mesh;for(const key of ['outline','loft','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep'])delete part[key];}
- const meta=part.placement||previous;for(const key of ['contactFit','contactOffset','contactAxis'])delete meta[key];part.placement={...meta,mode:'surface',modelVersion:PLACEMENT_MODEL_VERSION,materializedAttachment:true,attachmentHistory:history,geometryRevision:(previous.geometryRevision||0)+1,requestedGeometry:placementShape(part)};delete part._placementGeometry;placementRestoreMaterialized(part);return part;
-}
-function placementContactAnchor(contact){const region=contact.regions?.find(r=>r.length>=3);if(region)return {p:mul(region.reduce(add,[0,0,0]),1/region.length),n:mul(norm(cross(sub(region[1],region[0]),sub(region[2],region[0]))),-1)};return null;}
-function placementReparentStructure(ship,part,parent,contact){
- placementMaterializeAttachment(part);const meta=part.placement;delete meta.hostSurfaceId;delete meta.repairRequired;delete meta.repairReason;delete meta.unresolvedParentId;delete part._placementError;
- if(!parent){meta.root=true;delete meta.parentStructureId;delete meta.parentGeometryKey;delete meta.parentGeometryRevision;delete meta.rigidPose;}
- else{const hit=placementContactAnchor(contact);if(!hit)throw new Error('再接続する接触領域がありません');delete meta.root;meta.parentStructureId=parent.id;meta.parentGeometryRevision=parent.placement?.geometryRevision||0;meta.parentGeometryKey=placementDependencyKey(parent);meta.parentLocalAnchor=localStruct(parent,part.c);meta.surfaceAnchor=localStruct(parent,hit.p);meta.contactNormal=hit.n;meta.contactLocalNormal=placementLocalNormal(parent,hit.n);meta.contactSide='surface';meta.anchorDimensions=meshScale(parent);meta.rigidPose=placementEquipmentPose(parent,part,hit.p);}
- part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);if(parent)part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);
-}
 // A structure copied without its parent (an older duplicate or paste dropped every parent outside the copy:
 // meta.unresolvedParentId, no parentStructureId) is joined again to a structure of this ship it really touches
 // or overlaps (user decision 2026-11-12: overlap is connection). Only the link is written: the part's pose and
@@ -64229,53 +63917,6 @@ function placementFrameAngles(fw,up){
  fw=norm(fw);up=norm(up);const pitch=Math.asin(clamp(fw[1],-1,1)),yaw=Math.abs(fw[1])>1-1e-9?0:Math.atan2(fw[2],fw[0]);
  const f=structFrame({yaw:yaw*180/Math.PI,pitch:pitch*180/Math.PI,roll:0}),roll=Math.atan2(dot(up,f.rt),dot(up,f.up));
  const deg=v=>{const d=v*180/Math.PI;return Math.abs(d)<1e-9?0:+d.toFixed(9);};return {yaw:deg(yaw),pitch:deg(pitch),roll:deg(roll)};
-}
-function placementAdoptContactParent(ship,part){
- const meta=part?.placement;if(!meta||meta.root||meta.parentStructureId!=null||meta.unresolvedParentId==null||meta.pendingGeometry||placementCapability(part).kind!=='structure'||placementCapability(part).space!=='exterior')return null;
- // Tried at most once per state of this part and the ship's bodies (a part touching nothing is not measured on every refresh).
- const tryKey=placementShapeKey(part)+'|'+placementKeyHash(publicJSON(ship.parts.filter(q=>isShapePart(q)&&q.id!==part.id).map(q=>[q.id,placementPositionKey(q),!!q._placementError])));if(part._placementAdoptTried===tryKey)return null;part._placementAdoptTried=tryKey;
- const A=partAABB(part),descendants=new Set([part.id]);let grew=true;while(grew){grew=false;for(const q of ship.parts)if(q.placement?.parentStructureId!=null&&descendants.has(q.placement.parentStructureId)&&!descendants.has(q.id)){descendants.add(q.id);grew=true;}}
- const candidates=ship.parts.filter(q=>isShapePart(q)&&!descendants.has(q.id)&&!q.plate&&!q._placementError&&!q.placement?.validationFailed&&!q.placement?.pendingGeometry).filter(q=>{const B=partAABB(q);return [0,1,2].every(i=>A[i]<=B[i+3]+1e-3&&A[i+3]>=B[i]-1e-3);});
- let best=null;for(const q of candidates){let contact;try{contact=placementContact(ship,part,q);}catch(e){continue;}if(!contact.connected)continue;const score=[q.primaryHull?1:0,contact.area||0];if(!best||score[0]>best.score[0]||score[0]===best.score[0]&&score[1]>best.score[1])best={parent:q,contact,score};}
- if(!best)return null;const parent=best.parent;
- // The contact point lies on the parent's outer surface at the part (within the part's bounds), on the part's side:
- // among the candidates, the one whose outward normal best follows the direction from the parent's centre to the
- // part's centre. Face regions come first; an overlap (a body sunk into its parent) has none usable, so rays from
- // the part's centre (toward the parent and along the six axes) and from well outside through it are tried.
- const A0=partAABB(part),pc0=[0,1,2].map(i=>(A0[i]+A0[i+3])/2),B0=partAABB(parent),mid=[0,1,2].map(i=>(B0[i]+B0[i+3])/2),d0=sub(pc0,mid),l0=len(d0),side=l0>1e-6?mul(d0,1/l0):[0,1,0],
-  margin=.5+.02*len(sub(A0.slice(3),A0.slice(0,3))),valid=h=>!!h&&dot(h.n,sub(h.p,mid))>0&&[0,1,2].every(i=>h.p[i]>=A0[i]-margin&&h.p[i]<=A0[i+3]+margin);
- let hit=null;const consider=h=>{if(valid(h)&&(!hit||dot(h.n,side)>dot(hit.n,side)+1e-9))hit=h;};
- consider(placementContactAnchor(best.contact));
- if(!hit){const reach=2*(len(sub(B0.slice(3),B0.slice(0,3)))+len(sub(A0.slice(3),A0.slice(0,3))))+10,rays=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1],mul(side,-1)].map(v=>[pc0,v]);rays.push([add(pc0,mul(side,reach)),mul(side,-1)]);
-  for(const [o,v] of rays){let r=null;try{r=rayPart(o,v,parent);}catch(e){}consider(r?.p&&r.n?{p:r.p,n:norm(r.n)}:null);}}
- // The part's current shape is what the user last edited: an unresolved part's edits never reached its stored request.
- const requested=placementShape(part);requested.id=part.id;meta.requestedGeometry=requested;
- meta.parentStructureId=parent.id;meta.parentGeometryRevision=parent.placement?.geometryRevision??0;meta.parentLocalAnchor=localStruct(parent,part.c);if(parent.s)meta.anchorDimensions=[parent.s[0],parent.s[2],parent.s[1]];
- if(hit){meta.surfaceAnchor=localStruct(parent,hit.p);meta.contactNormal=hit.n;meta.contactLocalNormal=placementLocalNormal(parent,hit.n);}
- // The copy's contact record must describe where it sits now (a copy may face another way than its source: an
- // array copy turned about an axis, a paste onto the opposite face), so the re-solve keeps its stored pose and fits
- // it against the right face. A turned copy (surfaceNormal) is a surface placement; otherwise the contact side is
- // the part's face that faces the parent's surface (against its normal), and a cut-fit's offset and axis follow from it.
- // A turned copy (an array copy carries its turn as surfaceNormal) keeps the source's way of placing (2026-11-13 user
- // request: 「連続配置のコピーは同じ置き方ができるように」): its turn is written as yaw/pitch/roll, the same frame,
- // and it keeps the source's fit; it rests on the top or underside (horizontal) or a side (vertical) of the parent
- // as the parent's normal at the anchor says. Without an anchor it becomes a surface placement as before.
- if(part.surfaceNormal&&meta.mode!=='surface'){if(hit){const f=structFrame(part),a=placementFrameAngles(f.fw,f.up);delete part.surfaceNormal;part.yaw=a.yaw;part.pitch=a.pitch;part.roll=a.roll;delete part._frame;meta.mode=Math.abs(hit.n[1])>=Math.hypot(hit.n[0],hit.n[2])?'horizontal':'vertical';const requested=placementShape(part);requested.id=part.id;meta.requestedGeometry=requested;
-   // A turned cut-fit copy saved before fitAxis existed is cut along its own axis that faces out of the parent.
-   if(meta.contactFit==='cut'&&!meta.fitAxis){const local=placementLocalNormal(part,hit.n),axes=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];meta.fitAxis=axes.reduce((b,v)=>dot(v,local)>dot(b,local)?v:b,axes[0]).slice();}}
-  else{meta.mode='surface';for(const key of ['contactFit','contactOffset','contactAxis','fitAxis'])delete meta[key];}}
- // The contact side follows the anchor: horizontal by the parent's normal (as the solver names a tap there), vertical
- // by the part's own face toward the parent.
- if(hit&&meta.mode!=='surface'){const side=meta.mode==='horizontal'?(hit.n[1]<0?'top':'bottom'):placementVerticalSide(part,hit.n,meta.contactSide);meta.contactSide=side;
-  if(meta.contactFit==='cut'){meta.contactOffset=sub(part.c,hit.p);meta.contactAxis=placementFitAxisWorld(part,hit.n)||(meta.mode==='horizontal'?(side==='top'?[0,-1,0]:[0,1,0]):norm([hit.n[0],0,hit.n[2]]));}}
- for(const key of ['unresolvedParentId','hostSurfaceId','parentGeometryKey'])delete meta[key];delete part._placementError;delete part._placementSelfKey;delete part._placementParentKey;delete part._placementParentPoseKey;
- // A stored refusal becomes a draft solved again with its pose kept (the refresh's refusal → pending rule).
- if(meta.validationFailed){delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;meta.pendingGeometry=true;part._placementAdoptKeepPose=true;}
- return parent;
-}
-function placementAlternateEquipmentContact(ship,part,parent){
- if(part.k==='engine'&&part.engineMountSupport){const contact=engineMountSupportContact(ship,part,parent),hit=contact.connected&&placementContactAnchor(contact);if(hit)return {...contact,anchor:hit.p,normal:hit.n};}
- const previous=placementParent(ship,part.placement?.parentStructureId),meta=part.placement||{};if(!previous)return {connected:false};const anchor=placementAnchor(previous,meta),normal=meta.contactLocalNormal?placementWorldNormal(previous,meta.contactLocalNormal):meta.contactNormal;if(!anchor||!normal)return {connected:false};const m={...meta,parentStructureId:parent.id,surfaceAnchor:localStruct(parent,anchor),contactNormal:normal,contactLocalNormal:placementLocalNormal(parent,normal)};delete m.hostSurfaceId;const test={...part,placement:m},contact=placementEquipmentContact(ship,test,parent);return {...contact,anchor,normal};
 }
 function removeParts(ship,inputIds){
  const explicit=new Set((Array.isArray(inputIds)?inputIds:[inputIds]).filter(id=>ship.parts.some(p=>p.id===id))),closure=placementCopyClosure(ship,{parts:[...explicit]}),affected=new Set(closure.parts.filter(id=>!explicit.has(id))),removed=new Set(explicit),removedFits=new Set(),reparented=[];
@@ -65499,7 +65140,6 @@ function convexHullFaces(P,eps){
  }
  return faces;
 }
-function solidCutConvex(P,eps){const out=convexHullFaces(P,eps);return out;}
 // Local convex pieces of a cutter: [{faces:[polygon…], inner:[bool…]}]. An
 // inner face is shared with the next piece and is left out of the overlay.
 function solidCutPieces(q){
@@ -70359,7 +69999,6 @@ function pdToward(u, pt, active=false) {
  return (w0 * (a[0] || 0) + w1 * (a[1] || 0) + w2 * (a[2] || 0) + w3 * (a[3] || 0) + w4 * (a[4] || 0) + w5 * (a[5] || 0)) / sum;
 }
 // The nearest of a list of ships to a point (null for none).
-function nearestOf(list, p) { let best = null, bd = Infinity; for (const x of list) { const dx = x.pos[0] - p[0], dy = x.pos[1] - p[1], dz = x.pos[2] - p[2], d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; best = x; } } return best; }
 // A wing on automatic orders covers its carrier (the AI's wings get the AI's orders).
 function wingOrder(w, wing) { if (wing?.raid) return wing.raid.phase === 'strike' && wing.raid.order || {type: 'standby'}; const o = wing?.order || {type: 'standby'}; if (o.type !== 'auto') return o; return wing.auto || {type: 'escort', target: wing.home}; }
 // Only aircraft free of a hatch can intercept another formation. Read their current
