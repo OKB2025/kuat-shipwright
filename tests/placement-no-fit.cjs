@@ -209,6 +209,12 @@ for(const reason of ['minimum-thickness','contact-shape'])test(`an old fit failu
   const s=base(),b=put(s,2,0,[30,30,6]),c=put(s,b.id,0,[16,16,4]),top=C.rayPart([0,200,0],[0,-1,0],c);s.fits.push({id:60,k:'pd',p:Array.from(top.p),n:[0,1,0],a:2,ped:0});C.remount(s);
   const gap=s.fits[0].p[1]-c.c[1],c0=c.c[1];C.removeParts(s,[2]);const f=s.fits[0];assert.ok(c.c[1]<c0-10,'the chain dropped');near(f.p[1]-c.c[1],gap,1e-6);assert.equal(f.float,false);
  });
+ // Regression review (merge 2026-11-14): a weapon on a structure that stays, flush with a dropping one, stays put.
+ test('a weapon on a structure that stays, flush with a structure that drops, stays where it is',()=>{
+  const s=base(),b=put(s,2,0,[30,30,6]),top=C.rayPart([0,200,0],[0,-1,0],b);s.parts.push({id:70,k:'struct',form:'box',c:[0,b.c[1],20],s:[30,30,6]});s.nextId=71;C.refreshPlacementGeometry(s);
+  /* 70 is a free structure standing in the overlap region beside b, its top flush with b's top; the weapon stands on both */s.fits.push({id:61,k:'pd',p:[0,top.p[1],10],n:[0,1,0],a:2,ped:0});C.remount(s);const y0=s.fits[0].p[1];
+  C.removeParts(s,[2]);const f=s.fits[0];near(f.p[1],y0,1e-9);assert.equal(f.float,false);
+ });
  test('a chain on a deleted structure drops together (relative position kept) and is grounded',()=>{
   const s=base(),b=put(s,2,0,[20,20,6]),c=put(s,b.id,0,[6,6,4]),gap=c.c[1]-b.c[1],b0=b.c[1];C.removeParts(s,[2]);
   assert.ok(b.c[1]<b0-10,'B dropped');near(c.c[1]-b.c[1],gap,1e-9);C.refreshPlacementGeometry(s);assert.deepEqual(red(s),[]);
