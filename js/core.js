@@ -50280,7 +50280,9 @@ function baseMountFit(ship,f){
  // High review 5 (H-C): the kept measurement equals the seating one except for what lies above open air: from just
  // above the seat, a sample inside solid (the footprint surface is higher there) measures up to where that solid
  // ends; otherwise it measures straight down as far as the seating rays reach. A roof above open air is never seen.
- const sampleHit=q=>{if(!keepLocal)return rayEnv(ship,add(q,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});const start=add(q,mul(fr.up,2*FIT_SUPPORT_GAP_M)),upHit=rayEnv(ship,start,fr.up,{maxT:big,structOnly:true});if(upHit&&dot(upHit.n,fr.up)>0)return upHit;return rayEnv(ship,start,mul(fr.up,-1),{maxT:big*2,structOnly:true});};
+ // High review 6 (M-D): seating uses the same rule (p already lies on the surface), so a structure overhanging open air
+ // above the footprint is ignored both when placed and when reloaded.
+ const sampleHit=q=>{const start=add(q,mul(fr.up,2*FIT_SUPPORT_GAP_M)),upHit=rayEnv(ship,start,fr.up,{maxT:big,structOnly:true});if(upHit&&dot(upHit.n,fr.up)>0)return upHit;return rayEnv(ship,start,mul(fr.up,-1),{maxT:big*2,structOnly:true});};
  let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=sampleHit(q);if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
 }
 function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, fitHasPedestal(f)?(f.base||0)+(f.ped||0):0)); }
