@@ -10927,7 +10927,7 @@ function veDragEnd(cancel){
  renderPanel();refreshVertexOverlay();
 }
 function vertexPanelHTML(){
- const o=veObject();if(!o)return '';const sel=st.ve.sel.filter(i=>i<o.local.length),n=sel.length,one=n===1?o.local[sel[0]]:null,d=st.ve.d,edge=n===2&&o.faces.some(f=>veBoundaryEdge(f,...sel)),face=veSelectedFace(o,sel);
+ const o=veObject();if(!o)return '';const sel=st.ve.sel.filter(i=>i<o.local.length),n=sel.length,one=n===1?o.local[sel[0]]:null,d=st.ve.d,edge=n===2&&(o.faces.some(f=>veBoundaryEdge(f,...sel))||o.kind==='struct'&&o.faces.some(f=>sel.every(i=>f.includes(i)))),face=veSelectedFace(o,sel);/* a diagonal across one face also counts (user report 2026-11-14): it becomes an edge first */
  const axes=[['前後 X',0],['上下 Y',1],['左右 Z',2]];
  const abs=one?`<div class="xf-grid">${axes.map(([l,a])=>`<div class="xf-row"><span>${l}</span><input type="number" step="any" data-veabs="${a}" value="${Math.round(one[a]*1000)/1000}" aria-label="頂点の${l}（m）"></div>`).join('')}</div>`:'';
  const rel=`<div class="xf-grid">${axes.map(([l,a])=>`<div class="xf-row"><span>${l}</span><button type="button" class="btn sm" data-venudge="${a}" data-sign="-1" aria-label="${l} を減らす">−</button><input type="number" step="any" data-ved="${a}" value="${+d[a]||0}" aria-label="${l} の移動量（m）"><button type="button" class="btn sm" data-venudge="${a}" data-sign="1" aria-label="${l} を増やす">＋</button></div>`).join('')}</div>`;
@@ -10958,7 +10958,11 @@ function veButton(a){
  else if((a==='edgeAdd'||a==='edgeRemove')&&sel.length===2){veChangeEdge(o,sel,a==='edgeRemove');}
  else if(a==='move'){const d=st.ve.d.map(v=>+v||0);if(!C.len(d))return;const moves=new Map(sel.map(i=>[i,o.local[i].map((x,k)=>veSnap(x+d[k]))]));if(veCommit(o,moves,`${sel.length} 頂点を移動`))st.ve.d=[0,0,0];}
  else if(a==='split'&&sel.length===2){
-  if(o.kind==='struct'){const [x,y]=sel;if(!o.faces.some(f=>veBoundaryEdge(f,x,y))){toast('辺でつながった2頂点を選んでください');return;}const m=C.meshSplitEdge(o.p.mesh,x,y);mutate('辺に頂点を追加',()=>{ship.parts.find(q=>q.id===o.p.id).mesh=m;},'parts');st.ve.sel=[m.v.length-1];}
+  if(o.kind==='struct'){const [x,y]=sel;let base=o.p.mesh;
+   // User report 2026-11-14: the two ends of a diagonal drawn across a face are not an edge yet (the line is the
+   // face's own division). The diagonal is first added as an edge, then the vertex goes on its middle.
+   if(!o.faces.some(f=>veBoundaryEdge(f,x,y))){if(!o.faces.some(f=>f.includes(x)&&f.includes(y))){toast('辺でつながった2頂点、または同じ面の2頂点を選んでください');return;}const r=C.meshAddEdge(base,x,y);if(r.error){sndUI('ui_error');toast(esc(r.error));return;}base=r.mesh;}
+   const m=C.meshSplitEdge(base,x,y);mutate('辺に頂点を追加',()=>{ship.parts.find(q=>q.id===o.p.id).mesh=m;},'parts');st.ve.sel=[m.v.length-1];}
   else{const [x,y]=sel,mid=o.local[x].map((v,k)=>(v+o.local[y][k])/2),local=o.local.concat([mid]);const r=C.solidCutFromLocal(o.q,local);if(r.error){toast(esc(r.error));return;}st.ve.hist.push(JSON.stringify(o.q));Object.assign(st.solidCutter,r.cut);st.ve.sel=[local.length-1];updateCutterDraft(false);}
  }
  else if(a==='drop'&&sel.length===1){
