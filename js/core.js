@@ -51950,7 +51950,7 @@ function baseComputeStats(ship,options={}) {
   // bay carries is added to the ship as load, not here.)
   // The union starts from the hull, so a place inside the hull material belongs to the hull, not to another structure
   // that overlaps the hull there: such a place is not taken off any structure (physics review 2026-11-14). The hull's own
-  // material is not reduced by the bays inside it (open question for the user).
+  // material is displaced by every room inside it further below (hullBins, Vint), as before.
   const voidIn=new Map();{const order=ship.parts.filter(p=>isStructuralPart(p)&&!isHullStructure(p)).sort(structuralMaterialOrder),boxes=new Map();
    for(const pt of occupied){if(!VOID_ROOM_KINDS.has(pt.k)||invalid.has(pt.id)||pt.turretRoom)continue;const V=partVolume(pt);if(!(V>0))continue;const vs=volSamples(pt);if(!vs.length)continue;const share=V/vs.length;
     for(const q of vs){if(hullMaterialContains(ship,q))continue;for(const st of order){let b=boxes.get(st);if(!b){b=partAABB(st);boxes.set(st,b);}if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!inStruct(st,q))continue;voidIn.set(st.id,(voidIn.get(st.id)||0)+share);break;}}}}
@@ -62046,6 +62046,10 @@ function SUBJ_GUNS(s,spread,range,opt){
  spread('monCal34',80,'top','dorsal-light',range(800,4500,50),[100,280,360,440]);
  spread('monCalPD',240,'top','dorsal-pd',range(700,4700,40),[40,160,240,320,400,480]);
  spread('monCalPD',160,'bottom','ventral-pd',range(700,4500,40),[30,90,160,230,300]);
+ // 2026-11-14 user decision: the dorsal pair at x 2460, z +-40 stood on the nose of the armoured blister (x 2455..). While the
+ // blister was an armour plate it was left out of turret foundations and the pair was buried in it; as an ordinary structure
+ // it gave them a 10 m foundation. The pair is left out (400 -> 398 point-defence turrets).
+ s.fits=s.fits.filter(f=>!(f.k==='monCalPD'&&Math.abs(f.p[0]-2460)<1e-6&&Math.abs(Math.abs(f.p[2])-40)<1e-6&&f.p[1]>300));
 }
 // (the trench wall takes no mount at x 2485-2510 on either side, nor at x 2620-2645 on the port side, so the forward row steps over them)
 const SUBJ_TRENCH_XS=[2330,2360,2390,2420,2450,2480,2540,2573,2606,2650,2683,2716,2749,2782,2815];

@@ -390,12 +390,12 @@
   },
   "subjugator": {
    "combat": {
-    "sha256": "325f551bc75cf7d78fd30eef649d5a7bb304de42ee6376af273e53a8dc4f06c0"
+    "sha256": "b699b362eb21c51bca6f0c381156c0fbd4e90990b4d8082e59e8fe40994d5130"
    },
    "design": {
-    "sha256": "60996422262f87fd05f9edb3214d3fad66f0e945d7cf5a38bb462d137dc6ecdc",
-    "jsonSha256": "86ab955fd9428c126e3719eef4d8cc3ca1c669c22b7c4d8f9169f27811d975d9",
-    "blueprintSha256": "56e4995a24584e600efab349f481ad41469fd1df6621aad1e7969480a84a2f3e"
+    "sha256": "2250caf0c1d12f940b06bebc0a37bbe1876129a11ffc3065002b18976a93dd55",
+    "jsonSha256": "a2b79c85562dd5b0f39c14f020bfaafc6e7e6fb3edcc267100dbd5cbf78c24ab",
+    "blueprintSha256": "9e6f47efdac79ab8302fc675201df88090e61ac8ca49ac7c1b5b75b14ac12342"
    }
   },
   "venator": {
