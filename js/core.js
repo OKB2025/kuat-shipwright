@@ -50277,7 +50277,10 @@ function baseMountFit(ship,f){
  // Stage C: p is kept; the surface below must lie within FIT_SUPPORT_GAP_M of it along the fitting's up axis.
  if(!isAnchoredFit(f)&&ship._keepFitPose){if(Math.abs(dot(sub(h0.p,f.p),fr.up))>FIT_SUPPORT_GAP_M){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
  f.float=false;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
- let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=rayEnv(ship,add(q,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
+ // High review H-B: a kept fitting measures its footprint from just above its own seat (2 mm above its saved base, down past its saved slope plus its radius),
+ // so a structure added above it (a roof) is never taken for the surface under its footprint.
+ const from=keepLocal?Math.max(f.base||0,0)+2*FIT_SUPPORT_GAP_M:big,reach=keepLocal?from+Math.max(f.slope||0,0)+R:big*2;
+ let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=rayEnv(ship,add(q,mul(fr.up,from)),mul(fr.up,-1),{maxT:reach,structOnly:true});if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
 }
 function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, fitHasPedestal(f)?(f.base||0)+(f.ped||0):0)); }
 function baseFitAABB(f) {
@@ -51706,7 +51709,11 @@ function mountEmbeddedLauncher(ship,f){
  const host=f.host==='hull'?null:ship.parts.find(p=>p.id===f.host),up=fitUp(f);let p=f.p.slice(),n=up.slice(),h;
  // Stage C review H2: on a load/Worker remount an embedded launcher keeps its pose and host; it is only checked against
  // the surface at its own seat (within FIT_SUPPORT_GAP_M along its normal).
- if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up;h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}f.float=false;return f;}
+ if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up;h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
+  // High review H-A: the kept pose is still judged as a whole (the body inside the wall it meets, its axis out of the wall,
+  // the clearance), exactly as the seating path does, only without moving it.
+  {const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>h.part?inPart(h.part,q):insideOriginalEnvelope(ship,q);let valid=dot(g.axis,nn)>.05;for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
+   f.float=!valid;f.launcherBlocked=!valid||!launcherClearance(ship,f);}return f;}
  const moved=f._launcherHostPoint&&len(sub(f.p,f._launcherHostPoint))>1e-6;
  if(host&&f.local&&!moved){p=worldStruct(host,[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]]);if(f.localNormal)n=norm(worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]));}
  h=isAnchoredFit(f)?fitAttachmentHit(ship,f):rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:8,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
@@ -64152,11 +64159,16 @@ function removeParts(ship,inputIds){
  // runs after the removal against everything left, hull included. A fitting without a placement record lands on the hit
  // and is seated normally (a delete is a user action); an anchored one is re-hosted. Nothing below: it stays, floating,
  // and loses its host link (repairable for anchored fittings).
- const seatPart=f=>{const up=norm(fitUp(f)),o=add(f.p,mul(up,FIT_SUPPORT_GAP_M));let best=null;for(const q of ship.parts){if(!isShapePart(q)||q.plate)continue;q._solidCutShip=ship;const h=rayPart(o,mul(up,-1),q);if(h){const t=dot(sub(o,h.p),up);if(t>=0&&t<=2*FIT_SUPPORT_GAP_M&&(!best||t<best.t))best={t,part:q};}}return best?.part||null;};
+ // High review M-A: an example reference turret mounted with an offset stands mountOffset below its p, on its mount axis.
+ const refOffset=f=>!isAnchoredFit(f)&&!f.localMount&&!FITS[f.k]?.casemate&&f.mountAxis!=null&&f.mountMode!=='top'&&f.mountMode!=='bottom'&&(f.mountOffset||0)!==0?f.mountOffset:0,upOf=f=>refOffset(f)?AXES[f.mountAxis??f.a]:norm(fitUp(f)),seatOf=f=>sub(f.p,mul(upOf(f),refOffset(f)));
+ // High review M-B: only fittings whose box reaches a removed structure (or whose host is removed) are examined.
+ const removedBoxes=[];for(const q of ship.parts)if(removed.has(q.id)&&isShapePart(q)){try{const b=partAABB(q);if(b.every(Number.isFinite))removedBoxes.push(b);}catch(e){}}
+ const nearRemoved=f=>{let A;try{A=fitAABB(f);}catch(e){return true;}const q=seatOf(f),pad=.5;for(let i=0;i<3;i++){A[i]=Math.min(A[i],q[i]);A[i+3]=Math.max(A[i+3],q[i]);}return removedBoxes.some(B=>[0,1,2].every(i=>A[i]<=B[i+3]+pad&&A[i+3]>=B[i]-pad));};/* the box and the seat point */
+ const seatPart=f=>{const up=upOf(f),o=add(seatOf(f),mul(up,FIT_SUPPORT_GAP_M)),h=rayEnv(ship,o,mul(up,-1),{maxT:2*FIT_SUPPORT_GAP_M,structOnly:true});return h?.part&&isShapePart(h.part)&&!h.part.plate?h.part:null;};/* one ray against everything (M-B) */
  const depthAlong=(q,up)=>{const T=structTriangles(q);let lo=Infinity,hi=-Infinity;for(let i=0;i<T.length;i+=3){const v=T[i]*up[0]+T[i+1]*up[1]+T[i+2]*up[2];if(v<lo)lo=v;if(v>hi)hi=v;}return hi>lo?hi-lo:0;};
- const drops=[];for(const fit of ship.fits){if(isTrenchBatteryGroup(fit))continue;/* a trench group fitting is derived from its armament and rebuilt with it, never dropped */const seat=seatPart(fit),stand=seat&&removed.has(seat.id)?seat:removed.has(fit.host)?ship.parts.find(q=>q.id===fit.host):null;if(!stand)continue;const up=norm(fitUp(fit));drops.push({fit,up,reach:depthAlong(stand,up)+2*FIT_SUPPORT_GAP_M});}
+ const drops=[];for(const fit of ship.fits){if(isTrenchBatteryGroup(fit))continue;/* a trench group fitting is derived from its armament and rebuilt with it, never dropped */if(!removed.has(fit.host)&&!nearRemoved(fit))continue;const seat=seatPart(fit),stand=seat&&removed.has(seat.id)?seat:removed.has(fit.host)?ship.parts.find(q=>q.id===fit.host):null;if(!stand)continue;const up=upOf(fit);drops.push({fit,up,reach:depthAlong(stand,up)+2*FIT_SUPPORT_GAP_M});}
  const dropFits=()=>{for(const {fit,up,reach} of drops){
-  const start=add(fit.p,mul(up,FIT_SUPPORT_GAP_M)),h=rayEnv(ship,start,mul(up,-1),{maxT:reach,structOnly:true});
+  const start=add(seatOf(fit),mul(up,FIT_SUPPORT_GAP_M)),h=rayEnv(ship,start,mul(up,-1),{maxT:reach,structOnly:true});
   if(h&&!h.part?.plate){
    if(isAnchoredFit(fit)){const before=fit.p.slice();
     if(isShapePart(h.part)){fit.p=h.p.slice();delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const r=typeof rehostFitPlacement==='function'?rehostFitPlacement(ship,fit,h.part):{ok:false};if(r.ok){reparented.push({list:"fits",fitId:fit.id,parentStructureId:h.part.id,moved:true});continue;}fit.p=before;}
@@ -64168,7 +64180,7 @@ function removeParts(ship,inputIds){
     // A procedural hull carries no anchored weapons: landing on it, the weapon becomes an ordinary hull-mounted fitting,
     // as the user's own placement on that hull gives.
     if(!isShapePart(h.part)){delete fit.placement;delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;}}
-   if(!isAnchoredFit(fit)){fit.p=h.p.slice();delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const keep=ship._keepFitPose;ship._keepFitPose=true;/* seated exactly on the hit: keep mode only checks that seat and rebuilds the support (no long ray that could land it on a roof) */try{mountFit(ship,fit);}finally{if(keep)ship._keepFitPose=keep;else delete ship._keepFitPose;}if(!fit.float){reparented.push({list:"fits",fitId:fit.id,parentStructureId:isShapePart(h.part)?h.part.id:null,moved:true});continue;}}
+   if(!isAnchoredFit(fit)){fit.p=add(h.p,mul(up,refOffset(fit)));/* a reference turret keeps its mount offset above the new seat */delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;const keep=ship._keepFitPose;ship._keepFitPose=true;/* seated exactly on the hit: keep mode only checks that seat and rebuilds the support (no long ray that could land it on a roof) */try{mountFit(ship,fit);}finally{if(keep)ship._keepFitPose=keep;else delete ship._keepFitPose;}if(!fit.float){reparented.push({list:"fits",fitId:fit.id,parentStructureId:isShapePart(h.part)?h.part.id:null,moved:true});continue;}}
   }
   fit.float=true;delete fit.mountSupport;fit.base=0;fit.low=0;fit.slope=0;
   if(fit.host!=null&&removed.has(fit.host)){const old=fit.host;delete fit.host;delete fit.local;delete fit.localNormal;delete fit.localForward;if(fit.placement){fit.placement.unresolvedHostId=old;fit.placement.repairRequired=true;delete fit.placement.hostSurfaceId;delete fit.placement.parentGeometryKey;delete fit.placement.parentGeometryRevision;}}

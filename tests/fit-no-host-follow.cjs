@@ -103,3 +103,17 @@ test('mirroring a ship launcher flips its tilt once (n and tilt agree)',()=>{
   const S=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));C.refreshPlacementGeometry(S);place(S,1,S.parts[0],k,300);C.removeParts(S,[1]);const g=S.fits[0];
   assert.equal(g.float,false);near(g.p[1],120,1e-6);assert.equal(g.placement,undefined);C.remount(S,{keepFitPose:true});assert.equal(S.fits[0].float,false);});
 }
+
+// Stage C high review 3 (2026-11-14).
+test('H-A: an embedded launcher whose body does not fit inside its wall stays floating on a load remount',()=>{
+ for(const t of [0.2,2]){const s=fixture();s.parts=[{id:1,k:'struct',form:'box',c:[100,30,0],s:[100,t,60]}];C.refreshPlacementGeometry(s);/* the reviewer's probe p3 */s.fits.push({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true});C.remount(s);
+  const g=s.fits[0];assert.equal(g.float,true,'seated: floating ('+t+' m wall)');C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,true,'kept: still floating ('+t+' m wall)');}
+});
+test('H-B: a roof added above a kept bridge module changes neither its base nor its origin',()=>{
+ for(const k of ['brS','brT']){if(!C.FITS[k])continue;const s=fixture();C.refreshPlacementGeometry(s);s.fits.push({id:9,k,p:[100,20,0],n:[0,1,0],a:2});C.remount(s);const f=s.fits[0],base=f.base,o=JSON.stringify(C.fitOrigin(f));
+  s.parts.push({id:3,k:'struct',form:'box',c:[100,62,0],s:[60,60,4]});C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});const g=s.fits[0];assert.equal(g.base,base,k+' base');assert.equal(JSON.stringify(C.fitOrigin(g)),o,k+' origin');}
+});
+test('M-A: a reference turret mounted with an offset drops with its offset onto the structure below',()=>{
+ const s=fixture();s.parts.push({id:2,k:'struct',form:'box',c:[100,30,0],s:[40,20,20]});s.nextId=3;C.refreshPlacementGeometry(s);s.fits.push({id:7,k:'refVen',p:[100,41,0],a:2,mountAxis:2,mountOffset:1,ped:0});C.remount(s);
+ const r=C.removeParts(s,[2]),g=s.fits[0];assert.ok(r.reparented.some(q=>q.list==='fits'&&q.fitId===7));near(g.p[1],21,1e-6);C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,false);
+});
