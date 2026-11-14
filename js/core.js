@@ -58885,7 +58885,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
 // 2026-11-14 re-measured after machinery, wings and panels became denser (user decisions): each plant gives its target
 // acceleration at the craft's new mass.
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.523342827174,craft_awing:0.538664339405,craft_btlb:0.686096340728,craft_hyena:0.597749864827,craft_tie_in:0.548541177799,craft_tie_ln:1.110450092375,craft_tie_sa:0.665449910775,craft_v19:0.545597532744,craft_vulture:0.459408756390,craft_vwing:0.467385256009,craft_xwing:0.457785068838,craft_z95:0.692181440250});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.523612819560,craft_awing:0.538693990766,craft_btlb:0.686257537145,craft_hyena:0.597986279568,craft_tie_in:0.548659070293,craft_tie_ln:1.110735516139,craft_tie_sa:0.665521724656,craft_v19:0.545982027224,craft_vulture:0.459558911046,craft_vwing:0.467564116530,craft_xwing:0.457887018500,craft_z95:0.692570301184});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
