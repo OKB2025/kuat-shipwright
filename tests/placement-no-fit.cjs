@@ -193,6 +193,13 @@ for(const reason of ['minimum-thickness','contact-shape','geometry-open'/* user 
  const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
  assert.equal(q.placement.repairRequired,undefined);assert.equal(q._placementError,undefined);assert.ok(!r.failed.some(f=>f.partId===2));
 });
+// Regression review 2026-11-14: the refusal is dropped only when the requested solid passes today's check. A requested
+// solid that really is open (a mesh with one face removed) keeps its refusal on load.
+test('an old geometry-open failure on a requested solid that really is open stays on load',()=>{
+ const {ship,part}=fixture(0);const raw=structuredClone(C.serialize(ship)),rp=raw.parts.find(p=>p.id===2);Object.assign(rp.placement,{repairRequired:true,repairReason:'geometry-open'});
+ const m=C.structToMesh(part);m.f=m.f.slice(1);rp.form='mesh';rp.mesh=structuredClone(m);Object.assign(rp.placement.requestedGeometry,{form:'mesh',mesh:structuredClone(m)});
+ const L=C.deserialize(raw),q=L.parts.find(p=>p.id===2);assert.equal(q.placement.repairRequired,true);assert.equal(q.placement.repairReason,'geometry-open');
+});
 
 // 2026-11-14 user decision: what stood on a deleted structure and lost its grounding drops together as one piece (shapes
 // and relative positions kept): a chain (B on the deleted body, C on B) and touching siblings both land.

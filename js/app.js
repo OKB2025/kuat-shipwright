@@ -7434,7 +7434,9 @@ function multiPaste(){
   for(const l of ['parts','fits'])for(const q of made[l]){for(const r of ['tw','vt']){if(q[r]==null)continue;const n=map[l].get(q[r]);if(n!=null)q[r]=n;else delete q[r];}
    if(Array.isArray(q.surfacePoint))q.surfacePoint=sc(q.surfacePoint);
    if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;C.normalizeFitMount(q);}else{q.c=sc(q.c);copyWingLinks(q,map,sc);for(const key of ['reactor','machineryId'])if(map.parts.has(q[key]))q[key]=map.parts.get(q[key]);}
+   if(l==='parts')delete q.light;   // an old clipboard: light structures are abolished (2026-11-14)
    ship[l].push(q);}
+  C.convertArmorPlates?.(ship);     // an old clipboard's armour plate becomes a structure with face armour, as on load
   for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,interiorAnchor:C.interiorAnchorHostId?.(ship),point:sc,sourceParts:c.parts,targetParts:made.parts});
   const sourceFits=new Map(c.fits.map(f=>[map.fits.get(f.id),f]));
   for(const f of made.fits)if(f.placement)C.remapFitPlacementCopy?.(f,map.parts,{sourceHostId:sourceFits.get(f.id)?.host,sourceParts:c.parts,targetParts:ship.parts});
