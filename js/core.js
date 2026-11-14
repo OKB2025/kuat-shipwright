@@ -222,7 +222,7 @@ const COST_K = {crew: 1000};
 const COST_MODEL=Object.freeze({version:17,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,powerBus:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserL:3000,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
-function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+((p.k==='engineCore'||p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id))?resolveEngineSpec(p).cost:0):0;}
+function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+((p.k==='engineCore'||p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id))?resolveEngineSpec(p).cost:0):0;}
 function fitBuildCost(f,spec){const d=spec||(FITS[f?.k]?fitSpec(f):null);return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command'])*(isTrenchBatteryGroup(f)?f.aggregateCount:1):0;}
 function costBreakdown(total,source){
  const keys=Object.keys(COST_CATS).filter(k=>k!=='crew'),raw=keys.map(k=>Number.isFinite(source?.[k])?Math.max(0,source[k]):0),sum=raw.reduce((a,b)=>a+b,0),target=Number.isFinite(total)?Math.max(0,Math.round(total)):0;
@@ -50628,7 +50628,7 @@ function baseComputeStats(ship,options={}) {
   const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
     if(pt.turretRoom){info[pt.id]={inside:1,inHull:1,exposed:0,overlap:invalid.has(pt.id),turretRoom:true};continue;}
-    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)&&!pt.plate?(material.volumes.get(pt.id)??V):placementBuriedOnce(pt)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14: overlaps are counted once, as the denser part (union order); wings, panels and plates count their increment */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=isStructuralPart(pt)?(material.volumes.get(pt.id)??V):isAeroPart(pt)?(material.envelopeVolumes.get(pt.id)??V):V,/* 2026-11-14 user decisions: every overlap is counted once; a structure owns its overlap with a wing or panel, which counts only what it adds (all parts, with or without a placement record) */materialRatio=V>0?materialV/V:0,vs = pt.distributedWiring?[]:volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
@@ -50636,26 +50636,13 @@ function baseComputeStats(ship,options={}) {
     const expF=pt.distributedWiring?0:pt.surfacePatch&&!pt.surfaceUnplaced&&Number.isFinite(pt.surfaceExposure)?clamp(pt.surfaceExposure,0,1):ss.length?out/ss.length:1,A=partArea(pt);
     info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id)||detached.has(pt.id),...(detached.has(pt.id)?{detached:true}:{})};/* physics review 2026-11-14: every reader of info.overlap treats a detached part as inactive; the overlap warning counts invalid only */
     exposedArea += A * expF;
-    if (isStructuralPart(pt) && pt.plate) {
-      // Independent plate hardware keeps its material when buried, while only
-      // its actual exposed skin contributes to the exterior protection survey.
-      const t = plateThickness(pt), physicalSkin = unclippedPartArea(pt), skin = structuralArmorArea(ship,pt), armV = Math.min(materialV, physicalSkin * t), m = (materialV - armV) * .05 + armV * K.armorDens;
-      plateA += skin; plateAT += skin * t; plateM += armV * K.armorDens;
-      info[pt.id].materialVolume=materialV;info[pt.id].materialMass=m;
-      Vstruct += materialV; structOut += material.envelopeVolumes.get(pt.id)??V*(1-fH); hpSum += (materialV - armV) * .05 * 1.5;const price=partBuildCost(pt,materialV);cost += price+armV*COST_MODEL.armor;costBy.hull+=price;costBy.armor+=armV*COST_MODEL.armor;crew += materialV * d.crew / 1000;
-      const b = structBox(pt);
-      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * materialRatio; bins[k] += m / nk; } }
-      continue;
-    }
     if (isShapePart(pt)) {
-      // A light structure (an open framework or a lightly built hull extension,
-      // like a freighter's cargo ring) weighs and holds a quarter of a solid one.
-      const lf = pt.light ? .25 : 1, vOut = material.envelopeVolumes.get(pt.id)??V*(1-fH),m=isAeroPart(pt)?materialV*d.dens:materialV*K.structDens*lf;
+      const vOut = material.envelopeVolumes.get(pt.id)??V*(1-fH),m=isAeroPart(pt)?materialV*d.dens:materialV*K.structDens;
       info[pt.id].materialVolume=materialV;info[pt.id].materialMass=m;
       Vstruct += materialV; structOut += vOut; hpSum += m * 1.5;const price=partBuildCost(pt,materialV);cost += price;costBy[costCategory(pt.k)]+=price;crew += materialV * d.crew / 1000;
       const b = structBox(pt);
       // Distribute the structure along the measured completed ship span.
-      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * lf * materialRatio; bins[k] += m / nk; } }
+      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * materialRatio; bins[k] += m / nk; } }
       continue;
     }
     const m = V * d.dens; hpSum += m * d.hp; const price=partBuildCost(pt,V);cost += price; costBy[costCategory(pt.k)] += price; crew += V * d.crew / 1000; Vint += V * newHull/Math.max(1,vs.length);
@@ -51138,7 +51125,7 @@ Object.assign(PARTS.shield,{group:'support',name:'広域シールド発生器',d
 Object.assign(PARTS.hangar,{group:'air',min:10,max:180,desc:'航空機の格納区画。自動充填は炉・推進機関・主要区画を避けます。'});
 Object.assign(PARTS.struct,{group:'shape',desc:'機関を包む外殻と支持構造。形状と前後左右の傾斜を指定できます。'});
 const addComp = (k,name,shape,dens,col,group,desc,extra={}) => PARTS[k]={name,shape,dens,col,group,desc,hp:0.65,crew:0.2,cost:1,min:8,max:240,def:40,ratio:1.5,...extra};
-addComp('wing','主翼','box',.15,[192,199,208],'power','翼弦方向の断面を6頂点の翼型に簡略化した主翼。前縁寄りが最も厚く、後縁へ細くなります。寸法・平面の輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。',{min:.02,max:4000,def:4,crew:0,cost:1.4,hp:1});
+addComp('wing','主翼','box',K.structDens/* 2026-11-14 user decision: a wing has the density of a structure (was .15) */,[192,199,208],'power','翼弦方向の断面を6頂点の翼型に簡略化した主翼。前縁寄りが最も厚く、後縁へ細くなります。寸法・平面の輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。',{min:.02,max:4000,def:4,crew:0,cost:1.4,hp:1});
 addComp('solarPanel','太陽光パネル','box',.12,[70,79,91],'power','集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。',{min:.02,max:4000,def:4,crew:0,cost:1.6,hp:.65});
 Object.assign(CRAFT_PART_SIZE,{wing:[.02,100,4],solarPanel:[.02,100,4]});
 addComp('aux','補助反応炉','sphere',0.9,[243,187,91],'power','主反応炉と同じ容積あたりの出力を持つ補助炉。独立したノズルの接続先にもできます。',{def:48,crit:true});
@@ -51189,7 +51176,7 @@ function settleUncutRooms(ship,kinds=['cockpit','bombBay'],test=null,opts={}){
   if(!found){p.c=home;delete p._roomShape;
    // A stock cockpit whose airframe cannot hold a seated crew member gets a canopy structure over the seat
    // (a tinted box 6 cm larger than the seat on every side), as the old cockpit sphere stood for the canopy.
-   if(p.k==='cockpit'&&opts.canopy!==false){const r=COCKPIT_SEAT.room,shell={id:ship.nextId++,k:'struct',c:home.slice(),s:[r[0]+.12,r[1]+.12,r[2]+.12],form:'trap',taper:0,yaw:0,offsetX:0,offsetZ:0,pitch:0,roll:0,corner:.08,label:'キャノピー（座席区画）',paint:'#2e3e4a',skin:'plain',light:true};ship.parts.push(shell);delete ship._clipEnvelope;
+   if(p.k==='cockpit'&&opts.canopy!==false){const r=COCKPIT_SEAT.room,shell={id:ship.nextId++,k:'struct',c:home.slice(),s:[r[0]+.12,r[1]+.12,r[2]+.12],form:'trap',taper:0,yaw:0,offsetX:0,offsetZ:0,pitch:0,roll:0,corner:.08,label:'キャノピー（座席区画）',paint:'#2e3e4a',skin:'plain'};ship.parts.push(shell);delete ship._clipEnvelope;
     if(ok()){moved.push(p.id);continue;}
     for(const d of steps){if(Math.abs(d[0])>.3||Math.abs(d[1])>.3||Math.abs(home[2])<1e-9&&Math.abs(d[2])>1e-9)continue;p.c=add(home,d);shell.c=p.c.slice();delete p._roomShape;delete shell._shape;delete ship._clipEnvelope;if(ok()){found=true;moved.push(p.id);break;}}
     if(!found){p.c=home;shell.c=home.slice();delete p._roomShape;}}
@@ -51205,7 +51192,7 @@ function migrateCockpitSeats(ship){
  const legacy=ship.parts.filter(p=>p.k==='cockpit'&&(!Array.isArray(p.room)||p.canopy||(p.seats||1)>1));
  for(const p of legacy){
   const seats=clamp(Math.round(p.seats||1),1,20),body=!Array.isArray(p.room)||p.canopy?canopyBody({...p,canopy:canopyShape(p)}):null;
-  if(body){const shell=JSON.parse(JSON.stringify(body));Object.assign(shell,{id:ship.nextId++,label:'キャノピー',paint:'#2e3e4a',skin:'plain',light:true});ship.parts.push(shell);}
+  if(body){const shell=JSON.parse(JSON.stringify(body));Object.assign(shell,{id:ship.nextId++,label:'キャノピー',paint:'#2e3e4a',skin:'plain'});ship.parts.push(shell);}
   const suit=p.suit===true;normalizeCockpitSeat(p);
   for(let i=1;i<seats;i++){const q=normalizeCockpitSeat({id:ship.nextId++,k:'cockpit',c:[p.c[0]-COCKPIT_SEAT.room[0]*i,p.c[1],p.c[2]],label:p.label});if(suit)q.suit=true;ship.parts.push(q);}
  }
@@ -51329,18 +51316,14 @@ const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
 // Memory for the reused union prefix (provisional: 32 MB, one ship at a time).
 const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
-// 2026-11-14 user decision: an overlap between structures is counted once, as the denser part's material. The union adds
-// parts densest first (plates, then aero parts by their density, then ordinary and light structures), then by id; no
-// placement record is used.
-/* 2026-11-14 user decision: an overlap belongs to the part whose kind has the higher priority (a fixed rule per kind, not
-   density); between equal kinds the earlier part (lower id) owns it. Structure > light structure > armor plate >
-   wing / solar panel and other shapes. This is the order main produced, so example figures are unchanged. Light
-   structures and plates are to be removed in a separate PR (plates become surface armor by area). */
-const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,lightStructure:1,plate:2,other:3,lightOther:4});
-function structuralOverlapKind(p){return p.plate?'plate':isStructuralPart(p)?(p.light?'lightStructure':'structure'):p.light?'lightOther':'other';}/* lightOther: a wing or panel flagged light came after the others in main */
+/* 2026-11-14 user decisions: an overlap is counted once and belongs to the part whose kind has the higher priority (a
+   fixed rule per kind, not density); between equal kinds the earlier part (lower id) owns it. Structure > armor plate
+   (legacy, converted to surface armor on load) > wing / solar panel and other shapes. Light structures are abolished. */
+const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,other:1});
+function structuralOverlapKind(p){return isStructuralPart(p)?'structure':'other';}
 /* The exterior armor faces keep main's order (densest first: plates cover the structures they lie on) until plates
    become surface armor (separate PR). */
-function structuralSurfaceOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
+function structuralSurfaceOrder(a,b){return a.id-b.id;}
 function structuralMaterialOrder(a,b){return STRUCTURAL_OVERLAP_PRIORITY[structuralOverlapKind(a)]-STRUCTURAL_OVERLAP_PRIORITY[structuralOverlapKind(b)]||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
@@ -51642,7 +51625,7 @@ function exposedSurface(ship,occupied,skin){
   const bounds=physical.map(q=>[q,partAABB(q)]);const inside=(p,skip)=>bounds.some(([q,b])=>q!==skip&&p[0]>=b[0]&&p[0]<=b[3]&&p[1]>=b[1]&&p[1]<=b[4]&&p[2]>=b[2]&&p[2]<=b[5]&&inPart(q,p));let area=0;
   // The common exposed mask includes partial overlaps and stable ownership of
   // coincident structural sheets; centroid votes cannot measure their union.
-  for(const patch of surfacePatches(ship,!ship.surfaces)){if(patch._part&&!isShapePart(patch._part))continue;const T=patch.exposedTriangles??patch.triangles,extra=patch._part?.plate?plateThickness(patch._part):0;for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),c=Array.from(T.slice(i+6,i+9)),n=cross(sub(b,a),sub(c,a)),sz=len(n)/2;if(sz<1e-8)continue;area+=sz;if(skin)skinAdd(skin,(a[0]+b[0]+c[0])/3,n,sz,extra);}}
+  for(const patch of surfacePatches(ship,!ship.surfaces)){if(patch._part&&!isShapePart(patch._part))continue;const T=patch.exposedTriangles??patch.triangles,extra=0;for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),c=Array.from(T.slice(i+6,i+9)),n=cross(sub(b,a),sub(c,a)),sz=len(n)/2;if(sz<1e-8)continue;area+=sz;if(skin)skinAdd(skin,(a[0]+b[0]+c[0])/3,n,sz,extra);}}
   for(const p of occupied){if(p.boxSize||isInternal(p))continue;const ss=surfSamples(p,eps);let ex=0;for(const q of ss)if(!inHull(ship,q)&&!inside(q,p))ex++;const a=partArea(p)*ex/Math.max(1,ss.length);area+=a;if(skin&&a>0&&p.c)skinAdd(skin,p.c[0],[0,p.c[1]-skin.yc,p.c[2]],a,0);}
   return area;
 }
@@ -51895,7 +51878,7 @@ function bridgeLooseStructures(ship){
 }
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');try{
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -52101,7 +52084,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
   for(const q of made){if(q.k==='cockpit'){delete opt.room;normalizeCockpitSeat(q);}if(q.k==='droidbrain'){delete opt.room;delete q.room;q.d=DROID_BRAIN_D;}}
-  for(const q of made){for(const a of ['reactor','propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryShape','nozzleAppearance','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','shaftCapacityW','nozzleShare','legacyCoolingInputW','feedCapacityW','exposedMachinery','casingBodyScale','busFeed','shieldDissipationW','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['reactor','propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryShape','nozzleAppearance','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','shaftCapacityW','nozzleShare','legacyCoolingInputW','feedCapacityW','exposedMachinery','casingBodyScale','busFeed','shieldDissipationW','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){if(isSuperweapon(q)&&opt.weaponBody!=null){q.weaponBody=normalizeSuperweaponBody(opt.weaponBody);if(opt.weaponMuzzle!=null)q.weaponMuzzle=normalizeSuperweaponMuzzle(opt.weaponMuzzle);if(q!==p)reflectSuperweaponBody(p,q,2);}normalizeAeroPart(q);enforceEquipment(q);normalizeSuperweapon(q);if(isShapePart(q))q._solidCutShip=ship;if(q.k==='repulsor'&&opt.landingEquipment===true)q.landingEquipment=true;if(q.k==='cockpit'&&opt.canopy!=null)setCanopyShape(q,opt.canopy);if(q.k==='cockpit'){if(Number.isFinite(opt.seats))q.seats=clamp(Math.round(opt.seats),1,20);if(opt.suit===true)q.suit=true;}}
   if(made.length===2&&(equipmentSpec(p)||p.k==='engine'||p.k==='engineCore')){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made){if(!old&&['engine','engineCore'].includes(q.k))initializeEngineSpec(q,ship,false);if(isInternal(q))q._envelope=ship;}
@@ -52314,7 +52297,7 @@ function surfaceEditablePatch(ship,patch){
 }
 function surfaceConfig(ship,id){const q=ship.surfaces?.patches?.find(x=>x.id===id),base=surfaceDefaultConfig(ship,id);if(!q)return base;for(const k of ['armor','equipment','battery','style'])base[k]={...base[k],...q[k]};if(q.aggregate)base.aggregate=q.aggregate;base.authored=q.authored!==false;base.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';base.allocation=surfaceAllocation(q.allocation);if(q.legacyAllocation){base.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation);base.battery.count=(q.aggregate?.guns?.length??ship.fits.filter(f=>f.surfacePatch===id&&FITS[f.k]?.cat==='w').length);}base.powerDomain=q.powerDomain||'main';if(q.boundArea!=null)base.boundArea=q.boundArea;base.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};return base;}
 function surfaceTopology(ship,p){if(isHullStructure(p))return p.hullData?.surfaceToken||surfaceTopology(hullStructureShip(ship,p),null);const key=[p?p.k:'hull',p?.form||ship.hull.plan,p?.mesh?.f||null,p?.mesh?.v?.length||null,ship.cuts||[],ship.trenches||[],ship.subs||[],(ship.solidCuts||[]).filter(c=>!p||ship.hull.assembly||c.structures),p?null:(ship.hatches||[]).map(h=>[h.id,h.portal,h.bay,h.face,h.a,h.b,h.w])];if(p?.form==='wedge')key.push('outward-wedge-2');return surfaceHash(key);}
-function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize,p.dir,p.segments,p.boxSize,p.boxFrame,p.length,p.nozzleLength,p.weaponBody,p.weaponMuzzle,p.light,p.plate,p.hullProfile,p.hullData,p.hullMirrorZ]),(ship.fits||[]).filter(isShipLauncher).map(launcherStateKey),ship.surfaces?.partitions]);}
+function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize,p.dir,p.segments,p.boxSize,p.boxFrame,p.length,p.nozzleLength,p.weaponBody,p.weaponMuzzle,p.plate,p.hullProfile,p.hullData,p.hullMirrorZ]),(ship.fits||[]).filter(isShipLauncher).map(launcherStateKey),ship.surfaces?.partitions]);}
 function surfaceHull2(points){const a=points.map(p=>p.slice()).sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross2=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);if(a.length<3)return a;const lo=[],hi=[];for(const p of a){while(lo.length>1&&cross2(lo.at(-2),lo.at(-1),p)<=1e-8)lo.pop();lo.push(p);}for(let i=a.length-1;i>=0;i--){const p=a[i];while(hi.length>1&&cross2(hi.at(-2),hi.at(-1),p)<=1e-8)hi.pop();hi.push(p);}lo.pop();hi.pop();return lo.concat(hi);}
 function surfaceBlocked(ship,p,n,host){const q=surfaceAdd(p,mul(n,.025));if(inHull(ship,q))return true;for(const part of ship.parts||[]){if(part===host||part.surfacePatch)continue;const b=partAABB(part);if(q.some((v,i)=>v<b[i]-.001||v>b[i+3]+.001))continue;if(inPart(part,q))return true;}return false;}
 function surfaceHosts(ship,defaultsOnly=false,hostIds=null){const out=[];if(!defaultsOnly&&!ship.hull.assembly&&(!hostIds||hostIds.has('hull')))out.push({host:'hull',part:null,T:hullGeo(ship).tris});for(const p of ship.parts||[]){if(p.surfacePatch||defaultsOnly&&!isFaceEditablePart(p)||hostIds&&!hostIds.has('p'+p.id))continue;if(isShapePart(p)){p._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(p)});continue;}if(p.room||PARTS[p.k]?.shape==='cube'){const q=roomShape(p);q._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(q)});}}return out;}
@@ -52478,6 +52461,18 @@ function setStructureFaceArmor(ship,part,face,thickness){
  const ids=new Set(ship.surfaces.patches.map(q=>q.id));if(ids.size+faces.filter(q=>!ids.has(q.id)).length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
  for(const p of faces){const current=surfaceConfig(ship,p.id),record={...current,authored:true,functionMode:'armor',armor:{...current.armor,thickness},boundArea:p.area},clean=normalizeSurfaces({version:SURFACE_VERSION,armorOnly:1,patches:[record]}).patches[0],i=ship.surfaces.patches.findIndex(q=>q.id===p.id);if(i<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[i]=clean;}
  surfaceInvalidate(ship);return {ok:true,ids:faces.map(q=>q.id)};
+}
+// 2026-11-14 user decisions: armour plates are abolished as a kind of part. Armour is a surface setting weighted by
+// area. A saved (or example) plate keeps its shape as an ordinary structure, and each of its own faces takes its
+// present armour thickness plus the plate's thickness (the plate's thickness was added on top of the face armour).
+function convertArmorPlates(ship){
+ const plates=(ship?.parts||[]).filter(p=>isStructuralPart(p)&&p.plate===true);if(!plates.length)return 0;
+ const thick=new Map(plates.map(p=>[p.id,plateThickness(p)]));for(const p of plates){delete p.plate;delete p.plateT;}surfaceInvalidate(ship);
+ let n=0;for(const p of plates){const t=thick.get(p.id),faces=structureArmorFaces(ship,p);if(!faces.length)continue;
+  if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:false,legacyArmor:ship.armor?.hull||0,patches:[]};
+  for(const f of faces){const current=surfaceConfig(ship,f.id),record={...current,authored:true,functionMode:'armor',armor:{...current.armor,thickness:Math.min(SURFACE_LIMITS.armorThickness,(surfaceArmor(current).thickness||0)+t)},boundArea:f.area},i=ship.surfaces.patches.findIndex(q=>q.id===f.id);
+   if(i<0&&ship.surfaces.patches.length>=SURFACE_MAX)continue;const clean=normalizeSurfaces({version:SURFACE_VERSION,armorOnly:1,patches:[record]}).patches[0];if(i<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[i]=clean;n++;}}
+ surfaceInvalidate(ship);return n;
 }
 function setSurfaceConfig(ship,ids,partial){
  surfaceSync(ship);
@@ -53140,7 +53135,7 @@ function deserialize(o,internalOptions=null){
     if(q.ridge!=null)p.ridge=finite(q.ridge,-1000,1000,0);
     if(['armor','service','plain'].includes(q.skin))p.skin=q.skin;
     if(isStructuralPart(p)&&q.sponson===true)p.sponson=true;
-    if(isStructuralPart(p)&&q.plate===true){p.plate=true;p.plateT=plateThickness(q);}if(isShapePart(p)&&q.light===true&&!p.plate)p.light=true;
+    if(isStructuralPart(p)&&q.plate===true){p.plate=true;p.plateT=plateThickness(q);}/* a legacy armour plate: converted to face armour by convertArmorPlates at the end of the load. 2026-11-14 user decision: light structures are abolished; a saved light flag is dropped (an ordinary structure) */
     if(REFERENCE_ASSETS[q.skinAsset]){p.skinAsset=q.skinAsset;for(const k of ['skinAnchor','skinSize'])if(Array.isArray(q[k])&&q[k].length===3&&q[k].every(Number.isFinite))p[k]=q[k].slice();if(Number.isFinite(q.skinDiameter))p.skinDiameter=finite(q.skinDiameter,1,1000,p.d);}
     if(p.k==='hangar'&&Object.hasOwn(AVIATION_ROLES,q.airRole))p.airRole=q.airRole;else if(p.k==='hangar'&&q.k==='vehicle')p.airRole='storage';
     if(Array.isArray(q.arcBands)&&q.arcBands.length<=12&&q.arcBands.every(a=>Array.isArray(a)&&a.length===2&&a.every(Number.isFinite)&&a[0]>=0&&a[1]<=1&&a[0]<a[1]))p.arcBands=q.arcBands.map(a=>a.slice());
@@ -53175,6 +53170,7 @@ function deserialize(o,internalOptions=null){
   migrateInteriorAnchors(s);
   if(!internalOptions?.deferPlacementGeometry)refreshPlacementGeometry(s);
   delete s._propulsionRoutingDeferred;
+  convertArmorPlates(s);
   return adoptWeaponFits(s);
 }
 
@@ -56186,7 +56182,7 @@ function buildMeasuredSolids(s,k,parts,{L,scale=1,paint,roundPaint,prefix='',nex
 // end row and the innermost merged row are combined, so a ridge measured between them is not
 // stretched over the lofted span to the next kept row.
 const fairRows=rows=>{const x0=rows[0][0],x1=rows.at(-1)[0],gap=Math.max(.01,(x1-x0)*.003),env=(sel,x)=>[x,Math.min(...sel.map(r=>r[1])),Math.max(...sel.map(r=>r[2])),Math.min(...sel.map(r=>r[3])),Math.max(...sel.map(r=>r[4]))],head=rows.filter(r=>r[0]-x0<gap),tail=rows.filter(r=>x1-r[0]<gap&&r[0]-x0>=gap),out=[head.length>1?env([head[0],head.at(-1)],x0):rows[0]];for(const r of rows.slice(1,-1))if(r[0]-out.at(-1)[0]>=gap&&x1-r[0]>=gap)out.push(r);out.push(tail.length>1?env([tail[0],tail.at(-1)],x1):rows.at(-1));return out;};
-parts.forEach((c,i)=>{const rows=fairRows(scale===1?c.rows:c.rows.map(r=>r.map(v=>v*scale)));made.push(k.loftX(measuredSolidLabel(c,L,prefix)+' '+(i+1),rows,{paint:c.round?roundPaint||paint:paint,corner:c.round?.3:.1,round:!!c.round},!!c.mirror));});for(const q of slabs||[]){const pts=scale===1?q.pts:q.pts.map(p=>p.map(v=>v*scale));made.push(k.slab(q.label||measuredSolidLabel({rows:[[pts[0][0]],[pts.at(-1)[0]]]},L,prefix),pts,q.y0*scale,q.y1*scale,{paint:q.paint||paint,...(q.light?{light:true}:{})}));}s.nextId=resume;return made;}
+parts.forEach((c,i)=>{const rows=fairRows(scale===1?c.rows:c.rows.map(r=>r.map(v=>v*scale)));made.push(k.loftX(measuredSolidLabel(c,L,prefix)+' '+(i+1),rows,{paint:c.round?roundPaint||paint:paint,corner:c.round?.3:.1,round:!!c.round},!!c.mirror));});for(const q of slabs||[]){const pts=scale===1?q.pts:q.pts.map(p=>p.map(v=>v*scale));made.push(k.slab(q.label||measuredSolidLabel({rows:[[pts[0][0]],[pts.at(-1)[0]]]},L,prefix),pts,q.y0*scale,q.y1*scale,{paint:q.paint||paint}));}s.nextId=resume;return made;}
 function shipKit(s,settings={}){
  const put=(label,c,size,opt={},mirror=false)=>placePart(s,'struct',c,size,{label,skin:'armor',...opt},!!mirror);
  const loftX=(label,rows,opt={},mirror=false)=>{
@@ -56264,18 +56260,18 @@ function accBuild(opt={}){
  const tidyO=p=>{for(const q of s.parts.filter(q=>q.id===p.id||q.id===p.tw))q.outline=q.outline.map(r=>r.map(v=>Math.round(v*1e9)/1e9));return p;};
  if(opt.stage==='hull'){delete s._building;return s;}
  // ---- the brim: the wide flat slab round the body, with the thin plate along its top edge ----
- tidyO(k.slab('舷側ブリム（翼状甲板）',D.brim,44.45,59.34,{light:true},true));
- tidyO(k.slab('ブリム上縁の張り出し',D.lip,57.34,59.34,{light:true},true));
+ tidyO(k.slab('舷側ブリム（翼状甲板）',D.brim,44.45,59.34,{},true));
+ tidyO(k.slab('ブリム上縁の張り出し',D.lip,57.34,59.34,{},true));
  // ---- ventral box under the forward body, its shoulders at the aft end ----
- tidy(k.loftX('腹部前方ブロック',D.vbox,{corner:.05,light:true}));
- k.box('腹部ブロック後端の肩',[264.0,24.0,51.5],[275.0,40.6,66.3],{corner:.06,light:true},true);
+ tidy(k.loftX('腹部前方ブロック',D.vbox,{corner:.05}));
+ k.box('腹部ブロック後端の肩',[264.0,24.0,51.5],[275.0,40.6,66.3],{corner:.06},true);
  // ---- tail: the wider lower block aft of the stern face; the ledge between the drives ----
- tidy(k.loftX('尾部下部ブロック',D.tail,{corner:.06,light:true}));
- k.box('艦尾機関間の張り出し',[133.6,43.1,39.7],[145.4,55.0,66.3],{corner:.06,light:true},true);
+ tidy(k.loftX('尾部下部ブロック',D.tail,{corner:.06}));
+ k.box('艦尾機関間の張り出し',[133.6,43.1,39.7],[145.4,55.0,66.3],{corner:.06},true);
  // ---- dorsal terrace block, the KDY bridge tower module and the conning-tower scanner and communications housing ----
- tidy(k.loftX('背部テラス・ブロック',D.terrace,{corner:.05,light:true}));
- tidy(k.loftX('艦橋塔モジュール',D.fin,{corner:.12,light:true}));
- tidy(k.loftX('司令塔走査・通信機器ハウジング',D.pod,{round:true,skin:'plain',light:true}));
+ tidy(k.loftX('背部テラス・ブロック',D.terrace,{corner:.05}));
+ tidy(k.loftX('艦橋塔モジュール',D.fin,{corner:.12}));
+ tidy(k.loftX('司令塔走査・通信機器ハウジング',D.pod,{round:true,skin:'plain'}));
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- machinery (DK cut-away) ----
  // The main reactor is hidden within the hull terraces under the tower (no ventral dome);
@@ -56555,21 +56551,21 @@ function arcBuild(){
  const stlPair=(label,rows,o={},round=false)=>{const d=loftDef(rows,round);return pair('struct',label,d.c,d.s,{skin:'armor',form:d.form,loft:d.loft,corner:.04,...o});};
  const slabPair=(label,d,o={})=>pair('struct',label,d.c,d.s,{skin:'armor',form:'outline',surfaceNormal:N(d.n),outline:d.outline,corner:0,taper:0,...o});
  // ---- fuselage: shoulders (lower block and sloped top), winglets, ventral feet ----
- stl('胴体肩部（下段）',[[2.2,1.05,2.0,2.35],[2.5,1.2,1.75,2.35],[2.7,1.2,1.6,2.35],[6.3,1.2,1.6,2.35],[6.55,.95,1.6,2.3],[6.85,.66,1.6,2.25],[7.0,.56,1.6,2.2]],{light:true,bands:[[.5,.77]],bandPaint:ARC_RED});
- stl('胴体肩部（上段の傾斜面）',[[2.2,1.05,2.35,2.85],[2.5,1.2,2.35,2.9],[6.3,1.2,2.35,2.9],[6.55,.95,2.3,2.85],[6.85,.66,2.25,2.8]],{light:true,wallInset:.62});
- pair('struct','胴体側面の小翼',[5.27,1.955,1.38],[1.45,.28,.34],{skin:'armor',form:'chamfer',corner:.1,light:true});
- slabPair('腹部の脚',{c:[5.23,.57,.68],s:[3.64,.68,.14],n:[.017,.955,.297],outline:[[-.5,-.4],[-.45,-.5],[.45,-.5],[.5,-.4],[.5,.4],[.45,.5],[-.45,.5],[-.5,.4]]},{light:true,paint:ARC_RED});
+ stl('胴体肩部（下段）',[[2.2,1.05,2.0,2.35],[2.5,1.2,1.75,2.35],[2.7,1.2,1.6,2.35],[6.3,1.2,1.6,2.35],[6.55,.95,1.6,2.3],[6.85,.66,1.6,2.25],[7.0,.56,1.6,2.2]],{bands:[[.5,.77]],bandPaint:ARC_RED});
+ stl('胴体肩部（上段の傾斜面）',[[2.2,1.05,2.35,2.85],[2.5,1.2,2.35,2.9],[6.3,1.2,2.35,2.9],[6.55,.95,2.3,2.85],[6.85,.66,2.25,2.8]],{wallInset:.62});
+ pair('struct','胴体側面の小翼',[5.27,1.955,1.38],[1.45,.28,.34],{skin:'armor',form:'chamfer',corner:.1});
+ slabPair('腹部の脚',{c:[5.23,.57,.68],s:[3.64,.68,.14],n:[.017,.955,.297],outline:[[-.5,-.4],[-.45,-.5],[.45,-.5],[.5,-.4],[.5,.4],[.45,.5],[-.45,.5],[-.5,.4]]},{paint:ARC_RED});
  // ---- engine nacelles (round lofts measured section by section) ----
  const NAC=[[1.5,.45],[2.45,.45],[2.47,.48],[3.6,.48],[3.62,.58],[4.3,.58],[4.32,.66],[6.1,.72],[6.12,.78],[6.25,.78],[6.27,1.03],[7.6,1.03],[7.95,.96]];
- stlPair('機関ナセル',NAC.map(([x,r])=>[x,r,1.92-r,1.92+r,2.12+(x-1.5)/6.45*.05]),{light:true,bands:[[.958,1]],bandPaint:ARC_RED},true);
+ stlPair('機関ナセル',NAC.map(([x,r])=>[x,r,1.92-r,1.92+r,2.12+(x-1.5)/6.45*.05]),{bands:[[.958,1]],bandPaint:ARC_RED},true);
  // ---- main wings, S-foils, wingtip cannon housings ----
  // The main wings are split where the red wingtip marking begins (z 7.09 m on the model).
- slabPair('主翼（内翼）',{c:[5.1681,1.7414,4.8105],s:[4.93,4.5684,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.3651,-0.4639],[-0.3509,-0.4486],[-0.0936,0.5],[0.4048,0.5],[0.4544,-0.2757],[0.5,-0.3719],[0.2921,-0.3687],[0.285,-0.3041],[-0.0203,-0.3041],[-0.0669,-0.5]]},{wing:{thermal:'high'},light:true});
- slabPair('主翼（翼端・赤）',{c:[5.9846,1.4953,8.6526],s:[2.5564,3.1316,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.1844,0.3803],[-0.1316,0.4361],[0.0032,0.4985],[0.156,0.5],[0.24,0.473],[0.3085,0.4297],[0.377,0.3355],[0.4433,0.3259],[0.5,0.2893],[0.4863,0.2669],[0.3984,0.2431],[0.4612,-0.5]]},{wing:{thermal:'high'},light:true,paint:ARC_RED});
- slabPair('上部Sフォイル（放熱板）',{c:[5.7048,2.5858,5.2077],s:[2.31,5.3,.064],n:[-.005376,.983325,-.181779],outline:[[-0.4416,-0.5],[-0.5,-0.467],[-0.0065,0.4547],[0.0823,0.4943],[0.2121,0.5],[0.2987,0.4774],[0.3463,0.4321],[0.5,-0.4075],[0.2835,-0.4236],[0.1623,-0.1764],[-0.0714,-0.1642],[-0.1104,-0.1811],[-0.2771,-0.5]]},{wing:{thermal:'high'},light:true});
- slabPair('下部Sフォイル（放熱板）',{c:[5.7042,.8575,5.0774],s:[2.31,5.335,.06],n:[-.013512,-.958462,-.284901],outline:[[0.2143,-0.5],[0.0823,-0.4944],[-0.0065,-0.455],[-0.5,0.4606],[-0.4394,0.5],[-0.2749,0.5],[-0.1061,0.172],[-0.0714,0.1598],[0.1623,0.172],[0.2835,0.4269],[0.5,0.4016],[0.3463,-0.4372],[0.2987,-0.4775]]},{wing:{thermal:'high'},light:true});
- slabPair('翼端砲ハウジング',{c:[7.6820,0.83175,9.5355],s:[5.2360,0.78850,.39],n:[0,0,1],outline:[[-0.5, 0.0732], [-0.4868, 0.1607], [-0.348, 0.5], [0.5, 0.5], [0.5, 0.2178], [0.1746, -0.2603], [-0.1776, -0.5], [-0.4868, -0.462], [-0.5, -0.3744]]},{light:true});
- pair('struct','翼端砲身（延長部）',[11.52,.1875,9.5355],[.2,.2,2.04],{skin:'armor',form:'cylinder',surfaceNormal:[1,0,0],light:true});
+ slabPair('主翼（内翼）',{c:[5.1681,1.7414,4.8105],s:[4.93,4.5684,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.3651,-0.4639],[-0.3509,-0.4486],[-0.0936,0.5],[0.4048,0.5],[0.4544,-0.2757],[0.5,-0.3719],[0.2921,-0.3687],[0.285,-0.3041],[-0.0203,-0.3041],[-0.0669,-0.5]]},{wing:{thermal:'high'}});
+ slabPair('主翼（翼端・赤）',{c:[5.9846,1.4953,8.6526],s:[2.5564,3.1316,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.1844,0.3803],[-0.1316,0.4361],[0.0032,0.4985],[0.156,0.5],[0.24,0.473],[0.3085,0.4297],[0.377,0.3355],[0.4433,0.3259],[0.5,0.2893],[0.4863,0.2669],[0.3984,0.2431],[0.4612,-0.5]]},{wing:{thermal:'high'},paint:ARC_RED});
+ slabPair('上部Sフォイル（放熱板）',{c:[5.7048,2.5858,5.2077],s:[2.31,5.3,.064],n:[-.005376,.983325,-.181779],outline:[[-0.4416,-0.5],[-0.5,-0.467],[-0.0065,0.4547],[0.0823,0.4943],[0.2121,0.5],[0.2987,0.4774],[0.3463,0.4321],[0.5,-0.4075],[0.2835,-0.4236],[0.1623,-0.1764],[-0.0714,-0.1642],[-0.1104,-0.1811],[-0.2771,-0.5]]},{wing:{thermal:'high'}});
+ slabPair('下部Sフォイル（放熱板）',{c:[5.7042,.8575,5.0774],s:[2.31,5.335,.06],n:[-.013512,-.958462,-.284901],outline:[[0.2143,-0.5],[0.0823,-0.4944],[-0.0065,-0.455],[-0.5,0.4606],[-0.4394,0.5],[-0.2749,0.5],[-0.1061,0.172],[-0.0714,0.1598],[0.1623,0.172],[0.2835,0.4269],[0.5,0.4016],[0.3463,-0.4372],[0.2987,-0.4775]]},{wing:{thermal:'high'}});
+ slabPair('翼端砲ハウジング',{c:[7.6820,0.83175,9.5355],s:[5.2360,0.78850,.39],n:[0,0,1],outline:[[-0.5, 0.0732], [-0.4868, 0.1607], [-0.348, 0.5], [0.5, 0.5], [0.5, 0.2178], [0.1746, -0.2603], [-0.1776, -0.5], [-0.4868, -0.462], [-0.5, -0.3744]]},{});
+ pair('struct','翼端砲身（延長部）',[11.52,.1875,9.5355],[.2,.2,2.04],{skin:'armor',form:'cylinder',surfaceNormal:[1,0,0]});
  // Tail gun mounts above and below the tail plate; the torpedo launcher housing under the nose.
  one('struct','後部銃座（上）',[1.9375,3.0,0],[.375,.5,.5],{skin:'armor',form:'chamfer',corner:.08});
  one('struct','後部銃座（下）',[1.9375,1.875,0],[.375,.5,.5],{skin:'armor',form:'chamfer',corner:.08});
@@ -56655,23 +56651,23 @@ function awingBuild(opt={}){
  const fin=(label,pts,t,lean,zr,yr)=>{const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),xa=Math.min(...xs),xb=Math.max(...xs),ya=Math.min(...ys),yb=Math.max(...ys),cx=(xa+xb)/2,cy=(ya+yb)/2,a=lean*Math.PI/180;
   // The fin is a vertical outline slab (local up to starboard) leaned outboard about its root line.
   const c=[cx,yr+(cy-yr)*Math.cos(a),zr+(cy-yr)*Math.sin(a)];
-  return put('struct',label,c,[xb-xa,yb-ya,t],{form:'outline',outline:pts.map(([x,y])=>[(x-cx)/(xb-xa),-(y-cy)/(yb-ya)]),surfaceNormal:[0,-Math.sin(a),Math.cos(a)],corner:0,taper:0,light:true},true);};
+  return put('struct',label,c,[xb-xa,yb-ya,t],{form:'outline',outline:pts.map(([x,y])=>[(x-cx)/(xb-xa),-(y-cy)/(yb-ya)]),surfaceNormal:[0,-Math.sin(a),Math.cos(a)],corner:0,taper:0},true);};
  if(opt.stage==='hull'){delete s._building;return s;}
  // ---- canopy (tinted) and the fairing behind it ----
  loftX('キャノピー',D.canopy,{round:true,paint:'#2e3e4a',skin:'plain'});
- loftX('キャノピー後部フェアリング',D.hump,{round:true,light:true});
+ loftX('キャノピー後部フェアリング',D.hump,{round:true});
  // ---- tail fins on the engine nacelles: the dorsal pair leans in 10 deg, the ventral pair out 10 deg ----
  fin('右舷上部安定翼',D.finTop,.07,-10,1.122,1.47);
  fin('右舷下部安定翼',D.finBot,.07,-10,1.27,.62);
  // The thin plate between the engines behind the central tail.
- put('struct','尾部中央板',[.87,1.05,0],[.3,1.0,.04],{form:'outline',outline:[[-.5,-.3],[.5,-.5],[.5,.5],[-.5,.3]],corner:0,taper:0,light:true});
+ put('struct','尾部中央板',[.87,1.05,0],[.3,1.0,.04],{form:'outline',outline:[[-.5,-.3],[.5,-.5],[.5,.5],[-.5,.3]],corner:0,taper:0});
  // ---- wingtip cannon pods on their swivel mounts (pod axis y 1.09, |z| 2.19) ----
- loftX('右舷レーザー砲旋回基部',[[2.5,2.1,2.28,.98,1.2],[2.62,2.06,2.32,.93,1.23],[3.62,2.06,2.32,.93,1.23],[3.72,2.12,2.26,.99,1.17]],{round:true,light:true},true);
- loftX('右舷レーザー砲架',[[2.75,1.9,2.12,.9,1.04],[3.45,1.9,2.12,.9,1.04]],{light:true},true);
+ loftX('右舷レーザー砲旋回基部',[[2.5,2.1,2.28,.98,1.2],[2.62,2.06,2.32,.93,1.23],[3.62,2.06,2.32,.93,1.23],[3.72,2.12,2.26,.99,1.17]],{round:true},true);
+ loftX('右舷レーザー砲架',[[2.75,1.9,2.12,.9,1.04],[3.45,1.9,2.12,.9,1.04]],{},true);
  // Where the engines run on into the body ahead of the nacelles (to x NF) the lens is thinner than
  // they are: a flush fairing carries the skin over them (the model shows no nacelle there).
  const NF=opt.nozzleF??3.15;
- loftX('右舷機関フェアリング',[[2.5,1.197-.455,1.197+.455,1.044-.455,1.044+.455],[NF-.1,1.197-.45,1.197+.45,1.044-.45,1.044+.45],[NF+.07,1.197-.3,1.197+.3,1.044-.3,1.044+.3]],{round:true,light:true},true);
+ loftX('右舷機関フェアリング',[[2.5,1.197-.455,1.197+.455,1.044-.455,1.044+.455],[NF-.1,1.197-.45,1.197+.45,1.044-.45,1.044+.45],[NF+.07,1.197-.3,1.197+.3,1.044-.3,1.044+.3]],{round:true},true);
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- machinery ----
  // The reactor sits behind the cockpit between the engines; the two engines run from their
@@ -56777,7 +56773,7 @@ registerShipExample({key:'craft_btlb',physicalRevision:1,name:'BTL-B Yウイン�
   s.shipClass='starfighter';s._building=true;s.paint='republic';s.engineGlow='violet';s.detail=1;s.armor={hull:.002,cit:0};s.shieldTarget=.1;
   const k=btlKit(s),[ny,nz]=D.nc,hull='#cdc9bf';
   // engine nacelles (light cowlings around the ion jet engines) and the wing plates joining them
-  k.loft('エンジン・ナセル',D.nacelle.map(([x,q])=>[x,nz-q,nz+q,ny-q,ny+q]),{round:true,light:true,paint:hull},true);
+  k.loft('エンジン・ナセル',D.nacelle.map(([x,q])=>[x,nz-q,nz+q,ny-q,ny+q]),{round:true,paint:hull},true);
   k.slab('主翼（ナセル支持）',D.plate,1.15,0.5,{paint:hull,wing:{thermal:'high'}},true);
   // cockpit canopy, ventral keel pod and the nose cannon housings
   k.loft('操縦席キャノピー',[[16.07,-.3,.3,1.95,2.0],[16.6,-.55,.55,1.95,2.17],[18.4,-.62,.62,1.95,2.17],[19.8,-.5,.5,1.85,2.05],[20.43,-.3,.3,1.75,1.85]],{corner:.25,paint:'#5b232c'});
@@ -56949,10 +56945,10 @@ function tieInBuild(){
  // (middle section with the forward notch, upper and lower plates bent inward), with its outer hub.
  const [mz0,mz1]=TIN.midZ;
  tieSolarWing(M,'interceptor',gx(4.56),gy(0),TIN.plateBase[1],.08,PANEL);
- M('struct',[gx(3.12),gy(0),4.26],[1.35,.28,1.4],{form:'box',light:true,label:'翼外側ハブ'});
+ M('struct',[gx(3.12),gy(0),4.26],[1.35,.28,1.4],{form:'box',label:'翼外側ハブ'});
  // Wing arms (round lofts along z).
  const z0=TIN.pylon[0][0],z1=TIN.pylon.at(-1)[0],Lz=z1-z0,Wm=Math.max(...TIN.pylon.map(r=>r[1])),Hy=Math.max(...TIN.pylon.map(r=>r[2]));
- M('struct',[gx(2.925),gy(0),(z0+z1)/2],[Lz,Wm,Hy],{form:'roundloft',yaw:90,loft:TIN.pylon.map(([z,w,h])=>[(z-z0)/Lz,w/Wm,.5+h/Hy/2,.5-h/Hy/2,0]),light:true,label:'翼支持腕'});
+ M('struct',[gx(2.925),gy(0),(z0+z1)/2],[Lz,Wm,Hy],{form:'roundloft',yaw:90,loft:TIN.pylon.map(([z,w,h])=>[(z-z0)/Lz,w/Wm,.5+h/Hy/2,.5-h/Hy/2,0]),label:'翼支持腕'});
  // Domed viewport and rear hatch.
  P('struct',[2.93,gy(0),0],[1.86,1.86,.42],{form:'dome',surfaceNormal:[1,0,0],paint:GLASS,label:'前面窓'});
  P('struct',[-.02,gy(0),0],[1.11,1.11,.34],{form:'cylinder',surfaceNormal:[1,0,0],label:'後部ハッチ'});
@@ -57008,7 +57004,7 @@ function tieLnBuild(){
  M('solarPanel',[gx(cx),gy(0),zc],[chord,chord*panel.aspect,.08],{form:'outline',outline:panel.outline,roll:90,paint:PANEL,wing:{solar:true},panelFold:panel.panelFold,panelKnee:panel.panelKnee,panelSparX:panel.panelSparX,panelBracing:panel.panelBracing,panelFrame:chord*panel.frameRatio,panelRib:chord*panel.ribRatio,label:'太陽電池翼'});
  // Wing pylons (round lofts along z).
  const z0=TLN.pylon[0][0],z1=TLN.pylon.at(-1)[0],Lp=z1-z0,Wm=Math.max(...TLN.pylon.map(r=>r[1])),Hm=Math.max(...TLN.pylon.map(r=>r[2]));
- M('struct',[gx(cx),gy(0),(z0+z1)/2],[Lp,Wm,Hm],{form:'roundloft',yaw:90,loft:TLN.pylon.map(([z,w,h])=>[(z-z0)/Lp,w/Wm,.5+h/Hm/2,.5-h/Hm/2,0]),light:true,label:'翼支持柱'});
+ M('struct',[gx(cx),gy(0),(z0+z1)/2],[Lp,Wm,Hm],{form:'roundloft',yaw:90,loft:TLN.pylon.map(([z,w,h])=>[(z-z0)/Lp,w/Wm,.5+h/Hm/2,.5-h/Hm/2,0]),label:'翼支持柱'});
  // Front viewport and its frame, rear hatch.
  P('struct',[2.415,gy(0),0],[1.26,1.26,.15],{form:'cylinder',surfaceNormal:[1,0,0],paint:GLASS,label:'前面窓'});
  P('struct',[2.48,gy(0),0],[1.30,1.30,.08],{form:'arc',surfaceNormal:[1,0,0],arcInner:.74,arcStart:0,arcSweep:360,label:'窓枠'});
@@ -57078,7 +57074,7 @@ function tieSaBuild(){
  // Wing arms with their gussets at the pod side (outline in the z-y plane, 1 m deep in x). Placed per
  // side: a mirrored copy of a structure whose local x runs along z would keep it pointing to starboard.
  {const A=[[2.45,-1.0],[3.45,-.5],[4.25,-.5],[4.25,.5],[3.45,.5],[2.45,1.0]],zl=2.45,zh=4.25;
-  for(const sg of [1,-1])P('struct',[gx(5.485),gy(0),sg*(zl+zh)/2],[zh-zl,2.0,.99],{form:'outline',outline:A.map(([z,y])=>[sg*(z-(zl+zh)/2)/(zh-zl),y/2.0]),surfaceNormal:[1,0,0],light:true,label:'翼支持腕'});}
+  for(const sg of [1,-1])P('struct',[gx(5.485),gy(0),sg*(zl+zh)/2],[zh-zl,2.0,.99],{form:'outline',outline:A.map(([z,y])=>[sg*(z-(zl+zh)/2)/(zh-zl),y/2.0]),surfaceNormal:[1,0,0],label:'翼支持腕'});}
  // Wings (starboard, mirrored to port). v24 Each bent wing is one folded solar panel on the measured planform, with the preset frame and spar.
  const [mz0,mz1]=TSA.midZ;
  tieSolarWing(M,'bomber',gx(3.95),gy(0),TSA.plateBase[1],.08,PANEL);
@@ -57145,16 +57141,16 @@ function v19Build(){
  stl('風防後部フェアリング',[[1.0,.18,.9,1.5],[1.4,.38,.9,1.53],[2.1,.43,.9,1.5],[2.35,.4,.9,1.35]],{},true);
  // ---- engine nacelles ----
  const NAC=[[0,.28],[1.42,.368],[1.62,.368],[1.64,.43],[2.52,.43],[2.54,.278],[2.84,.278],[2.86,.43],[3.42,.43],[3.82,.322],[3.84,.35],[4.12,.36],[4.27,.32]];
- stlPair('タービン・ナセル',NAC.map(([x,r])=>[x,r,.735-r,.735+r,1.88]),{light:true},true);
+ stlPair('タービン・ナセル',NAC.map(([x,r])=>[x,r,.735-r,.735+r,1.88]),{},true);
  // ---- gull wings, ventral S-foil (fin) with the third turbine pod ----
  // Gull wings, split where the red root marking ends (z 3.3 m).
- slabPair('主翼（Sフォイル・付け根）',{c:[2.4269,.2141,2.6899],s:[2.0,1.5039,.16],n:[.000165,-.811455,-.584415],outline:[[-0.4959,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.4998]]},{wing:{thermal:'high'},light:true,paint:V19_RED});
- slabPair('主翼（Sフォイル）',{c:[2.556,-1.4251,4.966],s:[2.2419,4.1063,.16],n:[.000165,-.811455,-.584415],outline:[[-0.1691,-0.5],[-0.439,0.2039],[-0.4992,0.4205],[-0.5,0.4999],[0.3885,0.5],[0.3885,-0.0117],[0.5,-0.0957],[0.5,-0.4963]]},{wing:{thermal:'high'},light:true});
- slab('腹部Sフォイル（垂直安定板）',{c:[2.8429,-1.8603,0],s:[2.515,4.88,.15],n:[0,0,1],outline:[[-0.5,-0.5],[-0.5,-0.2449],[-0.3469,0.0338],[-0.0845,0.1014],[-0.2336,0.0994],[-0.2336,0.2141],[0.1262,0.5],[0.4344,0.5],[0.4344,-0.5]]},{wing:{thermal:'high'},light:true});
- stl('腹部タービン・ポッド',[[2.35,.2,-2.82,-2.42],[2.5,.29,-2.91,-2.33],[3.95,.29,-2.91,-2.33],[4.1,.24,-2.86,-2.38]],{light:true},true);
- pair('struct','翼端砲身（延長部）',[5.34,-2.191,6.4404],[.16,.16,1.32],{skin:'armor',form:'cylinder',surfaceNormal:[1,0,0],light:true});
+ slabPair('主翼（Sフォイル・付け根）',{c:[2.4269,.2141,2.6899],s:[2.0,1.5039,.16],n:[.000165,-.811455,-.584415],outline:[[-0.4959,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.4998]]},{wing:{thermal:'high'},paint:V19_RED});
+ slabPair('主翼（Sフォイル）',{c:[2.556,-1.4251,4.966],s:[2.2419,4.1063,.16],n:[.000165,-.811455,-.584415],outline:[[-0.1691,-0.5],[-0.439,0.2039],[-0.4992,0.4205],[-0.5,0.4999],[0.3885,0.5],[0.3885,-0.0117],[0.5,-0.0957],[0.5,-0.4963]]},{wing:{thermal:'high'}});
+ slab('腹部Sフォイル（垂直安定板）',{c:[2.8429,-1.8603,0],s:[2.515,4.88,.15],n:[0,0,1],outline:[[-0.5,-0.5],[-0.5,-0.2449],[-0.3469,0.0338],[-0.0845,0.1014],[-0.2336,0.0994],[-0.2336,0.2141],[0.1262,0.5],[0.4344,0.5],[0.4344,-0.5]]},{wing:{thermal:'high'}});
+ stl('腹部タービン・ポッド',[[2.35,.2,-2.82,-2.42],[2.5,.29,-2.91,-2.33],[3.95,.29,-2.91,-2.33],[4.1,.24,-2.86,-2.38]],{},true);
+ pair('struct','翼端砲身（延長部）',[5.34,-2.191,6.4404],[.16,.16,1.32],{skin:'armor',form:'cylinder',surfaceNormal:[1,0,0]});
  // Missile launcher housings on the fuselage plate ahead of the canopy (the model's launcher slots).
- pair('struct','震盪ミサイル発射管基部',[3.625,1.0,.625],[1.0,.5,.125],{skin:'armor',form:'chamfer',corner:0,light:true});
+ pair('struct','震盪ミサイル発射管基部',[3.625,1.0,.625],[1.0,.5,.125],{skin:'armor',form:'chamfer',corner:0});
  // ---- crew and machinery ----
  const ck=one('cockpit','操縦席',[2.6,1.17,0],1.0);ck.seats=1;
  const [rS,rP]=pair('gen','ナセル反応炉',[3.82,.735,1.88],.64);
@@ -57255,11 +57251,11 @@ registerShipExample({key:'craft_vulture',physicalRevision:1,name:'ヴァルチ�
   s.shipClass='starfighter';s._building=true;s.paint='cis';s.engineGlow='violet';s.detail=1;s.armor={hull:.00035,cit:0};s.shieldTarget=1;
   const k=vulKit(s),grey='#868c94',dark='#6c737c',gun='#5a616b';
   // head pod (droid brain) on the body plate
-  k.put('頭部ポッド（ドロイド・ブレイン）',[1.865,1.3315,0],[2.67,0.97,0.663],{form:'dome',light:true,paint:'#7d838c'});
+  k.put('頭部ポッド（ドロイド・ブレイン）',[1.865,1.3315,0],[2.67,0.97,0.663],{form:'dome',paint:'#7d838c'});
   // wing-root knuckles (they hold the drives) and the split wings
-  k.box('翼の付け根（関節・推進機関）',[1.85,0.6,1.48],[3.56,1.18,1.96],{corner:.1,light:true,paint:dark},true);
-  k.shell('上翼',D.wing,{light:true,paint:grey,wing:{thermal:'high'}},true);
-  k.shell('下翼',D.wing.map(q=>[q[0],q[1],q[2],2*D.mid-q[3],2*D.mid-q[4]]),{lower:true,light:true,paint:grey,wing:{thermal:'high'}},true);
+  k.box('翼の付け根（関節・推進機関）',[1.85,0.6,1.48],[3.56,1.18,1.96],{corner:.1,paint:dark},true);
+  k.shell('上翼',D.wing,{paint:grey,wing:{thermal:'high'}},true);
+  k.shell('下翼',D.wing.map(q=>[q[0],q[1],q[2],2*D.mid-q[3],2*D.mid-q[4]]),{lower:true,paint:grey,wing:{thermal:'high'}},true);
   // blaster cannon housings in the wing gap at the wingtips
   k.box('上翼ブラスター砲架',[5.3,1.19,1.565],[6.96,1.33,1.70],{corner:.1,paint:gun},true);
   k.box('下翼ブラスター砲架',[5.3,0.445,1.565],[6.96,0.583,1.70],{corner:.1,paint:gun},true);
@@ -57313,15 +57309,15 @@ function vwBuild(){
  const part=(k,label,c,d,o={})=>placePart(s,k,c,d,{label,...o});
  const st=(label,c,size,o={})=>pair('struct',label,c,size,{skin:'armor',...o});
  // Radiator wings, upper and lower, on the articulated hubs (measured panels).
- st('上部翼（放熱板）',[2.0209,1.9608,1.6703],[1.3178,2.7741,.08],{wing:{thermal:'high'},form:'outline',surfaceNormal:N([.0084,.0688,.9976]),outline:[[-0.5,0.3244],[0.0024,-0.39],[0.4173,-0.5],[0.5,-0.4546],[0.3378,0.3327],[0.1902,0.4432],[-0.0155,0.5],[-0.4443,0.3587]],corner:0,taper:0,light:true,paint:VW_PANEL});
- st('下部翼（放熱板）',[2.1175,-1.0296,1.6774],[1.7648,3.0238,.08],{wing:{thermal:'high'},form:'outline',surfaceNormal:N([.025,-.0595,.9979]),outline:[[-0.5,-0.2705],[-0.0351,-0.5],[0.0884,-0.4373],[0.1991,-0.2709],[0.5,0.5],[0.1417,0.456]],corner:0,taper:0,light:true,paint:VW_PANEL});
+ st('上部翼（放熱板）',[2.0209,1.9608,1.6703],[1.3178,2.7741,.08],{wing:{thermal:'high'},form:'outline',surfaceNormal:N([.0084,.0688,.9976]),outline:[[-0.5,0.3244],[0.0024,-0.39],[0.4173,-0.5],[0.5,-0.4546],[0.3378,0.3327],[0.1902,0.4432],[-0.0155,0.5],[-0.4443,0.3587]],corner:0,taper:0,paint:VW_PANEL});
+ st('下部翼（放熱板）',[2.1175,-1.0296,1.6774],[1.7648,3.0238,.08],{wing:{thermal:'high'},form:'outline',surfaceNormal:N([.025,-.0595,.9979]),outline:[[-0.5,-0.2705],[-0.0351,-0.5],[0.0884,-0.4373],[0.1991,-0.2709],[0.5,0.5],[0.1417,0.456]],corner:0,taper:0,paint:VW_PANEL});
  // Hub discs and their caps.
- st('翼基部ハブ',[2.236,.55,1.3],[1.26,1.26,.6],{form:'cylinder',surfaceNormal:[0,0,1],light:true});
- st('ハブ・キャップ',[2.236,.55,1.75],[.9,.9,.3],{form:'dome',surfaceNormal:[0,0,1],light:true,paint:VW_RED});
+ st('翼基部ハブ',[2.236,.55,1.3],[1.26,1.26,.6],{form:'cylinder',surfaceNormal:[0,0,1]});
+ st('ハブ・キャップ',[2.236,.55,1.75],[.9,.9,.3],{form:'dome',surfaceNormal:[0,0,1],paint:VW_RED});
  // Chevron frames behind the hubs (the radiator-panel housings).
- st('ハブ後方フレーム',[1.6999,.6117,1.216],[2.425,1.18,.366],{form:'outline',surfaceNormal:[0,0,1],outline:[[0.5,-0.0508],[0.4711,-0.2034],[0.4196,-0.3347],[0.2979,-0.4788],[0.2278,-0.5],[0.1041,-0.4449],[0.0175,-0.3178],[-0.1289,-0.4873],[-0.5,-0.1059],[-0.4979,-0.0169],[-0.0134,0.5],[0.1186,0.2754],[-0.0546,0.2712],[-0.2381,0.0254],[-0.234,-0.1314],[-0.0856,-0.2839],[0.0113,-0.1949],[0.0938,-0.3602],[0.2278,-0.428],[0.3536,-0.3517],[0.4299,-0.1992],[0.4649,-0.0466]],corner:0,taper:0,light:true,paint:VW_RED});
+ st('ハブ後方フレーム',[1.6999,.6117,1.216],[2.425,1.18,.366],{form:'outline',surfaceNormal:[0,0,1],outline:[[0.5,-0.0508],[0.4711,-0.2034],[0.4196,-0.3347],[0.2979,-0.4788],[0.2278,-0.5],[0.1041,-0.4449],[0.0175,-0.3178],[-0.1289,-0.4873],[-0.5,-0.1059],[-0.4979,-0.0169],[-0.0134,0.5],[0.1186,0.2754],[-0.0546,0.2712],[-0.2381,0.0254],[-0.234,-0.1314],[-0.0856,-0.2839],[0.0113,-0.1949],[0.0938,-0.3602],[0.2278,-0.428],[0.3536,-0.3517],[0.4299,-0.1992],[0.4649,-0.0466]],corner:0,taper:0,paint:VW_RED});
  // Rear dorsal fins (a low roof over the drives).
- st('後部背面フィン',[1.3668,1.7563,.4816],[2.7325,.9895,.07],{form:'outline',surfaceNormal:N([.0252,.6813,.7316]),outline:[[-0.5,-0.2718],[0.4522,-0.5],[0.5,-0.3651],[0.3398,0.4334],[-0.2936,0.5],[-0.4999,-0.0556]],corner:0,taper:0,light:true});
+ st('後部背面フィン',[1.3668,1.7563,.4816],[2.7325,.9895,.07],{form:'outline',surfaceNormal:N([.0252,.6813,.7316]),outline:[[-0.5,-0.2718],[0.4522,-0.5],[0.5,-0.3651],[0.3398,0.4334],[-0.2936,0.5],[-0.4999,-0.0556]],corner:0,taper:0});
  // machinery
  const ck=part('cockpit','操縦席',[3.75,1.25,0],.9);ck.seats=1;
  part('astromech','アストロメク・ソケット',[2.2,1.6,0],.5,{dir:[0,1,0],length:.32});
@@ -57411,7 +57407,7 @@ function xwingBuild(opt={}){
  // A starboard S-foil block: a closed-frame box [x, y, |z|] lo..hi with side slopes (angles: fore, aft, inboard, outboard).
  const foilTrap=(w,label,lo,hi,angles,o={})=>{const yl=w>0?lo[1]:2*XW_YC-hi[1],yh=w>0?hi[1]:2*XW_YC-lo[1],c=xwFoil(w,(lo[0]+hi[0])/2,(yl+yh)/2,(lo[2]+hi[2])/2);
   // On the lower S-foil the block hangs under the plate: rolled half a turn more (its local z then points inboard).
-  return carry(w,put('struct',label,c,[hi[0]-lo[0],hi[2]-lo[2],yh-yl],{form:'trap',angles:w>0?angles.slice():[angles[0],angles[1],angles[3],angles[2]],roll:w>0?-XW_TH:XW_TH-180,light:true,...o},true));};
+  return carry(w,put('struct',label,c,[hi[0]-lo[0],hi[2]-lo[2],yh-yl],{form:'trap',angles:w>0?angles.slice():[angles[0],angles[1],angles[3],angles[2]],roll:w>0?-XW_TH:XW_TH-180,...o},true));};
  if(opt.stage==='hull'){delete s._building;return s;}
  // ---- canopy (tinted, over the cockpit) ----
  {const r=D.canopy,x0=r[0][0],x1=r.at(-1)[0],y0=Math.min(...r.map(q=>q[3])),y1=Math.max(...r.map(q=>q[4])),Wc=1.24,Hc=y1-y0;
@@ -57419,19 +57415,19 @@ function xwingBuild(opt={}){
  // ---- S-foils: wing plates, engine intake bodies, exhaust tubes, cannon housings and barrels ----
  for(const w of [1,-1]){
   const up=w>0?'上':'下',Y=y=>w>0?y:2*XW_YC-y;
-  const root=foilSlab(w,`右舷${up}翼（Sフォイル）`,D.wing,1.308,1.459,{light:true});
+  const root=foilSlab(w,`右舷${up}翼（Sフォイル）`,D.wing,1.308,1.459,{});
   root.wing=normalizeWing({thermal:'high',foil:true,axis:'x',open:w*XW_TH,stow:0,T:1,pivot:[root.c[0],XW_Y0+XW_YC,XW_ZC]});root.wing.members={parts:[],fits:[]};
   const paired=twin(root);paired.wing=normalizeWing({...root.wing,pivot:mirrorP(root.wing.pivot)});paired.wing.members={parts:[],fits:[]};foils.set(w,root);
   // Nacelle intake body (closed-frame axis y 1.95, |z| 1.643; 1.23 m wide, 1.15 m deep), rounded intake lip.
-  foilRound(w,`右舷${up}機関ナセル`,[[1.6,1.643,.5,Y(1.95),.47],[1.75,1.643,.615,Y(1.95),.575],[4.45,1.643,.615,Y(1.95),.575],[4.58,1.643,.57,Y(1.95),.53]],{light:true,paint:XW_DARK});
+  foilRound(w,`右舷${up}機関ナセル`,[[1.6,1.643,.5,Y(1.95),.47],[1.75,1.643,.615,Y(1.95),.575],[4.45,1.643,.615,Y(1.95),.575],[4.58,1.643,.57,Y(1.95),.53]],{paint:XW_DARK});
   // Fairing on the plate along the nacelle's outboard side (to 0.46 m over the plate, run out by |z| 3.5 m).
   foilTrap(w,`右舷${up}Sフォイル駆動部フェアリング`,[1.65,1.459,2.2],[4.0,1.93,3.5],[0,0,0,69]);
   // Wingtip cannon housing on the plate (axis y 1.64, |z| 5.69) and the long barrel (axis y 1.735, |z| 5.715).
-  foilRound(w,`右舷${up}レーザー砲基部`,[[1.74,5.69,.33,Y(1.64),.29],[1.95,5.69,.365,Y(1.64),.33],[4.0,5.69,.365,Y(1.64),.33],[4.35,5.69,.2,Y(1.64),.18]],{light:true});
-  foilRound(w,`右舷${up}レーザー砲身`,[[4.3,5.715,.09,Y(1.735),.09],[7.8,5.715,.085,Y(1.735),.085]],{light:true});
-  foilRound(w,`右舷${up}レーザー砲身の帯`,[[5.1,5.715,.1,Y(1.735),.1],[6.24,5.715,.1,Y(1.735),.1]],{light:true,paint:XW_YELLOW});
+  foilRound(w,`右舷${up}レーザー砲基部`,[[1.74,5.69,.33,Y(1.64),.29],[1.95,5.69,.365,Y(1.64),.33],[4.0,5.69,.365,Y(1.64),.33],[4.35,5.69,.2,Y(1.64),.18]],{});
+  foilRound(w,`右舷${up}レーザー砲身`,[[4.3,5.715,.09,Y(1.735),.09],[7.8,5.715,.085,Y(1.735),.085]],{});
+  foilRound(w,`右舷${up}レーザー砲身の帯`,[[5.1,5.715,.1,Y(1.735),.1],[6.24,5.715,.1,Y(1.735),.1]],{paint:XW_YELLOW});
   // Squadron markings: thin red panels on the outer face of each wing plate near the tip.
-  foilSlab(w,`右舷${up}翼 部隊識別帯`,[[3.86,4.04],[3.86,4.85],[2.02,4.85],[2.02,4.04]],1.459,1.479,{light:true,paint:XW_RED});
+  foilSlab(w,`右舷${up}翼 部隊識別帯`,[[3.86,4.04],[3.86,4.85],[2.02,4.85],[2.02,4.04]],1.459,1.479,{paint:XW_RED});
  }
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- machinery ----
@@ -57541,19 +57537,19 @@ function z95Build(opt={}){
   return put('struct',label,[cx,(y0+y1)/2,cz],[xb-xa,zb-za,y1-y0],{form:'outline',outline:pts.map(([x,z])=>[(x-cx)/(xb-xa),(z-cz)/(zb-za)]),corner:0,taper:0,...o},true);};
  if(opt.stage==='hull'){delete s._building;return s;}
  // ---- fuselage pieces: dorsal hump, bubble canopy, side intakes, canards ----
- loftX('背部フェアリング',D.hump,{round:true,light:true});
+ loftX('背部フェアリング',D.hump,{round:true});
  loftX('バブル・キャノピー',D.canopy,{round:true,paint:'#2e3e4a',skin:'plain'});
- loftX('右舷側面インテーク',D.intake,{round:true,light:true,paint:Z95_NAVY},true);
- twin(slab('右舷カナード',D.canard,.74,.785,{light:true,paint:Z95_RED}));
+ loftX('右舷側面インテーク',D.intake,{round:true,paint:Z95_NAVY},true);
+ twin(slab('右舷カナード',D.canard,.74,.785,{paint:Z95_RED}));
  // ---- wings and nacelles ----
- slab('右舷主翼',D.wing,.714,.812,{light:true,wing:{thermal:'high'}});
- nacelle('右舷ナセル排気コーン',[[.06,.4],[.5,.53],[.92,.62],[1.0,.47]],{light:true,paint:'#4a535e'});
- nacelle('右舷ナセル頸部',[[.98,.45],[2.32,.45]],{light:true});
- nacelle('右舷ナセル本体',[[2.3,.62],[2.4,.763],[6.55,.763],[6.62,.7]],{light:true});
- nacelle('右舷ナセル吸気口',[[6.6,.745],[6.95,.735],[7.27,.56]],{light:true,paint:Z95_RED});
+ slab('右舷主翼',D.wing,.714,.812,{wing:{thermal:'high'}});
+ nacelle('右舷ナセル排気コーン',[[.06,.4],[.5,.53],[.92,.62],[1.0,.47]],{paint:'#4a535e'});
+ nacelle('右舷ナセル頸部',[[.98,.45],[2.32,.45]],{});
+ nacelle('右舷ナセル本体',[[2.3,.62],[2.4,.763],[6.55,.763],[6.62,.7]],{});
+ nacelle('右舷ナセル吸気口',[[6.6,.745],[6.95,.735],[7.27,.56]],{paint:Z95_RED});
  // ---- wingtip cannon pods and barrels (axis y 0.765, |z| 8.01) ----
- loftX('右舷ブラスター砲ポッド',[[2.98,7.82,8.2,.58,.96],[3.5,7.79,8.23,.55,.99],[5.0,7.71,8.31,.47,1.07],[5.5,7.77,8.25,.54,1.0],[5.62,7.93,8.09,.7,.83]],{round:true,light:true,paint:Z95_RED},true);
- loftX('右舷ブラスター砲身',[[5.58,7.965,8.055,.72,.81],[6.62,7.965,8.055,.72,.81]],{round:true,light:true},true);
+ loftX('右舷ブラスター砲ポッド',[[2.98,7.82,8.2,.58,.96],[3.5,7.79,8.23,.55,.99],[5.0,7.71,8.31,.47,1.07],[5.5,7.77,8.25,.54,1.0],[5.62,7.93,8.09,.7,.83]],{round:true,paint:Z95_RED},true);
+ loftX('右舷ブラスター砲身',[[5.58,7.965,8.055,.72,.81],[6.62,7.965,8.055,.72,.81]],{round:true},true);
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- machinery ----
  // A fusion reactor in the front of each nacelle feeds the engine behind it (0.76 m, the model's exhaust;
@@ -57645,7 +57641,7 @@ function refitCraftInterior(ship,key){
  // engine body into the nacelle. The casing travels with the same S-foil.
  if(key==='craft_xwing')for(const e of engines){
   const x0=e.c[0]+e.nozzleLength/2,x1=XW_TUBE_END,root=ship.parts.find(p=>p.wing?.members?.parts?.includes(e.id)),wing=root?.wing,angle=wing?Math.atan2(e.c[1]-wing.pivot[1],Math.abs(e.c[2]-wing.pivot[2])):0;
-  const p=placePart(ship,'struct',[(x0+x1)/2,e.c[1],e.c[2]],[x1-x0,e.d+.04,e.d+.04],{label:'推進管の機関外筒',form:'cylinder',light:true,paint:'#66686c'});p.yaw=0;p.pitch=0;p.roll=0;if(root)root.wing.members.parts.push(p.id);
+  const p=placePart(ship,'struct',[(x0+x1)/2,e.c[1],e.c[2]],[x1-x0,e.d+.04,e.d+.04],{label:'推進管の機関外筒',form:'cylinder',paint:'#66686c'});p.yaw=0;p.pitch=0;p.roll=0;if(root)root.wing.members.parts.push(p.id);
   // Four longitudinal rails per tube (from the exhaust end into the wing root) carry the tube's mass.
   const r0=e.c[0]-e.nozzleLength/2;for(const y of [-1,1])for(const z of [-1,1]){const q=placePart(ship,'struct',[(r0+x1)/2,e.c[1]+y*.14,e.c[2]+z*.14],[x1-r0,.105,.105],{label:'推進管内の縦通支持材',form:'box',skin:'service'});if(root)root.wing.members.parts.push(q.id);}
  }
@@ -58911,7 +58907,7 @@ function lucrehulkBuild(opt={}){
  // v24 The C-ring and the aft block with its spine and towers are stacked plan
  // contours of the supplied Lucre_Combined_HD.stl (outline slabs cut at the
  // middle of each height band); every other solid of it is a measured loft.
- buildMeasuredSolids(s,k,D.parts,{L:3170,paint:LUC_PANEL,roundPaint:LUC_STEEL,nextId:40,slabs:[...D.ringSlabs.map(q=>({...q,label:'環状船体（C字リング）',paint:LUC_GREY,light:true})),...D.slabs.map(q=>({...q,label:'艦尾ブロック・脊柱・塔',light:true}))]});
+ buildMeasuredSolids(s,k,D.parts,{L:3170,paint:LUC_PANEL,roundPaint:LUC_STEEL,nextId:40,slabs:[...D.ringSlabs.map(q=>({...q,label:'環状船体（C字リング）',paint:LUC_GREY})),...D.slabs.map(q=>({...q,label:'艦尾ブロック・脊柱・塔'}))]});
  // ---- forward arms: three hangar zones a side, portals on the inner faces facing the gap ----
  const docks=[];
  for(const [x,zone] of [[2650,'外側格納庫（第1区画）'],[2520,'中間格納庫（第2区画）'],[2390,'内側格納庫（第3区画）']])for(const sg of [1,-1]){
@@ -63487,11 +63483,6 @@ const PLACEMENT_AUTHORED_ANCHOR_KEYS=['geometryRevision','parentGeometryRevision
 // to the parent, so its buried root would be counted twice (parent material + its own). Like main (which cut it away),
 // it counts only the part outside what was already joined: its increment in the structural union. Unplaced parts
 // (built examples, surface placements) keep their whole volume as before.
-/* 2026-11-14 user decision: where a wing, panel or plate the user placed overlaps a structure, the structure owns the
-   overlap (main's union order: bulk structures first) and the wing/panel/plate counts only what it adds, in every
-   placement mode. Parts without a placement record (examples, older saves) keep main's full hardware mass until the
-   separate PR (plates become surface armor by area, wings take the structure density). */
-function placementBuriedOnce(pt){const m=pt?.placement;return !!m&&!!m.mode&&!isHullStructure(pt);}/* high review M1: not tied to the recorded tapped body */
 function placementSameShape(a,b){const canon=v=>Array.isArray(v)?v.map(canon):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='id'&&!(v[k]===0||v[k]===false||v[k]==null||v[k]===''||Array.isArray(v[k])&&!v[k].length)).map(k=>[k,canon(v[k])])):v;return JSON.stringify(canon(placementShape(a)))===JSON.stringify(canon(placementShape(b)));}
 // The requested solid a placed structure carries as its placement geometry (transport, early pick), built on the numeric
 // base a part without it uses (Float32 world base when ship cuts carve structures or it has openings). The same helper
@@ -67789,7 +67780,7 @@ function wingStats(ship,S){try{return wingStatsRaw(ship,S);}catch(e){S.wings=[];
 function wingStatsRaw(ship,S){
  const wings=ship.parts.filter(isWing);if(!wings.length){S.wings=[];return S;}
  const rho=(S.mass||0)/Math.max(1e-9,S.volume||1),dis=S.heat?.net?.dis||[],out=[];let extra=0;
- for(const w of wings){const W=w.wing,M=wingMembers(ship,w),V=partVolume(w),m0=V*rho*WING.rho*(w.light?.25:1);
+ for(const w of wings){const W=w.wing,M=wingMembers(ship,w),V=partVolume(w),m0=V*rho*WING.rho;
   const ids=new Set(M.parts.map(q=>q.id)),ds=dis.filter(d=>d.part!=null&&(ids.has(d.part)||d.part===w.id)),capO=ds.reduce((n,d)=>n+d.cap,0),capS=ds.reduce((n,d)=>n+d.cap*(d.cs??1),0);
   const mDis=M.parts.filter(q=>DISSIPATORS[q.k]).reduce((n,q)=>n+partVolume(q)*rho,0)+m0*.3,mCarry=M.parts.concat(M.structs).reduce((n,q)=>n+partVolume(q)*rho*(isShapePart(q)?WING.rho:1),0);
   const feed=mDis*WING.feedK*W.feed,reinf=m0*WING.reinfK*W.reinf,b=wingBounds(w),span=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]);

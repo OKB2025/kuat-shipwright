@@ -7,20 +7,32 @@ test('three overlapping blocks and a separate block contribute one real envelope
  const s=ship(),parts=[box(s),box(s,[105,100,0]),box(s,[110,100,0]),box(s,[125,100,0])],raw=plain(C.serialize(s).parts),S=C.computeStats(s);near(S.volume,3000);near(S.mass,3000*C.K.structDens);near(S.cost,3000*C.PARTS.struct.cost);for(let i=0;i<parts.length;i++){near(C.partVolume(parts[i]),1000);near(S.info[parts[i].id].materialVolume,[1000,500,500,1000][i]);}assert.deepEqual(plain(C.serialize(s).parts),raw);const again=C.computeStats(C.deserialize(C.serialize(s)));near(again.mass,S.mass);near(again.cost,S.cost);near(again.volume,S.volume);
 });
 
-test('a denser block owns overlap and zero-owned scaffolding cannot add hull HP or strength',()=>{
- const s=ship(),light=box(s,[100,100,0],[10,10,10],{light:true}),heavy=box(s),S=C.computeStats(s),single=ship();box(single);const expected=C.computeStats(single);near(S.mass,expected.mass);near(S.hp,expected.hp);near(S.aStruct,expected.aStruct);near(S.info[light.id].materialVolume,0);near(S.info[heavy.id].materialVolume,1000);s.parts.reverse();const reordered=C.computeStats(s);near(reordered.mass,S.mass);near(reordered.hp,S.hp);near(reordered.cost,S.cost);
+// 2026-11-14 user decisions (replaces three tests that required a denser block to own an overlap, and plates and wings
+// to keep their full hardware mass inside other material): there is one kind of structure (no light structures, no
+// armour plates); every overlap is counted once; a structure owns its overlap with a wing; armour is a surface setting
+// weighted by exposed area.
+const reload=s=>C.deserialize(plain(C.serialize(s)));
+test('a light flag is ignored: coincident blocks count once and the earlier part owns the overlap, in any array order',()=>{
+ const s=ship(),first=box(s,[100,100,0],[10,10,10],{light:true}),second=box(s),S=C.computeStats(s),single=ship();box(single);const expected=C.computeStats(single);assert.equal(first.light,undefined,'no light structures');near(S.mass,expected.mass);near(S.hp,expected.hp);near(S.aStruct,expected.aStruct);near(S.info[first.id].materialVolume,1000);near(S.info[second.id].materialVolume,0);s.parts.reverse();const reordered=C.computeStats(s);near(reordered.mass,S.mass);near(reordered.hp,S.hp);near(reordered.cost,S.cost);
+ const saved=plain(C.serialize(single));saved.parts[0].light=true;const L=C.deserialize(saved);assert.equal(L.parts[0].light,undefined,'a saved light structure loads as an ordinary structure');near(C.computeStats(L).mass,expected.mass);
 });
 
-test('independent armor plates and functional wings keep their full hardware mass even inside other material',()=>{
- const plateOnly=ship(),plate=box(plateOnly,[100,100,0],[10,10,1],{plate:true,plateT:.3}),P=C.computeStats(plateOnly),s=ship(),host=box(s,[100,100,0],[20,20,20]),installed=box(s,[100,100,0],[10,10,1],{plate:true,plateT:.3}),S=C.computeStats(s);near(C.partVolume(installed),C.partVolume(plate));near(S.mass,8000*C.K.structDens+P.mass,'real armor hardware does not vanish inside framing');near(S.cost,8000+P.cost);near(S.plateMass,P.plateMass);near(S.volume,8000,'real hardware does not duplicate gross ship space');near(S.info[host.id].materialVolume,8000);near(S.info[installed.id].materialVolume,100);
- const wings=ship(),first=C.placePart(wings,'wing',[100,100,0],[20,8,.6],{},false);assert.ok(first);const one=C.computeStats(wings),second=C.placePart(wings,'wing',[100,100,0],[20,8,.6],{},false);assert.ok(second);const two=C.computeStats(wings);near(two.mass-two.wingMass,(one.mass-one.wingMass)*2,'each independent wing retains its full native hardware mass');for(const p of [first,second])near(two.info[p.id].materialMass,C.partVolume(p)*C.PARTS.wing.dens);assert.ok(one.wingMass>0&&two.wingMass>0,'existing mechanism mass remains carried in addition to the native hardware');near(two.cost,one.cost*2,'independent wing installation is paid twice, allowing final credit rounding',1);near(two.volume,one.volume,'coincident hardware still has one outer envelope');
+test('a saved armour plate becomes an ordinary structure with its thickness on its own faces; armour weighs by exposed area',()=>{
+ const raw=ship();box(raw,[100,100,0],[10,10,1],{plate:true,plateT:.3});const alone=reload(raw),P=C.computeStats(alone),part=alone.parts[0];
+ assert.equal(part.plate,undefined);assert.equal(part.plateT,undefined);assert.ok(!JSON.stringify(C.serialize(alone)).includes('"plate"'),'saved again without a plate');
+ const faces=C.structureArmorFaces(alone,part.id);assert.equal(faces.length,6);for(const f of faces)near(f.thickness,.3,'the face takes the plate thickness (base 0)');
+ near(P.armorMass,240*.3*C.K.armorDens,'armour = exposed area x thickness');near(P.mass,100*C.K.structDens+240*.3*C.K.armorDens,'the body is an ordinary structure');near(P.plateMass||0,0);
+ const based=ship();based.armor.hull=.5;box(based,[100,100,0],[10,10,1],{plate:true,plateT:.3});for(const f of C.structureArmorFaces(reload(based),1))near(f.thickness,.8,'the plate thickness is added to the face armour');
+ const s=ship();box(s,[100,100,0],[20,20,20]);box(s,[100,100,0],[10,10,1],{plate:true,plateT:.3});const L=reload(s),buried=C.computeStats(L);
+ near(buried.mass,8000*C.K.structDens,'a buried former plate adds neither material nor armour');near(buried.armorMass,0);near(buried.info[2].materialVolume,0);near(buried.volume,8000);
+ L.parts[1].c=[150,100,0];C.surfaceSync(L);const exposed=C.computeStats(L);near(exposed.mass,buried.mass+P.mass,'moved outside it weighs what it weighs alone');near(exposed.armorMass,P.armorMass);
+ const again=reload(L);near(C.computeStats(again).mass,exposed.mass,'unchanged by save and load');
 });
 
-test('buried physical plate hardware keeps mass and cost without granting exterior armor coverage',()=>{
- const s=ship();box(s,[100,100,0],[20,20,20]);const plate=box(s,[100,100,0],[10,10,1],{plate:true,plateT:.3}),buried=C.computeStats(s),saved=plain(C.serialize(s).parts.find(p=>p.id===plate.id));
- for(const key of ['plateArea','plateShare','armorAvg','armorPlate'])near(buried[key],0,key+' excludes fully enclosed plate hardware');assert.ok(buried.plateMass>0,'its physical armor material remains installed');
- plate.c=[150,100,0];C.surfaceSync(s);const exposed=C.computeStats(s);near(exposed.mass,buried.mass,'moving hardware outside does not create material');near(exposed.cost,buried.cost,'moving hardware outside does not add a second purchase');near(exposed.plateMass,buried.plateMass);near(exposed.plateArea,240,'the actual10×10×1m plate exterior is covered');assert.ok(exposed.plateShare>0&&exposed.armorAvg>0,'exposed hardware restores exterior protection');
- plate.c=saved.c.slice();C.surfaceSync(s);const restored=C.computeStats(s);near(restored.plateArea,0);near(restored.armorAvg,0);near(restored.mass,buried.mass);near(restored.cost,buried.cost);assert.deepEqual(plain(C.serialize(s).parts.find(p=>p.id===plate.id)),saved);
+test('coincident wings are counted once: the second adds no material',()=>{
+ const wings=ship(),first=C.placePart(wings,'wing',[100,100,0],[20,8,.6],{},false);assert.ok(first);const one=C.computeStats(wings),second=C.placePart(wings,'wing',[100,100,0],[20,8,.6],{},false);assert.ok(second);const two=C.computeStats(wings);
+ assert.equal(C.PARTS.wing.dens,C.K.structDens,'a wing has the density of a structure');near(two.mass-two.wingMass,one.mass-one.wingMass,'the overlap is counted once');near(two.info[first.id].materialMass,C.partVolume(first)*C.K.structDens);near(two.info[second.id].materialMass,0);assert.ok(one.wingMass>0&&two.wingMass>one.wingMass,'each wing still carries its mechanism mass');near(two.volume,one.volume,'coincident hardware has one outer envelope');
+ const mixed=ship(),body=box(mixed,[100,100,0],[20,8,4]),wing=C.placePart(mixed,'wing',[100,100,0],[20,8,.6],{},false),M=C.computeStats(mixed);near(M.info[body.id].materialVolume,640,'the structure owns its overlap with a wing');near(M.info[wing.id].materialVolume,0);
 });
 
 test('face armor follows the merged outer skin while hidden assignments survive and restore when separated',()=>{
