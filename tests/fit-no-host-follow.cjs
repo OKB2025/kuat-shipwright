@@ -125,3 +125,12 @@ test("H-B': a bridge module on a sloped structure is unchanged by save, load and
   const L=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));for(let i=0;i<2;i++){C.remount(L,{keepFitPose:true});const g=L.fits[0];assert.equal(JSON.stringify([+g.base.toFixed(6),C.fitOrigin(g).map(v=>+v.toFixed(6))]),want,`${k} ${roll}° pass ${i+1}`);}
   near(C.computeStats(L).mass,mass,1e-6*mass);}
 });
+// Physics review (2026-11-14): a user-placed gun dropped onto a sloped structure is exactly the gun placed there directly
+// (position, axis, base/low, pedestal support volume, ship mass, frame).
+test('a triple70 dropped onto a 12° slope equals the same gun placed there directly',()=>{
+ const mk=()=>{const s=C.newShip({L:300,W:200,H:100,assembly:true},'a');s.parts=[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20],roll:12},{id:2,k:'struct',form:'box',c:[100,30,0],s:[60,40,20]}];s.fits=[];s.links=[];s.armor={hull:0,cit:0};s.nextId=10;s.detail=0;const S=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));C.refreshPlacementGeometry(S);return S;};
+ const place=(S,host,part)=>{const top=C.rayPart([100,500,0],[0,-1,0],part),r=C.solveFitPlacement(S,{id:-1,k:'triple70',p:[0,0,0],n:[0,1,0],a:2,ped:.3},{mode:'direct',hostId:host,hit:{p:Array.from(top.p),n:Array.from(C.norm(top.n))},geometryRevision:0,parentGeometryRevision:0});assert.equal(r.ok,true,r.error);C.acceptFitPlacementResult(S,r);};
+ const look=S=>{const f=S.fits[0],st=C.computeStats(S);return JSON.stringify({p:f.p.map(v=>+v.toFixed(6)),a:f.a,base:+(f.base||0).toFixed(6),low:+(f.low||0).toFixed(6),support:+C.turretSupportGeometry(f).volume.toFixed(3),pedVol:+st.pedVol.toFixed(3),mass:+st.mass.toFixed(3),ff:f.frameForward,float:!!f.float});};
+ const A=mk();place(A,2,A.parts[1]);C.removeParts(A,[2]);C.refreshPlacementGeometry(A);const B=mk();B.parts=B.parts.filter(p=>p.id!==2);C.refreshPlacementGeometry(B);place(B,1,B.parts[0]);
+ assert.equal(look(A),look(B));
+});
