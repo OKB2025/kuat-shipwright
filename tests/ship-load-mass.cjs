@@ -19,3 +19,12 @@ test('embarked squadrons add their craft mass to the carrier; it accelerates les
  const stores=(info=>Math.round(((info.crew||0)+24)*.4+(info.mass||0)*.0005))(data.designs.mc80home.info);near(loaded.loadTonnes,24*craft+stores);
  assert.ok(C.motionMassKg(loaded.p)>C.motionMassKg(empty.p));assert.ok(loaded.p.propulsion.ratedAccelMps2<empty.p.propulsion.ratedAccelMps2);
 });
+
+// Physics review 2026-11-14: a ship whose acceleration is capped by its structure (recusantDn, nebulonb) slows down
+// under load too: the structure allows the same force, so its acceleration limit falls with the mass.
+test('a ship limited by its structure slows down under load as well',()=>{
+ for(const key of ['recusantDn','nebulonb']){const p=C.emptyDesignProfile(plain(data.designs[key].p)),m=C.motionMassKg(p),pr=p.propulsion;assert.ok(pr.structuralAccelerationLimitMps2<pr.ratedAccelMps2,key+' is limited by its structure');
+  const q=C.loadedShipProfile(p,m/1000*.25),qr=q.propulsion;near(qr.structuralAccelerationLimitMps2*qr.massKg,pr.structuralAccelerationLimitMps2*pr.massKg,1e-9);near(qr.structuralAccelerationLimitMps2,pr.structuralAccelerationLimitMps2/1.25,1e-9);
+  assert.ok(qr.accelerationLimitMps2<=qr.structuralAccelerationLimitMps2*(1+1e-12),key+': the effective limit follows');assert.ok(C.propulsionTerminalSpeed(q)<C.propulsionTerminalSpeed(p)*.9,key+': top speed falls under load');
+  assert.equal(pr.structuralAccelerationLimitMps2,C.emptyDesignProfile(plain(data.designs[key].p)).propulsion.structuralAccelerationLimitMps2,'the design profile is not changed');}
+});
