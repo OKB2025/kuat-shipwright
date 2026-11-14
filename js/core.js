@@ -52624,8 +52624,7 @@ const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
 const VOID_ROOM_KINDS=new Set(['hangar','cargo']);/* 2026-11-14 user decision: empty bays; their volume inside a structure is not structure material */
 const STRUCTURAL_OVERLAP_PRIORITY=Object.freeze({structure:0,other:1});
 function structuralOverlapKind(p){return isStructuralPart(p)?'structure':'other';}
-/* The exterior armor faces keep main's order (densest first: plates cover the structures they lie on) until plates
-   become surface armor (separate PR). */
+/* The exterior armor faces are taken in id order (plates are surface armour now; there is one kind of structure). */
 function structuralSurfaceOrder(a,b){return a.id-b.id;}
 function structuralMaterialOrder(a,b){return STRUCTURAL_OVERLAP_PRIORITY[structuralOverlapKind(a)]-STRUCTURAL_OVERLAP_PRIORITY[structuralOverlapKind(b)]||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
@@ -60210,8 +60209,8 @@ function lucrehulkBuild(opt={}){
  const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
  const col=(label,x,z,y0,y1,w,paint,o={},mirror=false)=>k.box(label,[x-w/2,y0,z-w/2],[x+w/2,y1,z+w/2],{paint,corner:.2,...o},mirror);
  const dish=(label,c,d,t,paint,mirror=false)=>k.ellipsoid(label,c,[t,d,d],{paint},mirror);
- // The ring, arms, spine and aft block are a converted freighter's light
- // construction (light structures: a quarter of the mass and strength of solid ones).
+ // The ring, arms, spine and aft block are a converted freighter's construction. They were light structures (a quarter
+ // of the mass and strength) until 2026-11-14; light structures are abolished and these are ordinary structures now.
  // The ring: outer radius 1,403 m about the core axis, inner radius ratio 0.535,
  // 428 m deep, open ±25° at the bow.
  // v24 The C-ring and the aft block with its spine and towers are stacked plan
@@ -72056,7 +72055,7 @@ function requestConvoy(w, gid, auto = false) {
  const cg = makeGroup(w, side, `補給船団 ${w.convoyN}`, pl.from);cg.convoy = 'c' + w.convoyN;cg.formation = 'column';cg.order = {type: 'hold'};
  let left = pl.load, n = 0;
  for (const k of pl.ships) { const d = w.designs.get(k), u = makeUnit(w, side, d, pl.standIn && k !== CONVOY_KIT.cis.big ? `${pl.standIn} ${w.convoyN}-${++n}` : `補給船 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; u.cargo = Math.min(left, cargoOf(d)); left -= u.cargo; cg.units.push(u.id); applyUnitLoad(w, u); }
- n = 0;for (const k of pl.escorts) { const d = w.designs.get(k), u = makeUnit(w, side, d, `船団護衛 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; cg.units.push(u.id); }
+ n = 0;for (const k of pl.escorts) { const d = w.designs.get(k), u = makeUnit(w, side, d, `船団護衛 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; cg.units.push(u.id); applyUnitLoad(w, u); /* an escort carries its stores and craft too (physics review 2026-11-14) */ }
  cg.flag = cg.units[cg.units.length - 1];deployGroup(w, cg, null);
  sp.store -= pl.load - Math.max(0, left);
  const cv = {id: cg.convoy, gid: cg.id, side, to: gid, sys: pl.sys, home: pl.from, cargo: pl.load - Math.max(0, left), phase: 'out', t0: w.time, hold: 0, eta: w.time + pl.eta, ships: pl.ships.length, escorts: pl.escorts.length};
