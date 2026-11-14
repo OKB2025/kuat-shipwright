@@ -291,3 +291,19 @@ test('an overlap between a light structure and a placed plate counts as structur
   const L=C.deserialize(structuredClone(C.serialize(s)));C.refreshPlacementGeometry(L);return C.computeStats(L);};
  const a=mk(true),b=mk(false);near(a.mass,b.mass,1e-6*a.mass);assert.ok(a.info[5].materialVolume<C.partVolume({k:'struct',form:'box',plate:true,c:[0,0,0],s:[20,20,2]})-1e-6,'the structure owns the overlap (2026-11-14 user decision)');
 });
+
+// User report 2026-11-14 (third design, 「また接地バグが発生」): three copies whose tapped body was not copied
+// (unresolvedParentId, no parentStructureId) were refused as 'parent-missing' and stayed red through every reload,
+// although they touch the ship. Without a body there is nothing to sink to: such a structure is taken where the user
+// put it and judged by contact. Both the stored refusal (old saves) and the pending draft (the Worker's pass) are covered.
+for(const state of ['stored refusal','pending draft'])test(`a copy with no tapped body is taken where it is put and judged by contact (${state})`,()=>{
+ const {ship,part}=fixture(0),raw=structuredClone(C.serialize(ship)),rp=raw.parts.find(p=>p.id===2),c0=rp.c.slice();
+ delete rp.placement.parentStructureId;delete rp.placement.hostSurfaceId;rp.placement.unresolvedParentId=1;rp.placement.newPlacement=true;
+ if(state==='stored refusal')Object.assign(rp.placement,{validationFailed:true,repairRequired:true,repairReason:'parent-missing',validationSourceKey:'x'});else rp.placement.pendingGeometry=true;
+ const L=C.deserialize(raw),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
+ assert.ok(!r.failed.some(f=>f.partId===2),JSON.stringify(r.failed));assert.equal(q._placementError,undefined);assert.equal(q.placement.repairRequired,undefined);assert.equal(q.placement.newPlacement,undefined);
+ assert.deepEqual(Array.from(q.c),c0,'it is not moved');const S={warnings:[]};C.groundingStats(L,S);assert.ok(!(S.ungrounded?.parts||[]).includes(2),'it touches the body, so it is grounded');
+ // moved away from everything, the same copy is red by contact (not by a missing parent)
+ const far=structuredClone(raw);far.parts.find(p=>p.id===2).c=[c0[0],c0[1]+500,c0[2]];if(far.parts.find(p=>p.id===2).placement.requestedGeometry)far.parts.find(p=>p.id===2).placement.requestedGeometry.c=[c0[0],c0[1]+500,c0[2]];
+ const F=C.deserialize(far);C.refreshPlacementGeometry(F);assert.equal(F.parts.find(p=>p.id===2)._placementError,'contact-zero');
+});
