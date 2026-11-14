@@ -62529,7 +62529,7 @@ function coolingDemandW(u,H,want){
  const p=u?.p||{},g=p.grid||{},W=HEAT.waste,w=want||{},fixed=Math.max(0,(g.fixed||0)-(g.cooling||0)),shields=Math.max(0,w.shields||0),weapons=Array.isArray(w.weaponLoads)?w.weaponLoads.reduce((n,r)=>n+Math.max(0,r.requestedInputW||0),0):Math.max(0,w.weapons||0),engines=clamp(w.throttle??u?.maneuver??0,0,1)*Math.max(0,g.De||0);
  const kind={hotel:W.hotel*fixed,shield:W.shield*shields,weapon:W.weapon*weapons,engine:PROPULSION.wasteFraction*engines,reactor:W.reactor*(fixed+shields+weapons+engines)},weights={};
  for(const s of src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
- const D=src.map(s=>(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:Math.max(0,l.cap||0)})));
+ const D=src.map(s=>(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
  // kinds with no source row of their own (an old profile) and the stored heat reach any spare converter
  const unrouted=Object.entries(kind).reduce((n,[k,v])=>n+(weights[k]>0?0:v),0)+Math.max(0,u?.ht?.qJ||0)/Math.max(1e-9,HEAT.drainS)+Math.max(0,u?.ht?.coolingSelfW||0)+Math.max(0,u?.ht?.towWantW||0)+D.reduce((n,v,i)=>n+v-r.out[i],0)+pendingLedgerJ(u?.ht)/HEAT.dt;
  const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,v)=>a+v,0),used=r.used.map((v,j)=>v+(room>0?Math.min(unrouted,room)*spare[j]/room:0));
@@ -67842,6 +67842,8 @@ function dissipatorCap(p,S,ex){if(isWing(p))return wingCap(p,S,ex);if(!DISSIPATO
 function wingPowerK(combatHeatW){const c=HEAT.wingPowerCurve,q=Math.max(0,combatHeatW||0);if(!(q>c.lowW))return c.low;if(q>=c.highW)return c.high;return c.low+(c.high-c.low)*(Math.log10(q)-Math.log10(c.lowW))/(Math.log10(c.highW)-Math.log10(c.lowW));}
 const isWingConverter=k=>k!=='hdis';
 // kWing: the ship's wing coefficient (wingPowerK of its combat heat); without it the rating coefficient is used.
+// The capacity a heat path is given now that paths are not a constraint: all the converters together (finite, never binding).
+function heatPathFreeCapacity(dis){return Math.max(1,(dis||[]).reduce((n,d)=>n+Math.max(0,d.cap||0),0));}
 function converterPowerW(k,heatW,kWing){return Math.max(0,heatW||0)*(isWingConverter(k)&&Number.isFinite(kWing)?kWing:(HEAT.disPowerK[k]??HEAT.disPowerK.hdis));}
 // Added hdis needed for a heat shortfall Q (W). The added converter's own input K·C becomes heat aboard,
 // with the reactor's conversion loss on it: C = Q / (1 - K·(1 + waste.reactor)). Returns the converter
@@ -67965,6 +67967,10 @@ function heatNetwork(ship,S){
  // Designer loads use the same connected ledger as a cold runtime tick.
  // In particular, a disconnected plant cannot size or heat another domain's
  // engine, and the source's actual input fixes its local five-percent waste.
+ // User decision 2026-11-12: the heat transport paths are already part of the difference between a room's real volume
+ // and its crew volume; their capacity is not a constraint. A path that exists carries whatever its converter can take;
+ // a source with no path (or a path to missing equipment) still cannot shed its heat.
+ {const free=heatPathFreeCapacity(dis);for(const l of links)if(l.kind==='heat'&&l.ok&&l.cap>0)l.cap=free;}
  const fuelPresets={},profile=S.propulsion?.version===PROPULSION_MODEL_VERSION?S.propulsion:propulsionProfile(ship,S),powerLinks=links.filter(l=>l.kind==='power'),heatLinks=links.filter(l=>l.kind==='heat'&&l.ok&&l.s>=0&&l.d>=0),coolingLoad={},presetPower={};let wingK=HEAT.wingPowerCurve.high;
  // Converter input follows the heat each converter actually converts at the preset (user decision
  // 2026-11-12). Pass 0 solves the plant without converter input; pass 1 charges each converter
@@ -68376,7 +68382,7 @@ function heatTick(ctx,u,dt,interval=null){
  // fund it) is put into the store as it is drawn; the next solve offers that
  // much again on top of qJ/drainS, so a converter's own heat does not pile up
  // behind the 20 s drain (the store holds well under a second of ship heat).
- const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?Math.max(0,l.cap||0):0}));
+ const freePath=heatPathFreeCapacity(H.dis),L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)&&l.cap>0?freePath:0}));/* paths are not a capacity constraint (2026-11-12); a path through a lost section is cut */
  const drain=Math.min(h.qJ/T,h.qJ/Math.max(1e-9,HEAT.drainS*em.drain)+Math.max(0,h.coolingSelfW||0)+Math.max(0,h.towPendingJ||0)/T),r=heatSolve(gen,cap,L);h.towPendingJ=0;if(h.towWantAt)h.towWantAt=0;else h.towWantW=0;
  {const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,W)=>a+W,0),take=Math.min(drain,room);if(take>0)for(let j=0;j<spare.length;j++)r.used[j]+=take*spare[j]/room;}
  h.emit=r.used.reduce((a,W)=>a+W,0);h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,W)=>a+W,0);h.sourceGenerationW=gen.slice();h.sourceFlowW=r.out.slice();h.linkFlowW=r.flow.slice();h.dissipatorFlowW=r.used.slice();let coolingHeat=0;
