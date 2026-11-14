@@ -35,8 +35,10 @@ test('default copy closure includes a parent, structural descendants and hosted 
 function sensor(s,parentId=1,p=[0,10,0]){const r=C.commitPlacement(s,{id:-1,k:'sensor',c:[p[0],p[1]+1,p[2]],d:2},{mode:'direct',parentStructureId:parentId,hit:{p,n:[0,1,0]}});assert.equal(r.ok,true,r.error);return r.part;}
 function gun(s,parentId=1,p=[0,10,0]){const r=C.solveFitPlacement(s,{id:-1,k:'pd',p:[0,0,0],a:2,n:[0,1,0],ped:0},{mode:'direct',hostId:parentId,hit:{p,n:[0,1,0]}});assert.equal(r.ok,true,r.error);const fit=C.acceptFitPlacementResult(s,r);assert.equal(fit.ok,true,fit.error);return fit.fit;}
 
-test('normal equipment and mounted weapons disappear when the intentionally deleted parent was their only support',()=>{
- const s=ship(),equipment=sensor(s,1,[-8,10,0]),weapon=gun(s,1,[8,10,0]),saved=C.serialize(s),r=C.removeParts(s,[1]);assert.ok(r.removed.includes(equipment.id));assert.ok(r.removedFits.includes(weapon.id));assert.equal(s.parts.length,0);assert.equal(s.fits.length,0);const undo=C.deserialize(saved);assert.equal(undo.parts.find(p=>p.id===equipment.id).placement.parentStructureId,1);assert.equal(undo.fits.find(f=>f.id===weapon.id).host,1);
+// Stage C (user decision 2026-11-13): a mounted weapon whose only support is deleted stays where it is, floating (a
+// warning); it is not deleted. Normal equipment is unchanged by stage C.
+test('normal equipment disappears and a mounted weapon stays floating when the intentionally deleted parent was their only support',()=>{
+ const s=ship(),equipment=sensor(s,1,[-8,10,0]),weapon=gun(s,1,[8,10,0]),mount=Array.from(weapon.p),saved=C.serialize(s),r=C.removeParts(s,[1]);assert.ok(r.removed.includes(equipment.id));assert.ok(!r.removedFits.includes(weapon.id));assert.equal(s.parts.length,0);assert.equal(s.fits.length,1);assert.deepEqual(Array.from(s.fits[0].p),mount);assert.equal(s.fits[0].float,true);const undo=C.deserialize(saved);assert.equal(undo.parts.find(p=>p.id===equipment.id).placement.parentStructureId,1);assert.equal(undo.fits.find(f=>f.id===weapon.id).host,1);
 });
 
 test('equipment and weapons reparent to real alternate support without changing IDs, world pose or settings',()=>{

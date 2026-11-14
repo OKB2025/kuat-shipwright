@@ -7696,7 +7696,8 @@ function xfMessage(bad){const [k,v]=[...bad][0];return `${bad.size} 個は配置
 // an edited part leaves its pair, as in the item editor.
 function xfApply(rows,moved){
  for(const r of rows)C.patchItem(r.it,r.out);
- for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(editorMountShip(),f);}catch(e){f.float=true;}
+ // Stage C: a fitting does not follow its moved host (pods included); it is only judged where it stands.
+ for(const f of ship.fits)if(f.host!=null&&moved.has(f.host)){const sh=editorMountShip(),keep=sh._keepFitPose;sh._keepFitPose=true;try{C.mountFit(sh,f);}catch(e){f.float=true;}finally{if(keep)sh._keepFitPose=keep;else delete sh._keepFitPose;}}
  const done=new Set(rows.filter(r=>r.list==='parts').map(r=>r.it.id));
  for(const r of rows){if(r.list!=='parts')continue;const it=r.it,find=id=>ship.parts.find(q=>q.id===id);
   if(!st.mirror&&it.tw!=null){const t=find(it.tw);if(t){delete t.tw;}delete it.tw;}
@@ -7743,7 +7744,8 @@ function dragSelMove(D,r){
  const {rows,moved}=xfRows(D.drivers,D.units,()=>({pt:p=>C.add(p,dv),R:null}));D.rows=rows;D.moved=moved;
  for(const rw of rows)C.patchItem(rw.it,rw.out);
  for(const list of ['parts','fits'])queuePreview(list,rows.filter(r=>r.list===list).map(r=>r.it));
- for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(editorMountShip(),f);}catch(e){f.float=true;}
+ // Stage C: a fitting does not follow its moved host (pods included); it is only judged where it stands.
+ for(const f of ship.fits)if(f.host!=null&&moved.has(f.host)){const sh=editorMountShip(),keep=sh._keepFitPose;sh._keepFitPose=true;try{C.mountFit(sh,f);}catch(e){f.float=true;}finally{if(keep)sh._keepFitPose=keep;else delete sh._keepFitPose;}}
 }
 function dragSelEnd(D,cancel){
  if(!D.moving)return;
@@ -7767,7 +7769,7 @@ function editDuplicate(){
  for(const l of ['parts','fits'])for(const o of made[l]){for(const r of ['tw','vt']){if(o[r]==null)continue;const n=map[l].get(o[r]);if(n!=null)o[r]=n;else delete o[r];}
   if(Array.isArray(o.surfacePoint))o.surfacePoint=o.surfacePoint.map((v,i)=>v+off[i]);
   if(l==='parts'){o.c=o.c.map((v,i)=>v+off[i]);copyWingLinks(o,map,p=>p.map((v,i)=>v+off[i]));for(const key of ['reactor','machineryId'])if(map.parts.has(o[key]))o[key]=map.parts.get(o[key]);}
-  else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}}}
+  else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}else if(!o.placement)o.p=o.p.map((v,i)=>v+off[i]);/* stage C: mountFit no longer places a fitting from its host */}}
  for(const p of made.parts)C.remapPlacementCopy?.(p,map.parts,{detachRoots:true,interiorAnchor:C.interiorAnchorHostId?.(ship)});
  const sourceFits=new Map(src.fits.map(f=>[map.fits.get(f.id),f]));
  for(const f of made.fits)if(f.placement){const source=sourceFits.get(f.id);f.p=source.p.map((v,i)=>v+off[i]);C.remapFitPlacementCopy?.(f,map.parts,{sourceHostId:source.host,sourceParts:src.parts,targetParts:[...ship.parts,...made.parts]});}
