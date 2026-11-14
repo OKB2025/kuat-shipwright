@@ -50277,9 +50277,9 @@ function baseMountFit(ship,f){
  // Stage C: p is kept; the surface below must lie within FIT_SUPPORT_GAP_M of it along the fitting's up axis.
  if(!isAnchoredFit(f)&&ship._keepFitPose){if(Math.abs(dot(sub(h0.p,f.p),fr.up))>FIT_SUPPORT_GAP_M){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
  f.float=false;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
- // High review H-B: a kept fitting measures its footprint from just above its own seat (2 mm above its saved base, down past its saved slope plus its radius),
+ // High review H-B: a kept fitting measures its footprint from just above its own seat (one radius above its seat down to two radii below; slopes up to 45 degrees),
  // so a structure added above it (a roof) is never taken for the surface under its footprint.
- const from=keepLocal?Math.max(f.base||0,0)+2*FIT_SUPPORT_GAP_M:big,reach=keepLocal?from+Math.max(f.slope||0,0)+R:big*2;
+ const from=keepLocal?R+2*FIT_SUPPORT_GAP_M:big,reach=keepLocal?from+2*R:big*2;/* high review 4 (H-B'): a fixed local window (one radius above the seat, two below), never a saved value that a load resets */
  let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=rayEnv(ship,add(q,mul(fr.up,from)),mul(fr.up,-1),{maxT:reach,structOnly:true});if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
 }
 function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, fitHasPedestal(f)?(f.base||0)+(f.ped||0):0)); }

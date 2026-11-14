@@ -111,9 +111,17 @@ test('H-A: an embedded launcher whose body does not fit inside its wall stays fl
 });
 test('H-B: a roof added above a kept bridge module changes neither its base nor its origin',()=>{
  for(const k of ['brS','brT']){if(!C.FITS[k])continue;const s=fixture();C.refreshPlacementGeometry(s);s.fits.push({id:9,k,p:[100,20,0],n:[0,1,0],a:2});C.remount(s);const f=s.fits[0],base=f.base,o=JSON.stringify(C.fitOrigin(f));
-  s.parts.push({id:3,k:'struct',form:'box',c:[100,62,0],s:[60,60,4]});C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});const g=s.fits[0];assert.equal(g.base,base,k+' base');assert.equal(JSON.stringify(C.fitOrigin(g)),o,k+' origin');}
+  s.parts.push({id:3,k:'struct',form:'box',c:[100,62,0],s:[60,60,4]});C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});const g=s.fits[0];near(g.base,base,1e-9);assert.equal(JSON.stringify(C.fitOrigin(g).map(v=>+v.toFixed(9))),JSON.stringify(JSON.parse(o).map(v=>+v.toFixed(9))),k+' origin');}/* base is derived: compared within 1e-9 (the kept window starts at a different height) */
 });
 test('M-A: a reference turret mounted with an offset drops with its offset onto the structure below',()=>{
  const s=fixture();s.parts.push({id:2,k:'struct',form:'box',c:[100,30,0],s:[40,20,20]});s.nextId=3;C.refreshPlacementGeometry(s);s.fits.push({id:7,k:'refVen',p:[100,41,0],a:2,mountAxis:2,mountOffset:1,ped:0});C.remount(s);
  const r=C.removeParts(s,[2]),g=s.fits[0];assert.ok(r.reparented.some(q=>q.list==='fits'&&q.fitId===7));near(g.p[1],21,1e-6);C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,false);
+});
+// Stage C high review 4 (H-B'): a pedestal fitting on a slope keeps its base, origin and mass through save, load and
+// two keep remounts (the footprint window does not depend on values a load resets).
+test("H-B': a bridge module on a sloped structure is unchanged by save, load and repeated load remounts",()=>{
+ for(const k of ['brS','brT'])for(const roll of [12,25]){if(!C.FITS[k])continue;const s=fixture();s.parts[0].roll=roll;C.refreshPlacementGeometry(s);const top=C.rayPart([100,500,0],[0,-1,0],s.parts[0]);s.fits.push({id:9,k,p:Array.from(top.p),n:[0,1,0],a:2});C.remount(s);
+  const f=s.fits[0],want=JSON.stringify([+f.base.toFixed(6),C.fitOrigin(f).map(v=>+v.toFixed(6))]),mass=C.computeStats(s).mass;
+  const L=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));for(let i=0;i<2;i++){C.remount(L,{keepFitPose:true});const g=L.fits[0];assert.equal(JSON.stringify([+g.base.toFixed(6),C.fitOrigin(g).map(v=>+v.toFixed(6))]),want,`${k} ${roll}° pass ${i+1}`);}
+  near(C.computeStats(L).mass,mass,1e-6*mass);}
 });
