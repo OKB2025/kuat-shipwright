@@ -44,7 +44,11 @@ test('big deliveries go in the LH-3210 freighter for the Separatists and the All
  assert.equal(D.lh3210?.p.gunBest||0,0);assert.ok(D.lh3210.info.cargo>D.lucrehulk.info.cargo||!D.lucrehulk.info.cargo);
  for(const fac of ['cis','rebel']){const keys=fac==='cis'?['providence','providence','recusant','recusant']:['mc80home','mc75','mc75','mc80liberty'];
   const w=world({fac,foe:'empire',tgs:[tf('line',keys,fac)],foeTgs:[tf('line',['gozanti'])]}),sd=w.sides[0],g=[...w.groups.values()].find(x=>x.side===0);forward(w,g,2);
-  damage(w,g,.2);for(const q of w.squads.values())if(q.side===0){q.n=0;q.state='lost';}sd.autoConvoy=false;sd.supply.store=sd.supply.storeMax;run(w,2);
+  damage(w,g,.2);for(const q of w.squads.values())if(q.side===0){q.n=0;q.state='lost';}sd.autoConvoy=false;sd.supply.store=sd.supply.storeMax;
+  // 2026-11-14: the needs are counted on the 1 s supply step, and the battle ends ("break") on the first tick after this
+  // damage. Whether a step fell on that tick depended on the arrival time (main: 864.75 s, step due; with the heavier
+  // ships: 937.25 s, step not due, so no need was ever counted). The step is made due so the test does not depend on it.
+  sd.supply.acc=1;run(w,2);
   const p=R.convoyPlan(w,g.id);assert.ok(p.ok,p.why);assert.ok(p.ships.includes('lh3210'),fac+': '+p.ships.join('/'));}
 });
 

@@ -10,6 +10,10 @@
 // be written to u.hitLog (X-ray replay): ticks 4..95 changed hash only through hitLog; with
 // hitLog left out of the hash, and in every digest number, shot, event count and
 // random state, all 96 ticks are identical to the 910ef75 recording.
+// Re-recorded on d84a295 (2026-11-14, user decisions: one kind of structure, empty bays, denser machinery,
+// carried load added to the ship's mass in battle). The ships in this battle changed mass and plant, so every tick
+// differs from the 734081a recording from tick 0. Two recordings in a row gave the same file
+// (sha256 f0ca22d7...). The earlier recording is not comparable tick by tick.
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
