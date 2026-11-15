@@ -19,3 +19,18 @@ test('a small reactor goes into the loaded craft and a save and load keeps it',(
  const s=load(),n=s.parts.length,made=C.placePart(s,'gen',[1.35,1,0],.3,{});assert.ok(made);assert.equal(s.parts.length,n+1);
  const back=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));assert.equal(back.parts.filter(p=>p.k==='gen').length,2);
 });
+// The editor's own hit test (js/gfx.js placementSurfaceCandidates) on the loaded design, as the designer holds it:
+// the Worker's completed packet, and on each part the carried solid and the keys the Worker sends with it (self and
+// request; the parent key is undefined after a load). The line of sight is the one of the user's view through the
+// middle of the craft.
+const vm=require('node:vm');
+function runtime(){const context=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone});for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js','js/engine.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});return vm.runInContext('({C:Core,G:Gfx,E:YardEngine})',context);}
+test('a placement tap through the loaded ellipsoid reaches the ellipsoid and the hull inside it',()=>{
+ const r=runtime(),raw=r.C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'fixtures/craft-in-ellipsoid-no-reactor-2026-11-15.json.gz'))).toString('utf8')));r.C.syncCompartments(raw);
+ for(const part of raw.parts)if(r.C.isShapePart(part)){part._solidCutShip=raw;r.C.structTriangles(part);}
+ const packet=structuredClone(r.E.packCaches(raw)),client=JSON.parse(r.C.publicJSON(raw));client._client=true;client._geoProxy=packet.geoProxy;client._editorGeometryContext='completed-worker-context';
+ for(const part of client.parts){part._editorGeometryContext=client._editorGeometryContext;const src=raw.parts.find(p=>p.id===part.id);for(const key of ['_placementGeometry','_placementSelfKey','_placementRequestKey'])if(src[key]!=null)part[key]=src[key];}
+ const e=client.parts.find(p=>p.id===33);assert.ok(e._placementGeometry,'the ellipsoid carries its solid');assert.equal(e._placementParentKey,undefined);assert.ok(Array.isArray(client._geoProxy.placementBodies)&&Array.isArray(client._geoProxy.surfaces));
+ const hits=r.G.placementSurfaceCandidates(client,[8.82,7.98,8.54],[-0.563,-0.523,-0.64],{includeOccluded:true}),ids=hits.map(h=>h.parentStructureId);
+ assert.ok(hits.length>=2,`hits ${JSON.stringify(ids)}`);assert.equal(ids[0],33,'the ellipsoid is met first');assert.ok(ids.includes(1),'the hull inside is offered too');
+});

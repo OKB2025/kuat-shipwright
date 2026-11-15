@@ -64781,6 +64781,8 @@ function placementCachedGeometryCurrent(ship,part,seen=new Set()){
  // structure of a loaded design never had it: the editor then took the structure's shape as unknown and dropped every
  // placement tap whose line of sight met its bounds first (user report 2026-11-15: no reactor could be added to a
  // craft whose hull stands inside an ellipsoid structure).
+ // (A change of the ship-level cuts is not seen here, and was not by the parent key either: the editor compares the
+ // geometry context of the solid with the ship's, js/gfx.js placementAuthoringHits.)
  if(placementCapability(part).kind==='structure')return true;
  seen.add(part.id);const id=part.placement.parentStructureId;if(id==null)return part.placement.root===true;
  const parent=placementParent(ship,id);if(!parent||parent._placementError||parent.placement?.repairRequired||part._placementParentKey!==placementDependencyKey(parent)||part.placement.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return false;
