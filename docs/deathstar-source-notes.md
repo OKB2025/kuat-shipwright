@@ -2,7 +2,7 @@
 Source: user upload deathstar_1_5_10_5.stl (outside the repo), sha256 a1f8083fc9e9dea893769e24150fd6ce204a6a923d7b53cdf88584dd5cb82e1c, binary STL, 586,498 triangles.
 Frame: sphere centre (0.19, 0.18, 160.0) STL units, median radius 160.75 units; z is the polar axis (bbox z 0..320).
 Scale: 160 km diameter / 321.5 units = 497.7 m per unit.
-Dish: axis latitude +27.0 deg, longitude -174.5 deg; rim at 21 deg from the axis; flat floor within about 6 deg; depth 22.3 units (11.1 km) at the centre (radius 138.4).
+Dish: axis latitude +27.0 deg, longitude -174.5 deg; depth 22.3 units (11.1 km) at the centre (radius 138.4). First reading (superseded by the section measured below): rim at 21 deg from the axis, flat floor within about 6 deg. Measured section: rim at 20 deg, level to about 2 deg, then close to a cone.
 Equatorial trench: |latitude| <= about 0.6 deg (about 3.6 units = 1.8 km wide), 6.4 units (3.2 km) deep (radius 154.3).
 Surface relief: about +-1 unit. No meridian trenches in the STL (the user asks for several, fighter-sized: an explicit addition).
 
@@ -27,7 +27,7 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 | Amplifier bulb | 11.6 km to 29.4 km, 4.4 km at its widest | the same |
 | Neck | 29.4 km to 33.5 km, 2 km in radius | the same |
 | Works between neck and housing | 33.5 km to 52.7 km, growing to 9.4 km in radius | three steps: 5.2, 7.2 and 9.4 km |
-| Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, to the dish rim less 300 m; its back stands on the floor of the wide well |
+| Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, as wide as the dish; it fills its well (back on the well's floor, side against its wall) |
 | Dish floor | 69.2 km out | 68.9 km (the STL's value; the STL governs the outside) |
 | Dish | a cone, 22 km in radius, 23° above the equator | the STL's dish: 27.4 km in radius (rim 20° from its axis), 27°, its section measured (below) |
 | Column through the poles | about 13 km in radius above the core, narrower below | reactant silos: 12 km × 46 km above, 8 km × 40 km below |
@@ -35,8 +35,8 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 Wells: only the housing has one (as wide as the dish, from 52.7 km out; the hole the station shows without its
 superlaser). The stepped works, the neck and the bulb are embedded in the station's structure, as on the drawing;
 an earlier version gave them wells of their own (up to 4.6 km wider than the body), which left the weapon touching
-nothing. Known difference kept: a 300 m ring between the housing and the wall of its well, down to the well's floor
-(not on the STL or the drawing; it lets the part be taken out and put back).
+nothing. A 300 m ring was at first left between the housing and the wall of its well; it was on neither the STL nor
+the drawing and was removed (reference review): the housing fills its well.
 
 The superlaser's body is made in its own frame (the dish axis along x) and pitched up 27°, so the weapon's axis is
 the dish axis. Before this the body had no rotation and the beam left level, along the station's x.
@@ -47,7 +47,7 @@ The station's paint is `station` (`ship.paint`, also offered in the designer's �
 on the outer skin of the sphere whose centre and radius follow from the hull length: rows of plating blocks nine
 degrees of latitude high, a different number of blocks in each row, lighter lanes between, each block divided
 again into panels, and window lights on some blocks. Faces under the skin that look outward (the dish, the trench
-floor) carry rings of equal depth. On the skin the shader shades with the sphere's own normal, so the 40 × 16
+floor) carry rings of equal depth. On the skin the shader shades with the sphere's own normal, so the
 facets of the two domes no longer show (the outline is still a polygon).
 
 The pattern was written for this game. No texture, mesh or other data from the GLB is in the repository; its
@@ -71,6 +71,8 @@ Not built yet: the strike of the 2 ZT ship setting on a planet's surface (the se
 
 ## Comparison with the STL (2026-11-15)
 
+Cutaway drawing used above: `180f8226-image.webp`, sha256 `bafd47de1fbda64be589378e5a4e63ed0ad833605c7171679fdf5dfb56df72d2` (the upload of `IMG_7162.webp`).
+
 Tools: `scripts/stl-check/deathstar_compare.py` and `scripts/stl-check/deathstar_rays.cjs` (usage in the Python
 file). Both sides give the distance of the first surface from the station's centre along the same directions: the
 example from its carved structures and the superlaser's body, the STL from its triangles. Sets: the section through
@@ -84,12 +86,20 @@ Example minus STL, in metres (median; 5%..95%):
 | Zone | Before | After |
 | --- | --- | --- |
 | Skin, 4° grid (outside the dish, off the equator) | −70; −882..+373 (6 samples beyond 1.5 km) | +140; −220..+496 (none beyond 1.5 km) |
+| Skin along the section through the poles and the dish axis | +37; −1043..+451 | +155; −206..+480 |
 | Dish, 0..6° from its axis | +4; −400..+262 | +10; −358..+336 |
 | Dish, 6..12° | −269; −1049..+471 | +12; −761..+580 |
 | Dish, 12..20° | −1079; −2012..−339 | +119; −850..+862 |
 | Dish rim zone, 20..22° | −140; −739..+314 | +100; −248..+449 |
+| Just outside the rim, 22..24° | +19; −276..+439 | +144; −104..+547 |
 | Equatorial trench floor | −262; −626..−235 | the same |
+| Skin beside the equatorial trench, 1..3° | +84; −56..+337 | +306; +175..+554 |
 | Equatorial trench width (more than 1.6 km below the sphere) | example 1.79 km, STL 2.21 km (−0.90°..+0.68°) | the same |
+
+Three zones moved outward (the section's skin, just outside the rim, beside the trench): with the finer domes the
+surface follows the half-ellipsoid, which stands up to 185 m outside the sphere, where the coarse facets had lain
+inside it. The spread (5%..95%) is narrower in each of them. No tolerance was fixed before the comparison; the
+figures are given as measured.
 
 The STL's own relief is about ±0.5 km (one unit), which is the spread that remains.
 
@@ -118,4 +128,3 @@ Known differences that remain:
   how the 1.8 km equatorial gap is made from two dome structures. The skin is a median 140 m outside the STL.
 - The equatorial trench is 0.4 km narrower than the STL's and its floor about 260 m lower (the STL's trench is not
   symmetric about the equator).
-- A 300 m ring between the superlaser's housing and its well (above).

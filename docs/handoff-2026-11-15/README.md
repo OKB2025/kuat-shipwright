@@ -77,6 +77,7 @@ PR #110 のブランチを `claude/practical-mccarthy-izb5ew` に取り込んで
 実装済み（`js/core.js` の `// ---- src/ships/deathstar.js ----` ブロック、`deathStarBuild`、`dsRevolve`）：
 
 - 半球 2 つ（`dome` 構造物）＋中央の胴。その間の 1.8 km のすき間が赤道トレンチ（床は 3.2 km 内側）。床にエンジン 5 基とドッキング・ベイ 6 基。
+- （以下 2 行は PR #110 時点の記述。現在は §0 のとおり、井戸はハウジングの 1 本だけ、皿の縁は 20°、皿の直径は 54.72 km）
 - スーパーレーザーの穴：皿の軸に沿った円柱の切削 3 本（井戸・首・シャフト、`rotation:[0,0,lat-90]`）。本体（回転体の `weaponBody`、32 角形）が 300 m の隙間で収まり、先端が皿のお椀（測定値どおり）。砲口はレンズの焦点（軸上、球の 8 km 外側）。
 - 新部品 `slaser`（`SUPERWEAPONS.slaser`、`SW_COMBAT.slaser`）：ビーム型。威力は皿の直径の 3 乗に比例し 57.4 km で 53 ZT（5.3e10 TT）。焦点から約 23° 以内（`cone:.4`）へ射角を選べる（`swBeamSteer`）。対艦は 2 ZT（`shipShare:2/53`、残りの充電は保持）。満充電 24 時間（`tMin:86400`）、作例は満充電で出る（`initialCharge=1`）。
 - 集中排熱口：`ensureSuperlaserExhaust` が、発射熱を捨てられる大きさの変換装置を子午線トレンチの床下（北緯 45°、皿の反対側）へ自動で置く。

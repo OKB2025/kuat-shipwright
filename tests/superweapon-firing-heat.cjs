@@ -47,3 +47,23 @@ test('a superlaser\'s ship shot spends 2 of its 53 ZT, 98% of that as the beam, 
  const need=E*C.TT-x.storedJ,rated=w.chargeW*w.efficiency;near(need/rated,86400*2/53,1e-6);/* about 54 minutes at the rated charging power */
  x.storedJ=E*C.TT*.9999;x.c=.9999;C.superweaponCharge(u,0,1e6,null);assert.ok(x.storedJ<=E*C.TT*(1+1e-12),'the store is never above the capacity');
 });
+// Physics re-review 2026-11-15: the cool-down's end through the battle step itself, the recharge, the cap from the
+// state the defect left (charge 0 with the store still held), the quiet-system step, and the ledger.
+test('through the battle step: after a ship shot the superlaser cools, starts again from 51/53 and is ready in about 54 minutes of charging',()=>{
+ const u=station(),w=u.p.sw[0],x=u.sw[0],E=C.swEnergyTT(w)*C.TT,t=target('ship',[400000,0,0]);C.superweaponCommand(u,{indexes:[0]});
+ for(let i=0;i<40&&x.st!=='cool';i++)step(u,.25,[u,t]);assert.equal(x.st,'cool');
+ for(let i=0;i<C.SW_COMBAT.slaser.over.T+1&&x.st==='cool';i++)step(u,1,[u]);assert.equal(x.st,'charge','cooled');near(x.c,51/53,1e-6);
+ const rate=w.chargeW*w.efficiency*C.swChargeRate(u,0),need=E-x.storedJ;assert.ok(rate>0);let time=0;
+ while(x.st==='charge'&&time<1e6){step(u,10,[u]);time+=10;assert.ok(x.storedJ<=E*(1+1e-12),`store ${x.storedJ/E} of the capacity after ${time} s`);}
+ assert.equal(x.st,'ready');assert.ok(Math.abs(time-need/rate)<=20+need/rate*.02,`ready after ${time} s; ${Math.round(need/rate)} s at the charging power the ship gives it (${Math.round(86400*2/53)} s at the rated power)`);
+ near(x.storedJ,E,1e-9);const l=u.weaponLedger;near(l.initialJ+l.inputJ,l.storedJ+l.emittedJ+l.lossJ+l.releasedJ);
+});
+test('charging from the state the defect left (charge 0, the store still 51/53 full) never fills the store past its capacity',()=>{
+ const u=station(),w=u.p.sw[0],x=u.sw[0],E=C.swEnergyTT(w)*C.TT;C.superweaponDischarge(u,0,0);/* opens the ledger */x.st='charge';x.c=0;x.storedJ=E*51/53;
+ C.superweaponCharge(u,0,1e7,null);assert.ok(x.storedJ<=E*(1+1e-12),`store ${x.storedJ/E} of the capacity`);
+});
+test('the quiet-system step ends a superlaser\'s cool-down with the charge it still holds',()=>{
+ const R=vm.runInContext('Rts',cx),world=R.createWorld({seed:91,mode:'test',sensors:false,sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[]}),u=R.makeUnit(world,0,{key:'station-test',p:station().p,info:{mass:100,crew:0}},'Station',null);
+ u.sys=0;u.pos=[0,0,0];u.yaw=0;u.order={type:'hold',fire:false,sw:false};u.maneuver=0;const w=u.p.sw[0],x=u.sw[0],E=C.swEnergyTT(w)*C.TT;
+ C.superweaponDischarge(u,0,0);x.st='cool';x.t=1;x.c=51/53;x.storedJ=E*51/53;R.step(world,3);assert.notEqual(x.st,'cool');assert.ok(x.c>=51/53-1e-9,`charge ${x.c} after the cool-down (51/53 = ${51/53})`);assert.ok(x.storedJ<=E*(1+1e-12));
+});
