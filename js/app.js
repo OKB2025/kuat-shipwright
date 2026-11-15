@@ -9541,8 +9541,13 @@ const trialCanSpawn=()=>!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!
 // Ships are put out where the flight is: not during a hyperspace jump, and no jump while ships are out (a jump out of
 // a battle is a withdrawal, which would end it; 再開始 clears the ships first).
 const trialSpawnJumping=()=>!!trial.jump;
-function trialHudRemount(){const hud=$('#trialHud');if(!hud||!trial.on||trial.spectate)return;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
+function trialHudRemount(){const hud=$('#trialHud');if(!hud||!trial.on||trial.spectate)return;
+ // The controls being held belong to the elements that go away: their release would never arrive.
+ trial.stick={x:0,y:0};trial.fire=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
 function trialSandboxEnd(){trial.mode='trial';trial.battlePlan=null;trial.hitcam=null;trialReset();trialHudRemount();toast('出した艦を片づけ、公試を再開始しました');}
+// A stationary target holds still and fires nothing: guns, launchers, superweapons (which Core fires and turns the
+// bow for unless order.sw is false) and automatic point defence.
+function trialStaticOrder(u){u.order={...u.order,type:'hold',target:null,fire:false,launch:false,sw:false};if(u.order.autoPointDefense!==false)C.setAutomaticPointDefense(u,false);}
 function trialSpawnState(){return trial.spawn||(trial.spawn={source:'current',role:'foe',f:8,r:0,u:0,busy:false,n:0});}
 function trialSpawnHTML(){
  const S=trialSpawnState(),num=(k,label,max)=>`<label class="th-spawn-num"><span>${label}</span><input type="number" data-spawn-num="${k}" value="${S[k]}" min="${-max}" max="${max}" step="0.5" inputmode="decimal"><em>km</em></label>`;
@@ -9588,7 +9593,7 @@ async function trialSpawnShip(){
  const B=trial.battle,b=B.b,name=String(a.design?.name||a.p.name||'艦').split('｜')[0],u=C.fleetUnit('x'+(++S.n),a.key,a.p,role==='escort'?0:1),loc=w=>trialApplyT(B.E,w);
  spaceSync();
  const f=loc(trialCol(trial.R,0)),yaw=Math.atan2(f[2],f[0]);u.name=name;u.pos=loc(tv.sub(world,B.O));u.yaw=role==='foe'?yaw+Math.PI:yaw;u.velocity=role==='escort'?loc(trial.V):[0,0,0];
- if(role==='target'){u.trialStatic=true;u.order={...u.order,type:'hold',fire:false,launch:false};}
+ if(role==='target'){u.trialStatic=true;u.trialAt={pos:u.pos.slice(),yaw:u.yaw};trialStaticOrder(u);}
  b.units.push(u);C.fleetPrepareCollision?.([u]);spaceOrders(b);spaceRefresh();
  spaceLog(TRIAL_SPAWN.roles[role]+'として出現',u);toast(`${esc(name)} を${TRIAL_SPAWN.roles[role]}として出しました`);trialHudUpdate(true);
 }
@@ -9622,7 +9627,7 @@ function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.p
 // v21.1 The flagship's escorts guard it (order 'escort': between it and the threat, firing first on whoever fires
 // on it, screening its bridge) unless the player frees them to attack (T / 随伴艦 button: trial.escortFree).
 function trialEscortMode(free){trial.escortFree=free==null?!trial.escortFree:!!free;const B=trial.battle;if(B)spaceOrders(B.b);toast(trial.escortFree?'随伴艦：自由攻撃 — 近い敵から攻撃します':'随伴艦：護衛 — 旗艦と敵のあいだに入り、旗艦を狙う敵を優先して撃ちます');}
-function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.out||u.absent)continue;if(u.trialStatic){u.order={...u.order,type:'hold',target:null,fire:false,launch:false};continue;}if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
+function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.out||u.absent)continue;if(u.trialStatic){trialStaticOrder(u);continue;}if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
 function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
@@ -10253,6 +10258,8 @@ function spaceStep(dt){
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
   const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
   spaceBumps(b.bumps);spaceBump(B.me);
+  // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
+  if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
   for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(u.out&&!was.out&&u.team===1)B.disabled++;}
   for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&B.me.mods[i]<=0;}
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
@@ -10297,7 +10304,7 @@ function spaceShowResult(){
  const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:`旗艦戦闘不能（${r.why||''}）`;
  const foes=B.b.units.filter(u=>u.team===1),allies=B.b.units.filter(u=>u.team===0&&!u.manual);
  const rts=!!B.rts,crew=crewShare(me),sub2=rts&&r.kind==='win'?'この星系の戦闘は終わりました':rts&&r.kind==='withdrew'?'敵はこの星系から退きました':sub;
- el.innerHTML=`<div class="th-card th-result-card"><b class="${r.kind==='win'?'win':r.kind==='withdrew'?'':'lose'}">${rts&&r.kind==='withdrew'?'敵が撤退':title}</b><p>${esc(sub2)}</p><dl><dt>敵艦</dt><dd>撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} / ${foes.length} 隻</dd><dt>僚艦</dt><dd>${allies.length?`健在 ${allies.filter(u=>!u.dead&&!u.out).length} / ${allies.length} 隻`:'なし'}</dd><dt>${rts?'自艦':'旗艦'}</dt><dd>乗員 ${crew==null?'':crewPct(crew)+'%（'}${num(Math.round(me.crew))} 名${crew==null?'':'）'} · 装甲 ${Math.round(me.armor*100)}%</dd><dt>射撃</dt><dd>${num(trial.gun.shots)} 発 · 命中 ${num(Math.round(trial.gun.hits))}${trial.gun.pdKills?` · 点防御 撃墜 ${trial.gun.pdKills}`:''}</dd></dl><div class="th-result-go"><button type="button" class="th-btn" data-trial-cmd="exit">${rts?'操艦終了':trial.pat?'帰還':'艦隊画面へ戻る'}</button>${rts?'':'<button type="button" class="th-btn" data-trial-cmd="retry">もう一度</button>'}<button type="button" class="th-btn" data-trial-cmd="resultClose">このまま航行</button></div></div>`;el.hidden=false;
+ el.innerHTML=`<div class="th-card th-result-card"><b class="${r.kind==='win'?'win':r.kind==='withdrew'?'':'lose'}">${rts&&r.kind==='withdrew'?'敵が撤退':title}</b><p>${esc(sub2)}</p><dl><dt>敵艦</dt><dd>撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} / ${foes.length} 隻</dd><dt>僚艦</dt><dd>${allies.length?`健在 ${allies.filter(u=>!u.dead&&!u.out).length} / ${allies.length} 隻`:'なし'}</dd><dt>${rts?'自艦':'旗艦'}</dt><dd>乗員 ${crew==null?'':crewPct(crew)+'%（'}${num(Math.round(me.crew))} 名${crew==null?'':'）'} · 装甲 ${Math.round(me.armor*100)}%</dd><dt>射撃</dt><dd>${num(trial.gun.shots)} 発 · 命中 ${num(Math.round(trial.gun.hits))}${trial.gun.pdKills?` · 点防御 撃墜 ${trial.gun.pdKills}`:''}</dd></dl><div class="th-result-go"><button type="button" class="th-btn" data-trial-cmd="exit">${rts?'操艦終了':trial.pat?'帰還':trialSandbox()?'公試終了':'艦隊画面へ戻る'}</button>${rts?'':'<button type="button" class="th-btn" data-trial-cmd="retry">もう一度</button>'}<button type="button" class="th-btn" data-trial-cmd="resultClose">このまま航行</button></div></div>`;el.hidden=false;
 }
 // Fleet screen → space: the chosen flagship is flown, the rest of the fleet
 // and the enemy fight on the model.
