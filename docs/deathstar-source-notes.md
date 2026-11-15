@@ -117,6 +117,12 @@ What was changed after the first comparison:
 
 Known differences that remain:
 
+User decision 2026-11-15:「デススターはそのまま」. The measured differences below (skin a median +155 m and +380 m at
+the poles against the flattened STL, the equatorial trench floor and width, the dish and superlaser figures in this
+file) are accepted as they are. They are the allowed differences against which referenceShape is judged; the meridian
+trenches stay with the cut baking as decided earlier.
+
+
 - **Meridian trenches (the user's addition, not on the STL) are mostly not there.** Measured on the carved
   hemispheres before the tessellation change: the surface on a trench's meridian and 0.12° beside it differed by
   0.0–0.2 m at latitudes 5°–50° and 70°, and by 84 m at 60° only (`/tmp/ks-verify/20261115-ds2/meridian2.log`). The

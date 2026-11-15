@@ -28,6 +28,20 @@ test('full running ignores heat until the store is half full, then warns and ret
 test('a ship with enough cooling is not held back in either mode',()=>{
  for(const m of ['balance','full']){const r=duel(1,m,40);assert.equal(r.a.heatGov.weapon,1,m);assert.equal(r.a.heatGov.engine,1,m);assert.equal(r.events.length,0,m);}
 });
-test('a ship left to itself runs full while it has a target and the store is low',()=>{
- const r=duel(1,null,20);assert.equal(r.a.order.heat,undefined);assert.equal(C.heatRunMode(r.a),'full');assert.equal(C.heatRunMode({order:{},manual:true}),'balance','a piloted ship is balanced until its captain orders full');
+// 2026-11-15, user decisions「自動全力運転は外す」「排熱は被弾とも釣り合う」. The fourth case stated automatic full running
+// (a ship left to itself ran full while it had a target); it now states the opposite, and a fifth case checks that
+// the heat of hits is part of what balanced running balances.
+test('a ship left to itself runs balanced: full running only on an order',()=>{
+ const r=duel(1,null,20);assert.equal(r.a.order.heat,undefined);assert.equal(C.heatRunMode(r.a),'balance');assert.equal(r.events.length,0);
+ assert.equal(C.heatRunMode({order:{},manual:true}),'balance');assert.equal(C.heatRunMode({order:{heat:'full'}}),'full');assert.equal(C.heatRunMode({order:{heat:'full'},manual:true}),'full');
 });
+test('balanced running counts the heat of hits: a ship taking hits holds back further than its own heat alone asks',()=>{
+ const own=duel(.7,'balance',10),k0=own.a.ht.runK;
+ const prof=()=>{const p=JSON.parse(JSON.stringify(F.designs.mc80liberty.p));for(const d of p.heat.dis)d.cap*=.7;return p;};
+ const a=C.fleetUnit('a','mc80liberty',prof(),0),b=C.fleetUnit('b','mc80liberty',prof(),1);b.pos=[30000,0,0];b.yaw=Math.PI;
+ a.order={...a.order,type:'attack',target:'b',fire:true,heat:'balance'};b.order={...b.order,type:'attack',target:'a',fire:true,heat:'balance'};
+ const B=C.fleetBattle([a,b],true);B.seed=7;const cap=()=>a.ht.cap||1;
+ for(let t=0;t<10;t+=.25){C.fleetTick(B,.25,{});C.shipHeatAdd(a,cap()*.3*.25);}/* hits put in a further 30% of the rejection */
+ assert.ok(a.ht.runK<k0-.05,`with hits ${a.ht.runK} against ${k0} without`);
+});
+
