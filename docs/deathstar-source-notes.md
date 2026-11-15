@@ -181,8 +181,11 @@ only the propulsion feed); that is now a margin question, not a shortfall, and i
 - **Poles.** The STL's z range is 0..320 units, so its polar radius is 160 units against a median radius of 160.75:
   the model is about 370 m flatter at the poles than the example (which is 80,000 m there). Shown as the flat
   +380 m bands near 90° and 270° of `section-diff.png`. Not reproduced.
-- **Equatorial trench.** The STL's trench lies between latitudes −0.90° and +0.68° (2.21 km, centred 0.11° south)
-  and its floor is about 260 m higher than the example's; the example's 1.8 km, centred on the equator, came from
-  the first, coarse reading. To be put right (trench width, centre and depth from the measured section).
+- **Equatorial trench.** Measured on the STL at seven longitudes away from the dish (61°..314°, 0.02° steps; more
+  than 1.6 km below the local skin): width 1.68..2.01 km, median 1.98 km; centre 0.00..0.11° south, median 0.10°
+  south; floor 76,847..76,939 m from the centre, median 76,854 m (depth below the local skin 2.76..2.83 km). The
+  example had 1.8 km and its floor at 76,800 m, from the first, coarse reading (the single section at 93.3° that
+  gave 2.21 km took its edges from a looser threshold). Put right: width 1.98 km and floor at 76,850 m. The centre
+  stays on the equator (0.1°, 140 m, kept so that the two hemispheres stay equal).
 - **Tolerances.** None were fixed before the comparison. Whether the measured differences are accepted is the
   user's decision; until then referenceShape stays unverified.
