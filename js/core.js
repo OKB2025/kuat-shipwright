@@ -63935,8 +63935,9 @@ function combatClone(u){const physical={};for(const k of ['powerLossDisabled','f
 const SW_COMBAT={
  sbeam:{name:'超重合成ビーム',E:125000,share:.6,tMin:45,range:200000,cone:0,beamT:10,over:{floor:.3,T:60},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
  // The superlaser (user request 2026-11-15): 53 ZT (5.3e10 TT) at the Death Star's dish, 57.4 km across (measured
- // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's.
- slaser:{name:'スーパーレーザー',E:5.3e10,refD:57400,share:.6,tMin:60,range:2e6,cone:0,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's, but laid
+ // from the lens focus anywhere within `cone` (radians) of the dish's bearing instead of along a fixed axis.
+ slaser:{name:'スーパーレーザー',E:5.3e10,refD:57400,share:.6,tMin:60,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
  hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // Shot energy is per physical emitter, in TT. Both Onager emitters together deliver 250 PT.
@@ -63989,7 +63990,12 @@ function swMuzzle(u,w){const f=swFrameOf(u),m=Array.isArray(w.mz)?w.mz:[0,0,0];r
 function swBeamHullHit(t,origin,axis,range){const f=swFrameOf(t),a=swFrameLocal(t,sub(origin,f?.origin||t.pos)),d=swFrameLocal(t,axis),shell=surfaceShellBVH(t.p);
  if(shell){const distance=surfaceCachedRay(shell,a,d);if(distance==null||distance<0||distance>range)return null;return {distance,localPoint:add(a,mul(d,distance))};}
  const h=hullHalf(t.p);let enter=0,exit=range;for(let i=0;i<3;i++){if(Math.abs(d[i])<1e-12){if(a[i]<-h[i]||a[i]>h[i])return null;continue;}let lo=(-h[i]-a[i])/d[i],hi=(h[i]-a[i])/d[i];if(lo>hi)[lo,hi]=[hi,lo];enter=Math.max(enter,lo);exit=Math.min(exit,hi);if(enter>exit)return null;}if(exit<0||enter>range)return null;return {distance:enter,localPoint:add(a,mul(d,enter))};}
-function swBeamTrace(u,w,units,options={}){const origin=options.origin?.slice()||swMuzzle(u,w),axis=norm(options.axis||swAxis(u,w)),range=Number.isFinite(options.range)?Math.max(0,Math.min(options.range,swRange(u,w))):swRange(u,w);let hit=null,best=null;
+// A superlaser fires from the focus of its lens, so its beam can be laid anywhere within its cone (user decision
+// 2026-11-15「レンズの焦点から発射されるので射角を選べる」): the nearest enemy inside the cone and in range, else the dish axis.
+function swBeamSteer(u,w,units,origin,axis0,range){const cone=SW_COMBAT[w.k]?.cone||0;if(!(cone>0))return axis0;let best=null,bd=Infinity;
+ for(const t of units||[]){if(t===u||t.id===u.id||t.dead||t.absent||t.warp||!t.pos||t.team===u.team)continue;const d=sub(t.pos,origin),r=len(d);if(!(r>1e-6)||r>range+(t.p?.len||0)*.5)continue;if(Math.acos(clamp(dot(d,axis0)/r,-1,1))>cone)continue;if(r<bd){bd=r;best=d;}}
+ return best?norm(best):axis0;}
+function swBeamTrace(u,w,units,options={}){const origin=options.origin?.slice()||swMuzzle(u,w),range0=swRange(u,w),axis=options.axis?norm(options.axis):swBeamSteer(u,w,units,origin,norm(swAxis(u,w)),range0),range=Number.isFinite(options.range)?Math.max(0,Math.min(options.range,swRange(u,w))):swRange(u,w);let hit=null,best=null;
  for(const t of units||[]){if(t===u||t.id===u.id||t.dead||t.absent||t.warp||!t.pos||!t.p)continue;const q=swBeamHullHit(t,origin,axis,range);if(!q)continue;if(!best||q.distance<best.distance-1e-9||Math.abs(q.distance-best.distance)<=1e-9&&String(t.id)<String(hit.id)){best=q;hit=t;}}
  const distance=best?.distance??range,end=add(origin,mul(axis,distance));return {origin,axis,end,point:hit?end.slice():null,distance,hit,localPoint:best?.localPoint||null};}
 
@@ -65971,7 +65977,7 @@ const SUPERWEAPONS={
 GROUPS.superweapon='超兵器';
 addComp('sbeam','超重合成ビーム・ターボレーザー','cyl',.7,[236,96,66],'weapons','オナガー級の主砲。一門あたり125 PTを10秒間のビームとして砲軸上へ直進照射します。照準補正はなく、船体を旋回して狙います。左右の艦首腕部は砲身・合成機関でほぼ占有されます。接続された反応炉から充電します。',{def:SUPERWEAPONS.sbeam.d,min:SUPERWEAPONS.sbeam.d,max:SUPERWEAPONS.sbeam.d,ratio:SUPERWEAPONS.sbeam.length/SUPERWEAPONS.sbeam.d,crit:true,hp:.8,crew:.3,fixed:true});
 addComp('hion','ハイパーイオン砲','cyl',.6,[146,120,255],'weapons','サブジュゲイター級の舷側砲。拡大する円盤状パルスを放ち、距離と投影面積に応じた有限のエネルギーを複数艦へ分配します。シールドを漏出した分が接続された電力網へ作用し、十分な過負荷では主炉・補助炉を含む共通系統を保護遮断します。性能係数はゲーム用の仮定です。',{def:SUPERWEAPONS.hion.d,min:SUPERWEAPONS.hion.d,max:SUPERWEAPONS.hion.d,ratio:SUPERWEAPONS.hion.length/SUPERWEAPONS.hion.d,crit:true,hp:.8,crew:.3,fixed:true});
-addComp('slaser','スーパーレーザー','cyl',.7,[120,230,120],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方で 1 本に束ね、砲軸上へ照射します。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。照準補正はなく、ステーションを旋回して狙います。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
+addComp('slaser','スーパーレーザー','cyl',.7,[120,230,120],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
 // The concentrated thermal exhaust port (user request 2026-11-15「スーパーレーザーは自動的集中排熱口が配置される仕組みにして子午線
 // トレンチに出現させて」): a heat converter sized for the superlaser's firing loss, put by the superlaser itself under
 // the floor of a meridian trench (a standing torus cut through the hull's centre), or under the hull's skin when
