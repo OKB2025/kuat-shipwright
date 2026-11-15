@@ -37,6 +37,14 @@ let browser;(async()=>{try{await new Promise(r=>server.listen(0,'127.0.0.1',r));
  await page.waitForFunction(()=>{const B=window.__yard.trial.battle;return B.b.time>75||B.b.units.some(u=>u.team===0&&(u.hitLog||[]).length);},null,{timeout:600000});const h=await st();note('fire check',h);
  const hit=h.units.filter(u=>u.team===0).flatMap(u=>u.hitBy);assert.ok(hit.includes('x2'),'the hostile ship hit an own-side ship: '+JSON.stringify(hit));assert.ok(!h.units.some(u=>u.hitBy.includes('x1')),'the stationary target hit nobody');
  const T3=h.units.find(u=>u.static);assert.ok(T3.speed<1e-6&&T3.order==='hold'&&T3.fire===false);assert.ok(Math.abs(T3.yaw-T.yaw)<1e-9,'the stationary target did not turn: '+T.yaw+' -> '+T3.yaw);
+ // the superweapon ship stays in action (not shut down by its own charge heat) and, once charged, still neither turns nor fires
+ if(tgt==='onager'){assert.equal(T3.out,null,'the stationary target is not disabled: '+T3.out);
+  // (a full charge takes about 14 minutes: the script advances the charge to 99.5% and lets the model finish it)
+  await page.evaluate(()=>{for(const x of window.__yard.trial.battle.b.units.find(u=>u.id==='x1').sw)x.c=Math.max(x.c,.995);});
+  await page.waitForFunction(()=>{const B=window.__yard.trial.battle,u=B.b.units.find(u=>u.id==='x1');return B.result||(u.sw||[]).some(w=>w.st!=='charge'||w.c>=1);},null,{timeout:900000});
+  const tc=await page.evaluate(()=>window.__yard.trial.battle.b.time);await page.waitForFunction(tc=>{const B=window.__yard.trial.battle;return B.result||B.b.time>tc+15;},tc,{timeout:900000});const c5=await st();note('after charge',c5);const T5=c5.units.find(u=>u.static);
+  result.swAfter=await page.evaluate(()=>window.__yard.trial.battle.b.units.find(u=>u.id==='x1').sw.map(w=>({st:w.st,c:w.c})));
+  assert.ok(result.swAfter.some(w=>w.st!=='charge'||w.c>=1),'a superweapon finished charging: '+JSON.stringify(result.swAfter));assert.equal(T5.out,null);assert.ok(Math.abs(T5.yaw-T.yaw)<1e-9&&T5.speed<1e-6,'still and not turned 15 s after the charge');}
  const swEvents=await page.evaluate(()=>window.__yard.trial.battle.b.events.filter(e=>String(e.id)==='x1').map(e=>e.text));note('target events',swEvents);assert.ok(!swEvents.some(t=>/発射/.test(t)),'the stationary target fired nothing: '+JSON.stringify(swEvents));
  // escorts join after the fire check (they would shoot the target and the hostile ship at once)
  const c0=await spawn('escort',-6,-3,0,'current');note('current design spawned as escort',c0);const c=await spawn('escort',-3,2,0,pick[0]);note('escort spawned',c);const E=c.units.find(u=>u.id==='x4');assert.equal(E.order,'escort');assert.equal(E.team,0);assert.ok(E&&Math.abs(E.ahead+3)<.3&&Math.abs(E.right-2)<.3,JSON.stringify(E));
