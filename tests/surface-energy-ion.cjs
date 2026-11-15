@@ -39,7 +39,7 @@ test('strict superweapon charging is bounded by actual input, efficiency and the
 
 test('a real partially charged ion shot spends only its stored output even with a gameplay damage multiplier',()=>{
  const u=unit();u.manual=true;u.p.sw=[{k:'hion',aim:'bow',mz:[0,0,0],Emax:1000,d:100,chargeT:100,chargeW:10*TT,efficiency:.8,r:1,mod:2}];u.sw=[{c:.2,st:'charge',fireNow:{free:true},mode:'beam'}];const bolts=[],shots=C.superweaponStep(u,0,{foes:[],all:[],bolts,ctx,damage:10,sys:C.fleetSystems(u),inc:()=>null});
- assert.equal(shots.length,1);assert.equal(bolts.length,1);close(bolts[0].E,200);close(u.weaponLedger.emittedJ,200*TT);close(u.weaponLedger.initialJ+u.weaponLedger.inputJ,u.weaponLedger.storedJ+u.weaponLedger.emittedJ+u.weaponLedger.lossJ+u.weaponLedger.releasedJ);
+ assert.equal(shots.length,1);assert.equal(bolts.length,1);/* 2026-11-15: of the 200 TT the shot spends, HEAT.swShot (2%) stays in the ship as heat (user decision「発射の熱も排熱」); was 200 */close(bolts[0].E,200*(1-C.HEAT.swShot));close(u.weaponLedger.emittedJ,200*(1-C.HEAT.swShot)*TT);close(u.weaponLedger.initialJ+u.weaponLedger.inputJ,u.weaponLedger.storedJ+u.weaponLedger.emittedJ+u.weaponLedger.lossJ+u.weaponLedger.releasedJ);
 });
 
 test('a charged ready superweapon cannot fire through a protective blackout and does not erase its charge',()=>{
