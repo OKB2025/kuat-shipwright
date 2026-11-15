@@ -59945,7 +59945,7 @@ function refitShipThermal(ship,key,options={}){
    const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(missingVolume)/Math.max(2,Math.min(ship.hull.W||30,ship.hull.H||30)*.18)))),each=missingVolume/count;
    // The banks that take a superweapon's firing loss stand beside the superweapon (the Onager's are in its forward
    // half with the barrels: user decision 2026-11-15); the others stay by the reactors.
-   const swParts=ship.parts.filter(p=>p.k==='sbeam'||p.k==='hion'),firstFire=swParts.length?Math.round(count*(1-fireShare)):count;
+   const swParts=ship.parts.filter(p=>p.k==='sbeam'||p.k==='hion'),swHave=existing.filter(p=>String(p.label||'').includes('超兵器発射熱')).reduce((n,p)=>n+dissipatorCap(p,S),0),fireMissing=Math.max(0,requestedCapacityW*fireShare-swHave),firstFire=swParts.length?count-Math.round(count*Math.min(1,fireMissing/Math.max(1e-30,missingVolume*density))):count;
    for(let i=0;i<count;i++)made.push(shipThermalBank(ship,each,i,i>=firstFire?swParts[i%swParts.length].c:null));
    syncCompartments(ship);
    // A clipped bank can lose volume in a very thin or hollow measured hull.
@@ -59953,7 +59953,7 @@ function refitShipThermal(ship,key,options={}){
    for(let pass=0;pass<2;pass++){
     const installed=ship.parts.filter(p=>p.k==='hdis').reduce((n,p)=>n+dissipatorCap(p,S),0),short=Math.max(0,(requestedCapacityW-installed)/density);
     if(short<=Math.max(.001,missingVolume*1e-6))break;
-    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length,swParts.length&&fireShare>.5?swParts[i%swParts.length].c:null));
+    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length,swParts.length&&fireMissing>0&&fireShare>.5?swParts[i%swParts.length].c:null));
     syncCompartments(ship);
    }
   }
@@ -59992,7 +59992,8 @@ function shipThermalBank(ship,volume,index,beside=null){
  for(const x of [.15,.3,.45,.6,.75,.9])for(const y of [.3,.5,.7])for(const z of [.25,.5,.75])push([lerp(b[0],b[3],x),lerp(b[1],b[4],y),lerp(b[2],b[5],z)]);
  if(!anchors.length)throw new Error(ship.name+'：散逸装置の設置可能な船内容積がありません');
  const occupied=allOccupied(ship).map(p=>({p,b:partAABB(p)})),near=beside||(reactors.length?reactors[index%reactors.length].c:mid);
- if(beside)for(const along of [-.4,-.25,-.1,0,.1,.25,.4])for(const y of [0,-12,12,-24,24])for(const z of [-60,60,-100,100,-140,140,-30,30])push([beside[0]+along*(b[3]-b[0]),beside[1]+y,beside[2]+z]);
+ if(beside&&ship._thermalBankSites?.length){anchors.length=0;for(const q of ship._thermalBankSites)push(q.slice());}
+ else if(beside)for(const along of [-.4,-.25,-.1,0,.1,.25,.4])for(const y of [0,-12,12,-24,24])for(const z of [-60,60,-100,100,-140,140,-30,30])push([beside[0]+along*(b[3]-b[0]),beside[1]+y,beside[2]+z]);
  anchors.sort((a,c)=>len(sub(a,near))-len(sub(c,near)));
  let center=null,room=null;
  outer:for(const aspect of [[1,1,1],[2,.7071067811865476,.7071067811865476],[3,.5773502691896258,.5773502691896258]]){
@@ -61589,11 +61590,17 @@ function onaWingSlice(p,z){
  const unique=[];for(const p of points)if(!unique.some(q=>Math.hypot(p[0]-q[0],p[1]-q[1])<1e-5))unique.push(p);if(unique.length<3)throw new Error('オナガー艦首砲の横翼断面が閉じていません');
  const center=unique.reduce((a,b)=>a.map((v,i)=>v+b[i]/unique.length),[0,0]);unique.sort((a,b)=>Math.atan2(a[1]-center[1],a[0]-center[0])-Math.atan2(b[1]-center[1],b[0]-center[0]));return unique;
 }
+const ONA_SYNTH_X0=674,SW_CONVERTER_LABEL='超兵器発射熱の変換区画';
+// Places for heat converters in the room the composite machinery gave up (x 640 to ONA_SYNTH_X0, both sides of the slot).
+function onaConverterSites(s){const sites=[];for(const x of [665,655,675])for(const sg of [-1,1]){const clipped=onaClipPoly(sectionBase(s.hull,x).poly,0,43.05,true),c=clipped.reduce((a,b)=>a.map((v,i)=>v+b[i]/clipped.length),[0,0]);for(const k of [.55,1,1.45,.3,1.8])sites.push([x,c[1],sg*c[0]*k]);}return sites;}
 function onaWeaponBody(s,sg){
  const mesh={v:[],f:[]},center=[927.3,64.9,sg*23.45],size=[1331.6,800,180];
  // Keep the measured visible barrel and muzzle in their original positions.
  onaAppendClosedLoft(mesh,[594.4,1260.2].map(x=>Array.from({length:48},(_,i)=>{const a=i/48*Math.PI*2;return [x,64.9+19.1*Math.sin(a),sg*(23.45+19.1*Math.cos(a))];})));
- const xs=[640,...ONA.st.map(r=>r[0]*1288).filter(x=>x>640&&x<1254),1254];for(let x=650;x<1254;x+=12)xs.push(x);for(let i=1;i<ONA.st.length;i++){const lo=ONA.st[i-1][0]*1288,hi=ONA.st[i][0]*1288;if(hi-lo<25)for(let x=Math.max(641,lo+1);x<Math.min(1254,hi);x+=1)xs.push(x);}xs.sort((a,b)=>a-b);
+ // User decision 2026-11-15: the composite machinery (the part of the weapon that fills the forward hull) is made
+ // smaller so that the heat converters for the firing loss stand in the forward half with it. It used to start at
+ // x 640; it now starts at ONA_SYNTH_X0 and the converters take the room between (onaConverterSites).
+ const X0=ONA_SYNTH_X0,xs=[X0,...ONA.st.map(r=>r[0]*1288).filter(x=>x>X0&&x<1254),1254];for(let x=X0+10;x<1254;x+=12)xs.push(x);for(let i=1;i<ONA.st.length;i++){const lo=ONA.st[i-1][0]*1288,hi=ONA.st[i][0]*1288;if(hi-lo<25)for(let x=Math.max(X0+1,lo+1);x<Math.min(1254,hi);x+=1)xs.push(x);}xs.sort((a,b)=>a-b);
  const rings=[];for(const x of [...new Set(xs)]){const clipped=onaClipPoly(sectionBase(s.hull,x).poly,0,43.05,true),c=clipped.reduce((a,b)=>a.map((v,i)=>v+b[i]/clipped.length),[0,0]),ring=onaResampleRing(clipped,24).map(p=>[x,c[1]+(p[1]-c[1])*.97,sg*(c[0]+(p[0]-c[0])*.97)]);rings.push(ring);}onaAppendClosedLoft(mesh,rings);
  const wing=s.parts.find(p=>p.label==='艦首の横翼'&&p.c[2]>0),zs=[140,...ONA.wing.map(r=>r[0]).filter(z=>z>140&&z<384),384];for(let z=150;z<384;z+=12)zs.push(z);zs.sort((a,b)=>a-b);
  const wingRings=[];for(const z of [...new Set(zs)]){const polygon=onaWingSlice(wing,z),c=polygon.reduce((a,b)=>a.map((v,i)=>v+b[i]/polygon.length),[0,0]),ring=onaResampleRing(polygon,24).map(p=>[c[0]+(p[0]-c[0])*.97,c[1]+(p[1]-c[1])*.97,sg*z]);wingRings.push(ring);}onaAppendClosedLoft(mesh,wingRings);
@@ -61657,6 +61664,9 @@ function onaBuild(opt={}){
  // The superheavy composite-beam turbolasers: the two barrels along the split forward hull, each fed
  // straight from the main reactor.
  for(const sg of [-1,1]){const body=onaWeaponBody(s,sg);part('sbeam',(sg<0?'左舷':'右舷')+'125 PT超重合成ターボレーザー',body.center,38.2,{reactor:gen.id,weaponBody:body.weaponBody,weaponMuzzle:body.weaponMuzzle});}
+ // The converters for the firing loss: one room each side of the slot, in the 34 m the composite machinery gave up
+ // (x 640 to 674). The hull's lens section clips the room; only the volume kept earns capacity.
+ for(const sg of [-1,1])placePart(s,'hdis',[657,66.5,sg*88],Math.cbrt(34*62*90),{label:(sg<0?'左舷':'右舷')+SW_CONVERTER_LABEL,room:[34,90,62],autoFit:false});
  // ---- the stern engine block (v24; added after the earlier parts so their ids stay as published) ----
  // The STL closes the hull directly forward of the five nozzles: the central engine's housing (r 15 m)
  // runs from its nozzle to the inner faces of the stern plates, and the block beside the core starts
