@@ -4,7 +4,7 @@
  "ships": {
   "acclamator": {
    "combat": {
-    "sha256": "8280fd83a934b2d160e05e9da4f7e5944ce9805622340ffc2002d4ffff210b58"
+    "sha256": "27f60409fe008f1b9ff642931e0815155a5414a6d2aeef4161ab8f65b38d5704"
    },
    "design": {
     "sha256": "71dae12bec3dc2303fcd7c1293da47345b4c0a764fa3e427f3ad2e238d2ab213",
@@ -14,7 +14,7 @@
   },
   "arquitens": {
    "combat": {
-    "sha256": "6edd2bf6cec83649e4a4b9f870553127cefc997287f8f80e53b9cba003b8d56a"
+    "sha256": "9103a82ca11e889412849d7692cf05e6769074e9ea68d7218acf1aa3d339e9a9"
    },
    "design": {
     "sha256": "9077da0270f764396580c6ad42ca696cffe253dbee75f91019a2d6a7a69fc78b",
@@ -38,7 +38,7 @@
   },
   "cr90": {
    "combat": {
-    "sha256": "cdd6b6c5197349b0b1e103a7fb037c1198647cedd32e5a4a1b1920bd1fa2cb83"
+    "sha256": "be9ad8ec5505a38344bcb67053cc9f08e61602650953998fc38533acd6876bfe"
    },
    "design": {
     "sha256": "9f9e5db89f441475db94f6fcc4497718ec7111217383cd51f5d070dffd33c10c",
@@ -137,7 +137,7 @@
     "blueprintSha256": "3dcd5f8e75b0ae495c31b90224765a6df6690634aadd1c10d0eaa700dd619865"
    },
    "combat": {
-    "sha256": "b526c67d870c6e62ede0e2898dcdfddd93eb627d0b7146a3856d79470471c1b2"
+    "sha256": "41109091807e063c26287f2712cf6b0db8e14bb941a3749d7b637de27e5d8e32"
    }
   },
   "destroyer": {
@@ -149,7 +149,7 @@
   },
   "dreadnaught": {
    "combat": {
-    "sha256": "058ef34428ddf1b71795d2ff6f105298a2192554914343ac1f3bb31070622e7c"
+    "sha256": "cb2cbc74d2003efea4514b8ef8985ee7c070e60556785b10d113e9ac695addb1"
    },
    "design": {
     "sha256": "313c07f0e1a9f3d53623f1d5133286d5481236e8c49ab1784035b5c79af2770e",
@@ -159,7 +159,7 @@
   },
   "executor": {
    "combat": {
-    "sha256": "dfd64796eb728d8e90355518e5ac785895efa9fadfecac4bf6023dc45228a30e"
+    "sha256": "162b15cc3fb049655a637fef86ac8d843fe63485059aab2cf25f8307d2782ca3"
    },
    "design": {
     "sha256": "5e74ae116fd1e0c641de91a9084fce73fcd45965bb30977cbc3b115235ce8317",
@@ -176,7 +176,7 @@
   },
   "gozanti": {
    "combat": {
-    "sha256": "68d28426f68814821cbe01d38ea785c9393d25e6b462e03d8bc39e58b624f580"
+    "sha256": "0421cc1871c5a371a27817143c5cec9e97a6a8c955196d24bbf8bb71fe0013db"
    },
    "design": {
     "sha256": "4d7af30f07a2308f921dc670ad737118fc33b9683b851e54053fce9d7be1cdc3",
@@ -186,7 +186,7 @@
   },
   "gr75": {
    "combat": {
-    "sha256": "5ec9014b490d650ee0a872137aa78fa7d9ee3f202281e4691824be99a3c4dfed"
+    "sha256": "23efae3faf9e33a24d5a38ccfac4a38dc19696d2987176d253b929588bb4de0a"
    },
    "design": {
     "sha256": "6b782d7ec77d2957f52e560cde10e8cd0684026f7345bb6705964f659869443b",
@@ -196,7 +196,7 @@
   },
   "hammerhead": {
    "combat": {
-    "sha256": "4c7e0fa5e3a6b151de7d6e592bd4a7fa4ca1724502bce0766f153362abce4f69"
+    "sha256": "7d2cdf5aa2c8df35b13411b75d9aa145491434bbd983dee1c311bfb97e651606"
    },
    "design": {
     "sha256": "5806d9c3e675f1e8686cf1a05f150cc4fa81ed7b8d6efb8c45d5cfdfdbd0d579",
@@ -213,7 +213,7 @@
   },
   "heraklon": {
    "combat": {
-    "sha256": "4adb60abbb8fce54fbe0c4dff82823a338a3181c9caab643cd4836d202d1d936"
+    "sha256": "efe2cd09fcd555e822f8a3b9a63b8a75da7c8e88fe630b4e01c7379066b91b70"
    },
    "design": {
     "sha256": "92372d48ee0344ba115ed0b2ea584cb134fb1a5c9d82f685cdef78284d6cfd7f",
@@ -223,7 +223,7 @@
   },
   "imperial": {
    "combat": {
-    "sha256": "1e27403a0de85fd73cb6e934605f2c6f6e8bd2bd334f6ced37296a6039ca9503"
+    "sha256": "7ad6a26a179df72c3653789bc8c517a381a92cde6f3a2f464710a0bb7a0c5c34"
    },
    "design": {
     "sha256": "80c154bf16a35e2616ac1221b0cb30bcb6d78e587a6e30a573a0fe847a4bd175",
@@ -233,7 +233,7 @@
   },
   "imperial2": {
    "combat": {
-    "sha256": "8d6ab6966c1a87d51688e4a168e1410cdfeeada8cef7a9028e5c97e41aadcd2f"
+    "sha256": "455df17c26bd1fbce25c6da2dbf7ce44825f688795de17965d3bbf6ac3f78f7e"
    },
    "design": {
     "sha256": "9d6ac4787b2de4afc868534f92832998c8963d17de6537765cc28b0b63da2489",
@@ -243,7 +243,7 @@
   },
   "lh3210": {
    "combat": {
-    "sha256": "da0c250ace88037fca603a47e44e8c77519b4ad3372aa626399b3d2d77ca7370"
+    "sha256": "41eea88485f00212ae6d8fc10cab62c8cb1d05b30c75307cd4e7f13724f0154e"
    },
    "design": {
     "sha256": "5ecf9ead405ab229a787735a1ec4ef62c3dbc0da6c42a348143e38c6cd7bd979",
@@ -253,7 +253,7 @@
   },
   "lucrehulk": {
    "combat": {
-    "sha256": "bd637ade5a58a48f199d3dbf69eb635949ada8ecfe91b6d3d96e4ecc99b02b2e"
+    "sha256": "ed9306c27b6474126cdbc2e19a3975ccca5d43a753288c9b123526741a5a8c86"
    },
    "design": {
     "sha256": "6808567958ea4e534142a34deb8aa2f8cedbfa8647d615b1e9d4eba25688d71f",
@@ -263,7 +263,7 @@
   },
   "mandator2": {
    "combat": {
-    "sha256": "8add1e2fdfd05d4d52109bec3dd0b335bda9d8db4156797850456fca2749503d"
+    "sha256": "82c92b5607444db7110dd58a084fa989e2a99c0210691b1481dc1cf6bbdd7721"
    },
    "design": {
     "sha256": "e8febea242d5eac5fdfcfe18070a08714365db8c47cc2bd555e96b7008fb326a",
@@ -273,7 +273,7 @@
   },
   "mc30c": {
    "combat": {
-    "sha256": "b48d98e97d37be11d7b067eea32ce854fd5967d3f19ebfe363b0f3086566dbfc"
+    "sha256": "4ebc1112d4089607483ec7566de9b4e4adfecad43e756e940a1e27f43bccffe7"
    },
    "design": {
     "sha256": "4314057271c53f5188c66a7d7e5c09617abc7df885d3a3ab7249f33e07cd16bd",
@@ -283,7 +283,7 @@
   },
   "mc75": {
    "combat": {
-    "sha256": "330fb24b2685094a0ca7f9d433460b2d2b836228129aa975fbeb93708f48f15d"
+    "sha256": "93e819980bb8f090b1e1b5e5170a92a7478c6a709ecd364e717a0a67d5ab9a20"
    },
    "design": {
     "sha256": "2ce6f8d7f5c950f29df6d2ac2aa27b2a2d1d1ffbd48c36d97d3f67df95c6ba27",
@@ -293,7 +293,7 @@
   },
   "mc80home": {
    "combat": {
-    "sha256": "6e142020db7717d96cfb020eff3215c66064dc48025ce8195b01ba31e30b3cb9"
+    "sha256": "feb34280851fd4a0c63082e1a41a5b97292dfc818f7aefa7467d971817c9ac6e"
    },
    "design": {
     "sha256": "5cb6d157e3c80ba63546def8a1aa04fcc9d0099514e9eddffd47547d53c35abe",
@@ -303,7 +303,7 @@
   },
   "mc80liberty": {
    "combat": {
-    "sha256": "ffa1e0884115b8d0caf80d392c7ec76dc1d02129c3ca2cac8beb90aac97b9070"
+    "sha256": "fb6d628e73f6ea3aa34a7161d41184dcb3fde37393465606bc8c2da6dfdf5994"
    },
    "design": {
     "sha256": "c4ab5dc7ca3f77c49497df60c99032eab77c7f1145d3be5cbab96e60becec85d",
@@ -313,7 +313,7 @@
   },
   "munificent": {
    "combat": {
-    "sha256": "be1de64a6d7c9fd91438e93774fe8693681d4fb6b9bf4ad0201269d95c9c2c45"
+    "sha256": "d8ed589022b8bf40083bef219eab28436aec7bcb62011db05c0b785171c6dc31"
    },
    "design": {
     "sha256": "cddefe611be94a9659a6b48ed2928ecf0cab72a0d8c9e17fbdb15105d9d24200",
@@ -323,7 +323,7 @@
   },
   "nebulonb": {
    "combat": {
-    "sha256": "214471ef3155d9e269d60a8c105e2f17522a83052bf27b11576c86f46f1912b5"
+    "sha256": "533b7459109b0dc25ef348839b7ec973a0d8b1f8ac436ac30bf8a6e46d8758ce"
    },
    "design": {
     "sha256": "4eefc5b9791e93d0607134b2ad78863319bab16c23c5a574173d29db90d3e775",
@@ -333,7 +333,7 @@
   },
   "onager": {
    "combat": {
-    "sha256": "f89c2e6fcf7751954c3cc5f60aa642824043f2f809026c24a46e539b41ab1226"
+    "sha256": "382a98df3e5670468e3bcb589190dfdab80d9bb70944c7e792b6d9ab77730565"
    },
    "design": {
     "sha256": "df72cd1c09557caf584104f6c07e460cba5405f821f8c1f0de7edfe752dba8af",
@@ -343,7 +343,7 @@
   },
   "providence": {
    "combat": {
-    "sha256": "5101e3b332a7b9f543feb369e86df4cddfa4747ecfa84c7ad5e90f24375209df"
+    "sha256": "408904d53b1448e912c4624ba09046fdafd6ca550adf07de7af10e2dd00e47b7"
    },
    "design": {
     "sha256": "5fc62ee40b8706751c28b174853c8f964e64ef8183bd26eb941a3d3a3949b4f4",
@@ -353,7 +353,7 @@
   },
   "providenceDn": {
    "combat": {
-    "sha256": "d667043bc2c1641ed890975cd3ad96c3dcc0e24a94401b87bb2f1a0e75485231"
+    "sha256": "5d305a29181328859fdaad9ce0806539fbd188130825f1f236cdcce2e09eee3a"
    },
    "design": {
     "sha256": "92f263bf528918853e14fd5bfcbaf190f6800b31749f4176ea1cce097b9b9c4e",
@@ -363,7 +363,7 @@
   },
   "recusant": {
    "combat": {
-    "sha256": "e9a24d7db72ae4ece4b1484ad31f6b01827d9b40f9356ea83a31ce32a2470da5"
+    "sha256": "6bea6ff738f91ed1c5302ed6a7537a4153a79eaf8645933acaa9cce3974dd5b4"
    },
    "design": {
     "sha256": "0b619b3f6004fdac1910100d215786bb04e48ce9fd24f37822d87971ec489d56",
@@ -373,7 +373,7 @@
   },
   "recusantDn": {
    "combat": {
-    "sha256": "b11c009fe5dea2bc34fb599b210efbdaa925576a65ed741cff5b76e2eaa6975c"
+    "sha256": "b41de64983c94524890a588962489971ec95772f7df3563526c787ac48ebe391"
    },
    "design": {
     "sha256": "5592e0f49b349d29aeb00d7af1650cf8682ce4ab0266247c29e3c14e64b20a3d",
@@ -383,7 +383,7 @@
   },
   "reptransport": {
    "combat": {
-    "sha256": "5916d17d36dcfe306fdce5551e38110011f0c338cdd20c512718a97af00aba5e"
+    "sha256": "8895a3d3749d8531d8afa46e1156c85eb08b45123147c33ceb7bce1815ad3d75"
    },
    "design": {
     "sha256": "a01db6994506868d3af85ca13dd36182a6cf0c71efbba74484a2a6c45ca2c365",
@@ -400,7 +400,7 @@
   },
   "subjugator": {
    "combat": {
-    "sha256": "cbefcde6a71c412561c92c14d8e173d51dc86d1c079766762a1e6302434ab75c"
+    "sha256": "27eec063624cc372342e69d3e3f8e63eba15fa83a88d977706ec7a5c788a1af7"
    },
    "design": {
     "sha256": "80697c21a2b7d336a70c21a69a39d249be1de8af63fb602d57ef685681080f77",
@@ -410,7 +410,7 @@
   },
   "venator": {
    "combat": {
-    "sha256": "f4d585de564ba334f1bbba8545ef1109e70225f7f2ede26627c70fe2d20e761e"
+    "sha256": "55dbad6145cfb59c8da33d569a5ce567c876eb4db93af5d4ba2cddffaef265f0"
    },
    "design": {
     "sha256": "ed6786f75428ba77cc49c71e8ea299fb86255371b97b99e490e3967997698875",
