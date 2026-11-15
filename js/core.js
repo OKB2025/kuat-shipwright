@@ -61778,7 +61778,8 @@ function deathStarBuild(){
  // 感じ」, after the user's picture of the weapon lifted out): a round well as wide as the dish, a narrower well
  // under it, and the shaft down to the core. The superlaser's body (below) fills them.
  const well=(k0,k1,r)=>s.solidCuts.push({id:s.nextId++,shape:'cylinder',c:at((k0+k1)/2),s:[2*r,2*r,k1-k0],rotation:[0,0,DS.dishLat-90],mirror:false,structures:true});
- const wellAt=floorAt-3000,neckAt=44000;well(wellAt,R+6000,a);well(neckAt,wellAt+100,9000);well(7000,neckAt+100,3200);
+ // (the wide well goes 12 km below the dish floor: user decision 2026-11-15「設置位置はもっと深く切り取っていい」)
+ const wellAt=floorAt-12000,neckAt=38000;well(wellAt,R+6000,a);well(neckAt,wellAt+100,9000);well(7000,neckAt+100,3200);
  // Meridian trenches (the user's addition, wide enough for a fighter): standing rings through the poles.
  for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[2*R,2*R,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:true});
  // The reactor core at the centre.
@@ -66021,7 +66022,7 @@ const SUPERWEAPONS={
 GROUPS.superweapon='超兵器';
 addComp('sbeam','超重合成ビーム・ターボレーザー','cyl',.7,[236,96,66],'weapons','オナガー級の主砲。一門あたり125 PTを10秒間のビームとして砲軸上へ直進照射します。照準補正はなく、船体を旋回して狙います。左右の艦首腕部は砲身・合成機関でほぼ占有されます。接続された反応炉から充電します。',{def:SUPERWEAPONS.sbeam.d,min:SUPERWEAPONS.sbeam.d,max:SUPERWEAPONS.sbeam.d,ratio:SUPERWEAPONS.sbeam.length/SUPERWEAPONS.sbeam.d,crit:true,hp:.8,crew:.3,fixed:true});
 addComp('hion','ハイパーイオン砲','cyl',.6,[146,120,255],'weapons','サブジュゲイター級の舷側砲。拡大する円盤状パルスを放ち、距離と投影面積に応じた有限のエネルギーを複数艦へ分配します。シールドを漏出した分が接続された電力網へ作用し、十分な過負荷では主炉・補助炉を含む共通系統を保護遮断します。性能係数はゲーム用の仮定です。',{def:SUPERWEAPONS.hion.d,min:SUPERWEAPONS.hion.d,max:SUPERWEAPONS.hion.d,ratio:SUPERWEAPONS.hion.length/SUPERWEAPONS.hion.d,crit:true,hp:.8,crew:.3,fixed:true});
-addComp('slaser','スーパーレーザー','cyl',.7,[92,98,104],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
+addComp('slaser','スーパーレーザー','cyl',.7,[52,56,62],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
 // The concentrated thermal exhaust port (user request 2026-11-15「スーパーレーザーは自動的集中排熱口が配置される仕組みにして子午線
 // トレンチに出現させて」): a heat converter sized for the superlaser's firing loss, put by the superlaser itself under
 // the floor of a meridian trench (a standing torus cut through the hull's centre), or under the hull's skin when
