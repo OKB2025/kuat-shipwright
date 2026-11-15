@@ -50,3 +50,14 @@ test('a superweapon keeps the charge it starts with through save and load',()=>{
  const s=C.newShip({...C.HULLS.sphere,L:160000,W:160000,H:160000},'station','station'),g=C.placePart(s,'gen',[80000,80000,0],16000,{}),w=C.placePart(s,'slaser',[110000,80000,0],C.SUPERWEAPONS.slaser.d,{reactor:g.id});
  assert.ok(w);w.initialCharge=1;const back=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));assert.equal(back.parts.find(p=>p.k==='slaser').initialCharge,1);
 });
+// User report 2026-11-15「構造部が置けないバグが発生」: a 200 m design with nineteen structures, saved and opened again.
+// The same cause as the craft above: on the code before the fix no placement tap landed anywhere, the bare hull
+// included (the first loaded structure a line of sight came near made the editor drop the tap).
+test('on the second reported design a tap from above lands on the hull, on a structure and on the top of the tower',()=>{
+ const r=runtime(),raw=r.C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'fixtures/structures-cannot-be-placed-2026-11-15.json.gz'))).toString('utf8')));r.C.syncCompartments(raw);
+ for(const part of raw.parts)if(r.C.isShapePart(part)){part._solidCutShip=raw;r.C.structTriangles(part);}
+ const packet=structuredClone(r.E.packCaches(raw)),client=JSON.parse(r.C.publicJSON(raw));client._client=true;client._geoProxy=packet.geoProxy;client._editorGeometryContext='completed-worker-context';
+ for(const part of client.parts){part._editorGeometryContext=client._editorGeometryContext;const src=raw.parts.find(p=>p.id===part.id);for(const key of ['_placementGeometry','_placementSelfKey','_placementRequestKey'])if(src[key]!=null)part[key]=src[key];}
+ const first=(x,z)=>r.G.placementSurfaceCandidates(client,[x,200,z],[0,-1,0])[0];
+ assert.equal(first(150,0)?.parentStructureId,1,'the hull, clear of every structure');assert.equal(first(80,0)?.parentStructureId,107,'the long structure on the hull');assert.equal(first(55,0)?.parentStructureId,125,'the top of the tower');
+});
