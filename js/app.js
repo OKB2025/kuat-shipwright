@@ -8159,18 +8159,19 @@ function trialCraftLaserUnits(t){
  const f=C.FITS[t.k];if(!f?.craft||!(f.tt>0)||f.store||t.ion)return 0;
  return Math.max(0,t.power||0)/Math.max(1,C.FITS.claser.power);
 }
-function trialCraftGasNeed(t){
+function trialCraftGasNeed(t,seqN=1){
  const r=trial.systemsRuntime,units=trialCraftLaserUnits(t);
  if(!r||r.gasSeconds==null||!units)return 0;
  // An aircraft laser's shot is its per-second output over the period it actually fires at, so its gas follows that period.
  const spec=C.FITS[t.k],cycle=spec?.outputClass&&t.cycle>0?t.cycle:spec?.craft&&spec.boltTT>0&&!spec.ion?(spec.cycle||C.CRAFT_FIRE.cycles[t.k]||C.CRAFT_FIRE.defaultCycle):t.cycle;
- return Math.max(0,cycle||0)*units/Math.max(1e-9,r.spec.laserUnits||units);
+ // Rapid fire one barrel at a time (seqN shots a period) takes the period's gas over its shots.
+ return Math.max(0,cycle||0)*units/Math.max(1e-9,r.spec.laserUnits||units)/Math.max(1,seqN);
 }
-function trialCraftGasReady(t){
- const r=trial.systemsRuntime,need=trialCraftGasNeed(t);return !r||r.gasSeconds==null||!need||r.gasSeconds+need*1e-12>=need;
+function trialCraftGasReady(t,seqN=1){
+ const r=trial.systemsRuntime,need=trialCraftGasNeed(t,seqN);return !r||r.gasSeconds==null||!need||r.gasSeconds+need*1e-12>=need;
 }
-function trialCraftGasTake(t,dt){
- const r=trial.systemsRuntime,need=trialCraftGasNeed(t);
+function trialCraftGasTake(t,dt,seqN=1){
+ const r=trial.systemsRuntime,need=trialCraftGasNeed(t,seqN);
  if(!r||r.gasSeconds==null||!need)return true;
  if(!(dt>0)||!Number.isFinite(dt)||r.gasSeconds+need*1e-12<need)return false;
  r.gasSeconds=Math.max(0,r.gasSeconds-need);
@@ -8549,7 +8550,7 @@ function trialGunnery(dt){
   if(t.mesh)trialPoseTurret(t);
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
-  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t),unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed&&!t.far)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
+  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t,!t.pilot&&!t.trenchAggregate&&t.barrels>1?t.barrels:1)/* ready for one rapid-fire shot; a salvo's whole volley is checked when it is taken */,unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed&&!t.far)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
   // Point defence fires on its own at the threat it is tracking.
   t.firing=(t.pd?!!t.pdTarget&&!committed&&!me?.dead&&!me?.out&&!(trial.battle?.result):wantFire)&&t.ready;if(t.firing)demand+=trialShotEnergyTT(t)*TT_J/Math.max(1e-9,t.cycle)*(t.costK??1);t.bd=bd;t.oW=oW;
  }
@@ -8568,7 +8569,7 @@ function trialGunnery(dt){
    // Rapid fire is one shot at a time from the whole mount, barrel after barrel, not every barrel at once (user
    // decision 2026-11-15): each shot carries the volley's energy over the barrels and follows cycle ÷ barrels later,
    // so the fire per second is unchanged. A salvo still fires every barrel together.
-   const seqN=!t.pilot&&!t.trenchAggregate&&(t.pd||!salvo)&&t.barrels>1?t.barrels:1,shotTT=trialShotEnergyTT(t)/seqN,cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+Math.abs(cost)*1e-12<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
+   const seqN=!t.pilot&&!t.trenchAggregate&&(t.pd||!salvo)&&t.barrels>1?t.barrels:1,shotTT=trialShotEnergyTT(t)/seqN,cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+Math.abs(cost)*1e-12<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt,seqN)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
    actualFireW+=cost*TT_J/dt;
    t.reload=t.pilot?t.reload+t.cycle:t.cycle/seqN*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=seqN>1?1:t.trenchAggregate?Math.max(1,Math.min(8,t.barrels||1)):t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),barrels=seqN>1?1:t.trenchAggregate?Math.max(0,t.aggregateBarrels||0):t.barrels,seqI=seqN>1?(t.seqI=((t.seqI??-1)+1)%seqN):0,sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+barrels;for(let i=0;i<n;i++){const off=seqN>1?(seqI/(seqN-1)-.5)*spread:n>1?(i/(n-1)-.5)*spread:0,pos=(seqN>1?muzzles?.[seqI%muzzles.length]:muzzles?.[i])||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:shotTT/n,pd:true,target:t.pdTarget,...(t.trenchAggregate?{shotMultiplicity:barrels/n*(t.charge??1)}:{})});}continue;}

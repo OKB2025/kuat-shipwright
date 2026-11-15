@@ -32,6 +32,9 @@ section('function trialRateBase(', 'function trialMaxRates(');
 run('reset();');
 const near=(actual,expected)=>assert.ok(Math.abs(actual-expected)<1e-8,`${actual} != ${expected}`);
 
+// 2026-11-15, user decision「連射は全門含め1発ずつ射撃する形に(各門ではなく)」: a mount of several barrels fires one barrel a
+// shot in rapid fire, with the period's gas over its barrels. Two expectations follow (the twin turret's shot count
+// and gas, the ion and capital batteries' shot count); the piloted craft laser is unchanged.
 test('only actual qualifying laser shots consume their weighted reload-cycle share of gas',()=>{
  run('reset();');const gas=run('trial.systemsRuntime.gasSeconds');
  run('trial.turrets[0].clear=false;fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);assert.equal(run('trial.gun.shots'),0);
@@ -39,7 +42,7 @@ test('only actual qualifying laser shots consume their weighted reload-cycle sha
  run('trial.energy.E=1e20;trial.turrets[0].pilot=false;salvo=new Set();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
  run('salvo=null;trial.turrets[0].pilot=true;trial.turrets[0].reload=10;trialGunnery(.1);');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
  run('fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')/2);assert.equal(run('trial.gun.shots'),1);
- run('trial.turrets=[makeTurret("cturret")];fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')/2-run('C.FITS.cturret.cycle*C.FITS.cturret.power/C.FITS.claser.power')/2);assert.equal(run('trial.gun.shots'),3);
+ run('trial.turrets=[makeTurret("cturret")];fire();');near(run('trial.systemsRuntime.gasSeconds'),1-run('C.FITS.claser.cycle')/2-run('C.FITS.cturret.cycle*C.FITS.cturret.power/C.FITS.claser.power')/2/run('C.FITS.cturret.barrels'));assert.equal(run('trial.gun.shots'),2,'the twin turret fires one barrel');
  run('reset({laserGasSeconds:C.FITS.claser.cycle*.99/2});fire();');assert.equal(run('trial.gun.shots'),0);near(run('trial.systemsRuntime.gasSeconds'),run('C.FITS.claser.cycle')*.99/2);run('reset({laserGasSeconds:C.FITS.claser.cycle/2});fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),1);run('fire();');assert.equal(run('trial.gun.shots'),1);
 });
 
@@ -47,8 +50,8 @@ test('empty gas blocks craft lasers until reset while ion and ship batteries ret
  run('reset({laserGasSeconds:C.FITS.claser.cycle*2});for(let i=0;i<4;i++)fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),4);
  run('trialCraftSystemsStep(100);fire();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),4);
  assert.equal(run('notices.filter(s=>s.includes("レーザーガス")).length'),1);
- run('trial.turrets=[makeTurret("ion"),makeTurret("refVen")];fire();');assert.equal(run('trial.gun.shots'),4+run('C.FITS.ion.barrels+C.FITS.refVen.barrels'));assert.equal(run('trial.systemsRuntime.gasSeconds'),0);
- run('trial.turrets=[makeTurret()];trialCraftSystemsReset();fire();');assert.equal(run('trial.gun.shots'),5+run('C.FITS.ion.barrels+C.FITS.refVen.barrels'));near(run('trial.systemsRuntime.gasSeconds'),run('C.FITS.claser.cycle')*1.5);
+ run('trial.turrets=[makeTurret("ion"),makeTurret("refVen")];fire();');assert.equal(run('trial.gun.shots'),4+run('[C.FITS.ion,C.FITS.refVen].reduce((n,d)=>n+((d.barrels||1)>1?1:(d.barrels||1)),0)'),'one barrel a shot from each mount');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);
+ run('trial.turrets=[makeTurret()];trialCraftSystemsReset();fire();');assert.equal(run('trial.gun.shots'),5+run('[C.FITS.ion,C.FITS.refVen].reduce((n,d)=>n+((d.barrels||1)>1?1:(d.barrels||1)),0)'));near(run('trial.systemsRuntime.gasSeconds'),run('C.FITS.claser.cycle')*1.5);
 });
 
 test('zero-time frames cannot fire, consume life support, or spend gas',()=>{

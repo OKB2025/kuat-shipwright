@@ -39,13 +39,16 @@ test('the forward-fixed twin 6 MT laser cannot follow a fighter, so it stays a m
  assert.equal(C.FITS.twin6MT.traverseDegS,0);assert.equal(C.FITS.twin6MT.aa,0);assert.equal(C.weaponRoles(C.FITS.twin6MT).dualPurpose,false);
  cx.key='twin6MT';run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.turrets[0].pdTarget'),null);
 });
+// 2026-11-15, user decision「連射は全門含め1発ずつ射撃する形に(各門ではなく)」: in rapid fire a mount fires one barrel a
+// shot (its energy the volley's over the barrels, the next cycle ÷ barrels later). These cases stated every barrel in
+// one shot; each barrel's packet (500 MT, 100 kt) is unchanged.
 test('corvette light turbolasers preserve traverse and 500 MT barrels while requiring the manual trigger',()=>{
  for(const key of ['single500MT','twin500MT','quad500MT','sphyrnaTwin500MT']){
   cx.key=key;assert.ok(C.FITS[key].aa>0);assert.equal(C.weaponRoles(C.FITS[key]).dualPurpose,false);run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);assert.equal(C.FITS[key].boltTT,.0005);
-  run('trial.energy.E=trial.energy.cap=1;var manualEnergyBefore=trial.energy.E;trial.fire=true;trialGunnery(.01)');const shot=C.FITS[key].barrels*.0005,cost=shot*run('trial.turrets[0].costK');assert.equal(run('trial.gun.shots'),C.FITS[key].barrels);assert.ok(Math.abs(run('manualEnergyBefore-trial.energy.E')-cost)<cost*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-.0005)<1e-18)'));
+  run('trial.energy.E=trial.energy.cap=1;var manualEnergyBefore=trial.energy.E;trial.fire=true;trialGunnery(.01)');const shot=.0005,cost=shot*run('trial.turrets[0].costK');assert.equal(run('trial.gun.shots'),1,'one barrel a shot');assert.ok(Math.abs(run('manualEnergyBefore-trial.energy.E')-cost)<cost*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-.0005)<1e-18)'));
  }
 });
 
 test('dedicated twin and spherical PD packets retain 100 kt per physical barrel while intercepting',()=>{
- for(const key of ['pd','monCalPD']){cx.key=key;run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.gun.pd'),C.FITS[key].barrels);assert.equal(run('trial.bolts.length'),C.FITS[key].barrels);assert.ok(run('trial.bolts.every(b=>b.pd&&Math.abs(b.tt-1e-7)<1e-20)'));}
+ for(const key of ['pd','monCalPD']){cx.key=key;run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.gun.pd'),1,'one barrel a shot');assert.equal(run('trial.bolts.length'),1);assert.ok(run('trial.bolts.every(b=>b.pd&&Math.abs(b.tt-1e-7)<1e-20)'));}
 });

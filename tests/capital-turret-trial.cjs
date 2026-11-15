@@ -41,16 +41,20 @@ test('the actual trial targeting loop subtracts placed ball pitch and aims physi
  for(const k of ['quad40Ion','single500','ball175TripleIon','ball175Quad','ball175QuadIon','ball720']){cx.kind=k;run('globalThis.q=setup(kind);trialGunnery(.01)');vector(plain(run('q.t.bd')),plain(run('q.desired')),1e-6);}
 });
 
+// 2026-11-15, user decision「連射は全門含め1発ずつ射撃する形に(各門ではなく)」: in rapid fire the mount fires one barrel a
+// shot, barrel after barrel. These cases stated all four barrels in one shot; they now fire the four shots (the reload
+// cleared between them) and check each bolt as it leaves its own muzzle. Energy per barrel is unchanged.
+const fourShots=`(()=>{const out=[];for(let i=0;i<4;i++){q.t.reload=0;trialGunnery(.001);const b=trial.bolts.at(-1);out.push({prev:b.prev.slice(),vel:b.vel.slice(),tt:b.tt,pd:b.pd,target:b.target===globalThis.threat,mouth:authoredTurretPose(q.raw.authored,q.t.yaw,q.t.el,q.t._foilTransform).muzzles[i].slice(),P:trial.P.slice()});}return out;})()`;
 test('real trial aim and projectile mouths use the inverse S-foil frame without applying placement pitch twice',()=>{
- run('globalThis.q=setup("ball175Quad",{a:2},42,true);trial.fire=true;trialGunnery(.001)');
- const q=run('q'),t=plain(q.t),bolts=plain(run('trial.bolts'));near(t.el,3*Math.PI/180);near(t.yaw,.2);vector(t.bd,q.desired,1e-6);assert.equal(bolts.length,4);assert.equal(run('trial.gun.shots'),4);
- const physical=run('authoredTurretPose(q.raw.authored,q.t.yaw,q.t.el,q.t._foilTransform)');physical.muzzles.forEach((mouth,i)=>{const expected=run(`tv.add(trial.P,trialApply(trial.R,tv.sub(authoredTurretPose(q.raw.authored,q.t.yaw,q.t.el,q.t._foilTransform).muzzles[${i}],q.geometry.center)))`);vector(bolts[i].prev,expected,1e-6);});
+ run('globalThis.q=setup("ball175Quad",{a:2},42,true);trial.fire=true;globalThis.shots4='+fourShots);
+ const q=run('q'),t=plain(q.t),bolts=plain(run('shots4'));near(t.el,3*Math.PI/180);near(t.yaw,.2);vector(t.bd,q.desired,1e-6);assert.equal(bolts.length,4);assert.equal(run('trial.gun.shots'),4);
+ bolts.forEach((b,i)=>{const expected=run(`tv.add(${JSON.stringify(b.P)},trialApply(trial.R,tv.sub(${JSON.stringify(b.mouth)},q.geometry.center)))`);vector(b.prev,expected,1e-6);});
  const direction=plain(run('trialApply(trial.R,q.desired)'));for(const b of bolts)vector(run('tv.norm('+JSON.stringify(b.vel)+')'),direction,1e-6);
  near(bolts.reduce((n,b)=>n+b.tt,0),700,1e-6);
 });
 
 test('trial PD targeting shares authored inversion and keeps all placed-ball muzzles aligned through a foil',()=>{
- run('globalThis.q=setup("ball175Quad",{a:2},42,true,true);trialGunnery(.001)');
+ run('globalThis.q=setup("ball175Quad",{a:2},42,true,true);globalThis.shots4='+fourShots);
  near(run('q.t.el'),3*Math.PI/180);near(run('q.t.yaw'),.2);vector(plain(run('q.t.bd')),plain(run('q.desired')),1e-6);assert.equal(run('q.t.pd'),true);assert.equal(run('q.t.arc'),true);assert.equal(run('q.t.aimed'),true);assert.equal(run('trial.bolts.length'),4);assert.ok(run('trial.bolts.every(b=>b.pd&&b.target===threat)'));
 });
 
@@ -69,7 +73,7 @@ test('actual capital trial fire samples independent shared dispersion at each ph
   try{
    setup('ball175Quad',{a:2},42,true);Object.assign(trial.p,{len:50000,acc:C.GUN_ACCURACY.reference.acc,fireControl:true});
    C.gunScatter=(direction,profile,range,control)=>{const result=original(direction,profile,range,control,random);calls.push({range,control,result});return result;};
-   trial.fire=true;trialGunnery(.001);return {calls,bolts:trial.bolts,energy:trial.bolts.reduce((n,b)=>n+b.tt,0),shots:trial.gun.shots};
+   trial.fire=true;for(let i=0;i<4;i++){trial.turrets[0].reload=0;trialGunnery(.001);}return {calls,bolts:trial.bolts,energy:trial.bolts.reduce((n,b)=>n+b.tt,0),shots:trial.gun.shots};
   }finally{C.gunScatter=original;}
  })();`);
  const proof=plain(run('scatterProof'));assert.equal(proof.calls.length,4);assert.equal(proof.bolts.length,4);assert.equal(proof.shots,4);near(proof.energy,700);
@@ -82,7 +86,7 @@ test('a real RTS carrier spool keeps its manually piloted physical guns fireable
   const d=JSON.parse(JSON.stringify(YardFleetData.designs.mc80home)),w=Rts.createWorld({mode:'test',region:'kuat',seed:17,designs:[d],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:d.key}],[]]}),u=[...w.units.values()][0],g=w.groups.get(u.group),edge=w.sector.edges[w.sector.systems[u.sys].links[0]],to=edge.a===u.sys?edge.b:edge.a;
   u.warp=null;const ordered=Rts.orderJump(w,g.id,to);if(!ordered.ok)throw Error(ordered.why);
   setup('ball175Quad',{a:2},42);trial.fire=true;trial.battle={me:u,modIndex:new Map([[trial.turrets[0].id,u.p.modules.findIndex(m=>m.k==='weapon')]])};u.manual=true;
-  const before=trial.energy.E;trialGunnery(.001);return {phase:u.jump?.phase,localJump:trial.jump,shots:trial.gun.shots,packets:trial.bolts.length,outputTT:trial.bolts.reduce((n,b)=>n+b.tt,0),spentTT:before-trial.energy.E};
+  const before=trial.energy.E;for(let i=0;i<4;i++){trial.turrets[0].reload=0;trialGunnery(.001);}/* rapid fire: four shots, one barrel each (2026-11-15) */return {phase:u.jump?.phase,localJump:trial.jump,shots:trial.gun.shots,packets:trial.bolts.length,outputTT:trial.bolts.reduce((n,b)=>n+b.tt,0),spentTT:before-trial.energy.E};
  })();`);
  const proof=plain(run('pilotSpoolProof'));assert.equal(proof.phase,'spool');assert.equal(proof.localJump,null);assert.equal(proof.shots,4);assert.equal(proof.packets,4);near(proof.outputTT,700);near(proof.spentTT,700);
 });

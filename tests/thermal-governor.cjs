@@ -19,6 +19,6 @@ test('the governor never reaches the band where heat damage begins',()=>{
 });
 
 test('a ship without heat state or in blackout is not governed',()=>{
- assert.deepEqual({...C.heatGovernor({})},{fill:0,engine:1,weapon:1,active:false});
+ /* 2026-11-15: the governor also reports the heat-running mode (user decision: balanced running by default, full on order) */assert.deepEqual({...C.heatGovernor({})},{fill:0,engine:1,weapon:1,active:false,mode:'balance'});
  assert.equal(C.heatGovernor({ht:{online:false,qJ:9,capacityJ:10}}).active,false);
 });
