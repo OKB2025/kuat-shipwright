@@ -67,3 +67,17 @@ test('the quiet-system step ends a superlaser\'s cool-down with the charge it st
  u.sys=0;u.pos=[0,0,0];u.yaw=0;u.order={type:'hold',fire:false,sw:false};u.maneuver=0;const w=u.p.sw[0],x=u.sw[0],E=C.swEnergyTT(w)*C.TT;
  C.superweaponDischarge(u,0,0);x.st='cool';x.t=1;x.c=51/53;x.storedJ=E*51/53;R.step(world,3);assert.notEqual(x.st,'cool');assert.ok(x.c>=51/53-1e-9,`charge ${x.c} after the cool-down (51/53 = ${51/53})`);assert.ok(x.storedJ<=E*(1+1e-12));
 });
+// Physics review, third round (2026-11-15).
+test('strict: the store is the charge, so charging from the defect\'s state ends ready',()=>{
+ const u=station(),x=u.sw[0],E=C.swEnergyTT(u.p.sw[0])*C.TT;C.superweaponDischarge(u,0,0);x.st='charge';x.c=0;x.storedJ=E*51/53;
+ C.superweaponCharge(u,0,1e7,null);near(x.c,1);assert.equal(x.st,'ready');assert.ok(x.storedJ<=E*(1+1e-12));
+});
+test('a station turns toward a target only within a minute of a full charge, and as far as the superlaser reaches',()=>{
+ const u=station(),x=u.sw[0],far=target('far',[400000,0,300000]);u.order={type:'hold',fire:true};x.st='charge';x.c=51/53;
+ assert.equal(C.swHeading(u,[far]),null,'about 54 minutes from full: no turn');
+ const w=u.p.sw[0],sixty=60*w.chargeW*w.efficiency/(C.swEnergyTT(w)*C.TT);x.c=1-sixty*.5;const h=C.swHeading(u,[far]);assert.ok(h!=null,'half a minute from full: it turns');near(h,Math.atan2(300000,400000),1e-9);
+});
+test('on a non-strict ship the superlaser also keeps the charge its ship shot did not use, and its firing heat is the ship shot\'s',()=>{
+ const u=station();u.p.energyModel={version:0};u.sw=[{c:1,st:'ready',t:0,mode:'beam',tgt:null}];const w=u.p.sw[0],x=u.sw[0],t=target('ship',[400000,0,0]);C.superweaponCommand(u,{indexes:[0]});
+ for(let i=0;i<40&&x.st!=='cool';i++)step(u,.25,[u,t]);assert.equal(x.st,'cool');near(x.c,51/53,1e-9);C.swCoolDone(u,w,x);near(x.c,51/53,1e-9);assert.equal(x.st,'charge');
+});

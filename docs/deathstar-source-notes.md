@@ -162,25 +162,16 @@ Stored design `data/examples/deathstar/design.json.gz`, sha256 `4cf18ae2126bfdc6
   with the superlaser taken out shows the well as an open hole; the trial flight fires (tributaries, focus, main
   beam) with the skin drawn; the planet shot destroys the planet.
 
-## The heat shortfall in combat: cause (2026-11-15)
+## The heat shortfall in combat: cause (2026-11-15, corrected)
 
-The designer shows about 1.24e30 W of waste heat in combat against 1.14e30 W of converters (short 9.7e28 W). The
-converters were sized exactly as asked: the systems refit (`refitShipThermal`) asked for 1.1417e30 W and 1.1419e30 W
-is installed. What differs is what each side counts (figures from `Core.buildDesign('deathstar')`, its
-`_shipThermalRefit` record and `computeStats(...).heat.sources`, combat preset):
+The designer showed about 1.24e30 W of waste heat in combat against 1.14e30 W of converters. A first reading put
+this on the wiring loss; that was wrong (physics review, third round). The design statistics (`heatStats`,
+`heatLoads`) estimated a superweapon's charging draw as its share of the reactor (0.6 × 1.12e31 W) and counted
+12% of that, 8.09e29 W, as charging heat. The superlaser actually charges at `chargeW`, 2.9e27 W (a full charge
+takes 24 hours), which the battle and the converter sizing use. The statistics now take the smaller of the two
+(`swDraw`); for the Onager's and the Subjugator's beams, which charge at their share, nothing changes.
 
-| Heat | Refit's sizing | Design statistics |
-| --- | --- | --- |
-| Superlaser (firing loss, and charging loss in the statistics) | 7.39e29 W | 8.09e29 W |
-| Electrical feed (wiring) loss | 1.7e27 W (the propulsion feed's bound only) | **2.93e29 W** (492 feed sources) |
-| Hotel | part of 2.48e29 W | 1.08e29 W |
-| Reactor, shields, engines, weapons | part of 2.48e29 W | 2.9e28 W |
-| Total | 9.87e29 W, times the 1.15 margin = 1.14e30 W | 1.238e30 W |
-
-The wiring loss is the gap. It grows with distance, and on a 160 km station the guns, pumps, integrity and inertial
-units are fed from the core over tens of kilometres: 2.8e29 W even at cruise (of 4.1e29 W in all). On the other
-examples the same loss is small beside the margin, which is why they show no shortfall.
-
-Not changed. Options: count the measured wiring loss in the refit's sizing (shared code: every example's converters
-would be re-sized, so it belongs with a regeneration of all designs, such as the baking of cuts), or shorten the
-feeds on the station with auxiliary reactors near the loads (the cutaway drawing shows several smaller reactors).
+After the change, combat preset: 4.1e29 W of heat (of which the wiring loss is 2.9e29 W) against 1.14e30 W of
+converters, which the systems refit sized for the full shot's firing loss (7.39e29 W, counted in the battle, not in
+the design's presets). No shortfall is shown. The wiring loss is still left out of the refit's sizing (it counts
+only the propulsion feed); that is now a margin question, not a shortfall, and is noted for the full regeneration.

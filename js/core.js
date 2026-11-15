@@ -64112,7 +64112,7 @@ function swChargeRate(u,i){const w=u.p.sw[i];if(!w)return 0;if(u.down&&u.down.re
 function superweaponCharge(u,i,dt,sys){
  const w=u.p?.sw?.[i],x=u.sw?.[i];if(!w||!x||x.st!=='charge'||!(dt>0))return 0;const C=SW_COMBAT[w.k],capacity=swEnergyTT(w)*TT,strict=u.p.energyModel?.version===1,eta=strict?clamp(w.efficiency||ENERGY_MODEL.superEta,.05,1):1;
  const rated=w.chargeW>0?w.chargeW:capacity/Math.max(1,w.chargeT)/eta,rate=swChargeRate(u,i)*heatSwLim(u,i),output=Math.min(Math.max(0,1-x.c)*capacity,strict&&x.storedJ!==undefined?Math.max(0,capacity-x.storedJ):Infinity/* the store never holds more than the weapon's capacity */,rated*rate*dt*eta,shipFuelAvailableElectricalJ(u)*eta),input=output/eta;
- const l=strict?superweaponLedger(u):null;x.c=clamp(x.c+output/Math.max(1,capacity),0,1);if(strict){x.storedJ=(x.storedJ||0)+output;l.inputJ+=input;l.lossJ+=input-output;l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+input-output;}else heatSwCharge(u,i,output);
+ const l=strict?superweaponLedger(u):null;x.c=clamp(x.c+output/Math.max(1,capacity),0,1);if(strict){x.storedJ=(x.storedJ||0)+output;x.c=clamp(x.storedJ/Math.max(1,capacity),0,1);/* strict: the store is the charge (physics review 2026-11-15) */l.inputJ+=input;l.lossJ+=input-output;l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+input-output;}else heatSwCharge(u,i,output);
  if(input>0){const h=heatOf(u),H=heatProfile(u.p),source={id:'p'+w.r,moduleIndex:(u.p.modules||[]).findIndex(m=>m.k==='reactor'&&m.part===w.r)};if(h&&H){reactorInputHeat(h,H,source,input);shipFuelSyncThermalLedger(u);}}
  if(input>0&&u.pw){u.pw.requestedWeaponChargeW=(u.pw.requestedWeaponChargeW||0)+input/dt;u.pw.activeCombatPower=true;}if(x.c>=1)x.st='ready';return output;
 }
@@ -64150,8 +64150,8 @@ function swInArc(u,w,t){
 // The yaw that brings a ready (or nearly charged) composite beam to bear on the best target in reach, or null.
 function swHeading(u,foes){
  const sw=u.p?.sw;if(!sw||!u.sw||u.out||u.down?.black)return null;let best=null,bd=Infinity;
- for(let i=0;i<sw.length;i++){const w=sw[i],x=u.sw[i];if(w.aim!=='bow'||!x||!((x.st==='charge'&&x.c>=.85)||x.st==='ready'||x.st==='beam'))continue;if((u.order?.sw===false||x.hold)&&!x.fireNow&&x.st!=='beam')continue;
-  const pick=x.st==='beam'?foes.find(f=>f.id===x.tgt):null;for(const t of pick?[pick]:foes){if(t.dead)continue;const d=Math.hypot(t.pos[0]-u.pos[0],t.pos[2]-u.pos[2]);if(d<=SW_COMBAT.sbeam.range&&d<bd){bd=d;best=t;}}}
+ for(let i=0;i<sw.length;i++){const w=sw[i],x=u.sw[i];/* turn toward a target when the weapon is within a minute of full (a superlaser starts its recharge from 51/53, physics review 2026-11-15) */const left=x?.st==='charge'&&w.chargeW>0?(1-clamp(x.c,0,1))*swEnergyTT(w)*TT/(w.chargeW*clamp(w.efficiency||1,.05,1)):Infinity;if(w.aim!=='bow'||!x||!((x.st==='charge'&&(left<=60||!(w.chargeW>0)&&x.c>=.85))||x.st==='ready'||x.st==='beam'))continue;if((u.order?.sw===false||x.hold)&&!x.fireNow&&x.st!=='beam')continue;
+  const pick=x.st==='beam'?foes.find(f=>f.id===x.tgt):null;const reach=swRange(u,w,i);for(const t of pick?[pick]:foes){if(t.dead)continue;const d=Math.hypot(t.pos[0]-u.pos[0],t.pos[2]-u.pos[2]);if(d<=reach&&d<bd){bd=d;best=t;}}}
  return best?Math.atan2(best.pos[2]-u.pos[2],best.pos[0]-u.pos[0]):null;
 }
 // A stopped main reactor restarts; overloaded reactors recover.
@@ -64220,8 +64220,8 @@ function ionFire(u,w,x,i,o,DMG){
 // superlaser) starts from what it still holds; the others start empty. (Physics review 2026-11-15: this set the
 // charge to 0 for every weapon while the superlaser's store stayed, so its next shot took a full 24 hours and the
 // store grew past its capacity.)
-function swCoolDone(u,w,x){const keep=SW_COMBAT[w.k]?.shipShare>0&&u.p?.energyModel?.version===1;x.st='charge';x.c=keep?clamp((x.storedJ||0)/Math.max(1,swEnergyTT(w)*TT),0,1):0;if(x.c>=1)x.st='ready';}
-function swBeamFinish(u,w,x){const keep=SW_COMBAT[w.k].shipShare>0;/* a superlaser keeps the charge its ship shot did not use */if(!keep)superweaponDischarge(u,(u.p.sw||[]).indexOf(w),(x.storedJ||0)/TT,true);x.st='cool';x.t=SW_COMBAT[w.k].over.T;x.c=keep?clamp(u.p.energyModel?.version===1?(x.storedJ||0)/Math.max(1,swEnergyTT(w)*TT):0,0,1):0;x.fireNow=false;x.free=false;x.tgt=null;x.beamRemainingTT=0;swOverload(u,w);}
+function swCoolDone(u,w,x){const keep=SW_COMBAT[w.k]?.shipShare>0,strict=u.p?.energyModel?.version===1;x.st='charge';x.c=keep?clamp(strict?(x.storedJ||0)/Math.max(1,swEnergyTT(w)*TT):x.c||0,0,1):0;if(x.c>=1)x.st='ready';}
+function swBeamFinish(u,w,x){const keep=SW_COMBAT[w.k].shipShare>0;/* a superlaser keeps the charge its ship shot did not use */if(!keep)superweaponDischarge(u,(u.p.sw||[]).indexOf(w),(x.storedJ||0)/TT,true);x.st='cool';x.t=SW_COMBAT[w.k].over.T;x.c=keep?clamp(u.p.energyModel?.version===1?(x.storedJ||0)/Math.max(1,swEnergyTT(w)*TT):x.cLeft||0,0,1):0;delete x.cLeft;x.fireNow=false;x.free=false;x.tgt=null;x.beamRemainingTT=0;swOverload(u,w);}
 function swBeamStep(u,w,x,i,dt,o,started=false){const C=SW_COMBAT[w.k],slice=Math.min(Math.max(0,dt),Math.max(0,x.t)),trace=swBeamTrace(u,w,o.all||o.foes),want=slice>=x.t-1e-12?(x.beamSpendsWholeStore?swEnergyTT(w):Math.max(0,x.beamRemainingTT||0)):Math.min(Math.max(0,x.beamRemainingTT||0),Math.max(0,x.beamEnergyTT||0)*slice/C.beamT),physical=superweaponDischarge(u,i,want),amt=physical*(u.p.energyModel?.version===1?clamp(o.damage??1,0,1):Math.max(0,o.damage??1));
  // What is left of the shot is counted in the energy taken from the store (the shot's size: 2 ZT for a ship shot),
  // not in what left as the beam (98% of it): counted in the beam, the last slice took the 2% of all the others too.
@@ -64249,7 +64249,7 @@ function superweaponStep(u,dt,o){
   if(swBeamKind(w.k)){
    const trace=swBeamTrace(u,w,o.all||o.foes);if(!explicit&&(!trace.hit||!o.foes.some(t=>t.id===trace.hit.id)))continue;
    const total=Math.min(swShipShotTT(w),u.p.energyModel?.version===1?Math.max(0,x.storedJ||0)/TT:swEnergyTT(w)*clamp(x.c,0,1));if(!(total>0)){x.st='charge';x.c=0;x.fireNow=false;continue;}
-   x.mode='beam';x.st='beam';x.t=C.beamT;x.c=0;x.fireNow=false;x.tgt=null;x.free=true;x.beamEnergyTT=total;x.beamRemainingTT=total;x.beamSpendsWholeStore=!(SW_COMBAT[w.k].shipShare>0)&&u.p.energyModel?.version===1&&Math.max(0,x.storedJ||0)<=swEnergyTT(w)*TT;
+   x.cLeft=SW_COMBAT[w.k].shipShare>0&&u.p.energyModel?.version!==1?clamp(x.c-total/Math.max(1e-30,swEnergyTT(w)),0,1):0;/* a superlaser on a non-strict ship keeps the charge its ship shot did not use (physics review 2026-11-15) */x.mode='beam';x.st='beam';x.t=C.beamT;x.c=0;x.fireNow=false;x.tgt=null;x.free=true;x.beamEnergyTT=total;x.beamRemainingTT=total;x.beamSpendsWholeStore=!(SW_COMBAT[w.k].shipShare>0)&&u.p.energyModel?.version===1&&Math.max(0,x.storedJ||0)<=swEnergyTT(w)*TT;
    o.ctx?.ev(u,`${C.name}を射軸の方向へ照射`);const sh=swBeamStep(u,w,x,i,dt,o,true);if(sh)shots.push(sh);continue;}
   const named=(u.manual||x.fireNow?.command)&&x.fireNow?.to?o.foes.filter(t=>x.fireNow.to.includes(t.id)&&!t.dead):null,live=named||o.foes.filter(t=>!t.dead&&swInArc(u,w,t)),free=!live.length&&swFree(u,x);if(!live.length&&!free){if(u.manual||x.fireNow?.command)x.fireNow=false;continue;}
   const actual=superweaponDischarge(u,i,swEnergyTT(w));x.st='cool';x.t=C.over.T;x.c=0;x.fireNow=false;swOverload(u,w);
@@ -68324,7 +68324,7 @@ const heatPowerText=w=>!Number.isFinite(w)?'—':w===0?'0 W':w.toExponential(2).
 // Power each kind draws at a load preset, from the same distribution rules the battles use (powerSplit).
 // g: {P, fixed, De, Ds, Dw}; sw: [{k, Pshare, n, E, chargeT}] (superweapons charging at 'combat'/'max').
 function heatLoads(g,pr,sw=[]){
- const X=HEAT_PRESETS[pr]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],P0=Math.max(0,g.P||0),swDraw=sw.map(w=>X.sw?SW_COMBAT[w.k].share*(w.Pshare||0)*P0/Math.max(1,w.n||1):0),swk=swDraw.reduce((a,b)=>a+b,0);
+ const X=HEAT_PRESETS[pr]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],P0=Math.max(0,g.P||0),swDraw=sw.map(w=>{if(!X.sw)return 0;const share=SW_COMBAT[w.k].share*(w.Pshare||0)*P0/Math.max(1,w.n||1);/* never more than the weapon actually draws (a superlaser charges for 24 hours: physics review 2026-11-15) */return w.chargeW>0?Math.min(share,w.chargeW):share;}),swk=swDraw.reduce((a,b)=>a+b,0);
  const P=Math.max(0,P0-swk),want={engines:Math.max(0,g.De||0)*X.eng,shields:(g.Ds||0)*X.sh,weapons:(g.Dw||0)*M.weapons*X.wpn},got=powerSplit(P,g.fixed||0,want,X.mode);
  const shot=sw.map(w=>!g.strict&&X.sw&&w.chargeT>0&&Number.isFinite(w.chargeT)?HEAT.swShot*(w.E||0)*TT/(w.chargeT+SW_COMBAT[w.k].over.T):0);
  return {P,draw:got.draw,weapon:got.weapons,shield:got.shields,engine:got.engines,fixed:Math.min(g.fixed||0,got.draw),sw:swDraw,swShot:shot,want};
@@ -68367,7 +68367,7 @@ function heatNetwork(ship,S){
  const hullOwner=primaryHullPart(ship),mid=hullOwner?hullWorldPoint(hullOwner,[hullOwner.hullProfile.L/2,0,0]):[(X0+X1)/2,0,0],src=[],dis=[],links=[],transmission=engineTransmission(ship);
  // v25 dissipators inside a functional wing radiate through its skin; an S-foil's stowed state masks them (WING)
  const WM=wingMap(ship),foils=ship.parts.filter(isFoil);
- const sws=(S.superweapons||[]).filter(w=>w.ok),swIn=sws.map(w=>({k:w.k,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),n:sws.filter(x=>x.reactor===w.reactor).length,E:w.k==='hion'?w.Emax:w.E,chargeT:w.chargeT}));
+ const sws=(S.superweapons||[]).filter(w=>w.ok),swIn=sws.map(w=>({k:w.k,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),n:sws.filter(x=>x.reactor===w.reactor).length,E:w.k==='hion'?w.Emax:w.E,chargeT:w.chargeT,chargeW:w.chargeW}));
  // S.draw.hotel carries the converters' own input once the statistics are complete; the presets below
  // charge that input from the heat each preset actually converts, so it is taken out of the fixed load here.
  const g={P:S.power||0,fixed:Math.max(0,(S.draw?.hotel||0)+(S.draw?.ray||0)-Math.max(0,S.dissipatorPower||0)),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict};
@@ -68854,11 +68854,11 @@ function heatRunThrottle(u,h,H,madeJ,dt){
  h.runPrev={k,rate};h.runK=next;
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
-function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT,null,'superweapon-shot');}
+function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):swShipShotTT(w))*TT,null,'superweapon-shot');}
 // The hold is the AI's own caution: a pilot, and an explicit order to fire (x.fireNow.command, the fleet's 発射
 // order), are not held (tests/superweapon-firing-heat.cjs).
 function heatSwHold(u,w,x){if(!HEAT.swInterlock||u.manual||x?.fireNow?.command)return false;const h=heatOf(u);if(!h?.online)return true;
- if(u.p.energyModel?.version!==1)return h.qJ+HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT>=h.capacityJ;
+ if(u.p.energyModel?.version!==1)return h.qJ+HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):swShipShotTT(w))*TT>=h.capacityJ;
  // The firing loss arrives over the release time; what the converters cannot take in that time must fit in the store.
  const T=swFireReleaseS(w.k),sw=u.p.sw||[],i0=sw.indexOf(w);let fireW=0;sw.forEach((v,i)=>{const x=u.sw?.[i];if(i===i0||x?.st==='beam'||x?.st==='ready'&&v.k===w.k)fireW+=swFireHeat(v,true).W;else if(x?.fireHeatJ>0)fireW+=Math.max(0,x.fireHeatW||0);});
  const spareW=Math.max(0,swRatedRejectionW(u)-Math.max(0,h.madeBaseW||0));return h.qJ+Math.max(0,fireW-spareW)*T>=h.capacityJ;}
