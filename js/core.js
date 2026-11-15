@@ -61774,7 +61774,9 @@ function deathStarBuild(){
  // sphere): the cutting sphere's radius follows from the rim's chord and the bowl's depth below that chord.
  const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),rimAt=R*Math.cos(DS.dishRim*rad),floorAt=R-DS.dishDepth,sag=rimAt-floorAt,rho=(a*a+sag*sag)/(2*sag);
  const at=(k,off=[0,0,0])=>[C0[0]+ax[0]*k+off[0],C0[1]+ax[1]*k+off[1],C0[2]+off[2]];
- s.solidCuts.push({id:s.nextId++,shape:'sphere',c:at(floorAt+rho),s:[2*rho,2*rho,2*rho],rotation:[0,0,0],mirror:false,structures:true});
+ // The hemisphere is cut 1.2 km deeper than the dish: the weapon's own bowl (below) is the measured dish surface,
+ // and a cut is drawn as a coarse polyhedron that would otherwise show through it.
+ s.solidCuts.push({id:s.nextId++,shape:'sphere',c:at(floorAt+rho-1200),s:[2*rho,2*rho,2*rho],rotation:[0,0,0],mirror:false,structures:true});
  // Meridian trenches (the user's addition, wide enough for a fighter): standing rings through the poles.
  for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[2*R,2*R,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:true});
  // The reactor core at the centre.
@@ -61782,10 +61784,14 @@ function deathStarBuild(){
  // The superlaser is one weapon from the core to the lens (user decision 2026-11-15「レンズの皿の部分、中心に繋がる構造物も
  // 含めて武装扱い」; the user's cutaway drawing): the shaft from the core, the amplifier, the cone that opens to the
  // lens, and the lens itself, which is the floor of the dish. Rows: distance from the centre along the dish axis, radius.
- const lensR=R*Math.sin(6*rad)*1.9,rows=[[8200,2400],[30000,2400],[33000,6200],[45000,6200],[48000,3400],[55000,3400],[floorAt-5200,lensR],[floorAt-300,lensR]];
- const mesh=dsRevolve(C0,ax,rows),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),centre=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
+ // The dish is the visible face of the weapon (user decision 2026-11-15「皿をスーパーレーザーの部品として外見に出る部分に」): the
+ // body ends in a bowl on the measured dish surface (rim 21 degrees from the axis, floor 11.1 km down), from the
+ // rim in to the lens at the centre.
+ const bowl=r=>floorAt+rho-Math.sqrt(rho*rho-r*r),rows=[[8200,2400],[30000,2400],[33000,6200],[45000,6200],[48000,3400],[55000,3400],[rimAt-9000,a*.99],[bowl(a*.99)-400,a*.99]];
+ for(const f of [.99,.9,.8,.68,.55,.42,.3,.2,.1,.03])rows.push([bowl(a*f),a*f]);
+ const mesh=dsRevolve(C0,ax,rows,32),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),centre=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
  for(const q of mesh.v)for(let c=0;c<3;c++)q[c]=(q[c]-centre[c])/size[[0,2,1][c]];
- part('slaser','53 ZT スーパーレーザー',centre,2*lensR,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(R+8000)[c]-centre[c])/* the focus of the lens, 8 km outside the sphere on the dish axis: the beam starts there */});
+ part('slaser','53 ZT スーパーレーザー',centre,SUPERWEAPONS.slaser.d,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(R+8000)[c]-centre[c])/* the focus of the lens, 8 km outside the sphere on the dish axis: the beam starts there */});
  // Engines and docks in the equatorial trench: ion drives round the far side, docking bays round the near side.
  const eq=(deg,r)=>[C0[0]+r*Math.cos(deg*rad),C0[1],C0[2]+r*Math.sin(deg*rad)];
  for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,floor-300),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
@@ -66010,7 +66016,7 @@ const SUPERWEAPONS={
 GROUPS.superweapon='超兵器';
 addComp('sbeam','超重合成ビーム・ターボレーザー','cyl',.7,[236,96,66],'weapons','オナガー級の主砲。一門あたり125 PTを10秒間のビームとして砲軸上へ直進照射します。照準補正はなく、船体を旋回して狙います。左右の艦首腕部は砲身・合成機関でほぼ占有されます。接続された反応炉から充電します。',{def:SUPERWEAPONS.sbeam.d,min:SUPERWEAPONS.sbeam.d,max:SUPERWEAPONS.sbeam.d,ratio:SUPERWEAPONS.sbeam.length/SUPERWEAPONS.sbeam.d,crit:true,hp:.8,crew:.3,fixed:true});
 addComp('hion','ハイパーイオン砲','cyl',.6,[146,120,255],'weapons','サブジュゲイター級の舷側砲。拡大する円盤状パルスを放ち、距離と投影面積に応じた有限のエネルギーを複数艦へ分配します。シールドを漏出した分が接続された電力網へ作用し、十分な過負荷では主炉・補助炉を含む共通系統を保護遮断します。性能係数はゲーム用の仮定です。',{def:SUPERWEAPONS.hion.d,min:SUPERWEAPONS.hion.d,max:SUPERWEAPONS.hion.d,ratio:SUPERWEAPONS.hion.length/SUPERWEAPONS.hion.d,crit:true,hp:.8,crew:.3,fixed:true});
-addComp('slaser','スーパーレーザー','cyl',.7,[120,230,120],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
+addComp('slaser','スーパーレーザー','cyl',.7,[92,98,104],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
 // The concentrated thermal exhaust port (user request 2026-11-15「スーパーレーザーは自動的集中排熱口が配置される仕組みにして子午線
 // トレンチに出現させて」): a heat converter sized for the superlaser's firing loss, put by the superlaser itself under
 // the floor of a meridian trench (a standing torus cut through the hull's centre), or under the hull's skin when
