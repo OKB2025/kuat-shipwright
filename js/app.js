@@ -5780,7 +5780,7 @@ function patrolSave() { LS.set('yard.patrol1', JSON.stringify(patrolOpt)); }
 const PATROL_ESCORTS = 4;
 // v22 The patrol's system is picked on the 任務マップ; below the map: the escorts, then the flagship (which starts it).
 function titlePatrolBody() {
-  const ex = Object.values(YardFleetData?.designs || {}), sides = [...new Set(ex.map(d => d.side))];
+  const ex = Object.values(YardFleetData?.designs || {}).filter(d => !C.exampleFleetHidden(d.key)), sides = [...new Set(ex.map(d => d.side))];
   if (!SYSTEMS[patrolOpt.sys] || patrolOpt.sys === 'rts') patrolOpt.sys = 'kuat';patrolOpt.escorts = patrolOpt.escorts.filter(k => YardFleetData?.designs?.[k]);
   const esc1 = patrolOpt.escorts, count = k => esc1.filter(x => x === k).length, actual=ship?actualShipDimensions():null;
   return `<h3>随伴艦（AI）<small class="tp-count">${esc1.length} / ${PATROL_ESCORTS} 隻</small></h3><p class="note">旗艦の後方で隊形を組んで続き、ハイパースペースにも同行し、旗艦が狙う目標に援護射撃します。タップで追加、もう一度で外します（同じ艦を複数も可：右上の＋）。</p>
@@ -10537,6 +10537,7 @@ async function fleetAssetLoad(source,opts={}){
 // The figures of an asset first prepared for its model only (the engine has the design built, in memory or on disk).
 async function fleetAssetStats(a){if(a.stats&&!a.p?.catalogOnly)return a;if(!a.payload){if(a.p?.catalogOnly)throw new Error('catalogue-only fleet profile');return a;}const r=await YardEngineClient.request('fleet',{...a.payload,lite:false,statsOnly:true});if(r.profile?.catalogOnly||a.p?.catalogOnly&&!r.profile)throw new Error('catalogue-only fleet profile');a.stats=r.stats;a.p=r.profile||a.p;return a;}
 async function fleetAdd(source=fleet.source,team=fleet.team){
+ if(C.exampleFleetHidden(source)){toast('この作例はまだ艦隊に編成できません');return;}
  if(fleet.busy||!fleetCanRefit())return;if(fleetUnits().length>=C.FLEET_RULES.maxShips){toast('一度に並べられるのは12隻までです');return;}
  fleet.busy=true;fleetRender();await new Promise(r=>setTimeout(r,25));
  try{const a=await fleetAsset(source),u=C.fleetUnit('fleet-'+fleet.next++,a.key,a.p,fleet.mode==='review'?0:team);fleetUnits().push(u);fleet.selected=u.id;fleetArrange();fleetFit();}catch(e){console.error(e);toast('艦を追加できません：'+esc(e.message));}finally{fleet.busy=false;fleetRender();requestDraw();}
@@ -10572,7 +10573,7 @@ function fleetPowerHTML(u,editable){const o=u.order,combat=fleet.battle.combat,a
  return `<div class="fleet-power"><h5>給電優先順</h5><p class="note keep">シールド・艦内設備 → 兵装 → 航行</p><p class="note">シールド再生と兵装の使用・充電に応じて、推進へ回る電力が減ります。</p><p class="note" data-fleet-heat>${storedHeatText(C.heatStatus(u))}</p><button type="button" class="chip" data-fleet-pd-auto aria-pressed="${autoPD}" ${editable?'':'disabled'}>${autoPD?'自動迎撃 ON':'自動迎撃 OFF'}</button>
  <label class="fleet-aim">照準<select data-fleet-aim ${editable&&combat?'':'disabled'} aria-label="攻撃で狙う部位">${Object.entries(C.AIM_KINDS).map(([k,n])=>`<option value="${k}" ${(o.aim||'auto')===k?'selected':''}>${n}</option>`).join('')}</select></label><p class="note">部位を狙うと命中率が2割落ち、シールドを抜いた弾がその部位に当たりやすくなります。炉の誘爆は相手の炉心負荷しだいです。</p>
  <h5>射撃</h5><div class="chips">${Object.entries(C.VOLLEY.name).map(([k,n])=>`<button type="button" class="chip" data-fleet-volley="${k}" aria-pressed="${C.volleyMode(u)===k}" ${editable&&combat?'':'disabled'}>${n}</button>`).join('')}</div><p class="note">${C.volleyMode(u)==='salvo'?'斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、待つぶん発射数はわずかに減り、合間は敵が射撃を受けません。':'連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。'}</p></div>`;}
-function fleetOptions(){return `<option value="current">現在の設計</option><optgroup label="作例">${Object.entries(C.DESIGNS).map(([k,d])=>`<option value="${k}" ${fleet.source===k?'selected':''}>${esc(d.name)}</option>`).join('')}</optgroup>${fleet.saves.length?`<optgroup label="保存艦">${fleet.saves.map(r=>`<option value="save:${esc(r.id)}" ${fleet.source==='save:'+r.id?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup>`:''}`;}
+function fleetOptions(){return `<option value="current">現在の設計</option><optgroup label="作例">${Object.entries(C.DESIGNS).filter(([k])=>!C.exampleFleetHidden(k)).map(([k,d])=>`<option value="${k}" ${fleet.source===k?'selected':''}>${esc(d.name)}</option>`).join('')}</optgroup>${fleet.saves.length?`<optgroup label="保存艦">${fleet.saves.map(r=>`<option value="save:${esc(r.id)}" ${fleet.source==='save:'+r.id?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup>`:''}`;}
 function fleetRoster(){return `<div class="fleet-roster">${fleetDisplay().map(u=>`<button type="button" data-fleet-select="${u.id}" class="fleet-unit ${u.team?'enemy':''} ${fleet.selected===u.id?'selected':''} ${u.dead?'destroyed':''} ${u.out?'disabled':''}" aria-pressed="${u.id===fleet.selected}"><span class="fleet-side">${fleet.mode==='review'?'◆':u.team?'敵':u===fleetFlag()?'旗':'友'}</span><span><b>${esc(u.name)}</b><small>${fleet.mode==='review'?fLen(u.p.len)+' / '+u.p.power.toFixed(3)+' ISD':u.dead||u.out?fleetStatusText(u):u.team?'敵艦 · AI指揮':u===fleetFlag()?'旗艦 · 自ら操艦':'僚艦 · 出力 '+fleetPowerName(u)}</small><span class="fleet-bars"><i style="width:${Math.max(0,u.hp/u.p.hp*100)}%"></i></span></span>${fleet.mode!=='review'?`<em>${Math.round(u.hp/u.p.hp*100)}%</em>`:''}</button>`).join('')||'<p class="note">艦を追加してください。</p>'}</div>`;}
 function fleetControlsHTML(){
  const review=fleet.mode==='review',b=fleet.battle,u=fleetSelected(),editable=fleetEditable()&&u&&!u.dead&&!u.out&&(review||u.team===0),lock=!fleetCanRefit(),busy=fleet.busy;
@@ -11773,7 +11774,7 @@ const voy = {open: false, screen: null, setup: null, w: null, speed: 1, last: 0,
 // prepared by the engine (the same request also builds their 3D models).
 function voyExampleDesigns() {
  const out = [];
- for (const d of Object.values(YardFleetData?.designs || {})) out.push({key: d.key, name: d.name, faction: d.faction || R.SIDE_OF[d.side] || 'empire', side: d.side, cls: d.cls, p: C.emptyDesignProfile(C.referenceSpeedProfile(d.p,d.key)), info: d.info, model: d.model, loadPreset: {air:d.air||[],ground:d.ground||[]}, src: 'example'});
+ for (const d of Object.values(YardFleetData?.designs || {})) if (!C.exampleFleetHidden(d.key)) out.push({key: d.key, name: d.name, faction: d.faction || R.SIDE_OF[d.side] || 'empire', side: d.side, cls: d.cls, p: C.emptyDesignProfile(C.referenceSpeedProfile(d.p,d.key)), info: d.info, model: d.model, loadPreset: {air:d.air||[],ground:d.ground||[]}, src: 'example'});
  return out.sort((a, b) => (a.faction > b.faction) - (a.faction < b.faction) || b.info.len - a.info.len);
 }
 function voyDesign(key) { const d = voy.designs.get(key);if (d) return d;const m = /^([A-Za-z0-9_]+)#(republic|neutral|dark|cis)$/.exec(key || '');if (!m) return null;const b = voy.designs.get(m[1]);return b ? voyRegister({...b, key, base: b.key, paint: m[2], faction: Object.entries(VOY_PAINT[b.key] || {}).find(([, p]) => p === m[2])?.[0] || b.faction}) : null; }

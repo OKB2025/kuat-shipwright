@@ -135,6 +135,9 @@
     "sha256": "ada93fe5e8e1319d7f3ed93d00f2a67fe4c45f8f48bff23574526bcb24fe0792",
     "jsonSha256": "c875d4930eae5b72882bb292e9f57b639d461e38f46291875f76dd1c729e9aa8",
     "blueprintSha256": "92a42c5b073e86832c5c26a38fa8240d8cf67aac788db7594da5edccde40c336"
+   },
+   "combat": {
+    "sha256": "66b8a015ce5d5366dfe764f4081dd6842ad6e68ffe6fd60a546b36ab8c24b359"
    }
   },
   "destroyer": {
