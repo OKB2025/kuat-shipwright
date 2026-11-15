@@ -25,6 +25,14 @@ section('function trialIntercept(','// The enemy a fixed battery');
 section('const TRIAL_PD=','// Small craft and missiles a pilot');
 section('function trialShotGeometry(','// Missiles leave');
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+// 2026-11-15, user decisions (rewritten with this record; the tests below stated the old rule, in which a
+// dual-purpose gun fired at ships and switched to interception only while a threat was near):
+//  - automatic interception ON: point defence, dual-purpose included, is kept for craft, missiles and torpedoes and
+//    never joins the fire on ships, threat or no threat (fleetDefense reserves the shared battery while ON);
+//  - automatic interception OFF: it fires on ships in its reach like any gun, and does not intercept by itself;
+//  - rapid fire shoots one barrel at a time from the whole mount (a volley fires every barrel at once).
+// Old expectations replaced: 3 (ship fire with ON and no threat), 4 (both barrels in one interception shot),
+// 5, 6, 8, 10-14 (ship fire restored when the threat leaves while ON). Each case now checks ON and OFF.
 
 test('only explicitly designated point defence automatically intercepts, independently of yield or tracking capability',()=>{
  assert.deepEqual(plain(C.weaponRoles({tt:5,aa:6,dualPurpose:true})),{pointDefense:false,dualPurpose:false,purePointDefense:false});
@@ -41,10 +49,11 @@ test('disabling automatic interception preserves deliberate fire for pure and du
  }
 });
 
-test('the real small dual-purpose gun fires at ships and switches to automatic missile/craft interception',()=>{
+test('the real small dual-purpose gun intercepts missiles and craft while automatic interception is ON, and fires at ships only while it is OFF',()=>{
  assert.equal(C.FITS.pd.dualPurpose,true,'the installed PD fitting must declare its new role');
  for(const kind of ['missile','craft']){
-  run('reset();trialGunnery(.01)');assert.ok(run('trial.gun.shots')>0);assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.bolts.every(b=>!b.pd&&b.tt>0)'));
+  run('reset();trialGunnery(.01)');assert.equal(run('trial.gun.shots'),0,'ON, no threat: no fire on ships');assert.equal(run('trial.turrets[0].pd'),true);
+  run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trialGunnery(.01)');assert.ok(run('trial.gun.shots')>0,'OFF: fires on ships');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.bolts.every(b=>!b.pd&&b.tt>0)'));
   cx.kind=kind;run('reset();trial.fire=false;threat(kind);trialGunnery(.01)');assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.turrets[0].pd'),true);assert.ok(run('trial.gun.pd')>0);assert.ok(run('trial.bolts.every(b=>b.pd&&b.target.kind===kind)'));
   run('for(let i=0;i<30;i++)trialGunnery(.01)');assert.equal(run('downs'),1,'the actual interception bolt must destroy its target');
  }
@@ -52,22 +61,23 @@ test('the real small dual-purpose gun fires at ships and switches to automatic m
 
 test('a newly arrived missile takes priority over a farther craft without resetting the battery',()=>{
  run('reset();var craft=threat(\"craft\",[2000,0,0]);trialGunnery(.01);var cycleBefore=trial.turrets[0].reload;var missile=threat(\"missile\",[2000,0,0]);trialGunnery(.01)');
- assert.equal(run('trial.turrets[0].pdTarget===missile'),true);assert.ok(run('trial.turrets[0].reload<cycleBefore'));assert.equal(run('trial.gun.pd'),run('trial.turrets[0].barrels'));
+ assert.equal(run('trial.turrets[0].pdTarget===missile'),true);assert.ok(run('trial.turrets[0].reload<cycleBefore'));assert.equal(run('trial.gun.pd'),1,'rapid fire: one barrel a shot');
 });
 
-test('switching target roles shares one reload and one energy debit, then returns to ship fire',()=>{
- run('reset();trialGunnery(.01);var firstEnergy=trial.energy.E,firstShots=trial.gun.shots;threat();trialGunnery(.01)');
+test('switching automatic interception ON shares one reload and one energy debit; switching it OFF returns the gun to ship fire',()=>{
+ run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trialGunnery(.01);var firstEnergy=trial.energy.E,firstShots=trial.gun.shots;C.setAutomaticPointDefense(trial.systemsUnit,true);threat();trialGunnery(.01)');
  assert.equal(run('trial.turrets[0].pd'),true);assert.equal(run('trial.gun.pd||0'),0,'switching modes cannot reset the barrel reload');near(run('trial.energy.E'),run('firstEnergy'));
  run('for(let i=0;i<22;i++)trialGunnery(.01);var pdShots=trial.gun.pd||0,pdEnergy=trial.energy.E;trial.foeMissiles=[];trialGunnery(.01)');
- assert.ok(run('pdShots')>0);assert.equal(run('trial.turrets[0].pd'),false);assert.equal(run('trial.gun.shots'),run('firstShots'));near(run('trial.energy.E'),run('pdEnergy'));
- run('for(let i=0;i<22;i++)trialGunnery(.01)');assert.ok(run('trial.gun.shots>firstShots'));
+ assert.ok(run('pdShots')>0);assert.equal(run('trial.turrets[0].pd'),true,'still ON: kept for interception with no threat');assert.equal(run('trial.gun.shots'),run('firstShots'));near(run('trial.energy.E'),run('pdEnergy'));
+ run('C.setAutomaticPointDefense(trial.systemsUnit,false);for(let i=0;i<22;i++)trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots>firstShots'));
  const volleys=run('(trial.gun.shots+(trial.gun.pd||0))/trial.turrets[0].barrels'),cost=run('trial.turrets[0].power*trial.turrets[0].cycle*trial.turrets[0].costK/TT_J');near(1000-run('trial.energy.E'),volleys*cost);
 });
 
-test('pure point defence stays automatic-only and unreachable threats do not divert dual-purpose guns',()=>{
+test('pure point defence stays automatic-only; a dual-purpose gun is kept for interception while ON even with no reachable threat, and fires on ships while OFF',()=>{
  run('reset("testPurePd");trialGunnery(.01)');assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);assert.equal(run('trial.turrets[0].pd'),true);
  run('threat();trialGunnery(.01)');assert.ok(run('trial.gun.pd')>0);
- for(const pos of [[7000,0,0],[0,-1000,0]]){cx.pos=pos;run('reset();threat("missile",pos);trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots')>0);}
+ for(const pos of [[7000,0,0],[0,-1000,0]]){cx.pos=pos;run('reset();threat("missile",pos);trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),true);assert.equal(run('trial.gun.shots'),0);
+  run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);threat("missile",pos);trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots')>0);}
 });
 
 test('generated fleet profiles retain the dual-purpose rating and current revision through empty-complement sanitizing',()=>{
@@ -82,7 +92,8 @@ function fleetProfile(){const p=plain(D.cr90.p);Object.assign(p,{profileVersion:
 test('fleet role reservation removes only the shared battery while preserving other ship guns',()=>{
  const p=fleetProfile(),u=C.fleetUnit('own','own',p,0),target={pos:[3000,0,0]},missile={side:1,n:8,pos:[1000,0,0]};u.pos=[0,0,0];u.yaw=0;u.side=0;
  near(C.fleetFire(u,target,3000).gun,30);near(R.pdToward(u,missile.pos,true),0);near(R.pdToward(u,missile.pos),6);assert.equal(C.fleetDefense(u,[missile]),true);near(C.fleetFire(u,target,3000).gun,5);near(R.pdToward(u,missile.pos,true),6);
- assert.equal(C.fleetDefense(u,[{...missile,side:0}]),false);near(C.fleetFire(u,target,3000).gun,30);
+ assert.equal(C.fleetDefense(u,[{...missile,side:0}]),false,'no hostile threat');near(C.fleetFire(u,target,3000).gun,5,'still reserved while ON');
+ C.setAutomaticPointDefense(u,false);assert.equal(C.fleetDefense(u,[missile]),false);near(C.fleetFire(u,target,3000).gun,30,'OFF: the shared battery fires on ships');C.setAutomaticPointDefense(u,true);
  assert.equal(C.fleetDefense(u,[{...missile,pos:[7000,0,0]}]),false);assert.equal(C.fleetDefense(u,[{...missile,n:0}]),false);
  u.p.dualPurpose.aaArcs=[6,0,0,0,0,0];assert.equal(C.fleetDefense(u,[{...missile,pos:[-1000,0,0]}]),false);
 });
@@ -94,13 +105,15 @@ test('surface runtime does not spend a reserved dual-purpose bank as ship fire',
  u.dualDefense=false;near(C.surfaceFleetFire(u,t,3000).gun,30);
 });
 
-test('real RTS missile interception reserves the battery for the step and ship fire resumes afterward',()=>{
+test('real RTS missile interception: the battery is reserved while ON and returns to ship fire when switched OFF',()=>{
  const p=fleetProfile(),w=R.createWorld({region:'kuat',seed:13,sensors:false,designs:[{key:'own',name:'Own',p,info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:plain(p),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]}),[u,e]=[...w.units.values()],sys=u.sys;
  for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}
  for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[12000,0,0],yaw:x===u?0:Math.PI,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;
  w.missiles.push({id:'incoming',sys,side:1,from:e.id,target:u.id,n:8,pos:[4500,0,0],vel:[-220,0,0],s:220,life:45});
  R.tick(w,.25);assert.equal(u.dualDefense,true);assert.ok(w.missiles[0].n<8,'aggregate AA still intercepts the missile');assert.ok(u.lastShot?.gun>0,'the independent ship battery remains active');const defended=u.lastShot.gun;
- w.missiles=[];R.tick(w,.25);assert.equal(u.dualDefense,false);assert.ok(u.lastShot?.gun>defended*4,'the shared gun resumes its anti-ship output');
+ // (ON with no threat is checked on the tactical clock below: in this RTS fixture the local battle closes once nobody
+ // fires, so a step without a threat records no shot to compare.)
+ C.setAutomaticPointDefense(u,false);R.tick(w,.25);assert.equal(u.dualDefense,false);assert.ok(u.lastShot?.gun>defended*4,`OFF: the shared gun joins the anti-ship fire (${u.lastShot?.gun} against ${defended})`);
 });
 
 
@@ -116,26 +129,30 @@ function tacticalFixture(){
 }
 const tacticalStep=f=>C.fleetTick(f.b,.25,{collide:false}),gunFrom=(shots,id)=>shots.filter(s=>s.from===id).reduce((n,s)=>n+(s.gun||0),0);
 
-test('the real tactical fleet clock assigns the battery to missile defence and restores ship fire afterward',()=>{
+test('the real tactical fleet clock keeps the battery for missile defence while ON and gives it to ship fire when OFF',()=>{
  const f=tacticalFixture();f.e.p.msl=80;f.e.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},{k:'launcher',fit:2,port:'f2',domain:'main',name:'One finite ship missile cell',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]}];f.e.mods=[1,1];f.e.ammo=[0,6];f.e.p.grid.fixed=1e15;f.e.p.grid.fixedLoads=[{id:'f2',port:'f2',domain:'main',weight:1e15}];
  const shots=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(shots,f.u.id),0,'interception cannot reuse these barrels for ship fire');
  const missile=shots.find(s=>s.from===f.e.id);assert.equal(f.e.ammo[1],5,'one real missile leaves the finite six-round cell');assert.equal(missile?.launches?.length,1);assert.equal(missile.launches[0].n,1);assert.equal(missile.launches[0].tt,25);assert.ok(missile.msl>0&&missile.msl<25,'reserved AA reduces the one-shot 25 TT physical missile energy');
- f.e.p.msl=0;f.e.ammo[1]=0;f.e.mods[1]=0;const resumed=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(resumed,f.u.id)>0,'the battery returns to anti-ship fire without a threat');
+ f.e.p.msl=0;f.e.ammo[1]=0;f.e.mods[1]=0;const after=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(after,f.u.id),0,'still ON with no threat');
+ C.setAutomaticPointDefense(f.u,false);const resumed=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(resumed,f.u.id)>0,'OFF: the battery fires on ships');
 });
 
-test('the real tactical fleet clock assigns the battery to aircraft defence and restores ship fire afterward',()=>{
+test('the real tactical fleet clock keeps the battery for aircraft defence while ON and gives it to ship fire when OFF',()=>{
  const f=tacticalFixture();f.e.air=8;
  const shots=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(shots,f.u.id),0);assert.ok(f.e.air<8,'reserved AA must cause actual aircraft attrition');
- f.e.air=0;const resumed=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(resumed,f.u.id)>0);
+ f.e.air=0;const after=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(after,f.u.id),0);
+ C.setAutomaticPointDefense(f.u,false);const resumed=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(resumed,f.u.id)>0);
 });
 
-test('aircraft arriving after tactical role selection cannot reuse a ship-firing battery for AA in that step',()=>{
+test('a ship-firing battery (OFF) never intercepts arriving aircraft; ON it is reserved from the first step and intercepts them',()=>{
+ const off=tacticalFixture();C.setAutomaticPointDefense(off.u,false);off.e.queue=[[0,8]];
+ for(let i=0;i<2;i++){const shots=tacticalStep(off);assert.equal(off.u.dualDefense,false);assert.ok(gunFrom(shots,off.u.id)>0);}assert.equal(off.u.ht.online,true);
  const f=tacticalFixture();f.e.queue=[[0,8]];
- const shots=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(shots,f.u.id)>0);near(f.e.air,8);assert.equal(f.u.ht.online,true,'the synthetic battery remains physically able to defend on the next step');
+ const first=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(first,f.u.id),0);
  const defended=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(defended,f.u.id),0);assert.ok(f.e.air<8);
 });
 
-test('tactical reservation ignores ceased fire and empty magazines while independent AA remains active',()=>{
+test('the shared battery is reserved while ON whatever the threat (independent AA still pays); OFF it fires on ships past ceased fire and empty magazines',()=>{
  const f=tacticalFixture();
  // Back the independent AA rating with an actual typed, connected PD output
  // and finite reactor/capacitor budget rather than adding a free AA statistic.
@@ -143,8 +160,9 @@ test('tactical reservation ignores ceased fire and empty magazines while indepen
  f.u.p.modules=[{k:'reactor',part:90,port:'p90',domain:'main',size:1,share:1},{k:'weapon',fit:91,port:'f91',domain:'main',size:1,share:.5,pd:true,dualPurpose:true,weaponPowerW:25*C.TT,powerConnected:true},{k:'weapon',fit:92,port:'f92',domain:'main',size:1,share:.5,pd:true,dualPurpose:false,weaponPowerW:C.FITS.testPurePd.power,powerConnected:true}];f.u.mods=[1,1,1];
  f.u.p.grid.domains=[{id:'main',P,sources:[{moduleIndex:0,P}],modules:[0,1,2]}];f.u.p.grid.powerPaths=[{from:'p90',to:'f91',cap:P,ok:true},{from:'p90',to:'f92',cap:P,ok:true}];
  f.u.p.aa=8;f.u.p.aaArcs=Array(6).fill(8);f.e.queue=[[0,8]];
- tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(f.e.air<8,'the two independent AA points retain their existing role');assert.ok(f.u.pointDefenseLastFire?.spentTT>0,'independent interception pays from its real stored weapon energy');
+ tacticalStep(f);assert.equal(f.u.dualDefense,true,'ON: reserved');assert.ok(f.e.air<8,'the two independent AA points retain their existing role');assert.ok(f.u.pointDefenseLastFire?.spentTT>0,'independent interception pays from its real stored weapon energy');
  f.e.air=0;f.e.p.msl=80;f.e.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},{k:'launcher',fit:2,port:'f2',domain:'main',name:'Finite missile cell',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]}];f.e.mods=[1,1];f.e.ammo=[0,0];f.e.p.grid.fixed=1e15;f.e.p.grid.fixedLoads=[{id:'f2',port:'f2',domain:'main',weight:1e15}];
- const empty=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(empty,f.u.id)>0);
+ const reserved=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(reserved,f.u.id),0,'ON with an empty enemy magazine: still no ship fire from the shared battery');
+ C.setAutomaticPointDefense(f.u,false);const empty=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(empty,f.u.id)>0);
  f.e.ammo[1]=6;f.e.order.fire=false;const ceased=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(ceased,f.u.id)>0);
 });
