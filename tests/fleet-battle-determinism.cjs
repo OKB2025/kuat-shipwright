@@ -15,6 +15,11 @@
 // through that field only: with KS_DETERMINISM_ALLOW_FLOAT=1 every digest number, shot, event count and random state
 // of all 96 ticks equals the previous recording within 1e-12, and the full states dumped at ticks 3 and 50 on main
 // (b1bc4a8) and on the branch differ in nothing but the four added ht.madeBaseW keys (no value differs).
+// Re-recorded again on 2026-11-15 for the battle changes the user decided (PR #111), each found by running this test
+// at every commit against the previous recording: a penetrating shot kills crew in the compartment it enters
+// (first difference tick 4, unit 0 crew 183 against 186.96); the gun spread halved (tick 0, shield, more hits);
+// point defence ON intercepts only and never fires on ships (tick 0, heading). The later commits (balanced heat
+// running, rapid fire one barrel at a time, the superweapon fixes) change nothing further in this scenario.
 // Re-recorded on c473505 + regenerated examples (2026-11-14, user decisions: one kind of structure, empty bays, denser machinery,
 // carried load added to the ship's mass in battle). The ships in this battle changed mass and plant, so every tick
 // differs from the 734081a recording from tick 0. Two recordings in a row gave the same file
