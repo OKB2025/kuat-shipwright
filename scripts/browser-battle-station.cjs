@@ -1,0 +1,26 @@
+// Browser check: new design -> バトルステーション -> 球形 -> start. usage: node browser-station.cjs <root> <outdir>
+const fs=require('fs'),path=require('path'),http=require('http'),assert=require('assert/strict');
+const root=path.resolve(process.argv[2]),out=path.resolve(process.argv[3]);fs.mkdirSync(out,{recursive:true});
+const result={status:'RUNNING',errors:[],steps:[]},save=()=>fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(result,null,1)),note=(s,d)=>{console.log(s,d?JSON.stringify(d).slice(0,400):'');result.steps.push({s,d});save();};
+const server=http.createServer((req,res)=>{const pathname=decodeURIComponent(new URL(req.url,'http://local').pathname),file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404).end();return;}res.writeHead(200,{'content-type':{'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.woff2':'font/woff2'}[path.extname(file)]||'application/octet-stream','cache-control':'no-cache'});fs.createReadStream(file).pipe(res);});
+let browser;(async()=>{try{await new Promise(r=>server.listen(0,'127.0.0.1',r));const {chromium}=require('playwright');browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
+ const page=await (await browser.newContext({viewport:{width:1300,height:900},locale:'ja-JP'})).newPage();page.setDefaultTimeout(180000);page.on('pageerror',e=>result.errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!/ERR_TUNNEL_CONNECTION_FAILED/.test(m.text()))result.errors.push('console: '+m.text().slice(0,300));});
+ await page.addInitScript(()=>{localStorage.clear();localStorage.setItem('yard.language','ja');});
+ await page.goto('http://127.0.0.1:'+server.address().port+'/?splash',{waitUntil:'domcontentloaded'});await page.locator('#splash.ready .splash-start').waitFor();await page.evaluate(()=>document.querySelector('#splash .splash-start').click());await page.waitForFunction(()=>window.__yard?.eng.ready);
+ await page.locator('.tbig[data-title-mode="sandbox"]').click();await page.locator('.tbig[data-title-mode="design"]').click();await page.locator('[data-title="new"]').click();
+ const card=page.locator('[data-title-class="station"]');await card.waitFor();note('station card',{text:(await card.innerText()).replace(/\s+/g,' ')});assert.match(await card.innerText(),/上限なし/);
+ await card.click();await page.locator('[data-title-hull="sphere"]').click();
+ const dims=()=>page.evaluate(()=>[...document.querySelectorAll('[data-sl]')].filter(e=>e.type==='range').map(e=>({k:e.dataset.sl,v:+e.value,max:+e.max})));
+ note('default station dims',await dims());await page.screenshot({path:path.join(out,'1-new-station.png')});
+ // type 900 km: beyond the first gauge range; set to the gauge maximum first, the range then grows
+ const setL=async v=>{const i=page.locator('input[type="number"][data-sl="tL"], input[data-sl="tL"]:not([type="range"])').first();if(await i.count()){await i.fill(String(v));await i.dispatchEvent('change');}else{await page.evaluate(v=>{const e=document.querySelector('[data-sl="tL"]');e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));},v);}};
+ await setL(640000);const d1=await dims();note('after asking 640 km',d1);await setL(900000);const d2=await dims();note('after asking 900 km',d2);assert.ok(d2.find(x=>x.k==='tL').v>=900000-1,'the length can be raised past the first gauge range');
+ await setL(160000);await page.locator('[data-title-start]').click();
+ await page.waitForFunction(()=>{const Y=window.__yard;return Y.ship&&Y.stats&&Y.eng.gen>0&&Y.eng.statsGen>=Y.eng.gen&&Y.eng.geoGen>=Y.eng.gen&&!Y.eng.uploading&&document.querySelector('#title')?.hidden;},null,{timeout:600000});
+ const st=await page.evaluate(()=>{const Y=window.__yard,s=Y.ship,S=Y.stats;return {cls:s.shipClass,hull:{L:s.hull.L,W:s.hull.W,H:s.hull.H,plan:s.hull.plan,sec:s.hull.sec},envelope:Y.C.designEnvelope(s),parts:s.parts.map(p=>({k:p.k,s:p.s})).slice(0,3),mass:S.mass,clsName:S.cls?.name,mode:Y.eng.mode,warnings:(S.warnings||[]).map(w=>w.text.slice(0,60))};});
+ note('station design',st);assert.equal(st.cls,'station');assert.equal(st.clsName,'バトルステーション');assert.ok(st.envelope.L>=160000-1,'envelope not clamped to the ship limit');assert.ok(st.parts[0]?.s?.[0]>=160000-1||st.hull.L>=160000-1,'hull 160 km');
+ await page.waitForTimeout(1500);await page.screenshot({path:path.join(out,'2-station-editor.png')});
+ // save and reload keeps the size
+ const rt=await page.evaluate(()=>{const Y=window.__yard,d=JSON.parse(JSON.stringify(Y.C.serialize(Y.ship))),b=Y.C.deserialize(d);return {cls:b.shipClass,L:b.hull.L,part:b.parts[0]?.s,env:Y.C.designEnvelope(b)};});note('serialize round trip',rt);assert.equal(rt.cls,'station');assert.ok((rt.part?.[0]||rt.L)>=160000-1);
+ assert.deepEqual(result.errors,[]);result.status='PASS';
+}catch(e){result.status='FAIL';result.errors.push(String(e&&e.stack||e).slice(0,1500));}finally{save();await browser?.close();server.close();console.log(result.status,result.errors.slice(0,2).join(' | ').slice(0,700));process.exit(0);}})();

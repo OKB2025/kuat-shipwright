@@ -3885,7 +3885,7 @@ function scaleContents(fx, fy, fz, mode = 'scale') {
   for (const s of ship.subs) { const cx = (s.b[0] + s.b[3]) / 2, cy = (s.b[1] + s.b[4]) / 2, cz = (s.b[2] + s.b[5]) / 2, hx = (s.b[3] - s.b[0]) / 2, hy = (s.b[4] - s.b[1]) / 2, hz = (s.b[5] - s.b[2]) / 2; s.b = [cx * fx - hx, cy * fy - hy, cz * fz - hz, cx * fx + hx, cy * fy + hy, cz * fz + hz]; }
 }
 function setHullDims(L, W, H) {
-  const hp = hullEditorProfile(), part=hullEditorPart(),lim = C.DESIGN_LIMITS;
+  const hp = hullEditorProfile(), part=hullEditorPart(),lim = C.designLimitsFor(ship);
   C.designEnvelope(ship);
   const cr = C.isCraft(ship), r = v => v;
   L = C.clamp(r(L), cr ? 1.5 : 60, lim.length); W = C.clamp(r(W), cr ? .5 : 20, lim.width); H = C.clamp(r(H), cr ? .3 : 10, lim.height);
@@ -3900,13 +3900,15 @@ function syncHullInputs(except) {
   for (const k of ['L', 'W', 'H']) { for (const q of $$(`#panel [data-sl="${k}"]`)) if (q !== except) q.value = hp[k]; const o = $('#out-' + k); if (o) o.textContent = fLen(hp[k]) + (k === 'L' ? '' : ` · 船体長比 ${(hp[k] / hp.L * 100).toFixed(1)}%`); }
 }
 function hullDimsHTML() {
-  const hp = hullEditorProfile(),part=hullEditorPart(),lim = C.DESIGN_LIMITS, plan = C.designEnvelope(ship), actual = actualShipDimensions(), cls = C.shipClassFor(actual[0],ship.shipClass);
+  const hp = hullEditorProfile(),part=hullEditorPart(),lim0 = C.designLimitsFor(ship), plan = C.designEnvelope(ship), actual = actualShipDimensions(), cls = C.shipClassFor(actual[0],ship.shipClass);
   if(part)return `<div class="pgroup blueprint-card hull-dims"><h4>船体構造物</h4><p class="note">最初の船体も配置済みの構造物です。位置・大きさ・回転はほかの構造物と同じ操作で変更できます。内部区画はそれぞれの位置を保ちます。</p><dl class="engineering-stats"><div data-design-envelope><dt>完成艦の予定寸法</dt><dd>${[plan.L,plan.W,plan.H].map(fLen).join(' × ')}</dd></div><div data-actual-dimensions><dt>現在の全長×全幅×全高</dt><dd>${actual.map(fLen).join(' × ')}</dd></div></dl></div>`;
+  // A station's gauges reach four times the present size and grow with it (no upper limit).
+  const lim = cls.station ? {length: Math.max(400000, hp.L * 4), width: Math.max(400000, hp.L * 4, hp.W * 4), height: Math.max(400000, hp.L * 4, hp.H * 4)} : lim0;
   const cr = !!cls.craft, lo = Math.min(hp.L,cr ? 1.5 : 60), hi = lim.length;
   const wMax = lim.width, hMax = lim.height;
   const nudge = (k) => `<div class="nudges" role="group" aria-label="${{L: '船体長', W: '船体幅', H: '船体高'}[k]}の微調整">${(cr ? [-1, -.1, .1, 1] : [-10, -1, 1, 10]).map(d => `<button type="button" class="chip" data-nudge="${k}" data-step="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)} m</button>`).join('')}</div>`;
   return `<div class="pgroup blueprint-card hull-dims"><h4>艦種と船体寸法</h4>
-    <label class="field-label">艦種（全長の範囲）<select data-shipclass>${shipClassList(cls.id).map(c => `<option value="${c.id}" ${c.id === cls.id ? 'selected' : ''}>${esc(c.name)} · ${fLen(c.min)}〜${fLen(c.max)}</option>`).join('')}</select></label>
+    <label class="field-label">艦種（全長の範囲）<select data-shipclass>${shipClassList(cls.id).map(c => `<option value="${c.id}" ${c.id === cls.id ? 'selected' : ''}>${esc(c.name)} · ${classRange(c)}</option>`).join('')}</select></label>
     <p class="note">${esc(cls.note)}</p>
     <dl class="engineering-stats"><div data-design-envelope><dt>完成艦の予定寸法</dt><dd>${[plan.L,plan.W,plan.H].map(fLen).join(' × ')}</dd></div><div data-actual-dimensions><dt>現在の全長×全幅×全高</dt><dd>${actual.map(fLen).join(' × ')}</dd></div></dl>
     <p class="note">予定寸法は設計開始時の目安と配置範囲です。船体を縮めても保持し、実際の艦の寸法は構造物・装備を含む外形から計算します。</p>
@@ -5736,6 +5738,8 @@ function renderTitle() {
 // v21 Starfighters and small craft: the craft classes, the twelve measured craft examples, carrying a designed
 // craft in a carrier's air wing and the trial camera at their scale are all in, so the lists offer them.
 const CRAFT_OPEN = true;
+// A battle station has no upper size limit.
+const classRange = c => fLen(c.min) + '〜' + (Number.isFinite(c.max) ? fLen(c.max) : '上限なし');
 const shipClassList = cur => C.SHIP_CLASSES.filter(c => CRAFT_OPEN || !c.craft || c.id === cur);
 const titleCraft = () => !!C.SHIP_CLASSES.find(c => c.id === titleState.cls)?.craft;
 const titleRound = v => Math.max(.1, Math.round(v * 1000) / 1000);
@@ -5743,9 +5747,9 @@ function titleHullDims(P, L) { return {L, W: titleRound(L * P.W / P.L), H: title
 function titleNewHTML() {
   const t = titleState, cls = C.SHIP_CLASSES.find(c => c.id === t.cls) || C.SHIP_CLASSES.find(c => c.id === 'destroyer');
   return `<div class="tpanel-head"><h2>新規設計</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
-  <h3>1 · 艦種</h3><div class="tclass">${shipClassList(t.cls).map(c => `<button type="button" class="tcard" data-title-class="${c.id}" aria-pressed="${c.id === t.cls}"><b>${esc(c.name)}</b><span>${fLen(c.min)}〜${fLen(c.max)}</span><small>${esc(c.note)}</small></button>`).join('')}</div>
+  <h3>1 · 艦種</h3><div class="tclass">${shipClassList(t.cls).map(c => `<button type="button" class="tcard" data-title-class="${c.id}" aria-pressed="${c.id === t.cls}"><b>${esc(c.name)}</b><span>${classRange(c)}</span><small>${esc(c.note)}</small></button>`).join('')}</div>
   <h3>2 · 船体の型</h3><div class="hulls">${Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-title-hull="${k}" aria-pressed="${k === t.hull}">${silhouette(v)}<span>${v.name}</span></button>`).join('')}</div>
-  <h3>3 · 完成艦の予定寸法</h3><div class="sliders">${(() => { const cr = !!cls.craft; return metreSlider('tL', '予定全長', t.L, cls.min, cls.max, fLen(t.L)) + metreSlider('tW', '予定全幅', t.W, cr ? .5 : 20, Math.min(C.DESIGN_LIMITS.width, Math.max(cr ? 4 : 60, Math.round(t.L * 1.2))), fLen(t.W)) + metreSlider('tH', '予定全高', t.H, cr ? .3 : 10, Math.min(C.DESIGN_LIMITS.height, Math.max(cr ? 3 : 40, Math.round(t.L * .6))), fLen(t.H)); })()}</div>
+  <h3>3 · 完成艦の予定寸法</h3><div class="sliders">${(() => { const cr = !!cls.craft, stn = !!cls.station, lim = C.designLimitsFor(cls.id); /* a station's gauges reach four times the present size and grow with it: there is no upper limit */ return metreSlider('tL', '予定全長', t.L, cls.min, stn ? Math.max(400000, t.L * 4) : cls.max, fLen(t.L)) + metreSlider('tW', '予定全幅', t.W, cr ? .5 : 20, stn ? Math.max(400000, t.L * 4, t.W * 4) : Math.min(lim.width, Math.max(cr ? 4 : 60, Math.round(t.L * 1.2))), fLen(t.W)) + metreSlider('tH', '予定全高', t.H, cr ? .3 : 10, stn ? Math.max(400000, t.L * 4, t.H * 4) : Math.min(lim.height, Math.max(cr ? 3 : 40, Math.round(t.L * .6))), fLen(t.H)); })()}</div>
   <p class="note">構造物・装備を含む完成艦のおおよその寸法です。この寸法の船体から始め、「船体」タブで船体だけを縮められます。予定寸法と配置範囲は保持し、現在の全長・全幅・全高は組み上がった外形から計算します。小数で入力でき、ゲージでは0.01 mずつ調整できます。</p>
   <label class="field-label">艦名<input type="text" data-title-name value="${esc(t.name)}" maxlength="40"></label>
   <button type="button" class="btn primary tgo" data-title-start>この船体で設計を始める</button>`;
@@ -5792,7 +5796,7 @@ async function renderTitleSaves() {
 }
 function titleStartNew() {
   const t = titleState, P = C.HULLS[t.hull] || C.HULLS.wedge;
-  const s = C.newShip(Object.assign({}, P, {L: t.L, W: t.W, H: t.H}), (t.name || '新設計艦').slice(0, 40));
+  const s = C.newShip(Object.assign({}, P, {L: t.L, W: t.W, H: t.H}), (t.name || '新設計艦').slice(0, 40), t.cls);
   s.hullLocked = false; s.shipClass = t.cls;
   if (C.SHIP_CLASSES.find(c => c.id === t.cls)?.craft) s.armor = {hull: .01, cit: 0};
   C.ensurePrimaryHull?.(s,{newDesign:true});

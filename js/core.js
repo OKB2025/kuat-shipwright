@@ -16,7 +16,13 @@ const Core = (() => {
 const {Math,Number,Object,Array,JSON,Map,Set,WeakMap,Float32Array,Float64Array,Int32Array,Uint8Array,Uint16Array,Uint32Array,Int8Array,ArrayBuffer,String}=globalThis,Infinity=globalThis.Infinity;
 const TT = 4.184e21, G0 = 9.80665, ISD_W = 1.0e25;
 // Shared editor / persistence limits, including 19 km dreadnoughts.
-const DESIGN_LIMITS=Object.freeze({length:30000,width:10000,height:5000,coordinate:60000,partSize:30000,diameter:3000,engineDiameter:1600,engineLength:10000,parts:1400,fits:2400});
+// A battle station has no size limit (user request 2026-11-15「サイズ上限無制限の『バトルステーション』」). DESIGN_LIMITS holds
+// what any design may contain (its sizes only keep values finite); SHIP_LIMITS holds the sizes a ship's hull and
+// structures are kept to (what DESIGN_LIMITS was before). designLimitsFor gives the set for a design's class.
+const SHIP_SIZE_LIMITS=Object.freeze({length:30000,width:10000,height:5000,coordinate:60000,partSize:30000,diameter:3000});
+const DESIGN_LIMITS=Object.freeze({length:1e9,width:1e9,height:1e9,coordinate:2e9,partSize:1e9,diameter:1e9,engineDiameter:1600,engineLength:10000,parts:1400,fits:2400});
+const SHIP_LIMITS=Object.freeze({...DESIGN_LIMITS,...SHIP_SIZE_LIMITS});
+const designLimitsFor=s=>(typeof s==='string'?s:s?.shipClass)==='station'?DESIGN_LIMITS:SHIP_LIMITS;
 // One output density for every reactor, derived from the physical volume of
 // the standard Imperial main reactor and its three auxiliary reactors.
 const ISD_PLANT = Object.freeze({main:151, backup:48, auxiliary:36, auxiliaryCount:2});
@@ -50761,6 +50767,7 @@ const HULLS = {
   cyl: {name: '円筒形', plan: 'cigar', sec: 'ellipse', L: 600, W: 170, H: 170, bowW: 0.2, bowH: 1, stern: 1},
   disc: {name: '円盤形', plan: 'ellipse', sec: 'diamond', L: 630, W: 630, H: 126, bowW: 1, bowH: 1, stern: 1},
   lance: {name: '槍形', plan: 'wedge', sec: 'diamond', L: 970, W: 230, H: 130, bowW: 0.15, bowH: 0.6, stern: 1},
+  sphere: {name: '球形', plan: 'ellipse', sec: 'ellipse', L: 400, W: 400, H: 400, bowW: 1, bowH: 1, stern: 1},
 };
 const SECTIONS = {rect: '矩形', trap: '台形', roof: '屋根形', diamond: '菱形', ellipse: '楕円'};
 // Hull-size classes. The ranges set the length control of a new or edited hull;
@@ -50779,12 +50786,15 @@ const SHIP_CLASSES = Object.freeze([
   {id: 'destroyer', name: 'デストロイヤー', min: 900, max: 2200, def: 1600, note: 'ヴェネター級 1,137 m・インペリアル級 1,600 m'},
   {id: 'battlecruiser', name: 'バトルクルーザー', min: 2000, max: 5000, def: 3000, note: 'アリージャンス級 2,200 m'},
   {id: 'dreadnought', name: 'ドレッドノート', min: 5000, max: 30000, def: 8000, note: 'エグゼクター級 19,000 m'},
+  // No upper limit. Only a design that asks for it is a station: a length never makes a ship one by itself.
+  {id: 'station', name: 'バトルステーション', min: 1000, max: Infinity, def: 160000, station: true, note: 'サイズ上限なし。デス・スター 160 km・第2デス・スター 200 km'},
 ]);
 function shipClassFor(L, prefer) {
   const keep = SHIP_CLASSES.find(c => c.id === prefer);
   if (keep && L >= keep.min && L <= keep.max) return keep;
-  for (let i = SHIP_CLASSES.length - 1; i >= 0; i--) { const c = SHIP_CLASSES[i]; if (L >= c.min && L <= c.max) return c; }
-  return L < SHIP_CLASSES[0].min ? SHIP_CLASSES[0] : SHIP_CLASSES[SHIP_CLASSES.length - 1];
+  const ships = SHIP_CLASSES.filter(c => !c.station);
+  for (let i = ships.length - 1; i >= 0; i--) { const c = ships[i]; if (L >= c.min && L <= c.max) return c; }
+  return L < ships[0].min ? ships[0] : ships[ships.length - 1];
 }
 // v21 A design is a craft when its class (kept, or the one its length falls in) is a craft class.
 function shipClassOf(ship){const h=ship?.hull||{},geometric=Number.isFinite(h.W)&&Number.isFinite(h.H),b=geometric?shipBounds(ship,{simple:true}):null,L=(b&&b[3]-b[0])||h.L||0;return shipClassFor(L,ship?.shipClass);}
@@ -50820,9 +50830,9 @@ function normalizeBow(h){
 }
 
 // ---------- ship ----------
-function newShip(hp, name) {
-  const hull=normalizeBow(Object.assign({},HULLS.wedge,hp||{}));
-  return {v: 2, name: name || '新設計艦', hull, designEnvelope:normalizeDesignEnvelope(hull,hull),
+function newShip(hp, name, shipClass) {
+  const hull=normalizeBow(Object.assign({},HULLS.wedge,hp||{})),cls=SHIP_CLASSES.some(c=>c.id===shipClass)?shipClass:null;
+  return {v: 2, name: name || '新設計艦', hull, ...(cls?{shipClass:cls}:{}), designEnvelope:normalizeDesignEnvelope(hull,hull,cls),
     hullLocked:false,autoHabitation:true,systemsVersion:1,cuts: [], trenches: [], solidCuts: [], subs: [], parts: [], hatches: [], fits: [], airWings: [], groundForces: [], armor: {hull: 0.5, cit: 0}, nextId: 1, _cache: null};
 }
 const nid = (ship) => ship.nextId++;
@@ -50861,8 +50871,8 @@ function hullStructureShip(ship,p=primaryHullPart(ship)){
 function syncHullStructure(ship,p=primaryHullPart(ship),fromProfile=true){
  if(!isHullStructure(p))return null;
  const h=p.hullProfile;
- if(fromProfile)p.s=['L','W','H'].map(k=>clamp(Number(h[k])||1,.02,DESIGN_LIMITS.partSize));
- else{const before=['L','W','H'].map(k=>Number(h[k]));for(const [i,k] of ['L','W','H'].entries())h[k]=clamp(Number(p.s[i])||1,.02,DESIGN_LIMITS.partSize);
+ if(fromProfile)p.s=['L','W','H'].map(k=>clamp(Number(h[k])||1,.02,designLimitsFor(ship).partSize));
+ else{const before=['L','W','H'].map(k=>Number(h[k]));for(const [i,k] of ['L','W','H'].entries())h[k]=clamp(Number(p.s[i])||1,.02,designLimitsFor(ship).partSize);
   // v24 A resized hull part carries its own cuts with it (docs/hull-part-scaling-v24.md).
   if(before.every(v=>Number.isFinite(v)&&v>0))scaleHullStructureCuts(ship,p,[h.L/before[0],h.H/before[2],h.W/before[1]]);}
  h.assembly=false;
@@ -50909,13 +50919,13 @@ function scaleHullStructureCuts(ship,p,F){
 // v24 A resize carries the part's own bevels and trenches with it (scaleHullStructureCuts); refuse a size at which
 // one of them would leave the range the loader keeps (a reload would otherwise clamp it and change the shape).
 function hullStructureResizeError(ship,p,size){
- if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const h=p.hullProfile,s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize)),F=[s[0]/h.L,s[2]/h.H,s[1]/h.W];
+ if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const h=p.hullProfile,s=size.map(v=>clamp(Number(v)||1,.02,designLimitsFor(ship).partSize)),F=[s[0]/h.L,s[2]/h.H,s[1]/h.W];
  if(!F.every(v=>Number.isFinite(v)&&v>0))return null;const inside=(v,f,lo,hi)=>!Number.isFinite(v)||v*f>=lo-1e-9&&v*f<=hi+1e-9;
  for(const c of p.hullData?.cuts||[])if(c.type!=='planTrapezoid'&&(!inside(c.inset,F[2],0,1000)||!inside(c.slope,F[1],1,1000)))return '縁の面取りの寸法が保存できる範囲（幅 0〜1000 m・高さ 1〜1000 m）を外れます';
- for(const t of p.hullData?.trenches||[])if(!inside(t.height,F[1],.1,500)||!inside(t.depth,F[2],.1,800))return 'トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます';
+ for(const t of p.hullData?.trenches||[])if(!inside(t.height,F[1],.1,ship?.shipClass==='station'?1e7:500)||!inside(t.depth,F[2],.1,ship?.shipClass==='station'?1e7:800))return 'トレンチの寸法が保存できる範囲（高さ 0.1〜500 m・深さ 0.1〜800 m）を外れます';
  return null;
 }
-function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const error=hullStructureResizeError(ship,p,size);if(error)throw new Error(error);p.s=size.map(v=>clamp(Number(v)||1,.02,DESIGN_LIMITS.partSize));return syncHullStructure(ship,p,false);}
+function setHullStructureDimensions(ship,p,size){if(!isHullStructure(p)||!Array.isArray(size)||size.length!==3)return null;const error=hullStructureResizeError(ship,p,size);if(error)throw new Error(error);p.s=size.map(v=>clamp(Number(v)||1,.02,designLimitsFor(ship).partSize));return syncHullStructure(ship,p,false);}
 // A new design's hull: the preset's plan sampled into editable stations. The plan's own curve is kept (a cigar,
 // disc or arrow is not a straight taper between its two ends) and the pointed tips keep the smallest section an
 // owned hull profile accepts (0.02, as a wedge's bow already gets); stations that linear interpolation of their
@@ -50988,11 +50998,11 @@ function hullMaterialGeometry(ship,base=hullGeo(ship)){
 
 // The planned completed size is a persistent coordinate guide, independent
 // of the editable first hull and of the ship's measured physical dimensions.
-function normalizeDesignEnvelope(value,hull={}){
- const limits={L:DESIGN_LIMITS.length,W:DESIGN_LIMITS.width,H:DESIGN_LIMITS.height};
+function normalizeDesignEnvelope(value,hull={},shipClass=null){
+ const lim=designLimitsFor(shipClass),limits={L:lim.length,W:lim.width,H:lim.height};
  return Object.fromEntries(['L','W','H'].map(k=>[k,clamp(Number.isFinite(value?.[k])&&value[k]>0?value[k]:Number.isFinite(hull[k])&&hull[k]>0?hull[k]:1,.02,limits[k])]));
 }
-function designEnvelope(ship){return normalizeDesignEnvelope(ship?.designEnvelope,ship?.hull);}
+function designEnvelope(ship){return normalizeDesignEnvelope(ship?.designEnvelope,ship?.hull,ship?.shipClass);}
 function designPlacementBounds(ship){const{L,W,H}=designEnvelope(ship);return[-L*.1,-H*.8,-W*.75,L*1.1,H*3.5,W*.75];}
 
 // World-space bounds of actual installed geometry. Classification uses only
@@ -52347,7 +52357,7 @@ function baseComputeStats(ship,options={}) {
     // Present only when some reactor is excluded, so the figures of an ordinary ship are unchanged.
     ...(occupied.some(p=>invalid.has(p.id)&&isReactor(p))?{invalidReactorIds:occupied.filter(p=>invalid.has(p.id)&&isReactor(p)).map(p=>p.id)}:{}),
   };
-  S.cls = classify(S);
+  S.cls = classify(S); if (ship?.shipClass === 'station') S.cls = {...S.cls, name: 'バトルステーション', station: true}; /* a station is one by its design class, whatever it mounts */
   S.warnings = warnings(S);
   return S;
 }
@@ -52606,7 +52616,7 @@ const DESIGN_FACTIONS={any:'全陣営',empire:'銀河帝国',republic:'銀河共
 const GROUPS = {support:'機能区画',craft:'操縦・搭乗（小型艇）',power:'動力・推進',air:'航空・輸送',command:'指揮設備',appearance:'外観',shape:'構造'};
 // Compact placement sizes (min, max, default, metres). Every hull can use the full catalogue.
 const CRAFT_PART_SIZE={astromech:[.5,1.6,.9],droidbrain:[.34,.34,.34],troopbay:[.8,40,3],gen:[.25,8,1.2],engine:[.15,10,1],shield:[.15,6,.7],hyper:[.15,6,.8],fuel:[.1,6,.6],pump:[.05,4,.3],battery:[.1,4,.5],inertial:[.1,4,.5],integrity:[.1,4,.5],repulsor:[.1,6,.5],sensor:[.1,3,.4],scanner:[.1,3,.3],cargo:[.3,30,2],hangar:[2,80,8],struct:[.02,100,2]};
-function partLimits(ship,k){const d=PARTS[k]||{},c=CRAFT_PART_SIZE[k];if(c&&(d.group==='craft'||isCraft(ship)))return {min:c[0],max:c[1],def:c[2]};return {min:Math.min(d.min??8,c?.[0]??.1),max:d.max??240,def:d.def??40};}
+function partLimits(ship,k){const d=PARTS[k]||{},c=CRAFT_PART_SIZE[k];if(c&&(d.group==='craft'||isCraft(ship)))return {min:c[0],max:c[1],def:c[2]};/* a battle station's machinery has no size limit either */return {min:Math.min(d.min??8,c?.[0]??.1),max:ship?.shipClass==='station'?1e7:d.max??240,def:d.def??40};}
 const craftPart=k=>Object.hasOwn(CRAFT_PART_SIZE,k);
 Object.assign(PARTS.gen,{name:'主反応炉',group:'power',desc:'主動力源。ノズルを置くと、その間の推進機関を自動生成します。'});
 Object.assign(PARTS.engine,{name:'ノズル',group:'power',ratio:0.32,desc:'内部機関に接続する露出型ノズル。外見・向き・口径を調整できます。'});
@@ -53299,11 +53309,11 @@ function v3Serialize(ship){
 }
 function v3Deserialize(o){
   if(!o||o.format!=='starship-yard'||![2,3].includes(o.v))throw new Error('航宙艦設計局 v2/v3 の設計図を選んでください');
-  const number=(n,lo,hi,def)=>Number.isFinite(n)?clamp(n,lo,hi):def;
-  const vec=(x,def=[0,0,0])=>Array.isArray(x)&&x.length===3?x.map((n,i)=>number(n,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate,def[i])):def.slice();
+  const number=(n,lo,hi,def)=>Number.isFinite(n)?clamp(n,lo,hi):def,LIM=designLimitsFor(o.shipClass);
+  const vec=(x,def=[0,0,0])=>Array.isArray(x)&&x.length===3?x.map((n,i)=>number(n,-LIM.coordinate,LIM.coordinate,def[i])):def.slice();
   const s=newShip({},String(o.name||'読み込んだ設計').slice(0,60)),h=o.hull||{};s._propulsionRoutingDeferred=true;
-  s.hull={plan:['wedge','arrow','rect','cigar','ellipse'].includes(h.plan)?h.plan:'wedge',sec:Object.hasOwn(SECTIONS,h.sec)?h.sec:'rect',L:number(h.L,1.5,DESIGN_LIMITS.length,1100),W:number(h.W,.5,DESIGN_LIMITS.width,540),H:number(h.H,.3,DESIGN_LIMITS.height,180),bowW:number(h.bowW,0,1,.02),bowH:number(h.bowH,.1,1,.5),stern:number(h.stern,.2,1,1)};
-  s.designEnvelope=normalizeDesignEnvelope(o.designEnvelope,s.hull);
+  s.hull={plan:['wedge','arrow','rect','cigar','ellipse'].includes(h.plan)?h.plan:'wedge',sec:Object.hasOwn(SECTIONS,h.sec)?h.sec:'rect',L:number(h.L,1.5,LIM.length,1100),W:number(h.W,.5,LIM.width,540),H:number(h.H,.3,LIM.height,180),bowW:number(h.bowW,0,1,.02),bowH:number(h.bowH,.1,1,.5),stern:number(h.stern,.2,1,1)};
+  s.designEnvelope=normalizeDesignEnvelope(o.designEnvelope,s.hull,o.shipClass);
   s.armor={hull:number(o.armor?.hull,0,3,.5),cit:number(o.armor?.cit,0,4,0)};s.shieldTarget=number(o.shieldTarget,.001,3,1);
   if(!Array.isArray(o.parts)||o.parts.length>DESIGN_LIMITS.parts||!Array.isArray(o.fits)||o.fits.length>DESIGN_LIMITS.fits)throw new Error('区画数または装備数が上限を超えています');
   const ids=new Set();let mx=0;
@@ -53314,12 +53324,12 @@ function v3Deserialize(o){
   const vehicleBays=o.parts.filter(p=>p?.k==='vehicle').length;if(vehicleBays)s.vehicleBays=vehicleBays;
   o={...o,parts:o.parts.map(p=>p?.k==='vehicle'?{...p,k:'hangar',airRole:'storage',label:p.label||'車両格納庫'}:p)};
   s.parts=o.parts.filter(p=>p&&Object.hasOwn(PARTS,p.k)&&!['machinery','capacitor','vls'].includes(p.k)).map(p=>{
-    const q={id:ident(p.id),k:p.k,c:vec(p.c)};if(isShapePart(p)){q.s=vec(p.s,[100,100,50]).map(v=>clamp(v,.02,DESIGN_LIMITS.partSize));q.taper=number(p.taper,0,.95,0);q.form=Object.hasOwn(STRUCT_SHAPES,p.form)?p.form:'trap';if(Array.isArray(p.angles))q.angles=[0,1,2,3].map(i=>number(p.angles[i],-60,70,0));q.yaw=number(p.yaw,-180,180,0);q.offsetX=number(p.offsetX,-2000,2000,0);q.offsetZ=number(p.offsetZ,-2000,2000,0);}else q.d=number(p.d,Math.min(.1,CRAFT_PART_SIZE[p.k]?.[0]??.1),DESIGN_LIMITS.diameter,PARTS[p.k].def||40);if(p.k==='cockpit'){q.seats=Math.round(number(p.seats,1,20,1));if(p.suit===true)q.suit=true;}
+    const q={id:ident(p.id),k:p.k,c:vec(p.c)};if(isShapePart(p)){q.s=vec(p.s,[100,100,50]).map(v=>clamp(v,.02,LIM.partSize));q.taper=number(p.taper,0,.95,0);q.form=Object.hasOwn(STRUCT_SHAPES,p.form)?p.form:'trap';if(Array.isArray(p.angles))q.angles=[0,1,2,3].map(i=>number(p.angles[i],-60,70,0));q.yaw=number(p.yaw,-180,180,0);q.offsetX=number(p.offsetX,-2000,2000,0);q.offsetZ=number(p.offsetZ,-2000,2000,0);}else q.d=number(p.d,Math.min(.1,CRAFT_PART_SIZE[p.k]?.[0]??.1),DESIGN_LIMITS.diameter,PARTS[p.k].def||40);if(p.k==='cockpit'){q.seats=Math.round(number(p.seats,1,20,1));if(p.suit===true)q.suit=true;}
     if(p.dir)q.dir=norm(vec(p.dir,[-1,0,0]));if(['engine','engineCore'].includes(p.k)){if(!q.dir)q.dir=[-1,0,0];if(o.v===2&&p.k==='engine')q.c[0]-=q.d*.64;if(Number.isInteger(p.reactor)&&p.reactor>=0)q.reactor=p.reactor;}if(Number.isInteger(p.tw))q.tw=p.tw;if(Number.isInteger(p.vt))q.vt=p.vt;return q;
   });
   s.fits=o.fits.filter(f=>f&&(Object.hasOwn(FITS,f.k)||Object.hasOwn(LEGACY_WINDOWS,f.k))).map(f=>{const legacy=LEGACY_WINDOWS[f.k],q={id:ident(f.id),k:legacy||f.k,p:vec(f.p),a:Math.floor(number(f.a,0,5,2)),ped:number(f.ped,0,500,0),base:0,low:0,slope:0};if(f.n)q.n=norm(vec(f.n,[1,0,0]));if(f.host)q.host=f.host;if(f.local)q.local=vec(f.local);if(f.localNormal)q.localNormal=vec(f.localNormal);if(legacy){q.width=clamp(Math.round(number(f.width,8,160,32)/2),6,60);q.height=Math.round(q.width*4)/10;q.legacyWindow=true;}else if(FITS[q.k].window){q.width=number(f.width,6,60,FITS[q.k].fm);q.height=number(f.height,3,30,FITS[q.k].wm);}else{if(f.width!=null)q.width=number(f.width,.01,DESIGN_LIMITS.partSize,FITS[q.k].fm);if(f.height!=null)q.height=number(f.height,.01,DESIGN_LIMITS.partSize,FITS[q.k].wm);}if(f.tw)q.tw=f.tw;if(Number.isInteger(f.vt))q.vt=f.vt;if(f.pedShape==='trap')q.pedShape='trap';if(Number.isFinite(f.pedSize))q.pedSize=number(f.pedSize,.4,3,1);return q;});
   s.cuts=(Array.isArray(o.cuts)?o.cuts:[]).slice(0,50).map(c=>c.type==='planTrapezoid'?normalizePlanCut({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',from:number(c.from,0,.96,.25),to:number(c.to,.03,1,.52),innerFrom:number(c.innerFrom,0,1,.38),innerTo:number(c.innerTo,0,1,.44),remainingWidth:number(c.remainingWidth,.03,.98,.493)}):({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',edge:['top','bottom','both'].includes(c.edge)?c.edge:'top',inset:number(c.inset,0,1000,20),slope:number(c.slope,1,1000,30),from:number(c.from,0,.99,0),to:number(c.to,.01,1,1),prop:!!c.prop}));
-  s.trenches=(Array.isArray(o.trenches)?o.trenches:[]).slice(0,30).map(c=>({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',from:number(c.from,0,.99,.1),to:number(c.to,.01,1,.9),level:number(c.level,.1,.9,.5),height:number(c.height,.1,500,14),depth:number(c.depth,.1,800,20),taper:c.mode==='split'?false:c.taper!==false,...(c.mode==='split'?{mode:'split'}:{}),...(c.chine===true&&c.mode!=='split'?{chine:true}:{}),...(c.armament?{armament:normalizeTrenchArmament(c.armament)}:{})}));
+  s.trenches=(Array.isArray(o.trenches)?o.trenches:[]).slice(0,30).map(c=>({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',from:number(c.from,0,.99,.1),to:number(c.to,.01,1,.9),level:number(c.level,.1,.9,.5),height:number(c.height,.1,o.shipClass==='station'?1e7:500,14),depth:number(c.depth,.1,o.shipClass==='station'?1e7:800,20),taper:c.mode==='split'?false:c.taper!==false,...(c.mode==='split'?{mode:'split'}:{}),...(c.chine===true&&c.mode!=='split'?{chine:true}:{}),...(c.armament?{armament:normalizeTrenchArmament(c.armament)}:{})}));
   if(o.solidCuts!=null&&(!Array.isArray(o.solidCuts)||o.solidCuts.length>32))throw new Error('立体切削は32箇所までです');
   s.solidCuts=(o.solidCuts||[]).map(c=>{if(!c||typeof c!=='object')throw new Error('立体切削の形式が不正です');return normalizeSolidCut({...c,id:ident(c.id)});});
   s.subs=(Array.isArray(o.subs)?o.subs:[]).slice(0,50).filter(q=>Array.isArray(q.b)&&q.b.length===6).map(q=>({id:ident(q.id),b:q.b.map(n=>number(n,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate,0)),...(q.structures?{structures:true}:{})}));
@@ -53330,7 +53340,7 @@ function v3Deserialize(o){
   if(o.systemsVersion===1||s.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))s.systemsVersion=1;else delete s.systemsVersion;
   s.nextId=mx+1;return s;
 }
-const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['imperial','imperial2','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar','imperial','imperial2','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
 // v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
 // a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
@@ -56500,10 +56510,10 @@ function weaponPreviewStats(value,options={}){
  const part=typeof value==='string'?{k:value}:value||{},strict=options.strict!==false;
  if(isSuperweapon(part)){
   const rule=SW_COMBAT[part.k],resolved=options.superweapon?.k===part.k?options.superweapon:null,
-   outputTT=part.k==='sbeam'?rule.E:Number.isFinite(resolved?.Emax)?Math.max(0,resolved.Emax):Number.isFinite(part.chargeCapacityTT)?clamp(part.chargeCapacityTT,.001,1e12):null,
+   outputTT=part.k==='sbeam'?rule.E:part.k==='slaser'?slaserEnergyTT(part.d):Number.isFinite(resolved?.Emax)?Math.max(0,resolved.Emax):Number.isFinite(part.chargeCapacityTT)?clamp(part.chargeCapacityTT,.001,1e12):null,
    maxPowerW=Number.isFinite(resolved?.chargeW)?Math.max(0,resolved.chargeW):null,
    eta=strict?clamp(resolved?.efficiency??part.conversionEfficiency??ENERGY_MODEL.superEta,.05,1):1;
-  return {kind:'superweapon',barrels:1,outputTT,traverseDegS:0,rangeM:part.k==='sbeam'?rule.range:outputTT==null?null:ionReach(outputTT,part.d||SUPERWEAPONS.hion.d),maxPowerW,
+  return {kind:'superweapon',barrels:1,outputTT,traverseDegS:0,rangeM:swBeamKind(part.k)?rule.range:outputTT==null?null:ionReach(outputTT,part.d||SUPERWEAPONS.hion.d),maxPowerW,
    maxHeatW:maxPowerW==null?null:strict?maxPowerW*(1-eta):heatWaste({draw:0,weapon:0,shield:0,engine:0,fixed:0,sw:[maxPowerW],swShot:[0]}).sw[0],heatBasis:'charging',variableReason:'reactor'};
  }
  const f=migrateWeaponFit({...part}),definition=FITS[f.k];if(!definition||definition.cat!=='w')return null;
@@ -56600,7 +56610,7 @@ function outfittingStats(ship,S){
  if(shortN||shortS)S.warnings.push({lv:'warn',code:'air-capacity',text:`格納庫に${shortN?` 機体 ${shortN.toLocaleString()} 機`:''}${shortN&&shortS?'・':''}${shortS?` 搭載艦 ${shortS} 隻`:''}が入りきりません（容量か配置の不足）。入力した編成は保持し、収まる数だけ搭載します。`});
  const stuck=A.wings.filter(w=>w.undeployable>0);
  if(stuck.length)S.warnings.push({lv:'info',code:'air-access',text:`${stuck.slice(0,3).map(w=>w.name).join('・')}${stuck.length>3?' ほか':''} の ${stuck.reduce((n,w)=>n+w.undeployable,0).toLocaleString()} 機（隻）は、通れる大きさのハッチにつながる格納区画に入らないため発艦できません。`});
- S.cls=classify(S);return S;
+ S.cls=classify(S);if(typeof ship!=='undefined'&&ship?.shipClass==='station')S.cls={...S.cls,name:'バトルステーション',station:true};return S;
 }
 function refitReferenceInterior(ship){
  const key=ship.reference;if(!['imperial','venator','acclamator'].includes(key))return;
@@ -59909,15 +59919,19 @@ function refitShipThermal(ship,key,options={}){
  if(!(1-margin*fixedWaste*HEAT.disPowerK.hdis>0))throw new Error(key+': 散逸設備の設計余裕が電力収支を超えています');
  const P=positive(options.powerW??options.P,ship.parts.filter(p=>isReactor(p)&&!S.info?.[p.id]?.overlap).reduce((n,p)=>n+ratedReactorPower(p),0)),density=REACTOR_POWER_DENSITY*HEAT.disK.hdis,existing=ship.parts.filter(p=>p.k==='hdis'),existingCapacity=existing.reduce((n,p)=>n+dissipatorCap(p,S),0);
  const feedBound=shipElectricalFeedHeatBound(ship,reactorFactor),engineSpecs=propulsionOwners(ship).map(p=>resolveEngineSpec(p,ship)).filter(e=>e.valid),engineRated=engineSpecs.reduce((n,e)=>n+e.ratedInputW,0);
- let requestedCapacityW=0,operatingPresets={};
+ let requestedCapacityW=0,operatingPresets={},fireShare=0;
  for(let iteration=0;iteration<24;iteration++){
   // Converter input follows the heat converted (user decision 2026-11-12): the peak load, not the rating.
-  const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0;
+  const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0,peakBase=0;
   for(const pr of HEAT_SIZING){
    const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
    const feedHeatW=load.engine>0?Math.min(feedBound.heatW,load.engine*feedBound.maxFraction/Math.max(1e-12,1-feedBound.maxFraction)):0,generatedW=waste.reactor+waste.engine+waste.weapon+waste.shield+waste.hotel+feedHeatW+(HEAT.waste.reactor+HEAT.waste.sw)*chargeW;
-   peak=Math.max(peak,generatedW);presets[pr]={mode:X.mode,generatedW,inputW:load.draw+chargeW,enginesW:load.engine,weaponsW:load.weapon,shieldsW:load.shield,fixedW:load.fixed,superweaponW:chargeW,feedHeatW,coolingReservationW:coolingInputW};
+   // A superweapon that fires gives up its firing loss while it burns or cools (it is not charging then): the
+   // converters are sized for whichever is larger (user decision 2026-11-15「発射の熱も排熱」).
+   const fireHeatW=X.sw?sw.reduce((n,w)=>n+swFireHeat(w).W,0):0,firingW=generatedW-(HEAT.waste.reactor+HEAT.waste.sw)*chargeW+fireHeatW;
+   peak=Math.max(peak,generatedW,firingW);peakBase=Math.max(peakBase,generatedW);presets[pr]={mode:X.mode,generatedW,firingW,fireHeatW,inputW:load.draw+chargeW,enginesW:load.engine,weaponsW:load.weapon,shieldsW:load.shield,fixedW:load.fixed,superweaponW:chargeW,feedHeatW,coolingReservationW:coolingInputW};
   }
+  fireShare=peak>0?Math.max(0,peak-peakBase)/peak:0;
   const next=margin*peak,converged=Math.abs(next-requestedCapacityW)<=Math.max(1,next*1e-9);requestedCapacityW=next;operatingPresets=presets;if(converged)break;
  }
  const deficit=Math.max(0,(requestedCapacityW-existingCapacity)/density),missingVolume=deficit>Math.max(.001,requestedCapacityW/density*1e-5)?deficit:0;
@@ -59929,14 +59943,17 @@ function refitShipThermal(ship,key,options={}){
   // machinery. Only its retained, disjoint physical volume earns capacity.
   if(missingVolume>1e-6){
    const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(missingVolume)/Math.max(2,Math.min(ship.hull.W||30,ship.hull.H||30)*.18)))),each=missingVolume/count;
-   for(let i=0;i<count;i++)made.push(shipThermalBank(ship,each,i));
+   // The banks that take a superweapon's firing loss stand beside the superweapon (the Onager's are in its forward
+   // half with the barrels: user decision 2026-11-15); the others stay by the reactors.
+   const swParts=ship.parts.filter(p=>p.k==='sbeam'||p.k==='hion'||p.k==='slaser'),swHave=existing.filter(p=>String(p.label||'').includes('超兵器発射熱')).reduce((n,p)=>n+dissipatorCap(p,S),0),fireMissing=Math.max(0,requestedCapacityW*fireShare-swHave),firstFire=swParts.length?count-Math.round(count*Math.min(1,fireMissing/Math.max(1e-30,missingVolume*density))):count;
+   for(let i=0;i<count;i++)made.push(shipThermalBank(ship,each,i,i>=firstFire?swParts[i%swParts.length].c:null));
    syncCompartments(ship);
    // A clipped bank can lose volume in a very thin or hollow measured hull.
    // Offer smaller additional banks rather than counting the nominal box.
    for(let pass=0;pass<2;pass++){
     const installed=ship.parts.filter(p=>p.k==='hdis').reduce((n,p)=>n+dissipatorCap(p,S),0),short=Math.max(0,(requestedCapacityW-installed)/density);
     if(short<=Math.max(.001,missingVolume*1e-6))break;
-    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length));
+    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length,swParts.length&&fireMissing>0&&fireShare>.5?swParts[i%swParts.length].c:null));
     syncCompartments(ship);
    }
   }
@@ -59964,7 +59981,7 @@ function refitShipThermal(ship,key,options={}){
  ship._shipThermalRefit={key,requestedCapacityW,capacityW,coolingPowerW:capacityW*HEAT.disPowerK.hdis,requestedVolumeM3:missingVolume+existing.reduce((n,p)=>n+partVolume(p),0),installedVolumeM3:banks.reduce((n,p)=>n+partVolume(p),0),addedParts:made.map(p=>p.id),margin,sourcePowerW:P,requestedInput:{engines:E,weapons:W,shields:Q,fixed:H,superweapons:SW},operatingPresets,envelope:{weaponFactor,shieldFactor,reactorFactor,electricalFeedLossBoundW:feedBound.heatW},capacityRatio:requestedCapacityW>0?capacityW/requestedCapacityW:1};
  return ship;
 }
-function shipThermalBank(ship,volume,index){
+function shipThermalBank(ship,volume,index,beside=null){
  const d=Math.cbrt(Math.max(.001,volume)),b=shipBounds(ship),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2),reactors=ship.parts.filter(isReactor),shapes=ship.parts.filter(isShapePart),anchors=[];
  const push=q=>{if(q.every(Number.isFinite)&&insideOriginalEnvelope(ship,q))anchors.push(q);};
  // Reactor-adjacent spaces first, followed by the measured solid components
@@ -59974,7 +59991,9 @@ function shipThermalBank(ship,volume,index){
  for(const p of shapes.slice().sort((a,c)=>partVolume(c)-partVolume(a)))push(p.c.slice());
  for(const x of [.15,.3,.45,.6,.75,.9])for(const y of [.3,.5,.7])for(const z of [.25,.5,.75])push([lerp(b[0],b[3],x),lerp(b[1],b[4],y),lerp(b[2],b[5],z)]);
  if(!anchors.length)throw new Error(ship.name+'：散逸装置の設置可能な船内容積がありません');
- const occupied=allOccupied(ship).map(p=>({p,b:partAABB(p)})),near=reactors.length?reactors[index%reactors.length].c:mid;
+ const occupied=allOccupied(ship).map(p=>({p,b:partAABB(p)})),near=beside||(reactors.length?reactors[index%reactors.length].c:mid);
+ if(beside&&ship._thermalBankSites?.length){anchors.length=0;for(const q of ship._thermalBankSites)push(q.slice());}
+ else if(beside)for(const along of [-.4,-.25,-.1,0,.1,.25,.4])for(const y of [0,-12,12,-24,24])for(const z of [-60,60,-100,100,-140,140,-30,30])push([beside[0]+along*(b[3]-b[0]),beside[1]+y,beside[2]+z]);
  anchors.sort((a,c)=>len(sub(a,near))-len(sub(c,near)));
  let center=null,room=null;
  outer:for(const aspect of [[1,1,1],[2,.7071067811865476,.7071067811865476],[3,.5773502691896258,.5773502691896258]]){
@@ -61571,11 +61590,17 @@ function onaWingSlice(p,z){
  const unique=[];for(const p of points)if(!unique.some(q=>Math.hypot(p[0]-q[0],p[1]-q[1])<1e-5))unique.push(p);if(unique.length<3)throw new Error('オナガー艦首砲の横翼断面が閉じていません');
  const center=unique.reduce((a,b)=>a.map((v,i)=>v+b[i]/unique.length),[0,0]);unique.sort((a,b)=>Math.atan2(a[1]-center[1],a[0]-center[0])-Math.atan2(b[1]-center[1],b[0]-center[0]));return unique;
 }
+const ONA_SYNTH_X0=674,SW_CONVERTER_LABEL='超兵器発射熱の変換区画';
+// Places for heat converters in the room the composite machinery gave up (x 640 to ONA_SYNTH_X0, both sides of the slot).
+function onaConverterSites(s){const sites=[];for(const x of [665,655,675])for(const sg of [-1,1]){const clipped=onaClipPoly(sectionBase(s.hull,x).poly,0,43.05,true),c=clipped.reduce((a,b)=>a.map((v,i)=>v+b[i]/clipped.length),[0,0]);for(const k of [.55,1,1.45,.3,1.8])sites.push([x,c[1],sg*c[0]*k]);}return sites;}
 function onaWeaponBody(s,sg){
  const mesh={v:[],f:[]},center=[927.3,64.9,sg*23.45],size=[1331.6,800,180];
  // Keep the measured visible barrel and muzzle in their original positions.
  onaAppendClosedLoft(mesh,[594.4,1260.2].map(x=>Array.from({length:48},(_,i)=>{const a=i/48*Math.PI*2;return [x,64.9+19.1*Math.sin(a),sg*(23.45+19.1*Math.cos(a))];})));
- const xs=[640,...ONA.st.map(r=>r[0]*1288).filter(x=>x>640&&x<1254),1254];for(let x=650;x<1254;x+=12)xs.push(x);for(let i=1;i<ONA.st.length;i++){const lo=ONA.st[i-1][0]*1288,hi=ONA.st[i][0]*1288;if(hi-lo<25)for(let x=Math.max(641,lo+1);x<Math.min(1254,hi);x+=1)xs.push(x);}xs.sort((a,b)=>a-b);
+ // User decision 2026-11-15: the composite machinery (the part of the weapon that fills the forward hull) is made
+ // smaller so that the heat converters for the firing loss stand in the forward half with it. It used to start at
+ // x 640; it now starts at ONA_SYNTH_X0 and the converters take the room between (onaConverterSites).
+ const X0=ONA_SYNTH_X0,xs=[X0,...ONA.st.map(r=>r[0]*1288).filter(x=>x>X0&&x<1254),1254];for(let x=X0+10;x<1254;x+=12)xs.push(x);for(let i=1;i<ONA.st.length;i++){const lo=ONA.st[i-1][0]*1288,hi=ONA.st[i][0]*1288;if(hi-lo<25)for(let x=Math.max(X0+1,lo+1);x<Math.min(1254,hi);x+=1)xs.push(x);}xs.sort((a,b)=>a-b);
  const rings=[];for(const x of [...new Set(xs)]){const clipped=onaClipPoly(sectionBase(s.hull,x).poly,0,43.05,true),c=clipped.reduce((a,b)=>a.map((v,i)=>v+b[i]/clipped.length),[0,0]),ring=onaResampleRing(clipped,24).map(p=>[x,c[1]+(p[1]-c[1])*.97,sg*(c[0]+(p[0]-c[0])*.97)]);rings.push(ring);}onaAppendClosedLoft(mesh,rings);
  const wing=s.parts.find(p=>p.label==='艦首の横翼'&&p.c[2]>0),zs=[140,...ONA.wing.map(r=>r[0]).filter(z=>z>140&&z<384),384];for(let z=150;z<384;z+=12)zs.push(z);zs.sort((a,b)=>a-b);
  const wingRings=[];for(const z of [...new Set(zs)]){const polygon=onaWingSlice(wing,z),c=polygon.reduce((a,b)=>a.map((v,i)=>v+b[i]/polygon.length),[0,0]),ring=onaResampleRing(polygon,24).map(p=>[c[0]+(p[0]-c[0])*.97,c[1]+(p[1]-c[1])*.97,sg*z]);wingRings.push(ring);}onaAppendClosedLoft(mesh,wingRings);
@@ -61639,6 +61664,9 @@ function onaBuild(opt={}){
  // The superheavy composite-beam turbolasers: the two barrels along the split forward hull, each fed
  // straight from the main reactor.
  for(const sg of [-1,1]){const body=onaWeaponBody(s,sg);part('sbeam',(sg<0?'左舷':'右舷')+'125 PT超重合成ターボレーザー',body.center,38.2,{reactor:gen.id,weaponBody:body.weaponBody,weaponMuzzle:body.weaponMuzzle});}
+ // The converters for the firing loss: one room each side of the slot, in the 34 m the composite machinery gave up
+ // (x 640 to 674). The hull's lens section clips the room; only the volume kept earns capacity.
+ for(const sg of [-1,1])placePart(s,'hdis',[657,66.5,sg*88],Math.cbrt(34*62*90),{label:(sg<0?'左舷':'右舷')+SW_CONVERTER_LABEL,room:[34,90,62],autoFit:false});
  // ---- the stern engine block (v24; added after the earlier parts so their ids stay as published) ----
  // The STL closes the hull directly forward of the five nozzles: the central engine's housing (r 15 m)
  // runs from its nozzle to the inner faces of the stern plates, and the block beside the core starts
@@ -61704,6 +61732,94 @@ registerShipExample({
  note:'全長1,288 m。ユーザー提供のSTLを基にした外形（幅776 m・高さ191 m）を維持し、指定図に合わせて左右の艦首腕部と横翼の内部を超重合成ターボレーザーの機関でほぼ占有する構成に変更。主砲は各125 PTの2門、同時照射で合計250 PT。各砲口から砲軸上に10秒間照射し、船体を旋回して照準する。通常兵装は40 TT三連装8基、200 GT四連装16基、2連装点防御30基。主反応炉と艦尾の補助反応炉2基の合計出力はヴェネター級と同じ3.60×10²⁴ W。主砲2門は直径95 mの主反応炉から充電し、厳格運転での同時充電は約14分。偏向シールドの蓄積量3.60×10²⁵ Jと定格出力もヴェネター級相当。格納庫・物資庫・補給設備は主砲機関の後方へ移設。',
  airWings:ONA_AIR,groundForces:ONA_GROUND,
  build:onaBuild
+});
+}
+
+// ---- src/ships/deathstar.js ----
+// Death Star battle station (user request 2026-11-15), measured from the STL the user supplied
+// (deathstar_1_5_10_5.stl, sha256 a1f8083f...1e1c; no author or licence came with it). The model is a sphere of
+// radius 160.75 units about (0.19, 0.18, 160.0) with its poles on z; at the canon diameter of 160 km one unit is
+// 497.7 m. Station frame: x from one side of the equator (0) to the other (160 km), y up through the poles from the
+// south pole, z to starboard; the superlaser dish looks along +x, 27.0 degrees above the equator. The station is
+// two hemispheres (dome structures) on a drum: the gap between them is the equatorial trench.
+//  - The dish is a spherical bowl: rim 21 degrees from its axis (28.7 km), 11.1 km deep at the centre (measured).
+//  - The equatorial trench is 1.8 km wide and 3.2 km deep (measured); it holds the engines and the docks (user).
+//  - Meridian trenches are not on the model: the user asked for several, wide enough for a fighter. Four great
+//    circles through the poles (eight meridians), 120 m across and 60 m deep.
+//  - The superlaser (53 ZT) and the reactor core it is wired to follow the user's cutaway drawing: the core at the
+//    centre, the superlaser's works between the core and the dish. Its exhaust port is put by ensureSuperlaserExhaust.
+{
+const DS={R:80000,dishLat:27,dishRim:21,dishDepth:11100,trenchW:1800,trenchD:3200,meridians:4,meridianW:120};
+// A closed body of revolution about `axis` through `origin`: rows [distance along the axis, radius], n-sided.
+function dsRevolve(origin,axis,rows,n=24){
+ const up=Math.abs(axis[1])>.9?[1,0,0]:[0,1,0],e1=norm(cross(up,axis)),e2=cross(axis,e1),v=[],f=[];
+ for(const [k,r] of rows)for(let i=0;i<n;i++){const a=i/n*Math.PI*2;v.push([0,1,2].map(c=>origin[c]+axis[c]*k+(e1[c]*Math.cos(a)+e2[c]*Math.sin(a))*r));}
+ f.push(Array.from({length:n},(_,i)=>n-1-i));for(let r=0;r<rows.length-1;r++)for(let i=0;i<n;i++){const j=(i+1)%n,a=r*n+i,b=r*n+j,c=(r+1)*n+j,d=(r+1)*n+i;f.push([a,b,c],[a,c,d]);}
+ f.push(Array.from({length:n},(_,i)=>(rows.length-1)*n+i));
+ let volume=0;for(const q of f)for(let i=1;i<q.length-1;i++)volume+=dot(v[q[0]],cross(v[q[i]],v[q[i+1]]))/6;if(volume<0)for(const q of f)q.reverse();
+ return {v,f};
+}
+function deathStarBuild(){
+ const R=DS.R,w=DS.trenchW,rad=Math.PI/180,C0=[R,R,0];
+ // Two hemispheres with the equatorial trench between them (user decision 2026-11-15「半球を二つ組み合わせる形でしっかりと
+ // 赤道トレンチを作って」): each dome stands on its own side of a 1.8 km gap; the trench floor is the drum that joins them.
+ const s=newShip({plan:'ellipse',sec:'ellipse',L:2*R,W:2*R,H:2*R,bowW:1,bowH:1,stern:1,assembly:true},'デス・スター','station');
+ s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.4,cit:.3};s.shieldTarget=1;s.hullStructureVersion=1;
+ const base=2*Math.sqrt(R*R-w*w/4),rise=R-w/2,floor=R-DS.trenchD,part=(k,label,c,d,o={})=>placePart(s,k,c,d,{label,...o});
+ // Painted like the station (user request 2026-11-15「色もそれっぽく塗って」): mid grey hemispheres, a darker trench floor.
+ part('struct','北半球',[R,R+w/2+rise/2,0],[base,base,rise],{form:'dome',skin:'armor',paint:'#8b8f94'});
+ part('struct','南半球',[R,R-w/2-rise/2,0],[base,base,rise],{form:'dome',skin:'armor',roll:180,paint:'#84888d'});
+ part('struct','赤道トレンチの床（中央胴）',C0.slice(),[2*floor,2*floor,w],{form:'cylinder',skin:'armor',paint:'#4c5057'});
+ // The dish, a spherical bowl through the measured rim (21 degrees from its axis) and floor (11.1 km below the
+ // sphere): the cutting sphere's radius follows from the rim's chord and the bowl's depth below that chord.
+ const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),rimAt=R*Math.cos(DS.dishRim*rad),floorAt=R-DS.dishDepth,sag=rimAt-floorAt,rho=(a*a+sag*sag)/(2*sag);
+ const at=(k,off=[0,0,0])=>[C0[0]+ax[0]*k+off[0],C0[1]+ax[1]*k+off[1],C0[2]+off[2]];
+ // Without its superlaser the station has a hole (user decision 2026-11-15「スーパーレーザーを除くデススターはぽっかり穴が空いた
+ // 感じ」, after the user's picture of the weapon lifted out): a round well as wide as the dish, a narrower well
+ // under it, and the shaft down to the core. The superlaser's body (below) fills them.
+ const well=(k0,k1,r)=>s.solidCuts.push({id:s.nextId++,shape:'cylinder',c:at((k0+k1)/2),s:[2*r,2*r,k1-k0],rotation:[0,0,DS.dishLat-90],mirror:false,structures:true});
+ // (the wide well goes 12 km below the dish floor: user decision 2026-11-15「設置位置はもっと深く切り取っていい」)
+ const wellAt=floorAt-12000,neckAt=38000;well(wellAt,R+6000,a);well(neckAt,wellAt+100,9000);well(7000,neckAt+100,3200);
+ // Meridian trenches (the user's addition, wide enough for a fighter): standing rings through the poles.
+ for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[2*R,2*R,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:true});
+ // The reactor core at the centre.
+ const core=part('gen','主反応炉（ハイパーマター反応炉）',C0.slice(),16000);
+ // The superlaser is one weapon from the core to the lens (user decision 2026-11-15「レンズの皿の部分、中心に繋がる構造物も
+ // 含めて武装扱い」; the user's cutaway drawing): the shaft from the core, the amplifier, the cone that opens to the
+ // lens, and the lens itself, which is the floor of the dish. Rows: distance from the centre along the dish axis, radius.
+ // The dish is the visible face of the weapon (user decision 2026-11-15「皿をスーパーレーザーの部品として外見に出る部分に」): the
+ // body stands in the wells with 300 m to spare and ends in a bowl on the measured dish surface (rim 21 degrees from
+ // the axis, floor 11.1 km down), from the rim in to the lens at the centre.
+ const bowl=r=>floorAt+rho-Math.sqrt(rho*rho-r*r),rows=[[8200,2900],[neckAt+400,2900],[neckAt+400,8700],[wellAt+400,8700],[wellAt+400,a-300],[bowl(a-300),a-300]];
+ for(const f of [.9,.8,.68,.55,.42,.3,.2,.1,.03])rows.push([bowl(a*f),a*f]);
+ const mesh=dsRevolve(C0,ax,rows,32),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),centre=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
+ for(const q of mesh.v)for(let c=0;c<3;c++)q[c]=(q[c]-centre[c])/size[[0,2,1][c]];
+ const laser=part('slaser','53 ZT スーパーレーザー',centre,SUPERWEAPONS.slaser.d,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(R+8000)[c]-centre[c])/* the focus of the lens, 8 km outside the sphere on the dish axis: the beam starts there */});
+ // It arrives charged: a full charge takes 24 hours (user decision 2026-11-15).
+ if(laser)laser.initialCharge=1;
+ // Engines and docks in the equatorial trench: ion drives round the far side, docking bays round the near side.
+ const eq=(deg,r)=>[C0[0]+r*Math.cos(deg*rad),C0[1],C0[2]+r*Math.sin(deg*rad)];
+ for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,floor-300),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
+ for(const deg of [-60,-30,30,60,90,-90])part('hangar','赤道トレンチのドッキング・ベイ',eq(deg,floor-900),1200,{room:[1600,1200,900]});
+ part('command','司令区画（オーバーブリッジ）',at(floorAt-2600,[0,3000,0]),600,{room:[900,700,500]});
+ part('shield','偏向シールド発生機',[C0[0],C0[1]+R*.55,C0[2]],3000);part('shield','偏向シールド発生機',[C0[0],C0[1]-R*.55,C0[2]],3000);
+ part('hyper','ハイパードライブ',[C0[0]-R*.45,C0[1]+3000,C0[2]],4000);
+ ensureSuperlaserExhaust(s);
+ // Batteries along the meridian trenches (user request 2026-11-15「子午線トレンチに武装を配列する形」): on each of the eight
+ // meridians, every 4 degrees of latitude in both hemispheres, heavy turbolasers with a point-defence mount between;
+ // none in the dish. Each is set on the surface where a ray from outside toward the centre meets the station.
+ let guns=0;for(let i=0;i<DS.meridians;i++)for(const side of [0,180]){const yaw=(22.5+i*180/DS.meridians+side)*rad;
+  for(const sign of [1,-1])for(let lat=10,n=0;lat<=78;lat+=4,n++){const la=sign*lat*rad,dir=[Math.cos(la)*Math.cos(yaw),Math.sin(la),-Math.cos(la)*Math.sin(yaw)];if(Math.acos(clamp(dot(dir,ax),-1,1))<(DS.dishRim+3)*rad)continue;
+   const hit=rayEnv(s,[C0[0]+dir[0]*(R+2000),C0[1]+dir[1]*(R+2000),C0[2]+dir[2]*(R+2000)],dir.map(v=>-v));if(!hit)continue;const r=placeFit(s,n%2?'pd':'utl',hit.p,hit.n,0,false);if(r?.fit)guns++;}}
+ s._deathStarGuns=guns;
+ s._building=false;syncCompartments(s);return s;
+}
+registerShipExample({
+ key:'deathstar',name:'デス・スター（バトルステーション）',side:'銀河帝国',role:'バトルステーション（スーパーレーザー搭載）',length:160000,
+ title:'Death Star',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（deathstar_1_5_10_5.stl）',license:'不明（出典未記載）',
+ credit:'デス・スターの外形（球・皿・赤道トレンチ）は、ユーザーが提供した STL ファイル（deathstar_1_5_10_5.stl、作者・ライセンス表記なし）から実測した。',
+ note:'直径 160 km。皿は北緯 27°・縁の半径 28.7 km・深さ 11.1 km、赤道トレンチは幅 1.8 km・深さ 3.2 km（いずれも実測）。子午線トレンチ 8 本（幅 120 m）はユーザー指定による追加。',
+ build:deathStarBuild
 });
 }
 
@@ -62748,8 +62864,9 @@ function coolingDemandW(u,H,want){
  for(const s of src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
  // A charging superweapon heats the ship whether or not the guns fire (found 2026-11-15: an Onager with no target in
  // reach, or holding fire, reserved cooling for its idle guns only and shut down from charge heat in 5 s). Its source
- // row asks for the charge heat of the last heat solve.
- const swW=u?.ht?.sourceGenerationW,D=src.map((s,i)=>s.k==='sw'?Math.max(0,swW?.[i]||0):(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
+ // row asks for the charge heat of the last heat solve, and for the firing loss of a beam that is ready or burning
+ // and of a bolt emitter still cooling (those are known before the heat arrives).
+ const swW=u?.ht?.sourceGenerationW,swNow=s=>{const x=u?.sw?.[s.sw],w=p.sw?.[s.sw];if(!x||!w||p.energyModel?.version!==1)return 0;return x.st==='beam'||x.st==='ready'&&swBeamKind(w.k)?swFireHeat(w).W:Math.max(0,x.fireHeatW||0)*(x.fireHeatJ>0?1:0);},D=src.map((s,i)=>s.k==='sw'?Math.max(0,swW?.[i]||0,swNow(s)):(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
  // kinds with no source row of their own (an old profile) and the stored heat reach any spare converter
  const unrouted=Object.entries(kind).reduce((n,[k,v])=>n+(weights[k]>0?0:v),0)+Math.max(0,u?.ht?.qJ||0)/Math.max(1e-9,HEAT.drainS)+Math.max(0,u?.ht?.coolingSelfW||0)+Math.max(0,u?.ht?.towWantW||0)+D.reduce((n,v,i)=>n+v-r.out[i],0)+pendingLedgerJ(u?.ht)/HEAT.dt;
  const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,v)=>a+v,0),used=r.used.map((v,j)=>v+(room>0?Math.min(unrouted,room)*spare[j]/room:0));
@@ -63138,7 +63255,7 @@ function coreDetonation(load){return clamp(.02+.25*Math.max(0,load-.55)**2+1.2*M
 // critical ones less behind a citadel); hits is how many penetrating hits wreck
 // it. The hull itself takes a share of hits that only damage structure.
 const MODULE_LABEL={superweapon:'超兵器',magazine:'VLS弾庫',hull:'船体構造',reactor:'反応炉',shield:'シールド発生器',engine:'推進機関',sensor:'センサー',hyper:'ハイパードライブ',hangar:'格納庫',battery:'パワーセル',fuel:'反応物サイロ',quarters:'居住空間',bridge:'艦橋・指揮所',fire:'射撃管制',capacitor:'主砲充電装置',weapon:'砲塔',launcher:'ミサイル発射管',other:'その他区画'};
-const MODULE_PART_KIND={engineCore:'engine',sbeam:'superweapon',hion:'superweapon',automation:'automation',sensor:'sensor',scanner:'sensor',habitat:'quarters',vls:'magazine',gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',powerBus:'other',fuel:'fuel',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
+const MODULE_PART_KIND={engineCore:'engine',sbeam:'superweapon',slaser:'superweapon',hion:'superweapon',automation:'automation',sensor:'sensor',scanner:'sensor',habitat:'quarters',vls:'magazine',gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',powerBus:'other',fuel:'fuel',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
 const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
 // v21.2 Anti-craft fire control: how many targets (a flight of four craft, or a salvo of eight missiles, is one)
 // a ship's point defence and guns can engage at once, from its command posts — combat information centres count
@@ -63857,9 +63974,19 @@ function combatClone(u){const physical={};for(const k of ['powerLossDisabled','f
 // and received pulse energy differ. Protective trips preserve physical health.
 const SW_COMBAT={
  sbeam:{name:'超重合成ビーム',E:125000,share:.6,tMin:45,range:200000,cone:0,beamT:10,over:{floor:.3,T:60},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ // The superlaser (user request 2026-11-15): 53 ZT (5.3e10 TT) at the Death Star's dish, 57.4 km across (measured
+ // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's, but laid
+ // from the lens focus anywhere within `cone` (radians) of the dish's bearing instead of along a fixed axis.
+ // The full shot is for a planet; on ships it fires shipShare of it (2 ZT of 53: user decision 2026-11-15) and keeps
+ // the rest of its charge. A full charge takes 24 hours (tMin; user decision 2026-11-15), so a ship shot is back
+ // in about 54 minutes.
+ slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:57400,share:.6,tMin:86400,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
  hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // Shot energy is per physical emitter, in TT. Both Onager emitters together deliver 250 PT.
+const swBeamKind=k=>k==='sbeam'||k==='slaser';
+// What one shot at a ship spends (TT): the whole charge, or a superlaser's ship setting.
+function swShipShotTT(w){const share=SW_COMBAT[w?.k]?.shipShare;return swEnergyTT(w)*(share>0?share:1);}
 function swEnergyTT(w){const E=w?.Emax;return Number.isFinite(E)&&E>0?E:Math.max(0,SW_COMBAT[w?.k]?.E||0);}
 // v21.2 The hyper-ion cannon's bolt (the designer's rules):
 //  · a cannon holds at most ten minutes (holdS) of its reactor's full output (shared between the cannons on that
@@ -63908,7 +64035,12 @@ function swMuzzle(u,w){const f=swFrameOf(u),m=Array.isArray(w.mz)?w.mz:[0,0,0];r
 function swBeamHullHit(t,origin,axis,range){const f=swFrameOf(t),a=swFrameLocal(t,sub(origin,f?.origin||t.pos)),d=swFrameLocal(t,axis),shell=surfaceShellBVH(t.p);
  if(shell){const distance=surfaceCachedRay(shell,a,d);if(distance==null||distance<0||distance>range)return null;return {distance,localPoint:add(a,mul(d,distance))};}
  const h=hullHalf(t.p);let enter=0,exit=range;for(let i=0;i<3;i++){if(Math.abs(d[i])<1e-12){if(a[i]<-h[i]||a[i]>h[i])return null;continue;}let lo=(-h[i]-a[i])/d[i],hi=(h[i]-a[i])/d[i];if(lo>hi)[lo,hi]=[hi,lo];enter=Math.max(enter,lo);exit=Math.min(exit,hi);if(enter>exit)return null;}if(exit<0||enter>range)return null;return {distance:enter,localPoint:add(a,mul(d,enter))};}
-function swBeamTrace(u,w,units,options={}){const origin=options.origin?.slice()||swMuzzle(u,w),axis=norm(options.axis||swAxis(u,w)),range=Number.isFinite(options.range)?Math.max(0,Math.min(options.range,swRange(u,w))):swRange(u,w);let hit=null,best=null;
+// A superlaser fires from the focus of its lens, so its beam can be laid anywhere within its cone (user decision
+// 2026-11-15「レンズの焦点から発射されるので射角を選べる」): the nearest enemy inside the cone and in range, else the dish axis.
+function swBeamSteer(u,w,units,origin,axis0,range){const cone=SW_COMBAT[w.k]?.cone||0;if(!(cone>0))return axis0;let best=null,bd=Infinity;
+ for(const t of units||[]){if(t===u||t.id===u.id||t.dead||t.absent||t.warp||!t.pos||t.team===u.team)continue;const d=sub(t.pos,origin),r=len(d);if(!(r>1e-6)||r>range+(t.p?.len||0)*.5)continue;if(Math.acos(clamp(dot(d,axis0)/r,-1,1))>cone)continue;if(r<bd){bd=r;best=d;}}
+ return best?norm(best):axis0;}
+function swBeamTrace(u,w,units,options={}){const origin=options.origin?.slice()||swMuzzle(u,w),range0=swRange(u,w),axis=options.axis?norm(options.axis):swBeamSteer(u,w,units,origin,norm(swAxis(u,w)),range0),range=Number.isFinite(options.range)?Math.max(0,Math.min(options.range,swRange(u,w))):swRange(u,w);let hit=null,best=null;
  for(const t of units||[]){if(t===u||t.id===u.id||t.dead||t.absent||t.warp||!t.pos||!t.p)continue;const q=swBeamHullHit(t,origin,axis,range);if(!q)continue;if(!best||q.distance<best.distance-1e-9||Math.abs(q.distance-best.distance)<=1e-9&&String(t.id)<String(hit.id)){best=q;hit=t;}}
  const distance=best?.distance??range,end=add(origin,mul(axis,distance));return {origin,axis,end,point:hit?end.slice():null,distance,hit,localPoint:best?.localPoint||null};}
 
@@ -63954,13 +64086,27 @@ function superweaponLedger(u){
  if(!u.weaponLedger){let stored=0;for(let i=0;i<(u.sw||[]).length;i++){const x=u.sw[i],w=u.p.sw[i],E=swEnergyTT(w)*TT;if(x.storedJ===undefined)x.storedJ=clamp(x.c||0,0,1)*E;stored+=x.storedJ;}u.weaponLedger={scope:'superweapon',initialJ:stored,inputJ:0,lossJ:0,storedJ:stored,emittedJ:0,releasedJ:0};}return u.weaponLedger;
 }
 function superweaponDischarge(u,i,outputTT,release=false){
- if(u.p.energyModel?.version!==1)return Math.max(0,outputTT||0);const l=superweaponLedger(u),x=u.sw[i],take=Math.min(Math.max(0,x?.storedJ||0),Math.max(0,outputTT||0)*TT);if(x)x.storedJ=Math.max(0,(x.storedJ||0)-take);l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);if(release==='heat'){l.lossJ+=take;const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+take;}else if(release)l.releasedJ+=take;else l.emittedJ+=take;return take/TT;
+ if(u.p.energyModel?.version!==1)return Math.max(0,outputTT||0);const l=superweaponLedger(u),x=u.sw[i],take=Math.min(Math.max(0,x?.storedJ||0),Math.max(0,outputTT||0)*TT);if(x)x.storedJ=Math.max(0,(x.storedJ||0)-take);l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);if(release==='heat'){l.lossJ+=take;const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+take;}else if(release)l.releasedJ+=take;
+ else{
+  // Firing loss (user decision 2026-11-15「発射の熱も排熱」): HEAT.swShot of what a shot discharges stays in the ship
+  // as heat and the rest leaves as the shot. A beam gives it up as it burns; a bolt leaves it in the emitter, which
+  // hands it to the heat network evenly over its cool-down (swFireReleaseS).
+  const w=u.p.sw?.[i],lost=take*HEAT.swShot,h=heatOf(u);l.lossJ+=lost;l.emittedJ+=take-lost;l.fireHeatJ=(l.fireHeatJ||0)+lost;
+  if(swBeamKind(w?.k)){if(h)h.esw[i]=(h.esw[i]||0)+lost;}else if(x){x.fireHeatJ=(x.fireHeatJ||0)+lost;x.fireHeatW=x.fireHeatJ/swFireReleaseS(w?.k);}
+  return (take-lost)/TT;
+ }
+ return take/TT;
 }
+// How long a superweapon takes to hand a shot's firing loss to the ship: the beam's burn, or a bolt emitter's cool-down.
+function swFireReleaseS(k){const C=SW_COMBAT[k];return swBeamKind(k)?C.beamT:Math.max(1,C?.over?.T||1);}
+// The firing loss of a full shot (J) and the rate it reaches the heat network (W).
+function swFireHeat(w){const J=HEAT.swShot*swEnergyTT(w)*TT;return {J,W:J/swFireReleaseS(w?.k)};}
+function swFireHeatDrain(u,i,dt){const x=u.sw?.[i];if(!(x?.fireHeatJ>0)||!(dt>0))return 0;const h=heatOf(u),J=Math.min(x.fireHeatJ,Math.max(0,x.fireHeatW||0)*dt);x.fireHeatJ-=J;if(!(x.fireHeatJ>1e-9))x.fireHeatJ=0;if(h)h.esw[i]=(h.esw[i]||0)+J;return J;}
 // The target's bearing in u's frame: v = [ahead, up, starboard].
 const swLocal=(u,t)=>{const dx=t.pos[0]-u.pos[0],dy=t.pos[1]-u.pos[1],dz=t.pos[2]-u.pos[2],c=Math.cos(u.yaw||0),s=Math.sin(u.yaw||0);return [dx*c+dz*s,dy,-dx*s+dz*c];};
 // Whether a target is in a superweapon's line or cone of fire, and in range.
 function swInArc(u,w,t){
- if(w.k==='sbeam')return !!swBeamTrace(u,w,[t]).hit;
+ if(swBeamKind(w.k))return !!swBeamTrace(u,w,[t]).hit;
  const C=SW_COMBAT[w.k],v=swLocal(u,t),d=Math.hypot(v[0],v[1],v[2]);if(!(d>0)||d>swRange(u,w)+(t.p.len||0)*.5)return false;
  if(w.aim==='bow'){if(v[0]<=0)return false;const off=Math.hypot(v[1],v[2]);return Math.atan2(off,v[0])<=C.cone||off<=Math.max(t.p.width||t.p.len*.3,t.p.height||0)*.5;}
  const side=w.aim==='port'?-v[2]:v[2];return side>0&&Math.atan2(Math.hypot(v[0],v[1]),side)<=C.cone;
@@ -64034,7 +64180,7 @@ function ionFire(u,w,x,i,o,DMG){
  const b={id:'ib'+(++ionBoltSeq),from:u.id,team:u.team,side:u.side,o:m,dir:best.dir,x:0,E:actual,E0:actual,d,hit:[],i,k:'hion'};o.bolts.push(b);
  o.ctx?.ev(u,`${C.name}を発射（充電 ${pct}%）→ ${best.t?best.t.name+'の方向':'射軸の方向へ（目標なし）'}`);return {from:u.id,k:w.k,mode:'bolt',bolt:b.id,to:best.t?[best.t.id]:[],i,dur:ION_BOLT.maxRange/ION_BOLT.v};
 }
-function swBeamFinish(u,w,x){superweaponDischarge(u,(u.p.sw||[]).indexOf(w),(x.storedJ||0)/TT,true);x.st='cool';x.t=SW_COMBAT[w.k].over.T;x.c=0;x.fireNow=false;x.free=false;x.tgt=null;x.beamRemainingTT=0;swOverload(u,w);}
+function swBeamFinish(u,w,x){const keep=SW_COMBAT[w.k].shipShare>0;/* a superlaser keeps the charge its ship shot did not use */if(!keep)superweaponDischarge(u,(u.p.sw||[]).indexOf(w),(x.storedJ||0)/TT,true);x.st='cool';x.t=SW_COMBAT[w.k].over.T;x.c=keep?clamp(u.p.energyModel?.version===1?(x.storedJ||0)/Math.max(1,swEnergyTT(w)*TT):0,0,1):0;x.fireNow=false;x.free=false;x.tgt=null;x.beamRemainingTT=0;swOverload(u,w);}
 function swBeamStep(u,w,x,i,dt,o,started=false){const C=SW_COMBAT[w.k],slice=Math.min(Math.max(0,dt),Math.max(0,x.t)),trace=swBeamTrace(u,w,o.all||o.foes),want=slice>=x.t-1e-12?(x.beamSpendsWholeStore?swEnergyTT(w):Math.max(0,x.beamRemainingTT||0)):Math.min(Math.max(0,x.beamRemainingTT||0),Math.max(0,x.beamEnergyTT||0)*slice/C.beamT),physical=superweaponDischarge(u,i,want),amt=physical*(u.p.energyModel?.version===1?clamp(o.damage??1,0,1):Math.max(0,o.damage??1));
  x.beamRemainingTT=Math.max(0,(x.beamRemainingTT||0)-physical);x.t=Math.max(0,x.t-slice);x.tgt=trace.hit?.id||null;
  if(trace.hit&&amt>0){const t=trace.hit,inc=o.inc?.(t.id);if(inc){combatAdd(inc,t,trace.origin,{sf:amt*.5,hull:amt*.5,direct:amt*.5,hit:{point:trace.localPoint.slice()}},null,u.id);const N=t.sec?.length||HULL_SECTIONS,z=combatZoneAt(t.p,trace.localPoint,hullHalf(t.p));inc.zw=inc.zw||new Array(N*6).fill(0);if(z<inc.zw.length)inc.zw[z]+=amt;}u.dmgDone=(u.dmgDone||0)+amt;}
@@ -64043,13 +64189,13 @@ function swBeamStep(u,w,x,i,dt,o,started=false){const C=SW_COMBAT[w.k],slice=Mat
 function superweaponStep(u,dt,o){
  const sw=u.p?.sw,st=u.sw,shots=[];if(!sw||!st||u.dead)return shots;const s=o.sys||fleetSystems(u),DMG=o.damage??1;
  if(u.p.energyModel?.version===1)superweaponLedger(u);
- for(let i=0;i<sw.length;i++){const w=sw[i],x=st[i],C=SW_COMBAT[w.k];if(!x||o.finishBeamsOnly&&x.st!=='beam')continue;
+ for(let i=0;i<sw.length;i++){const w=sw[i],x=st[i],C=SW_COMBAT[w.k];if(x&&!o.finishBeamsOnly)swFireHeatDrain(u,i,dt);if(!x||o.finishBeamsOnly&&x.st!=='beam')continue;
   if(w.mod>=0&&!(u.mods?.[w.mod]>0)){if(x.st!=='down'){superweaponDischarge(u,i,(x.storedJ||0)/TT,'heat');x.st='down';x.c=0;o.ctx?.ev(u,`${C.name}が損傷して使用不能`);}continue;}
   if(x.st==='down'){x.st='charge';x.c=0;}
   if(x.st==='cool'){x.t-=dt;if(x.t<=0){x.st='charge';x.c=0;}continue;}
   if(swChargeRate(u,i)<=0){if(x.st==='beam')swBeamFinish(u,w,x);x.fireNow=false;continue;}
   if(heatSwLim(u,i)<=0){if(x.st==='beam')swBeamFinish(u,w,x);continue;}
-  if(w.k==='sbeam'&&x.st==='beam'){
+  if(swBeamKind(w.k)&&x.st==='beam'){
    // A moving or destroyed target never steers or stops the laser. Only the
    // actual current muzzle/ship attitude determines what it intersects now.
    if(u.out||u.warp||hyperspaceCommitted(u.jump)){swBeamFinish(u,w,x);continue;}const sh=swBeamStep(u,w,x,i,dt,o);if(sh)shots.push(sh);continue;}
@@ -64057,10 +64203,10 @@ function superweaponStep(u,dt,o){
   const explicit=!!x.fireNow,automatic=!u.manual&&!x.hold&&u.order?.sw!==false,idle=u.out||u.warp||hyperspaceCommitted(u.jump)||!explicit&&!automatic;
   if(w.k==='hion'&&(x.st==='ready'||x.st==='charge')&&!idle&&o.bolts&&!heatSwHold(u,w)){const sh=ionFire(u,w,x,i,o,DMG);if(sh)shots.push(sh);continue;}
   if(x.st!=='ready'||idle||heatSwHold(u,w))continue;
-  if(w.k==='sbeam'){
+  if(swBeamKind(w.k)){
    const trace=swBeamTrace(u,w,o.all||o.foes);if(!explicit&&(!trace.hit||!o.foes.some(t=>t.id===trace.hit.id)))continue;
-   const total=Math.min(swEnergyTT(w),u.p.energyModel?.version===1?Math.max(0,x.storedJ||0)/TT:swEnergyTT(w)*clamp(x.c,0,1));if(!(total>0)){x.st='charge';x.c=0;x.fireNow=false;continue;}
-   x.mode='beam';x.st='beam';x.t=C.beamT;x.c=0;x.fireNow=false;x.tgt=null;x.free=true;x.beamEnergyTT=total;x.beamRemainingTT=total;x.beamSpendsWholeStore=u.p.energyModel?.version===1&&Math.max(0,x.storedJ||0)<=swEnergyTT(w)*TT;
+   const total=Math.min(swShipShotTT(w),u.p.energyModel?.version===1?Math.max(0,x.storedJ||0)/TT:swEnergyTT(w)*clamp(x.c,0,1));if(!(total>0)){x.st='charge';x.c=0;x.fireNow=false;continue;}
+   x.mode='beam';x.st='beam';x.t=C.beamT;x.c=0;x.fireNow=false;x.tgt=null;x.free=true;x.beamEnergyTT=total;x.beamRemainingTT=total;x.beamSpendsWholeStore=!(SW_COMBAT[w.k].shipShare>0)&&u.p.energyModel?.version===1&&Math.max(0,x.storedJ||0)<=swEnergyTT(w)*TT;
    o.ctx?.ev(u,`${C.name}を射軸の方向へ照射`);const sh=swBeamStep(u,w,x,i,dt,o,true);if(sh)shots.push(sh);continue;}
   const named=(u.manual||x.fireNow?.command)&&x.fireNow?.to?o.foes.filter(t=>x.fireNow.to.includes(t.id)&&!t.dead):null,live=named||o.foes.filter(t=>!t.dead&&swInArc(u,w,t)),free=!live.length&&swFree(u,x);if(!live.length&&!free){if(u.manual||x.fireNow?.command)x.fireNow=false;continue;}
   const actual=superweaponDischarge(u,i,swEnergyTT(w));x.st='cool';x.t=C.over.T;x.c=0;x.fireNow=false;swOverload(u,w);
@@ -64507,7 +64653,7 @@ function placementCapability(value){
  return {space:'interior',kind:'equipment',deformable:false,allowedModes:['direct']};
 }
 function initializePlacementCapabilities(){if(PARTS.vls)PARTS.vls.catalogHidden=true;for(const [k,d] of Object.entries(PARTS)){
- const structure=isShapeKind(k),outside=structure||['engine','sensor','scanner','sbeam','hion'].includes(k),deformable=!outside&&PLACEMENT_FLEXIBLE_KINDS.has(k);
+ const structure=isShapeKind(k),outside=structure||['engine','sensor','scanner','sbeam','hion','slaser'].includes(k),deformable=!outside&&PLACEMENT_FLEXIBLE_KINDS.has(k);
  d.placement=Object.freeze({space:outside?'exterior':'interior',kind:structure?'structure':['engine','engineCore'].includes(k)?'propulsion':['sbeam','hion'].includes(k)?'weapon':['sensor','scanner','command','firecontrol','targetComputer','navComputer'].includes(k)?'command':deformable?'compartment':'equipment',deformable,allowedModes:Object.freeze(structure?['horizontal','vertical','surface']:deformable?['clip','preserve-volume']:['direct'])});
 }
 for(const d of Object.values(FITS))d.placement=Object.freeze({space:'exterior',kind:d.cat==='w'?'weapon':'command',deformable:false,allowedModes:Object.freeze(['direct'])});}
@@ -65866,6 +66012,9 @@ const SUPERWEAPONS={
  // Measured from the Onager model at canon scale (1,288 m): each barrel 38.2 m across and 665.8 m from
  // breech to muzzle, over half the ship's length; the class carries two side by side.
  sbeam:{d:38.2,length:665.8,aim:'bow'},
+ // The superlaser's dish: 57.4 km across on the 160 km Death Star (rim 21 degrees from the dish axis, measured from
+ // the user's model); the focusing works behind it reach a quarter of the way to the reactor core.
+ slaser:{d:57400,length:20000,aim:'bow'},
  // Measured from the Malevolence model at canon scale (4,845 m): the emitter drum is 310.8 m across;
  // 250 m deep, from the dished face (the ship's outermost point) back into the flank housing.
  hion:{d:310.8,length:250,aim:'side'}
@@ -65873,6 +66022,30 @@ const SUPERWEAPONS={
 GROUPS.superweapon='超兵器';
 addComp('sbeam','超重合成ビーム・ターボレーザー','cyl',.7,[236,96,66],'weapons','オナガー級の主砲。一門あたり125 PTを10秒間のビームとして砲軸上へ直進照射します。照準補正はなく、船体を旋回して狙います。左右の艦首腕部は砲身・合成機関でほぼ占有されます。接続された反応炉から充電します。',{def:SUPERWEAPONS.sbeam.d,min:SUPERWEAPONS.sbeam.d,max:SUPERWEAPONS.sbeam.d,ratio:SUPERWEAPONS.sbeam.length/SUPERWEAPONS.sbeam.d,crit:true,hp:.8,crew:.3,fixed:true});
 addComp('hion','ハイパーイオン砲','cyl',.6,[146,120,255],'weapons','サブジュゲイター級の舷側砲。拡大する円盤状パルスを放ち、距離と投影面積に応じた有限のエネルギーを複数艦へ分配します。シールドを漏出した分が接続された電力網へ作用し、十分な過負荷では主炉・補助炉を含む共通系統を保護遮断します。性能係数はゲーム用の仮定です。',{def:SUPERWEAPONS.hion.d,min:SUPERWEAPONS.hion.d,max:SUPERWEAPONS.hion.d,ratio:SUPERWEAPONS.hion.length/SUPERWEAPONS.hion.d,crit:true,hp:.8,crew:.3,fixed:true});
+addComp('slaser','スーパーレーザー','cyl',.7,[52,56,62],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
+// The concentrated thermal exhaust port (user request 2026-11-15「スーパーレーザーは自動的集中排熱口が配置される仕組みにして子午線
+// トレンチに出現させて」): a heat converter sized for the superlaser's firing loss, put by the superlaser itself under
+// the floor of a meridian trench (a standing torus cut through the hull's centre), or under the hull's skin when
+// the design has none. One port serves one superlaser; it is found again by its label.
+const EXHAUST_PORT_LABEL='集中排熱口';
+function exhaustPortFor(ship,sw){return ship.parts.find(p=>p.k==='hdis'&&String(p.label||'')===EXHAUST_PORT_LABEL+' #'+sw.id)||null;}
+function meridianTrenches(ship){const b=shipBounds(ship,{simple:true}),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2);return (ship.solidCuts||[]).filter(c=>c.shape==='torus'&&Math.abs(Math.abs(c.rotation?.[0]||0)-90)<1&&Math.hypot(c.c[0]-mid[0],c.c[2]-mid[2])<Math.max(1,(b[3]-b[0])*.02));}
+function ensureSuperlaserExhaust(ship){
+ const made=[];if(!ship?.parts)return made;
+ for(const sw of ship.parts.filter(p=>p.k==='slaser')){
+  if(exhaustPortFor(ship,sw))continue;
+  const heatW=HEAT.swShot*slaserEnergyTT(sw.d)*TT/SW_COMBAT.slaser.beamT,volume=heatW*1.1/(REACTOR_POWER_DENSITY*HEAT.disK.hdis),d=Math.cbrt(volume);
+  const b=shipBounds(ship,{simple:true}),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2),trenches=meridianTrenches(ship),t=trenches[made.length%Math.max(1,trenches.length)];
+  // On the trench's great circle, 45 degrees above the equator on the side away from the superlaser, under the floor.
+  const R=t?t.s[0]/2:(b[3]-b[0])/2,tube=t?t.s[2]/2:0,yaw=t?(t.rotation?.[1]||0)*Math.PI/180:0,away=(sw.c[0]-mid[0])*Math.cos(yaw)-(sw.c[2]-mid[2])*Math.sin(yaw)>=0?-1:1,r=R-tube-d*.75,lat=Math.PI/4;
+  const c=[mid[0]+away*r*Math.cos(lat)*Math.cos(yaw),mid[1]+r*Math.sin(lat),mid[2]-away*r*Math.cos(lat)*Math.sin(yaw)];
+  const oldBuilding=ship._building;ship._building=true;let p=null;try{p=placePart(ship,'hdis',c,d,{label:EXHAUST_PORT_LABEL+' #'+sw.id,room:[d,d,d],autoFit:false});}finally{ship._building=oldBuilding;}
+  if(p){p.exhaustFor=sw.id;made.push(p);}
+ }
+ return made;
+}
+// A superlaser's shot scales with the cube of its dish (53 ZT at the reference size).
+function slaserEnergyTT(d){const C=SW_COMBAT.slaser;return C.E*Math.pow(clamp((Number(d)||C.refD)/C.refD,1e-4,1e4),3);}
 const isSuperweapon=p=>!!p&&Object.hasOwn(SUPERWEAPONS,p.k);
 // Size and direction are the weapon's: the beam always faces the bow, the ion cannon the side it is on.
 function superweaponAim(p){const d=SUPERWEAPONS[p.k];return d.aim==='bow'?[1,0,0]:[0,0,(p.c?.[2]??0)<0?-1:1];}
@@ -65881,14 +66054,14 @@ function superweaponStats(ship,S){
  const info=S.info||{},list=[];
  for(const p of ship.parts.filter(isSuperweapon)){
   const r=reactorFor(ship,p),bad=!!info[p.id]?.overlap,open=superweaponOpen(ship,p),aim=SUPERWEAPONS[p.k].aim==='bow'?'bow':p.dir[2]<0?'port':'stbd';
-  list.push({id:p.id,k:p.k,aim,open,reactor:r?.id??null,reactorKind:r?.k??null,reactorPower:r?reactorPower(r):0,mode:p.k==='sbeam'?'beam':null,ok:open&&!!r&&!bad});
+  list.push({id:p.id,k:p.k,aim,open,reactor:r?.id??null,reactorKind:r?.k??null,reactorPower:r?reactorPower(r):0,mode:swBeamKind(p.k)?'beam':null,ok:open&&!!r&&!bad});
  }
  // Charge time: the shot's energy over the share of the feeding reactor's output it may draw, split
  // between the superweapons on that reactor, never under the weapon's floor.
  for(const w of list){const C=SW_COMBAT[w.k],owner=ship.parts.find(p=>p.id===w.id),strict=ship.surfaces?.mode==='strict',n=list.filter(x=>x.reactor===w.reactor).length,P=w.reactorPower*clamp(owner?.chargePowerFraction??C.share,.01,1)/Math.max(1,n),eta=strict?clamp(owner?.conversionEfficiency??ENERGY_MODEL.superEta,.05,1):1;w.efficiency=eta;w.chargeW=P;w.initialCharge=clamp(owner?.initialCharge||0,0,1);
   // v21.2 The hyper-ion cannon holds five minutes of its reactor's full output (its share of it) and fills at its draw.
   if(w.k==='hion'){w.Emax=Number.isFinite(owner?.chargeCapacityTT)?clamp(owner.chargeCapacityTT,.001,1e12):w.reactorPower*C.holdS/Math.max(1,n)/TT;w.E=w.Emax;w.chargeT=P>0?w.Emax*TT/(P*eta):Infinity;continue;}
-  w.Emax=C.E;w.E=C.E;w.chargeT=P>0?Math.max(C.tMin,C.E*TT/(P*eta)):Infinity;w.chargeW=P>0?Math.min(P,C.E*TT/(w.chargeT*eta)):0;}
+  const E=w.k==='slaser'?slaserEnergyTT(owner?.d):C.E;w.Emax=E;w.E=E;w.chargeT=P>0?Math.max(C.tMin,E*TT/(P*eta)):Infinity;w.chargeW=P>0?Math.min(P,E*TT/(w.chargeT*eta)):0;}
  S.superweapons=list;
  // Main and secondary reactor output (what is left when an ion wave stops the main reactors).
  S.reactorSplit={gen:ship.parts.filter(p=>p.k==='gen').reduce((n,p)=>n+reactorPower(p),0),aux:ship.parts.filter(p=>p.k==='aux').reduce((n,p)=>n+reactorPower(p),0)};
@@ -68598,7 +68771,13 @@ function heatGovernor(u){
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
 function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT,null,'superweapon-shot');}
-function heatSwHold(u,w){if(!HEAT.swInterlock||u.manual)return false;const h=heatOf(u);return !h?.online||h.qJ+(u.p.energyModel?.version===1?0:HEAT.swShot)*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT>=h.capacityJ;}
+function heatSwHold(u,w){if(!HEAT.swInterlock||u.manual)return false;const h=heatOf(u);if(!h?.online)return true;
+ if(u.p.energyModel?.version!==1)return h.qJ+HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT>=h.capacityJ;
+ // The firing loss arrives over the release time; what the converters cannot take in that time must fit in the store.
+ const T=swFireReleaseS(w.k),sw=u.p.sw||[],i0=sw.indexOf(w);let fireW=0;sw.forEach((v,i)=>{const x=u.sw?.[i];if(i===i0||x?.st==='beam'||x?.st==='ready'&&v.k===w.k)fireW+=swFireHeat(v).W;else if(x?.fireHeatJ>0)fireW+=Math.max(0,x.fireHeatW||0);});
+ const spareW=Math.max(0,swRatedRejectionW(u)-Math.max(0,h.madeBaseW||0));return h.qJ+Math.max(0,fireW-spareW)*T>=h.capacityJ;}
+// The rejection the ship's working converters give at full input (W), and the heat it makes apart from superweapons.
+function swRatedRejectionW(u){const H=heatProfile(u?.p),mods=u?.mods||[];return (H?.dis||[]).reduce((n,d)=>n+Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):1),0);}
 const HEAT_MODE=['稼働','出力制限','緊急停止中','停止','停止失敗'];
 function heatTick(ctx,u,dt,interval=null){
  const H=heatProfile(u?.p);if(!u||u.dead||!(dt>0)||!Number.isFinite(dt))return;const h=heatOf(u);if(!h||!H)return;let T=interval;
@@ -68629,7 +68808,7 @@ function heatTick(ctx,u,dt,interval=null){
  const freePath=heatPathFreeCapacity(H.dis),L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)&&l.cap>0?freePath:0}));/* paths are not a capacity constraint (2026-11-12); a path through a lost section is cut */
  const drain=Math.min(h.qJ/T,h.qJ/Math.max(1e-9,HEAT.drainS*em.drain)+Math.max(0,h.coolingSelfW||0)+Math.max(0,h.towPendingJ||0)/T),r=heatSolve(gen,cap,L);h.towPendingJ=0;if(h.towWantAt)h.towWantAt=0;else h.towWantW=0;
  {const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,W)=>a+W,0),take=Math.min(drain,room);if(take>0)for(let j=0;j<spare.length;j++)r.used[j]+=take*spare[j]/room;}
- h.emit=r.used.reduce((a,W)=>a+W,0);h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,W)=>a+W,0);h.sourceGenerationW=gen.slice();h.sourceFlowW=r.out.slice();h.linkFlowW=r.flow.slice();h.dissipatorFlowW=r.used.slice();let coolingHeat=0;
+ h.emit=r.used.reduce((a,W)=>a+W,0);h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,W)=>a+W,0);h.sourceGenerationW=gen.slice();h.madeBaseW=gen.reduce((n,W,i)=>n+(H.src[i].k==='sw'?0:W),0);h.sourceFlowW=r.out.slice();h.linkFlowW=r.flow.slice();h.dissipatorFlowW=r.used.slice();let coolingHeat=0;
  if(cooling){const inputs=H.dis.map((d,i)=>d.power>0&&d.cap>0?r.used[i]*d.power/d.cap*T:0),want=inputs.reduce((a,J)=>a+J,0),input=h.online?Math.min(cooling.reserveJ||0,want):0,scale=want>0?input/want:0;let reactorHeat=0,sourceInput=0,feedHeat=0;
   for(let j=0;j<H.dis.length;j++){const J=inputs[j]*scale,node=coolingNode(H.dis[j]),key=node&&Object.hasOwn(cooling.reserveByNodeJ||{},node)?node:'cooling',received=Math.max(0,cooling.reserveByNodeJ?.[key]??cooling.reserveJ??0),bySource=cooling.reserveByNodeSourceJ?.[key],byFeed=cooling.reserveByNodeFeedJ?.[key],fraction=received>0?clamp(J/received,0,1):0;
    if(Object.values(bySource||{}).some(v=>v>0)){for(const [id,reservedJ]of Object.entries(bySource)){const sentJ=Math.max(0,reservedJ)*fraction;sourceInput+=sentJ;reactorHeat+=reactorInputHeat(h,H,cooling.sources?.[id],sentJ,true);}}
@@ -69214,7 +69393,7 @@ deriveAntiAir();
 initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceShell,fleetPrepareCollision,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
+ withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT, converterPowerW, wingPowerK, converterShortfall, coolingDemandW, towHeatRelief, wingConverterM3, wingDischargeArea, wingDischargeW,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   loadedShipProfile, motionMassKg, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, EXAMPLE_PROFILE_VERSION, profileModelKey, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,

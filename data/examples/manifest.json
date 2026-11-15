@@ -323,12 +323,12 @@
   },
   "onager": {
    "combat": {
-    "sha256": "fa87862224532af3d5321b045ae4ce9a1e6d8f31fc4d7817c0e4778a59694bcf"
+    "sha256": "7f225527279350059c111239f999678fe2d7be3a27a53e216f0209a62ee33c7c"
    },
    "design": {
-    "sha256": "8e237bd00b1d62a58becb09953cbf260fd5c4cb92417264598e83a3f8a4fad2f",
-    "jsonSha256": "d8cc8aaa6583968ffea12ac0478efbf109c2e2c5c2338de2dd10cc8f9896a250",
-    "blueprintSha256": "fbb2d1d9eca1b79b08bc87e78ead2e1ad198e30b24eef86110455c6a34ec6593"
+    "sha256": "df72cd1c09557caf584104f6c07e460cba5405f821f8c1f0de7edfe752dba8af",
+    "jsonSha256": "8c77271b07cebdf50d183ff27026f9b953f90dbb4d23df8e689c7bf4e5ecea58",
+    "blueprintSha256": "4f24087f6bf7e4b75648fad2a4b1125e26f499b798ed22b8e7f13dafcf3906e3"
    }
   },
   "providence": {
@@ -390,12 +390,12 @@
   },
   "subjugator": {
    "combat": {
-    "sha256": "4461a93ba4553cfc81d9d3e0165876f598a8ef8d58e6c847a5cd39efd706b95b"
+    "sha256": "eac7fd0d6ac96a0739fc9af5b84e3ab4910bffdb5888be1de6caf43050e5c91e"
    },
    "design": {
-    "sha256": "e080eb40b03b74b35cbf0d5e35b14d5030dc1a4a57d165baf8cf66a4f70191f8",
-    "jsonSha256": "a8a6e5d6a5d2d701df12f50d56fc6a196fb84c4fdf88c50bc830abf295f61b76",
-    "blueprintSha256": "1782b98fcb30de3e21610b1aa52b69ce74ac07dcbbd9da26c82e182b11f85ae7"
+    "sha256": "80697c21a2b7d336a70c21a69a39d249be1de8af63fb602d57ef685681080f77",
+    "jsonSha256": "1aedfb2c0e274a6c9267c56fecd6f205691befc301407ff662994f9589fe3e04",
+    "blueprintSha256": "5d6d8b2922dfabf2691b8e9ea97dd6782a2da7ebed69f1e57113617f456e08d8"
    }
   },
   "venator": {
