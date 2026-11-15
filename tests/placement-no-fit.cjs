@@ -300,10 +300,10 @@ test('an overlap between a light structure and a placed plate counts as structur
 // Regression review 2026-11-15: this case is accepted as put as well - there is no body to sink to either, and under the
 // contact-only rule (2026-11-13) what it touches decides. A stored refusal of this kind keeps its parent id, so only the
 // pending pass covers it (the load-time drop needs no parentStructureId).
-for(const state of ['stored refusal','pending draft','body gone'])test(`a copy with no tapped body is taken where it is put and judged by contact (${state})`,()=>{
+for(const state of ['stored refusal','pending draft','body gone','stored refusal, body gone'])test(`a copy with no tapped body is taken where it is put and judged by contact (${state})`,()=>{
  const {ship,part}=fixture(0),raw=structuredClone(C.serialize(ship)),rp=raw.parts.find(p=>p.id===2),c0=rp.c.slice();
- delete rp.placement.parentStructureId;delete rp.placement.hostSurfaceId;rp.placement.unresolvedParentId=1;rp.placement.newPlacement=true;if(state==='body gone'){delete rp.placement.unresolvedParentId;rp.placement.parentStructureId=99;}
- if(state==='stored refusal')Object.assign(rp.placement,{validationFailed:true,repairRequired:true,repairReason:'parent-missing',validationSourceKey:'x'});else rp.placement.pendingGeometry=true;
+ delete rp.placement.parentStructureId;delete rp.placement.hostSurfaceId;rp.placement.unresolvedParentId=1;rp.placement.newPlacement=true;if(state.endsWith('body gone')){delete rp.placement.unresolvedParentId;rp.placement.parentStructureId=99;}
+ if(state.startsWith('stored refusal'))Object.assign(rp.placement,{validationFailed:true,repairRequired:true,repairReason:'parent-missing',validationSourceKey:'x'});else rp.placement.pendingGeometry=true;
  const L=C.deserialize(raw),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
  assert.ok(!r.failed.some(f=>f.partId===2),JSON.stringify(r.failed));assert.equal(q._placementError,undefined);assert.equal(q.placement.repairRequired,undefined);assert.equal(q.placement.newPlacement,undefined);
  assert.deepEqual(Array.from(q.c),c0,'it is not moved');const S={warnings:[]};C.groundingStats(L,S);assert.ok(!(S.ungrounded?.parts||[]).includes(2),'it touches the body, so it is grounded');
