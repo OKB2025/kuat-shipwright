@@ -8994,7 +8994,7 @@ function trialHudUpdate(full){
 // In a battle, a locked enemy that most guns cannot reach gets a hint: the
 // batteries bear when the target is above the deck, so pitch or roll toward it.
 function trialArcHint(){const B=trial.battle,ts=trial.turrets,lk=trial.aim?.lock;if(!B||B.result||!lk?.ship||!ts.length||trial.jump)return '';const live=ts.filter(t=>!t.dead),bad=live.filter(t=>!t.arc||t.arc&&t.clearDir&&!t.clear).length;return live.length&&bad>=live.length*.7?'主砲の射界外 — 機首を下げるかロールして、甲板を敵艦に向けてください':'';}
-function trialWhere(){const s=trialSys();if(trial.jump?.phase==='tunnel')return 'ハイパースペース';return (trial.mode==='battle'&&!trialSandbox()?'艦隊戦':trial.returnTo==='title'?'パトロール':'公試')+' · '+s.name+(s.planet.ring?'軌道 · '+(s.planet.ringName||'造船リング'):trial.rts?'星系':'低軌道');}
+function trialWhere(){const s=trialSys();if(trial.jump?.phase==='tunnel')return 'ハイパースペース';return (trial.mode==='battle'&&!trial.battlePlan?.sandbox?'艦隊戦':trial.returnTo==='title'?'パトロール':'公試')+' · '+s.name+(s.planet.ring?'軌道 · '+(s.planet.ringName||'造船リング'):trial.rts?'星系':'低軌道');}
 // Flagship status in a battle: shield, hull and armour bars, crew and losses,
 // and the last few lines of the battle log.
 // Armour by face (bow, stern, starboard, port, dorsal, ventral): what is left
