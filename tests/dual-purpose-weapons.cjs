@@ -166,3 +166,9 @@ test('the shared battery is reserved while ON whatever the threat (independent A
  C.setAutomaticPointDefense(f.u,false);const empty=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(empty,f.u.id)>0);
  f.e.ammo[1]=6;f.e.order.fire=false;const ceased=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(ceased,f.u.id)>0);
 });
+// Physics review 2026-11-15: rapid fire one barrel at a time keeps its rate whatever the frame time (the owed time is
+// carried across frames) and kicks the aim by one barrel's share of a volley.
+test('a twin gun in rapid fire keeps barrels ÷ cycle shots a second at 1/60, 1/30 and 1/20 s frames',()=>{
+ for(const dt of [1/60,1/30,.05]){cx.dt=dt;run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trial.energy.E=trial.energy.cap=1e12;for(let i=0;i<Math.round(10/dt);i++)trialGunnery(dt)');
+  const d=run('C.FITS.pd'),want=d.barrels/d.cycle*10/1.04,got=run('trial.gun.shots');assert.ok(Math.abs(got-want)<=want*.06,`dt ${dt}: ${got} shots in 10 s, about ${want.toFixed(0)} expected`);}
+});

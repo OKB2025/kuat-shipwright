@@ -8,7 +8,8 @@ const reference=()=>({...C.GUN_ACCURACY.reference,fireControl:true,modules:[]}),
 // checked below with GUN_ACCURACY.spreadScale set back to 1); with spreadScale 0.5 the same target is hit 85.3% of the
 // time there. Expectations that stated the 50% law now state the shared law, C.gunHitChance (tests 5, 7, 8), or the
 // figures at spreadScale 0.5 (tests 1, 3). Tests 7 and 8 failed on main before this change (0.4509 and 11.27 against
-// the 50% law); they keep checking that both paths use the shared law.
+// the 50% law) and still fail: a fleet unit starts with aim 0.5, whose spread factor 1.1 the analytic law here leaves
+// out (both ratios are 0.950; physics review 2026-11-15). Not a regression of the spread change.
 const withSpread=(k,f)=>{const keep=C.GUN_ACCURACY.spreadScale;C.GUN_ACCURACY.spreadScale=k;try{return f();}finally{C.GUN_ACCURACY.spreadScale=keep;}},LAW=()=>C.gunHitChance(source(),target(),40000);
 function seeded(seed=77){return ()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296;};}
 function rayHitsHull(direction,t,maxRange){

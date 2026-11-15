@@ -24,6 +24,9 @@
 // store's own governor. From tick 64 (after a1's reactors are knocked out at tick 60) the hash changed through the
 // unit's heat-running state only: with KS_DETERMINISM_ALLOW_FLOAT=1 all 96 ticks equal the previous recording within
 // 1e-12 in every digest number, shot, event count and random state.
+// Re-recorded after the physics review's heat-running fixes (the rise per second, the record cleared on full running,
+// lost rejection held down): from tick 4 the hash changed through the heat-running state only; with
+// KS_DETERMINISM_ALLOW_FLOAT=1 all 96 ticks equal the previous recording within 1e-12.
 // Re-recorded on c473505 + regenerated examples (2026-11-14, user decisions: one kind of structure, empty bays, denser machinery,
 // carried load added to the ship's mass in battle). The ships in this battle changed mass and plant, so every tick
 // differs from the 734081a recording from tick 0. Two recordings in a row gave the same file

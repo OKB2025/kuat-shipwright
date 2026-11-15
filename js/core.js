@@ -68844,14 +68844,15 @@ function heatRunStep(ctx,u,h,madeW){
 // the next step. Too much heat cuts the factor at once in proportion; with room to spare it rises by balanceRise.
 const heatPendingJ=h=>Object.values(h.e).reduce((a,J)=>a+Math.max(0,J||0),0)+[h.engineE,h.reactorE,h.feedE,h.esw].reduce((a,row)=>a+row.reduce((b,J)=>b+Math.max(0,J||0),0),0);
 function heatRunThrottle(u,h,H,madeJ,dt){
- if(heatRunMode(u)==='full'){h.runK=1;return;}
+ if(heatRunMode(u)==='full'){h.runK=1;h.runPrev=null;return;}
  const cap=h.cap??H.dis.reduce((a,d)=>a+Math.max(0,d.cap||0),0),allow=cap*HEAT.balanceTarget,rate=madeJ/dt+Math.max(0,h.coolingSelfW||0),k=clamp(h.runK??1,0,1);
  // Two steps at different factors tell the heat that does not follow the factor (services, shields) from the heat
  // that does, so the factor that meets the allowance is solved directly; otherwise it is cut in proportion.
  const prev=h.runPrev;let next;
- if(!(allow>0))next=1;/* nothing to balance against (no converters, or a model with no rejection figure): the store's own governor still limits the ship (full-suite comparison 2026-11-15: twelve test files whose ships carry no converters ran at a tenth) */
+ const rated=(H.dis||[]).reduce((a,d)=>a+Math.max(0,d.cap||0),0);
+ if(!(allow>0))next=rated>0?0:1;/* no converters by design: nothing to balance against, the store's own governor limits the ship (full-suite comparison 2026-11-15); converters lost to damage or power: held down (physics review 2026-11-15) */
  else if(rate>allow){const slope=prev&&Math.abs(k-prev.k)>1e-3?(rate-prev.rate)/(k-prev.k):0;next=slope>0?clamp((allow-(rate-slope*k))/slope,0,k):clamp(k*allow/rate,0,1);}
- else next=Math.min(1,k+HEAT.balanceRise*(1-rate/allow));
+ else next=Math.min(1,k+(1-Math.exp(-dt/.25*-Math.log(1-HEAT.balanceRise)))*(1-rate/allow));/* balanceRise is the rise of a 0.25 s step; the same rise per second at any step (physics review 2026-11-15) */
  h.runPrev={k,rate};h.runK=next;
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
