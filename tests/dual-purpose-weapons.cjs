@@ -170,5 +170,10 @@ test('the shared battery is reserved while ON whatever the threat (independent A
 // carried across frames) and kicks the aim by one barrel's share of a volley.
 test('a twin gun in rapid fire keeps barrels ÷ cycle shots a second at 1/60, 1/30 and 1/20 s frames',()=>{
  for(const dt of [1/60,1/30,.05]){cx.dt=dt;run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trial.energy.E=trial.energy.cap=1e12;for(let i=0;i<Math.round(10/dt);i++)trialGunnery(dt)');
-  const d=run('C.FITS.pd'),want=d.barrels/d.cycle*10/1.04,got=run('trial.gun.shots');assert.ok(Math.abs(got-want)<=want*.06,`dt ${dt}: ${got} shots in 10 s, about ${want.toFixed(0)} expected`);}
+  const d=run('C.FITS.pd'),want=d.barrels/d.cycle*10/1.008/* the harness fixes Math.random at 0.1: jitter 1+0.1×0.08 */,got=run('trial.gun.shots');assert.ok(Math.abs(got-want)<=want*.025,`dt ${dt}: ${got} shots in 10 s, about ${want.toFixed(0)} expected`);}
+});
+// High review 2026-11-15: time the gun could not fire (no energy) is not paid back as every barrel at once.
+test('after a second without energy a rapid-fire gun resumes one barrel at a time',()=>{
+ run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trial.turrets[0].barrels=4;trial.energy.E=trial.energy.cap=1e12;for(let i=0;i<90;i++)trialGunnery(1/30);trial.energy.E=0;trial.energy.cap=0;for(let i=0;i<30;i++)trialGunnery(1/30);trial.energy.E=trial.energy.cap=1e12;var perFrame=[];for(let i=0;i<10;i++){const before=trial.gun.shots;trialGunnery(1/30);perFrame.push(trial.gun.shots-before);}');
+ const perFrame=plain(run('perFrame'));assert.ok(perFrame.every(n=>n<=1),`shots a frame after the energy returns: ${perFrame}`);assert.ok(perFrame.reduce((a,b)=>a+b,0)>=2);
 });
