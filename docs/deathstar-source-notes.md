@@ -55,5 +55,10 @@ leaves the focus. `slaserFx` in `js/app.js` gives the timing; the trial view dra
 `trialSwBeamLines`), the fleet map draws a green line with a fan at the firing ship. The sound `superlaser` is
 synthesized.
 
-Not built yet: the strike on a planet (the second and third recordings: the flash, the ring-shaped shock, the
-planet breaking up) and firing on a planet at all.
+The full shot on a planet, after the third recording (trial flight only, no battle): a beam that meets the planet
+with no ship before it holds on the surface for 1.2 s, then the planet flashes white, a fireball swells from it, a
+bright ring runs out across the beam's line and glowing debris flies apart (`planetBlastPoints`). The planet is
+far beyond the view's far plane, so each sprite is drawn nearer on its own line of sight, reduced in proportion.
+The planet stays destroyed until the flight is restarted.
+
+Not built yet: the strike of the 2 ZT ship setting on a planet's surface (the second recording).

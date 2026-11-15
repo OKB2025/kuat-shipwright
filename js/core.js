@@ -64210,8 +64210,8 @@ function superweaponStep(u,dt,o){
    if(u.out||u.warp||hyperspaceCommitted(u.jump)){swBeamFinish(u,w,x);continue;}const sh=swBeamStep(u,w,x,i,dt,o);if(sh)shots.push(sh);continue;}
   if(x.st==='charge'){superweaponCharge(u,i,dt,s);if(x.st!=='ready'&&!(w.k==='hion'&&x.fireNow&&x.c>=ION_BOLT.fireMin))continue;}
   const explicit=!!x.fireNow,automatic=!u.manual&&!x.hold&&u.order?.sw!==false,idle=u.out||u.warp||hyperspaceCommitted(u.jump)||!explicit&&!automatic;
-  if(w.k==='hion'&&(x.st==='ready'||x.st==='charge')&&!idle&&o.bolts&&!heatSwHold(u,w)){const sh=ionFire(u,w,x,i,o,DMG);if(sh)shots.push(sh);continue;}
-  if(x.st!=='ready'||idle||heatSwHold(u,w))continue;
+  if(w.k==='hion'&&(x.st==='ready'||x.st==='charge')&&!idle&&o.bolts&&!heatSwHold(u,w,x)){const sh=ionFire(u,w,x,i,o,DMG);if(sh)shots.push(sh);continue;}
+  if(x.st!=='ready'||idle||heatSwHold(u,w,x))continue;
   if(swBeamKind(w.k)){
    const trace=swBeamTrace(u,w,o.all||o.foes);if(!explicit&&(!trace.hit||!o.foes.some(t=>t.id===trace.hit.id)))continue;
    const total=Math.min(swShipShotTT(w),u.p.energyModel?.version===1?Math.max(0,x.storedJ||0)/TT:swEnergyTT(w)*clamp(x.c,0,1));if(!(total>0)){x.st='charge';x.c=0;x.fireNow=false;continue;}
@@ -68788,7 +68788,10 @@ function heatGovernor(u){
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
 function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT,null,'superweapon-shot');}
-function heatSwHold(u,w){if(!HEAT.swInterlock||u.manual)return false;const h=heatOf(u);if(!h?.online)return true;
+// The hold is the AI's own caution: a pilot, and an explicit order to fire (x.fireNow.command, the fleet's 発射
+// order), are not held; a ship whose profile carries no heat model has nothing to judge by and is not held either
+// (tests/onager-fixed-axis-runtime.cjs: ten cases stopped firing when the hold was added).
+function heatSwHold(u,w,x){if(!HEAT.swInterlock||u.manual||x?.fireNow?.command||!heatProfile(u.p))return false;const h=heatOf(u);if(!h?.online)return true;
  if(u.p.energyModel?.version!==1)return h.qJ+HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT>=h.capacityJ;
  // The firing loss arrives over the release time; what the converters cannot take in that time must fit in the store.
  const T=swFireReleaseS(w.k),sw=u.p.sw||[],i0=sw.indexOf(w);let fireW=0;sw.forEach((v,i)=>{const x=u.sw?.[i];if(i===i0||x?.st==='beam'||x?.st==='ready'&&v.k===w.k)fireW+=swFireHeat(v).W;else if(x?.fireHeatJ>0)fireW+=Math.max(0,x.fireHeatW||0);});

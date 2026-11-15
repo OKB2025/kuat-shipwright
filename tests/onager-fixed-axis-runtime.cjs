@@ -2,6 +2,11 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
 const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x)),near=(a,b,e=1e-10)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*e,`${a} != ${b}`),ctx={time:0,damage:1,rand:()=>.9,ev(){},sunk(){},out(){}};
+// 2026-11-15: these cases check the beam's energy accounting, its line and its commands on a synthetic ship that has
+// no heat converters. Since the firing loss became heat (HEAT.swShot, 2% of the shot; user decision「発射の熱も排熱」)
+// such a ship delivers 98% and shuts down from the heat within a few steps, so the loss is switched off here and has
+// its own cases in tests/superweapon-firing-heat.cjs. The expectations below are unchanged.
+assert.equal(C.HEAT.swShot,.02);C.HEAT.swShot=0;
 function source(kind='sbeam'){
  const modules=[{k:'reactor',part:1,size:100,share:1,at:.5,domain:'main'},...['left','right'].map((name,i)=>({k:'superweapon',name,part:101+i,size:1,share:.5,at:.8,domain:'main',powerConnected:true}))],sw=[0,1].map(i=>({id:101+i,k:kind,aim:kind==='sbeam'?'bow':i?'stbd':'port',axis:kind==='sbeam'?[1,0,0]:[0,0,i?1:-1],mz:kind==='sbeam'?[10,0,i?5:-5]:[0,0,i?20:-20],Emax:kind==='sbeam'?125000:i?2000:1000,d:kind==='sbeam'?38.2:100,chargeT:100,chargeW:1e22,efficiency:.88,initialCharge:1,r:1,rk:'gen',Pshare:1,mod:i+1}));
  const p={profileVersion:C.FLEET_PROFILE_VERSION,name:'Paid superweapon source',hp:1e6,len:100,width:40,height:20,D:0,shieldBuffer:0,wCap:0,crewNeed:0,crewMax:0,maxSpeed:1000,accel:100,turnRate:.1,modules,sw,energyModel:{version:1,eta:.75},grid:{P:3.6e24,Pgen:3.6e24,fixed:0,cooling:0,De:0,Ds:0,Dw:0,domains:[{id:'main',P:3.6e24,modules:[0,1,2]}]}};

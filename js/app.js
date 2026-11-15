@@ -8193,7 +8193,7 @@ function trialCraftSystemsHTML(){
  return html;
 }
 function trialReset(){
- trial.resetGen=(trial.resetGen||0)+1;
+ trial.resetGen=(trial.resetGen||0)+1;trial.planetBlast=null;trial.planetGone=null;
  if(trial.cine)spaceCineEnd();const pose=trialInitialPose(trialSys());Object.assign(trial,{P:pose.P,V:[0,0,0],R:pose.R,w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
@@ -9122,7 +9122,7 @@ for(const g of Galaxy.SYSTEMS){const v=g.v,ring=v.ring||null,alt=v.alt||Math.rou
 for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s.planet.axis)||1;s.planet.axis=s.planet.axis.map(x=>x/l);}
 for(const s of Object.values(SYSTEMS)){const l=Math.hypot(...s.sun);s.sun=s.sun.map(x=>x/l);}
 const trialSys=()=>SYSTEMS[trial.sysKey]||SYSTEMS.coruscant;
-const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring,look:s.planet.look||null,star:s.star?{dir:s.sun,ang:s.star.ang,color:s.star.color}:null};};
+const trialPlanet=()=>{const s=trialSys(),gone=trial.planetGone===s.key?trial.planetBlast?Math.max(1e-6,1-trial.planetBlast.age/PLANET_BLAST.shrink):1e-6:1;return {center:tv.scale(trial.P,-1),radius:s.planet.radius*gone,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring,look:s.planet.look||null,star:s.star?{dir:s.sun,ang:s.star.ang,color:s.star.color}:null};};
 function trialInitialPose(s){
  const radius=s.planet.radius+s.altitude;
  if(s.key!=='coruscant')return {P:[0,radius,0],R:[1,0,0,0,1,0,0,0,1]};
@@ -9938,9 +9938,41 @@ function trialSwSoloFire(u,selection=trial.swSelect??'all'){
  if(fired){sndUI('ui_click',.4);if(none===fired)toast('射軸の方向へ発射');return;}toast(waiting?'充電中です':'超兵器を使えません');
 }
 // The shot drawn (as swShotFx draws a battle's): a held beam is renewed while it lasts.
-function trialSwSoloFx(i,w,mode,to,distance){
+// ---- The superlaser's full shot on a planet (the trial flight only) ----
+// After the film recordings the user supplied (2026-11-15): the beam holds on the surface, the planet flashes white,
+// then a fireball swells from it, a bright ring runs out across the beam's line, and glowing debris flies apart.
+// The planet stays destroyed until the flight is restarted. Altitude, the horizon line and the sky's light keep
+// their values (nothing else in the flight depends on the planet's body).
+const PLANET_BLAST={hold:1.2,shrink:.9,life:45};
+function trialPlanetHit(origin,axis,range){
+ if(trial.battle||trial.planetGone===trialSys().key)return null;const R=trialSys().planet.radius;if(!(R>0))return null;
+ const b=tv.dot(origin,axis),c=tv.dot(origin,origin)-R*R,D=b*b-c;if(D<0)return null;const t=-b-Math.sqrt(D);return t>0&&t<=range?t:null;
+}
+function trialPlanetDestroy(point,axis){
+ if(trial.planetBlast||trial.planetGone===trialSys().key)return;const R=trialSys().planet.radius,rnd=()=>tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),ax=tv.norm(axis),v=tv.norm(Math.abs(ax[1])<.9?tv.cross(ax,[0,1,0]):tv.cross(ax,[1,0,0])),v2=tv.cross(ax,v);
+ trial.planetBlast={age:0,R,point:point.slice(),ax,v,v2,fire:Array.from({length:420},()=>({d:rnd(),k:.35+.65*Math.random()})),debris:Array.from({length:320},()=>({d:rnd(),v:.08+.5*Math.random()*Math.random(),s:.012+.03*Math.random()}))};
+ trial.planetGone=trialSys().key;trial.flash=1;sndAt(sndPick('ship_breakup','explosion_large'),trial.P,{gain:1.5,pitch:.35,near:1e9,far:2e9});setTimeout(()=>{if(trial.on)sndAt(sndPick('wreck_boom','explosion_large'),trial.P,{gain:1.5,pitch:.3,near:1e9,far:2e9});},900);
+ toast(`${trialSys().name||'惑星'}を破壊しました`);
+}
+// The blast's sprites, relative to P. The planet is far beyond the view's far plane, so each point is drawn on its
+// own line of sight at no more than 0.6 of that distance, its size reduced in proportion (the same angle on screen).
+function planetBlastPoints(dt){
+ const b=trial.planetBlast;if(!b)return [];b.age+=dt;if(b.age>PLANET_BLAST.life){trial.planetBlast=null;return [];}
+ const out=[],P=trial.P,R=b.R,t=b.age,lim=(view?.cam?.far||4e6)*.6,put=(w,col,size)=>{const q=tv.sub(w,P),l=tv.len(q),k=l>lim?lim/l:1;out.push([k<1?tv.scale(q,k):q,col,size*k]);},A=x=>Math.round(255*clamp01(x));
+ // the flash at the strike and through the body
+ if(t<2.5){const k=1-t/2.5;put(b.point,[255,255,245,A(k)],R*(.5+t));put([0,0,0],[255,250,225,A(k)],R*(1.2+t*.8));}
+ // the fireball: white-yellow, then orange, then dull red, swelling to about four radii
+ {const grow=1-Math.exp(-t/7),fade=clamp01(1-t/26),hot=clamp01(1-t/5),col=[255,Math.round(120+125*hot),Math.round(30+190*hot*hot)];
+  for(const f of b.fire)put(tv.scale(f.d,R*f.k*(.25+3.8*grow)),[...col,A(.7*fade)],R*(.34+.5*grow));}
+ // the ring: across the beam's line, through the centre, running out fast
+ if(t>.3&&t<14){const r=R*(1+(t-.3)*1.1),k=clamp01(1-(t-.3)/13.7),n=420;for(let j=0;j<n;j++){const an=j/n*Math.PI*2;put(tv.add(tv.scale(b.v,Math.cos(an)*r),tv.scale(b.v2,Math.sin(an)*r)),[255,235,200,A(.9*k)],R*.12);if(j%3===0)put(tv.add(tv.scale(b.v,Math.cos(an)*r*.97),tv.scale(b.v2,Math.sin(an)*r*.97)),[255,150,60,A(.5*k)],R*.2);}}
+ // debris: glowing pieces thrown out, cooling as they go
+ {const fade=clamp01(1-t/PLANET_BLAST.life),hot=clamp01(1-t/18);for(const d of b.debris)put(tv.scale(d.d,R*(.2+d.v*t)),[Math.round(120+135*hot),Math.round(50+110*hot),Math.round(30+40*hot),A(.9*fade)],R*d.s);}
+ return out;
+}
+function trialSwSoloFx(i,w,mode,to,distance,planet=false){
  trial.swfx=trial.swfx||[];
- if(mode==='beam'){const e=trial.swfx.find(e=>e.solo&&e.i===i&&e.mode==='beam');if(e){e.life=.3;e.to=to;e.free=!to;e.distance=distance;return;}}
+ if(mode==='beam'){const e=trial.swfx.find(e=>e.solo&&e.i===i&&e.mode==='beam');if(e){e.life=.3;e.to=to;e.free=!to;e.distance=distance;e.planet=planet;return;}}
  const life=mode==='beam'?.3:mode==='pulse'?.7:2.2;trial.swfx.push({solo:true,i,k:w.k,mode,to,free:!to,distance,life,max:life,age:0});
  sndAt(w.k==='hion'?sndPick('ion_heavy','ion'):w.k==='slaser'?sndPick('superlaser','turbolaser_heavy'):sndPick('turbolaser_heavy','turbolaser'),trial.P,{gain:1.3,pitch:w.k==='hion'?.55:w.k==='slaser'?1:mode==='pulse'?.6:.75,near:Math.max(3000,trial.p.len*2),far:90000});
  trial.flash=Math.min(1,(trial.flash||0)+.5);
@@ -9974,7 +10006,11 @@ function trialSwSoloStep(dt){
    const trace=trialSwRayTrace(w,objs||(objs=trialSwObjects())),ref=trace.hit?.ref||null;
    trialSwSoloBeamEnergy(u,i,x,dt);const spent=Math.min(dt,x.t);x.t-=spent;
    if(x.tgt!==ref){x.tgt=ref;x.burn=0;}x.free=!ref;if(ref){x.burn+=spent;if(x.burn>=TRIAL_SW.burn)trialSwStrike(trace.hit,'beam');}else x.burn=0;
-   trialSwSoloFx(i,w,'beam',ref,trace.distance);
+   // A superlaser's beam that meets the planet with no ship before it is the full shot (user decision 2026-11-15
+   // 「最大出力の惑星射撃は惑星が破壊されるように」): held on the surface, it destroys the planet.
+   const onPlanet=w.k==='slaser'&&!ref?trialPlanetHit(trace.origin,trace.axis,trace.distance):null;
+   if(onPlanet!=null){x.planetBurn=(x.planetBurn||0)+spent;if(x.planetBurn>=SLASER_FX.main+PLANET_BLAST.hold)trialPlanetDestroy(tv.add(trace.origin,trace.axis,onPlanet),trace.axis);}else x.planetBurn=0;
+   trialSwSoloFx(i,w,'beam',ref,onPlanet??trace.distance,onPlanet!=null);
    if(x.t<=0){trialSwSoloBeamEnergy(u,i,x,0,true);x.st='cool';x.t=K.over.T;x.tgt=null;C.swOverload(u,w);}continue;
   }
   if(x.st==='charge'){if(typeof C.superweaponCharge==='function')C.superweaponCharge(u,i,dt);else x.c=Math.min(1,x.c+dt/Math.max(1,w.chargeT)*C.swChargeRate(u,i));if(x.c>=1){x.st='ready';if(!u.sw.some((y,j)=>j!==i&&y.st==='ready'))toast(`${K.name}：充電完了 — B（超兵器ボタン）で発射`);}}
@@ -10092,7 +10128,7 @@ function ionChargePoints(){
  return out;
 }
 function swFxPoints(dt){
- const B=trial.battle,out=ionChargePoints();if(!trial.swfx?.length)return out;const byId=B?new Map(B.b.units.map(u=>[u.id,u])):null,P=trial.P;
+ const B=trial.battle,out=ionChargePoints();if(trial.planetBlast)out.push(...planetBlastPoints(dt));if(!trial.swfx?.length)return out;const byId=B?new Map(B.b.units.map(u=>[u.id,u])):null,P=trial.P;
  // v21.2 A trial flight's shots (e.solo) leave the flown ship and strike buoys and drones, held by reference.
  const rnd=()=>tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]);
  const tgt=(e,id)=>{if(e.solo)return id?.pos?{w:id.pos,L:id.kind==='craft'?40:(trial.asset?.geometry?.targetRadius||60)*2,pt:k=>tv.add(id.pos,rnd(),(trial.asset?.geometry?.targetRadius||60)*k*2*Math.random())}:null;const t=byId?.get(id);return t?{w:t.manual?trial.P:spaceWorld(t),L:t.p.len||300,pt:k=>spaceHullPoint(t,k)}:null;};
@@ -10112,6 +10148,7 @@ function swFxPoints(dt){
    out.push([f,[235,255,235,Math.round(255*F.focus)],a*(.1+.16*F.focus)*fl],[f,[60,255,110,Math.round(170*F.focus)],a*(.3+.5*F.focus)*fl]);
    // the main beam: dense near the station, sparser far out, then the strike
    if(F.main>0&&L>1){const Lm=L*F.main,n=360;/* cubic spacing: close together by the station, each sprite as wide as the gap to the next */for(let j=1;j<=n;j++){const k=j/n,k0=(j-1)/n,q=tv.add(f,u,Lm*k*k*k),gap=Lm*(k*k*k-k0*k0*k0),sz=Math.max(a*.05,gap*1.3);out.push([q,[215,255,220,255],sz*fl]);if(j%2===0)out.push([q,[40,255,95,140],Math.max(a*.17,gap*2.6)*fl]);}
+    if(e.planet&&F.main>=1){const g=clamp01((e.age-SLASER_FX.main-SLASER_FX.run)/PLANET_BLAST.hold),hit=tv.add(f,u,L);out.push([hit,[240,255,240,255],a*(.3+1.2*g)*fl],[hit,[90,255,130,170],a*(.9+3.5*g)*fl],[hit,[255,255,255,Math.round(200*g)],a*(.5+2*g)]);}
     const t=e.to!=null?tgt(e,e.to):null;if(t&&F.main>=1)out.push([tv.add(f,u,L),[235,255,235,255],Math.max(600,t.L*.5)*fl],[tv.add(f,u,L),[80,255,120,160],Math.max(1500,t.L*1.4)*fl]);}
    continue;}
   if(e.mode==='beam'||e.mode==='pulse'){const t=e.to!=null?tgt(e,e.to):null,range=C.swRange(e.solo?trial.swSolo:byId?.get(e.from),w),L=C.clamp(Number.isFinite(e.distance)?e.distance:range,0,range),to=tv.add(m,ax,L);if(!(L>1))continue;const u=tv.norm(ax),n=Math.min(420,Math.max(40,Math.round(L/45))),k=e.mode==='pulse'?Math.max(0,e.life/e.max):1,fl=.8+.2*Math.sin(e.age*40);
