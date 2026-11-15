@@ -68849,7 +68849,7 @@ function heatRunThrottle(u,h,H,madeJ,dt){
  // Two steps at different factors tell the heat that does not follow the factor (services, shields) from the heat
  // that does, so the factor that meets the allowance is solved directly; otherwise it is cut in proportion.
  const prev=h.runPrev;let next;
- if(!(allow>0))next=0;
+ if(!(allow>0))next=1;/* nothing to balance against (no converters, or a model with no rejection figure): the store's own governor still limits the ship (full-suite comparison 2026-11-15: twelve test files whose ships carry no converters ran at a tenth) */
  else if(rate>allow){const slope=prev&&Math.abs(k-prev.k)>1e-3?(rate-prev.rate)/(k-prev.k):0;next=slope>0?clamp((allow-(rate-slope*k))/slope,0,k):clamp(k*allow/rate,0,1);}
  else next=Math.min(1,k+HEAT.balanceRise*(1-rate/allow));
  h.runPrev={k,rate};h.runK=next;
