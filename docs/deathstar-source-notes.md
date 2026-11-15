@@ -27,10 +27,16 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 | Amplifier bulb | 11.6 km to 29.4 km, 4.4 km at its widest | the same |
 | Neck | 29.4 km to 33.5 km, 2 km in radius | the same |
 | Works between neck and housing | 33.5 km to 52.7 km, growing to 9.4 km in radius | three steps: 5.2, 7.2 and 9.4 km |
-| Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, to the dish rim less 300 m |
+| Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, to the dish rim less 300 m; its back stands on the floor of the wide well |
 | Dish floor | 69.2 km out | 68.9 km (the STL's value; the STL governs the outside) |
 | Dish | a cone, 22 km in radius, 23° above the equator | the STL's bowl: 28.7 km in radius, 27° |
 | Column through the poles | about 13 km in radius above the core, narrower below | reactant silos: 12 km × 46 km above, 8 km × 40 km below |
+
+Wells: only the housing has one (as wide as the dish, from 52.7 km out; the hole the station shows without its
+superlaser). The stepped works, the neck and the bulb are embedded in the station's structure, as on the drawing;
+an earlier version gave them wells of their own (up to 4.6 km wider than the body), which left the weapon touching
+nothing. Known difference kept: a 300 m ring between the housing and the wall of its well, down to the well's floor
+(not on the STL or the drawing; it lets the part be taken out and put back).
 
 The superlaser's body is made in its own frame (the dish axis along x) and pitched up 27°, so the weapon's axis is
 the dish axis. Before this the body had no rotation and the beam left level, along the station's x.

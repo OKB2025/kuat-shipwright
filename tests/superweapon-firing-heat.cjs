@@ -26,3 +26,24 @@ test('an AI ship with no room for the firing heat holds its shot; an explicit or
 test('with the hold switched off the same AI ship fires',()=>{
  const keep=C.HEAT.swInterlock;C.HEAT.swInterlock=false;try{const u=source(),t=target('on-axis',[10000,0,0]);assert.equal(step(u,.25,[u,t]).length,2);}finally{C.HEAT.swInterlock=keep;}
 });
+// Physics review 2026-11-15.
+test('a whole ten-second beam sends out 98% of the weapon\'s charge and empties its store',()=>{
+ const u=source(),t=target('on-axis',[10000,0,0]);C.superweaponCommand(u,{indexes:[0]});let out=0;for(let i=0;i<40;i++)for(const sh of step(u,.25,[u,t]))out+=sh.energyTT;
+ near(out,125000*.98);near(u.sw[0].storedJ,0);assert.equal(u.sw[0].st,'cool');const l=u.weaponLedger;near(l.emittedJ,125000*.98*C.TT);near(l.initialJ+l.inputJ,l.storedJ+l.emittedJ+l.lossJ+l.releasedJ);
+});
+function station(){
+ const E=C.SW_COMBAT.slaser.E,modules=[{k:'reactor',part:1,size:100,share:1,at:.5,domain:'main'},{k:'superweapon',name:'superlaser',part:101,size:1,share:.5,at:.8,domain:'main',powerConnected:true}];
+ const sw=[{id:101,k:'slaser',aim:'bow',axis:[1,0,0],mz:[88000,0,0],Emax:E,d:C.SW_COMBAT.slaser.refD,chargeT:86400,chargeW:E*C.TT/(86400*.88),efficiency:.88,initialCharge:1,r:1,rk:'gen',Pshare:1,mod:1}];
+ const p={profileVersion:C.FLEET_PROFILE_VERSION,name:'Station',hp:1e12,len:160000,width:160000,height:160000,D:0,shieldBuffer:0,wCap:0,crewNeed:0,crewMax:0,maxSpeed:0,accel:0,turnRate:.01,modules,sw,energyModel:{version:1,eta:.75},grid:{P:1e31,Pgen:1e31,fixed:0,cooling:0,De:0,Ds:0,Dw:0,domains:[{id:'main',P:1e31,modules:[0,1]}]}};
+ const u=C.fleetUnit('station','station',p);u.pos=[0,0,0];u.team=0;u.yaw=0;return u;
+}
+test('a superlaser\'s ship shot spends 2 of its 53 ZT, 98% of that as the beam, and keeps the rest of its charge through the cool-down',()=>{
+ const u=station(),w=u.p.sw[0],x=u.sw[0],E=C.swEnergyTT(w),shot=C.swShipShotTT(w),t=target('ship',[400000,0,0]);near(shot,E*2/53);assert.equal(C.superweaponCommand(u,{indexes:[0]}).queued,1);
+ let out=0,slices=[];for(let i=0;i<24&&x.st!=='cool';i++)for(const sh of step(u,.25,[u,t])){out+=sh.energyTT;slices.push(sh.energyTT);}
+ assert.equal(x.st,'cool');near(out,shot*.98,1e-6);near(x.storedJ,(E-shot)*C.TT,1e-6);
+ const even=shot*.98/24;assert.ok(Math.max(...slices)<=even*1.001,`no slice larger than the even share: ${Math.max(...slices)} against ${even}`);
+ // through the cool-down the charge reads what the store holds, and charging never fills past the capacity
+ C.swCoolDone(u,w,x);assert.equal(x.st,'charge');near(x.c,51/53,1e-6);
+ const need=E*C.TT-x.storedJ,rated=w.chargeW*w.efficiency;near(need/rated,86400*2/53,1e-6);/* about 54 minutes at the rated charging power */
+ x.storedJ=E*C.TT*.9999;x.c=.9999;C.superweaponCharge(u,0,1e6,null);assert.ok(x.storedJ<=E*C.TT*(1+1e-12),'the store is never above the capacity');
+});

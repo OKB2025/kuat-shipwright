@@ -10000,7 +10000,7 @@ function trialSwSoloStep(dt){
  const u=trialSwSolo();if(!u||!(dt>0))return;if(u!==trial.systemsUnit)C.swDecay(u,dt);const sw=u.p.sw;let objs=null;
  for(let i=0;i<sw.length;i++){const w=sw[i],x=u.sw[i],K=C.SW_COMBAT[w.k];
   if(x.st==='beam'&&(C.powerFactor(u,'superweapon',u.p.modules?.findIndex(m=>m.part===w.id))<=0||(u.ht?.swLim?.[i]??1)<=0)){trialSwSoloBeamEnergy(u,i,x,dt,true);x.st='cool';x.t=K.over.T;x.free=false;x.tgt=null;continue;}
-  if(x.st==='cool'){x.t-=dt;if(x.t<=0){x.st='charge';x.c=0;}continue;}
+  if(x.st==='cool'){x.t-=dt;if(x.t<=0)C.swCoolDone(u,w,x);continue;}
   if(x.st==='beam'){
    if((typeof trialJumpCommitted==='function'?trialJumpCommitted():trial.jump)||x.t<=0){trialSwSoloBeamEnergy(u,i,x,dt,true);x.st='cool';x.t=K.over.T;x.free=false;x.tgt=null;C.swOverload(u,w);continue;}
    const trace=trialSwRayTrace(w,objs||(objs=trialSwObjects())),ref=trace.hit?.ref||null;
