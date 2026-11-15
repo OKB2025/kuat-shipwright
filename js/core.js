@@ -62736,7 +62736,7 @@ function shieldStatus(u){
 // spread over the profile's heat sources as the battle solve does and solved through the real paths, so a
 // converter is funded for the heat that can actually reach it (an hdis on a source's auto path is not
 // starved by a large wing elsewhere). Each converter reserves disPowerK × that heat × HEAT.coolingHeadroom
-// (feed and superweapon heat are covered by the headroom), never above its rating; only the heat actually
+// (feed heat is covered by the headroom; a superweapon's row asks for its charge heat of the last heat solve), never above its rating; only the heat actually
 // converted draws, heats and burns fuel (heatTick). The result is kept on the unit for this step.
 // Heat already accrued in the source ledger since the last heat solve (J); it is solved at the next one.
 function pendingLedgerJ(h){if(!h)return 0;let J=0;for(const v of Object.values(h.e||{}))J+=Math.max(0,v||0);for(const k of ['engineE','reactorE','feedE','esw'])for(const v of h[k]||[])J+=Math.max(0,v||0);return J;}
