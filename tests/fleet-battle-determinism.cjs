@@ -10,6 +10,11 @@
 // be written to u.hitLog (X-ray replay): ticks 4..95 changed hash only through hitLog; with
 // hitLog left out of the hash, and in every digest number, shot, event count and
 // random state, all 96 ticks are identical to the 910ef75 recording.
+// Re-recorded on 2026-11-15 (PR #111, after PR #110's firing-heat work): the heat state gained one field per unit,
+// ht.madeBaseW (the heat a ship makes apart from its superweapons, for the firing-heat hold). Ticks 3..95 changed hash
+// through that field only: with KS_DETERMINISM_ALLOW_FLOAT=1 every digest number, shot, event count and random state
+// of all 96 ticks equals the previous recording within 1e-12, and the full states dumped at ticks 3 and 50 on main
+// (b1bc4a8) and on the branch differ in nothing but the four added ht.madeBaseW keys (no value differs).
 // Re-recorded on c473505 + regenerated examples (2026-11-14, user decisions: one kind of structure, empty bays, denser machinery,
 // carried load added to the ship's mass in battle). The ships in this battle changed mass and plant, so every tick
 // differs from the 734081a recording from tick 0. Two recordings in a row gave the same file
