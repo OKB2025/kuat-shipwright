@@ -62736,7 +62736,7 @@ function shieldStatus(u){
 // spread over the profile's heat sources as the battle solve does and solved through the real paths, so a
 // converter is funded for the heat that can actually reach it (an hdis on a source's auto path is not
 // starved by a large wing elsewhere). Each converter reserves disPowerK × that heat × HEAT.coolingHeadroom
-// (feed and superweapon heat are covered by the headroom), never above its rating; only the heat actually
+// (feed heat is covered by the headroom; a superweapon's row asks for its charge heat of the last heat solve), never above its rating; only the heat actually
 // converted draws, heats and burns fuel (heatTick). The result is kept on the unit for this step.
 // Heat already accrued in the source ledger since the last heat solve (J); it is solved at the next one.
 function pendingLedgerJ(h){if(!h)return 0;let J=0;for(const v of Object.values(h.e||{}))J+=Math.max(0,v||0);for(const k of ['engineE','reactorE','feedE','esw'])for(const v of h[k]||[])J+=Math.max(0,v||0);return J;}
@@ -62746,7 +62746,10 @@ function coolingDemandW(u,H,want){
  const p=u?.p||{},g=p.grid||{},W=HEAT.waste,w=want||{},fixed=Math.max(0,(g.fixed||0)-(g.cooling||0)),shields=Math.max(0,w.shields||0),weapons=Array.isArray(w.weaponLoads)?w.weaponLoads.reduce((n,r)=>n+Math.max(0,r.requestedInputW||0),0):Math.max(0,w.weapons||0),engines=clamp(w.throttle??u?.maneuver??0,0,1)*Math.max(0,g.De||0);
  const kind={hotel:W.hotel*fixed,shield:W.shield*shields,weapon:W.weapon*weapons,engine:PROPULSION.wasteFraction*engines,reactor:W.reactor*(fixed+shields+weapons+engines)},weights={};
  for(const s of src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
- const D=src.map(s=>(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
+ // A charging superweapon heats the ship whether or not the guns fire (found 2026-11-15: an Onager with no target in
+ // reach, or holding fire, reserved cooling for its idle guns only and shut down from charge heat in 5 s). Its source
+ // row asks for the charge heat of the last heat solve.
+ const swW=u?.ht?.sourceGenerationW,D=src.map((s,i)=>s.k==='sw'?Math.max(0,swW?.[i]||0):(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
  // kinds with no source row of their own (an old profile) and the stored heat reach any spare converter
  const unrouted=Object.entries(kind).reduce((n,[k,v])=>n+(weights[k]>0?0:v),0)+Math.max(0,u?.ht?.qJ||0)/Math.max(1e-9,HEAT.drainS)+Math.max(0,u?.ht?.coolingSelfW||0)+Math.max(0,u?.ht?.towWantW||0)+D.reduce((n,v,i)=>n+v-r.out[i],0)+pendingLedgerJ(u?.ht)/HEAT.dt;
  const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,v)=>a+v,0),used=r.used.map((v,j)=>v+(room>0?Math.min(unrouted,room)*spare[j]/room:0));
