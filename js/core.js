@@ -52790,7 +52790,7 @@ function v3StructTriangles(pt){
   // 96 sides and 32 levels set at equal angles from its base to its top. With the ordinary 40 sides and 16 levels at
   // equal heights the last level spans 20 degrees to the pole (the Death Star's cap lay up to 1.3 km under the source
   // model there). Ordinary domes are unchanged.
-  const round=['cylinder','cone','dome'].includes(pt.form),bigDome=pt.form==='dome'&&Math.max(pt.s[0],pt.s[1],pt.s[2])>SHIP_LIMITS.partSize,n=bigDome?96:round?40:4,levels=bigDome?32:pt.form==='dome'?16:1,rings=[],tri=[];
+  const round=['cylinder','cone','dome'].includes(pt.form),bigRound=round&&Math.max(pt.s[0],pt.s[1],pt.s[2])>SHIP_LIMITS.partSize,bigDome=bigRound&&pt.form==='dome',n=bigRound?96:round?40:4,/* a station-size cylinder or cone too: with 40 sides its faces lie 0.3% inside the circle (the Death Star's trench floor 237 m low) */levels=bigDome?32:pt.form==='dome'?16:1,rings=[],tri=[];
   for(let j=0;j<=levels;j++){const t=bigDome?Math.sin(j/levels*Math.PI/2):j/levels,[x0,x1,z0,z1]=structLimits(pt,t),y=(t-.5)*pt.s[2],r=pt.form==='dome'?Math.sqrt(Math.max(0,1-t*t)):1;
     const ring=[];for(let i=0;i<n;i++){if(round){const a=i/n*Math.PI*2;ring.push(worldStruct(pt,[(x0+x1)/2+Math.cos(a)*(x1-x0)/2*r,y,(z0+z1)/2+Math.sin(a)*(z1-z0)/2*r]));}else ring.push(worldStruct(pt,[[x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1]][i]));}rings.push(ring);
   }
@@ -61755,13 +61755,14 @@ registerShipExample({
 //    axis, medians of sixteen azimuths, scripts/stl-check/deathstar_compare.py): the rim 20 degrees from the axis
 //    (27.4 km), the centre 11.1 km below the sphere, close to a cone between. An earlier version used a spherical
 //    bowl with its rim at 21 degrees, up to 2.4 km deeper than the model between 12 and 20 degrees.
-//  - The equatorial trench is 1.8 km wide and 3.2 km deep (measured); it holds the engines and the docks (user).
+//  - The equatorial trench is 1.98 km wide and its floor 3.15 km below the sphere (measured at seven longitudes); it
+//    holds the engines and the docks (user).
 //  - Meridian trenches are not on the model: the user asked for several, wide enough for a fighter. Four great
 //    circles through the poles (eight meridians), 120 m across and 60 m deep.
 //  - The superlaser (53 ZT) and the reactor core it is wired to follow the user's cutaway drawing: the core at the
 //    centre, the superlaser's works between the core and the dish. Its exhaust port is put by ensureSuperlaserExhaust.
 {
-const DS={R:80000,dishLat:27,dishRim:20,dishDepth:11100,trenchW:1800,trenchD:3200,meridians:4,meridianW:120,
+const DS={R:80000,dishLat:27,dishRim:20,dishDepth:11100,trenchW:1980,trenchD:3150,/* the equatorial trench measured on the STL at seven longitudes: width 1.98 km, floor 76.85 km from the centre (docs/deathstar-source-notes.md) */meridians:4,meridianW:120,
  // [degrees from the dish axis, metres from the station's centre]
  dish:[[0,68901],[2,68988],[4,69280],[6,69758],[8,70191],[10,71445],[12,72568],[14,74282],[16,76339],[18,77556],[19,78899],[20,80000]]};
 // A closed body of revolution about `axis` through `origin`: rows [distance along the axis, radius], n-sided.
@@ -61843,7 +61844,7 @@ registerShipExample({
  key:'deathstar',name:'デス・スター（バトルステーション）',side:'銀河帝国',role:'バトルステーション（スーパーレーザー搭載）',length:160000,fleetHidden:true,
  title:'Death Star',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（deathstar_1_5_10_5.stl）',license:'不明（出典未記載）',
  credit:'デス・スターの外形（球・皿・赤道トレンチ）は、ユーザーが提供した STL ファイル（deathstar_1_5_10_5.stl、作者・ライセンス表記なし）から実測した。',
- note:'直径 160 km。皿は北緯 27°・縁の半径 27.4 km・深さ 11.1 km、赤道トレンチは幅 1.8 km・深さ 3.2 km（いずれも実測）。子午線トレンチ 8 本（幅 120 m）はユーザー指定による追加。',
+ note:'直径 160 km。皿は北緯 27°・縁の半径 27.4 km・深さ 11.1 km、赤道トレンチは幅 2.0 km・深さ 3.2 km（いずれも実測）。子午線トレンチ 8 本（幅 120 m）はユーザー指定による追加。',
  build:deathStarBuild
 });
 }

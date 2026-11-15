@@ -187,5 +187,15 @@ only the propulsion feed); that is now a margin question, not a shortfall, and i
   example had 1.8 km and its floor at 76,800 m, from the first, coarse reading (the single section at 93.3° that
   gave 2.21 km took its edges from a looser threshold). Put right: width 1.98 km and floor at 76,850 m. The centre
   stays on the equator (0.1°, 140 m, kept so that the two hemispheres stay equal).
+  Done (2026-11-15). The trench floor (a cylinder) was also 237 m low between its 40 corners: a station-size
+  cylinder now has 96 sides, like the station's domes. Example minus STL at 93.3° (/tmp/ks-verify/20261115-stlcmp7):
+  floor −262 → −10 m (median); width by the comparison's threshold 1.79 → 1.95 km (STL 2.21 km there, 1.98 km
+  median over seven longitudes). The skin grid moved by +15 m (median +155 m).
 - **Tolerances.** None were fixed before the comparison. Whether the measured differences are accepted is the
   user's decision; until then referenceShape stays unverified.
+
+## Catalogue rows against main (2026-11-15, after all regenerations)
+
+`data/examples/<key>/combat.json` compared with main (b1bc4a8) outside the row's `model` key
+(/tmp/ks-verify/20261115-rowdiff/summary.txt): no value differs for the 26 ordinary ships; the Onager (2,689
+values) and the Subjugator (49,718) differ through the firing-loss converters of PR #110; the Death Star is new.
