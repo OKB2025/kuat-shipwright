@@ -68281,7 +68281,7 @@ const HEAT={
  // balanced running holds thrust and weapon charging so the heat made stays at balanceTarget of what the ship can reject;
  // full running ignores heat until the store is fullWarnAt full, then warns and returns to balanced running. A ship left
  // to itself (order.heat unset) runs full while it has a target and the store is under fullRearm.
- fullWarnAt:.5,fullRearm:.25,balanceTarget:.97,balanceGain:.5,
+ fullWarnAt:.5,fullRearm:.25,balanceTarget:.97,balanceRise:.25,
  resp:{weapon:2,shield:3,engine:3,feed:3,reactor:6,sw:8,hotel:5}, // s: emergency shutdown response (longer when the machine is damaged)
  failS:6,            // s held at or above critical after a failed shutdown before the failure
  burn:.02,           // module health lost per second per unit of store above full
@@ -68801,7 +68801,10 @@ function accrueFeedHeat(h,H,losses,dt,direct=false){
 // Source attribution is an inflow ledger. None of these joules disappear when
 // a source shuts down or loses its physical module before the thermal solve.
 function heatAccrue(u,got,fixed,dt){
- const h=heatOf(u),H=heatProfile(u?.p);if(!h||!H||!(dt>0)||!Number.isFinite(dt))return;const W=HEAT.waste,e=h.e,power=got.propulsion?.power,acceptedRatios=Object.create(null);
+ const h=heatOf(u),H=heatProfile(u?.p);if(!h||!H||!(dt>0)||!Number.isFinite(dt))return;const pending0=heatPendingJ(h);heatAccrueInner(u,got,fixed,dt,h,H);heatRunThrottle(u,h,H,heatPendingJ(h)-pending0,dt);
+}
+function heatAccrueInner(u,got,fixed,dt,h,H){
+ const W=HEAT.waste,e=h.e,power=got.propulsion?.power,acceptedRatios=Object.create(null);
  if(power?.funding&&power.consumers){const sources=new Map(power.sources.map(s=>[s.id,s])),funding=power.sourceFunding||power.funding;
   for(const load of power.consumers){if(load.kind==='cooling'||!(load.grantedInputW>0))continue;let ratio=1;
    if(load.kind==='weapons'){if(u.p.surface?.mounts&&u.pw?.weaponInputRemainingJ){const mi=load.id.slice('weapons:'.length),accepted=(u.pw.weaponInputs?.[mi]||0)-(u.pw.weaponInputRemainingJ[mi]||0)/dt;ratio=clamp(accepted/load.grantedInputW,0,1);}else ratio=power.weapons>0?clamp((got.weapons||0)/power.weapons,0,1):0;}
@@ -68833,8 +68836,16 @@ function heatRunStep(ctx,u,h,madeW){
  const fill=h.capacityJ>0?h.qJ/h.capacityJ:0,auto=!u.manual&&u.order?.heat!=='full'&&u.order?.heat!=='balance';
  if(auto){if(u.heatAutoFull){if(fill>=HEAT.fullWarnAt){u.heatAutoFull=false;ctx?.ev?.(u,'蓄熱 50%：全力運転を解除、排熱と釣り合う運転へ');}else if(!u.engaging)u.heatAutoFull=false;}else if(u.engaging&&fill<HEAT.fullRearm)u.heatAutoFull=true;}
  else if(u.order?.heat==='full'&&fill>=HEAT.fullWarnAt){u.order={...u.order,heat:'balance'};u.heatFullEnded=ctx?.time??0;ctx?.ev?.(u,'蓄熱 50%：全力運転を解除、排熱と釣り合う運転へ');}
+ if(heatRunMode(u)==='full')h.runK=1;
+}
+// Balanced running acts ahead of the store (user decision 2026-11-15: the store keeps its size, about a second of ship
+// heat): every power step compares the heat just made with what the ship can reject and sets the output factor for
+// the next step. Too much heat cuts the factor at once in proportion; with room to spare it rises by balanceRise.
+const heatPendingJ=h=>Object.values(h.e).reduce((a,J)=>a+Math.max(0,J||0),0)+[h.engineE,h.reactorE,h.feedE,h.esw].reduce((a,row)=>a+row.reduce((b,J)=>b+Math.max(0,J||0),0),0);
+function heatRunThrottle(u,h,H,madeJ,dt){
  if(heatRunMode(u)==='full'){h.runK=1;return;}
- const cap=Math.max(0,h.cap||0),k=clamp(h.runK??1,0,1);h.runK=cap>0?clamp(k+HEAT.balanceGain*(cap*HEAT.balanceTarget-madeW)/cap,0,1):0;
+ const cap=h.cap??H.dis.reduce((a,d)=>a+Math.max(0,d.cap||0),0),allow=cap*HEAT.balanceTarget,rate=madeJ/dt+Math.max(0,h.coolingSelfW||0),k=clamp(h.runK??1,0,1);
+ h.runK=!(allow>0)?0:rate>allow?clamp(k*allow/rate,0,1):Math.min(1,k+HEAT.balanceRise*(1-rate/allow));
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
 function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT,null,'superweapon-shot');}
