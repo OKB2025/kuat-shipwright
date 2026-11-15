@@ -2482,7 +2482,10 @@ function placementAuthoringHits(ship,o,d,parents,patches,options){
   // if that parent has no exposed patch. New accepted solids are different:
   // their real Worker geometry is useful before the next survey catches up.
   if(options.surfaceId||semantic&&bodyCurrent)continue;
-  const triangles=provisional||accepted||(!survey&&bodyCurrent?body.triangles:null);
+  // The Worker's body, when it is the current one, comes before the part's carried solid: the carried solid of a
+  // structure is its shape before the ship-level cuts, and before the survey arrives a tap would land on a face a
+  // cut has taken away (high review 2026-11-15). A newly accepted solid has no current body yet and is used as before.
+  const triangles=provisional||(!survey&&bodyCurrent?body.triangles:null)||accepted;
   if(triangles){const hit=C.rayTris(triangles,o,direction,options.maxDistance);if(hit)hits.push({host,point:hit.p,p:hit.p,n:hit.n,t:hit.t,distance:hit.t,part:parent,kind:parent?'part':'hull',parentStructureId:id,semanticPending:true,...(provisional?{provisional:true}:{} )});}
   else if(!semantic||!selected.length&&!bodyCurrent)unknown.push(placementPendingBounds(parent,source));
  }

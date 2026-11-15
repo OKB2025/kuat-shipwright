@@ -34,3 +34,19 @@ test('a placement tap through the loaded ellipsoid reaches the ellipsoid and the
  const hits=r.G.placementSurfaceCandidates(client,[8.82,7.98,8.54],[-0.563,-0.523,-0.64],{includeOccluded:true}),ids=hits.map(h=>h.parentStructureId);
  assert.ok(hits.length>=2,`hits ${JSON.stringify(ids)}`);assert.equal(ids[0],33,'the ellipsoid is met first');assert.ok(ids.includes(1),'the hull inside is offered too');
 });
+// High review 2026-11-15: before the surface survey arrives (the early authoring packet), a ship-level cut that also
+// carves structures must be seen by the tap. The structure's carried solid is its shape before the cuts; the Worker's
+// current body is the carved one and is used first.
+test('before the survey, a tap from above lands on the carved face, not on the ellipsoid as it was before the cut',()=>{
+ const r=runtime(),raw=r.C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'fixtures/craft-in-ellipsoid-no-reactor-2026-11-15.json.gz'))).toString('utf8')));
+ raw.solidCuts=[{id:raw.nextId++,shape:'box',c:[1.5,2,0],s:[3,1,3],structures:true}];r.C.syncCompartments(raw);
+ r.C.hullGeo(raw);r.C.referenceHullGeometry(raw);for(const part of raw.parts)if(r.C.isShapePart(part)){part._solidCutShip=raw;r.C.structTriangles(part);}
+ const packet=structuredClone(r.E.packCaches(raw,{authoring:true,deferSurfaces:true})),client=JSON.parse(r.C.publicJSON(raw));client._client=true;client._geoProxy=packet.geoProxy;client._editorGeometryContext='early-packet';
+ for(const part of client.parts){part._editorGeometryContext=client._editorGeometryContext;const src=raw.parts.find(p=>p.id===part.id);for(const key of ['_placementGeometry','_placementSelfKey','_placementRequestKey'])if(src[key]!=null)part[key]=src[key];}
+ assert.equal(client._geoProxy.surfaces,undefined,'the early packet, before the survey');
+ const hits=r.G.placementSurfaceCandidates(client,[1.5,10,.05],[0,-1,0],{includeOccluded:true});assert.ok(hits.length>=1,'a hit');assert.ok(Math.abs(hits[0].p[1]-.5)<1e-3,`first hit at y ${hits[0].p[1]} (the cut's floor is 0.5; the uncut ellipsoid's top is about 2)`);
+});
+test('a superweapon keeps the charge it starts with through save and load',()=>{
+ const s=C.newShip({...C.HULLS.sphere,L:160000,W:160000,H:160000},'station','station'),g=C.placePart(s,'gen',[80000,80000,0],16000,{}),w=C.placePart(s,'slaser',[110000,80000,0],C.SUPERWEAPONS.slaser.d,{reactor:g.id});
+ assert.ok(w);w.initialCharge=1;const back=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s))));assert.equal(back.parts.find(p=>p.k==='slaser').initialCharge,1);
+});
