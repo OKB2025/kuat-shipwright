@@ -64763,7 +64763,7 @@ function fleetTick(b,dt,opts={}){
   // TT per shot of what strikes the hull directly (missiles, the craft's stores and guns), apart from the guns' shot
   // (user decision 2026-11-15「1発ごとに各区画で判断」; physics review: these took the guns' size).
   let dN=0;{const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0),mShot=mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,oShot=p.airOrdShot>0?p.airOrdShot:p.airOrd>0?p.airOrd:0;if(msl>0)dN+=msl/mShot;if(ord>0&&oShot>0)dN+=ord/oShot;if(fd>0)dN+=fd/FLEET_AIR_GUN_BOLT;}
-  const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+ord+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd,...(dN>0?{directShot:(msl+ord+fd)/dN}:{})};
+  const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+ord+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd};if(dN>0)amt.directShot=(msl+ord+fd)/dN;
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
   if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
@@ -72053,7 +72053,7 @@ function battleTick(w, sys, dt) {
   if (m.n < .5) { m.n = 0; continue; }
   if (!(m.launchClearance>0) && d < Math.max(300, t.p.len * .4)) {
    // v22 a round's own hit (craft stores) or the ship missile's; ion rounds work on the ion channel
-   const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {ionDirect: tt} : {direct: tt, shot: m.tt ?? RULES.missileTT};
+   const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {ionDirect: tt} : {direct: tt};if (!m.ion) amt.shot = m.tt ?? RULES.missileTT;
    C.combatAdd(inc.get(t.id), t, m.pos, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
   else if (m.life <= 0) m.n = 0;
  }
