@@ -61808,11 +61808,11 @@ function deathStarBuild(){
  // 含めて武装扱い」; the user's cutaway drawing): the shaft from the core, the amplifier, the cone that opens to the
  // lens, and the lens itself, which is the floor of the dish. Rows: distance from the centre along the dish axis, radius.
  // The dish is the visible face of the weapon (user decision 2026-11-15「皿をスーパーレーザーの部品として外見に出る部分に」): the
- // body stands in the wells with 300 m to spare and ends in a bowl on the measured dish surface (rim 20 degrees from
+ // body fills its well and ends in a bowl on the measured dish surface (rim 20 degrees from
  // the axis, floor 11.1 km down), from the rim in to the lens at the centre.
  const bowl=r=>{for(let i=1;i<dishPts.length;i++)if(r<=dishPts[i][0]){const [r0,k0]=dishPts[i-1],[r1,k1]=dishPts[i];return k0+(k1-k0)*(r-r0)/(r1-r0);}return dishPts[dishPts.length-1][1];},rows=[[coreR+200,1500],[11600,1500],[13500,3000],[16500,4100],[20500,4400],[24500,4100],[27500,3000],[29400,2000],[neckAt+400,2000],/* the amplifier bulb and its neck */
-  [neckAt+400,5200],[38000,5200],[38000,7200],[45000,7200],[45000,9400],[wellAt,9400],/* the stepped works between the neck and the housing */[wellAt,a-300],/* the housing's back stands on the floor of the wide well: the weapon rests on the station there (300 m clear of the walls elsewhere) */[bowl(a-300),a-300]];
- for(let i=dishPts.length-1;i>=0;i--){const r=Math.max(dishPts[i][0],a*.02);if(r<a-300-1)rows.push([bowl(r),r]);}
+  [neckAt+400,5200],[38000,5200],[38000,7200],[45000,7200],[45000,9400],[wellAt,9400],/* the stepped works between the neck and the housing */[wellAt,a],/* the housing fills its well: its back stands on the well's floor and its side meets the well's wall (reference review 2026-11-15: a 300 m ring left round the dish was on neither the model nor the drawing) */[bowl(a),a]];
+ for(let i=dishPts.length-1;i>=0;i--){const r=Math.max(dishPts[i][0],a*.02);if(r<a-1)rows.push([bowl(r),r]);}
  // The body is made in its own frame, the dish axis along x, and pitched up to the dish's latitude: the weapon's
  // axis (the line its beam leaves along) is the frame's x.
  const mesh=dsRevolve([0,0,0],[1,0,0],rows,32),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),mid=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
