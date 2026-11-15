@@ -23,7 +23,7 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 
 | Feature on the drawing | Measured | In the example |
 | --- | --- | --- |
-| Reactor core | radius 10.4 km | radius 8 km, **not changed**: at 10.4 km the reactor's power and waste heat double |
+| Reactor core | radius 10.4 km | radius 8 km, **not changed**: at 10.4 km the reactor's power and waste heat double. Approved by the user, 2026-11-15:「反応炉はそのままで」 |
 | Amplifier bulb | 11.6 km to 29.4 km, 4.4 km at its widest | the same |
 | Neck | 29.4 km to 33.5 km, 2 km in radius | the same |
 | Works between neck and housing | 33.5 km to 52.7 km, growing to 9.4 km in radius | three steps: 5.2, 7.2 and 9.4 km |
@@ -122,8 +122,11 @@ Known differences that remain:
   0.0–0.2 m at latitudes 5°–50° and 70°, and by 84 m at 60° only (`/tmp/ks-verify/20261115-ds2/meridian2.log`). The
   trench is a torus about the true sphere (radii 79,880–80,000 m); the hemispheres are half-ellipsoids standing
   900 m off the centre (up to +185 m outside the sphere at mid latitudes), so the torus meets the surface in few
-  places. The 274 guns stand on the plain surface. To be put right with the baking of cuts (handoff §4.2), when the
-  station's cuts are rebuilt anyway.
+  places. The 274 guns stand on the plain surface. User decision 2026-11-15:「作例の説明文はそのままで焼き込みの時に直す」:
+  the example's note keeps "子午線トレンチ 8 本（幅 120 m）" and the trenches are put right when the cuts are baked
+  (handoff §4.2). Baking alone does not make them appear: the cut has to follow the hemispheres' actual surface (a
+  ring on the half-ellipsoid's meridian for each hemisphere, or hemispheres on the true sphere), and the guns and
+  the exhaust port are to be set in the trench then.
 - The two hemispheres are half-ellipsoids (base radius 79,995 m, height 79,100 m), not parts of one sphere: that is
   how the 1.8 km equatorial gap is made from two dome structures. The skin is a median 140 m outside the STL.
 - The equatorial trench is 0.4 km narrower than the STL's and its floor about 260 m lower (the STL's trench is not
