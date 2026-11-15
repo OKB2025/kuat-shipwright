@@ -45,3 +45,23 @@ test('balanced running counts the heat of hits: a ship taking hits holds back fu
  assert.ok(a.ht.runK<k0-.05,`with hits ${a.ht.runK} against ${k0} without`);
 });
 
+// Physics review 2026-11-15 (FAIL on 9233374): hits taken during full running were kept and counted as one step's rate on
+// returning to balanced running (the factor fell to nearly 0), and hits mixed into the two-step slope swung the factor
+// with each volley. Hit heat is now spread over HEAT.hitTau seconds and taken off the allowance, outside the slope.
+// A synthetic ship: 1000 W of rejection, own heat 300 W + 1000 W × the factor, so balanced running settles at
+// k = (970 − 300 − hit W) / 1000. Hit heat is fed as joules between steps, as shipHeatAdd does.
+const near=(x,y,eps)=>assert.ok(Math.abs(x-y)<=eps,`${x} != ${y} ±${eps}`);
+function steps(order,n,hitAt,state){
+ const H={dis:[{cap:1000}]},h=state?.h||{cap:1000},u=state?.u||{order:{}},ks=[];u.order.heat=order;
+ for(let i=0;i<n;i++){const j=hitAt(i);if(j>0)h.impactRunJ=(h.impactRunJ||0)+j;const k=order==='full'?1:(h.runK??1);C.heatRunThrottle(u,h,H,(300+1000*k)*.25,.25);ks.push(h.runK);}
+ return {h,u,ks};
+}
+test('returning from full running is not driven to the floor by the hits taken while running full',()=>{
+ const full=steps('full',40,()=>200*.25),back=steps('balance',4,()=>200*.25,full);
+ for(const k of back.ks)assert.ok(k>.35,`factor ${k} just after returning (settles at .47)`);
+});
+test('hits in volleys every fourth step hold the factor as steady hits of the same mean do',()=>{
+ const tail=r=>r.ks.slice(-40),mean=a=>a.reduce((n,x)=>n+x,0)/a.length;
+ const steady=tail(steps('balance',240,()=>200*.25)),volley=tail(steps('balance',240,i=>i%4===3?200:0));
+ near(mean(steady),.47,.03);near(mean(volley),.47,.03);assert.ok(Math.max(...volley)-Math.min(...volley)<.08,`volley swing ${Math.min(...volley)}–${Math.max(...volley)}`);
+});

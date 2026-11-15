@@ -9648,12 +9648,14 @@ function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.p
 function trialEscortMode(free){trial.escortFree=free==null?!trial.escortFree:!!free;const B=trial.battle;if(B)spaceOrders(B.b);toast(trial.escortFree?'随伴艦：自由攻撃 — 近い敵から攻撃します':'随伴艦：護衛 — 旗艦と敵のあいだに入り、旗艦を狙う敵を優先して撃ちます');}
 function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.out||u.absent)continue;if(u.trialStatic){trialStaticOrder(u);continue;}if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
-function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
+function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
  // v24 Missiles and a craft's bolts (it flies inside the field) strike the hull directly; ion torpedoes are physical
  // rounds that work on the ship itself without the field (docs/shield-deflection-v24.md).
  if(kind==='bolt'&&trial.craft)kind='direct';
  let h;if(kind==='ion'){x.sf+=tt;x.hull+=C.COMBAT.ionHull*tt;x.ion+=tt;h=C.COMBAT.ionHull*tt;}else if(kind==='iontorp'){x.ionDirect=(x.ionDirect||0)+tt;h=0;}else if(kind==='missile'||kind==='direct'){x.direct+=tt;h=tt;}else{x.sf+=tt;x.hull+=tt;h=tt;}
+ // Each call is one shot of `shot` TT (user decision 2026-11-15「1発ごとに各区画で判断」); combatMerge carries the count.
+ if(h>0&&shot>0){x.shotE=(x.shotE||0)+h;x.shotN=(x.shotN||0)+h/shot;}
  x.aim.auto=(x.aim.auto||0)+h+.1*tt;if(B.me)x.from=[...B.me.pos];
  if(q&&t?.rot&&t.semi){const point=trialApplyT(t.rot,tv.sub(q,t.pos)),z=C.combatZoneAt(u.p,point,t.semi);x.zw=x.zw||new Array(30).fill(0);x.zw[z]+=h;(x.hits||(x.hits=[])).push({point,energy:kind==='missile'||kind==='direct'||kind==='iontorp'?0:tt,ion:kind==='ion'?tt:0,direct:kind==='missile'||kind==='direct'?tt:0,src:B.me?.id});}
  B.extra.set(u.id,x);}

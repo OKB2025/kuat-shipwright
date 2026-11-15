@@ -28,11 +28,11 @@ test('per shot: each shot kills min(1, its TT) of those left; a fraction of a sh
  const u=unit();C.combatModuleDamage(ctx,u,0,1e-6,1,'shot',.5,2);near(u.crewIn[0],.5625,1e-9);near(u.crew,2000-437.5,1e-6);
 });
 test('fleet fire carries TT per shot: anti-ship energy weights it, point defence and old profiles fall back',()=>{
- const p={modules:[{k:'weapon',size:350.05,shipTT:350,bolt:175},{k:'weapon',size:120.2,shipTT:120,bolt:40},{k:'weapon',size:3,shipTT:2e-7,bolt:1e-7}]};
- near(C.fleetShotTT({p}),(350+120+2e-7)/(2+3+2),1e-9);
+ const p={modules:[{k:"weapon",size:350.05,shotW:350,bolt:175},{k:"weapon",size:120.2,shotW:120,bolt:40},{k:"weapon",size:3,shotW:1e-6,bolt:1e-7}]};
+ near(C.fleetShotTT({p}),(350+120+1e-6)/(2+3+10),1e-9);
  near(C.fleetShotTT({p:{modules:[{k:'weapon',size:350},{k:'weapon',size:120}]}}),470/2,1e-12);
  assert.equal(C.fleetShotTT({p:{modules:[{k:'bridge',size:1}]}}),0);
- assert.equal(C.fleetBoltTT({tt:120,barrels:3}),40);assert.equal(C.fleetBoltTT({tt:350,boltTT:175}),175);
+ assert.equal(C.fleetBoltTT({tt:120,barrels:3}),40);assert.equal(C.fleetBoltTT({tt:350,boltTT:175}),175);assert.equal(C.fleetBoltTT({tt:350,ion:350,barrels:2}),175);assert.equal(C.fleetBoltTT({tt:0,ion:350,barrels:2}),0);
  const inc=C.combatIncoming(),t={pos:[0,0,0],p:{}};C.combatAdd(inc,t,null,{hull:10,shot:5});C.combatAdd(inc,t,null,{hull:1,shot:.01});C.combatAdd(inc,t,null,{direct:4});
  near(C.combatShotTT(inc),11/(2+100),1e-12);assert.equal(C.combatShotTT(C.combatIncoming()),0);
 });
