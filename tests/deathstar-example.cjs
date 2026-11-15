@@ -13,7 +13,7 @@ test('the superlaser fires along the dish axis from the focus, 8 km outside the 
 test('its body has the bulb, the neck, the stepped works and the housing of the cutaway drawing',()=>{
  // every ring of the body: its distance from the centre along the dish axis and its radius, to the nearest 10 m
  const T=C.superweaponBodyTriangles(laser),rings=new Set();for(let i=0;i<T.length;i+=3){const d=sub([T[i],T[i+1],T[i+2]],C0),k=dot(d,ax);rings.add(Math.round(k/10)*10+':'+Math.round(Math.sqrt(Math.max(0,dot(d,d)-k*k))/10)*10);}
- const rim=Math.round((R*Math.sin(21*rad)-300)/10)*10;
+ const rim=Math.round((R*Math.sin(20*rad)-300)/10)*10;/* the rim is 20 degrees from the dish axis on the source model */
  for(const [k,r,what] of [[8200,1500,'throat at the core'],[11600,1500,'throat'],[20500,4400,'bulb at its widest'],[29400,2000,'neck'],[33800,2000,'neck end'],[33800,5200,'first step'],[38000,5200,'first step end'],[38000,7200,'second step'],[45000,7200,'second step end'],[45000,9400,'third step'],[52700,9400,'third step end, on the floor of the wide well'],[52700,rim,'housing, the dish rim less 300 m']])
   assert.ok(rings.has(k+':'+r),`${what}: no ring at ${k} m with radius ${r} m`);
 });

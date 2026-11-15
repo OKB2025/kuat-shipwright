@@ -52786,8 +52786,12 @@ function v3InStruct(pt,p){
 function v3StructTriangles(pt){
   const key=JSON.stringify([pt.c,pt.s,pt.taper,pt.form,pt.angles,pt.surfaceNormal,pt.pitch,pt.roll,pt.yaw,pt.offsetX,pt.offsetZ]);
   if(pt._geom?.key===key)return pt._geom.tris;
-  const round=['cylinder','cone','dome'].includes(pt.form),n=round?40:4,levels=pt.form==='dome'?16:1,rings=[],tri=[];
-  for(let j=0;j<=levels;j++){const t=j/levels,[x0,x1,z0,z1]=structLimits(pt,t),y=(t-.5)*pt.s[2],r=pt.form==='dome'?Math.sqrt(Math.max(0,1-t*t)):1;
+  // A dome larger than any part of an ordinary ship (SHIP_LIMITS.partSize, 30 km) belongs to a battle station: it gets
+  // 96 sides and 32 levels set at equal angles from its base to its top. With the ordinary 40 sides and 16 levels at
+  // equal heights the last level spans 20 degrees to the pole (the Death Star's cap lay up to 1.3 km under the source
+  // model there). Ordinary domes are unchanged.
+  const round=['cylinder','cone','dome'].includes(pt.form),bigDome=pt.form==='dome'&&Math.max(pt.s[0],pt.s[1],pt.s[2])>SHIP_LIMITS.partSize,n=bigDome?96:round?40:4,levels=bigDome?32:pt.form==='dome'?16:1,rings=[],tri=[];
+  for(let j=0;j<=levels;j++){const t=bigDome?Math.sin(j/levels*Math.PI/2):j/levels,[x0,x1,z0,z1]=structLimits(pt,t),y=(t-.5)*pt.s[2],r=pt.form==='dome'?Math.sqrt(Math.max(0,1-t*t)):1;
     const ring=[];for(let i=0;i<n;i++){if(round){const a=i/n*Math.PI*2;ring.push(worldStruct(pt,[(x0+x1)/2+Math.cos(a)*(x1-x0)/2*r,y,(z0+z1)/2+Math.sin(a)*(z1-z0)/2*r]));}else ring.push(worldStruct(pt,[[x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1]][i]));}rings.push(ring);
   }
   // The wedge origin lies on its diagonal roof, so it cannot determine
@@ -61743,14 +61747,19 @@ registerShipExample({
 // 497.7 m. Station frame: x from one side of the equator (0) to the other (160 km), y up through the poles from the
 // south pole, z to starboard; the superlaser dish looks along +x, 27.0 degrees above the equator. The station is
 // two hemispheres (dome structures) on a drum: the gap between them is the equatorial trench.
-//  - The dish is a spherical bowl: rim 21 degrees from its axis (28.7 km), 11.1 km deep at the centre (measured).
+//  - The dish follows the model's own section (DS.dish: the surface's distance from the centre by angle from the dish
+//    axis, medians of sixteen azimuths, scripts/stl-check/deathstar_compare.py): the rim 20 degrees from the axis
+//    (27.4 km), the centre 11.1 km below the sphere, close to a cone between. An earlier version used a spherical
+//    bowl with its rim at 21 degrees, up to 2.4 km deeper than the model between 12 and 20 degrees.
 //  - The equatorial trench is 1.8 km wide and 3.2 km deep (measured); it holds the engines and the docks (user).
 //  - Meridian trenches are not on the model: the user asked for several, wide enough for a fighter. Four great
 //    circles through the poles (eight meridians), 120 m across and 60 m deep.
 //  - The superlaser (53 ZT) and the reactor core it is wired to follow the user's cutaway drawing: the core at the
 //    centre, the superlaser's works between the core and the dish. Its exhaust port is put by ensureSuperlaserExhaust.
 {
-const DS={R:80000,dishLat:27,dishRim:21,dishDepth:11100,trenchW:1800,trenchD:3200,meridians:4,meridianW:120};
+const DS={R:80000,dishLat:27,dishRim:20,dishDepth:11100,trenchW:1800,trenchD:3200,meridians:4,meridianW:120,
+ // [degrees from the dish axis, metres from the station's centre]
+ dish:[[0,68901],[2,68988],[4,69280],[6,69758],[8,70191],[10,71445],[12,72568],[14,74282],[16,76339],[18,77556],[19,78899],[20,80000]]};
 // A closed body of revolution about `axis` through `origin`: rows [distance along the axis, radius], n-sided.
 function dsRevolve(origin,axis,rows,n=24){
  const up=Math.abs(axis[1])>.9?[1,0,0]:[0,1,0],e1=norm(cross(up,axis)),e2=cross(axis,e1),v=[],f=[];
@@ -61771,9 +61780,9 @@ function deathStarBuild(){
  part('struct','北半球',[R,R+w/2+rise/2,0],[base,base,rise],{form:'dome',skin:'armor',paint:'#8b8f94'});
  part('struct','南半球',[R,R-w/2-rise/2,0],[base,base,rise],{form:'dome',skin:'armor',roll:180,paint:'#84888d'});
  part('struct','赤道トレンチの床（中央胴）',C0.slice(),[2*floor,2*floor,w],{form:'cylinder',skin:'armor',paint:'#4c5057'});
- // The dish, a spherical bowl through the measured rim (21 degrees from its axis) and floor (11.1 km below the
- // sphere): the cutting sphere's radius follows from the rim's chord and the bowl's depth below that chord.
- const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),rimAt=R*Math.cos(DS.dishRim*rad),floorAt=R-DS.dishDepth,sag=rimAt-floorAt,rho=(a*a+sag*sag)/(2*sag);
+ // The dish: the measured section (DS.dish) as points [radius from the dish axis, distance along it]; the rim is
+ // where the section meets the sphere.
+ const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),floorAt=DS.dish[0][1],dishPts=DS.dish.map(([deg,r])=>[r*Math.sin(deg*rad),r*Math.cos(deg*rad)]);
  const at=(k,off=[0,0,0])=>[C0[0]+ax[0]*k+off[0],C0[1]+ax[1]*k+off[1],C0[2]+off[2]];
  // Without its superlaser the station has a hole (user decision 2026-11-15「スーパーレーザーを除くデススターはぽっかり穴が空いた
  // 感じ」, after the user's picture of the weapon lifted out): a round well as wide as the dish, a narrower well
@@ -61795,11 +61804,11 @@ function deathStarBuild(){
  // 含めて武装扱い」; the user's cutaway drawing): the shaft from the core, the amplifier, the cone that opens to the
  // lens, and the lens itself, which is the floor of the dish. Rows: distance from the centre along the dish axis, radius.
  // The dish is the visible face of the weapon (user decision 2026-11-15「皿をスーパーレーザーの部品として外見に出る部分に」): the
- // body stands in the wells with 300 m to spare and ends in a bowl on the measured dish surface (rim 21 degrees from
+ // body stands in the wells with 300 m to spare and ends in a bowl on the measured dish surface (rim 20 degrees from
  // the axis, floor 11.1 km down), from the rim in to the lens at the centre.
- const bowl=r=>floorAt+rho-Math.sqrt(rho*rho-r*r),rows=[[coreR+200,1500],[11600,1500],[13500,3000],[16500,4100],[20500,4400],[24500,4100],[27500,3000],[29400,2000],[neckAt+400,2000],/* the amplifier bulb and its neck */
+ const bowl=r=>{for(let i=1;i<dishPts.length;i++)if(r<=dishPts[i][0]){const [r0,k0]=dishPts[i-1],[r1,k1]=dishPts[i];return k0+(k1-k0)*(r-r0)/(r1-r0);}return dishPts[dishPts.length-1][1];},rows=[[coreR+200,1500],[11600,1500],[13500,3000],[16500,4100],[20500,4400],[24500,4100],[27500,3000],[29400,2000],[neckAt+400,2000],/* the amplifier bulb and its neck */
   [neckAt+400,5200],[38000,5200],[38000,7200],[45000,7200],[45000,9400],[wellAt,9400],/* the stepped works between the neck and the housing */[wellAt,a-300],/* the housing's back stands on the floor of the wide well: the weapon rests on the station there (300 m clear of the walls elsewhere) */[bowl(a-300),a-300]];
- for(const f of [.9,.8,.68,.55,.42,.3,.2,.1,.03])rows.push([bowl(a*f),a*f]);
+ for(let i=dishPts.length-1;i>=0;i--){const r=Math.max(dishPts[i][0],a*.02);if(r<a-300-1)rows.push([bowl(r),r]);}
  // The body is made in its own frame, the dish axis along x, and pitched up to the dish's latitude: the weapon's
  // axis (the line its beam leaves along) is the frame's x.
  const mesh=dsRevolve([0,0,0],[1,0,0],rows,32),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),mid=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
@@ -61830,7 +61839,7 @@ registerShipExample({
  key:'deathstar',name:'デス・スター（バトルステーション）',side:'銀河帝国',role:'バトルステーション（スーパーレーザー搭載）',length:160000,
  title:'Death Star',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（deathstar_1_5_10_5.stl）',license:'不明（出典未記載）',
  credit:'デス・スターの外形（球・皿・赤道トレンチ）は、ユーザーが提供した STL ファイル（deathstar_1_5_10_5.stl、作者・ライセンス表記なし）から実測した。',
- note:'直径 160 km。皿は北緯 27°・縁の半径 28.7 km・深さ 11.1 km、赤道トレンチは幅 1.8 km・深さ 3.2 km（いずれも実測）。子午線トレンチ 8 本（幅 120 m）はユーザー指定による追加。',
+ note:'直径 160 km。皿は北緯 27°・縁の半径 27.4 km・深さ 11.1 km、赤道トレンチは幅 1.8 km・深さ 3.2 km（いずれも実測）。子午線トレンチ 8 本（幅 120 m）はユーザー指定による追加。',
  build:deathStarBuild
 });
 }
@@ -63986,13 +63995,13 @@ function combatClone(u){const physical={};for(const k of ['powerLossDisabled','f
 // and received pulse energy differ. Protective trips preserve physical health.
 const SW_COMBAT={
  sbeam:{name:'超重合成ビーム',E:125000,share:.6,tMin:45,range:200000,cone:0,beamT:10,over:{floor:.3,T:60},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
- // The superlaser (user request 2026-11-15): 53 ZT (5.3e10 TT) at the Death Star's dish, 57.4 km across (measured
+ // The superlaser (user request 2026-11-15): 53 ZT (5.3e10 TT) at the Death Star's dish, 54.72 km across (measured
  // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's, but laid
  // from the lens focus anywhere within `cone` (radians) of the dish's bearing instead of along a fixed axis.
  // The full shot is for a planet; on ships it fires shipShare of it (2 ZT of 53: user decision 2026-11-15) and keeps
  // the rest of its charge. A full charge takes 24 hours (tMin; user decision 2026-11-15), so a ship shot is back
  // in about 54 minutes.
- slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:57400,share:.6,tMin:86400,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:54720,share:.6,tMin:86400,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
  hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // Shot energy is per physical emitter, in TT. Both Onager emitters together deliver 250 PT.
@@ -66041,9 +66050,9 @@ const SUPERWEAPONS={
  // Measured from the Onager model at canon scale (1,288 m): each barrel 38.2 m across and 665.8 m from
  // breech to muzzle, over half the ship's length; the class carries two side by side.
  sbeam:{d:38.2,length:665.8,aim:'bow'},
- // The superlaser's dish: 57.4 km across on the 160 km Death Star (rim 21 degrees from the dish axis, measured from
+ // The superlaser's dish: 54.72 km across on the 160 km Death Star (rim 20 degrees from the dish axis, measured from
  // the user's model); the focusing works behind it reach a quarter of the way to the reactor core.
- slaser:{d:57400,length:20000,aim:'bow'},
+ slaser:{d:54720,length:20000,aim:'bow'},
  // Measured from the Malevolence model at canon scale (4,845 m): the emitter drum is 310.8 m across;
  // 250 m deep, from the dished face (the ship's outermost point) back into the flank housing.
  hion:{d:310.8,length:250,aim:'side'}
@@ -66051,7 +66060,7 @@ const SUPERWEAPONS={
 GROUPS.superweapon='超兵器';
 addComp('sbeam','超重合成ビーム・ターボレーザー','cyl',.7,[236,96,66],'weapons','オナガー級の主砲。一門あたり125 PTを10秒間のビームとして砲軸上へ直進照射します。照準補正はなく、船体を旋回して狙います。左右の艦首腕部は砲身・合成機関でほぼ占有されます。接続された反応炉から充電します。',{def:SUPERWEAPONS.sbeam.d,min:SUPERWEAPONS.sbeam.d,max:SUPERWEAPONS.sbeam.d,ratio:SUPERWEAPONS.sbeam.length/SUPERWEAPONS.sbeam.d,crit:true,hp:.8,crew:.3,fixed:true});
 addComp('hion','ハイパーイオン砲','cyl',.6,[146,120,255],'weapons','サブジュゲイター級の舷側砲。拡大する円盤状パルスを放ち、距離と投影面積に応じた有限のエネルギーを複数艦へ分配します。シールドを漏出した分が接続された電力網へ作用し、十分な過負荷では主炉・補助炉を含む共通系統を保護遮断します。性能係数はゲーム用の仮定です。',{def:SUPERWEAPONS.hion.d,min:SUPERWEAPONS.hion.d,max:SUPERWEAPONS.hion.d,ratio:SUPERWEAPONS.hion.length/SUPERWEAPONS.hion.d,crit:true,hp:.8,crew:.3,fixed:true});
-addComp('slaser','スーパーレーザー','cyl',.7,[52,56,62],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 57.4 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
+addComp('slaser','スーパーレーザー','cyl',.7,[52,56,62],'weapons','バトルステーションの主砲。皿の縁の支流ビームを皿の前方の焦点で 1 本に束ねて照射します。焦点から撃つため、皿の向きから約 23° 以内なら射角を選べます。威力は皿の直径の 3 乗に比例し、直径 54.7 km で 53 ZT（5.3×10¹⁰ TT）。接続された反応炉から充電し、発射の損失は集中排熱口（自動で置かれます）から捨てます。',{def:SUPERWEAPONS.slaser.d,min:200,max:1e7,ratio:SUPERWEAPONS.slaser.length/SUPERWEAPONS.slaser.d,crit:true,hp:.8,crew:.3});
 // The concentrated thermal exhaust port (user request 2026-11-15「スーパーレーザーは自動的集中排熱口が配置される仕組みにして子午線
 // トレンチに出現させて」): a heat converter sized for the superlaser's firing loss, put by the superlaser itself under
 // the floor of a meridian trench (a standing torus cut through the hull's centre), or under the hull's skin when

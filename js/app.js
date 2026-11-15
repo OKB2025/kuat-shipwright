@@ -10099,7 +10099,7 @@ window.__trialSw={step:dt=>trialSwSoloStep(dt),solo:()=>trialSwSolo(),scan:w=>tr
 // Returns the emitters, how far each tributary has reached (0..1), the focus' glow and the main beam's reach (0..1).
 const SLASER_FX={lead:.09,grow:.25,main:1,run:.35};
 function slaserFx(e,w,m,dish){
- const a=(w.d||57400)/2,d=tv.norm(dish),v=tv.norm(Math.abs(d[1])<.9?tv.cross(d,[0,1,0]):tv.cross(d,[1,0,0])),v2=tv.cross(d,v),c=tv.add(m,d,-a*.62),em=[],tr=[];
+ const a=(w.d||54720)/2,d=tv.norm(dish),v=tv.norm(Math.abs(d[1])<.9?tv.cross(d,[0,1,0]):tv.cross(d,[1,0,0])),v2=tv.cross(d,v),c=tv.add(m,d,-a*.62),em=[],tr=[];
  for(let j=0;j<8;j++){const an=(j+.5)/8*Math.PI*2;em.push(tv.add(c,tv.add(tv.scale(v,Math.cos(an)*a*.8),tv.scale(v2,Math.sin(an)*a*.8))));tr.push(clamp01((e.age-j*SLASER_FX.lead)/SLASER_FX.grow));}
  return {a,em,tr,focus:clamp01(e.age/SLASER_FX.main),main:clamp01((e.age-SLASER_FX.main)/SLASER_FX.run)};
 }

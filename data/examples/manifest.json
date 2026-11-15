@@ -132,9 +132,9 @@
   },
   "deathstar": {
    "design": {
-    "sha256": "f17f99c9cdf22ad1d7060c87c5259b9c725c7d77690f92650cf3e3cb3d9985ca",
-    "jsonSha256": "7c287d855dc2133c73a43d393b7f6046e371be0a9e73db74c8b59c14b89e7729",
-    "blueprintSha256": "62ab2a9067ea09c988244262650783414d92476ea4d29c68ffaf8485bcd73c23"
+    "sha256": "ada93fe5e8e1319d7f3ed93d00f2a67fe4c45f8f48bff23574526bcb24fe0792",
+    "jsonSha256": "c875d4930eae5b72882bb292e9f57b639d461e38f46291875f76dd1c729e9aa8",
+    "blueprintSha256": "92a42c5b073e86832c5c26a38fa8240d8cf67aac788db7594da5edccde40c336"
    }
   },
   "destroyer": {

@@ -29,7 +29,7 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 | Works between neck and housing | 33.5 km to 52.7 km, growing to 9.4 km in radius | three steps: 5.2, 7.2 and 9.4 km |
 | Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, to the dish rim less 300 m; its back stands on the floor of the wide well |
 | Dish floor | 69.2 km out | 68.9 km (the STL's value; the STL governs the outside) |
-| Dish | a cone, 22 km in radius, 23° above the equator | the STL's bowl: 28.7 km in radius, 27° |
+| Dish | a cone, 22 km in radius, 23° above the equator | the STL's dish: 27.4 km in radius (rim 20° from its axis), 27°, its section measured (below) |
 | Column through the poles | about 13 km in radius above the core, narrower below | reactant silos: 12 km × 46 km above, 8 km × 40 km below |
 
 Wells: only the housing has one (as wide as the dish, from 52.7 km out; the hole the station shows without its
@@ -68,3 +68,54 @@ far beyond the view's far plane, so each sprite is drawn nearer on its own line 
 The planet stays destroyed until the flight is restarted.
 
 Not built yet: the strike of the 2 ZT ship setting on a planet's surface (the second recording).
+
+## Comparison with the STL (2026-11-15)
+
+Tools: `scripts/stl-check/deathstar_compare.py` and `scripts/stl-check/deathstar_rays.cjs` (usage in the Python
+file). Both sides give the distance of the first surface from the station's centre along the same directions: the
+example from its carved structures and the superlaser's body, the STL from its triangles. Sets: the section through
+the poles and the dish axis (0.25° steps), sixteen azimuths about the dish axis (0.5° steps out to 24°), a section
+across the equatorial trench (0.02° steps), and a 4° grid over the sphere. Output of the runs of this session:
+`/tmp/ks-verify/20261115-stlcmp2` (before the changes below) and `/tmp/ks-verify/20261115-stlcmp4` (after); these
+directories are not kept.
+
+Example minus STL, in metres (median; 5%..95%):
+
+| Zone | Before | After |
+| --- | --- | --- |
+| Skin, 4° grid (outside the dish, off the equator) | −70; −882..+373 (6 samples beyond 1.5 km) | +140; −220..+496 (none beyond 1.5 km) |
+| Dish, 0..6° from its axis | +4; −400..+262 | +10; −358..+336 |
+| Dish, 6..12° | −269; −1049..+471 | +12; −761..+580 |
+| Dish, 12..20° | −1079; −2012..−339 | +119; −850..+862 |
+| Dish rim zone, 20..22° | −140; −739..+314 | +100; −248..+449 |
+| Equatorial trench floor | −262; −626..−235 | the same |
+| Equatorial trench width (more than 1.6 km below the sphere) | example 1.79 km, STL 2.21 km (−0.90°..+0.68°) | the same |
+
+The STL's own relief is about ±0.5 km (one unit), which is the spread that remains.
+
+What was changed after the first comparison:
+
+- **Dish section.** The STL's dish is not a spherical bowl: its rim is 20° from the axis (the earlier 21° was a
+  coarse reading), the floor is level to about 2° and it then rises close to a cone. The example's bowl now follows
+  the medians of the sixteen azimuths (`DS.dish` in `js/core.js`): 0° 68,901 m, 2° 68,988, 4° 69,280, 6° 69,758,
+  8° 70,191, 10° 71,445, 12° 72,568, 14° 74,282, 16° 76,339, 18° 77,556, 19° 78,899, 20° 80,000 (distance from the
+  centre). The dish is 54.72 km across; the superlaser's 53 ZT is tied to that diameter (`SW_COMBAT.slaser.refD`,
+  was 57.4 km).
+- **Polar caps.** The dome form had 40 sides and 16 levels at equal heights, so its last level ran 20° to the pole
+  and lay up to 1.3 km under the STL. A dome larger than any part of an ordinary ship (30 km) now has 96 sides and
+  32 levels at equal angles (`structTriangles`); ordinary domes are unchanged.
+
+Known differences that remain:
+
+- **Meridian trenches (the user's addition, not on the STL) are mostly not there.** Measured on the carved
+  hemispheres before the tessellation change: the surface on a trench's meridian and 0.12° beside it differed by
+  0.0–0.2 m at latitudes 5°–50° and 70°, and by 84 m at 60° only (`/tmp/ks-verify/20261115-ds2/meridian2.log`). The
+  trench is a torus about the true sphere (radii 79,880–80,000 m); the hemispheres are half-ellipsoids standing
+  900 m off the centre (up to +185 m outside the sphere at mid latitudes), so the torus meets the surface in few
+  places. The 274 guns stand on the plain surface. To be put right with the baking of cuts (handoff §4.2), when the
+  station's cuts are rebuilt anyway.
+- The two hemispheres are half-ellipsoids (base radius 79,995 m, height 79,100 m), not parts of one sphere: that is
+  how the 1.8 km equatorial gap is made from two dome structures. The skin is a median 140 m outside the STL.
+- The equatorial trench is 0.4 km narrower than the STL's and its floor about 260 m lower (the STL's trench is not
+  symmetric about the equator).
+- A 300 m ring between the superlaser's housing and its well (above).
