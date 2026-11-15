@@ -62945,6 +62945,7 @@ const COMBAT={
  hole:.35,          // plating lost per capacity's worth of load that breaks through
  minInt:.08,        // what is left of shot-through plating
  quantum:.015,      // one penetrating hit, as a share of the ship's structure
+ penCrewTT:1,       // TT: a shot that enters a compartment still carrying this much kills everyone left in it; less kills in proportion (user decision 2026-11-15)
  frame:.45,         // share of a penetrating hit taken by the section's frames
  through:.6,        // energy a shot keeps after passing through a module
  maxPath:3,         // modules one penetrating hit can pass through
@@ -63821,11 +63822,16 @@ function combatDepth(u,i,f,si){
 const COMBAT_FACE=['艦首','艦尾','右舷','左舷','上面','下面'];
 // Damage to one module (dmg in TT; hp is its hits × the penetration quantum).
 // Reactors, reactant silos and magazines may go off; anything may catch fire.
-function combatModuleDamage(ctx,u,i,dmg,Q,why){
+// entering (TT, shots only): the power the shot still carries as it enters this compartment.
+function combatModuleDamage(ctx,u,i,dmg,Q,why,entering=0){
  const p=u.p,m=p.modules[i],need=p.crewNeed||0;if(!m||m.k==='hull'||!(dmg>0))return {after:u.mods[i]??0};
  const hp=Math.max(1,m.hits*modQ(m,Q)),before=u.mods[i];if(before<=0)return {after:0};
  const frac=dmg/hp,q=Math.min(1,dmg/Q),remaining=Math.max(0,before-frac);u.mods[i]=remaining<=1e-12?0:remaining;const lost=before-u.mods[i];
- u.crew-=m.crew*lost*.7;if(m.k==='quarters')u.crew-=need*.5*m.share*lost*.6;
+ // u.crewIn[i]: the share of this compartment's crew still alive (1 at the start). The loss with the wrecked part is
+ // taken from those left, and a penetrating shot kills on top of it by the power it enters with (COMBAT.penCrewTT).
+ const crewIn=u.crewIn||(u.crewIn=p.modules.map(()=>1)),alive=crewIn[i]??1,wreck=Math.min(1,lost*.7);let dead=m.crew*alive*wreck,left=alive*(1-wreck),killed=0;
+ if(why==='shot'&&entering>0&&left>0){const k=Math.min(1,entering/COMBAT.penCrewTT);killed=m.crew*left*k;left*=1-k;}
+ crewIn[i]=left;u.crew-=dead+killed;if(m.k==='quarters')u.crew-=need*.5*m.share*lost*.6;
  const si=u.secOf[i],ev=text=>ctx.ev(u,text);
  const blast=(k,text,fate)=>{const sec=u.sec[si];sec.s-=sec.max*k;for(const j of [si-1,si+1])if(u.sec[j])u.sec[j].s-=u.sec[j].max*k*.45;u.crew-=need*Math.min(.5,k*.3);ev(text);u.fateHint=fate;u.fire[si]=Math.max(u.fire[si]||0,.85);for(const j of [si-1,si,si+1])if(u.sec[j]&&u.sec[j].s<=0&&!u.secLost.includes(j))combatSectionLost(ctx,u,j);};
  let boom=null;
@@ -63855,8 +63861,8 @@ function combatPenetrate(ctx,u,si,f,E,aim,Q){
  for(let n=0;n<COMBAT.maxPath&&left>Q*.05&&cand.length;n++){
   let tot=0;for(const c of cand){c.p=c.dep>=minDep?c.w*Math.exp(-(c.dep-Math.max(0,minDep))/.3):0;tot+=c.p;}if(!(tot>0))break;
   let r=ctx.rand()*tot,c=cand[0];for(const x of cand){r-=x.p;if(r<=0){c=x;break;}}
-  const i=c.i,m=mods[i],hp=Math.max(1,m.hits*modQ(m,Q)),before=u.mods[i],take=Math.min(left,before*hp+modQ(m,Q)*.2),res=combatModuleDamage(ctx,u,i,take,Q,'shot');
-  path.push({i,name:m.name,k:m.k,dmg:Math.round(take),before:+before.toFixed(3),after:+(u.mods[i]).toFixed(3),y:m.y??0,z:m.z??0,at:m.at??.5});
+  const i=c.i,m=mods[i],hp=Math.max(1,m.hits*modQ(m,Q)),before=u.mods[i],take=Math.min(left,before*hp+modQ(m,Q)*.2),crew0=u.crew,res=combatModuleDamage(ctx,u,i,take,Q,'shot',left);
+  path.push({i,name:m.name,k:m.k,dmg:Math.round(take),enter:Math.round(left),crewLost:Math.max(0,Math.round(crew0-u.crew)),before:+before.toFixed(3),after:+(u.mods[i]).toFixed(3),y:m.y??0,z:m.z??0,at:m.at??.5});
   if(res.fire)fire=true;if(res.boom)boom=res.boom;left=(left-take)*COMBAT.through;minDep=c.dep;cand.splice(cand.indexOf(c),1);
  }
  if(left>0)sec.s-=left*.5;
@@ -63951,7 +63957,7 @@ function combatResolve(ctx,u,o,dt,s){
     const q=[((m.at??.5)-.5)*2,m.y??0,m.z??0],vis=fw[0]*Math.max(0,q[0])+fw[1]*Math.max(0,-q[0])+fw[2]*Math.max(0,q[2])+fw[3]*Math.max(0,-q[2])+fw[4]*Math.max(0,q[1])+fw[5]*Math.max(0,-q[1]);
     const wv=m.w*(.2+vis/Math.max(1e-9,fw.reduce((a,b)=>a+b,0)));c.push([i,wv]);tot+=wv;}
    if(!(tot>0))break;let r=ctx.rand()*tot,i=c[0][0];for(const [j,wv] of c){r-=wv;if(r<=0){i=j;break;}}
-   const m=mods[i],b0=u.mods[i],take=Math.min(E,b0*Math.max(1,m.hits*modQ(m,Q)));combatModuleDamage(ctx,u,i,take,Q,'shot');E-=take;
+   const m=mods[i],b0=u.mods[i],take=Math.min(E,b0*Math.max(1,m.hits*modQ(m,Q)));combatModuleDamage(ctx,u,i,take,Q,'shot',E);E-=take;
    if(b0>0&&u.mods[i]<=0&&m.k==='bridge')ctx.ev(u,`${m.name}に直撃・破壊`);}
   spread+=E;}
  spread=Math.max(0,spread);
@@ -63984,7 +63990,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -69448,7 +69454,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
@@ -72394,7 +72400,7 @@ function rearTick(w, dt = 0) {
   if (u.status === 'rear' && !u.dead && dt > 0) { const dp = w.sides[u.side]?.supply?.depot || 0; if (dp > 0) u.rear.back += dt * SUPPLY.rearSlow * dp; }
   if (u.status !== 'rear' || u.dead || w.time < u.rear.back) continue;
   const p = u.p, sd = w.sides[u.side], home = sd.start;C.combatInit(u);
-  u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;u.out = null;delete u.powerLossDisabled;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
+  u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;delete u.crewIn;u.out = null;delete u.powerLossDisabled;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
   u.shield = u.shieldMax = Math.max(0, p.shieldBuffer ?? p.D * C.K.bufferS);u.bank = u.bankMax = Math.max(0, p.reserve || 0);u.status = 'ready';C.shipHeatRepairComplete(u);
   const g = makeGroup(w, u.side, `${u.name}（修理完了）`, home);g.units = [u.id];g.flag = u.id;u.group = g.id;u.sys = home;u.order = {type: 'group', fire: true, power: 'auto', aim: 'auto', autoPointDefense:C.automaticPointDefenseEnabled(u)};deployGroup(w, g, null);
   for (const sid of u.squads) { const q = w.squads.get(sid); if (q && q.state === 'docked') { q.sys = home; q.pos = [...u.pos]; } }
@@ -72472,7 +72478,7 @@ function supplyNeeds(w, u, ln) {
 function supplyGive(w, u, nd, t) {
  if (!(t > 0)) return;const p = u.p, mods = p.modules || [];
  const use = (want, f) => { if (!(want > 0) || !(t > 0)) return; const k = Math.min(1, t / want); t -= want * k; f(k); };
- use(nd.crew, k => { const cm = p.crewMax ?? p.crewNeed ?? 0; u.crew = Math.min(cm, u.crew + Math.max(0, cm - u.crew) * k); });
+ use(nd.crew, k => { const cm = p.crewMax ?? p.crewNeed ?? 0; u.crew = Math.min(cm, u.crew + Math.max(0, cm - u.crew) * k); if (u.crewIn) u.crewIn = u.crewIn.map(v => v + (1 - v) * k); /* replacements man the emptied compartments again */ });
  use(nd.ammo, k => { for (let i = 0; i < mods.length; i++) if (mods[i].k === 'launcher' && u.mods[i] > 0) u.ammo[i] = Math.min(mods[i].stock || 0, u.ammo[i] + Math.max(0, (mods[i].stock || 0) - u.ammo[i]) * k); });
  use(nd.craft, k => { for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || q.followSplit || q.followParent || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; squadSlots(q); q.rep = (q.rep || 0) + Math.max(0, q.n0 - q.n - (q.rep || 0)) * k; const add = Math.min(q.n0 - q.n, Math.floor(q.rep + .002)); if (add > 0) { q.n += add; q.rep = Math.max(0, q.rep - add); squadSlots(q); } if (q.n >= q.n0) q.rep = 0; if (q.state === 'lost' && q.n >= 1) { q.state = 'docked'; q.sys = u.sys; q.pos = [...u.pos]; q.t = RULES.craftRearm; } } });
  use(nd.mods, k => { for (let i = 0; i < mods.length; i++) { const v = u.mods[i]; if (v > 0 && v < 1 && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.min(1, v + (1 - v) * k); } });
