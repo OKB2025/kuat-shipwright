@@ -52300,15 +52300,18 @@ function baseComputeStats(ship,options={}) {
   let mAft = 0, worst = Infinity, worstX = null, cut = false;
   // User report 2026-11-15 (「また縦強度のエラー」): equipment that overhangs the end of the structure (engine nozzles aft of
   // the last structure) lies in sections that hold no structure at all. Such a section is not a break in the ship: the
-  // overhang hangs on its own mount. It used to pass only while it weighed under 1% of the ship; with the denser engines
-  // (2026-11-14) it weighed more and the whole ship was held to 0% acceleration. A section counts as cut only between
-  // structure on both sides.
+  // overhang hangs on the end of the structure. It used to pass only while it weighed under 1% of the ship; with the
+  // denser engines (2026-11-14) it weighed more and the whole ship was held to 0% acceleration.
+  // - Sections beyond the structure are not judged. The overhang's load is carried by the end of the structure: the
+  //   boundary section next to the first / last structural bin is judged with that bin's section (physics review).
+  // - A section with no structure between structure on both sides is still a break.
+  // - A ship with no structural section at all is judged as before (every section is a break).
   let firstStr = -1, lastStr = -1; for (let k = 0; k < nb; k++) if (strA[k] > 1e-6) { if (firstStr < 0) firstStr = k; lastStr = k; }
   for (let k = 0; k + 1 < nb; k++) {
     mAft += bins[k];
-    if (k < firstStr || k + 1 > lastStr) continue;
+    if (firstStr >= 0 && (k < firstStr - 1 || k > lastStr)) continue;
     const dem = Math.min(mAft, M - mAft); if (dem <= M * 0.01) continue;
-    const A2 = Math.min(strA[k], strA[k + 1]); if (A2 <= 1e-6) cut = true;
+    const A2 = firstStr < 0 ? Math.min(strA[k], strA[k + 1]) : k === firstStr - 1 ? strA[firstStr] : k === lastStr ? strA[lastStr] : Math.min(strA[k], strA[k + 1]); if (A2 <= 1e-6) cut = true;
     const r = A2 / dem; if (r < worst) { worst = r; worstX = spanStart+(k + 1) * dxb; }
   }
   const aStruct = worst === Infinity ? 1e9 : K.sigma * worst / 1000;
