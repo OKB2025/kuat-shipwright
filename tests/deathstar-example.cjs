@@ -11,11 +11,11 @@ test('the superlaser fires along the dish axis from the focus, 8 km outside the 
  assert.ok(Math.hypot(...sub(a,ax))<1e-9,`axis ${a}`);assert.ok(Math.hypot(...sub(m,C0.map((c,i)=>c+ax[i]*(R+8000))))<1,`muzzle ${m}`);
 });
 test('its body has the bulb, the neck, the stepped works and the housing of the cutaway drawing',()=>{
- const T=C.superweaponBodyTriangles(laser),widest=(k0,k1)=>{let r=0;for(let i=0;i<T.length;i+=3){const d=sub([T[i],T[i+1],T[i+2]],C0),k=dot(d,ax);if(k<k0||k>k1)continue;r=Math.max(r,Math.sqrt(Math.max(0,dot(d,d)-k*k)));}return r;};
- const near=(v,want,tol,what)=>assert.ok(Math.abs(v-want)<=tol,`${what}: ${Math.round(v)} against ${want}`);
- near(widest(8300,11500),1500,60,'throat at the core');near(widest(12000,29000),4400,60,'bulb');near(widest(29600,33600),2000,60,'neck');
- near(widest(34000,37900),5200,60,'first step');near(widest(38100,44900),7200,60,'second step');near(widest(45100,52900),9400,60,'third step');
- near(widest(53200,60000),R*Math.sin(21*rad)-300,60,'housing, the dish rim less 300 m');
+ // every ring of the body: its distance from the centre along the dish axis and its radius, to the nearest 10 m
+ const T=C.superweaponBodyTriangles(laser),rings=new Set();for(let i=0;i<T.length;i+=3){const d=sub([T[i],T[i+1],T[i+2]],C0),k=dot(d,ax);rings.add(Math.round(k/10)*10+':'+Math.round(Math.sqrt(Math.max(0,dot(d,d)-k*k))/10)*10);}
+ const rim=Math.round((R*Math.sin(21*rad)-300)/10)*10;
+ for(const [k,r,what] of [[8200,1500,'throat at the core'],[11600,1500,'throat'],[20500,4400,'bulb at its widest'],[29400,2000,'neck'],[33800,2000,'neck end'],[33800,5200,'first step'],[38000,5200,'first step end'],[38000,7200,'second step'],[45000,7200,'second step end'],[45000,9400,'third step'],[53100,9400,'third step end'],[53100,rim,'housing, the dish rim less 300 m']])
+  assert.ok(rings.has(k+':'+r),`${what}: no ring at ${k} m with radius ${r} m`);
 });
 test('the polar column is two reactant silos, and the reactor core keeps its 8 km radius',()=>{
  const silos=ship.parts.filter(p=>p.k==='fuel');assert.equal(silos.length,2);for(const s of silos){assert.ok(Math.abs(s.c[0]-R)<1&&Math.abs(s.c[2])<1,'on the polar axis');}

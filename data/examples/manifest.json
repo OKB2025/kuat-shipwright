@@ -130,6 +130,13 @@
     "blueprintSha256": "78dcc1061197233733ced5ab937e50005d1446442df37855fd44300438a2f253"
    }
   },
+  "deathstar": {
+   "design": {
+    "sha256": "c81f0e25eab9b139a12b6c8b4584442e1fd0f5f9348636d446559b8061d3383f",
+    "jsonSha256": "17a24d15077018be4ece6a229fbf508b8cf4f81adaae7fa099a2192983167175",
+    "blueprintSha256": "45682844834d9042f6f878c215897cc73432508844b269f206e9b2eb062e263f"
+   }
+  },
   "destroyer": {
    "design": {
     "sha256": "7965d7ef4d16d848c19cfd6fc0f33e6bd23768d413dec24b6fb1a0375e7bbb43",
@@ -323,7 +330,7 @@
   },
   "onager": {
    "combat": {
-    "sha256": "7f225527279350059c111239f999678fe2d7be3a27a53e216f0209a62ee33c7c"
+    "sha256": "edd1b93b0c280f6b1ef44a65c0d2c5bc150a4d858bfa7e68cea3c050ccddde07"
    },
    "design": {
     "sha256": "df72cd1c09557caf584104f6c07e460cba5405f821f8c1f0de7edfe752dba8af",
@@ -390,7 +397,7 @@
   },
   "subjugator": {
    "combat": {
-    "sha256": "eac7fd0d6ac96a0739fc9af5b84e3ab4910bffdb5888be1de6caf43050e5c91e"
+    "sha256": "a577c8d79807186c56e24120e1de6c60515e62069c585b8e9ed7bc89e72b2d0d"
    },
    "design": {
     "sha256": "80697c21a2b7d336a70c21a69a39d249be1de8af63fb602d57ef685681080f77",

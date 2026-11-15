@@ -64776,6 +64776,12 @@ function placementCachedGeometryInputCurrent(part){
 }
 function placementCachedGeometryCurrent(ship,part,seen=new Set()){
  if(!placementCachedGeometryInputCurrent(part)||seen.has(part.id))return false;
+ // A structure is not fitted to the body it was tapped on (stage B, no parent relation): its carried solid depends on
+ // its own shape and request only. The parent key below is written when a part is placed and is not stored, so a
+ // structure of a loaded design never had it: the editor then took the structure's shape as unknown and dropped every
+ // placement tap whose line of sight met its bounds first (user report 2026-11-15: no reactor could be added to a
+ // craft whose hull stands inside an ellipsoid structure).
+ if(placementCapability(part).kind==='structure')return true;
  seen.add(part.id);const id=part.placement.parentStructureId;if(id==null)return part.placement.root===true;
  const parent=placementParent(ship,id);if(!parent||parent._placementError||parent.placement?.repairRequired||part._placementParentKey!==placementDependencyKey(parent)||part.placement.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return false;
  return !parent._placementGeometry||placementCachedGeometryCurrent(ship,parent,seen);
