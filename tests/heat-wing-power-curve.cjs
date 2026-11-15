@@ -15,3 +15,10 @@ test('on a small craft the wings draw 0.005 of their rating and the internal con
   assert.ok(S.heat.presets.combat.gen<2e18,key+' is at craft heat');for(const d of wings)near(d.power/d.cap,.005,1e-9);for(const d of inner)near(d.power/d.cap,.015,1e-9);
   const p=C.fleetProfile(S,ship.name,ship),H=C.heatProfile(p);const pw=H.dis.filter(d=>d.k!=='hdis'&&d.power>0&&d.cap>0);assert.ok(pw.length,key+' profile wings');for(const d of pw)near(d.power/d.cap,.005,1e-6);for(const d of H.dis.filter(d=>d.k==='hdis'&&d.power>0&&d.cap>0))near(d.power/d.cap,.015,1e-6);}
 });
+// Regression review 2026-11-15: an older stored profile that carries no rated input for a converter (power missing or 0)
+// falls back to the rating coefficient 0.015 for every kind (the safe side: more power, never less than before).
+test('a stored profile without a converter rating falls back to 0.015; a stored rating is kept',()=>{
+ const ship=C.buildDesign('craft_xwing'),S=C.computeStats(ship),p=JSON.parse(JSON.stringify(C.fleetProfile(S,ship.name,ship)));
+ const kept=C.heatProfile(JSON.parse(JSON.stringify(p))).dis.filter(d=>d.k!=='hdis'&&d.cap>0);assert.ok(kept.length);for(const d of kept)near(d.power/d.cap,.005,1e-6);
+ for(const missing of [undefined,0]){const q=JSON.parse(JSON.stringify(p));for(const d of q.heat.dis){if(missing===undefined)delete d.power;else d.power=0;}const H=C.heatProfile(q).dis.filter(d=>d.cap>0);assert.ok(H.length);for(const d of H)near(d.power/d.cap,.015,1e-6);}
+});

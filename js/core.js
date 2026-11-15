@@ -68266,7 +68266,7 @@ function heatStats(ship,S){
  S.heat.powerPaths=pw.map(l=>({kind:'power',from:l.from,to:l.to,cap:l.cap,auto:l.auto,ok:l.ok,...(l.capacityGroup!=null?{capacityGroup:l.capacityGroup,groupCap:l.groupCap}:{}),...(l.routeId!=null?{routeId:l.routeId,model:'source-distance',lengthM:l.lengthM}:{}),...(l.efficiency!=null?{efficiency:l.efficiency}:{})}));
  for(let i=0;i<net.src.length;i++)S.heat.net.src[i].powerWeight=net.src[i].w;
  for(let i=0;i<net.dis.length;i++)if(net.dis[i].power>0)S.heat.net.dis[i].power=net.dis[i].power;
- S.heat.mode='strict';S.heat.dissipatorPower=S.dissipatorPower;S.heat.dissipatorRatedPower=rated;S.heat.feedLossW=net.src.filter(s=>s.k==='feed').reduce((n,s)=>n+(s.rated.combat||0),0);
+ /* physics review 2026-11-15: the rated converter input follows the network (a wing's rating carries the ship's coefficient), so the statistic and the network agree */{const netRated=net.dis.reduce((n,d)=>n+(d.part!=null?Math.max(0,d.power||0):0),0);S.dissipatorRatedPower=netRated;S.heat.mode='strict';S.heat.dissipatorPower=S.dissipatorPower;S.heat.dissipatorRatedPower=netRated;}S.heat.feedLossW=net.src.filter(s=>s.k==='feed').reduce((n,s)=>n+(s.rated.combat||0),0);
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:inspectionTargets(ship,S,{code:'heat',text})});
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
  // Without a generator (「ジェネレーターがありません」, S.Vgen <= 0) the ship's own living/electronics load (hotel) has no
