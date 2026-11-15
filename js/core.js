@@ -61774,9 +61774,11 @@ function deathStarBuild(){
  // sphere): the cutting sphere's radius follows from the rim's chord and the bowl's depth below that chord.
  const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),rimAt=R*Math.cos(DS.dishRim*rad),floorAt=R-DS.dishDepth,sag=rimAt-floorAt,rho=(a*a+sag*sag)/(2*sag);
  const at=(k,off=[0,0,0])=>[C0[0]+ax[0]*k+off[0],C0[1]+ax[1]*k+off[1],C0[2]+off[2]];
- // The hemisphere is cut 1.2 km deeper than the dish: the weapon's own bowl (below) is the measured dish surface,
- // and a cut is drawn as a coarse polyhedron that would otherwise show through it.
- s.solidCuts.push({id:s.nextId++,shape:'sphere',c:at(floorAt+rho-1200),s:[2*rho,2*rho,2*rho],rotation:[0,0,0],mirror:false,structures:true});
+ // Without its superlaser the station has a hole (user decision 2026-11-15「スーパーレーザーを除くデススターはぽっかり穴が空いた
+ // 感じ」, after the user's picture of the weapon lifted out): a round well as wide as the dish, a narrower well
+ // under it, and the shaft down to the core. The superlaser's body (below) fills them.
+ const well=(k0,k1,r)=>s.solidCuts.push({id:s.nextId++,shape:'cylinder',c:at((k0+k1)/2),s:[2*r,2*r,k1-k0],rotation:[0,0,DS.dishLat-90],mirror:false,structures:true});
+ const wellAt=floorAt-3000,neckAt=44000;well(wellAt,R+6000,a);well(neckAt,wellAt+100,9000);well(7000,neckAt+100,3200);
  // Meridian trenches (the user's addition, wide enough for a fighter): standing rings through the poles.
  for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[2*R,2*R,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:true});
  // The reactor core at the centre.
@@ -61785,13 +61787,15 @@ function deathStarBuild(){
  // 含めて武装扱い」; the user's cutaway drawing): the shaft from the core, the amplifier, the cone that opens to the
  // lens, and the lens itself, which is the floor of the dish. Rows: distance from the centre along the dish axis, radius.
  // The dish is the visible face of the weapon (user decision 2026-11-15「皿をスーパーレーザーの部品として外見に出る部分に」): the
- // body ends in a bowl on the measured dish surface (rim 21 degrees from the axis, floor 11.1 km down), from the
- // rim in to the lens at the centre.
- const bowl=r=>floorAt+rho-Math.sqrt(rho*rho-r*r),rows=[[8200,2400],[30000,2400],[33000,6200],[45000,6200],[48000,3400],[55000,3400],[rimAt-9000,a*.99],[bowl(a*.99)-400,a*.99]];
- for(const f of [.99,.9,.8,.68,.55,.42,.3,.2,.1,.03])rows.push([bowl(a*f),a*f]);
+ // body stands in the wells with 300 m to spare and ends in a bowl on the measured dish surface (rim 21 degrees from
+ // the axis, floor 11.1 km down), from the rim in to the lens at the centre.
+ const bowl=r=>floorAt+rho-Math.sqrt(rho*rho-r*r),rows=[[8200,2900],[neckAt+400,2900],[neckAt+400,8700],[wellAt+400,8700],[wellAt+400,a-300],[bowl(a-300),a-300]];
+ for(const f of [.9,.8,.68,.55,.42,.3,.2,.1,.03])rows.push([bowl(a*f),a*f]);
  const mesh=dsRevolve(C0,ax,rows,32),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),centre=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
  for(const q of mesh.v)for(let c=0;c<3;c++)q[c]=(q[c]-centre[c])/size[[0,2,1][c]];
- part('slaser','53 ZT スーパーレーザー',centre,SUPERWEAPONS.slaser.d,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(R+8000)[c]-centre[c])/* the focus of the lens, 8 km outside the sphere on the dish axis: the beam starts there */});
+ const laser=part('slaser','53 ZT スーパーレーザー',centre,SUPERWEAPONS.slaser.d,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(R+8000)[c]-centre[c])/* the focus of the lens, 8 km outside the sphere on the dish axis: the beam starts there */});
+ // It arrives charged: a full charge takes 24 hours (user decision 2026-11-15).
+ if(laser)laser.initialCharge=1;
  // Engines and docks in the equatorial trench: ion drives round the far side, docking bays round the near side.
  const eq=(deg,r)=>[C0[0]+r*Math.cos(deg*rad),C0[1],C0[2]+r*Math.sin(deg*rad)];
  for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,floor-300),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
@@ -63973,8 +63977,9 @@ const SW_COMBAT={
  // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's, but laid
  // from the lens focus anywhere within `cone` (radians) of the dish's bearing instead of along a fixed axis.
  // The full shot is for a planet; on ships it fires shipShare of it (2 ZT of 53: user decision 2026-11-15) and keeps
- // the rest of its charge.
- slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:57400,share:.6,tMin:60,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ // the rest of its charge. A full charge takes 24 hours (tMin; user decision 2026-11-15), so a ship shot is back
+ // in about 54 minutes.
+ slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:57400,share:.6,tMin:86400,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
  hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // Shot energy is per physical emitter, in TT. Both Onager emitters together deliver 250 PT.
