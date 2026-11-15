@@ -40,7 +40,7 @@ let browser;(async()=>{try{await new Promise(r=>server.listen(0,'127.0.0.1',r));
  // the superweapon ship stays in action (not shut down by its own charge heat) and, once charged, still neither turns nor fires
  if(tgt==='onager'){assert.equal(T3.out,null,'the stationary target is not disabled: '+T3.out);
   // (a full charge takes about 14 minutes: the script advances the charge to 99.5% and lets the model finish it)
-  await page.evaluate(()=>{for(const x of window.__yard.trial.battle.b.units.find(u=>u.id==='x1').sw)x.c=Math.max(x.c,.995);});
+  await page.evaluate(()=>{const u=window.__yard.trial.battle.b.units.find(u=>u.id==='x1'),C=window.__yard.C;u.p.sw.forEach((w,i)=>{const x=u.sw[i];x.c=Math.max(x.c,.995);/* a strict ship reads its charge from the store (2026-11-15): set both */if(u.p.energyModel?.version===1&&C.superweaponDischarge){C.superweaponDischarge(u,i,0);x.storedJ=Math.max(x.storedJ||0,x.c*C.swEnergyTT(w)*C.TT);u.weaponLedger.storedJ=u.sw.reduce((n,y)=>n+Math.max(0,y.storedJ||0),0);}});});
   await page.waitForFunction(()=>{const B=window.__yard.trial.battle,u=B.b.units.find(u=>u.id==='x1');return B.result||(u.sw||[]).some(w=>w.st!=='charge'||w.c>=1);},null,{timeout:900000});
   const tc=await page.evaluate(()=>window.__yard.trial.battle.b.time);await page.waitForFunction(tc=>{const B=window.__yard.trial.battle;return B.result||B.b.time>tc+15;},tc,{timeout:900000});const c5=await st();note('after charge',c5);const T5=c5.units.find(u=>u.static);
   result.swAfter=await page.evaluate(()=>window.__yard.trial.battle.b.units.find(u=>u.id==='x1').sw.map(w=>({st:w.st,c:w.c})));
