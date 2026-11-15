@@ -1004,6 +1004,15 @@ def('ion_heavy', .06, 3, 3, .9, .2, (E, t, o, p) => {
 // v21.2 The hyper-ion cannon, voiced after the Malevolence's shot in The Clone Wars (measured, not sampled: a bright
 // discharge whose energy sits at 4-8 kHz for the first second, a shimmering electric buzz near 1.26 kHz through it, then
 // the pulse rolling away as a deep roar with most of its energy under 120 Hz, crackling as it goes).
+// The superlaser (synthesized; no recording is used): eight tributary beams light one after another with rising
+// chirps, then the main beam: a long falling whine over hiss, a boom and a deep rumble.
+def('superlaser', .5, 2, 4, 1.2, .3, (E, t, o, p) => {
+ const lp = E.flt('lowpass', 7000, .7); lp.connect(o);
+ for (let j = 0; j < 8; j++) zap(E, lp, t + j * .09, 'sawtooth', 220 * p * (1 + j * .08), 640 * p * (1 + j * .08), .5, 1200 * p, .22, .12);
+ zap(E, lp, t + 1, 'sawtooth', 1500 * p, 420 * p, 2.6, 1600 * p, .6, .5);
+ nzf(E, lp, t + 1, 3.2, 'bandpass', 2400 * p, 900 * p, .6, .02, .7, .9, 2);
+ boom(E, o, t + 1, 70 * p, 28 * p, .6, .3, .5); rumble(E, o, t + 1, 3, 200, 110, .45, .6, .75, 1.2, .5, 2.4); return 6.5;
+});
 def('ion_cannon', .4, 2, 4, 1.05, .32, (E, t, o, p) => {
  // the discharge: crackling sizzle up top and a hiss that darkens
  nzf(E, o, t, 1.3, 'highpass', 3800 * p, 0, .7, .015, 3.2, .35, .8, E.crackle, 1.1);
@@ -6687,7 +6696,7 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
     // FACTION-001 the player's own factions are listed beside the four (Rts.registerFaction adds them); a made faction
     // this device no longer has shows as unknown and the design serves every faction until one is chosen.
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>所属陣営</h4>${seg('yardfaction',Object.entries(C.DESIGN_FACTIONS).map(([k,v])=>[k,R.isCustomFaction(k)?`<i class="swatch" style="background:${esc(R.FACTIONS[k].color)}"></i>${esc(v)}`:v]),ship.faction&&C.DESIGN_FACTIONS[ship.faction]?ship.faction:'any')}${ship.faction&&!C.DESIGN_FACTIONS[ship.faction]?'<p class="note bad">この設計の陣営はこの端末にありません（全陣営として扱います）。</p>':''}<p class="note">編成画面の艦の一覧・お任せ編成と、任務で使える陣営を決めます（全陣営ならどの艦隊にも加えられます）。</p><button type="button" class="btn sm ghost" data-facedit>陣営を作る・編集する</button></div>`);
-    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「配置 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
+    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色'],['station','ステーションの外板']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「配置 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
   }
   if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube'){const plan=C.designEnvelope(ship);panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>metreSlider('newRoom'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[plan.L,plan.W,plan.H][i]))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);}
   if(st.tab==='mod')panel.insertAdjacentHTML('afterbegin','<div class="note compartment-rule">内部区画は外殻内に収容。箱形区画の干渉は必要容積を保って自動統合します。主炉・シールド・エンジンと外装機器は張出し可能。</div>');
@@ -9839,9 +9848,9 @@ function trialSwBeamCheck(){trialSwSyncFrame();}
 // The views' record of superweapon shots: a beam is renewed each step it holds; the others fade on their own.
 function swShotFx(s,byId){
  const a=byId.get(s.from),w=a?.p?.sw?.[s.i];if(!a||!w)return;trial.swfx=trial.swfx||[];
- if(s.mode==='beam'){const e=trial.swfx.find(e=>e.from===a.id&&e.i===s.i&&e.mode==='beam');if(e){e.life=SPACE_RULES.step*1.6;e.to=s.to[0];e.free=!s.to.length;e.distance=s.distance;return;}}
- const life=s.mode==='bolt'?(s.dur||20):s.mode==='beam'?SPACE_RULES.step*1.6:s.mode==='pulse'?.7:2.2;trial.swfx.push({from:a.id,i:s.i,k:s.k,mode:s.mode,bolt:s.bolt,to:s.mode==='ring'?s.to:s.to[0],free:!s.to.length,distance:s.distance,life,max:life,age:0});
- const at=a.manual?trial.P:spaceWorld(a);sndAt(s.k==='hion'?sndPick('ion_cannon','ion_heavy'):sndPick('turbolaser_heavy','turbolaser'),at,{gain:1.3,pitch:s.k==='hion'?1:s.mode==='pulse'?.6:.75,near:Math.max(3000,a.p.len*2),far:120000});
+ if(s.mode==='beam'){const e=trial.swfx.find(e=>e.from===a.id&&e.i===s.i&&e.mode==='beam');if(e){e.life=SPACE_RULES.step*1.6;e.to=s.to[0];e.free=!s.to.length;e.distance=s.distance;e.axis=s.axis;return;}}
+ const life=s.mode==='bolt'?(s.dur||20):s.mode==='beam'?SPACE_RULES.step*1.6:s.mode==='pulse'?.7:2.2;trial.swfx.push({from:a.id,i:s.i,k:s.k,mode:s.mode,bolt:s.bolt,to:s.mode==='ring'?s.to:s.to[0],free:!s.to.length,distance:s.distance,axis:s.axis,life,max:life,age:0});
+ const at=a.manual?trial.P:spaceWorld(a);sndAt(s.k==='hion'?sndPick('ion_cannon','ion_heavy'):s.k==='slaser'?sndPick('superlaser','turbolaser_heavy'):sndPick('turbolaser_heavy','turbolaser'),at,{gain:1.3,pitch:s.k==='hion'||s.k==='slaser'?1:s.mode==='pulse'?.6:.75,near:Math.max(3000,a.p.len*2),far:120000});
  if(a.manual)trial.flash=Math.min(1,(trial.flash||0)+.5);
 }
 // v21.2 A point of the battle frame in the trial's world, and the sprites of an ion bolt's disc (relative to P).
@@ -9933,7 +9942,7 @@ function trialSwSoloFx(i,w,mode,to,distance){
  trial.swfx=trial.swfx||[];
  if(mode==='beam'){const e=trial.swfx.find(e=>e.solo&&e.i===i&&e.mode==='beam');if(e){e.life=.3;e.to=to;e.free=!to;e.distance=distance;return;}}
  const life=mode==='beam'?.3:mode==='pulse'?.7:2.2;trial.swfx.push({solo:true,i,k:w.k,mode,to,free:!to,distance,life,max:life,age:0});
- sndAt(w.k==='hion'?sndPick('ion_heavy','ion'):sndPick('turbolaser_heavy','turbolaser'),trial.P,{gain:1.3,pitch:w.k==='hion'?.55:mode==='pulse'?.6:.75,near:Math.max(3000,trial.p.len*2),far:90000});
+ sndAt(w.k==='hion'?sndPick('ion_heavy','ion'):w.k==='slaser'?sndPick('superlaser','turbolaser_heavy'):sndPick('turbolaser_heavy','turbolaser'),trial.P,{gain:1.3,pitch:w.k==='hion'?.55:w.k==='slaser'?1:mode==='pulse'?.6:.75,near:Math.max(3000,trial.p.len*2),far:90000});
  trial.flash=Math.min(1,(trial.flash||0)+.5);
 }
 // What a shot does to a buoy or a drone.
@@ -10047,11 +10056,25 @@ function trialSwMenu(){
 function trialSwRecord(){const g=trial.gun;return g?.sw?` · 超兵器 ${g.sw} 射${g.swKills?` / 撃破 ${g.swKills}`:''}${g.swDown?` / 無力化 ${g.swDown}`:''}`:'';}
 window.__trialJump={step:dt=>{escortsStep(dt);if(trialCoasting())trialSublight(dt);else if(trial.jump?.phase==='spool')trialStep(dt);trialJumpStep(dt);}};   // (for tests)
 window.__trialSw={step:dt=>trialSwSoloStep(dt),solo:()=>trialSwSolo(),scan:w=>trialSwScan(w),arc:()=>trialSwArcPoints().length};   // (for tests)
+// The superlaser's shot, after the films (user request 2026-11-15「エフェクトは動画を参考に」): eight green tributary beams
+// leave emitters set round the inside of the dish, one after another, and meet at the focus in front of it; the
+// focus swells, and the main beam leaves it toward the target. m: the focus (the weapon's muzzle), dish: the dish's
+// axis, ax: the beam's line (the dish's axis, or the line laid on a target inside the cone); all in world space.
+// Returns the emitters, how far each tributary has reached (0..1), the focus' glow and the main beam's reach (0..1).
+const SLASER_FX={lead:.09,grow:.25,main:1,run:.35};
+function slaserFx(e,w,m,dish){
+ const a=(w.d||57400)/2,d=tv.norm(dish),v=tv.norm(Math.abs(d[1])<.9?tv.cross(d,[0,1,0]):tv.cross(d,[1,0,0])),v2=tv.cross(d,v),c=tv.add(m,d,-a*.62),em=[],tr=[];
+ for(let j=0;j<8;j++){const an=(j+.5)/8*Math.PI*2;em.push(tv.add(c,tv.add(tv.scale(v,Math.cos(an)*a*.8),tv.scale(v2,Math.sin(an)*a*.8))));tr.push(clamp01((e.age-j*SLASER_FX.lead)/SLASER_FX.grow));}
+ return {a,em,tr,focus:clamp01(e.age/SLASER_FX.main),main:clamp01((e.age-SLASER_FX.main)/SLASER_FX.run)};
+}
+const slaserBeamAxis=(e,dish)=>e.axis&&!e.solo&&trial.battle?tv.norm(trialApply(trial.battle.E,e.axis)):tv.norm(dish);
 // Two vertices per beam keep the luminous core continuous at every view distance.
 // The bounded point sprites below add glow; they do not define the beam's line.
 function trialSwBeamLines(){
  const pos=[],col=[],B=trial.battle,byId=B?new Map(B.b.units.map(u=>[u.id,u])):null,P=trial.P;
- for(const e of trial.swfx||[]){if(e.mode!=='beam'||e.k!=='sbeam'||!(e.life>0))continue;const u=e.solo?trial.swSolo:byId?.get(e.from),w=(e.solo?trial.p:u?.p)?.sw?.[e.i];if(!w)continue;const m=e.solo?tv.add(P,trialApply(trial.R,w.mz||[0,0,0])):swMuzzleWorld(u,w),axis=tv.norm(e.solo?trialApply(trial.R,w.axis||[1,0,0]):swAxisWorld(u,w)),range=C.swRange(u,w),distance=C.clamp(Number.isFinite(e.distance)?e.distance:range,0,range);if(!(distance>1))continue;const origin=tv.sub(m,P);pos.push(...origin,...tv.add(origin,axis,distance));col.push(255,226,205,255,255,226,205,255);}
+ for(const e of trial.swfx||[]){if(e.mode!=='beam'||e.k!=='sbeam'&&e.k!=='slaser'||!(e.life>0))continue;const u=e.solo?trial.swSolo:byId?.get(e.from),w=(e.solo?trial.p:u?.p)?.sw?.[e.i];if(!w)continue;const m=e.solo?tv.add(P,trialApply(trial.R,w.mz||[0,0,0])):swMuzzleWorld(u,w),axis=tv.norm(e.solo?trialApply(trial.R,w.axis||[1,0,0]):swAxisWorld(u,w)),range=C.swRange(u,w),distance=C.clamp(Number.isFinite(e.distance)?e.distance:range,0,range);if(!(distance>1))continue;const origin=tv.sub(m,P);
+  if(e.k==='slaser'){const F=slaserFx(e,w,m,axis),g=[190,255,200,255];for(let j=0;j<8;j++){if(!(F.tr[j]>0))continue;const a0=tv.sub(F.em[j],P);pos.push(...a0,...tv.add(a0,tv.sub(origin,a0),F.tr[j]));col.push(...g,...g);}if(F.main>0){pos.push(...origin,...tv.add(origin,slaserBeamAxis(e,axis),distance*F.main));col.push(...g,...g);}continue;}
+  pos.push(...origin,...tv.add(origin,axis,distance));col.push(255,226,205,255,255,226,205,255);}
  return {pos:new Float32Array(pos),col:new Uint8Array(col)};
 }
 // Point sprites for the superweapon shots, relative to P (appended to the trial's effects set).
@@ -10081,6 +10104,15 @@ function swFxPoints(dt){
    const o=e.solo?b.o:spaceWorldPos(b.o),dir=e.solo?b.dir:trialApply(B.E,b.dir);out.push(...ionBoltPoints(o,dir,b.x,C.ionDiam(b.d,b.x),C.ionGlow(b),e.age));if(e.age<1.1)out.push(...ionMuzzlePoints(m,ax,w.d||310,e.age));
    // each ship the pulse washes over crackles with it (the battle's log of the bolt; the solo flight's strikes sound on their own)
    if(!e.solo&&b.log&&b.log.length>(e.heard||0)){for(const h of b.log.slice(e.heard||0)){const t=byId?.get(h.id);if(t)sndAt(sndPick('ion_wash','ion'),t.manual?trial.P:spaceWorld(t),{gain:1.2,near:Math.max(2500,(t.p.len||300)*2),far:80000});}e.heard=b.log.length;}
+   continue;}
+  if(e.mode==='beam'&&w.k==='slaser'){const F=slaserFx(e,w,m,ax),u=slaserBeamAxis(e,ax),range=C.swRange(e.solo?trial.swSolo:byId?.get(e.from),w),L=C.clamp(Number.isFinite(e.distance)?e.distance:range,0,range),fl=.85+.15*Math.sin(e.age*37),a=F.a,f=tv.sub(m,P);
+   // the tributaries: a bright thread from each emitter to the focus, and a glow at the emitter
+   for(let j=0;j<8;j++){if(!(F.tr[j]>0))continue;const a0=tv.sub(F.em[j],P),d=tv.sub(f,a0);out.push([a0,[150,255,170,230],a*.09*fl]);for(let q=1;q<=16;q++){const k=q/16;if(k>F.tr[j])break;out.push([tv.add(a0,d,k),[205,255,210,235],a*.022*fl],[tv.add(a0,d,k),[40,255,90,120],a*.07*fl]);}}
+   // the focus: it swells as the tributaries arrive and stays lit under the beam
+   out.push([f,[235,255,235,Math.round(255*F.focus)],a*(.1+.16*F.focus)*fl],[f,[60,255,110,Math.round(170*F.focus)],a*(.3+.5*F.focus)*fl]);
+   // the main beam: dense near the station, sparser far out, then the strike
+   if(F.main>0&&L>1){const Lm=L*F.main,n=360;/* cubic spacing: close together by the station, each sprite as wide as the gap to the next */for(let j=1;j<=n;j++){const k=j/n,k0=(j-1)/n,q=tv.add(f,u,Lm*k*k*k),gap=Lm*(k*k*k-k0*k0*k0),sz=Math.max(a*.05,gap*1.3);out.push([q,[215,255,220,255],sz*fl]);if(j%2===0)out.push([q,[40,255,95,140],Math.max(a*.17,gap*2.6)*fl]);}
+    const t=e.to!=null?tgt(e,e.to):null;if(t&&F.main>=1)out.push([tv.add(f,u,L),[235,255,235,255],Math.max(600,t.L*.5)*fl],[tv.add(f,u,L),[80,255,120,160],Math.max(1500,t.L*1.4)*fl]);}
    continue;}
   if(e.mode==='beam'||e.mode==='pulse'){const t=e.to!=null?tgt(e,e.to):null,range=C.swRange(e.solo?trial.swSolo:byId?.get(e.from),w),L=C.clamp(Number.isFinite(e.distance)?e.distance:range,0,range),to=tv.add(m,ax,L);if(!(L>1))continue;const u=tv.norm(ax),n=Math.min(420,Math.max(40,Math.round(L/45))),k=e.mode==='pulse'?Math.max(0,e.life/e.max):1,fl=.8+.2*Math.sin(e.age*40);
    for(let j=0;j<=n;j++){const q=tv.sub(tv.add(m,u,L*j/n),P);out.push([q,[255,226,205,Math.round(255*k)],32*fl*(e.mode==='pulse'?1.6:1)]);if(j%2===0)out.push([q,[255,70,40,Math.round(150*k)],110*fl*(e.mode==='pulse'?1.5:1)]);}
@@ -13118,7 +13150,7 @@ function voyDrawTac(ctx, W, H) {
   if (x.sys !== sys) continue;const a = byId.get(x.from), at = voyContactPos(a), age = w.time - x.t;if (!a || !at) continue;const pa = P(at), ion = x.k === 'hion';
   if (x.mode === 'ring') { if (age > 2.2) continue; const r = Math.max(4, age * 16000 / t.mpp), al = 1 - age / 2.2; ctx.strokeStyle = `rgba(170,150,255,${(.85 * al).toFixed(2)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(pa[0], pa[1], r, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1; continue; }
   const life = x.mode === 'pulse' ? 1.2 : .5;if (age > life) continue;const al = 1 - age / life;
-  if(x.mode==='beam'&&x.k==='sbeam'){if(!voyContactFix(a))continue;const w0=a.p.sw?.[x.i],origin=x.origin||C.swMuzzle(a,w0),axis=x.axis||C.swAxis(a,w0),end=x.end||C.add(origin,C.mul(axis,x.distance??C.swRange(a,w0))),p0=P(origin),p1=P(end);ctx.strokeStyle=`rgba(255,120,90,${al.toFixed(2)})`;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(...p0);ctx.lineTo(...p1);ctx.stroke();ctx.lineWidth=1;continue;}
+  if(x.mode==='beam'&&(x.k==='sbeam'||x.k==='slaser')){if(!voyContactFix(a))continue;const w0=a.p.sw?.[x.i],origin=x.origin||C.swMuzzle(a,w0),axis=x.axis||C.swAxis(a,w0),end=x.end||C.add(origin,C.mul(axis,x.distance??C.swRange(a,w0))),p0=P(origin),p1=P(end);ctx.strokeStyle=x.k==='slaser'?`rgba(110,255,140,${al.toFixed(2)})`:`rgba(255,120,90,${al.toFixed(2)})`;ctx.lineWidth=x.k==='slaser'?5:4;if(x.k==='slaser'){/* the tributaries: from the dish (drawn at the ship's mark) to the focus */const q=P(origin),dx=q[0]-pa[0],dy=q[1]-pa[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l,h=Math.max(5,l*.9);ctx.lineWidth=1.5;ctx.beginPath();for(const k of [-1,-.5,.5,1]){ctx.moveTo(pa[0]+nx*h*k,pa[1]+ny*h*k);ctx.lineTo(q[0],q[1]);}ctx.stroke();ctx.lineWidth=5;}ctx.beginPath();ctx.moveTo(...p0);ctx.lineTo(...p1);ctx.stroke();ctx.lineWidth=1;continue;}
   for (const id of x.to || []) { const b = byId.get(id), bt = voyContactPos(b); if (!b || !bt) continue; const pb = P(bt); ctx.strokeStyle = ion ? `rgba(170,150,255,${al.toFixed(2)})` : `rgba(255,${x.mode === 'pulse' ? 230 : 120},90,${al.toFixed(2)})`; ctx.lineWidth = x.mode === 'pulse' ? 6 : 4; ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(pb[0], pb[1]); ctx.stroke(); ctx.lineWidth = 1; }
  }
  // Missiles.

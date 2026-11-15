@@ -850,8 +850,8 @@ function rayFit(o,d,f,maxT){
 
 // ---------- WebGL ----------
 const VS_MESH = `attribute vec3 aPos;attribute vec3 aNor;attribute vec2 aUv;attribute vec4 aCol;
-uniform mat4 uVP;uniform vec3 uOff;uniform vec3 uCenter;uniform mat3 uRot;uniform vec3 uScl;varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
-void main(){vec3 a=aPos*uScl-uCenter;vec3 p=uRot*a+uOff;vW=p;vS=aPos;vN=uRot*aNor;vNS=aNor;vUv=aUv;vCol=aCol;gl_Position=uVP*vec4(p,1.0);}`;
+uniform mat4 uVP;uniform vec3 uOff;uniform vec3 uCenter;uniform mat3 uRot;uniform vec3 uScl;uniform vec4 uStation;varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;varying vec3 vSD;
+void main(){vec3 a=aPos*uScl-uCenter;vec3 p=uRot*a+uOff;vW=p;vS=aPos;vN=uRot*aNor;vNS=aNor;vSD=uRot*(aPos-uStation.xyz);vUv=aUv;vCol=aCol;gl_Position=uVP*vec4(p,1.0);}`;
 const FS_MESH = `#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -860,9 +860,31 @@ precision mediump float;
 uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform sampler2D uArmorTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
 uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform vec3 uClipLo;uniform float uClipOn;uniform vec4 uSeam;uniform float uChar;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;uniform vec4 uEmiTint;
 uniform vec3 uLightCol;uniform float uLightK;uniform float uPortK;uniform vec2 uPix;uniform float uSkinScale;
-uniform sampler2D uShadow;uniform mat4 uShM;uniform vec4 uShTile;uniform vec4 uShK;uniform vec2 uLook;
-varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
+uniform sampler2D uShadow;uniform mat4 uShM;uniform vec4 uShTile;uniform vec4 uShK;uniform vec2 uLook;uniform vec4 uStation;
+varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;varying vec3 vSD;
 float hash12(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+// The battle-station skin (paint 'station'; uStation: the sphere's centre and radius in the ship's frame). Rows of
+// plating blocks run round the sphere between lighter lanes, nine degrees of latitude to a row, each row with its own
+// count of blocks; a block is darker than the lanes and is divided again into panels. Windows light some blocks.
+// The layout was written for this game after looking at a published model of the station (not copied from it).
+// x: the tone of the surface (1 on a lane), y: window light. d: the direction from the centre, mpp: metres a pixel.
+vec2 stationSkin(vec3 d,float mpp){
+ float lat=asin(clamp(d.y,-1.0,1.0))*57.29578,al=abs(lat),lon=atan(d.z,d.x)*0.15915494+0.5,hemi=d.y<0.0?17.0:0.0;
+ if(al>85.5)return vec2(0.87,0.0);
+ float row=floor(al/9.0),fy=fract(al/9.0),h0=hash12(vec2(row+hemi,3.0));
+ float n=max(4.0,floor((12.0+22.0*h0)*cos((row+0.5)*0.15708)));float u=lon*n,col=floor(u),fx=fract(u);
+ vec2 id=vec2(col,row+hemi);float h1=hash12(id+vec2(5.0,11.0)),h2=hash12(id+vec2(23.0,7.0));
+ float gx=0.05+0.10*h1,gy=0.07+0.05*h2;
+ float inside=step(gx,fx)*step(fx,1.0-gx)*step(gy,fy)*step(fy,1.0-gy);if(h2>0.7&&abs(fy-0.5)<0.035)inside=0.0;
+ float cell=uStation.w*0.05236,fine=1.0-smoothstep(cell*0.03,cell*0.25,mpp);
+ vec2 sub=vec2(fx*(3.0+floor(h2*4.0)),fy*3.0),sid=floor(sub),sf=fract(sub);
+ float tone=0.80+0.07*h1+fine*(hash12(sid+id*7.0)-0.5)*0.07-fine*(1.0-step(0.03,sf.x)*step(0.03,sf.y))*0.05;
+ vec2 lg=vec2(fx,fy)*24.0,lid=floor(lg),lf=fract(lg);float lc=cell/8.0;
+ float on=step(0.25,h1)*step(0.93,hash12(lid+id*13.0));
+ float dot_=on*step(0.36,lf.x)*step(lf.x,0.64)*step(0.36,lf.y)*step(lf.y,0.64)*(1.0-smoothstep(lc*0.4,lc*1.6,mpp));
+ float far=step(0.25,h1)*0.006*smoothstep(lc*0.4,lc*1.6,mpp);
+ return vec2(mix(1.0,tone,inside),inside*(dot_+far));
+}
 vec2 plateFootprint(vec2 p){
 #ifdef ARMOR_DERIVATIVES
  return max(abs(dFdx(p))+abs(dFdy(p)),vec2(0.0001));
@@ -925,7 +947,14 @@ bool solarSurface=vCol.a>253.5/255.0&&vCol.a<254.5/255.0;
 bool surfacePort=vCol.a>252.5/255.0&&vCol.a<253.5/255.0;
 if(surfacePort&&uPortK<=0.0)discard;
 if(equipmentPlain||surfacePort)tx=vec3(1.0);
-vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;float ao=equipmentPlain||equipmentTexture||solarSurface||surfacePort||armorSurface||plainSurface?1.0:vCol.a;
+vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;
+// The station's outer skin (within 0.8% of the sphere's radius below it, and no higher than its guns): the plating
+// pattern, and the sphere's own normal in place of the facets'.
+float stGlow=0.0;
+if(uStation.w>0.0&&gl_FrontFacing){vec3 sp=vS-uStation.xyz;float sr=length(sp)/uStation.w,skin=smoothstep(0.9905,0.9935,sr)*(1.0-smoothstep(1.0005,1.001,sr));
+ if(skin>0.0){float mppS=uPix.y>0.0?uPix.y:length(uEye-vW)*uPix.x;vec2 st=stationSkin(sp/max(length(sp),1.0),mppS);base*=mix(1.0,st.x*st.x,skin);stGlow=st.y*skin;n=normalize(mix(n,normalize(vSD),skin));}
+ // Below the skin, a face that looks outward (the dish, the trench floor) is ringed: bands of equal depth.
+ else if(sr>0.84&&sr<0.9905&&dot(normalize(vNS),sp)>0.5*length(sp)){float rg=fract((sr-0.84)*70.0);base*=0.78+0.22*step(0.12,rg)*(0.9+0.1*step(0.5,fract((sr-0.84)*17.5)));}}float ao=equipmentPlain||equipmentTexture||solarSurface||surfacePort||armorSurface||plainSurface?1.0:vCol.a;
 float ef=1.0;
 if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{base*=0.62;}}
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
@@ -933,6 +962,7 @@ float sh=1.0;if(uShK.x>0.5&&d1>0.0)sh=shadowK(normalize(vNS)*(gl_FrontFacing?1.0
 vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef*sh;
 vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,materialUV).rgb;if(uEmiTint.w>0.5){float l=dot(e,vec3(0.3,0.5,0.2));e=mix(uEmiTint.rgb*min(1.0,l*1.3),vec3(l),smoothstep(0.86,1.0,l)*0.7);}c+=e*e*uEmi*ef;
 if(uLightK>0.0&&ef>0.5&&!solarSurface){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
+if(stGlow>0.0)c+=vec3(1.0,0.95,0.82)*stGlow*(1.0-min(1.0,d1*3.0))*0.9;
 // Installed ports and thin-armor light points share one emissive mesh batch.
 if(surfacePort&&ef>0.5)c+=vc*vc*uLightCol*uPortK*1.5;
 // A wreck: plating scorched in patches, and the edges where it broke glowing hot.
@@ -1739,7 +1769,7 @@ class Renderer {
     gl.uniform3fv(p.u.uC1, lk.C1); gl.uniform3fv(p.u.uC2, lk.C2); gl.uniform3fv(p.u.uSky, lk.sky); gl.uniform3fv(p.u.uGnd, lk.gnd); gl.uniform2f(p.u.uLook, lk.tone, lk.exp);
     const sht = this.shTile, SH = this.sh; if (sht && SH && sht.M && !this.unitScl) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, SH.t); gl.uniform1i(p.u.uShadow, 2); gl.uniformMatrix4fv(p.u.uShM, false, sht.M); gl.uniform4fv(p.u.uShTile, sht.uv); gl.uniform4f(p.u.uShK, 1, 1 / SH.size, sht.bias, sht.noff); } else gl.uniform4f(p.u.uShK, 0, 0, 0, 0);
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
-    gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
+    gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);{const hl=this.hullLength||1600;if(this.paint==='station')gl.uniform4f(p.u.uStation,hl/2,hl/2,0,hl/2);else gl.uniform4f(p.u.uStation,0,0,0,0);}gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')||source.startsWith('refTurBody_')?1:source==='refEngine'?2:0);
     gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'||source==='plate'?48:0);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.

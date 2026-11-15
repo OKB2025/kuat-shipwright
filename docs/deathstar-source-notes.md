@@ -5,3 +5,55 @@ Scale: 160 km diameter / 321.5 units = 497.7 m per unit.
 Dish: axis latitude +27.0 deg, longitude -174.5 deg; rim at 21 deg from the axis; flat floor within about 6 deg; depth 22.3 units (11.1 km) at the centre (radius 138.4).
 Equatorial trench: |latitude| <= about 0.6 deg (about 3.6 units = 1.8 km wide), 6.4 units (3.2 km) deep (radius 154.3).
 Surface relief: about +-1 unit. No meridian trenches in the STL (the user asks for several, fighter-sized: an explicit addition).
+
+## Further references supplied by the user (2026-11-15, second set)
+
+None of these files is in the repository; the hashes identify the uploads.
+
+| Use (user's words) | File | sha256 | What was taken from it |
+| --- | --- | --- | --- |
+| 「断面は写真」 | cutaway drawing, 550 × 550 px (`IMG_7162.webp`) | not recorded (image pasted into the session) | proportions of the superlaser and the polar column, below |
+| 「スキンはGLB」 | `death_star_-_star_wars.glb` (Sketchfab, SebastianSosnowski, **CC BY-NC-ND 4.0**) | `21894740…370b58f` | looked at only; see "Skin" |
+| 「エフェクトは動画」 | three screen recordings of film scenes (`.mov`, 3.7 s, 4.8 s, 6.3 s) | `0afe4ead…`, `ef3d3586…`, `be9ba191…` | looked at only; see "Firing effect". The sound track is not used |
+| shape (as before) | `deathstar_1_5_10_5.stl` | `a1f8083f…1e1c` (same file as the first upload) | sphere, dish, equatorial trench |
+
+### Cutaway drawing
+
+Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are along the dish axis from the centre.
+
+| Feature on the drawing | Measured | In the example |
+| --- | --- | --- |
+| Reactor core | radius 10.4 km | radius 8 km, **not changed**: at 10.4 km the reactor's power and waste heat double |
+| Amplifier bulb | 11.6 km to 29.4 km, 4.4 km at its widest | the same |
+| Neck | 29.4 km to 33.5 km, 2 km in radius | the same |
+| Works between neck and housing | 33.5 km to 52.7 km, growing to 9.4 km in radius | three steps: 5.2, 7.2 and 9.4 km |
+| Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, to the dish rim less 300 m |
+| Dish floor | 69.2 km out | 68.9 km (the STL's value; the STL governs the outside) |
+| Dish | a cone, 22 km in radius, 23° above the equator | the STL's bowl: 28.7 km in radius, 27° |
+| Column through the poles | about 13 km in radius above the core, narrower below | reactant silos: 12 km × 46 km above, 8 km × 40 km below |
+
+The superlaser's body is made in its own frame (the dish axis along x) and pitched up 27°, so the weapon's axis is
+the dish axis. Before this the body had no rotation and the beam left level, along the station's x.
+
+### Skin
+
+The station's paint is `station` (`ship.paint`, also offered in the designer's 外板スキン list). The mesh shader draws it
+on the outer skin of the sphere whose centre and radius follow from the hull length: rows of plating blocks nine
+degrees of latitude high, a different number of blocks in each row, lighter lanes between, each block divided
+again into panels, and window lights on some blocks. Faces under the skin that look outward (the dish, the trench
+floor) carry rings of equal depth. On the skin the shader shades with the sphere's own normal, so the 40 × 16
+facets of the two domes no longer show (the outline is still a polygon).
+
+The pattern was written for this game. No texture, mesh or other data from the GLB is in the repository; its
+licence does not allow derivatives.
+
+### Firing effect
+
+After the first recording: eight green tributary beams leave emitters round the inside of the dish one after
+another (0.09 s apart), meet at the focus in front of the dish, the focus swells, and after one second the main beam
+leaves the focus. `slaserFx` in `js/app.js` gives the timing; the trial view draws it (`swFxPoints`,
+`trialSwBeamLines`), the fleet map draws a green line with a fan at the firing ship. The sound `superlaser` is
+synthesized.
+
+Not built yet: the strike on a planet (the second and third recordings: the flash, the ring-shaped shock, the
+planet breaking up) and firing on a planet at all.
