@@ -68168,7 +68168,9 @@ function heatNetwork(ship,S){
   if(s.k==='reactor'||s.k==='feed')continue;const owner=ship.parts.find(p=>p.id===s.part);let r=s.k==='engine'?reactorFor(ship,owner):s.k==='sw'?ship.parts.find(p=>p.id===s.gen):near(s.at,owner);if(r&&owner&&domains.of(r)!==domains.of(owner))r=null;
   links.push({kind:'power',from:r?'p'+r.id:null,to:s.id,cap:s.k==='sw'?swIn[s.sw]&&SW_COMBAT[swIn[s.sw].k].share*(r?reactorPower(r):0):s.k==='hotel'?g.fixed*s.w/Math.max(1,tot.hotel):s.k==='engine'?s.w:g.Ds*s.w/Math.max(1e-30,tot.shield||1),auto:true,ok:!!r,why:r?null:'no-source',direct:s.k==='sw'});}
  for(const d of dis)if(strict&&d.part!=null){const owner=ship.parts.find(p=>p.id===d.part),r=owner&&near(d.at,owner);d.power=d.cap*(HEAT.disPowerK[d.k]??HEAT.disPowerK.wing);d.powered=!!r;links.push({kind:'power',from:r?'p'+r.id:null,to:d.id,cap:d.power,auto:true,ok:!!r,why:r?null:'no-source'});if(!r)d.cap=0;}
- const consumers=[...ship.parts.filter(p=>!bad(p.id)&&!(electricalSourcePower(p)>0)&&!isShapePart(p)&&!(p.k==='engine'&&!integratedEngine(p))&&!src.some(s=>s.id==='p'+p.id)).map(p=>({owner:p,id:'p'+p.id,at:p.c,weight:Math.max(1,partVolume(p))})),...ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat!=='w').map(f=>({owner:f,id:'f'+f.id,at:f.p,weight:Math.max(1,fitSpec(f).mass||1)}))],totalConsumer=consumers.reduce((a,p)=>a+p.weight,0);
+ // User report 2026-11-15: a reactor whose output is 0 (no reactant supply) was listed here as equipment without a power
+ // path. A reactor is a source, never a consumer; its zero output is reported by the reactant-supply warning.
+ const consumers=[...ship.parts.filter(p=>!bad(p.id)&&!isReactor(p)&&!(electricalSourcePower(p)>0)&&!isShapePart(p)&&!(p.k==='engine'&&!integratedEngine(p))&&!src.some(s=>s.id==='p'+p.id)).map(p=>({owner:p,id:'p'+p.id,at:p.c,weight:Math.max(1,partVolume(p))})),...ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat!=='w').map(f=>({owner:f,id:'f'+f.id,at:f.p,weight:Math.max(1,fitSpec(f).mass||1)}))],totalConsumer=consumers.reduce((a,p)=>a+p.weight,0);
  for(const c of consumers){if(links.some(l=>l.kind==='power'&&l.to===c.id))continue;const r=near(c.at,c.owner);links.push({kind:'power',from:r?'p'+r.id:null,to:c.id,cap:g.fixed*c.weight/Math.max(1,totalConsumer),auto:true,ok:!!r,why:r?null:'no-source'});}
  const allNodes=new Set([...src.filter(s=>s.k!=='feed').map(s=>s.id),...dis.map(d=>d.id),...consumers.map(c=>c.id)]);
  const manualPowerTargets=new Set(manual.filter(l=>l.kind==='power').map(l=>l.to));for(let i=links.length-1;i>=0;i--)if(links[i].kind==='power'&&links[i].auto&&manualPowerTargets.has(links[i].to))links.splice(i,1);
@@ -68286,7 +68288,11 @@ function heatStats(ship,S){
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
  // Without a generator (「ジェネレーターがありません」, S.Vgen <= 0) the ship's own living/electronics load (hotel) has no
  // source by definition: that alone is not a second, broken-line warning. Unpowered equipment still is.
- if(S.heat.power.broken&&!(S.Vgen<=0&&net.links.filter(l=>l.kind==='power'&&!l.ok).every(l=>l.why==='no-source'&&l.to==='hotel')))warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
+ // User report 2026-11-15: with reactors aboard whose output is 0 (reactant supply 0%), every consumer has "no source";
+ // that is not a broken line either. The cause is already reported ("反応物供給能力 0%" / "給電が不足"), so the
+ // broken-line warning is kept for lines that are broken while the plant does produce power, or broken for another reason.
+ {const brokenLinks=net.links.filter(l=>l.kind==='power'&&!l.ok),noOutput=S.Vgen>0&&!(S.power>0)&&brokenLinks.every(l=>l.why==='no-source');/* reactors aboard, no output */
+  if(S.heat.power.broken&&!noOutput&&!(S.Vgen<=0&&brokenLinks.every(l=>l.why==='no-source'&&l.to==='hotel')))warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);}
  if(S.heat.heat.broken)warn('warn',`接続できない熱輸送路が ${S.heat.heat.broken} 本あります（相手の設備がありません）。`);
  // The shortfall, the converter volume that covers it, and whether the plant can feed that converter.
  const short=(e,label,lv,tail)=>{const t=e.over.length?e.over[0].t:e.limitSeconds,base=`${label}で廃熱 ${heatPowerText(e.gen)} に対し変換 ${heatPowerText(e.out)}、不足 ${heatPowerText(e.shortfallW)}（最短 ${f(t)} で出力制限）。`;
