@@ -948,10 +948,10 @@ bool surfacePort=vCol.a>252.5/255.0&&vCol.a<253.5/255.0;
 if(surfacePort&&uPortK<=0.0)discard;
 if(equipmentPlain||surfacePort)tx=vec3(1.0);
 vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;
-// The station's outer skin (within 0.8% of the sphere's radius below it, and no higher than its guns): the plating
+// The station's outer skin (from 0.8% of the sphere's radius below it to 0.4% above it): the plating
 // pattern, and the sphere's own normal in place of the facets'.
 float stGlow=0.0;
-if(uStation.w>0.0&&gl_FrontFacing){vec3 sp=vS-uStation.xyz;float sr=length(sp)/uStation.w,skin=smoothstep(0.9905,0.9935,sr)*(1.0-smoothstep(1.0005,1.001,sr));
+if(uStation.w>0.0&&gl_FrontFacing){vec3 sp=vS-uStation.xyz;float sr=length(sp)/uStation.w,skin=smoothstep(0.9905,0.9935,sr)*(1.0-smoothstep(1.004,1.0045,sr));/* the hemispheres are half-ellipsoids up to 0.23% outside the sphere */
  if(skin>0.0){float mppS=uPix.y>0.0?uPix.y:length(uEye-vW)*uPix.x;vec2 st=stationSkin(sp/max(length(sp),1.0),mppS);base*=mix(1.0,st.x*st.x,skin);stGlow=st.y*skin;n=normalize(mix(n,normalize(vSD),skin));}
  // Below the skin, a face that looks outward (the dish, the trench floor) is ringed: bands of equal depth.
  else if(sr>0.84&&sr<0.9905&&dot(normalize(vNS),sp)>0.5*length(sp)){float rg=fract((sr-0.84)*70.0);base*=0.78+0.22*step(0.12,rg)*(0.9+0.1*step(0.5,fract((sr-0.84)*17.5)));}}float ao=equipmentPlain||equipmentTexture||solarSurface||surfacePort||armorSurface||plainSurface?1.0:vCol.a;
