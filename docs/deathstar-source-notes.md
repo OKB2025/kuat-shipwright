@@ -131,3 +131,33 @@ Known differences that remain:
   how the 1.8 km equatorial gap is made from two dome structures. The skin is a median 140 m outside the STL.
 - The equatorial trench is 0.4 km narrower than the STL's and its floor about 260 m lower (the STL's trench is not
   symmetric about the equator).
+
+## Evidence gathered on the final design (2026-11-15)
+
+Stored design `data/examples/deathstar/design.json.gz`, sha256 `4cf18ae2126bfdc6…12ab3fbe`, at commit `02a9add`.
+
+- **Same shape stored, loaded again and built afresh.** `scripts/stl-check/deathstar_rays.cjs` with `KS_SOURCE`
+  `stored`, `roundtrip` (the stored design saved and loaded once more) and `build` (`Core.buildDesign`): over the
+  6,485 directions of the comparison the largest difference is 0.000000 m and no direction changes between a hit
+  and a miss.
+- **STL comparison repeated on this design** (after the 300 m ring was removed): the figures of the table above
+  are unchanged.
+- **Section through the poles and the dish axis**, `scripts/stl-check/deathstar_section.cjs` (each 400 m cell
+  classified by `Core.inPart` and the carved structures): `docs/handoff-2026-11-15/evidence/deathstar-section.png`
+  and `deathstar-section-without-superlaser.png` (blue structure, red superlaser, pink reactor, violet reactant
+  silos, green other equipment, black space). Beside the user's cutaway drawing the bulb, the neck, the three
+  steps, the housing and the dish lie in the same order and proportions, the silos stand on the polar axis above
+  and below the core, and without the superlaser the housing's well is the only hole. The drawing itself is not in
+  the repository.
+- **Parts of the stored design** (224): 2 dome and 1 cylinder structures, 1 reactor, 2 reactant silos, 1 superlaser
+  (with a weapon body), 5 engines, 5 engine cores, 6 hangars, 1 command room, 2 shield generators, 1 hyperdrive,
+  13 heat converters, 7 inertial and 134 integrity units, 43 pumps; fittings: 138 heavy turbolasers and 138 point
+  defence mounts; cuts: 1 cylinder (the housing's well) and 4 torus (the meridian trenches). Every part kind is in
+  `Core.PARTS`; no part has the form `reference` or `mesh` or a skin asset.
+- **The superlaser's weapon body** is a body of revolution made from the measured rows (no triangle of the STL),
+  held on the part as `weaponBody`, the way the Onager's beam is. That the dish and the works down to the core are
+  one weapon part is the user's decision (2026-11-15:「スーパーレーザーはレンズの皿の部分、中心に繋がる構造物も含めて武装扱い」,
+  「皿をスーパーレーザーの部品として外見に出る部分に」). Its section cannot be edited in the designer, only its size.
+- **Browser, Worker mode, no page error** (screens under `/tmp/ks-verify/20261115-final`, not kept): the designer
+  with the superlaser taken out shows the well as an open hole; the trial flight fires (tributaries, focus, main
+  beam) with the skin drawn; the planet shot destroys the planet.

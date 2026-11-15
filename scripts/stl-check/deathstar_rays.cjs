@@ -7,10 +7,13 @@
 // the radius of the first surface met from outside appended (structures as carved, and the superlaser's body).
 const fs=require('fs'),zlib=require('zlib'),path=require('path'),root=path.resolve(process.argv[2]),dirs=JSON.parse(fs.readFileSync(process.argv[3],'utf8')),out=path.resolve(process.argv[4]);
 const {C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
-const s=C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples/deathstar/design.json.gz'))).toString('utf8')));C.syncCompartments(s);
+// KS_SOURCE: 'stored' (default) the stored design as the game opens it; 'roundtrip' the stored design saved and loaded
+// once more; 'build' a fresh Core.buildDesign (the authoring build), to show that the three give the same shape.
+const source=process.env.KS_SOURCE||'stored',stored=()=>C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples/deathstar/design.json.gz'))).toString('utf8')));
+const s=source==='build'?C.buildDesign('deathstar'):source==='roundtrip'?C.deserialize(JSON.parse(JSON.stringify(C.serialize(stored())))):stored();C.syncCompartments(s);
 const R=80000,C0=[R,R,0],rad=Math.PI/180,T=[];
 for(const p of s.parts){if(p.k==='struct'){p._solidCutShip=s;T.push(C.structTriangles(p));}else if(p.k==='slaser')T.push(C.superweaponBodyTriangles(p));}
 const radius=d=>{const o=C0.map((c,i)=>c+d[i]*(R+5000)),back=d.map(v=>-v);let best=null;for(const t of T){const h=C.rayTris(t,o,back);if(h&&(!best||h.t<best.t))best=h;}return best?R+5000-best.t:null;};
 const sets={};for(const [name,rows] of Object.entries(dirs.sets))sets[name]=rows.map(r=>[...r,radius(r[r.length-1])]);
-fs.writeFileSync(out,JSON.stringify({R,triangles:T.map(t=>t.length/9),sets}));
-console.log('wrote',out,'triangles',T.map(t=>t.length/9).join('+'));
+fs.writeFileSync(out,JSON.stringify({R,source,triangles:T.map(t=>t.length/9),sets}));
+console.log('wrote',out,'source',source,'triangles',T.map(t=>t.length/9).join('+'));
