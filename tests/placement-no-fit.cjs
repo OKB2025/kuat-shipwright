@@ -311,3 +311,23 @@ for(const state of ['stored refusal','pending draft','body gone','stored refusal
  const far=structuredClone(raw);far.parts.find(p=>p.id===2).c=[c0[0],c0[1]+500,c0[2]];if(far.parts.find(p=>p.id===2).placement.requestedGeometry)far.parts.find(p=>p.id===2).placement.requestedGeometry.c=[c0[0],c0[1]+500,c0[2]];
  const F=C.deserialize(far);C.refreshPlacementGeometry(F);assert.equal(F.parts.find(p=>p.id===2)._placementError,'contact-zero');
 });
+
+// High review 2026-11-15, F1: the 'stored refusal, body gone' case above passed only because the fixture's saved request
+// lacked the defaults a load adds, which forced a retry. A save that has been loaded and saved again holds the normalized
+// request; its refusal must be dropped on load just the same.
+test('a stored refusal that names a missing body is dropped on load when its saved request is the normalized shape',()=>{
+ const {ship}=fixture(0),raw=structuredClone(C.serialize(C.deserialize(structuredClone(C.serialize(ship))))),rp=raw.parts.find(p=>p.id===2),c0=rp.c.slice();
+ rp.placement.parentStructureId=99;delete rp.placement.hostSurfaceId;rp.placement.newPlacement=true;rp.placement.requestedGeometry=structuredClone(Object.fromEntries(Object.entries(rp).filter(([k])=>k!=='placement')));
+ Object.assign(rp.placement,{validationFailed:true,repairRequired:true,repairReason:'parent-missing',validationSourceKey:'x'});
+ const L=C.deserialize(structuredClone(raw)),q=L.parts.find(p=>p.id===2);assert.equal(q.placement.validationFailed,undefined);assert.equal(q.placement.repairRequired,undefined);
+ const r=C.refreshPlacementGeometry(L);assert.ok(!r.failed.some(f=>f.partId===2),JSON.stringify(r.failed));assert.equal(C.placementDraftStatus(L).ok,true);assert.deepEqual(Array.from(q.c),c0);
+ const again=C.deserialize(structuredClone(C.serialize(L)));C.refreshPlacementGeometry(again);assert.equal(C.placementDraftStatus(again).ok,true,'and it stays so after another save and load');
+});
+// High review 2026-11-15, F2: a structure with no body is still checked against fixed equipment, as one with a body is.
+for(const state of ['pending draft','stored refusal'])test(`a copy with no tapped body that runs through fixed equipment is refused as interference (${state})`,()=>{
+ const {ship}=fixture(0),raw=structuredClone(C.serialize(ship)),rp=raw.parts.find(p=>p.id===2);raw.parts.push({id:9,k:'gen',c:rp.c.slice(),d:6});raw.nextId=Math.max(raw.nextId||0,10);
+ delete rp.placement.parentStructureId;delete rp.placement.hostSurfaceId;rp.placement.unresolvedParentId=1;rp.placement.newPlacement=true;
+ if(state==='stored refusal')Object.assign(rp.placement,{validationFailed:true,repairRequired:true,repairReason:'parent-missing',validationSourceKey:'x'});else rp.placement.pendingGeometry=true;
+ const L=C.deserialize(raw),q=L.parts.find(p=>p.id===2),r=C.refreshPlacementGeometry(L);
+ assert.ok(r.failed.some(f=>f.partId===2&&f.code==='placement-interference'),JSON.stringify(r.failed));assert.equal(q._placementError,'placement-interference');
+});
