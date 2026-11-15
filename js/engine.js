@@ -891,7 +891,9 @@ async function fleetJob(job) {
     // Pending source data is still never completed here.
     const status = C.placementDraftStatus(job.design), byId = new Map((job.design.parts || []).map(p => [p.id, p]));
     const staleInterior = !status.pending.length && status.failed.length && status.failed.every(row => row.list === 'parts' && C.placementCapability?.(byId.get(row.id) || {}).space === 'interior');
-    const checked = staleInterior ? C.deserialize(job.design) : null;
+    // High review 2026-11-15: a stored refusal of a structure whose tapped body is not in the ship is re-judged on load
+    // too (contact only), so a save made before that fix is loaded before it is refused.
+    const checked = (staleInterior || !status.pending.length && status.failed.length) ? C.deserialize(job.design) : null;
     if (!checked || !C.placementDraftStatus(checked).ok)
       throw Object.assign(new Error('配置の計算・修正が完了していない部品があります'), {code: 'placement-unresolved'});
     job.design = C.serialize(checked);

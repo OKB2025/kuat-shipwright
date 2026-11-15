@@ -13,7 +13,7 @@ test('TIE/ln wings are two native solar panels with no separately installed fram
 });
 test('the native wing footprint, electricity, cooling and material mass use the real panel part',()=>{
  let solar=0;
- for(const p of panels){const area=Math.abs(C.outlineArea(p.outline))*p.s[0]*p.s[1],volume=C.partVolume(p);near(C.solarArea(p),area);near(C.solarPower(p),area*C.SOLAR.W);near(C.solarCap(p),area*2*C.SOLAR.disW);near(stats.info[p.id].materialMass,volume*C.PARTS.solarPanel.dens);solar+=C.solarPower(p);assert.ok(volume>0);}
+ for(const p of panels){const area=Math.abs(C.outlineArea(p.outline))*p.s[0]*p.s[1],volume=C.partVolume(p);near(C.solarArea(p),area);near(C.solarPower(p),area*C.SOLAR.W);near(C.solarCap(p),area*2*C.wingDischargeW()*C.WING.dischargeK.solar);near(stats.info[p.id].materialMass,volume*C.PARTS.solarPanel.dens);solar+=C.solarPower(p);assert.ok(volume>0);}
  near(stats.solarPower,solar);const wings=stats.wings.filter(w=>panels.some(p=>p.id===w.id));assert.equal(wings.length,2);assert.ok(wings.every(w=>w.solar&&w.solarP>0));
  assert.ok(stats.dims[1]<9,'native panels retain the measured overall craft width');
 });

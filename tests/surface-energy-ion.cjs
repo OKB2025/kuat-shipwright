@@ -73,9 +73,11 @@ function coolingFixture(stored=0,physical=true){
  C.heatInit(u);u.ht.t=0;u.ht.last=0;u.ht.qJ=stored;return u;
 }
 
-test('an idle installed cooler reserves finite startup power without drawing it or creating heat and emission',()=>{
- const u=coolingFixture();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);assert.equal(u.pw.coolingReserved,10);assert.equal(u.pw.drawNonCooling,0);assert.equal(u.ht.e.hotel,0);C.heatTick({...ctx,time:1},u,1);
- assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling.inputJ,0);assert.equal(u.ht.cooling.lastDraw,0);close(u.ht.qJ,0);
+// 2026-11-12 (user decision + physics review): converter power is reserved for the heat that can reach it,
+// so an idle cooler with no heat reserves nothing (it previously held its 10 W rating as startup power).
+test('an idle installed cooler with no heat reserves no power, draws nothing and creates no heat or emission',()=>{
+ const u=coolingFixture();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);assert.equal(u.pw.coolingReserved,0);assert.equal(u.pw.drawNonCooling,0);assert.equal(u.ht.e.hotel,0);C.heatTick({...ctx,time:1},u,1);
+ assert.equal(u.ht.emit,0);assert.equal(u.ht.cooling?.inputJ||0,0);assert.equal(u.ht.cooling?.lastDraw||0,0);close(u.ht.qJ,0);
 });
 
 test('a cold cooler starts from reserved power and conserves processed heat, actual operation input and reactor loss',()=>{

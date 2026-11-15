@@ -303,12 +303,16 @@ test('aircraft foil deployment controls the connected local cooling capacity', (
   p.grid.fixed=p.grid.cooling=coolingW;p.grid.powerPaths=[{from:'p1',to:'p2',cap:1e18,ok:true},{from:'p1',to:'p3',cap:coolingW,ok:true}];
   const H=plain(C.heatProfile(p));H.dis=[{id:'p3',n:'foil',k:'hdis',g:'high',cap:1e17,power:coolingW,m:2,sec:-1,src:-1,fo:0,cs:.1}];
   H.ln=H.src.map((_,s)=>({s,d:0,cap:1e17,sec:-1}));p.heat=H;
+  const caps=[];
   for(const foil of [0,1]){
     const key='motionFoil'+foil;R.CRAFT[key]={name:key,role:'fighter',speed:1000,powerProfile:plain(p)};
     const s={id:key,craft:key,side:0,h:[1,0,0],pos:[0,0,0],vel:[0,0,0],foil};
     R.squadPropulsion(s,1,0);C.allocateShipPower(s.drive,C.fleetSystems(s.drive),{throttle:1,shields:0,weapons:0},.25,'balanced');C.heatTick(null,s.drive,.25,.25);
-    assert.equal(s.drive.fo.d[0],foil);assert.equal(s.drive.ht.cap,foil?1e17:1e16);
+    // 2026-11-14 (heat model, user decision 2026-11-12): the capacity a unit reports is the part of the converter that is
+    // funded for the heat offered (here 99% of the rating), so the exact 1e17 / 1e16 became a ratio: stowed is one tenth.
+    assert.equal(s.drive.fo.d[0],foil);caps[foil]=s.drive.ht.cap;assert.ok(caps[foil]>0&&caps[foil]<=(foil?1e17:1e16)*(1+1e-12));
   }
+  assert.ok(Math.abs(caps[0]/caps[1]-.1)<1e-9,'a stowed foil leaves one tenth of the capacity: '+caps);
   assert.equal(C.cleanCraftPowerProfile(p).foils.length,1);
 });
 

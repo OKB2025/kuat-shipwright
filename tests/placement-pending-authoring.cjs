@@ -51,7 +51,7 @@ test('a later exact failure retains the placed stable ID and editable source for
 });
 
 test('a parent deleted before background calculation cannot be revived and the queued child remains a repairable source',()=>{
- const ship=fixture(gable()),part=append(ship,C.preparePlacementDraft(ship,child(),cutRequest())),id=part.id,source=plain(part.placement.requestedGeometry);ship.parts=ship.parts.filter(p=>p.id!==1);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,false);assert.equal(ship.parts.some(p=>p.id===1),false);assert.equal(ship.parts.find(p=>p.id===id),part);assert.ok(['parent-missing','parent-unresolved'].includes(part._placementError));assert.deepEqual(plain(part.placement.requestedGeometry),source);assert.equal(C.placementDiagnostics(ship)[0].connected,false);
+ const ship=fixture(gable()),part=append(ship,C.preparePlacementDraft(ship,child(),cutRequest())),id=part.id,source=plain(part.placement.requestedGeometry);ship.parts=ship.parts.filter(p=>p.id!==1);const refreshed=C.refreshPlacementGeometry(ship);assert.equal(refreshed.ok,false);assert.equal(ship.parts.some(p=>p.id===1),false);assert.equal(ship.parts.find(p=>p.id===id),part);/* 2026-11-14 (user report, third design): a pending structure whose body is gone is taken where it was put and judged by contact; with nothing under it, it is red as 'contact-zero' (it used to be 'parent-missing', which also stuck to copies that do touch the ship). */assert.equal(part._placementError,'contact-zero');assert.deepEqual(plain(part.placement.requestedGeometry),source);assert.equal(C.placementDiagnostics(ship)[0].connected,false);
 });
 
 // 2026-11-13 user decision (stage B, no parent relation): a delete removes only the selected parts; the pending draft

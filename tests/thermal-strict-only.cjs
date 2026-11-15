@@ -20,7 +20,7 @@ test('compatibility thermal policy is disabled, including explicit opt-in and ol
 test('a design without a surface ledger still has strict heat and no hidden high-grade sink',()=>{
  const s=bareShip();delete s.surfaces;const S=C.computeStats(s);
  assert.equal(S.heat.mode,'strict');assert.equal(S.heat.builtin,0);assert.equal(S.heat.legacy,0);
- assert.ok(S.heat.net.dis.every(d=>d.k==='skin'));assert.ok(S.heat.presets.combat.stored>0,'an uncooled active reactor retains its real waste');
+ assert.equal(S.heat.net.dis.length,0,'2026-11-12: no hull-skin sink');assert.equal(S.heat.skin,0);assert.ok(S.heat.presets.combat.stored>0,'an uncooled active reactor retains its real waste');
  assert.ok(!S.warnings.some(w=>/互換運転|自動割当の散逸/.test(w.text||'')));
 });
 test('version-one cached networks retain real sinks and finite links while removing integral and automatic sinks',()=>{
@@ -49,5 +49,5 @@ test('a current-numbered cached network cannot smuggle integral sinks or unbound
 });
 test('table-only old profiles get no automatic high-grade cooling even for superweapons',()=>{
  const p=oldProfile({cooler:false});delete p.heat;p.modules=p.modules.filter(m=>m.k!=='dissipator');p.sw=[{k:'sbeam',r:1,mod:-1,Pshare:1,chargeT:10}];
- const H=C.heatProfile(p);assert.equal(H.v,5);assert.equal(H.mode,'strict');assert.ok(H.src.some(s=>s.k==='sw'));assert.ok(H.dis.every(d=>d.k==='skin'));assert.ok(H.ln.every(l=>H.src[l.s].g==='low'));
+ const H=C.heatProfile(p);assert.equal(H.v,5);assert.equal(H.mode,'strict');assert.ok(H.src.some(s=>s.k==='sw'));assert.equal(H.dis.length,0,'2026-11-12: no hull-skin sink');assert.equal(H.ln.length,0);
 });

@@ -10,7 +10,9 @@ function fixture(shares,{cooled=false}={}){
  const u=C.fleetUnit('zero-share','zero-share',p,0);C.heatInit(u);u.ht.t=0;return u;
 }
 function tick(u,J=80,cooled=false){
- if(cooled){const allocation=C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0,deferHeat:true},1,'balanced');assert.ok(allocation.got.coolingGranted>0,'the real rejector needs an actual electrical reservation');}
+ if(cooled){// 2026-11-12: converter power is reserved for the heat that can reach it, including the ledger heat
+  // already accrued since the last solve, so the funded shield waste is entered before the step is allocated.
+  u.ht.e.shield=J;const allocation=C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0,deferHeat:true},1,'balanced');assert.ok(allocation.got.coolingGranted>0,'the real rejector needs an actual electrical reservation');}
  // This is the accumulated shared shield-waste ledger at a network tick,
  // equivalent to funded shield operations, not an invented local heat store.
  u.ht.e.shield=J;C.heatTick({time:1},u,1,1);return u.ht;
