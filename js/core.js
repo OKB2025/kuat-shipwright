@@ -59919,15 +59919,19 @@ function refitShipThermal(ship,key,options={}){
  if(!(1-margin*fixedWaste*HEAT.disPowerK.hdis>0))throw new Error(key+': 散逸設備の設計余裕が電力収支を超えています');
  const P=positive(options.powerW??options.P,ship.parts.filter(p=>isReactor(p)&&!S.info?.[p.id]?.overlap).reduce((n,p)=>n+ratedReactorPower(p),0)),density=REACTOR_POWER_DENSITY*HEAT.disK.hdis,existing=ship.parts.filter(p=>p.k==='hdis'),existingCapacity=existing.reduce((n,p)=>n+dissipatorCap(p,S),0);
  const feedBound=shipElectricalFeedHeatBound(ship,reactorFactor),engineSpecs=propulsionOwners(ship).map(p=>resolveEngineSpec(p,ship)).filter(e=>e.valid),engineRated=engineSpecs.reduce((n,e)=>n+e.ratedInputW,0);
- let requestedCapacityW=0,operatingPresets={};
+ let requestedCapacityW=0,operatingPresets={},fireShare=0;
  for(let iteration=0;iteration<24;iteration++){
   // Converter input follows the heat converted (user decision 2026-11-12): the peak load, not the rating.
-  const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0;
+  const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0,peakBase=0;
   for(const pr of HEAT_SIZING){
    const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
    const feedHeatW=load.engine>0?Math.min(feedBound.heatW,load.engine*feedBound.maxFraction/Math.max(1e-12,1-feedBound.maxFraction)):0,generatedW=waste.reactor+waste.engine+waste.weapon+waste.shield+waste.hotel+feedHeatW+(HEAT.waste.reactor+HEAT.waste.sw)*chargeW;
-   peak=Math.max(peak,generatedW);presets[pr]={mode:X.mode,generatedW,inputW:load.draw+chargeW,enginesW:load.engine,weaponsW:load.weapon,shieldsW:load.shield,fixedW:load.fixed,superweaponW:chargeW,feedHeatW,coolingReservationW:coolingInputW};
+   // A superweapon that fires gives up its firing loss while it burns or cools (it is not charging then): the
+   // converters are sized for whichever is larger (user decision 2026-11-15「発射の熱も排熱」).
+   const fireHeatW=X.sw?sw.reduce((n,w)=>n+swFireHeat(w).W,0):0,firingW=generatedW-(HEAT.waste.reactor+HEAT.waste.sw)*chargeW+fireHeatW;
+   peak=Math.max(peak,generatedW,firingW);peakBase=Math.max(peakBase,generatedW);presets[pr]={mode:X.mode,generatedW,firingW,fireHeatW,inputW:load.draw+chargeW,enginesW:load.engine,weaponsW:load.weapon,shieldsW:load.shield,fixedW:load.fixed,superweaponW:chargeW,feedHeatW,coolingReservationW:coolingInputW};
   }
+  fireShare=peak>0?Math.max(0,peak-peakBase)/peak:0;
   const next=margin*peak,converged=Math.abs(next-requestedCapacityW)<=Math.max(1,next*1e-9);requestedCapacityW=next;operatingPresets=presets;if(converged)break;
  }
  const deficit=Math.max(0,(requestedCapacityW-existingCapacity)/density),missingVolume=deficit>Math.max(.001,requestedCapacityW/density*1e-5)?deficit:0;
@@ -59939,14 +59943,17 @@ function refitShipThermal(ship,key,options={}){
   // machinery. Only its retained, disjoint physical volume earns capacity.
   if(missingVolume>1e-6){
    const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(missingVolume)/Math.max(2,Math.min(ship.hull.W||30,ship.hull.H||30)*.18)))),each=missingVolume/count;
-   for(let i=0;i<count;i++)made.push(shipThermalBank(ship,each,i));
+   // The banks that take a superweapon's firing loss stand beside the superweapon (the Onager's are in its forward
+   // half with the barrels: user decision 2026-11-15); the others stay by the reactors.
+   const swParts=ship.parts.filter(p=>p.k==='sbeam'||p.k==='hion'),firstFire=swParts.length?Math.round(count*(1-fireShare)):count;
+   for(let i=0;i<count;i++)made.push(shipThermalBank(ship,each,i,i>=firstFire?swParts[i%swParts.length].c:null));
    syncCompartments(ship);
    // A clipped bank can lose volume in a very thin or hollow measured hull.
    // Offer smaller additional banks rather than counting the nominal box.
    for(let pass=0;pass<2;pass++){
     const installed=ship.parts.filter(p=>p.k==='hdis').reduce((n,p)=>n+dissipatorCap(p,S),0),short=Math.max(0,(requestedCapacityW-installed)/density);
     if(short<=Math.max(.001,missingVolume*1e-6))break;
-    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length));
+    for(let i=0;i<4;i++)made.push(shipThermalBank(ship,short/4,made.length,swParts.length&&fireShare>.5?swParts[i%swParts.length].c:null));
     syncCompartments(ship);
    }
   }
@@ -59974,7 +59981,7 @@ function refitShipThermal(ship,key,options={}){
  ship._shipThermalRefit={key,requestedCapacityW,capacityW,coolingPowerW:capacityW*HEAT.disPowerK.hdis,requestedVolumeM3:missingVolume+existing.reduce((n,p)=>n+partVolume(p),0),installedVolumeM3:banks.reduce((n,p)=>n+partVolume(p),0),addedParts:made.map(p=>p.id),margin,sourcePowerW:P,requestedInput:{engines:E,weapons:W,shields:Q,fixed:H,superweapons:SW},operatingPresets,envelope:{weaponFactor,shieldFactor,reactorFactor,electricalFeedLossBoundW:feedBound.heatW},capacityRatio:requestedCapacityW>0?capacityW/requestedCapacityW:1};
  return ship;
 }
-function shipThermalBank(ship,volume,index){
+function shipThermalBank(ship,volume,index,beside=null){
  const d=Math.cbrt(Math.max(.001,volume)),b=shipBounds(ship),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2),reactors=ship.parts.filter(isReactor),shapes=ship.parts.filter(isShapePart),anchors=[];
  const push=q=>{if(q.every(Number.isFinite)&&insideOriginalEnvelope(ship,q))anchors.push(q);};
  // Reactor-adjacent spaces first, followed by the measured solid components
@@ -59984,7 +59991,8 @@ function shipThermalBank(ship,volume,index){
  for(const p of shapes.slice().sort((a,c)=>partVolume(c)-partVolume(a)))push(p.c.slice());
  for(const x of [.15,.3,.45,.6,.75,.9])for(const y of [.3,.5,.7])for(const z of [.25,.5,.75])push([lerp(b[0],b[3],x),lerp(b[1],b[4],y),lerp(b[2],b[5],z)]);
  if(!anchors.length)throw new Error(ship.name+'：散逸装置の設置可能な船内容積がありません');
- const occupied=allOccupied(ship).map(p=>({p,b:partAABB(p)})),near=reactors.length?reactors[index%reactors.length].c:mid;
+ const occupied=allOccupied(ship).map(p=>({p,b:partAABB(p)})),near=beside||(reactors.length?reactors[index%reactors.length].c:mid);
+ if(beside)for(const along of [-.4,-.25,-.1,0,.1,.25,.4])for(const y of [0,-12,12,-24,24])for(const z of [-60,60,-100,100,-140,140,-30,30])push([beside[0]+along*(b[3]-b[0]),beside[1]+y,beside[2]+z]);
  anchors.sort((a,c)=>len(sub(a,near))-len(sub(c,near)));
  let center=null,room=null;
  outer:for(const aspect of [[1,1,1],[2,.7071067811865476,.7071067811865476],[3,.5773502691896258,.5773502691896258]]){
@@ -62758,8 +62766,9 @@ function coolingDemandW(u,H,want){
  for(const s of src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
  // A charging superweapon heats the ship whether or not the guns fire (found 2026-11-15: an Onager with no target in
  // reach, or holding fire, reserved cooling for its idle guns only and shut down from charge heat in 5 s). Its source
- // row asks for the charge heat of the last heat solve.
- const swW=u?.ht?.sourceGenerationW,D=src.map((s,i)=>s.k==='sw'?Math.max(0,swW?.[i]||0):(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
+ // row asks for the charge heat of the last heat solve, and for the firing loss of a beam that is ready or burning
+ // and of a bolt emitter still cooling (those are known before the heat arrives).
+ const swW=u?.ht?.sourceGenerationW,swNow=s=>{const x=u?.sw?.[s.sw],w=p.sw?.[s.sw];if(!x||!w||p.energyModel?.version!==1)return 0;return x.st==='beam'||x.st==='ready'&&w.k==='sbeam'?swFireHeat(w).W:Math.max(0,x.fireHeatW||0)*(x.fireHeatJ>0?1:0);},D=src.map((s,i)=>s.k==='sw'?Math.max(0,swW?.[i]||0,swNow(s)):(kind[s.k]||0)*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]||1)),cap=dis.map(d=>d.power>0?Math.max(0,d.cap||0):0),free=heatPathFreeCapacity(dis),r=heatSolve(D,cap,(H.ln||[]).map(l=>({s:l.s,d:l.d,cap:l.cap>0?free:0})));
  // kinds with no source row of their own (an old profile) and the stored heat reach any spare converter
  const unrouted=Object.entries(kind).reduce((n,[k,v])=>n+(weights[k]>0?0:v),0)+Math.max(0,u?.ht?.qJ||0)/Math.max(1e-9,HEAT.drainS)+Math.max(0,u?.ht?.coolingSelfW||0)+Math.max(0,u?.ht?.towWantW||0)+D.reduce((n,v,i)=>n+v-r.out[i],0)+pendingLedgerJ(u?.ht)/HEAT.dt;
  const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,v)=>a+v,0),used=r.used.map((v,j)=>v+(room>0?Math.min(unrouted,room)*spare[j]/room:0));
@@ -63964,8 +63973,22 @@ function superweaponLedger(u){
  if(!u.weaponLedger){let stored=0;for(let i=0;i<(u.sw||[]).length;i++){const x=u.sw[i],w=u.p.sw[i],E=swEnergyTT(w)*TT;if(x.storedJ===undefined)x.storedJ=clamp(x.c||0,0,1)*E;stored+=x.storedJ;}u.weaponLedger={scope:'superweapon',initialJ:stored,inputJ:0,lossJ:0,storedJ:stored,emittedJ:0,releasedJ:0};}return u.weaponLedger;
 }
 function superweaponDischarge(u,i,outputTT,release=false){
- if(u.p.energyModel?.version!==1)return Math.max(0,outputTT||0);const l=superweaponLedger(u),x=u.sw[i],take=Math.min(Math.max(0,x?.storedJ||0),Math.max(0,outputTT||0)*TT);if(x)x.storedJ=Math.max(0,(x.storedJ||0)-take);l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);if(release==='heat'){l.lossJ+=take;const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+take;}else if(release)l.releasedJ+=take;else l.emittedJ+=take;return take/TT;
+ if(u.p.energyModel?.version!==1)return Math.max(0,outputTT||0);const l=superweaponLedger(u),x=u.sw[i],take=Math.min(Math.max(0,x?.storedJ||0),Math.max(0,outputTT||0)*TT);if(x)x.storedJ=Math.max(0,(x.storedJ||0)-take);l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);if(release==='heat'){l.lossJ+=take;const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+take;}else if(release)l.releasedJ+=take;
+ else{
+  // Firing loss (user decision 2026-11-15「発射の熱も排熱」): HEAT.swShot of what a shot discharges stays in the ship
+  // as heat and the rest leaves as the shot. A beam gives it up as it burns; a bolt leaves it in the emitter, which
+  // hands it to the heat network evenly over its cool-down (swFireReleaseS).
+  const w=u.p.sw?.[i],lost=take*HEAT.swShot,h=heatOf(u);l.lossJ+=lost;l.emittedJ+=take-lost;l.fireHeatJ=(l.fireHeatJ||0)+lost;
+  if(w?.k==='sbeam'){if(h)h.esw[i]=(h.esw[i]||0)+lost;}else if(x){x.fireHeatJ=(x.fireHeatJ||0)+lost;x.fireHeatW=x.fireHeatJ/swFireReleaseS(w?.k);}
+  return (take-lost)/TT;
+ }
+ return take/TT;
 }
+// How long a superweapon takes to hand a shot's firing loss to the ship: the beam's burn, or a bolt emitter's cool-down.
+function swFireReleaseS(k){const C=SW_COMBAT[k];return k==='sbeam'?C.beamT:Math.max(1,C?.over?.T||1);}
+// The firing loss of a full shot (J) and the rate it reaches the heat network (W).
+function swFireHeat(w){const J=HEAT.swShot*swEnergyTT(w)*TT;return {J,W:J/swFireReleaseS(w?.k)};}
+function swFireHeatDrain(u,i,dt){const x=u.sw?.[i];if(!(x?.fireHeatJ>0)||!(dt>0))return 0;const h=heatOf(u),J=Math.min(x.fireHeatJ,Math.max(0,x.fireHeatW||0)*dt);x.fireHeatJ-=J;if(!(x.fireHeatJ>1e-9))x.fireHeatJ=0;if(h)h.esw[i]=(h.esw[i]||0)+J;return J;}
 // The target's bearing in u's frame: v = [ahead, up, starboard].
 const swLocal=(u,t)=>{const dx=t.pos[0]-u.pos[0],dy=t.pos[1]-u.pos[1],dz=t.pos[2]-u.pos[2],c=Math.cos(u.yaw||0),s=Math.sin(u.yaw||0);return [dx*c+dz*s,dy,-dx*s+dz*c];};
 // Whether a target is in a superweapon's line or cone of fire, and in range.
@@ -64053,7 +64076,7 @@ function swBeamStep(u,w,x,i,dt,o,started=false){const C=SW_COMBAT[w.k],slice=Mat
 function superweaponStep(u,dt,o){
  const sw=u.p?.sw,st=u.sw,shots=[];if(!sw||!st||u.dead)return shots;const s=o.sys||fleetSystems(u),DMG=o.damage??1;
  if(u.p.energyModel?.version===1)superweaponLedger(u);
- for(let i=0;i<sw.length;i++){const w=sw[i],x=st[i],C=SW_COMBAT[w.k];if(!x||o.finishBeamsOnly&&x.st!=='beam')continue;
+ for(let i=0;i<sw.length;i++){const w=sw[i],x=st[i],C=SW_COMBAT[w.k];if(x&&!o.finishBeamsOnly)swFireHeatDrain(u,i,dt);if(!x||o.finishBeamsOnly&&x.st!=='beam')continue;
   if(w.mod>=0&&!(u.mods?.[w.mod]>0)){if(x.st!=='down'){superweaponDischarge(u,i,(x.storedJ||0)/TT,'heat');x.st='down';x.c=0;o.ctx?.ev(u,`${C.name}が損傷して使用不能`);}continue;}
   if(x.st==='down'){x.st='charge';x.c=0;}
   if(x.st==='cool'){x.t-=dt;if(x.t<=0){x.st='charge';x.c=0;}continue;}
@@ -68608,7 +68631,13 @@ function heatGovernor(u){
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
 function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT,null,'superweapon-shot');}
-function heatSwHold(u,w){if(!HEAT.swInterlock||u.manual)return false;const h=heatOf(u);return !h?.online||h.qJ+(u.p.energyModel?.version===1?0:HEAT.swShot)*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT>=h.capacityJ;}
+function heatSwHold(u,w){if(!HEAT.swInterlock||u.manual)return false;const h=heatOf(u);if(!h?.online)return true;
+ if(u.p.energyModel?.version!==1)return h.qJ+HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT>=h.capacityJ;
+ // The firing loss arrives over the release time; what the converters cannot take in that time must fit in the store.
+ const T=swFireReleaseS(w.k),sw=u.p.sw||[],i0=sw.indexOf(w);let fireW=0;sw.forEach((v,i)=>{const x=u.sw?.[i];if(i===i0||x?.st==='beam'||x?.st==='ready'&&v.k===w.k)fireW+=swFireHeat(v).W;else if(x?.fireHeatJ>0)fireW+=Math.max(0,x.fireHeatW||0);});
+ const spareW=Math.max(0,swRatedRejectionW(u)-Math.max(0,h.madeBaseW||0));return h.qJ+Math.max(0,fireW-spareW)*T>=h.capacityJ;}
+// The rejection the ship's working converters give at full input (W), and the heat it makes apart from superweapons.
+function swRatedRejectionW(u){const H=heatProfile(u?.p),mods=u?.mods||[];return (H?.dis||[]).reduce((n,d)=>n+Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):1),0);}
 const HEAT_MODE=['稼働','出力制限','緊急停止中','停止','停止失敗'];
 function heatTick(ctx,u,dt,interval=null){
  const H=heatProfile(u?.p);if(!u||u.dead||!(dt>0)||!Number.isFinite(dt))return;const h=heatOf(u);if(!h||!H)return;let T=interval;
@@ -68639,7 +68668,7 @@ function heatTick(ctx,u,dt,interval=null){
  const freePath=heatPathFreeCapacity(H.dis),L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)&&l.cap>0?freePath:0}));/* paths are not a capacity constraint (2026-11-12); a path through a lost section is cut */
  const drain=Math.min(h.qJ/T,h.qJ/Math.max(1e-9,HEAT.drainS*em.drain)+Math.max(0,h.coolingSelfW||0)+Math.max(0,h.towPendingJ||0)/T),r=heatSolve(gen,cap,L);h.towPendingJ=0;if(h.towWantAt)h.towWantAt=0;else h.towWantW=0;
  {const spare=cap.map((c,j)=>Math.max(0,c-r.used[j])),room=spare.reduce((a,W)=>a+W,0),take=Math.min(drain,room);if(take>0)for(let j=0;j<spare.length;j++)r.used[j]+=take*spare[j]/room;}
- h.emit=r.used.reduce((a,W)=>a+W,0);h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,W)=>a+W,0);h.sourceGenerationW=gen.slice();h.sourceFlowW=r.out.slice();h.linkFlowW=r.flow.slice();h.dissipatorFlowW=r.used.slice();let coolingHeat=0;
+ h.emit=r.used.reduce((a,W)=>a+W,0);h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,W)=>a+W,0);h.sourceGenerationW=gen.slice();h.madeBaseW=gen.reduce((n,W,i)=>n+(H.src[i].k==='sw'?0:W),0);h.sourceFlowW=r.out.slice();h.linkFlowW=r.flow.slice();h.dissipatorFlowW=r.used.slice();let coolingHeat=0;
  if(cooling){const inputs=H.dis.map((d,i)=>d.power>0&&d.cap>0?r.used[i]*d.power/d.cap*T:0),want=inputs.reduce((a,J)=>a+J,0),input=h.online?Math.min(cooling.reserveJ||0,want):0,scale=want>0?input/want:0;let reactorHeat=0,sourceInput=0,feedHeat=0;
   for(let j=0;j<H.dis.length;j++){const J=inputs[j]*scale,node=coolingNode(H.dis[j]),key=node&&Object.hasOwn(cooling.reserveByNodeJ||{},node)?node:'cooling',received=Math.max(0,cooling.reserveByNodeJ?.[key]??cooling.reserveJ??0),bySource=cooling.reserveByNodeSourceJ?.[key],byFeed=cooling.reserveByNodeFeedJ?.[key],fraction=received>0?clamp(J/received,0,1):0;
    if(Object.values(bySource||{}).some(v=>v>0)){for(const [id,reservedJ]of Object.entries(bySource)){const sentJ=Math.max(0,reservedJ)*fraction;sourceInput+=sentJ;reactorHeat+=reactorInputHeat(h,H,cooling.sources?.[id],sentJ,true);}}
