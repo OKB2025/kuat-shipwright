@@ -30,7 +30,7 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 | Housing behind the dish | begins 52.7 km out, as wide as the dish | begins 52.7 km out, as wide as the dish; it fills its well (back on the well's floor, side against its wall) |
 | Dish floor | 69.2 km out | 68.9 km (the STL's value; the STL governs the outside) |
 | Dish | a cone, 22 km in radius, 23° above the equator | the STL's dish: 27.4 km in radius (rim 20° from its axis), 27°, its section measured (below) |
-| Column through the poles | about 13 km in radius above the core, narrower below | reactant silos: 12 km × 46 km above, 8 km × 40 km below |
+| Column through the poles | about 13 km in radius above the core, narrower below (radius read by eye; the ends were not measured) | reactant silos: 12 km × 46 km above, 8 km × 40 km below (lengths set by eye) |
 
 Wells: only the housing has one (as wide as the dish, from 52.7 km out; the hole the station shows without its
 superlaser). The stepped works, the neck and the bulb are embedded in the station's structure, as on the drawing;
@@ -122,7 +122,7 @@ Known differences that remain:
   0.0–0.2 m at latitudes 5°–50° and 70°, and by 84 m at 60° only (`/tmp/ks-verify/20261115-ds2/meridian2.log`). The
   trench is a torus about the true sphere (radii 79,880–80,000 m); the hemispheres are half-ellipsoids standing
   900 m off the centre (up to +185 m outside the sphere at mid latitudes), so the torus meets the surface in few
-  places. The 274 guns stand on the plain surface. User decision 2026-11-15:「作例の説明文はそのままで焼き込みの時に直す」:
+  places. The 276 guns (138 heavy turbolasers, 138 point defence; an earlier count of 274 was from PR #110) stand on the plain surface. User decision 2026-11-15:「作例の説明文はそのままで焼き込みの時に直す」:
   the example's note keeps "子午線トレンチ 8 本（幅 120 m）" and the trenches are put right when the cuts are baked
   (handoff §4.2). Baking alone does not make them appear: the cut has to follow the hemispheres' actual surface (a
   ring on the half-ellipsoid's meridian for each hemisphere, or hemispheres on the true sphere), and the guns and
@@ -175,3 +175,14 @@ After the change, combat preset: 4.1e29 W of heat (of which the wiring loss is 2
 converters, which the systems refit sized for the full shot's firing loss (7.39e29 W, counted in the battle, not in
 the design's presets). No shortfall is shown. The wiring loss is still left out of the refit's sizing (it counts
 only the propulsion feed); that is now a margin question, not a shortfall, and is noted for the full regeneration.
+
+## Known differences found in the third reference review (2026-11-15)
+
+- **Poles.** The STL's z range is 0..320 units, so its polar radius is 160 units against a median radius of 160.75:
+  the model is about 370 m flatter at the poles than the example (which is 80,000 m there). Shown as the flat
+  +380 m bands near 90° and 270° of `section-diff.png`. Not reproduced.
+- **Equatorial trench.** The STL's trench lies between latitudes −0.90° and +0.68° (2.21 km, centred 0.11° south)
+  and its floor is about 260 m higher than the example's; the example's 1.8 km, centred on the equator, came from
+  the first, coarse reading. To be put right (trench width, centre and depth from the measured section).
+- **Tolerances.** None were fixed before the comparison. Whether the measured differences are accepted is the
+  user's decision; until then referenceShape stays unverified.
