@@ -53340,7 +53340,7 @@ function v3Deserialize(o){
   if(o.systemsVersion===1||s.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))s.systemsVersion=1;else delete s.systemsVersion;
   s.nextId=mx+1;return s;
 }
-const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['imperial','imperial2','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar','imperial','imperial2','venator','executor','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
 // v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
 // a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
@@ -61766,7 +61766,7 @@ function deathStarBuild(){
  part('slaser','53 ZT スーパーレーザー',at(R-h-SUPERWEAPONS.slaser.length/2),SUPERWEAPONS.slaser.d,{reactor:core.id,dir:ax.slice()});
  // Engines and docks in the equatorial trench: ion drives around the far side, docking bays around the near side.
  const eq=(deg,r)=>[C0[0]+r*Math.cos(deg*rad),C0[1],C0[2]+r*Math.sin(deg*rad)];
- for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,R-DS.trenchD-600),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
+ for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,R-DS.trenchD),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
  for(const deg of [-60,-30,30,60,90,-90])part('hangar','赤道トレンチのドッキング・ベイ',eq(deg,R-DS.trenchD-900),1400,{room:[1600,1200,900]});
  part('command','司令区画（オーバーブリッジ）',at(R-h-2600,[0,3000,0]),600,{room:[900,700,500]});
  part('shield','偏向シールド発生機',[C0[0],C0[1]+R*.55,C0[2]],3000);part('shield','偏向シールド発生機',[C0[0],C0[1]-R*.55,C0[2]],3000);
