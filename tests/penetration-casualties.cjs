@@ -43,3 +43,12 @@ test('a penetration judges each compartment by what one shot still carries into 
  near(one.crewIn[0],0,1e-9);
  const enter=2*(1-C.COMBAT.frame);near(many.crewIn[0],C.penCrewSurvive(enter,100),1e-9);assert.ok(many.crewIn[0]>.1&&many.crewIn[0]<.4,String(many.crewIn[0]));
 });
+// Physics review 2026-11-15 (5fe1d03): the paths that bring direct hits and merged fire carry their own shot size.
+test('guns and direct hits in one record are counted at their own sizes; merged records keep their shot counts',()=>{
+ const t={pos:[0,0,0],p:{}},inc=C.combatIncoming();
+ C.combatAdd(inc,t,null,{hull:100,direct:10,shot:50,directShot:5});
+ near(C.combatShotTT(inc),110/(100/50+10/5),1e-12);
+ const o=C.combatIncoming(),x1=C.combatIncoming();C.combatAdd(x1,t,null,{hull:4,shot:2});
+ C.combatMerge(o,t,x1);C.combatMerge(o,t,{direct:3,shot:.5});C.combatMerge(o,t,{direct:7});
+ near(o.shotE,4+3,1e-12);near(o.shotN,2+6,1e-12);near(C.combatShotTT(o),7/8,1e-12);
+});
