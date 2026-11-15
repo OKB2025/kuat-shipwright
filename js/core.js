@@ -61766,9 +61766,10 @@ function deathStarBuild(){
  const s=newShip({plan:'ellipse',sec:'ellipse',L:2*R,W:2*R,H:2*R,bowW:1,bowH:1,stern:1,assembly:true},'デス・スター','station');
  s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.4,cit:.3};s.shieldTarget=1;s.hullStructureVersion=1;
  const base=2*Math.sqrt(R*R-w*w/4),rise=R-w/2,floor=R-DS.trenchD,part=(k,label,c,d,o={})=>placePart(s,k,c,d,{label,...o});
- part('struct','北半球',[R,R+w/2+rise/2,0],[base,base,rise],{form:'dome',skin:'armor'});
- part('struct','南半球',[R,R-w/2-rise/2,0],[base,base,rise],{form:'dome',skin:'armor',roll:180});
- part('struct','赤道トレンチの床（中央胴）',C0.slice(),[2*floor,2*floor,w],{form:'cylinder',skin:'armor'});
+ // Painted like the station (user request 2026-11-15「色もそれっぽく塗って」): mid grey hemispheres, a darker trench floor.
+ part('struct','北半球',[R,R+w/2+rise/2,0],[base,base,rise],{form:'dome',skin:'armor',paint:'#8b8f94'});
+ part('struct','南半球',[R,R-w/2-rise/2,0],[base,base,rise],{form:'dome',skin:'armor',roll:180,paint:'#84888d'});
+ part('struct','赤道トレンチの床（中央胴）',C0.slice(),[2*floor,2*floor,w],{form:'cylinder',skin:'armor',paint:'#4c5057'});
  // The dish, a spherical bowl through the measured rim (21 degrees from its axis) and floor (11.1 km below the
  // sphere): the cutting sphere's radius follows from the rim's chord and the bowl's depth below that chord.
  const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),rimAt=R*Math.cos(DS.dishRim*rad),floorAt=R-DS.dishDepth,sag=rimAt-floorAt,rho=(a*a+sag*sag)/(2*sag);
@@ -61784,7 +61785,7 @@ function deathStarBuild(){
  const lensR=R*Math.sin(6*rad)*1.9,rows=[[8200,2400],[30000,2400],[33000,6200],[45000,6200],[48000,3400],[55000,3400],[floorAt-5200,lensR],[floorAt-300,lensR]];
  const mesh=dsRevolve(C0,ax,rows),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),centre=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
  for(const q of mesh.v)for(let c=0;c<3;c++)q[c]=(q[c]-centre[c])/size[[0,2,1][c]];
- part('slaser','53 ZT スーパーレーザー',centre,2*lensR,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(floorAt)[c]-centre[c])});
+ part('slaser','53 ZT スーパーレーザー',centre,2*lensR,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(R+8000)[c]-centre[c])/* the focus of the lens, 8 km outside the sphere on the dish axis: the beam starts there */});
  // Engines and docks in the equatorial trench: ion drives round the far side, docking bays round the near side.
  const eq=(deg,r)=>[C0[0]+r*Math.cos(deg*rad),C0[1],C0[2]+r*Math.sin(deg*rad)];
  for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,floor-300),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
@@ -61793,6 +61794,13 @@ function deathStarBuild(){
  part('shield','偏向シールド発生機',[C0[0],C0[1]+R*.55,C0[2]],3000);part('shield','偏向シールド発生機',[C0[0],C0[1]-R*.55,C0[2]],3000);
  part('hyper','ハイパードライブ',[C0[0]-R*.45,C0[1]+3000,C0[2]],4000);
  ensureSuperlaserExhaust(s);
+ // Batteries along the meridian trenches (user request 2026-11-15「子午線トレンチに武装を配列する形」): on each of the eight
+ // meridians, every 4 degrees of latitude in both hemispheres, heavy turbolasers with a point-defence mount between;
+ // none in the dish. Each is set on the surface where a ray from outside toward the centre meets the station.
+ let guns=0;for(let i=0;i<DS.meridians;i++)for(const side of [0,180]){const yaw=(22.5+i*180/DS.meridians+side)*rad;
+  for(const sign of [1,-1])for(let lat=10,n=0;lat<=78;lat+=4,n++){const la=sign*lat*rad,dir=[Math.cos(la)*Math.cos(yaw),Math.sin(la),-Math.cos(la)*Math.sin(yaw)];if(Math.acos(clamp(dot(dir,ax),-1,1))<(DS.dishRim+3)*rad)continue;
+   const hit=rayEnv(s,[C0[0]+dir[0]*(R+2000),C0[1]+dir[1]*(R+2000),C0[2]+dir[2]*(R+2000)],dir.map(v=>-v));if(!hit)continue;const r=placeFit(s,n%2?'pd':'utl',hit.p,hit.n,0,false);if(r?.fit)guns++;}}
+ s._deathStarGuns=guns;
  s._building=false;syncCompartments(s);return s;
 }
 registerShipExample({
@@ -63958,11 +63966,15 @@ const SW_COMBAT={
  // The superlaser (user request 2026-11-15): 53 ZT (5.3e10 TT) at the Death Star's dish, 57.4 km across (measured
  // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's, but laid
  // from the lens focus anywhere within `cone` (radians) of the dish's bearing instead of along a fixed axis.
- slaser:{name:'スーパーレーザー',E:5.3e10,refD:57400,share:.6,tMin:60,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ // The full shot is for a planet; on ships it fires shipShare of it (2 ZT of 53: user decision 2026-11-15) and keeps
+ // the rest of its charge.
+ slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:57400,share:.6,tMin:60,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
  hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // Shot energy is per physical emitter, in TT. Both Onager emitters together deliver 250 PT.
 const swBeamKind=k=>k==='sbeam'||k==='slaser';
+// What one shot at a ship spends (TT): the whole charge, or a superlaser's ship setting.
+function swShipShotTT(w){const share=SW_COMBAT[w?.k]?.shipShare;return swEnergyTT(w)*(share>0?share:1);}
 function swEnergyTT(w){const E=w?.Emax;return Number.isFinite(E)&&E>0?E:Math.max(0,SW_COMBAT[w?.k]?.E||0);}
 // v21.2 The hyper-ion cannon's bolt (the designer's rules):
 //  · a cannon holds at most ten minutes (holdS) of its reactor's full output (shared between the cannons on that
@@ -64156,7 +64168,7 @@ function ionFire(u,w,x,i,o,DMG){
  const b={id:'ib'+(++ionBoltSeq),from:u.id,team:u.team,side:u.side,o:m,dir:best.dir,x:0,E:actual,E0:actual,d,hit:[],i,k:'hion'};o.bolts.push(b);
  o.ctx?.ev(u,`${C.name}を発射（充電 ${pct}%）→ ${best.t?best.t.name+'の方向':'射軸の方向へ（目標なし）'}`);return {from:u.id,k:w.k,mode:'bolt',bolt:b.id,to:best.t?[best.t.id]:[],i,dur:ION_BOLT.maxRange/ION_BOLT.v};
 }
-function swBeamFinish(u,w,x){superweaponDischarge(u,(u.p.sw||[]).indexOf(w),(x.storedJ||0)/TT,true);x.st='cool';x.t=SW_COMBAT[w.k].over.T;x.c=0;x.fireNow=false;x.free=false;x.tgt=null;x.beamRemainingTT=0;swOverload(u,w);}
+function swBeamFinish(u,w,x){const keep=SW_COMBAT[w.k].shipShare>0;/* a superlaser keeps the charge its ship shot did not use */if(!keep)superweaponDischarge(u,(u.p.sw||[]).indexOf(w),(x.storedJ||0)/TT,true);x.st='cool';x.t=SW_COMBAT[w.k].over.T;x.c=keep?clamp(u.p.energyModel?.version===1?(x.storedJ||0)/Math.max(1,swEnergyTT(w)*TT):0,0,1):0;x.fireNow=false;x.free=false;x.tgt=null;x.beamRemainingTT=0;swOverload(u,w);}
 function swBeamStep(u,w,x,i,dt,o,started=false){const C=SW_COMBAT[w.k],slice=Math.min(Math.max(0,dt),Math.max(0,x.t)),trace=swBeamTrace(u,w,o.all||o.foes),want=slice>=x.t-1e-12?(x.beamSpendsWholeStore?swEnergyTT(w):Math.max(0,x.beamRemainingTT||0)):Math.min(Math.max(0,x.beamRemainingTT||0),Math.max(0,x.beamEnergyTT||0)*slice/C.beamT),physical=superweaponDischarge(u,i,want),amt=physical*(u.p.energyModel?.version===1?clamp(o.damage??1,0,1):Math.max(0,o.damage??1));
  x.beamRemainingTT=Math.max(0,(x.beamRemainingTT||0)-physical);x.t=Math.max(0,x.t-slice);x.tgt=trace.hit?.id||null;
  if(trace.hit&&amt>0){const t=trace.hit,inc=o.inc?.(t.id);if(inc){combatAdd(inc,t,trace.origin,{sf:amt*.5,hull:amt*.5,direct:amt*.5,hit:{point:trace.localPoint.slice()}},null,u.id);const N=t.sec?.length||HULL_SECTIONS,z=combatZoneAt(t.p,trace.localPoint,hullHalf(t.p));inc.zw=inc.zw||new Array(N*6).fill(0);if(z<inc.zw.length)inc.zw[z]+=amt;}u.dmgDone=(u.dmgDone||0)+amt;}
@@ -64181,8 +64193,8 @@ function superweaponStep(u,dt,o){
   if(x.st!=='ready'||idle||heatSwHold(u,w))continue;
   if(swBeamKind(w.k)){
    const trace=swBeamTrace(u,w,o.all||o.foes);if(!explicit&&(!trace.hit||!o.foes.some(t=>t.id===trace.hit.id)))continue;
-   const total=Math.min(swEnergyTT(w),u.p.energyModel?.version===1?Math.max(0,x.storedJ||0)/TT:swEnergyTT(w)*clamp(x.c,0,1));if(!(total>0)){x.st='charge';x.c=0;x.fireNow=false;continue;}
-   x.mode='beam';x.st='beam';x.t=C.beamT;x.c=0;x.fireNow=false;x.tgt=null;x.free=true;x.beamEnergyTT=total;x.beamRemainingTT=total;x.beamSpendsWholeStore=u.p.energyModel?.version===1&&Math.max(0,x.storedJ||0)<=swEnergyTT(w)*TT;
+   const total=Math.min(swShipShotTT(w),u.p.energyModel?.version===1?Math.max(0,x.storedJ||0)/TT:swEnergyTT(w)*clamp(x.c,0,1));if(!(total>0)){x.st='charge';x.c=0;x.fireNow=false;continue;}
+   x.mode='beam';x.st='beam';x.t=C.beamT;x.c=0;x.fireNow=false;x.tgt=null;x.free=true;x.beamEnergyTT=total;x.beamRemainingTT=total;x.beamSpendsWholeStore=!(SW_COMBAT[w.k].shipShare>0)&&u.p.energyModel?.version===1&&Math.max(0,x.storedJ||0)<=swEnergyTT(w)*TT;
    o.ctx?.ev(u,`${C.name}を射軸の方向へ照射`);const sh=swBeamStep(u,w,x,i,dt,o,true);if(sh)shots.push(sh);continue;}
   const named=(u.manual||x.fireNow?.command)&&x.fireNow?.to?o.foes.filter(t=>x.fireNow.to.includes(t.id)&&!t.dead):null,live=named||o.foes.filter(t=>!t.dead&&swInArc(u,w,t)),free=!live.length&&swFree(u,x);if(!live.length&&!free){if(u.manual||x.fireNow?.command)x.fireNow=false;continue;}
   const actual=superweaponDischarge(u,i,swEnergyTT(w));x.st='cool';x.t=C.over.T;x.c=0;x.fireNow=false;swOverload(u,w);
