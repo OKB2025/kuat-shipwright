@@ -62614,7 +62614,9 @@ function fitBand(d){if(!d)return 'mid';if(d.band)return d.band;if(d.casemate)ret
 // bolts. A normal ISD's control/sensor quality and intact fire control land
 // half their shots on a broadside 1600 m ISD at the battery's nominal reach.
 // These are projected hull dimensions, not an arbitrary target-size bonus.
-const GUN_ACCURACY={reference:{len:1600,width:868.4,height:444.017,acc:.7041666666666667},uncontrolled:.42,samples:48};
+// spreadScale (user decision 2026-11-15「散布界 1/2」): the angular spread of every anti-ship gun is half the spread that
+// gives the reference ISD a 50% hit at a gun's normal maximum range (GUN_REFERENCE_SPREAD keeps that definition).
+const GUN_ACCURACY={reference:{len:1600,width:868.4,height:444.017,acc:.7041666666666667},uncontrolled:.42,samples:48,spreadScale:.5};
 function gunEllipseChance(a,b,sigma){
  if(!(a>0&&b>0))return 0;if(!(sigma>0))return 1;let chance=0;
  for(let i=0;i<GUN_ACCURACY.samples;i++){const angle=(i+.5)*Math.PI*2/GUN_ACCURACY.samples,c=Math.cos(angle),s=Math.sin(angle),r2=1/(c*c/(a*a)+s*s/(b*b));chance+=-Math.expm1(-r2/(2*sigma*sigma));}
@@ -62642,7 +62644,7 @@ function gunControl(p,fireState=1){
  const installed=(p.fireControl??(p.modules||[]).some(m=>m.k==='fire'))||(p.systems?.targetCapacity||0)>0,fc=installed?clamp(fireState,0,1):0;
  return clamp((p.acc??GUN_ACCURACY.reference.acc)/GUN_ACCURACY.reference.acc,.15,1.25)*(GUN_ACCURACY.uncontrolled+(1-GUN_ACCURACY.uncontrolled)*fc);
 }
-function gunDispersion(p,range=GUN_BANDS.long.range,fireState=1){return GUN_REFERENCE_SPREAD/Math.max(1,range)/gunControl(p,fireState);}
+function gunDispersion(p,range=GUN_BANDS.long.range,fireState=1){return GUN_ACCURACY.spreadScale*GUN_REFERENCE_SPREAD/Math.max(1,range)/gunControl(p,fireState);}
 function gunTargetEllipse(target,direction){
  const p=target.p||target,n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right),rot=target.rot;
  const local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(target.yaw||0),s=Math.sin(target.yaw||0);return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];},r=local(right),u=local(up),size=target.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
