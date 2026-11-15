@@ -68845,7 +68845,13 @@ const heatPendingJ=h=>Object.values(h.e).reduce((a,J)=>a+Math.max(0,J||0),0)+[h.
 function heatRunThrottle(u,h,H,madeJ,dt){
  if(heatRunMode(u)==='full'){h.runK=1;return;}
  const cap=h.cap??H.dis.reduce((a,d)=>a+Math.max(0,d.cap||0),0),allow=cap*HEAT.balanceTarget,rate=madeJ/dt+Math.max(0,h.coolingSelfW||0),k=clamp(h.runK??1,0,1);
- h.runK=!(allow>0)?0:rate>allow?clamp(k*allow/rate,0,1):Math.min(1,k+HEAT.balanceRise*(1-rate/allow));
+ // Two steps at different factors tell the heat that does not follow the factor (services, shields) from the heat
+ // that does, so the factor that meets the allowance is solved directly; otherwise it is cut in proportion.
+ const prev=h.runPrev;let next;
+ if(!(allow>0))next=0;
+ else if(rate>allow){const slope=prev&&Math.abs(k-prev.k)>1e-3?(rate-prev.rate)/(k-prev.k):0;next=slope>0?clamp((allow-(rate-slope*k))/slope,0,k):clamp(k*allow/rate,0,1);}
+ else next=Math.min(1,k+HEAT.balanceRise*(1-rate/allow));
+ h.runPrev={k,rate};h.runK=next;
 }
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
 function heatSwShot(u,w){if(u.p.energyModel?.version===1)return;shipHeatAdd(u,HEAT.swShot*(w.k==='hion'?(w.Emax||SW_COMBAT.hion.E):SW_COMBAT[w.k].E)*TT,null,'superweapon-shot');}
