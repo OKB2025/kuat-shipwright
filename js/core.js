@@ -61740,7 +61740,8 @@ registerShipExample({
 // (deathstar_1_5_10_5.stl, sha256 a1f8083f...1e1c; no author or licence came with it). The model is a sphere of
 // radius 160.75 units about (0.19, 0.18, 160.0) with its poles on z; at the canon diameter of 160 km one unit is
 // 497.7 m. Station frame: x from one side of the equator (0) to the other (160 km), y up through the poles from the
-// south pole, z to starboard; the superlaser dish looks along +x, 27.0 degrees above the equator.
+// south pole, z to starboard; the superlaser dish looks along +x, 27.0 degrees above the equator. The station is
+// two hemispheres (dome structures) on a drum: the gap between them is the equatorial trench.
 //  - The dish is a spherical bowl: rim 21 degrees from its axis (28.7 km), 11.1 km deep at the centre (measured).
 //  - The equatorial trench is 1.8 km wide and 3.2 km deep (measured); it holds the engines and the docks (user).
 //  - Meridian trenches are not on the model: the user asked for several, wide enough for a fighter. Four great
@@ -61749,28 +61750,48 @@ registerShipExample({
 //    centre, the superlaser's works between the core and the dish. Its exhaust port is put by ensureSuperlaserExhaust.
 {
 const DS={R:80000,dishLat:27,dishRim:21,dishDepth:11100,trenchW:1800,trenchD:3200,meridians:4,meridianW:120};
+// A closed body of revolution about `axis` through `origin`: rows [distance along the axis, radius], n-sided.
+function dsRevolve(origin,axis,rows,n=24){
+ const up=Math.abs(axis[1])>.9?[1,0,0]:[0,1,0],e1=norm(cross(up,axis)),e2=cross(axis,e1),v=[],f=[];
+ for(const [k,r] of rows)for(let i=0;i<n;i++){const a=i/n*Math.PI*2;v.push([0,1,2].map(c=>origin[c]+axis[c]*k+(e1[c]*Math.cos(a)+e2[c]*Math.sin(a))*r));}
+ f.push(Array.from({length:n},(_,i)=>n-1-i));for(let r=0;r<rows.length-1;r++)for(let i=0;i<n;i++){const j=(i+1)%n,a=r*n+i,b=r*n+j,c=(r+1)*n+j,d=(r+1)*n+i;f.push([a,b,c],[a,c,d]);}
+ f.push(Array.from({length:n},(_,i)=>(rows.length-1)*n+i));
+ let volume=0;for(const q of f)for(let i=1;i<q.length-1;i++)volume+=dot(v[q[0]],cross(v[q[i]],v[q[i+1]]))/6;if(volume<0)for(const q of f)q.reverse();
+ return {v,f};
+}
 function deathStarBuild(){
- const R=DS.R,L=2*R,rad=Math.PI/180,s=newShip({...HULLS.sphere,L,W:L,H:L},'デス・スター','station');
- s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.4,cit:.3};s.shieldTarget=1;
- const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],C0=[R,R,0],at=(k,off=[0,0,0])=>[C0[0]+ax[0]*k+off[0],C0[1]+ax[1]*k+off[1],C0[2]+off[2]];
- // The equatorial trench, before the hull becomes a structure (a trench belongs to the hull it is cut in).
- s.trenches.push({id:s.nextId++,side:'both',from:0,to:1,level:.5,height:DS.trenchW,depth:DS.trenchD,taper:false});
- // The dish: the sphere that makes a bowl of the measured rim and depth.
- const a=R*Math.sin(DS.dishRim*rad),h=DS.dishDepth,rho=(a*a+h*h)/(2*h);
- s.solidCuts.push({id:s.nextId++,shape:'sphere',c:at(R-h+rho),s:[2*rho,2*rho,2*rho],rotation:[0,0,0],mirror:false,structures:false});
- // Meridian trenches: standing rings through the poles, turned about the polar axis; none through the dish.
- for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[L,L,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:false});
- const part=(k,label,c,d,o={})=>placePart(s,k,c,d,{label,...o});
- // The reactor core at the centre and the superlaser between it and the dish (the cutaway drawing).
+ const R=DS.R,w=DS.trenchW,rad=Math.PI/180,C0=[R,R,0];
+ // Two hemispheres with the equatorial trench between them (user decision 2026-11-15「半球を二つ組み合わせる形でしっかりと
+ // 赤道トレンチを作って」): each dome stands on its own side of a 1.8 km gap; the trench floor is the drum that joins them.
+ const s=newShip({plan:'ellipse',sec:'ellipse',L:2*R,W:2*R,H:2*R,bowW:1,bowH:1,stern:1,assembly:true},'デス・スター','station');
+ s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.4,cit:.3};s.shieldTarget=1;s.hullStructureVersion=1;
+ const base=2*Math.sqrt(R*R-w*w/4),rise=R-w/2,floor=R-DS.trenchD,part=(k,label,c,d,o={})=>placePart(s,k,c,d,{label,...o});
+ part('struct','北半球',[R,R+w/2+rise/2,0],[base,base,rise],{form:'dome',skin:'armor'});
+ part('struct','南半球',[R,R-w/2-rise/2,0],[base,base,rise],{form:'dome',skin:'armor',roll:180});
+ part('struct','赤道トレンチの床（中央胴）',C0.slice(),[2*floor,2*floor,w],{form:'cylinder',skin:'armor'});
+ // The dish, a spherical bowl through the measured rim (21 degrees from its axis) and floor (11.1 km below the
+ // sphere): the cutting sphere's radius follows from the rim's chord and the bowl's depth below that chord.
+ const ax=[Math.cos(DS.dishLat*rad),Math.sin(DS.dishLat*rad),0],a=R*Math.sin(DS.dishRim*rad),rimAt=R*Math.cos(DS.dishRim*rad),floorAt=R-DS.dishDepth,sag=rimAt-floorAt,rho=(a*a+sag*sag)/(2*sag);
+ const at=(k,off=[0,0,0])=>[C0[0]+ax[0]*k+off[0],C0[1]+ax[1]*k+off[1],C0[2]+off[2]];
+ s.solidCuts.push({id:s.nextId++,shape:'sphere',c:at(floorAt+rho),s:[2*rho,2*rho,2*rho],rotation:[0,0,0],mirror:false,structures:true});
+ // Meridian trenches (the user's addition, wide enough for a fighter): standing rings through the poles.
+ for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[2*R,2*R,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:true});
+ // The reactor core at the centre.
  const core=part('gen','主反応炉（ハイパーマター反応炉）',C0.slice(),16000);
- part('slaser','53 ZT スーパーレーザー',at(R-h-SUPERWEAPONS.slaser.length/2),SUPERWEAPONS.slaser.d,{reactor:core.id,dir:ax.slice()});
- // Engines and docks in the equatorial trench: ion drives around the far side, docking bays around the near side.
+ // The superlaser is one weapon from the core to the lens (user decision 2026-11-15「レンズの皿の部分、中心に繋がる構造物も
+ // 含めて武装扱い」; the user's cutaway drawing): the shaft from the core, the amplifier, the cone that opens to the
+ // lens, and the lens itself, which is the floor of the dish. Rows: distance from the centre along the dish axis, radius.
+ const lensR=R*Math.sin(6*rad)*1.9,rows=[[8200,2400],[30000,2400],[33000,6200],[45000,6200],[48000,3400],[55000,3400],[floorAt-5200,lensR],[floorAt-300,lensR]];
+ const mesh=dsRevolve(C0,ax,rows),lo=[0,1,2].map(c=>Math.min(...mesh.v.map(q=>q[c]))),hi=[0,1,2].map(c=>Math.max(...mesh.v.map(q=>q[c]))),centre=lo.map((q,c)=>(q+hi[c])/2),size=[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]];
+ for(const q of mesh.v)for(let c=0;c<3;c++)q[c]=(q[c]-centre[c])/size[[0,2,1][c]];
+ part('slaser','53 ZT スーパーレーザー',centre,2*lensR,{reactor:core.id,dir:ax.slice(),weaponBody:{s:size,mesh},weaponMuzzle:[0,1,2].map(c=>at(floorAt)[c]-centre[c])});
+ // Engines and docks in the equatorial trench: ion drives round the far side, docking bays round the near side.
  const eq=(deg,r)=>[C0[0]+r*Math.cos(deg*rad),C0[1],C0[2]+r*Math.sin(deg*rad)];
- for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,R-DS.trenchD),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
- for(const deg of [-60,-30,30,60,90,-90])part('hangar','赤道トレンチのドッキング・ベイ',eq(deg,R-DS.trenchD-900),1400,{room:[1600,1200,900]});
- part('command','司令区画（オーバーブリッジ）',at(R-h-2600,[0,3000,0]),600,{room:[900,700,500]});
+ for(const deg of [150,165,180,195,210])part('engine','赤道トレンチのイオン推進機関',eq(deg,floor-300),1200,{dir:[Math.cos(deg*rad),0,Math.sin(deg*rad)],reactor:core.id});
+ for(const deg of [-60,-30,30,60,90,-90])part('hangar','赤道トレンチのドッキング・ベイ',eq(deg,floor-900),1200,{room:[1600,1200,900]});
+ part('command','司令区画（オーバーブリッジ）',at(floorAt-2600,[0,3000,0]),600,{room:[900,700,500]});
  part('shield','偏向シールド発生機',[C0[0],C0[1]+R*.55,C0[2]],3000);part('shield','偏向シールド発生機',[C0[0],C0[1]-R*.55,C0[2]],3000);
- part('hyper','ハイパードライブ',[C0[0]-R*.45,C0[1],C0[2]],4000);
+ part('hyper','ハイパードライブ',[C0[0]-R*.45,C0[1]+3000,C0[2]],4000);
  ensureSuperlaserExhaust(s);
  s._building=false;syncCompartments(s);return s;
 }
