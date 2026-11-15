@@ -8180,6 +8180,7 @@ function trialCraftSystemsHTML(){
  return html;
 }
 function trialReset(){
+ trial.resetGen=(trial.resetGen||0)+1;
  if(trial.cine)spaceCineEnd();const pose=trialInitialPose(trialSys());Object.assign(trial,{P:pose.P,V:[0,0,0],R:pose.R,w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
@@ -9073,7 +9074,7 @@ function trialCommand(cmd){
  else if(cmd==='spawn'||cmd==='spawn-close'||cmd==='spawn-go'||cmd.startsWith('spawn-role:')){trialSpawnCommand(cmd);return;}
  else if(cmd==='foil'||cmd==='foil:open'||cmd==='foil:close'){trialFoilCommand(cmd.split(':')[1]);return;}
  else if(cmd==='fireTap')trial.fireTap=.25;
- else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
+ else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]'),sp=$('#thSpawn');if(sp)sp.hidden=true;/* the card lies where the menu opens */if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
  // The power order is fixed (シールド・艦内設備 → 兵装 → 航行) and has no control in the piloting HUD (2026-11-13).
  else if(cmd==='power'||cmd==='pnext')return;
  else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));}
@@ -9091,7 +9092,7 @@ function trialCommand(cmd){
  else if(cmd.startsWith('swfire:'))trialSwFire(Number(cmd.slice(7)));
  else if(cmd==='swarc'){trial.swArc=trial.swArc===false;toast(trial.swArc?'超兵器の射界（射程と射角）を表示します':'超兵器の射界を隠しました');}
  else if(cmd==='map'){if(trial.rts){toast('ジャンプは戦術図の「離脱」「増援」で命じます');return;}trialMapShow();return;}
- else if(cmd.startsWith('jump:')){trialJump(cmd.slice(5));}
+ else if(cmd.startsWith('jump:')){if(trialSandbox()){toast('艦を出している間はジャンプできません。「再開始」で片づけてください');return;}trialJump(cmd.slice(5));}
  else if(cmd==='retry'){if(trial.rts)return;const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;if(trialSandbox()){trialSandboxEnd();return;}trialReset();}
  else if(cmd==='resultClose'){const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;return;}
  else if(cmd==='exit'){trialStop();return;}
@@ -9537,6 +9538,9 @@ const SPACE_RULES={range:TRIAL_GUN.range,engagementDistance:12000,step:.25,damag
 const TRIAL_SPAWN={roles:{foe:'敵対',escort:'随伴',target:'静止目標'},maxKm:200,maxUpKm:14};
 const trialSandbox=()=>!!trial.battlePlan?.sandbox;
 const trialCanSpawn=()=>!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!=='title'&&(trial.mode==='trial'||trialSandbox());
+// Ships are put out where the flight is: not during a hyperspace jump, and no jump while ships are out (a jump out of
+// a battle is a withdrawal, which would end it; 再開始 clears the ships first).
+const trialSpawnJumping=()=>!!trial.jump;
 function trialHudRemount(){const hud=$('#trialHud');if(!hud||!trial.on||trial.spectate)return;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
 function trialSandboxEnd(){trial.mode='trial';trial.battlePlan=null;trial.hitcam=null;trialReset();trialHudRemount();toast('出した艦を片づけ、公試を再開始しました');}
 function trialSpawnState(){return trial.spawn||(trial.spawn={source:'current',role:'foe',f:8,r:0,u:0,busy:false,n:0});}
@@ -9564,12 +9568,14 @@ function trialSpawnCommand(cmd){
 function trialSpawnPlace(S){const R=trial.R;return tv.add(tv.add(tv.add(trial.P,trialCol(R,0),S.f*1000),trialCol(R,2),S.r*1000),trialCol(R,1),S.u*1000);}
 async function trialSpawnShip(){
  const S=trialSpawnState();if(S.busy||!trial.on||!trialCanSpawn())return;
+ if(trialSpawnJumping()){toast('ハイパースペースへのジャンプ中は艦を出せません');return;}
  if(trial.battle?.result){toast('結果が出たあとは艦を出せません。再開始してください');return;}
  const live=trial.battle?trial.battle.b.units.filter(u=>!u.dead).length:1+(trial.escorts?.length||0);
  if(live>=C.FLEET_RULES.maxShips){toast(`同時に出せる艦は自艦を含めて ${C.FLEET_RULES.maxShips} 隻までです`);return;}
- const role=S.role,want={f:S.f,r:S.r,u:S.u};S.busy=true;trialSpawnRender();let a=null;
+ const role=S.role,want={f:S.f,r:S.r,u:S.u},gen=trial.resetGen,started=trial.startedAt;S.busy=true;trialSpawnRender();let a=null;
  try{a=await fleetAsset(S.source);}catch(e){console.error(e);toast('艦を出せません：'+esc(e.message||e));}finally{S.busy=false;trialSpawnRender();}
- if(!a||!trial.on||!trialCanSpawn()||trial.battle?.result)return;
+ // The flight this was asked in is gone (ended, restarted) or jumping: the ship is not put out into another one.
+ if(!a||!trial.on||!trialCanSpawn()||trial.battle?.result||trial.resetGen!==gen||trial.startedAt!==started||trialSpawnJumping())return;
  if(!a.p||a.p.catalogOnly){toast('この艦は性能表だけのため出せません');return;}
  const world=trialSpawnPlace(want),sep=tv.len(tv.sub(world,trial.P)),need=(trial.p.len+a.p.len)*.6;
  if(sep<need){toast(`自艦に近すぎます（${(need/1000).toFixed(1)} km 以上離してください）`);return;}
