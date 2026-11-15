@@ -241,11 +241,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "zg387y",
+ "modelSignature": "1s9h6wt",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1fg9nf9",
+   "signature": "pa06j7",
    "build": 236170,
    "crew": 3000,
    "total": 239170,
@@ -7128,7 +7128,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "16cli50",
+   "signature": "1purge4",
    "build": 150518,
    "crew": 1000,
    "total": 151518,
@@ -9643,7 +9643,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "3nr6hn",
+   "signature": "12lie6x",
    "build": 200620,
    "crew": 2000,
    "total": 202620,
@@ -14085,7 +14085,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1i00bwz",
+   "signature": "a7yqup",
    "build": 159841,
    "crew": 0,
    "total": 159841,
@@ -20415,7 +20415,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "41yb6r",
+   "signature": "711gjl",
    "build": 100674,
    "crew": 1000,
    "total": 101674,
@@ -22777,7 +22777,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "673bjt",
+   "signature": "f301d3",
    "build": 88595,
    "crew": 1000,
    "total": 89595,
@@ -24946,7 +24946,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "15xdh2j",
+   "signature": "jtqp61",
    "build": 123997,
    "crew": 1000,
    "total": 124997,
@@ -27596,7 +27596,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "oc28ne",
+   "signature": "lrchp6",
    "build": 133291,
    "crew": 1000,
    "total": 134291,
@@ -32418,7 +32418,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "atckz4",
+   "signature": "qgwfco",
    "build": 102417,
    "crew": 0,
    "total": 102417,
@@ -35742,7 +35742,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "qoooxn",
+   "signature": "fd79fd",
    "build": 246932,
    "crew": 1000,
    "total": 247932,
@@ -43265,7 +43265,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "k7d16p",
+   "signature": "lai0gf",
    "build": 152692,
    "crew": 1000,
    "total": 153692,
@@ -47771,7 +47771,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "cr5d1s",
+   "signature": "6pwuag",
    "build": 134433,
    "crew": 1000,
    "total": 135433,
