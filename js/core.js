@@ -62562,11 +62562,12 @@ function dualBlank(){return {gunBands:Object.fromEntries(Object.keys(GUN_BANDS).
 function dualSum(dp,weights){const out=dualBlank(),ts=dp?.tiers||[];for(let t=0;t<ts.length;t++){const w=weights[t]||0,g=ts[t];if(!(w>0))continue;for(const k in out.gunBands)for(let i=0;i<6;i++)out.gunBands[k][i]+=w*(g.gunBands[k]?.[i]||0);for(let i=0;i<6;i++){out.gunArcs[i]+=w*(g.gunArcs[i]||0);out.aaArcs[i]+=w*(g.aaArcs[i]||0);}out.aa+=w*(g.aa||0);}return out;}
 // What of the dual-purpose battery is still on anti-ship fire (its anti-air is then unavailable).
 function dualIdle(u){const dp=u.p?.dualPurpose;if(!dp)return null;if(!u.dualDefense||!automaticPointDefenseEnabled(u))return dp;if(!dp.tiers)return null;const out=dualSum(dp,dp.tiers.map((_,t)=>1-(u.dualWeights?.[t]||0)));return out.aa>0?out:null;}
-function fleetDefense(u,threats,range=6000){u.p=automaticDefenseProfile(u.p);const d=u.p?.dualPurpose;clearAutomaticPointDefenseReservation(u);if(!d||!automaticPointDefenseEnabled(u))return false;const r=range+(u.p.len||0)*.5;let need=0;for(const q of threats){if(!q?.pos||q.alive===false||q.dead||q.warp||(q.n??1)<=0)continue;if(q.side!=null&&u.side!=null?q.side===u.side:q.team!=null&&u.team!=null&&q.team===u.team)continue;const distance=len(sub(q.pos,u.pos));if(distance>r)continue;if(distance<1e-6?(d.aa||0)>0:fleetArc(u,q,d.aaArcs||[])>0)need+=AA_NEED_PER_THREAT*Math.max(1,q.n??1);}
- if(!(need>0))return false;const ts=d.tiers;if(!ts){u.dualDefense=true;u.dualTiers=1;u.dualDivert=d;return true;}
- // Fastest tier first; within the last tier needed, only the share of its mounts the remaining threat calls for.
- const weights=ts.map(()=>0);let left=need;for(let t=0;t<ts.length&&left>1e-12;t++){const aa=ts[t].aa||0;if(!(aa>0))continue;const w=Math.min(1,left/aa);weights[t]=w;left-=aa*w;}
- u.dualWeights=weights;u.dualTiers=weights.reduce((n,w,t)=>w>0?t+w:n,0);u.dualDivert=dualSum(d,weights);u.dualDefense=u.dualDivert.aa>0;return u.dualDefense;}
+function fleetDefense(u,threats,range=6000){u.p=automaticDefenseProfile(u.p);const d=u.p?.dualPurpose;clearAutomaticPointDefenseReservation(u);if(!d||!automaticPointDefenseEnabled(u))return false;
+ // User decision 2026-11-15: with automatic interception ON, point defence is kept for craft, missiles and torpedoes
+ // and never joins the fire on ships, threat or no threat; OFF, it fires on ships in its reach like any gun.
+ {const ts=d.tiers;if(ts){u.dualWeights=ts.map(()=>1);u.dualTiers=ts.length;u.dualDivert=dualSum(d,u.dualWeights);}else{u.dualTiers=1;u.dualDivert=d;}u.dualDefense=true;}
+ const r=range+(u.p.len||0)*.5;let need=0;for(const q of threats){if(!q?.pos||q.alive===false||q.dead||q.warp||(q.n??1)<=0)continue;if(q.side!=null&&u.side!=null?q.side===u.side:q.team!=null&&u.team!=null&&q.team===u.team)continue;const distance=len(sub(q.pos,u.pos));if(distance>r)continue;if(distance<1e-6?(d.aa||0)>0:fleetArc(u,q,d.aaArcs||[])>0)need+=AA_NEED_PER_THREAT*Math.max(1,q.n??1);}
+ return need>0;}
 // Fire only against a current threat. One finite discharge budget is shared by
 // missile and aircraft engagements for this step; toggling cannot refill it.
 const automaticPointDefenseBudgets=new WeakMap();

@@ -8536,10 +8536,12 @@ function trialGunnery(dt){
  trial.lead=null;if(lock){const t=trialIntercept(lockRel,u,spd);if(t)trial.lead=tv.add(lockRel,u,t);}
  let demand=0;const threats=trialThreats();
  for(const t of trial.turrets){
-  const oW=trialApply(R,tv.sub(t.origin,center)),lim=trialLimits(t);let ty=0,te=0;t.arc=true;t.pdTarget=null;const q=autoPD&&t.pdCapable?trialPdPick(t,oW,threats):null;t.pdTarget=q;t.pd=!!(autoPD&&t.pdCapable&&(!t.dualPurpose||q));
+  const oW=trialApply(R,tv.sub(t.origin,center)),lim=trialLimits(t);let ty=0,te=0;t.arc=true;t.pdTarget=null;const q=autoPD&&t.pdCapable?trialPdPick(t,oW,threats):null;t.pdTarget=q;t.pd=!!(autoPD&&t.pdCapable);/* user decision 2026-11-15: with automatic interception ON point defence only intercepts (craft, missiles, torpedoes); OFF, it joins the gunfire when the target is in its reach */t.far=false;
   if(t.pd){if(q){const rel=tv.sub(q.pos,trial.P),uv=tv.sub(q.vel,trial.V),tt=trialIntercept(tv.sub(rel,oW),uv,spd),aimW=tt?tv.add(rel,uv,tt):rel,dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));[ty,te]=t.authored?C.authoredTurretAngles(t.authored,t._foilTransform?trialApplyT(t._foilTransform.rot,dl):dl):[Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw)),Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1))];}}
   else if(!t.pilot&&!home){let aimW=a.point;
-   if(lock){const tt=trialIntercept(tv.sub(lockRel,oW),u,spd);if(tt)aimW=tv.add(lockRel,u,tt);}
+   if(lock){const tt=trialIntercept(tv.sub(lockRel,oW),u,spd);if(tt)aimW=tv.add(lockRel,u,tt);
+    // A gun does not fire on a target beyond its reach (user decision 2026-11-15).
+    t.far=tv.len(tv.sub(lockRel,oW))>(t.reach||TRIAL_GUN.range)+(lock.radius||0);}
    const dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));[ty,te]=t.authored?C.authoredTurretAngles(t.authored,t._foilTransform?trialApplyT(t._foilTransform.rot,dl):dl):[Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw)),Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1))];}
   if(lim.yaw!=null&&Math.abs(ty)>lim.yaw){ty=Math.sign(ty)*lim.yaw;t.arc=false;}if(te<lim.lo||te>lim.hi){te=C.clamp(te,lim.lo,lim.hi);t.arc=false;}
   if(t.pd&&!t.pdTarget)t.arc=false;
@@ -8547,7 +8549,7 @@ function trialGunnery(dt){
   if(t.mesh)trialPoseTurret(t);
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
-  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t),unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
+  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t),unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed&&!t.far)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
   // Point defence fires on its own at the threat it is tracking.
   t.firing=(t.pd?!!t.pdTarget&&!committed&&!me?.dead&&!me?.out&&!(trial.battle?.result):wantFire)&&t.ready;if(t.firing)demand+=trialShotEnergyTT(t)*TT_J/Math.max(1e-9,t.cycle)*(t.costK??1);t.bd=bd;t.oW=oW;
  }
