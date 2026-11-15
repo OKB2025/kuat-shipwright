@@ -34,6 +34,11 @@
 // Re-recorded again for the heat model (2026-11-14, PR #107: no hull-skin cooling, converters draw power for the heat
 // they convert, wing coefficient curve, heat paths without a capacity limit, regenerated examples). Every tick differs
 // from the earlier recording from tick 0; two recordings in a row gave the same file.
+// Re-recorded on cb92b28 (2026-11-15, PR #111, user decisions「1発ごとに各区画で判断」「排熱は被弾とも釣り合う」「自動全力運転は外す」
+// and their physics-review fixes; examples regenerated so each weapon module carries shotW/bolt). The hash differs from
+// tick 0 through the new per-tick state (the heat state's hit-heat filter, the incoming records' shot counts); the first
+// numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1 is tick 4, unit 0 crew 183.64 against 183 (casualties judged per
+// shot instead of the whole tick's penetration as one shot). Two recordings in a row gave the same file (sha256 88608d79…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
