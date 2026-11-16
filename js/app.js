@@ -3962,12 +3962,14 @@ async function openExample(key) {
 }
 async function fillHangarsRemote() {
   if (!ship) return;
-  const before = snap(), target = ship, sent = C.publicJSON(ship); showBusyOverlay('空き容積に航空区画を配置中…');
+  const before = snap(), target = ship, sent = C.publicJSON(ship), history = [undoStack.length, undoStack[undoStack.length - 1], redoStack.length, redoStack[redoStack.length - 1]]; showBusyOverlay('空き容積に航空区画を配置中…');
   try {
     const r = await YardEngineClient.request('op', {gen: eng.gen, state: sent, op: 'fillHangars', args: [st.size.hangar, st.fill[0], st.fill[1], st.mirror]});
-    // Audit 2026-11-16: the reply is for the design as it was sent. A different ship, or an edit, Undo or Delete made
-    // while waiting, would be overwritten by it, so it is discarded instead.
-    if (ship !== target || C.publicJSON(ship) !== sent) { hideBusyOverlay(); toast('待っているあいだに設計が変わったため、自動充填の結果を破棄しました'); return; }
+    // Audit 2026-11-16: the reply is for the design as it was sent. A different ship, or an edit, Undo, Redo or Delete
+    // made while waiting (each moves the history), would be overwritten by it, so it is discarded instead. The engine's
+    // own adoption of computed fields while waiting is not a user edit and does not discard it (review 2026-11-16).
+    const moved = undoStack.length !== history[0] || undoStack[undoStack.length - 1] !== history[1] || redoStack.length !== history[2] || redoStack[redoStack.length - 1] !== history[3];
+    if (ship !== target || moved) { if (ship === target) hideBusyOverlay(); toast('待っているあいだに設計が変わったため、自動充填の結果を破棄しました'); return; }
     if (!r.result) { hideBusyOverlay(); toast('空きが見つかりませんでした'); return; }
     C.patchShip(ship, JSON.parse(r.state)); ship._client = true;
     undoStack.push(before); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;

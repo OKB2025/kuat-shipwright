@@ -12,8 +12,8 @@ function setup(){
  return {ctx,log,run:c=>vm.runInContext(c,ctx)};
 }
 test('an edit made while waiting is kept and the stale reply is discarded',async()=>{
- const t=setup(),done=t.run('fillHangarsRemote()');t.run("ship.parts=[1,2]");t.run("resolveReply({result:3,state:JSON.stringify({name:'A',parts:[1,9,9,9]})})");await done;
- assert.deepEqual(JSON.parse(t.run('JSON.stringify(ship.parts)')),[1,2]);assert.ok(!t.log.includes('patched'));assert.ok(t.log.some(m=>/破棄/.test(m)));assert.equal(t.run('undoStack.length'),0);
+ const t=setup(),done=t.run('fillHangarsRemote()');t.run("undoStack.push(JSON.stringify(ship));ship.parts=[1,2]");t.run("resolveReply({result:3,state:JSON.stringify({name:'A',parts:[1,9,9,9]})})");await done;
+ assert.deepEqual(JSON.parse(t.run('JSON.stringify(ship.parts)')),[1,2]);assert.ok(!t.log.includes('patched'));assert.ok(t.log.some(m=>/破棄/.test(m)));assert.equal(t.run('undoStack.length'),1,'only the edit itself, no auto-fill entry');
 });
 test('another ship opened while waiting is not overwritten',async()=>{
  const t=setup(),done=t.run('fillHangarsRemote()');t.run("ship={name:'B',parts:[5]}");t.run("resolveReply({result:3,state:JSON.stringify({name:'A',parts:[1,9]})})");await done;
@@ -22,4 +22,12 @@ test('another ship opened while waiting is not overwritten',async()=>{
 test('an unchanged design takes the reply as before',async()=>{
  const t=setup(),done=t.run('fillHangarsRemote()');t.run("resolveReply({result:2,state:JSON.stringify({name:'A',parts:[1,7,7]})})");await done;
  assert.ok(t.log.includes('patched'));assert.equal(t.run('undoStack.length'),1);assert.equal(t.run('lastOp'),'格納庫を自動充填');
+});
+test('the engine adopting computed fields while waiting is not an edit: the reply is still applied',async()=>{
+ const t=setup(),done=t.run('fillHangarsRemote()');t.run("ship.surfaces={adopted:true}");t.run("resolveReply({result:2,state:JSON.stringify({name:'A',parts:[1,7,7]})})");await done;
+ assert.ok(t.log.includes('patched'));assert.equal(t.run('undoStack.length'),1);
+});
+test('an Undo made while waiting discards the reply',async()=>{
+ const t=setup();t.run("undoStack.push('old')");const done=t.run('fillHangarsRemote()');t.run("redoStack.push(undoStack.pop())");t.run("resolveReply({result:2,state:JSON.stringify({name:'A',parts:[1,7]})})");await done;
+ assert.ok(!t.log.includes('patched'));
 });
