@@ -84032,17 +84032,24 @@ function hyperChargeStep(u,P,drawW,dt){
 }
 function hyperCharged(u){const need=hyperChargeNeedJ(u?.p);return need>0?Math.min(1,(u.hyperE||0)/need):1;}
 function engineHeatThrottleCap(u,gov,dt){
- const p=u.p,g=p.grid||{},pr=p.propulsion,cores=pr&&(pr.cores||pr.engines),De=Math.max(0,g.De||0);if(!(De>0))return 1;
+ const p=u.p,g=p.grid||{},pr=p.propulsion,cores=pr&&(pr.cores||pr.engines),De=Math.max(0,g.De||0),h=u.ht,H=heatProfile(p);
+ // The heat made this step apart from engines and weapons: the last heat solve's shield, service, superweapon and feed rows (shield
+ // recharge, superweapon charge loss and feed loss included; physics review 2026-11-16), the plant's waste on the services, and
+ // the converters' own heat. Before any solve, the services alone.
+ const gen=h?.sourceGenerationW,solved=Array.isArray(gen)&&H?.src?.length===gen.length?H.src.reduce((n,s0,i)=>n+(['shield','hotel','sw','feed'].includes(s0.k)?Math.max(0,gen[i]||0):0),0):null,
+  otherW=(solved??HEAT.waste.hotel*Math.max(0,(g.fixed||0)-(g.cooling||0)))+HEAT.waste.reactor*Math.max(0,(g.fixed||0)-(g.cooling||0))+Math.max(0,h?.coolingSelfW||0),
+  rej=Math.max(0,heatDeliverableRejectionW(u)),budget0=Math.max(0,rej-otherW)*HEAT.balanceTarget+gov.roomJ/dt;
+ if(!(De>0))return {spareW:Math.max(0,rej-otherW),budget:budget0,heatAt:()=>0,cap:()=>1};/* no engines (a station): weapons still get the budget (physics review 2026-11-16) */
  const c=u._engineHeatFull&&u._engineHeatFull.p===p?u._engineHeatFull:(u._engineHeatFull={p,W:cores?.length?engineHeatForInput(cores,De).wasteHeatW:PROPULSION.wasteFraction*De});
- // The working converters' rated rejection, not h.cap: h.cap is what the cooling power reserved last time covers, and that follows
- // the heat made, so a cap on it would hold a slow ship slow (navigation-itinerary 2026-11-16: an MC80 spooling under coarse
- // 20 s ticks fell to 0.02 of its top speed).
- const perX=Math.max(1e-30,c.W+HEAT.waste.reactor*De),h=u.ht,rej=Math.max(0,swRatedRejectionW(u)),otherW=(HEAT.waste.hotel+HEAT.waste.reactor)*Math.max(0,(g.fixed||0)-(g.cooling||0))+Math.max(0,h?.coolingSelfW||0);
+ // The rejection is what the converters give when powered, not h.cap: h.cap is what the cooling power reserved last time covers,
+ // and that follows the heat made, so a cap on it would hold a slow ship slow (navigation-itinerary 2026-11-16: an MC80 spooling
+ // under coarse 20 s ticks fell to 0.02 of its top speed).
+ const perX=Math.max(1e-30,c.W+HEAT.waste.reactor*De);
  // The engines' heat at throttle x is taken on their own curve (input x·De; curve B), plus the plant's waste on that input.
  // A bound linear in throttle from the heat at full input held long-step cruises under the 70% entry speed
  // (navigation-itinerary: MC80 at 0.684 under 20 s ticks). The spare rejection is taken at HEAT.balanceTarget, the margin
  // balanced running keeps: the store holds well under a second of rejection, so a step of many seconds may not run at it.
- const budget=Math.max(0,rej-otherW)*HEAT.balanceTarget+gov.roomJ/dt,
+ const budget=budget0,
   heatAt=x=>(cores?.length?engineHeatForInput(cores,x*De).wasteHeatW:PROPULSION.wasteFraction*x*De)+HEAT.waste.reactor*x*De;
  const cap=()=>{if(perX<=budget)return 1;let lo=clamp(budget/perX,0,1),hi=1;for(let i=0;i<12;i++){const m=(lo+hi)/2;if(heatAt(m)<=budget)lo=m;else hi=m;}return lo;};
  return {spareW:Math.max(0,rej-otherW),budget,heatAt,cap};
@@ -84058,8 +84065,8 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  const gov=heatGovernor(u);u.heatGov=gov;
  // Balanced running: a step's engine heat may not take the store past governStart either (2026-11-16, full-fleet cruise
  // survey: a Providence's store holds about 0.4 s of its rejection, one 0.25 s step at moderate throttle put the whole store in,
- // and the governor swung between floor and full until the ship blacked out). Engine heat is taken linear in throttle from
- // the heat at full input, which overstates it at part load under curve B, so the cap errs on the safe side.
+ // and the governor swung between floor and full until the ship blacked out). Engine heat is taken on the engines' own curve
+ // (engineHeatThrottleCap); the spare rejection at HEAT.balanceTarget leaves the margin for the estimate.
  // Weapon charging gets what the spare rejection and the store's room leave after the engines' heat (physics of the same
  // step; without the spare rejection a ship with ample converters was held to its store's room, propulsion-surface-power).
  const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
@@ -84291,7 +84298,7 @@ function shipPowerSources(u,s={},options={}){
   for(let j=0;j<sources.length;j++){const x=sources[j],mi=x.moduleIndex??-1,m=mods[mi],id=m?.port||(m?.part!=null?'p'+m.part:'domain:'+d.id+':'+j),physical=mi>=0?clamp(u.mods?.[mi]??1,0,1):clamp(s.reactor??1,0,1),connected=mi>=0?powerFactor(u,m?.k||'reactor',mi):u.gridState?.domains?.[d.id]?.trip>0?0:1,thermal=mi>=0?propulsionModuleHeat(u,'reactor',mi):heatLim(u,'reactor');let factor=1;
    if(u.down&&u.down.reason!=='ion-grid')factor*=u.down.black?0:m&&m.k==='reactor'&&m.reactorKind!=='aux'&&g.Paux>0?0:clamp(u.down.aux??1,0,1);
    for(const o of u.over||[])if(o.r===m?.part)factor=Math.min(factor,1-o.k*Math.max(0,o.t)/Math.max(1e-9,o.T));let W=Math.max(0,x.P||0)*physical*connected*thermal*em*clamp(factor,0,1)*(heatK??=shipHeatOutputFactor(u));
-   if(!options.ignoreReservations)for(let k=0;k<(p.sw||[]).length;k++){const w=p.sw[k],state=u.sw?.[k];if(w.r===m?.part&&state?.st==='charge'&&state.c<1)W=Math.max(0,W-(w.chargeW>0?w.chargeW:SW_COMBAT[w.k].share*(w.Pshare||0)*(g.P||0))*swChargeRate(u,k));}
+   if(!options.ignoreReservations)for(let k=0;k<(p.sw||[]).length;k++){const w=p.sw[k],state=u.sw?.[k];if(w.r===m?.part&&state?.st==='charge'&&state.c<1)W=Math.max(0,W-(w.chargeW>0?w.chargeW:SW_COMBAT[w.k].share*(w.Pshare||0)*(g.P||0))*(swJumpHold(u)?0:swChargeRate(u,k)));}
    out.push({id,domain:d.id,powerW:W,maxPowerW:W/Math.max(1,em),moduleIndex:mi,reactor:m?m.k==='reactor':true});}
  }return out;
 }
@@ -85270,17 +85277,19 @@ function swPower(u,withDown=true,withCharge=true){
  let k=withDown?powerFactor(u,'reactor'):1;if(withDown&&u.down&&u.down.reason!=='ion-grid')k*=u.down.black?0:clamp(u.down.aux,0,1);
  // An overloaded reactor holds at its floor: a second shot from the same reactor only starts its recovery again.
  const ov=new Map();for(const o of u.over||[])ov.set(o.r,Math.max(ov.get(o.r)||0,o.k*Math.max(0,o.t)/Math.max(1e-9,o.T)));for(const v of ov.values())k-=v;
- const sw=u.p?.sw;if(withCharge&&sw&&u.sw)for(let i=0;i<sw.length;i++){const x=u.sw[i];if(x&&x.st==='charge'&&x.c<1)k-=(sw[i].chargeW>0?sw[i].chargeW/Math.max(1,u.p.grid?.P||0):SW_COMBAT[sw[i].k].share*(sw[i].Pshare||0)/Math.max(1,sw.filter(w=>w.r===sw[i].r).length))*swChargeRate(u,i);}
+ const sw=u.p?.sw;if(withCharge&&sw&&u.sw)for(let i=0;i<sw.length;i++){const x=u.sw[i];if(x&&x.st==='charge'&&x.c<1)k-=(sw[i].chargeW>0?sw[i].chargeW/Math.max(1,u.p.grid?.P||0):SW_COMBAT[sw[i].k].share*(sw[i].Pshare||0)/Math.max(1,sw.filter(w=>w.r===sw[i].r).length))*(swJumpHold(u)?0:swChargeRate(u,i));}
  return clamp(k,0,1);
 }
 // How fast weapon i may charge now (1 = its rated rate): nothing while its reactor is stopped, less while it recovers.
 // A ship spooling or gathering way for a jump holds its superweapon charge, so its plant drives the engines up to the entry
 // speed (2026-11-16: under the ship-wide bus a Subjugator charging both ion cannons held 0.58 of its top speed, under the 70% gate).
-function swChargeRate(u,i){const w=u.p.sw[i];if(!w)return 0;if(u.jump&&(u.jump.phase==='spool'||u.jump.phase==='accel'))return 0;if(u.down&&u.down.reason!=='ion-grid'&&(u.down.black||w.rk!=='aux'))return 0;
+// Only charging stops: a ready weapon, a burning beam and a fire order are untouched (physics review 2026-11-16).
+const swJumpHold=u=>!!u?.jump&&u.jump.phase==='spool';
+function swChargeRate(u,i){const w=u.p.sw[i];if(!w)return 0;if(u.down&&u.down.reason!=='ion-grid'&&(u.down.black||w.rk!=='aux'))return 0;
  const mods=u.p.modules||[],ri=mods.findIndex(m=>m.k==='reactor'&&m.part===w.r),available=powerFactor(u,'superweapon',w.mod)* (ri>=0?Math.max(0,u.mods?.[ri]??1)*powerFactor(u,'reactor',ri):powerFactor(u,'reactor'));let drop=0;for(const o of u.over||[])if(o.r===w.r)drop=Math.max(drop,(1-SW_COMBAT[w.k].over.floor)*Math.max(0,o.t)/Math.max(1e-9,o.T));return clamp(1-drop,0,1)*available*shipHeatOutputFactor(u);}
 function superweaponCharge(u,i,dt,sys){
  const w=u.p?.sw?.[i],x=u.sw?.[i];if(!w||!x||x.st!=='charge'||!(dt>0))return 0;const C=SW_COMBAT[w.k],capacity=swEnergyTT(w)*TT,strict=u.p.energyModel?.version===1,eta=strict?clamp(w.efficiency||ENERGY_MODEL.superEta,.05,1):1;
- const rated=w.chargeW>0?w.chargeW:capacity/Math.max(1,w.chargeT)/eta,rate=swChargeRate(u,i)*heatSwLim(u,i),output=Math.min(Math.max(0,1-x.c)*capacity,strict&&x.storedJ!==undefined?Math.max(0,capacity-x.storedJ):Infinity/* the store never holds more than the weapon's capacity */,rated*rate*dt*eta,shipFuelAvailableElectricalJ(u)*eta),input=output/eta;
+ const rated=w.chargeW>0?w.chargeW:capacity/Math.max(1,w.chargeT)/eta,rate=(swJumpHold(u)?0:swChargeRate(u,i))*heatSwLim(u,i),output=Math.min(Math.max(0,1-x.c)*capacity,strict&&x.storedJ!==undefined?Math.max(0,capacity-x.storedJ):Infinity/* the store never holds more than the weapon's capacity */,rated*rate*dt*eta,shipFuelAvailableElectricalJ(u)*eta),input=output/eta;
  const l=strict?superweaponLedger(u):null;x.c=clamp(x.c+output/Math.max(1,capacity),0,1);if(strict){x.storedJ=(x.storedJ||0)+output;x.c=clamp(x.storedJ/Math.max(1,capacity),0,1);/* strict: the store is the charge (physics review 2026-11-15) */l.inputJ+=input;l.lossJ+=input-output;l.storedJ=(u.sw||[]).reduce((sum,state)=>sum+Math.max(0,state.storedJ||0),0);const h=heatOf(u);if(h)h.esw[i]=(h.esw[i]||0)+input-output;}else heatSwCharge(u,i,output);
  if(input>0){const h=heatOf(u),H=heatProfile(u.p),source={id:'p'+w.r,moduleIndex:(u.p.modules||[]).findIndex(m=>m.k==='reactor'&&m.part===w.r)};if(h&&H){reactorInputHeat(h,H,source,input);shipFuelSyncThermalLedger(u);}}
  if(input>0&&u.pw){u.pw.requestedWeaponChargeW=(u.pw.requestedWeaponChargeW||0)+input/dt;u.pw.activeCombatPower=true;}if(x.c>=1)x.st='ready';return output;
@@ -90039,7 +90048,8 @@ const heatLim=(u,k)=>u?.ht?.online===false?0:1,heatSwLim=(u,i)=>heatLim(u,'sw');
 // Full running only on an order (user decision 2026-11-15「自動全力運転は外す」): a ship left to itself runs balanced.
 function heatRunMode(u){return u?.order?.heat==='full'?'full':'balance';}
 function heatGovernor(u){
- const h=u?.ht;if(!h||h.online===false||!(h.capacityJ>0))return {fill:0,engine:1,weapon:1,active:false,mode:heatRunMode(u)};
+ // The heat state is made here if it is not yet (a first RTS step of 20 s ran its engines ungoverned and blacked out, 2026-11-16).
+ const h=u&&heatProfile(u.p)?heatOf(u):u?.ht;if(!h||h.online===false||!(h.capacityJ>0))return {fill:0,engine:1,weapon:1,active:false,mode:heatRunMode(u)};
  // The heat already made this interval but not yet solved counts too (2026-11-16, PR #112: with converters sized for the cruise, a
  // store of about a second of combat heat filled within one 0.75 s heat interval before the governor saw it). It is the fill the
  // next heat solve will find if the heat keeps coming at its rate so far: net of what the converters reject, so ample cooling is
@@ -90092,6 +90102,16 @@ function heatSwHold(u,w,x){if(!HEAT.swInterlock||u.manual||x?.fireNow?.command)r
 // The rejection the ship's working converters give at full input (W), and the heat it makes apart from superweapons.
 function swRatedRejectionW(u){const H=heatProfile(u?.p),mods=u?.mods||[];return (H?.dis||[]).reduce((n,d)=>n+Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):1),0);}
 const HEAT_MODE=['稼働','出力制限','緊急停止中','停止','停止失敗'];
+// Each converter's capacity as damage, lost sections, the fold state and EMCON leave it, before the cooling power it is given.
+function heatConverterCaps(u,H){
+ const mods=u.mods||[],integ=fleetIntegrity(u),secOk=si=>si<0||!u.sec?.[si]||!u.secLost?.includes(si)&&u.sec[si].s>=u.sec[si].max*HEAT.linkBreak,em=EMCON[emconOf(u)],fd=u.fo?.d;
+ const cap=H.dis.map(d=>Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):d.k==='skin'?integ:0)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
+ return {secOk,em,fd,cap};
+}
+// The rejection the converters give when their cooling is powered (W): heatConverterCaps with the cooling power factor, not the
+// reservation of the last heat solve (that follows the heat made). Offline: 0.
+function heatDeliverableRejectionW(u){const H=heatProfile(u?.p),h=u?.ht;if(!H||h&&h.online===false)return 0;const {cap}=heatConverterCaps(u,H);
+ return H.dis.reduce((n,d,i)=>n+cap[i]*(d.power>0?(d.m>=0?powerFactor(u,'cooling',d.m):powerFactor(u,'source-terminal')):1),0);}
 function heatTick(ctx,u,dt,interval=null){
  const H=heatProfile(u?.p);if(!u||u.dead||!(dt>0)||!Number.isFinite(dt))return;const h=heatOf(u);if(!h||!H)return;let T=interval;
  if(T==null){h.t=(h.t||0)+dt;h.elapsed=(h.elapsed||0)+dt;if(h.t<HEAT.dt)return;T=h.elapsed;h.t=0;h.elapsed=0;h.last=ctx?.time??null;}
@@ -90105,8 +90125,7 @@ function heatTick(ctx,u,dt,interval=null){
  const n=H.src.length,mods=u.mods||[],gen=new Array(n).fill(0),weights={};for(const s of H.src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
  for(let i=0;i<n;i++){const s=H.src[i],local=s.k==='engine'?h.engineE:s.k==='reactor'?h.reactorE:s.k==='feed'?h.feedE:null;gen[i]=s.k==='sw'?Math.max(0,h.esw[s.sw]||0)/T:Math.max(0,local?.[i]||0)/T+Math.max(0,h.e[s.k]||0)/T*Math.max(0,s.sh??1)/Math.max(1e-30,weights[s.k]);}
  const allPending=Object.values(h.e).reduce((a,J)=>a+Math.max(0,J||0),0)+[h.engineE,h.reactorE,h.feedE,h.esw].reduce((a,row)=>a+row.reduce((b,J)=>b+Math.max(0,J||0),0),0),assigned=gen.reduce((a,W)=>a+W,0)*T,unassigned=Math.max(0,allPending-assigned);
- const integ=fleetIntegrity(u),secOk=si=>si<0||!u.sec?.[si]||!u.secLost?.includes(si)&&u.sec[si].s>=u.sec[si].max*HEAT.linkBreak,em=EMCON[emconOf(u)],fd=u.fo?.d;
- const cap=H.dis.map(d=>Math.max(0,d.cap||0)*(d.m>=0?clamp(mods[d.m]??1,0,1):d.k==='skin'?integ:0)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
+ const {secOk,em,fd,cap}=heatConverterCaps(u,H);
  const cooling=h.cooling,coolingRated=coolingDemandW(u,H).reduce((a,W)=>a+W,0),reservedW=cooling?Math.max(0,cooling.reserveJ||0)/T:0,coolingNode=d=>{const m=d.m>=0?u.p.modules[d.m]:null;return d.id||m?.port||(m?.part!=null?'p'+m.part:d.m>=0?'cooling:'+d.m:null);};
  for(let i=0;i<H.dis.length;i++){const d=H.dis[i];if(d.power>0){const node=coolingNode(d),reserve=cooling?.reserveByNodeJ,local=reserve&&node&&(Object.hasOwn(reserve,node)||!Object.hasOwn(reserve,'cooling'))?Math.max(0,reserve[node]||0)/T:null;cap[i]*=(h.online?1:0)*(d.m>=0?powerFactor(u,'cooling',d.m):powerFactor(u,'source-terminal'))*clamp(local==null?reservedW/Math.max(1e-30,coolingRated):local/d.power,0,1);}}
  // Heat moves inside the ship for free in this aggregate model, but only final
