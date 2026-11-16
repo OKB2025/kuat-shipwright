@@ -60078,7 +60078,9 @@ function shipElectricalFeedHeatBound(ship,sourceFactor=1){
 const CRUISE_SPEED_TARGET=Object.freeze({low:.6,target:.7,high:.8});
 function shipThermalCruiseModel(ship,S,options={}){
  const positive=(v,f)=>Number.isFinite(v)?Math.max(0,v):Math.max(0,f||0);
- const Q=positive(options.shieldInputW??options.S,S.draw?.shields),H=positive(options.fixedInputW??options.H,(S.draw?.hotel||0)+(S.draw?.ray||0)-(S.dissipatorPower||0));
+ // Cruising, the shields are up and full: a full field reserves no power (shipCombatPowerDemand), so it draws nothing
+ // unless a caller names a recharge load.
+ const Q=positive(options.shieldInputW??options.S,0),H=positive(options.fixedInputW??options.H,(S.draw?.hotel||0)+(S.draw?.ray||0)-(S.dissipatorPower||0));
  const P=positive(options.powerW??options.P,ship.parts.filter(p=>isReactor(p)&&!S.info?.[p.id]?.overlap).reduce((n,p)=>n+ratedReactorPower(p),0));
  const reactorFactor=Math.max(1,...Object.values(HEAT_PRESETS).map(p=>POWER_MODES[p.mode]?.max||1)),feedBound=shipElectricalFeedHeatBound(ship,reactorFactor);
  // Physics review 2026-11-16: the maximum is the one the game shows and flies with (healthyMotionPlan on the combat
@@ -60089,7 +60091,7 @@ function shipThermalCruiseModel(ship,S,options={}){
  if(phys?.propulsion&&phys.grid){
   const u={p:phys,mods:(phys.modules||[]).map(()=>1),order:{emit:'normal'}},sources=shipFuelLimitSources(u,nominalProfileSources(phys).map(s=>({...s,reactor:s.moduleIndex>=0?phys.modules?.[s.moduleIndex]?.k==='reactor':true})),.05,'propulsion'),loads=shipPowerLoads(u,{shields:Q});
   const pr=phys.propulsion,limit=Number.isFinite(pr.accelerationLimitMps2)?Math.max(0,pr.accelerationLimitMps2):Infinity,mass=pr.massKg||0;
-  maxAccel=healthyMotionPlan(phys)?.accelerationMps2||0;
+  maxAccel=Math.min(limit,healthyMotionPlan(phys)?.accelerationMps2||0)/* the same limit as the cruise side */;
   solve=x=>{const r=solveShipPropulsion(pr,{sources,links:phys.grid.powerPaths,throttle:x,mode:'propulsion',otherLoads:loads});return {inputW:r.totalActualInputW||0,engineHeatW:r.wasteHeatW||0,accelMps2:mass>0?Math.min(limit,len(r.forceVector||[0,0,0])/mass):0};};
  }else{
   // Without a combat profile (a part-built ship): the plant, paths and shafts of the propulsion profile alone.
@@ -60159,8 +60161,8 @@ function refitShipThermal(ship,key,options={}){
  // 2026-11-16「最高速度の6〜8割が持続的な巡航速度」「排熱装置の能力をさらに減らそう」): shields held, guns idle, the
  // engines at the share that gives that speed. Combat beyond it runs on the heat store, then the automatic governor.
  // A superweapon's firing heat is still converted (2026-11-15「発射の熱も排熱」) and is added on top.
- {const cruise=shipThermalCruiseModel(ship,S,{P,S:Q,H}),share=cruise.shareFor(CRUISE_SPEED_TARGET.target),held=cruise.settled(share),fireW=Math.max(0,...Object.values(operatingPresets).map(x=>Math.max(x.fireHeatW||0,(HEAT.waste.reactor+HEAT.waste.sw)*(x.superweaponW||0))))/* physics review 2026-11-16: a superweapon recharging (its plant's and its own loss) or firing, whichever is larger */;
-  requestedCapacityW=held.generatedW+fireW;cruiseCapacityW=held.generatedW;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
+ {const cruise=shipThermalCruiseModel(ship,S,{P,H}),share=cruise.shareFor(CRUISE_SPEED_TARGET.target),held=cruise.settled(share),fireW=Math.max(0,...Object.values(operatingPresets).map(x=>Math.max(x.fireHeatW||0,(HEAT.waste.reactor+HEAT.waste.sw)*(x.superweaponW||0))))/* physics review 2026-11-16: a superweapon recharging (its plant's and its own loss) or firing, whichever is larger */;
+  requestedCapacityW=held.generatedW+fireW;cruiseCapacityW=cruise.settled(cruise.shareFor(CRUISE_SPEED_TARGET.low)).generatedW/* the least the hull must hold: a 60% cruise (the decision's lower bound) */;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
  // v25 Banks a builder already placed beyond that size shrink with it (every bank by the same linear factor; the
  // distribution hub keeps its size), so a ship cannot keep the old full-thrust or full-combat cooling.
  if(existingCapacity>requestedCapacityW*(1+1e-6)){
@@ -60197,9 +60199,10 @@ function refitShipThermal(ship,key,options={}){
  {const empty=new Set(made.filter(p=>!(partVolume(p)>1e-6)).map(p=>p.id));if(empty.size){ship.parts=ship.parts.filter(p=>!empty.has(p.id));syncCompartments(ship);}}
  const banks=ship.parts.filter(p=>p.k==='hdis'&&partVolume(p)>0),caps=banks.map(p=>dissipatorCap(p,S)),capacityW=caps.reduce((a,b)=>a+b,0),source=new Map(),put=(id,w)=>{if(w>0)source.set(id,Math.max(source.get(id)||0,w));};
  // v25 (user decision 2026-11-16, Onager「Cool what fits」): a superweapon's firing heat is converted as far as the hull holds
- // converters; the rest goes to the heat store. The cruise share must still be fully installed.
+ // converters; the rest goes to the heat store. Where the 70% cruise's converters do not fit either (Munificent, Venator), what
+ // fits is kept as long as it holds at least the 60% cruise (CRUISE_SPEED_TARGET.low, the decision's lower bound).
  const fireShortfallW=Math.max(0,requestedCapacityW-capacityW);
- if(requestedCapacityW>0&&capacityW<Math.max(cruiseCapacityW,requestedCapacityW-requestedCapacityW*fireShare)*(1-1e-5))throw new Error(key+': 散逸装置の実船内容積が不足しています（必要 '+Math.ceil(requestedCapacityW/density)+' m³、設置 '+Math.floor(capacityW/density)+' m³）');
+ if(requestedCapacityW>0&&capacityW<cruiseCapacityW*(1-1e-5))throw new Error(key+': 散逸装置の実船内容積が不足しています（必要 '+Math.ceil(requestedCapacityW/density)+' m³、うち巡航 60% 分 '+Math.ceil(cruiseCapacityW/density)+' m³、設置 '+Math.floor(capacityW/density)+' m³）');
  for(const p of ship.parts){
   if(isReactor(p))put('p'+p.id,HEAT.waste.reactor*ratedReactorPower(p)*reactorFactor);
   else if(p.k==='shield'||p.k==='localShield')put('p'+p.id,HEAT.waste.shield*shieldLoad(p)*shieldFactor);
