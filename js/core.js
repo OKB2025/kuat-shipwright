@@ -62856,7 +62856,10 @@ const ENERGY_MODEL={version:1,eta:.75,superEta:.88,unit:'TT',assumption:true};
 // what it did not deflect, and only that draws on its energy. A share (1−f)^leakK of the undeflected part,
 // and anything beyond the field's energy or its transient buffer, goes through to the hull: little while
 // the field is strong, everything once it is gone.
-const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.82,beamHeat:.06,beamStore:.12,deflectMax:.82,leakK:2,assumption:true};
+// User decision 2026-11-16「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」: a shield makes heat only by
+// running (HEAT.waste.shield × its load); what it absorbs makes none. The 6% of the absorbed beam that was heat leaves
+// the ship with the rest (beamExternal .82 → .88; beamHeat .06 → 0; the 12% held for a moment is unchanged).
+const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,assumption:true};
 const ION_MODEL={version:2,unit:'J',blockedExternal:.95,shieldCost:.05,hullHeat:1,assumption:true};
 function weaponEnergy(spec,outputTT,shots=1){
  if(spec?.energyUnit==='effect')return {outputJ:null,inputJ:null,lossJ:null,eta:null,unit:'effect',outputEffect:Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0),assumption:false};
