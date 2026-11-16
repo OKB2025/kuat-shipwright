@@ -60154,7 +60154,7 @@ function refitShipThermal(ship,key,options={}){
  // 2026-11-16「最高速度の6〜8割が持続的な巡航速度」「排熱装置の能力をさらに減らそう」): shields held, guns idle, the
  // engines at the share that gives that speed. Combat beyond it runs on the heat store, then the automatic governor.
  // A superweapon's firing heat is still converted (2026-11-15「発射の熱も排熱」) and is added on top.
- {const cruise=shipThermalCruiseModel(ship,S,{P,S:Q,H}),share=cruise.shareFor(CRUISE_SPEED_TARGET.target),held=cruise.settled(share),fireW=Math.max(0,...Object.values(operatingPresets).map(x=>x.fireHeatW||0));
+ {const cruise=shipThermalCruiseModel(ship,S,{P,S:Q,H}),share=cruise.shareFor(CRUISE_SPEED_TARGET.target),held=cruise.settled(share),fireW=Math.max(0,...Object.values(operatingPresets).map(x=>Math.max(x.fireHeatW||0,(HEAT.waste.reactor+HEAT.waste.sw)*(x.superweaponW||0))))/* physics review 2026-11-16: a superweapon recharging (its plant's and its own loss) or firing, whichever is larger */;
   requestedCapacityW=held.generatedW+fireW;cruiseCapacityW=held.generatedW;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
  // v25 Banks a builder already placed beyond that size shrink with it (every bank by the same linear factor; the
  // distribution hub keeps its size), so a ship cannot keep the old full-thrust or full-combat cooling.
