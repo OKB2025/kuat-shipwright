@@ -84031,6 +84031,12 @@ function hyperChargeStep(u,P,drawW,dt){
  const before=u.hyperE||0;u.hyperE=Math.min(need,before+rate*Math.max(0,dt||0));return dt>0?(u.hyperE-before)/dt:0;
 }
 function hyperCharged(u){const need=hyperChargeNeedJ(u?.p);return need>0?Math.min(1,(u.hyperE||0)/need):1;}
+function engineHeatThrottleCap(u,gov,dt){
+ const p=u.p,g=p.grid||{},pr=p.propulsion,cores=pr&&(pr.cores||pr.engines),De=Math.max(0,g.De||0);if(!(De>0))return 1;
+ const c=u._engineHeatFull&&u._engineHeatFull.p===p?u._engineHeatFull:(u._engineHeatFull={p,W:cores?.length?engineHeatForInput(cores,De).wasteHeatW:PROPULSION.wasteFraction*De});
+ const perX=Math.max(1e-30,c.W+HEAT.waste.reactor*De),h=u.ht,rej=Math.max(0,h?.cap??swRatedRejectionW(u)),otherW=(HEAT.waste.hotel+HEAT.waste.reactor)*Math.max(0,(g.fixed||0)-(g.cooling||0))+Math.max(0,h?.coolingSelfW||0);
+ return clamp((Math.max(0,rej-otherW)+gov.roomJ/dt)/perX,0,1);
+}
 function fleetPowerStep(u,s,t,raw,dt,volley=1){
  const p=u.p,g=p.grid,mode=FLIGHT_POWER_POLICY.id;u.mode=mode;
  const weapons=(p.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='weapon'),physical=weapons.length?weapons.reduce((a,{m,i})=>a+(m.share||0)*Math.max(0,u.mods?.[i]??1),0):1,cap=(p.wCap||0)*physical,nominalShield=g?g.Ds*s.shield:0;
@@ -84040,7 +84046,12 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // A disabled ship's shield generators fail with it: its shields fade.
  // v23 The heat network limits what an overheating system may draw (heatLim is 1 until its stores fill).
  const gov=heatGovernor(u);u.heatGov=gov;
- const want={throttle:man*gov.engine,shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),gov.mode==='balance'&&Number.isFinite(gov.roomJ)?gov.roomJ/Math.max(1e-9,dt*(HEAT.waste.weapon+HEAT.waste.reactor)):Infinity)*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
+ // Balanced running: a step's engine heat may not take the store past governStart either (2026-11-16, full-fleet cruise
+ // survey: a Providence's store holds about 0.4 s of its rejection, one 0.25 s step at moderate throttle put the whole store in,
+ // and the governor swung between floor and full until the ship blacked out). Engine heat is taken linear in throttle from
+ // the heat at full input, which overstates it at part load under curve B, so the cap errs on the safe side.
+ const engCap=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):1;
+ const want={throttle:Math.min(man*gov.engine,engCap),shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),gov.mode==='balance'&&Number.isFinite(gov.roomJ)?gov.roomJ/Math.max(1e-9,dt*(HEAT.waste.weapon+HEAT.waste.reactor)):Infinity)*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
  const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
@@ -85250,7 +85261,9 @@ function swPower(u,withDown=true,withCharge=true){
  return clamp(k,0,1);
 }
 // How fast weapon i may charge now (1 = its rated rate): nothing while its reactor is stopped, less while it recovers.
-function swChargeRate(u,i){const w=u.p.sw[i];if(!w)return 0;if(u.down&&u.down.reason!=='ion-grid'&&(u.down.black||w.rk!=='aux'))return 0;
+// A ship spooling or gathering way for a jump holds its superweapon charge, so its plant drives the engines up to the entry
+// speed (2026-11-16: under the ship-wide bus a Subjugator charging both ion cannons held 0.58 of its top speed, under the 70% gate).
+function swChargeRate(u,i){const w=u.p.sw[i];if(!w)return 0;if(u.jump&&(u.jump.phase==='spool'||u.jump.phase==='accel'))return 0;if(u.down&&u.down.reason!=='ion-grid'&&(u.down.black||w.rk!=='aux'))return 0;
  const mods=u.p.modules||[],ri=mods.findIndex(m=>m.k==='reactor'&&m.part===w.r),available=powerFactor(u,'superweapon',w.mod)* (ri>=0?Math.max(0,u.mods?.[ri]??1)*powerFactor(u,'reactor',ri):powerFactor(u,'reactor'));let drop=0;for(const o of u.over||[])if(o.r===w.r)drop=Math.max(drop,(1-SW_COMBAT[w.k].over.floor)*Math.max(0,o.t)/Math.max(1e-9,o.T));return clamp(1-drop,0,1)*available*shipHeatOutputFactor(u);}
 function superweaponCharge(u,i,dt,sys){
  const w=u.p?.sw?.[i],x=u.sw?.[i];if(!w||!x||x.st!=='charge'||!(dt>0))return 0;const C=SW_COMBAT[w.k],capacity=swEnergyTT(w)*TT,strict=u.p.energyModel?.version===1,eta=strict?clamp(w.efficiency||ENERGY_MODEL.superEta,.05,1):1;
