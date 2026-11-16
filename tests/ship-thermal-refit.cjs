@@ -30,7 +30,10 @@ test('a fixed-only load includes hotel waste and the cooling plant own power hea
  C.refitShipThermal(ship,'hotel-only',{E:0,W:0,S:0,H,margin});
  const meta=ship._shipThermalRefit,fixedWaste=C.HEAT.waste.reactor+C.HEAT.waste.hotel;
  // 2026-11-12: converter input follows the converted heat (the unmargined peak), not the margined rating.
- near(meta.requestedCapacityW,margin*fixedWaste*H/(1-fixedWaste*C.HEAT.disPowerK.hdis),1e-8);
+ // 2026-11-16 PR #112: converters are sized for the sustained cruise (refitShipThermal/shipThermalCruiseModel), not the
+ // margined preset peak; the 1.15 sizing margin belonged to the retired peak model. A hotel-only cruise is still the
+ // hotel and reactor waste plus the converters' own power heat.
+ near(meta.requestedCapacityW,fixedWaste*H/(1-fixedWaste*C.HEAT.disPowerK.hdis),1e-8);near(meta.requestedCapacityW,meta.operatingPresets.sustainedCruise.generatedW,1e-8);
  assert.ok(meta.capacityW>H);near(meta.coolingPowerW,meta.capacityW*C.HEAT.disPowerK.hdis);
 });
 
@@ -79,7 +82,9 @@ test('stock cooling uses retained internal volume, real electric draw and finite
   const paths=ship.links.filter(l=>l.kind==='heat'&&l.from==='p'+part.id);
   assert.equal(paths.length,banks.length);assert.ok(paths.every(l=>Number.isFinite(l.cap)&&l.cap>0));
  }
- const net=C.heatNetwork(ship,S),evade=C.heatEvaluate(net,'evade');assert.equal(evade.over.length,0);
+ // 2026-11-16 PR #112: converters are sized for the 70% sustained cruise (shields held, guns idle); the full 'evade'
+ // combat load is the retired sizing and now runs on the heat store by design, so the check is the cruise the banks hold.
+ const net=C.heatNetwork(ship,S);assert.ok(meta.capacityW>=meta.operatingPresets.sustainedCruise.generatedW*.99999,'the banks hold the sustained cruise (the capacityRatio tolerance above)');
  // A lost cooler is a real loss of transport capacity; no integral fallback
  // appears to replace it in a strict design.
  const damaged=C.heatEvaluate(net,'evade',net.dis.map(d=>d.k==='hdis'?0:d.cap));assert.ok(damaged.stored>0);

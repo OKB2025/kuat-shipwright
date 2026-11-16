@@ -25,7 +25,9 @@ test('an actual solo hit recharges from paid shield input then releases that pow
  tick();near(u.pw.sh,0);near(u.pw.requestedShieldRechargeW,0);near(u.propulsion.actualInputW,healthyInput);near(u.p.maxSpeed,reference);assert.equal(u.pw.activeCombatPower,false);
 });
 test('solo shield storage does not add electrical, fuel or operating heat a second time',()=>{
- const u=fixture();C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)});const fuelBefore=C.shipFuelState(u).generatedElectricalJ;tick();near(u.pw.sh/TT,20);near(u.shield/u.shieldMax,.71);near(C.shipFuelState(u).generatedElectricalJ-fuelBefore,100*TT*.1,'one funded source generation per allocation');
+ const u=fixture();C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)});const fuelBefore=C.shipFuelState(u).generatedElectricalJ;tick();
+ /* 2026-11-16 PR #112: shield recharge x0.5 — the funded draw and the stored gain are C.SHIELD_RECHARGE_K of the design 20 TT / +1% */
+ near(u.pw.sh/TT,20*C.SHIELD_RECHARGE_K);near(u.shield/u.shieldMax,.7+.01*C.SHIELD_RECHARGE_K);near(C.shipFuelState(u).generatedElectricalJ-fuelBefore,100*TT*.1,'one funded source generation per allocation');
  const generated=u.ht.actualGeneratedElectricalJ,heat=u.ht.operatingHeatJ+Object.values(u.ht.e).reduce((n,J)=>n+J,0)+u.ht.engineE.reduce((n,J)=>n+J,0)+u.ht.reactorE.reduce((n,J)=>n+J,0),bank=u.bank;
  C.shieldRechargeStep(u,C.fleetSystems(u),0);near(u.ht.actualGeneratedElectricalJ,generated);near(u.ht.operatingHeatJ+Object.values(u.ht.e).reduce((n,J)=>n+J,0)+u.ht.engineE.reduce((n,J)=>n+J,0)+u.ht.reactorE.reduce((n,J)=>n+J,0),heat);near(u.bank,bank);
 });

@@ -51,7 +51,10 @@ test('saved engine bodies retain historical price provenance, shape, position an
  const f=fixture(4),integrated={id:4,k:'engine',c:[8,10,5],dir:[-1,0,0],d:1,nozzleLength:.8,reactor:1,propulsionModelVersion:1,ratedInputW:1e18,driveProfileId:'standard',machineryGradeId:'advanced',machineryShape:'cylinder',machineryLengthM:1.5,machineryRadiusM:1,machineryOffsetM:.4,legacyCoolingInputW:0};f.ship.parts.push(integrated);f.ship.nextId=6;
  const keys=['k','c','dir','d','length','nozzleLength','machineryId','reactor','propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryShape','machineryLengthM','machineryRadiusM','machineryOffsetM'],stored=p=>plain(Object.fromEntries(keys.filter(k=>Object.hasOwn(p,k)).map(k=>[k,p[k]]))),restored=C.deserialize(plain(C.serialize(f.ship)));
  for(const before of f.ship.parts.filter(p=>['engine','engineCore'].includes(p.k))){
-  const after=restored.parts.find(p=>p.id===before.id);assert.ok(after);assert.deepEqual(stored(after),stored(before));const a=C.resolveEngineSpec(after,restored),b=C.resolveEngineSpec(before,f.ship);near(a.availableInputW,b.availableInputW);near(a.cost,b.cost);near(a.efficiency,.95);near(a.wasteFraction,.05);
+  const after=restored.parts.find(p=>p.id===before.id);assert.ok(after);assert.deepEqual(stored(after),stored(before));const a=C.resolveEngineSpec(after,restored),b=C.resolveEngineSpec(before,f.ship);near(a.availableInputW,b.availableInputW);near(a.cost,b.cost);
+  // 2026-11-16 PR #112: engine efficiency curve B (waste = 5%·√L, at most 60%) replaces the flat 95%; the saved body keeps the
+  // curve's value at its own load and no grade adds efficiency.
+  const rated=C.engineOperatingPoint(a,a.ratedInputW);near(a.efficiency,b.efficiency);near(a.efficiency,rated.efficiency);near(a.wasteFraction,C.engineWasteFraction(rated.loadFactor));
  }
  assert.equal(restored.parts.find(p=>p.id===3).machineryId,2);
  const before=C.resolveEngineSpec(f.core,f.ship),factor=4,expected=(C.PROPULSION.ratingCost*f.rating/C.PROPULSION.referencePower+C.PROPULSION.densityCost*f.volume*(factor-1)**2)*C.MACHINERY_GRADES.advanced.costMultiplier;near(before.cost,expected,'existing explicit-rating purchase cost is historical provenance only');
@@ -70,7 +73,9 @@ test('physical shared-core allocation separates source loss, useful shaft power 
   const f=fixture(factor),S={mass:1e5,aStruct:1e20,inertialSupport:1e5},profile=C.propulsionProfile(f.ship,S),feed=C.engineTransmission(f.ship),result=C.solveShipPropulsion(profile,{throttle:1,sources:[{id:'p1',domain:profile.cores[0].domain,powerW:C.reactorPower(f.ship.parts[0])}],links:feed.powerLinks,mode:'propulsion'});
   assert.equal(profile.cores.length,1);assert.equal(profile.engines.length,1);assert.ok(result.actualInputW>0);assert.ok(result.power.feedLossW>0,'the finite source-distance link loses real power');
   const core=result.cores[0],shaft=result.engines[0];near(core.actualInputW,core.shaftPowerW+core.wasteHeatW,'core input split');near(shaft.shaftReceivedW,core.shaftPowerW,'one outlet receives the one owner output');
-  near(result.power.draw,result.actualInputW+result.power.feedLossW,'source delivery and electrical loss');near(result.actualThrustN,core.shaftPowerW/profile.cores[0].shaftWattsPerNewton,'useful shaft creates force');near(core.wasteHeatW,.05*core.actualInputW,'conversion follows received watts');
+  near(result.power.draw,result.actualInputW+result.power.feedLossW,'source delivery and electrical loss');near(result.actualThrustN,core.shaftPowerW/profile.cores[0].shaftWattsPerNewton,'useful shaft creates force');
+  // 2026-11-16 PR #112: engine efficiency curve B — the conversion heat is 5%·√L (at most 60%) of the received watts, not a flat 5%.
+  const received=C.engineOperatingPoint(profile.cores[0],core.actualInputW);near(core.wasteHeatW,C.engineWasteFraction(core.actualInputW/received.normalInputW)*core.actualInputW,'conversion follows received watts');
  }
 });
 
