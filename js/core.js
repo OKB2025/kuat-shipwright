@@ -55424,7 +55424,7 @@ const SHIP_REFERENCE={
  imperial:{name:'Imperator I',row:35,power:1e25,shieldSeconds:10,shieldLoad:1e26,accelG:2300,sustainedTT:2390.057361,alphaPT:4.44,aircraftText:'1 wing',aircraft:72,armament:'12×175 TT + 4×175 TT ion + 8×70 TT + 27×40 TT'},
  imperial2:{name:'Imperator II',row:34,power:1e25,shieldSeconds:10,shieldLoad:1e26,accelG:2300,sustainedTT:2390.057361,alphaPT:4.2,aircraftText:'1 wing',aircraft:72,armament:'64×40 TT + 8×70 TT + 27×40 TT'},
  venator:{name:'Venator',row:43,power:3.6e24,shieldSeconds:10,shieldLoad:3.6e25,accelG:3000,sustainedTT:860.4206501,alphaPT:1.28,aircraftText:'6 wings',aircraft:420,launchers:4,armament:'16×70 TT + 2×2×40 TT'},
- acclamator:{name:'Acclamator I',row:51,power:2e23,shieldSeconds:10,shieldLoad:2e24,shieldFraction:.35,accelG:3500,sustainedTT:47.80114723,aircraftText:'1 wing (dropship)',launchers:4,armament:'12×4×200 GT + 24 PD HLC'}
+ acclamator:{name:'Acclamator I',row:51,power:1.5e24/* user decision 2026-11-16「アクラメイターの出力はプロクラメイターを基準にして1.5E+24」 (table row 51: 2e23) */,shieldPower:2e23/* the shields keep the row's 2e23 W basis */,shieldSeconds:10,shieldLoad:2e24,shieldFraction:.35,accelG:3500,sustainedTT:47.80114723,aircraftText:'1 wing (dropship)',launchers:4,armament:'12×4×200 GT + 24 PD HLC'}
 };
 // Kept as empty compatibility APIs. Equipment performance has no editable
 // per-part ratings; old fields are discarded rather than converted into size.
@@ -55628,7 +55628,7 @@ function physicalEngineDriveNetwork(ship){
  // A decimal cap can round a few ulps outside its own cylinder. Retry only
  // rejected generated points just inside that cap; all finite-radius contact
  // and obstruction checks below still apply, with no global shape tolerance.
- for(const p of ship.parts.filter(p=>p.k==='engineCore')){const m=machineryGeometry(p,ship),f=frameAxis(m.dir),used=[[],[]],links=chosen.filter(e=>e.from==='p'+p.id||e.to==='p'+p.id).sort((a,b)=>plannedCapacity(b)-plannedCapacity(a)||a.id.localeCompare(b.id));for(const e of links){const other=ports.get(e.from==='p'+p.id?e.to:e.from),target=centre(other),delta=sub(target,p.c),preferred=dot(delta,m.dir)>=0?1:0,r=Math.sqrt(plannedCapacity(e)/(Math.PI*transportFlux))+.003;let found=null;for(const face of [preferred,1-preferred]){const centreFace=add(p.c,mul(m.dir,(face?1:-1)*m.length/2)),R=m.radius-r;if(R<0)continue;const U=dot(sub(target,centreFace),f.v),V=dot(sub(target,centreFace),f.w),H=Math.hypot(U,V),places=[[0,0],[U*Math.min(1,R/Math.max(1e-12,H)),V*Math.min(1,R/Math.max(1e-12,H))]],step=Math.max(r*2.05,m.radius/20);for(let v=-R;v<=R+1e-7;v+=step)for(let u=-R;u<=R+1e-7;u+=step)if(u*u+v*v<=R*R+1e-7)places.push([u,v]);places.sort((a,b)=>(a[0]-U)**2+(a[1]-V)**2-(b[0]-U)**2-(b[1]-V)**2);for(const [u,v]of places){if(Math.hypot(u,v)>R+1e-7||used[face].some(q=>Math.hypot(q.u-u,q.v-v)<q.r+r))continue;let q=add(centreFace,add(mul(f.v,u),mul(f.w,v)));if(!inPart(p,q))q=add(q,mul(m.dir,(face?-1:1)*Math.min(1e-6,m.length*.01)));if(!inPart(p,q))continue;used[face].push({u,v,r});found=q;break;}if(found)break;}if(found)roomPorts.set(p.id+'|'+e.id,found);}}
+ for(const p of ship.parts.filter(p=>p.k==='engineCore')){const m=machineryGeometry(p,ship),f=frameAxis(m.dir),used=[[],[]],links=chosen.filter(e=>e.from==='p'+p.id||e.to==='p'+p.id).sort((a,b)=>plannedCapacity(b)-plannedCapacity(a)||a.id.localeCompare(b.id));for(const e of links){const other=ports.get(e.from==='p'+p.id?e.to:e.from),target=centre(other),delta=sub(target,p.c),preferred=dot(delta,m.dir)>=0?1:0,rFull=Math.sqrt(plannedCapacity(e)/(Math.PI*transportFlux))+.003,r=rFull>m.radius?m.radius*.9:rFull/* v25: a pipe wider than the core takes the widest port the core holds; the route below narrows it and its capacity */;let found=null;for(const face of [preferred,1-preferred]){const centreFace=add(p.c,mul(m.dir,(face?1:-1)*m.length/2)),R=m.radius-r;if(R<0)continue;const U=dot(sub(target,centreFace),f.v),V=dot(sub(target,centreFace),f.w),H=Math.hypot(U,V),places=[[0,0],[U*Math.min(1,R/Math.max(1e-12,H)),V*Math.min(1,R/Math.max(1e-12,H))]],step=Math.max(r*2.05,m.radius/20);for(let v=-R;v<=R+1e-7;v+=step)for(let u=-R;u<=R+1e-7;u+=step)if(u*u+v*v<=R*R+1e-7)places.push([u,v]);places.sort((a,b)=>(a[0]-U)**2+(a[1]-V)**2-(b[0]-U)**2-(b[1]-V)**2);for(const [u,v]of places){if(Math.hypot(u,v)>R+1e-7||used[face].some(q=>Math.hypot(q.u-u,q.v-v)<q.r+r))continue;let q=add(centreFace,add(mul(f.v,u),mul(f.w,v)));if(!inPart(p,q))q=add(q,mul(m.dir,(face?-1:1)*Math.min(1e-6,m.length*.01)));if(!inPart(p,q))continue;used[face].push({u,v,r});found=q;break;}if(found)break;}if(found)roomPorts.set(p.id+'|'+e.id,found);}}
  const tightCylinder=(a,b,r)=>{const u=norm(sub(b,a));return [0,1,2].map(i=>Math.min(a[i],b[i])-r*Math.sqrt(Math.max(0,1-u[i]*u[i]))).concat([0,1,2].map(i=>Math.max(a[i],b[i])+r*Math.sqrt(Math.max(0,1-u[i]*u[i]))));};
  const segmentDistance=(a,b,c,d)=>{const u=sub(b,a),v=sub(d,c),w=sub(a,c),A=dot(u,u),B=dot(u,v),C=dot(v,v),D=dot(u,w),E=dot(v,w),den=A*C-B*B,at=(t,s)=>len(sub(add(a,mul(u,t)),add(c,mul(v,s))));let best=Math.min(at(0,C>1e-30?clamp(E/C,0,1):0),at(1,C>1e-30?clamp((B+E)/C,0,1):0),at(A>1e-30?clamp(-D/A,0,1):0,0),at(A>1e-30?clamp((B-D)/A,0,1):0,1));if(den>Math.max(1e-30,A*C*1e-14)){const t=(B*E-C*D)/den,s=(A*E-B*D)/den;if(t>=0&&t<=1&&s>=0&&s<=1)best=Math.min(best,at(t,s));}return best;};
  const finiteCapInside=(p,P,towards,r)=>{const f=frameAxis(sub(towards,P));return [P,...Array.from({length:32},(_,j)=>{const t=j*Math.PI/16;return add(P,add(mul(f.v,Math.cos(t)*r),mul(f.w,Math.sin(t)*r)));})].every(q=>inPart(p,q));};
@@ -55716,7 +55716,7 @@ function physicalEngineDriveNetwork(ship){
  };
  const res={key,version:ENGINE_TRANSMISSION_VERSION,kind:mechanical?'mechanical':'electrical',routes:[],parts:[],engines:{},cores:{},volume:0,length:0,massTonnes:0,cost:0,flux:transportFlux};
  const routeEdges=chosen.slice();
- for(const e of routeEdges){const from=ports.get(e.from),to=ports.get(e.to),requestedCapacityW=plannedCapacity(e),portRadius=Math.sqrt(requestedCapacityW/(Math.PI*transportFlux));if(!(requestedCapacityW>0))continue;let b=roomPorts.get(to.id+'|'+e.id)||wall(to,centre(from),portRadius);b=coreContact(to,b,roomPorts.get(from.id+'|'+e.id)||centre(from),portRadius);if(mechanical&&to.k==='engine')b=add(b,mul(norm(to.dir||[-1,0,0]),Math.min(partDims(to).l*.45,portRadius*2+.01)));let a=roomPorts.get(from.id+'|'+e.id)||wall(from,b,portRadius);a=coreContact(from,a,b,portRadius);
+ for(const e of routeEdges){const from=ports.get(e.from),to=ports.get(e.to),requestedCapacityW=plannedCapacity(e),coreRadius=Math.min(...[from,to].filter(q=>q?.k==='engineCore').map(q=>machineryGeometry(q,ship).radius),Infinity),fullPort=Math.sqrt(requestedCapacityW/(Math.PI*transportFlux)),portRadius=fullPort>coreRadius?coreRadius*.9:fullPort;if(!(requestedCapacityW>0))continue;let b=roomPorts.get(to.id+'|'+e.id)||wall(to,centre(from),portRadius);b=coreContact(to,b,roomPorts.get(from.id+'|'+e.id)||centre(from),portRadius);if(mechanical&&to.k==='engine')b=add(b,mul(norm(to.dir||[-1,0,0]),Math.min(partDims(to).l*.45,portRadius*2+.01)));let a=roomPorts.get(from.id+'|'+e.id)||wall(from,b,portRadius);a=coreContact(from,a,b,portRadius);
   if(mechanical&&from.k==='engineCore'){
    // Prefer the nozzle's own axis when it meets the real engine solid. This
    // gives parallel straight runs from wide common machinery end faces.
@@ -55869,10 +55869,12 @@ function getEngineInputLimit(spec,state={}){
 function buildPropulsionRequests(specs,states={},throttle=1){
  const get=id=>states instanceof Map?states.get(id):states?.[id],out=[];
  for(const value of specs||[]){const spec=value?.k==='engine'?resolveEngineSpec(value):value,state=get(spec.id)||{},limit=getEngineInputLimit(spec,state),u=state.throttle??throttle,t=Number.isFinite(u)?clamp(u,0,1):0,rating=spec.inputLimitModel==='reactor-supply'&&Number.isFinite(spec.ratedInputW)?Math.max(0,spec.ratedInputW)/* v25 ship-wide bus: each engine asks for its share (by size) of the plant it reaches, not the whole plant */:Number.isFinite(spec.availableInputW)?Math.max(0,spec.availableInputW):Number.isFinite(spec.ratedInputW)?Math.max(0,spec.ratedInputW):0;out.push({id:spec.id,port:spec.powerNode,domain:spec.domain,moduleIndex:spec.moduleIndex,machineryId:spec.machineryId??spec.id,spec,requestedInputW:Math.min(t*rating,limit.inputLimitW),inputLimitW:limit.inputLimitW,reasons:limit.reasons});}
- // v25 Ship-wide bus: the share of an engine that cannot run (no connected outlet, destroyed, cut off) goes to the
- // engines that can, in proportion to their own shares, never beyond what each reaches or may take.
- {const bus=out.filter(q=>q.spec.inputLimitModel==='reactor-supply'),total=bus.reduce((n,q)=>n+Math.max(0,q.spec.ratedInputW||0),0),live=bus.filter(q=>q.inputLimitW>0).reduce((n,q)=>n+Math.max(0,q.spec.ratedInputW||0),0);
-  if(live>0&&total>live*(1+1e-12)){const k=total/live;for(const q of bus)if(q.inputLimitW>0){const u=get(q.id)?.throttle??throttle,t=Number.isFinite(u)?clamp(u,0,1):0;q.requestedInputW=Math.min(t*Math.max(0,q.spec.ratedInputW||0)*k,q.inputLimitW,Math.max(0,q.spec.availableInputW??Infinity));}}}
+ // v25 Ship-wide bus: the share an engine cannot take (it cannot run, or its shafts or feed carry less) goes to the
+ // engines that can, in proportion to their own shares, never beyond what each reaches or may take (water filling).
+ {const bus=out.filter(q=>q.spec.inputLimitModel==='reactor-supply'&&q.spec.ratedInputW>0);
+  if(bus.length>1){const share=q=>q.spec.ratedInputW,cap=q=>Math.min(q.inputLimitW,Math.max(0,q.spec.availableInputW??Infinity)),tq=q=>{const u=get(q.id)?.throttle??throttle;return Number.isFinite(u)?clamp(u,0,1):0;};
+   const budget=bus.reduce((n,q)=>n+tq(q)*share(q),0),room=bus.reduce((n,q)=>n+Math.min(cap(q),Infinity),0),target=Math.min(budget,room),sum=k=>bus.reduce((n,q)=>n+Math.min(cap(q),tq(q)*share(q)*k),0);
+   if(target>0&&sum(1)<target*(1-1e-12)){let lo=1,hi=2;for(let n=0;n<60&&sum(hi)<target*(1-1e-12);n++)hi*=2;for(let n=0;n<60;n++){const m=(lo+hi)/2;if(sum(m)<target)lo=m;else hi=m;}for(const q of bus)q.requestedInputW=Math.min(cap(q),tq(q)*share(q)*hi);}}}
  // A shared engine accepts input once. Outlet shares split that same input
  // at resolution; a second nozzle cannot duplicate the upstream demand.
  const groups=new Map();for(const q of out){const g=groups.get(q.machineryId)||[];g.push(q);groups.set(q.machineryId,g);}for(const g of groups.values())if(g.length>1){const cap=Math.max(...g.map(q=>q.requestedInputW)),sum=g.reduce((n,q)=>n+q.requestedInputW,0);for(const q of g)q.requestedInputW=sum>0?cap*q.requestedInputW/sum:0;}
@@ -55961,7 +55963,7 @@ function calibrateReferenceRatings(ship){
  sizeReferenceMachinery(ship);
  syncCompartments(ship);
  for(const p of ship.parts)for(const k of LEGACY_PERFORMANCE_FACTORS)delete p[k];
- if(ref.shieldFraction!=null){const S=computeStats(ship);ship.shieldTarget=ref.shieldFraction*ref.power/(S.area*K.shieldStd);}
+ if(ref.shieldFraction!=null){const S=computeStats(ship);ship.shieldTarget=ref.shieldFraction*(ref.shieldPower??ref.power)/(S.area*K.shieldStd);}
  return ship;
 }
 
@@ -55974,6 +55976,8 @@ function sizeReferenceReactors(ship){
  const primary=reactors.find(p=>p.k==='gen')||reactors[0],others=reactors.filter(p=>p!==primary),target=ref.power/REACTOR_POWER_DENSITY;
  const otherVolume=others.reduce((n,p)=>n+partVolume(p),0),remaining=target-otherVolume;
  if(remaining<=0)throw new Error('作例の補助炉が目標出力を超えています');
+ // v25 A room-shaped main reactor (the Acclamator's) scales its room to the volume it must really hold inside the hull.
+ if(Array.isArray(primary.room)){for(let n=0;n<6;n++){const v=partVolume(primary);if(!(v>0)||Math.abs(v/remaining-1)<1e-9)break;const k=Math.cbrt(remaining/v);primary.room=primary.room.map(x=>x*k);for(const key of Object.keys(primary))if(key.startsWith('_')&&key!=='_envelope')delete primary[key];syncCompartments(ship);}return ship;}
  const d=Math.cbrt(remaining*6/Math.PI);
  if(Math.abs(d-primary.d)>1e-9)primary.d=d;
  return ship;
@@ -57915,8 +57919,10 @@ function accBuild(opt={}){
  // ---- machinery (DK cut-away) ----
  // The main reactor is hidden within the hull terraces under the tower (no ventral dome);
  // a subsidiary reactor sits in the bow under the dorsal plating. calibrateReferenceRatings
- // sizes the main reactor to the reference output (2×10²³ W in all) and the shield nodes to its load.
- const gen=part('gen','テラス内蔵主反応炉',[205,74,0],42);
+ // sizes the main reactor to the reference output (1.5×10²⁴ W in all since v25) and the shield nodes to its load.
+ // v25 (user decision 2026-11-16: 1.5×10²⁴ W): the plant is a room under the terraces amidships, clear of the main
+ // engines, the integrity conduits, the gunship service rails and the assembly hall; sizeReferenceReactors fits its volume.
+ const gen=part('gen','テラス内蔵主反応炉',[207,62,0],42,{room:[120,70,34]});
  part('aux','艦首副反応炉',[612,52,0],14);
  // Two main and two auxiliary thrusters leave the stern face beside the tail; the auxiliaries,
  // set further off the axis, draw on small reactors of their own just ahead of them.
