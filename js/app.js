@@ -8240,7 +8240,7 @@ async function trialStart(opts={}){
  // back again: the engine is told so and returns only the trial model (the profile is tens of MB on a large ship).
  // The trial gets its own top-level copy, so a renamed flagship does not rename the fleet's asset.
  const known=opts.design&&fleet.assets?[...fleet.assets.values()].find(x=>x.design===opts.design&&x.p&&!x.p.catalogOnly)||null:null;
- let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
+ let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};C.setHullRadial?.(key,r.radial||null);if(view)view.loadFleet(key,r.geometry);
   if(!a.stats)YardEngineClient.request('fleet',{design:data,statsOnly:true,...(known?{profileKnown:true}:{})}).then(r=>{a.stats=r.stats;if(trial.asset!==a)return;for(const t of trial.turrets)if(t.cap)t.charge=Math.max(t.charge||0,C.clamp(r.stats?.chargeInfo?.[t.id]?.ratio??0,0,1));}).catch(e=>console.warn('trial figures',e));
   if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k,{lite:true});}}
  catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
@@ -8591,7 +8591,7 @@ function trialGunnery(dt){
    if(t.hits>=TRIAL_GUN.hitsToKill){t.alive=false;t.respawn=4;trial.gun.kills++;sndAt('explosion_small',t.pos);for(let k=0;k<46;k++)trial.fx.push({pos:t.pos,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*(.6+Math.random()*2.2))),life:1.6,max:1.6,size:Rt*(.25+Math.random()*.4),col:[255,170+Math.random()*60|0,90]});trial.fx.push({pos:t.pos,vel:t.vel,life:.5,max:.5,size:Rt*4,col:[255,245,220]});}};
  const segHit=(t,a0,a1)=>{const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(t.pos,a0),seg)/l2,0,1),q=tv.add(a0,seg,k);return tv.len(tv.sub(q,t.pos))<Rt?q:null;};
  // Ships are ellipsoids of their own length, height and width.
- const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);return tv.len(tv.add(pa,d,k))<1?tv.add(a0,tv.sub(a1,a0),k):null;};
+ const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);if(!(tv.len(tv.add(pa,d,k))<1))return null;const m=C.hullRadialOf?.(t.unit);return m?radialSegment(m,la,lb,a0,a1):tv.add(a0,tv.sub(a1,a0),k);};
  const shipHit=(t,q,tt,kind,w,shell)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t);if(shell)spaceShieldBurst(shell,t.vel,Math.max(8,t.radius*.05),kind==='ion');/* shell: where the bolt met the field (q is the hull point below it, for the zone of the hit) */else spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
  const pq=trialPilotThreats(trial.craft?undefined:Math.max(0,...trial.turrets.map(t=>t.reach||TRIAL_GUN.range),...trial.missiles.map(m=>m.range||0)));
  for(const b of trial.bolts){const liveDt=Math.min(dt,Math.max(0,b.life));b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
@@ -9668,6 +9668,10 @@ function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;
 const SHIELD_SHELL={k:1.2,m:20};
 function spaceShellFrame(u){const B=trial.battle;if(!B||!u?.p)return null;const semi=[u.p.len/2,(u.p.height||u.p.len*.2)/2,(u.p.width||u.p.len*.5)/2].map(v=>v*SHIELD_SHELL.k+SHIELD_SHELL.m);return {center:spaceWorld(u),R:spaceRotU(B.E,u),semi};}
 function spaceInShell(u,world){const f=spaceShellFrame(u);if(!f||!world)return false;const l=trialApplyT(f.R,tv.sub(world,f.center));return Math.hypot(l[0]/f.semi[0],l[1]/f.semi[1],l[2]/f.semi[2])<1;}
+// Where a segment first meets a ship's outer surface (its radial map; la, lb in the ship's frame about its centre), as a
+// world point between a0 and a1; null if it passes outside (user request 2026-11-16「当たり判定は船の外面に出るように」).
+function radialSegment(m,la,lb,a0,a1){const inside=l=>{const r=Math.hypot(l[0],l[1],l[2]);return r<1e-6||r<C.hullRadialAt(m,[l[0]/r,l[1]/r,l[2]/r]);},len=tv.len(tv.sub(lb,la)),n=Math.min(256,Math.max(8,Math.ceil(len/Math.max(1,m.R*.004))));
+ for(let i=0;i<=n;i++){const k=i/n,l=tv.add(la,tv.sub(lb,la),k);if(inside(l))return tv.add(a0,tv.sub(a1,a0),k);}return null;}
 // Where a segment a0→a1 first enters an ellipsoid (centre, world→local R, half-axes); null if it does not, or if it
 // starts inside (a craft firing from within a shell).
 function ellipsoidEntry(center,R,semi,a0,a1){const la=trialApplyT(R,tv.sub(a0,center)),lb=trialApplyT(R,tv.sub(a1,center)),p=la.map((v,i)=>v/semi[i]),d=lb.map((v,i)=>v/semi[i]-p[i]),A=tv.dot(d,d),B=2*tv.dot(p,d),Cc=tv.dot(p,p)-1;if(!(A>0)||Cc<=0)return null;const D=B*B-4*A*Cc;if(D<0)return null;const k=(-B-Math.sqrt(D))/(2*A);return k>=0&&k<=1?tv.add(a0,tv.sub(a1,a0),k):null;}
@@ -10244,7 +10248,8 @@ function spaceBolts(dt){
   // an impact flash if this same physical segment intersects the target hull.
   if(t&&t.shield>0){const f=spaceShellFrame(t),h=f&&shellHitPoint(f.center,f.R,f.semi.map(v=>(v-SHIELD_SHELL.m)/SHIELD_SHELL.k),previous,b.pos),q=h?.shell;if(q){spaceShieldBurst(q,spaceVel(t),Math.max(8,t.p.len*.02),!!b.ion);if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+.12);return false;}}
   if(t){const R=spaceRotU(trial.battle.E,t),center=spaceWorld(t),semi=[t.p.len/2,(t.p.height||t.p.len*.2)/2,(t.p.width||t.p.len*.5)/2],a=trialApplyT(R,tv.sub(previous,center)).map((v,i)=>v/semi[i]),z=trialApplyT(R,tv.sub(b.pos,center)).map((v,i)=>v/semi[i]),v=tv.sub(z,a),k=C.clamp(-tv.dot(a,v)/Math.max(1e-12,tv.dot(v,v)),0,1);
-   if(tv.len(tv.add(a,v,k))<1){const point=tv.add(previous,tv.sub(b.pos,previous),k);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
+   const m=tv.len(tv.add(a,v,k))<1&&C.hullRadialOf?.(t),rp=m?radialSegment(m,trialApplyT(R,tv.sub(previous,center)),trialApplyT(R,tv.sub(b.pos,center)),previous,b.pos):null;
+   if(m?rp:tv.len(tv.add(a,v,k))<1){const point=rp||tv.add(previous,tv.sub(b.pos,previous),k);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
   return b.life>0;
  });
 }
@@ -10559,9 +10564,9 @@ async function fleetAssetLoad(source,opts={}){
   const ex=opts.lite&&payload?.key?fleetExampleData(key):null;if(ex)payload.lite=!ex.p?.catalogOnly;
   const r=await YardEngineClient.request('fleet',payload),profile=r.profile||(ex?.p?.catalogOnly?null:ex?.p);
   if(profile?.catalogOnly||ex?.p?.catalogOnly&&!r.profile)throw new Error('catalogue-only fleet profile');
-  asset={key,design:r.design,stats:r.stats||null,p:profile,geometry:r.geometry,payload};if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
+  asset={key,design:r.design,stats:r.stats||null,p:profile,geometry:r.geometry,payload,radial:r.radial||null};C.setHullRadial?.(key,asset.radial);if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
  }else if(!asset.stats&&!opts.lite)await fleetAssetStats(asset);
- if(alias){fleet.assets.set(alias,asset);if(view)view.loadFleet(alias,asset.geometry);}
+ if(alias){fleet.assets.set(alias,asset);C.setHullRadial?.(alias,asset.radial);if(view)view.loadFleet(alias,asset.geometry);}
  return asset;
 }
 // The figures of an asset first prepared for its model only (the engine has the design built, in memory or on disk).

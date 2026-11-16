@@ -133,6 +133,19 @@ function waitForStats(ms) {
 }
 
 // ---------- transfer helpers ----------
+// The outer surface for collision and hits (Core.hullRadialMap): the solid meshes of a fleet model, around its centre.
+// Built once per model and kept for the session (the Death Star's takes a few seconds; an ordinary ship far less).
+const radialCache = new Map(), RADIAL_SKIP = /^(gen|shield|hyper|hangar|hatchOpen|hatchRay|trialTarget)$/;
+// (every solid mesh of the model: hull, structures and plates, engines and nozzles, fittings, turrets; not the interior
+// machinery drawn in cutaways, the open hatches or the trial's target marker)
+const radialMeshes = geometry => Object.keys(geometry.meshes).filter(name => !RADIAL_SKIP.test(name));
+function geometryRadial(geometry, len) {
+  if (!geometry?.meshes || typeof C.hullRadialMap !== 'function') return null;
+  const names = radialMeshes(geometry); let n = 0; for (const name of names) { const g = geometry.meshes[name]?.geo; if (g?.pos && g?.idx) n += (g.ni ?? g.idx.length); }
+  if (!n) return null; const T = new Float32Array(n * 3); let k = 0;
+  for (const name of names) { const g = geometry.meshes[name]?.geo; if (!g?.pos || !g?.idx) continue; const ni = g.ni ?? g.idx.length; for (let i = 0; i < ni; i++) { const v = g.idx[i] * 3; T[k++] = g.pos[v]; T[k++] = g.pos[v + 1]; T[k++] = g.pos[v + 2]; } }
+  try { return C.hullRadialMap(T, geometry.center || [0, 0, 0], len); } catch (e) { return null; }
+}
 function geoOut(g, transfer) {
   if (!g) return null;
   const o = {n: g.n, ni: g.ni, pos: g.pos.slice(0, g.n * 3), nor: g.nor.slice(0, g.n * 3), uv: g.uv.slice(0, g.n * 2), col: g.col.slice(0, g.n * 4), idx: g.idx.slice(0, g.ni)};
@@ -979,7 +992,9 @@ async function fleetJob(job) {
   if (job.prepareOnly && job.silent) post({type:'fleet',id:job.id,src,cacheSaved,geoCached:!!stored,ms:now()-t0,profileSrc});
   // profileKnown/statsKnown: the page already holds this design's profile or figures (same design, same engine).
   else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile: job.profileKnown ? null : profile, design: serial, ms: now() - t0, src, cacheSaved, profileSrc});
-  else post({type: 'fleet', id: job.id, stats: job.statsKnown ? null : displayStats, profile: lite || job.profileKnown ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved, profileSrc}, transfer);
+  else {
+  let radial = null; if (geometry && gid) { radial = radialCache.get(gid); if (radial === undefined) { radial = geometryRadial(geometry, (profile || rec.profile)?.len); radialCache.set(gid, radial); } }
+  post({type: 'fleet', id: job.id, radial, stats: job.statsKnown ? null : displayStats, profile: lite || job.profileKnown ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved, profileSrc}, transfer); }
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
   // Release the live ship graph and the full statistics (the display figures and
