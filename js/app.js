@@ -8985,7 +8985,7 @@ function trialHudUpdate(full){
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);trialFlightReadouts(hud);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam','視点 '+trialCamName(trial.camMode));set('camq',trialCamName(trial.camMode));
- const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!u.out&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
+ const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!C.outOfAction(u)&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
  const w=q('warn');if(w){const hint=trialArcHint(),txt=trialPropulsionWarning()||trialCraftSystemsWarning()||trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(sourceText(w) !== String(txt))w.textContent=txt;}
  const bar=q('speedbar');if(bar)bar.style.height=(trialMainOutput()*100).toFixed(1)+'%';
@@ -9059,7 +9059,7 @@ function trialSelfUpdate(hud){
  const allies=(B?.b.units||[]).filter(u=>u.team===0&&!u.manual),log=(B?.ticker||[]).slice(-3).reverse();
  // v22.3 Damage is by module: the ship's crew aboard (乗員 %) in place of a hull bar.
  const cr=crewShare(me),secs=cr==null?'':`<div class="ts-row"><span>乗員</span><i class="crew${crewCls(cr)}"><em style="width:${crewPct(cr)}%"></em></i><small>${crewPct(cr)}%</small></div>`;
- const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}</b>${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
+ const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out==='電源喪失'?' · 電源喪失（航行不能）':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}</b>${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
  setHTML(el,html);
 }
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
@@ -10365,8 +10365,10 @@ function spaceStep(dt){
   for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&B.me.mods[i]<=0;}
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
-  if(B.me.dead||B.me.out){spaceEnd(B.me.dead?'sunk':'out');break;}
-  if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||u.out)&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}}
+  // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
+  if(B.me.dead||C.outOfAction(B.me)){spaceEnd(B.me.dead?'sunk':'out');break;}
+  if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
+  if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out');break;}/* no ship on either side can act: a stand-off */}
  spaceRefresh();
 }
 // Drive glow can swell smoothly, but a loss of real output extinguishes it
@@ -15410,7 +15412,7 @@ function patrolBattleWatch(B, dt) {
   if (!B.leaving && up.length && !foes.some(u => u.warp) && up.every(u => C.fleetIntegrity(u) < (foes.some(u => u.dead || u.out) ? .45 : .22))) {
    B.leaving = true;up.forEach((u, i) => { u.depart = {t: -1.5 - i * .5}; });spaceLog('敵艦が撤退を開始');toast('敵艦が撤退を開始 — ハイパースペースへ離脱していきます');
   }
-  if (B.leaving && foes.every(u => u.dead || u.out || u.absent)) spaceEnd('win');
+  if (B.leaving && foes.every(u => u.dead || C.outOfAction(u) || u.absent)) spaceEnd('win');
   return;
  }
  if (B.patrolEnd != null && (B.patrolEnd -= dt) <= 0) patrolBattleDissolve();

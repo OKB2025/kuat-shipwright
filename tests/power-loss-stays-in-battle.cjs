@@ -1,0 +1,25 @@
+// User decision 2026-11-16「電源喪失は戦闘不能扱いではないようにしよう。単に動けなくなり、シールドを失い、発電量がゼロになり、星の重力に
+// 少しずつ引かれていく」(asked: stored weapon charge still cannot fire without power). A ship that loses power keeps the
+// existing disabled state (no thrust, turning, firing or jumping; its shield fades; gravity draws it down) but is not out
+// of action: it stays a target and keeps its side in the battle.
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{test}=require('node:test');
+const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
+for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx);
+test('power loss is not out of action; other disabling reasons still are',()=>{
+ assert.equal(C.outOfAction({out:'電源喪失'}),false);assert.equal(C.outOfAction({out:'艦橋喪失'}),true);assert.equal(C.outOfAction({out:null}),false);
+ assert.equal(C.fleetEffective({out:'電源喪失'}),true);assert.equal(C.fleetEffective({out:'艦橋喪失'}),false);assert.equal(C.fleetEffective({out:'電源喪失',dead:true}),false);
+ assert.equal(C.fleetActs({out:'電源喪失'}),false,'it cannot act');assert.equal(C.fleetActs({out:null}),true);
+});
+test('a ship whose reactors are gone stops, loses its shield, makes no power and sinks, and is still fired on',()=>{
+ const a=C.fleetUnit('a','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),0),b=C.fleetUnit('b','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),1);b.pos=[6000,0,0];b.yaw=Math.PI;
+ a.order={...a.order,type:'attack',target:'b',fire:true};b.order={...b.order,type:'attack',target:'a',fire:true};
+ const B=C.fleetBattle([a,b],true);B.seed=3;
+ for(let t=0;t<2;t+=.25)C.fleetTick(B,.25,{gravity:true});
+ const mods=a.p.modules;for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor'||mods[i].k==='gen')a.mods[i]=0;
+ const y0=a.pos[1],sh0=a.shield;let hitsAfter=0;
+ for(let t=0;t<20;t+=.25){const before=a.shield+(a.hp??0);C.fleetTick(B,.25,{gravity:true});if(b.order.target==='a')hitsAfter++;}
+ assert.equal(a.out,'電源喪失');assert.equal(a.dead,false);assert.ok(C.fleetEffective(a),'still in the battle');
+ assert.equal(C.shipElectricalAvailableW(a)||0,0,'no power');assert.ok(a.pos[1]<y0,'drawn down by gravity: '+(a.pos[1]-y0));assert.ok(a.shield<sh0,'the shield fades: '+sh0+' → '+a.shield);
+ assert.ok(hitsAfter>0,'the enemy keeps it as its target');
+});
