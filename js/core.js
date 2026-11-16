@@ -84034,8 +84034,18 @@ function hyperCharged(u){const need=hyperChargeNeedJ(u?.p);return need>0?Math.mi
 function engineHeatThrottleCap(u,gov,dt){
  const p=u.p,g=p.grid||{},pr=p.propulsion,cores=pr&&(pr.cores||pr.engines),De=Math.max(0,g.De||0);if(!(De>0))return 1;
  const c=u._engineHeatFull&&u._engineHeatFull.p===p?u._engineHeatFull:(u._engineHeatFull={p,W:cores?.length?engineHeatForInput(cores,De).wasteHeatW:PROPULSION.wasteFraction*De});
- const perX=Math.max(1e-30,c.W+HEAT.waste.reactor*De),h=u.ht,rej=Math.max(0,h?.cap??swRatedRejectionW(u)),otherW=(HEAT.waste.hotel+HEAT.waste.reactor)*Math.max(0,(g.fixed||0)-(g.cooling||0))+Math.max(0,h?.coolingSelfW||0);
- return {perX,spareW:Math.max(0,rej-otherW),cap:x=>clamp((Math.max(0,rej-otherW)+gov.roomJ/dt)/perX,0,1)};
+ // The working converters' rated rejection, not h.cap: h.cap is what the cooling power reserved last time covers, and that follows
+ // the heat made, so a cap on it would hold a slow ship slow (navigation-itinerary 2026-11-16: an MC80 spooling under coarse
+ // 20 s ticks fell to 0.02 of its top speed).
+ const perX=Math.max(1e-30,c.W+HEAT.waste.reactor*De),h=u.ht,rej=Math.max(0,swRatedRejectionW(u)),otherW=(HEAT.waste.hotel+HEAT.waste.reactor)*Math.max(0,(g.fixed||0)-(g.cooling||0))+Math.max(0,h?.coolingSelfW||0);
+ // The engines' heat at throttle x is taken on their own curve (input x·De; curve B), plus the plant's waste on that input.
+ // A bound linear in throttle from the heat at full input held long-step cruises under the 70% entry speed
+ // (navigation-itinerary: MC80 at 0.684 under 20 s ticks). The spare rejection is taken at HEAT.balanceTarget, the margin
+ // balanced running keeps: the store holds well under a second of rejection, so a step of many seconds may not run at it.
+ const budget=Math.max(0,rej-otherW)*HEAT.balanceTarget+gov.roomJ/dt,
+  heatAt=x=>(cores?.length?engineHeatForInput(cores,x*De).wasteHeatW:PROPULSION.wasteFraction*x*De)+HEAT.waste.reactor*x*De;
+ const cap=()=>{if(perX<=budget)return 1;let lo=clamp(budget/perX,0,1),hi=1;for(let i=0;i<12;i++){const m=(lo+hi)/2;if(heatAt(m)<=budget)lo=m;else hi=m;}return lo;};
+ return {spareW:Math.max(0,rej-otherW),budget,heatAt,cap};
 }
 function fleetPowerStep(u,s,t,raw,dt,volley=1){
  const p=u.p,g=p.grid,mode=FLIGHT_POWER_POLICY.id;u.mode=mode;
@@ -84053,9 +84063,9 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // Weapon charging gets what the spare rejection and the store's room leave after the engines' heat (physics of the same
  // step; without the spare rejection a ship with ample converters was held to its store's room, propulsion-surface-power).
  const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
-  weaponHeatW=hb?Math.max(0,hb.spareW+gov.roomJ/dt-hb.perX*throttle):Infinity;
+  weaponHeatW=hb?Math.max(0,hb.budget-hb.heatAt(throttle)):Infinity;
  const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
- const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);let surfaceFire=null;
+ const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);if(u.propulsion)u._engineHeatLast={x:want.throttle,wasteW:Math.max(0,u.propulsion.wasteHeatW||0),inputW:Math.max(0,u.propulsion.actualInputW||0)};let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
  {const jw=hyperChargeStep(u,P,u.pw.draw,dt);u.pw.hyper=jw;if(P>0)u.load+=jw/P;}
