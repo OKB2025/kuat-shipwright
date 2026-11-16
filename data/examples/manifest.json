@@ -263,7 +263,7 @@
   },
   "mandator2": {
    "combat": {
-    "sha256": "82c92b5607444db7110dd58a084fa989e2a99c0210691b1481dc1cf6bbdd7721"
+    "sha256": "2a933d6822eb191c40ee9f8c1d8af614a1ecd6d75a0e1830ed263471afae55a0"
    },
    "design": {
     "sha256": "e8febea242d5eac5fdfcfe18070a08714365db8c47cc2bd555e96b7008fb326a",
@@ -410,7 +410,7 @@
   },
   "venator": {
    "combat": {
-    "sha256": "55dbad6145cfb59c8da33d569a5ce567c876eb4db93af5d4ba2cddffaef265f0"
+    "sha256": "0b07af904a75f7239ebda7e7995138193035545c47064ad3291a071f230a5581"
    },
    "design": {
     "sha256": "ed6786f75428ba77cc49c71e8ea299fb86255371b97b99e490e3967997698875",

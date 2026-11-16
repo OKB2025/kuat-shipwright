@@ -62,7 +62,7 @@ function generateMeasuredEntry(C,R,key,ship,previous,sources,options={}){
  if(profile.profileVersion!==C.FLEET_PROFILE_VERSION)throw new Error('Stale generated fleet profile: '+key);
  if(!(info.mass>0)||!Number.isFinite(info.mass)||!Number.isFinite(info.cost))throw new Error('Invalid generated engineering figures: '+key);
  const entry=plain({...previous,key,name:previous.name||C.DESIGNS[key].name||ship.name,cls:stats.cls?.name||previous.cls,p:compactCatalogProfile(profile),info,
-  ...(ship.paint?{paint:ship.paint}:{}),...(complement?{air:complement.air||[],ground:complement.ground||[]}:{}),
+  ...(ship.paint?{paint:ship.paint}:{}),...(complement?{air:complement.air||[],ground:complement.ground||[]}:Array.isArray(previous.air)?{air:previous.air.filter(r=>!C.RETIRED_CRAFT_TYPES?.has(r?.type))}:{}),/* a kept complement loses craft types taken out of the catalogue (Eta-2, user decision 2026-11-16) */
   model:{profileVersion:C.FLEET_PROFILE_VERSION,costVersion:C.COST_MODEL.version,costSignature:C.costModelSignature(),exampleProfileVersion:C.EXAMPLE_PROFILE_VERSION,blueprintSha256:sha(stable(blueprint)),sourceSha256:sources}});
  if(options.onBuilt)options.onBuilt({key,ship,stats,profile,entry,blueprint});
  return entry;

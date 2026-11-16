@@ -147,54 +147,6 @@
       }
     },
     {
-      "key": "eta2",
-      "speed": 2360,
-      "mass": 2.1168899999999997,
-      "grid": {
-        "P": 238466732296286800,
-        "fixed": 12352372822671400,
-        "cooling": 0,
-        "De": 225905159473615400,
-        "Ds": 0,
-        "Dw": 209200000000000.03,
-        "Pgen": 238466732296286800,
-        "Paux": 0
-      },
-      "propulsion": {
-        "version": 1,
-        "engines": [
-          {
-            "id": 2,
-            "machineryId": 2,
-            "version": 1,
-            "ratedInputW": 225905159473615400,
-            "ratedThrustN": 112952579.73680769,
-            "driveProfileId": "standard",
-            "machineryGradeId": "legacy-refit",
-            "wattsPerNewton": 2000000000,
-            "moduleIndex": 1,
-            "powerNode": "p2",
-            "heatNode": "p2",
-            "domain": "main",
-            "direction": [
-              1,
-              0,
-              0
-            ],
-            "valid": true,
-            "available": true,
-            "connected": true,
-            "outletAvailable": true,
-            "pathCapacityW": 225905159473615400
-          }
-        ],
-        "massKg": 2116.89,
-        "ratedThrustN": 112952579.73680769,
-        "ratedAccelMps2": 53357.79362026732,
-        "accelerationLimitMps2": 53357.79362026732
-      }
-    },
-    {
       "key": "laat",
       "speed": 830,
       "mass": 75.1343832,

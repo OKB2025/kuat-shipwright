@@ -1252,7 +1252,7 @@ def('pass_ywing', .1, 3, 2, 1.35, .22, (E, t, o, p, x) => dopPass(E, o, t, Objec
  dopOsc(E, cv, t, out, [['sine', 1240 * p, .04]]);
  const r = E.nz(t, cv.end, 1, E.brown), rl = E.flt('lowpass', 200, .7), rg = E.G(1); cv.am(rg.gain, 1.1); r.connect(rl); rl.connect(rg); rg.connect(out);
 }));
-// A-wing, V-wing, Eta-2, V-19: a light, fast interceptor — a high roar with a strong turbine whine, quick through.
+// A-wing, V-wing, V-19: a light, fast interceptor — a high roar with a strong turbine whine, quick through.
 def('pass_awing', .07, 3, 2, 1.2, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .2, stretch: 1.3}, x), (out, cv) => {
  const f0 = 265 * p, b = E.flt('bandpass', 1650 * p, 1.1), lp = E.flt('lowpass', 6000, .7), g = E.G(.7); b.connect(lp); lp.connect(g); g.connect(out); cv.f(b.frequency, 1650 * p); cv.lp(lp.frequency, 6000, .3);
  dopOsc(E, cv, t, b, [['sawtooth', f0, .8], ['sawtooth', f0 * 2.004, .5], ['square', f0 * 3, .2]]);
@@ -14164,7 +14164,7 @@ const CRAFT_FLY = {
  droidb: {weave: .4, wf: .6, jink: .4, bank: .3, roll: null, dog: 'steady', pass: 'pass_droid', gun: 'gun_droid', eng: 'fighter'},
  ship:   {weave: .2, wf: .4, jink: .2, bank: .5, roll: null, dog: 'steady', pass: null, gun: 'gun_rebel', eng: null}
 };
-const CRAFT_FLY_OF = {tie_ln: 'tie', tie_in: 'tie', tie_sa: 'tieb', xwing: 'xw', z95: 'xw', arc170: 'xw', awing: 'aw', vwing: 'aw', eta2: 'aw', v19: 'aw', ywing: 'yw', btlb: 'yw', bwing: 'yw', hyena: 'droidb', vulture: 'droid', tri: 'droid'};
+const CRAFT_FLY_OF = {tie_ln: 'tie', tie_in: 'tie', tie_sa: 'tieb', xwing: 'xw', z95: 'xw', arc170: 'xw', awing: 'aw', vwing: 'aw', v19: 'aw', ywing: 'yw', btlb: 'yw', bwing: 'yw', hyena: 'droidb', vulture: 'droid', tri: 'droid'};
 function craftFly(key) {
  const c = R.CRAFT[key];let k = CRAFT_FLY_OF[key];
  if (!k) k = !c ? 'xw' : c.role === 'transport' ? 'ship' : c.role === 'bomber' ? (c.side === 'cis' ? 'droidb' : c.side === 'empire' ? 'tieb' : 'yw') : c.side === 'empire' ? 'tie' : c.side === 'cis' ? 'droid' : c.role === 'interceptor' ? 'aw' : 'xw';
