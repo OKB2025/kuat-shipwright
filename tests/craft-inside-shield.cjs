@@ -42,6 +42,11 @@ test('a bolt meets the shell where it first enters it; a shot starting inside th
 test('a ship with no field up: a craft strikes it from anywhere, as before (regression review 2026-11-16)',()=>{
  run('globalThis.bare={...ship,shield:0}');const g=run(`trial.craft=true;trial.P=[3000,0,0];trial.battle.extra=new Map();spaceDamage(bare,1,'bolt',null,null);trial.battle.extra.get('t')`);assert.equal(g.direct,1);assert.equal(g.sf,0);
 });
+test('the field stops only a bolt whose line meets the hull: the hit area stays the hull (physics review 2026-11-16)',()=>{
+ run(cut('function shellHitPoint(','// A bolt bursting on a shield'));
+ const hit=run('shellHitPoint([0,0,0],I,[500,100,200],[2000,0,0],[0,0,0])');assert.ok(Math.abs(hit.shell[0]-620)<1e-9&&Math.abs(hit.hull[0]-500)<1e-9);
+ assert.equal(run('shellHitPoint([0,0,0],I,[500,100,200],[2000,130,0],[0,130,0])'),null,'through the shell above the hull: no hit');
+});
 test('the shell itself is not drawn: no glow over the whole field',()=>{assert.ok(!/trialShellPoints|spaceShellFlash/.test(app));assert.match(app,/function spaceShieldBurst\(pos,vel,size,ion\)/);});
 test('fleet and RTS: a craft attack acts on the ship directly, ion guns included',()=>{
  assert.match(core,/C\.combatAdd\(x,t,s\.pos,\{direct:gun,ionDirect:ion,/);
