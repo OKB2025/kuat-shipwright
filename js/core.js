@@ -81011,7 +81011,7 @@ function refitShipThermal(ship,key,options={}){
   // Balanced running holds the heat made at HEAT.balanceTarget of the rejection, beside the services a moving ship also runs; the
   // cruise is sized with that margin so balanced running actually holds it (2026-11-16: sized to the exact cruise heat, ships
   // settled at 0.66–0.69 of their top speed, under the 70% hyperspace entry speed, and never jumped).
-  requestedCapacityW=held.generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)+fireW;cruiseCapacityW=cruise.settled(cruise.shareFor(CRUISE_SPEED_TARGET.low)).generatedW/* the least the hull must hold: a 60% cruise (the decision's lower bound) */;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
+  requestedCapacityW=held.generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)+fireW;cruiseCapacityW=cruise.settled(cruise.shareFor(CRUISE_SPEED_TARGET.low)).generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)/* held in balanced running, like the request; the least the hull must hold: a 60% cruise (the decision's lower bound) */;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
  // v25 Banks a builder already placed beyond that size shrink with it (every bank by the same linear factor; the
  // distribution hub keeps its size), so a ship cannot keep the old full-thrust or full-combat cooling.
  if(existingCapacity>requestedCapacityW*(1+1e-6)){
@@ -84040,7 +84040,7 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // A disabled ship's shield generators fail with it: its shields fade.
  // v23 The heat network limits what an overheating system may draw (heatLim is 1 until its stores fill).
  const gov=heatGovernor(u);u.heatGov=gov;
- const want={throttle:man*gov.engine,shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
+ const want={throttle:man*gov.engine,shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),gov.mode==='balance'&&Number.isFinite(gov.roomJ)?gov.roomJ/Math.max(1e-9,dt*(HEAT.waste.weapon+HEAT.waste.reactor)):Infinity)*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
  const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
@@ -90019,7 +90019,11 @@ function heatGovernor(u){
  // next heat solve will find if the heat keeps coming at its rate so far: net of what the converters reject, so ample cooling is
  // not read as a full store, and a surge is seen while it builds.
  const el=Math.max(0,h.elapsed||0),pend=heatPendingJ(h),rej=Math.max(0,h.cap??swRatedRejectionW(u)),fill=(h.qJ+Math.max(0,pend-rej*el+(el>0?Math.max(0,pend/el-rej)*Math.max(0,HEAT.dt-el):0)))/h.capacityJ,band=clamp((HEAT.governEnd-fill)/(HEAT.governEnd-HEAT.governStart),0,1),mode=heatRunMode(u),g=mode==='full'?band:Math.min(band,clamp(h.runK??1,0,1));
- return {fill,engine:HEAT.governEngineFloor+(1-HEAT.governEngineFloor)*g,weapon:g,active:g<1,mode};
+ // Room left in the store below governStart as it stands now (not projected): a single step's weapon charging, the
+ // recharge after a volley, may not take the store past it in balanced running (physics review 2026-11-16: a store above
+ // limitAt lowers damageLimit for good, and the recharge after the first volley put 43% of the store in one 0.25 s step).
+ const roomJ=Math.max(0,HEAT.governStart*h.capacityJ-h.qJ-Math.max(0,pend-rej*el));
+ return {fill,engine:HEAT.governEngineFloor+(1-HEAT.governEngineFloor)*g,weapon:g,active:g<1,mode,roomJ};
 }
 // After each heat solve: balanced running moves its output factor toward the point where the heat made equals
 // balanceTarget of the rejection capacity; full running holds it at 1 and ends at fullWarnAt.
