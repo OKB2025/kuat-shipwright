@@ -8793,7 +8793,7 @@ function trialMarkers(){
  for(const it of items){let el=box.querySelector(`[data-tmark="${it.id}"]`);if(!el){el=document.createElement('div');el.className='th-tmark';el.dataset.tmark=it.id;el.innerHTML='<i></i><b></b><s><em class="sh"></em></s>';box.append(el);}
   seen.add(it.id);const rel=tv.sub(it.pos,trial.P),q=view.project(rel),on=q[2]>-1&&q[2]<1&&q[0]>rect.left&&q[0]<rect.right&&q[1]>rect.top&&q[1]<rect.bottom;el.hidden=!on;if(!on)continue;
   const x=q[0]-hr.left,y=q[1]-hr.top,d=tv.len(tv.sub(rel,eye)),u=it.u,km=d/1000,dist=km<10?km.toFixed(1):Math.round(km)+'',lock=!!(it.t&&(trial.aim?.lock===it.t||trial.heldLock===it.t));
-  const lab=it.lab?it.lab(dist):u?`${u.team?'敵':'友'} ${shipTag(u.name)} · ${dist} km${u.out?' · 戦闘不能':''}${u.boarding?' · 移乗戦':u.tractor?.mode==='capture'&&u.tractor.lock?' · 接舷':''}`:`標的 ${dist} km${it.t.hits?' · '+Math.round(it.t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`;
+  const lab=it.lab?it.lab(dist):u?`${u.team?'敵':'友'} ${shipTag(u.name)} · ${dist} km${u.out==='電源喪失'?' · 電源喪失':u.out?' · 戦闘不能':''}${u.boarding?' · 移乗戦':u.tractor?.mode==='capture'&&u.tractor.lock?' · 接舷':''}`:`標的 ${dist} km${it.t.hits?' · '+Math.round(it.t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`;
   vis.push({el,it,x,y,lab,lock,pri:lock||(u&&u.id===follow&&B?.followSq==null)?-1:it.sq?d*2+1:d});}
  vis.sort((a,b)=>a.pri-b.pri);const placed=[],hit=r=>placed.some(p=>r[0]<p[2]&&r[2]>p[0]&&r[1]<p[3]&&r[3]>p[1]);let nLab=0;
  for(const v of vis){const {el,it,x,y,lab,lock}=v,u=it.u;el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
@@ -9671,7 +9671,7 @@ function spaceDamage(u,tt,kind,q,t,aimK){const B=trial.battle;if(!B||B.result)re
  let h;if(kind==='ion'){x.sf+=tt;x.hull+=C.COMBAT.ionHull*tt;x.ion+=tt;h=C.COMBAT.ionHull*tt;}else if(kind==='iontorp'){x.ionDirect=(x.ionDirect||0)+tt;h=0;}else if(kind==='missile'||kind==='direct'){x.direct+=tt;h=tt;}else{x.sf+=tt;x.hull+=tt;h=tt;}
  // Each call is one shot of `shot` TT (user decision 2026-11-15「1発ごとに各区画で判断」); combatMerge carries the count.
  if(h>0&&shot>0){x.shotE=(x.shotE||0)+h;x.shotN=(x.shotN||0)+h/shot;}
- const ak=aimK&&aimK!=='auto'?aimK:'auto';x.aim[ak]=(x.aim[ak]||0)+h+.1*tt;if(ak!=='auto'&&C.COMBAT?.exposed?.[ak]&&h>0){x.snipe=x.snipe||{};x.snipe[ak]=(x.snipe[ak]||0)+h+.1*tt;}/* a missile guided onto that part strikes it (hold 1) */if(B.me)x.from=[...B.me.pos];
+ const ak=aimK&&aimK!=='auto'?aimK:'auto',aw=ak==='auto'?h+.1*tt:h;x.aim[ak]=(x.aim[ak]||0)+aw;if(ak!=='auto'&&C.COMBAT?.exposed?.[ak]&&h>0){x.snipe=x.snipe||{};x.snipe[ak]=(x.snipe[ak]||0)+h;}/* an aimed missile weighs its hull share, as combatAdd weighs a missile's direct hit (physics review 2026-11-16) *//* a missile guided onto that part strikes it (hold 1) */if(B.me)x.from=[...B.me.pos];
  if(q&&t?.rot&&t.semi){const point=trialApplyT(t.rot,tv.sub(q,t.pos)),z=C.combatZoneAt(u.p,point,t.semi);x.zw=x.zw||new Array(30).fill(0);x.zw[z]+=h;(x.hits||(x.hits=[])).push({point,energy:kind==='missile'||kind==='direct'||kind==='iontorp'?0:tt,ion:kind==='ion'?tt:0,direct:kind==='missile'||kind==='direct'?tt:0,src:B.me?.id});}
  B.extra.set(u.id,x);}
 // The shield shell: the field stands around the ship as an ellipsoid a little larger than the hull (half-dimensions
@@ -9876,7 +9876,7 @@ function trialSwTargets(w){
  return out.sort((a,b)=>a.off-b.off||a.r-b.r);
 }
 function trialSwFire(selection=trial.swSelect??'all'){
- const B=trial.battle,me=B?.me;if(!B){const u=trialSwSolo();if(u)trialSwSoloFire(u,selection);else toast('超兵器がありません');return;}if(!me){toast('超兵器を使えません');return;}if(me.out){toast('自艦は戦闘不能です');return;}
+ const B=trial.battle,me=B?.me;if(!B){const u=trialSwSolo();if(u)trialSwSoloFire(u,selection);else toast('超兵器がありません');return;}if(!me){toast('超兵器を使えません');return;}if(me.out){toast(me.out==='電源喪失'?'自艦は電源喪失：超兵器を撃てません':'自艦は戦闘不能です');return;}
  trialSwSyncFrame();const sw=me.p.sw||[];let fired=0,waiting=0,none=0;
  for(const i of trialSwIndexes(me,selection)){const w=sw[i],x=me.sw[i];if(!x||!(x.st==='ready'||w.k==='hion'&&x.st==='charge'&&x.c>=C.ION_BOLT.fireMin)){if(x&&x.st!=='down')waiting++;continue;}
   const tg=w.k==='sbeam'?[]:trialSwTargets(w),options=tg.length?{free:false,to:tg.map(t=>t.u.id)}:{free:true,dir:trialApplyT(B.E,swAxisWorld(me,w))};
@@ -10361,7 +10361,7 @@ function spaceCineEnd(){const k=trial.cine;if(!k)return;trial.cine=null;if(view)
 // v20.6 The escorts jump one after another (the smallest first), not all at once: each waits its turn (depart.t below 0).
 function spaceDepartEscorts(){const B=trial.battle,us=B.b.units.filter(u=>u.team===0&&!u.manual&&!u.dead&&!u.absent).sort((a,b)=>(a.p.len||0)-(b.p.len||0)),gap=us.length>1?Math.min(.6,2.4/(us.length-1)):0;us.forEach((u,i)=>{u.depart={t:-i*gap};});}
 function spaceWithdraw(){const B=trial.battle;B.result={kind:'withdrew',dest:trial.jump?.dest};B.left=true;trial.targets=[];}
-function spaceEnd(kind){const B=trial.battle;if(B.result)return;if(B.patrol&&patrolBattleEnd(kind))return;B.result={kind,fate:B.me.fate,why:B.me.out};trial.fire=trial.fireKey=false;if(!trial.jump)setTimeout(spaceShowResult,kind==='win'?1500:2600);}
+function spaceEnd(kind,why){const B=trial.battle;if(B.result)return;if(B.patrol&&patrolBattleEnd(kind))return;B.result={kind,fate:B.me.fate,why:why??B.me.out};trial.fire=trial.fireKey=false;if(!trial.jump)setTimeout(spaceShowResult,kind==='win'?1500:2600);}
 function spaceLog(text,u){const B=trial.battle;if(!B)return;const who=!u?'':u.manual?'自艦：':(u.team?'敵 ':'友 ')+shipShort(u.name)+'：';B.ticker.push({t:B.b.time,text:who+text});if(B.ticker.length>40)B.ticker.shift();}
 function spaceStep(dt){
  const B=trial.battle;if(!B||B.left)return;const b=B.b;
@@ -10377,14 +10377,14 @@ function spaceStep(dt){
   spaceBumps(b.bumps);spaceBump(B.me);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
-  for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(u.out&&!was.out&&u.team===1)B.disabled++;}
+  for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(C.outOfAction(u)&&!C.outOfAction(was)&&u.team===1)B.disabled++;}
   for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&B.me.mods[i]<=0;}
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
   // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
   if(B.me.dead||C.outOfAction(B.me)){spaceEnd(B.me.dead?'sunk':'out');break;}
   if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
-  if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out');break;}/* no ship on either side can act: a stand-off */}
+  if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out','standoff');break;}/* no ship on either side can act: a stand-off */}
  spaceRefresh();
 }
 // Drive glow can swell smoothly, but a loss of real output extinguishes it
@@ -10420,7 +10420,7 @@ function spaceDrawUnits(){
 }
 function spaceShowResult(){
  const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
- const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:`旗艦戦闘不能（${r.why||''}）`;
+ const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:r.why==='standoff'?'膠着：双方とも行動できる艦がありません':`旗艦戦闘不能（${r.why||''}）`;
  const foes=B.b.units.filter(u=>u.team===1),allies=B.b.units.filter(u=>u.team===0&&!u.manual);
  const rts=!!B.rts,crew=crewShare(me),sub2=rts&&r.kind==='win'?'この星系の戦闘は終わりました':rts&&r.kind==='withdrew'?'敵はこの星系から退きました':sub;
  el.innerHTML=`<div class="th-card th-result-card"><b class="${r.kind==='win'?'win':r.kind==='withdrew'?'':'lose'}">${rts&&r.kind==='withdrew'?'敵が撤退':title}</b><p>${esc(sub2)}</p><dl><dt>敵艦</dt><dd>撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} / ${foes.length} 隻</dd><dt>僚艦</dt><dd>${allies.length?`健在 ${allies.filter(u=>!u.dead&&!u.out).length} / ${allies.length} 隻`:'なし'}</dd><dt>${rts?'自艦':'旗艦'}</dt><dd>乗員 ${crew==null?'':crewPct(crew)+'%（'}${num(Math.round(me.crew))} 名${crew==null?'':'）'} · 装甲 ${Math.round(me.armor*100)}%</dd><dt>射撃</dt><dd>${num(trial.gun.shots)} 発 · 命中 ${num(Math.round(trial.gun.hits))}${trial.gun.pdKills?` · 点防御 撃墜 ${trial.gun.pdKills}`:''}</dd></dl><div class="th-result-go"><button type="button" class="th-btn" data-trial-cmd="exit">${rts?'操艦終了':trial.pat?'帰還':trialSandbox()?'公試終了':'艦隊画面へ戻る'}</button>${rts?'':'<button type="button" class="th-btn" data-trial-cmd="retry">もう一度</button>'}<button type="button" class="th-btn" data-trial-cmd="resultClose">このまま航行</button></div></div>`;el.hidden=false;
@@ -10612,7 +10612,7 @@ function fleetPowerName(){return '固定優先順';}
 function fleetOrderText(u){const o=u.order,pw=' · 出力 '+fleetPowerName(u);if(o.type==='move')return `移動 → ${(o.point[0]/1000).toFixed(1)}, ${(o.point[2]/1000).toFixed(1)} km / 高度 ${(o.point[1]/1000).toFixed(1)} km`+pw;if(o.type==='attack')return '攻撃 → '+(fleetUnits().find(t=>t.id===o.target)?.name||'目標消失')+(o.aim&&o.aim!=='auto'?`（${C.AIM_KINDS[o.aim]}を照準）`:'')+pw;return '停止・位置保持'+pw;}
 // Combat state for the readouts: sunk, out of the fight, or fighting, and why.
 const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
-function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
+function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out==='電源喪失'?'電源喪失（航行不能）':u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
 function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)return '';const g={};mods.forEach((m,i)=>{if(m.k==='hull')return;const x=g[m.k]||(g[m.k]={n:0,lost:0,hit:0});x.n++;const v=u.mods[i]??1;if(v<=0)x.lost++;else if(v<1)x.hit++;});
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}
 function fleetPowerHTML(u,editable){const o=u.order,combat=fleet.battle.combat,autoPD=C.automaticPointDefenseEnabled(u);
@@ -14632,13 +14632,13 @@ function voyPilotStep(dt) {
  voyWarpFx(B, w, sys, dt);
  // Bolts from the other ships, one burst per battle step in which they fired.
  if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (!u.manual) { const x = voyShotOf(u, t0); if (x) shots.push(x); } for (const x of w.swShots || []) if (x.sys === sys && x.t > t0) shots.push({...x, sw: true}); spaceShots(shots); }
- for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { if (u.side !== me.side) B.kills++; } else if (u.out && !was.out && u.side !== me.side) B.disabled++; }
+ for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { if (u.side !== me.side) B.kills++; } else if (C.outOfAction(u) && !C.outOfAction(was) && u.side !== me.side) B.disabled++; }
  spaceBumps(R.systemUnits(w, sys).map(u => u.lastBump));spaceBump(me);voyBoardFx(w, sys, dt);
  for (const t of trial.turrets) { const i = B.modIndex.get(t.id); t.dead = i != null && me.mods[i] <= 0; }
  for (const l of trial.launchers) { const i = B.modIndex.get(l.id); l.dead = i != null && me.mods[i] <= 0; }
  const log = w.battles.get(sys)?.log || [];let li = log.length;while (li > 0 && log[li - 1].n > B.seen) li--;for (; li < log.length; li++) { const e = log[li];B.seen = e.n;const u = w.units.get(e.id), text = e.text.replace(/^[^：]*：/, ''); spaceLog(text, u ? {...u, team: u.side === me.side ? 0 : 1, manual: u === me} : null); if (u === me && /破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈|崩壊/.test(text)) toast('自艦：' + esc(text)); }
  voyPilotThreats();
- if (me.dead || me.out) { spaceEnd(me.dead ? 'sunk' : 'out'); return; }
+ if (me.dead || C.outOfAction(me)) { spaceEnd(me.dead ? 'sunk' : 'out'); return; }/* power loss is not out of action (user decision 2026-11-16) */
  // Flying in a quiet system is just flying; a battle that began (or was on) and is over ends the sortie.
  if (w.battles.has(sys)) B.hadBattle = true;
  else if (B.hadBattle) { const foes = R.systemUnits(w, sys).filter(u => u.side !== me.side); spaceEnd(foes.some(R.fighting) ? 'withdrew' : 'win'); }

@@ -23,3 +23,12 @@ test('a ship whose reactors are gone stops, loses its shield, makes no power and
  assert.equal(C.shipElectricalAvailableW(a)||0,0,'no power');assert.ok(a.pos[1]<y0,'drawn down by gravity: '+(a.pos[1]-y0));assert.ok(a.shield<sh0,'the shield fades: '+sh0+' → '+a.shield);
  assert.ok(hitsAfter>0,'the enemy keeps it as its target');
 });
+// Physics review 2026-11-16 (FAIL): u.out keeps its first reason, so a ship that lost power and then its bridge stayed
+// "in the fight". The other reasons are now judged afresh.
+test('a ship without power that then loses its bridge is out of action',()=>{
+ const u=C.fleetUnit('a','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),0),mods=u.p.modules;
+ for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor'||mods[i].k==='gen')u.mods[i]=0;C.syncPowerLossDisabled(u);
+ assert.equal(u.out,'電源喪失');assert.equal(C.outOfAction(u),false);
+ const br=mods.findIndex(m=>m.k==='bridge');assert.ok(br>=0,'the CR90 has a bridge module');u.mods[br]=0;
+ assert.equal(u.out,'電源喪失','the recorded reason stays the first one');assert.equal(C.outOfAction(u),true);assert.equal(C.fleetEffective(u),false);
+});

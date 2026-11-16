@@ -63832,14 +63832,16 @@ const fleetAutoAvail=(u,sys)=>{if(!(u.p.autoCrew>0))return 1;const s=sys||fleetS
 const fleetCrewRatio=(u,sys)=>{const need=u.p.crewNeed||0,a=u.p.autoCrew||0;return need+a>0?(Math.max(0,u.crew)+a*fleetAutoAvail(u,sys))/(need+a):1;};
 const fleetCrewEff=u=>{const need=(u.p.crewNeed||0)+(u.p.autoCrew||0);return need>0?clamp((fleetCrewRatio(u)-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
 // Why a ship is out of action, or null.
-function fleetOutReason(u,sys){const p=u.p,s=sys||fleetSystems(u),available=shipElectricalAvailableW(u);if(available!==null?!(available>0):s.hasReactor&&p.grid?.P>0&&s.reactor<=0)return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
+function fleetOutReason(u,sys,opts){const p=u.p,s=sys||fleetSystems(u),available=opts?.skipPower?1:shipElectricalAvailableW(u);if(!opts?.skipPower&&(available!==null?!(available>0):s.hasReactor&&p.grid?.P>0&&s.reactor<=0))return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
  if(u.gridState&&(Object.values(u.gridState.domains).some(d=>d.trip>0)||Object.keys(u.gridState.local).length))return null;
  if((p.crewNeed||0)+(p.autoCrew||0)>0&&fleetCrewRatio(u,s)<FLEET_MIN_CREW)return (p.autoCrew||0)>0&&fleetAutoAvail(u,s)<.999?'操艦不能（自動化装置の停止）':'乗員不足';return null;}
 // Out of action: disabled for a reason that takes the ship out of the fight. A ship that has lost power is not (user
 // decision 2026-11-16「電源喪失は戦闘不能扱いではないようにしよう。単に動けなくなり、シールドを失い、発電量がゼロになり、星の重力に
 // 少しずつ引かれていく」): it stays in the battle and can be fired on, while the existing disabled state keeps it from
 // moving, firing or jumping, lets its shield fade and lets gravity draw it down (hullFall).
-const outOfAction=u=>!!u?.out&&u.out!=='電源喪失';
+// A ship whose recorded reason is power loss is out of action as soon as another reason holds as well (bridge or crew
+// lost after the power): u.out keeps its first reason, so the others are judged afresh (physics review 2026-11-16).
+const outOfAction=u=>!!u?.out&&(u.out!=='電源喪失'||!!(u.p&&fleetOutReason(u,undefined,{skipPower:true})));
 // A ship that can act: alive, and not disabled for any reason (power loss included).
 const fleetActs=u=>!u.dead&&!u.out;
 const fleetEffective=u=>!u.dead&&!outOfAction(u);
