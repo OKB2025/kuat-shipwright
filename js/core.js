@@ -61710,15 +61710,13 @@ function onaWingSlice(p,z){
  const center=unique.reduce((a,b)=>a.map((v,i)=>v+b[i]/unique.length),[0,0]);unique.sort((a,b)=>Math.atan2(a[1]-center[1],a[0]-center[0])-Math.atan2(b[1]-center[1],b[0]-center[0]));return unique;
 }
 const ONA_SYNTH_X0=674,SW_CONVERTER_LABEL='超兵器発射熱の変換区画';
-// Places for heat converters in the room the composite machinery gave up (x 640 to ONA_SYNTH_X0, both sides of the slot).
-function onaConverterSites(s){const sites=[];for(const x of [665,655,675])for(const sg of [-1,1]){const clipped=onaClipPoly(sectionBase(s.hull,x).poly,0,43.05,true),c=clipped.reduce((a,b)=>a.map((v,i)=>v+b[i]/clipped.length),[0,0]);for(const k of [.55,1,1.45,.3,1.8])sites.push([x,c[1],sg*c[0]*k]);}return sites;}
 function onaWeaponBody(s,sg){
  const mesh={v:[],f:[]},center=[927.3,64.9,sg*23.45],size=[1331.6,800,180];
  // Keep the measured visible barrel and muzzle in their original positions.
  onaAppendClosedLoft(mesh,[594.4,1260.2].map(x=>Array.from({length:48},(_,i)=>{const a=i/48*Math.PI*2;return [x,64.9+19.1*Math.sin(a),sg*(23.45+19.1*Math.cos(a))];})));
  // User decision 2026-11-15: the composite machinery (the part of the weapon that fills the forward hull) is made
  // smaller so that the heat converters for the firing loss stand in the forward half with it. It used to start at
- // x 640; it now starts at ONA_SYNTH_X0 and the converters take the room between (onaConverterSites).
+ // x 640; it now starts at ONA_SYNTH_X0 and the converters take the room between (the firing-heat rooms placed below).
  const X0=ONA_SYNTH_X0,xs=[X0,...ONA.st.map(r=>r[0]*1288).filter(x=>x>X0&&x<1254),1254];for(let x=X0+10;x<1254;x+=12)xs.push(x);for(let i=1;i<ONA.st.length;i++){const lo=ONA.st[i-1][0]*1288,hi=ONA.st[i][0]*1288;if(hi-lo<25)for(let x=Math.max(X0+1,lo+1);x<Math.min(1254,hi);x+=1)xs.push(x);}xs.sort((a,b)=>a-b);
  const rings=[];for(const x of [...new Set(xs)]){const clipped=onaClipPoly(sectionBase(s.hull,x).poly,0,43.05,true),c=clipped.reduce((a,b)=>a.map((v,i)=>v+b[i]/clipped.length),[0,0]),ring=onaResampleRing(clipped,24).map(p=>[x,c[1]+(p[1]-c[1])*.97,sg*(c[0]+(p[0]-c[0])*.97)]);rings.push(ring);}onaAppendClosedLoft(mesh,rings);
  const wing=s.parts.find(p=>p.label==='艦首の横翼'&&p.c[2]>0),zs=[140,...ONA.wing.map(r=>r[0]).filter(z=>z>140&&z<384),384];for(let z=150;z<384;z+=12)zs.push(z);zs.sort((a,b)=>a-b);

@@ -39,6 +39,9 @@ test('a bolt meets the shell where it first enters it; a shot starting inside th
  assert.equal(run('ellipsoidEntry([0,0,0],I,[620,140,260],[2000,500,0],[0,500,0])'),null,'passes above');
  assert.equal(run('ellipsoidEntry([0,0,0],I,[620,140,260],[2000,0,0],[1000,0,0])'),null,'stops short');
 });
+test('a ship with no field up: a craft strikes it from anywhere, as before (regression review 2026-11-16)',()=>{
+ run('globalThis.bare={...ship,shield:0}');const g=run(`trial.craft=true;trial.P=[3000,0,0];trial.battle.extra=new Map();spaceDamage(bare,1,'bolt',null,null);trial.battle.extra.get('t')`);assert.equal(g.direct,1);assert.equal(g.sf,0);
+});
 test('the shell itself is not drawn: no glow over the whole field',()=>{assert.ok(!/trialShellPoints|spaceShellFlash/.test(app));assert.match(app,/function spaceShieldBurst\(pos,vel,size,ion\)/);});
 test('fleet and RTS: a craft attack acts on the ship directly, ion guns included',()=>{
  assert.match(core,/C\.combatAdd\(x,t,s\.pos,\{direct:gun,ionDirect:ion,/);
