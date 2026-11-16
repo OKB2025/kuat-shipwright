@@ -62,7 +62,9 @@ test('accepted combat source draw produces actual heat and fuel use, without cre
 });
 
 test('the actual fleet clock pays the same recharge and firing demand as direct control',()=>{
- const u=unit();C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.sh,0);near(u.pw.wpn,0);near(u.propulsion.actualInputW/TT,85);
+ // 2026-11-15: full heat running (order.heat 'full'). Balanced running, the default, holds this converter-less
+ // fixture's weapons to what it can reject; this case is about what the fleet clock pays.
+ const u=unit();u.order={...u.order,heat:'full'};C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.sh,0);near(u.pw.wpn,0);near(u.propulsion.actualInputW/TT,85);
  u.shield=0;u.energy=0;C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.sh/TT,30);near(u.pw.wpn/TT,40);near(u.propulsion.actualInputW/TT,15);near(u.energy,40);
  C.combatResolve({time:1,damage:1,rand:()=>1,ev(){},out(){},sunk(){},hit(){}},u,C.combatIncoming(),1,C.fleetSystems(u));assert.ok(u.shield>0);assert.ok(u.shield<=30*C.K.deflect+100*C.K.deflect,'only paid generation and real cell reserve can refill the field');
  u.shield=u.shieldMax;u.bank=u.bankMax;u.energy=1000;C.fleetPowerStep(u,C.fleetSystems(u),null,10,1);near(u.pw.wpn/TT,10);near(u.propulsion.actualInputW/TT,75);assert.equal(u.pw.activeWeaponFire,true);near(u.energy,1000);

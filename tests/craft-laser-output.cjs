@@ -82,8 +82,8 @@ test('fleet airGun per craft equals the RTS squadron energy per second for a cus
  const rts=key=>R.squadLaserEnergy({craft:key,pos:[0,0,0],h:[1,0,0],laserGas:100},[1000,0,0],1);
  const key=R.registerDesignCraft({name:'Twin heavy',dims:[8,6,3],craft});assert.ok(key);
  near(one({dims:[8,6,3],design:{craft}}),rts(key),'custom design: same arcs, same rule');near(one({dims:[8,6,3],design:{craft}}),2*400*KT,'two heavy lasers');
- for(const type of ['eta2','xwing','arc170']){assert.ok(R.CRAFT[type],type);near(one({type}),rts(type),type);}
- near(one({type:'eta2'}),Math.max(1,Math.round(R.CRAFT.eta2.aa*2))*50*KT,'table-only eta2: round(aa × 2) medium lasers as the RTS estimates');
+ for(const type of ['ywing','xwing','arc170']){assert.ok(R.CRAFT[type],type);near(one({type}),rts(type),type);}
+ near(one({type:'ywing'}),Math.max(1,Math.round(R.CRAFT.ywing.aa*2))*50*KT,'table-only ywing: round(aa × 2) medium lasers as the RTS estimates');/* was eta2, taken out of the catalogue 2026-11-16 */
  near(one({type:'tie_adv'}),C.FLEET_AIR_GUN_DEFAULT,'a type neither table knows is a standard fighter');
 });
 

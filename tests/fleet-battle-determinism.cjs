@@ -10,6 +10,23 @@
 // be written to u.hitLog (X-ray replay): ticks 4..95 changed hash only through hitLog; with
 // hitLog left out of the hash, and in every digest number, shot, event count and
 // random state, all 96 ticks are identical to the 910ef75 recording.
+// Re-recorded on 2026-11-15 (PR #111, after PR #110's firing-heat work): the heat state gained one field per unit,
+// ht.madeBaseW (the heat a ship makes apart from its superweapons, for the firing-heat hold). Ticks 3..95 changed hash
+// through that field only: with KS_DETERMINISM_ALLOW_FLOAT=1 every digest number, shot, event count and random state
+// of all 96 ticks equals the previous recording within 1e-12, and the full states dumped at ticks 3 and 50 on main
+// (b1bc4a8) and on the branch differ in nothing but the four added ht.madeBaseW keys (no value differs).
+// Re-recorded again on 2026-11-15 for the battle changes the user decided (PR #111), each found by running this test
+// at every commit against the previous recording: a penetrating shot kills crew in the compartment it enters
+// (first difference tick 4, unit 0 crew 183 against 186.96); the gun spread halved (tick 0, shield, more hits);
+// point defence ON intercepts only and never fires on ships (tick 0, heading). The later commits (balanced heat
+// running, rapid fire one barrel at a time, the superweapon fixes) change nothing further in this scenario.
+// Re-recorded once more: balanced heat running leaves a ship with nothing to balance against (no rejection) to the
+// store's own governor. From tick 64 (after a1's reactors are knocked out at tick 60) the hash changed through the
+// unit's heat-running state only: with KS_DETERMINISM_ALLOW_FLOAT=1 all 96 ticks equal the previous recording within
+// 1e-12 in every digest number, shot, event count and random state.
+// Re-recorded after the physics review's heat-running fixes (the rise per second, the record cleared on full running,
+// lost rejection held down): from tick 4 the hash changed through the heat-running state only; with
+// KS_DETERMINISM_ALLOW_FLOAT=1 all 96 ticks equal the previous recording within 1e-12.
 // Re-recorded on c473505 + regenerated examples (2026-11-14, user decisions: one kind of structure, empty bays, denser machinery,
 // carried load added to the ship's mass in battle). The ships in this battle changed mass and plant, so every tick
 // differs from the 734081a recording from tick 0. Two recordings in a row gave the same file
@@ -17,6 +34,14 @@
 // Re-recorded again for the heat model (2026-11-14, PR #107: no hull-skin cooling, converters draw power for the heat
 // they convert, wing coefficient curve, heat paths without a capacity limit, regenerated examples). Every tick differs
 // from the earlier recording from tick 0; two recordings in a row gave the same file.
+// Re-recorded on cb92b28 (2026-11-15, PR #111, user decisions「1発ごとに各区画で判断」「排熱は被弾とも釣り合う」「自動全力運転は外す」
+// and their physics-review fixes; examples regenerated so each weapon module carries shotW/bolt). The hash differs from
+// tick 0 through the new per-tick state (the heat state's hit-heat filter, the incoming records' shot counts); the first
+// numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1 is tick 4, unit 0 crew 183.64 against 183 (casualties judged per
+// shot instead of the whole tick's penetration as one shot). Two recordings in a row gave the same file (sha256 88608d79…).
+// Re-recorded on 174ca47 (2026-11-16, user decision「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」): the
+// shield's absorbed share no longer heats the ship. First numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0,
+// unit 0 digest[28] (heat store ht.qJ) 0 against 3.49e19 J. Two recordings in a row gave the same file (sha256 b245c89d…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest

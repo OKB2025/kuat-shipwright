@@ -1,0 +1,10 @@
+const path=require('path'),root=path.resolve(process.argv[2]);const {C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+const t0=Date.now();let s;try{s=C.buildDesign('deathstar');}catch(e){console.log('BUILD ERROR',String(e.stack||e).split('\n').slice(0,6).join(' | ').slice(0,700));process.exit(0);}
+console.log('guns',s.fits?.length,JSON.stringify((s.fits||[]).reduce((m,f)=>(m[f.k]=(m[f.k]||0)+1,m),{})),'first fit',JSON.stringify(s.fits?.[0]?.p?.map(v=>Math.round(v))));console.log('built in',((Date.now()-t0)/1000).toFixed(1),'s parts',s.parts.length,'cuts',s.solidCuts.length,'trenches',s.trenches.length,'class',s.shipClass);
+for(const p of s.parts)console.log(' ',p.id,p.k,p.form||'',JSON.stringify(p.c.map(v=>Math.round(v))),'d',p.d!=null?Math.round(p.d):'',p.room?JSON.stringify(p.room.map(v=>Math.round(v))):'',(p.label||'').slice(0,24));
+const t1=Date.now();const S=C.computeStats(s);console.log('stats in',((Date.now()-t1)/1000).toFixed(1),'s mass',S.mass.toExponential(3),'hullVolume',S.hullVolume.toExponential(4),'cls',S.cls?.name);
+console.log('superweapons',JSON.stringify(S.superweapons).slice(0,600));console.log('reactor P',S.power?.toExponential?.(3)??S.Vgen);
+for(const [k,v] of Object.entries(S.heat?.presets||{}))console.log(' heat',k,'gen',v.gen.toExponential(3),'cap',v.cap.toExponential(3),'shortfall',(v.shortfallW||0).toExponential(2));
+console.log('warnings',(S.warnings||[]).map(w=>w.text.slice(0,70)).join(' | ').slice(0,900));
+const hull=s.parts.find(p=>p.form==='hull');console.log('hullData keys',Object.keys(hull?.hullData||{}).join(','),'cuts in hull',hull?.hullData?.solidCuts?.length,'trenches in hull',hull?.hullData?.trenches?.length,'kinds',JSON.stringify(s.parts.reduce((m,p)=>(m[p.k]=(m[p.k]||0)+1,m),{})));
+require('fs').writeFileSync('/tmp/ks-verify/20261115-deathstar/deathstar-design.json',JSON.stringify(C.serialize(s)));console.log('saved design',require('fs').statSync('/tmp/ks-verify/20261115-deathstar/deathstar-design.json').size);

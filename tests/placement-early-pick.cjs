@@ -58,7 +58,11 @@ test('actual strict Worker acceptance supplies a new parent before an old comple
  hits=r.G.placementSurfaceCandidates(model,[37,100,7],[0,-1,0]);assert.equal(hits[0]?.parentStructureId,1,'an unchanged branch remains immediately available for the next stamp');assert.equal(typeof hits[0].hostSurfaceId,'string');
  const revision=child.placement.geometryRevision;child.placement.geometryRevision++;assert.equal(r.C.placementCachedGeometryCurrent(s,child),false,'a request-only change invalidates the accepted cache even with an unchanged physical pose');assert.equal(r.G.placementSurfaceCandidates(model,[30,100,0],[0,-1,0]).length,0);assert.equal(r.G.placementSurfaceCandidates(model,[37,100,7],[0,-1,0])[0]?.parentStructureId,1);child.placement.geometryRevision=revision;
  model._placementGeometryContext='new global cuts';assert.equal(r.G.placementSurfaceCandidates(model,[30,100,0],[0,-1,0]).length,0,'old globals cannot validate a cached accepted shape');model._placementGeometryContext=s._editorGeometryContext;
- s.parts.find(p=>p.id===1).c[1]++;assert.equal(r.C.placementCachedGeometryCurrent(s,child),false,'a moved ancestor invalidates the child solid');assert.equal(r.G.placementSurfaceCandidates(model,[30,100,0],[0,-1,0]).length,0);
+ // 2026-11-15 (user report: no reactor could be added to a loaded craft): expectation changed. It used to be
+ // "a moved ancestor invalidates the child solid" (false, and no hit). A structure is not fitted to the body it was
+ // tapped on and does not follow it (user decisions 2026-11-12/13, stage B), so the body's move leaves the child's
+ // solid where it is and current: the tap still lands on it, at the same height.
+ s.parts.find(p=>p.id===1).c[1]++;assert.equal(r.C.placementCachedGeometryCurrent(s,child),true,'the tapped body moved: the child solid is unchanged and current');hits=r.G.placementSurfaceCandidates(model,[30,100,0],[0,-1,0]);assert.equal(hits[0]?.parentStructureId,child.id);near(hits[0].p[1],13.2);
 });
 
 function pendingParent(r,s){const parent=s.parts.find(part=>part.id===1),part={id:s.nextId++,k:'struct',form:'box',c:[30,11.2,0],s:[6,4,4]},result=r.C.preparePlacementDraft(s,part,{mode:'horizontal',contactFit:'cut',position:part.c,parentStructureId:parent.id,hit:{p:[30,10,0],n:[0,1,0],kind:'part'},geometryRevision:1});assert.equal(result.ok,true,result.error);s.parts.push(result.part);return result.part;}

@@ -52,10 +52,10 @@ test('practice ion pulses share finite geometric energy in distance order across
 
 test('a partially charged practice pulse consumes the common superweapon store exactly once',()=>{
  const r=run(`(()=>{const u=fixture();u.p.sw=[{k:'hion',Emax:1000}];u.sw=[{c:.2,st:'charge'}];C.superweaponDischarge(u,0,0);u.sw[0].c=0;const first=trialSwSoloEnergy(u,0,200),second=trialSwSoloEnergy(u,0,200);return {first,second,ledger:u.weaponLedger};})()`);
- close(r.first,200);close(r.second,0);close(r.ledger.initialJ,r.ledger.storedJ+r.ledger.emittedJ+r.ledger.releasedJ);close(r.ledger.emittedJ,200*run('TT_J'));
+ /* 2026-11-15: 2% of what a shot spends stays in the ship as heat (HEAT.swShot, user decision「発射の熱も排熱」): 196 of the 200 TT leave, and the ledger's loss holds the rest; was 200 and no loss */const BEAM=1-run('C.HEAT.swShot');close(r.first,200*BEAM);close(r.second,0);close(r.ledger.initialJ,r.ledger.storedJ+r.ledger.emittedJ+r.ledger.lossJ+r.ledger.releasedJ);close(r.ledger.emittedJ,200*BEAM*run('TT_J'));
 });
 
 test('a practice beam records emitted energy separately from safely released unused charge',()=>{
  const r=run(`(()=>{const u=fixture();u.p.sw=[{k:'sbeam'}];u.sw=[{c:.1,st:'beam',t:10}];C.superweaponDischarge(u,0,0);const x=u.sw[0],amount=u.weaponLedger.initialJ/TT_J;x.c=0;x.practiceLeft=amount;x.practiceRate=amount/10;trialSwSoloBeamEnergy(u,0,x,2);x.t=8;trialSwSoloBeamEnergy(u,0,x,1,true);return u.weaponLedger;})()`);
- close(r.initialJ,r.emittedJ+r.releasedJ+r.storedJ);close(r.emittedJ,r.initialJ*.2);close(r.releasedJ,r.initialJ*.8);close(r.storedJ/r.initialJ,0);
+ /* 2026-11-15: the beam is 98% of what the two seconds spend (HEAT.swShot); was 20% emitted and no loss */const BEAM=1-run('C.HEAT.swShot');close(r.initialJ,r.emittedJ+r.lossJ+r.releasedJ+r.storedJ);close(r.emittedJ,r.initialJ*.2*BEAM);close(r.lossJ,r.initialJ*.2*(1-BEAM));close(r.releasedJ,r.initialJ*.8);close(r.storedJ/r.initialJ,0);
 });
