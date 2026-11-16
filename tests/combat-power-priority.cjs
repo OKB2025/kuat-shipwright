@@ -21,11 +21,15 @@ function allocate(u,want={},mode='propulsion'){
 }
 function ledger(result){const p=result.propulsion.power;near(p.draw,p.delivered+p.feedLossW,'finite source conservation');assert.ok(p.draw<=p.P+Math.max(1,p.P)*1e-12);near(p.draw,p.sources.reduce((n,s)=>n+s.drawW,0));}
 
+// 2026-11-16 (PR #112, user decision「もう少しシールドの回復速度を落としていい」, answered x0.5): shields recharge at
+// C.SHIELD_RECHARGE_K of their design rate and draw that share of their power, so a depleted field takes 30*KS of the
+// fixture's 100 and navigation the rest. Expected values below follow KS instead of the former 30 / 15.
+const KS=C.SHIELD_RECHARGE_K,SH=30*KS,NAV=15+30*(1-KS);
 test('all live stored modes use services, real shield recharge, weapons, then navigation at finite reactor output',()=>{
  for(const mode of Object.keys(C.POWER_MODES)){
   const u=unit();u.shield=0;u.energy=0;const r=allocate(u,{},mode);
-  near(r.propulsion.power.fixed/TT,10);near(r.propulsion.power.cooling/TT,5);near(r.got.shields/TT,30);near(r.got.weapons/TT,40);near(r.got.engines/TT,15);near(r.propulsion.power.draw/TT,100);
-  assert.equal(u.mode,C.FLIGHT_POWER_POLICY.id);assert.equal(u.pw.activeCombatPower,true);near(u.pw.requestedShieldRechargeW/TT,30);near(u.pw.requestedWeaponChargeW/TT,40);ledger(r);
+  near(r.propulsion.power.fixed/TT,10);near(r.propulsion.power.cooling/TT,5);near(r.got.shields/TT,SH);near(r.got.weapons/TT,40);near(r.got.engines/TT,NAV);near(r.propulsion.power.draw/TT,100);
+  assert.equal(u.mode,C.FLIGHT_POWER_POLICY.id);assert.equal(u.pw.activeCombatPower,true);near(u.pw.requestedShieldRechargeW/TT,SH);near(u.pw.requestedWeaponChargeW/TT,40);ledger(r);
  }
 });
 test('full idle shields and weapon stores reserve no power and preserve the uncontested healthy terminal reference',()=>{
@@ -35,7 +39,7 @@ test('full idle shields and weapon stores reserve no power and preserve the unco
 });
 test('shield depletion and actual firing reduce navigation acceleration and equilibrium without retuning reference resistance',()=>{
  const u=unit(),idle=allocate(u),reference=u.p.maxSpeed,drag=C.massDragRate(u),idleAccel=idle.propulsion.actualAccelMps2;
- u.shield=0;const shield=allocate(u,{weapons:0});near(shield.got.engines/TT,55);
+ u.shield=0;const shield=allocate(u,{weapons:0});near(shield.got.engines/TT,85-SH);
  u.shield=u.shieldMax;const firing=allocate(u,{weaponFireW:40*TT});near(firing.got.engines/TT,45);assert.equal(u.pw.activeWeaponFire,true);near(u.pw.requestedWeaponFireW/TT,40);
  assert.ok(firing.propulsion.actualAccelMps2<idleAccel);near(C.propulsionTerminalSpeed(u,C.propulsionMotion(u).acc)/C.propulsionTerminalSpeed(u,idleAccel*C.FLEET_RULES.accelScale),45/85);
  near(u.p.maxSpeed,reference);near(C.massDragRate(u),drag);const recovered=allocate(u);near(recovered.got.engines,idle.got.engines);assert.equal(u.pw.activeCombatPower,false);ledger(shield);ledger(firing);
@@ -45,27 +49,27 @@ test('only the missing shield and capacitor joules are requested near full, incl
  u.shield=u.shieldMax;u.energy=1000;u.bank-=2*C.K.deflect;r=allocate(u);near(r.got.shields/TT,2);near(r.got.engines/TT,83);ledger(r);
 });
 test('throttle cannot displace combat consumers and disabling thrust leaves their finite grants unchanged',()=>{
- for(const throttle of [0,.25,1]){const u=unit();u.shield=0;u.energy=0;const r=allocate(u,{throttle});near(r.got.shields/TT,30);near(r.got.weapons/TT,40);near(r.got.engines/TT,throttle===0?0:15);ledger(r);}
+ for(const throttle of [0,.25,1]){const u=unit();u.shield=0;u.energy=0;const r=allocate(u,{throttle});near(r.got.shields/TT,SH);near(r.got.weapons/TT,40);near(r.got.engines/TT,throttle===0?0:Math.min(NAV,throttle*100))/* the throttle is the share of the plant the engines may take */;ledger(r);}
 });
 test('shared finite path losses fund services and shields before guns and leave no fictitious propulsion grant',()=>{
- const u=unit({efficiency:.8,cap:100*TT});u.shield=0;u.energy=0;const r=allocate(u);near(r.propulsion.power.fixed/TT,10);near(r.propulsion.power.cooling/TT,5);near(r.got.shields/TT,30);near(r.got.weapons/TT,35);near(r.got.engines,0);near(r.propulsion.power.feedLossW/TT,20);ledger(r);
+ const u=unit({efficiency:.8,cap:100*TT});u.shield=0;u.energy=0;const r=allocate(u);near(r.propulsion.power.fixed/TT,10);near(r.propulsion.power.cooling/TT,5);near(r.got.shields/TT,SH);near(r.got.weapons/TT,Math.min(40,65-SH));near(r.got.engines/TT,Math.max(0,65-SH-40))/* 80 received of 100 sent: services 15, shields, guns, then navigation */;near(r.propulsion.power.feedLossW/TT,20);ledger(r);
 });
 test('zero grants retain current combat demand for readiness while idle requests do not',()=>{
- const u=unit({cap:15*TT});u.shield=0;u.energy=0;const r=allocate(u,{weaponFireW:40*TT});near(r.got.shields,0);near(r.got.weapons,0);assert.equal(u.pw.activeCombatPower,true);assert.equal(u.pw.activeWeaponFire,true);near(u.pw.requestedShieldRechargeW/TT,30);near(u.pw.requestedWeaponChargeW/TT,40);ledger(r);
+ const u=unit({cap:15*TT});u.shield=0;u.energy=0;const r=allocate(u,{weaponFireW:40*TT});near(r.got.shields,0);near(r.got.weapons,0);assert.equal(u.pw.activeCombatPower,true);assert.equal(u.pw.activeWeaponFire,true);near(u.pw.requestedShieldRechargeW/TT,SH);near(u.pw.requestedWeaponChargeW/TT,40);ledger(r);
 });
 test('surface bank room is allocated before navigation and a full surface bank has no standby weapon draw',()=>{
  const u=unit({surface:true});let r=allocate(u);near(r.got.weapons,0);near(r.got.engines/TT,85);
  u.surfaceBanks[4]=999;u.energy=999;r=allocate(u);near(r.got.weapons/TT,1);near(r.got.engines/TT,84);near(C.surfaceManualCharge(u,r.got.weapons,1),1);near(u.surfaceBanks[4],1000);ledger(r);
 });
 test('accepted combat source draw produces actual heat and fuel use, without creating electrical energy',()=>{
- const u=unit();u.maneuver=0;u.energy=0;u.shield=0;const r=allocate(u,{throttle:0});C.heatAccrue(u,r.got,r.cooling.fixed,1);near(u.ht.actualGeneratedElectricalJ/TT,80);near(u.ht.reactorHeatJ/TT,.04*80);assert.ok(u.ht.e.shield>0);assert.ok(u.ht.e.weapon>0);const fuel=C.shipFuelState(u);assert.ok(fuel.generatedElectricalJ>0);ledger(r);
+ const u=unit();u.maneuver=0;u.energy=0;u.shield=0;const r=allocate(u,{throttle:0});C.heatAccrue(u,r.got,r.cooling.fixed,1);near(u.ht.actualGeneratedElectricalJ/TT,50+SH);near(u.ht.reactorHeatJ/TT,.04*(50+SH));assert.ok(u.ht.e.shield>0);assert.ok(u.ht.e.weapon>0);const fuel=C.shipFuelState(u);assert.ok(fuel.generatedElectricalJ>0);ledger(r);
 });
 
 test('the actual fleet clock pays the same recharge and firing demand as direct control',()=>{
  // 2026-11-15: full heat running (order.heat 'full'). Balanced running, the default, holds this converter-less
  // fixture's weapons to what it can reject; this case is about what the fleet clock pays.
  const u=unit();u.order={...u.order,heat:'full'};C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.sh,0);near(u.pw.wpn,0);near(u.propulsion.actualInputW/TT,85);
- u.shield=0;u.energy=0;C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.sh/TT,30);near(u.pw.wpn/TT,40);near(u.propulsion.actualInputW/TT,15);near(u.energy,40);
+ u.shield=0;u.energy=0;C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.sh/TT,SH);near(u.pw.wpn/TT,40);near(u.propulsion.actualInputW/TT,NAV);near(u.energy,40);
  C.combatResolve({time:1,damage:1,rand:()=>1,ev(){},out(){},sunk(){},hit(){}},u,C.combatIncoming(),1,C.fleetSystems(u));assert.ok(u.shield>0);assert.ok(u.shield<=30*C.K.deflect+100*C.K.deflect,'only paid generation and real cell reserve can refill the field');
  u.shield=u.shieldMax;u.bank=u.bankMax;u.energy=1000;C.fleetPowerStep(u,C.fleetSystems(u),null,10,1);near(u.pw.wpn/TT,10);near(u.propulsion.actualInputW/TT,75);assert.equal(u.pw.activeWeaponFire,true);near(u.energy,1000);
  C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.propulsion.actualInputW/TT,85);assert.equal(u.pw.activeCombatPower,false);
