@@ -54738,7 +54738,7 @@ function deserialize(o,internalOptions=null){
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
   for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
   if(o.hull?.maxAt!=null)s.hull.maxAt=finite(o.hull.maxAt,.05,.9,.3);
-  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if((p.k==='shield'||p.k==='localShield')&&Number.isFinite(q.shieldDissipationW)&&q.shieldDissipationW>=0)p.shieldDissipationW=q.shieldDissipationW;if(Array.isArray(q.room)&&q.room.length===3&&(PARTS[p.k].shape==='cube'||p.k==='aux'||p.k==='inertial'))setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
+  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if((p.k==='shield'||p.k==='localShield')&&Number.isFinite(q.shieldDissipationW)&&q.shieldDissipationW>=0)p.shieldDissipationW=q.shieldDissipationW;if(Array.isArray(q.room)&&q.room.length===3&&(PARTS[p.k].shape==='cube'||p.k==='aux'||p.k==='gen'/* v25: a main reactor may be a room as an auxiliary one may (the Acclamator's plant under the terraces) */||p.k==='inertial'))setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
     for(const k of ['aftWidth','foreWidth'])if(q[k]!=null)p[k]=finite(q[k],.03,2,1);
     if(q.loft){if(!Array.isArray(q.loft)||q.loft.length<2||q.loft.length>32)throw new Error('ロフト断面は2〜32個にしてください');p.loft=q.loft.map(a=>[finite(a?.[0],0,1,0),finite(a?.[1],.02,2,1),finite(a?.[2],.03,1.5,1),finite(a?.[3],0,1,0),...(a?.length>4?[finite(a[4],-2,2,0)]:[])]).sort((a,b)=>a[0]-b[0]);if(p.loft.some((a,i)=>a[3]>=a[2]||(i&&a[0]-p.loft[i-1][0]<.002)))throw new Error('ロフトの断面位置か上下寸法が不正です');p.loft[0][0]=0;p.loft.at(-1)[0]=1;}
     if(Array.isArray(q.skinAxial)&&q.skinAxial.length===3&&q.skinAxial.every(v=>Number.isFinite(v)&&v>0&&v<=10000))p.skinAxial=q.skinAxial.slice();
@@ -57922,7 +57922,7 @@ function accBuild(opt={}){
  // sizes the main reactor to the reference output (1.5×10²⁴ W in all since v25) and the shield nodes to its load.
  // v25 (user decision 2026-11-16: 1.5×10²⁴ W): the plant is a room under the terraces amidships, clear of the main
  // engines, the integrity conduits, the gunship service rails and the assembly hall; sizeReferenceReactors fits its volume.
- const gen=part('gen','テラス内蔵主反応炉',[207,62,0],42,{room:[120,70,34]});
+ const gen=part('gen','テラス内蔵主反応炉',[207,62,0],42,{room:[120,70,34],autoFit:false});
  part('aux','艦首副反応炉',[612,52,0],14);
  // Two main and two auxiliary thrusters leave the stern face beside the tail; the auxiliaries,
  // set further off the axis, draw on small reactors of their own just ahead of them.
@@ -57975,13 +57975,13 @@ function accBuild(opt={}){
  room('service','ガンシップ搭乗リフト',[240,42,103],[20,10,10],{},true);
  // The landing deck over the ventral box: AT-TEs stand at the front of the bays with the
  // SPHA-Ts stored behind, the gunship boarding platform above.
- room('hangar','揚陸甲板（AT-TE・ガンシップ搭乗甲板）',[375.5,29,0],[125,176.6,54],{airRole:'mixed',foreWidth:.796});
- room('hangar','前部ガンシップ甲板',[512.75,52.5,0],[153.5,136,19],{airRole:'storage',foreWidth:.56});
- // Gunship decks in the aft and forward brim, opening inboard onto the lower common hangar and onto each other.
+ // Its ceiling is 32 m (an AT-TE stands about 22 m), so the decks above it are troop space (user decision 2026-11-16).
+ room('hangar','揚陸甲板（AT-TE・ガンシップ搭乗甲板）',[371.5,18,0],[133,176.6,32],{airRole:'mixed',foreWidth:.796});
+ // v25 (user decision 2026-11-16「格納庫の一部を無くして兵員スペースに（ハッチ周りと直接繋がる格納スペースは絶対保持）」):
+ // the forward gunship deck and the forward brim gunship decks, farthest from the side hatches, became troop space.
+ // Gunship decks in the aft brim, reached from the lower common hangar by the boarding lifts.
  for(const sg of [1,-1])room('hangar',(sg>0?'右舷':'左舷')+'ブリム・ガンシップ甲板（後部）',[225.5,51.9,sg*152],[85,104,13],{airRole:'mixed'});
- for(const sg of [1,-1])brimRoom('hangar',(sg>0?'右舷':'左舷')+'ブリム・ガンシップ甲板（前部）',[[266,98],[266,201],[398,148],[398,78]].map(([x,z])=>[x,sg*z]),45.4,58.4,{airRole:'mixed'},false);
- // Logistics reception bay under the dorsal terrace, reached through the rail deck (its dorsal hatch went).
- room('hangar','兵站受入ベイ',[300,88.25,0],[40,40,14.5],{airRole:'mixed'});
+ // The logistics reception bay under the dorsal terrace went with its dorsal hatch (troop space, user decision 2026-11-16).
  // Gunships circulating on the rail deck for basic maintenance, the heavy combat vehicle service bay,
  // and the assembly hall where the battalions form up.
  room('service','ガンシップ周回整備レール・重戦闘車両整備ベイ',[353,59,0],[170,82,10],{foreWidth:.6});
@@ -60174,6 +60174,8 @@ function refitShipThermal(ship,key,options={}){
    }
   }
  }finally{ship._building=oldBuilding;}
+ // v25 A bank the packer left with no volume inside the hull (placed on its edge) is removed rather than kept as an empty room.
+ {const empty=new Set(made.filter(p=>!(partVolume(p)>1e-6)).map(p=>p.id));if(empty.size){ship.parts=ship.parts.filter(p=>!empty.has(p.id));syncCompartments(ship);}}
  const banks=ship.parts.filter(p=>p.k==='hdis'&&partVolume(p)>0),caps=banks.map(p=>dissipatorCap(p,S)),capacityW=caps.reduce((a,b)=>a+b,0),source=new Map(),put=(id,w)=>{if(w>0)source.set(id,Math.max(source.get(id)||0,w));};
  // v25 (user decision 2026-11-16, Onager「Cool what fits」): a superweapon's firing heat is converted as far as the hull holds
  // converters; the rest goes to the heat store. The cruise share must still be fully installed.
