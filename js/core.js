@@ -72183,7 +72183,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt,pdStep={}) {
      if (!s.fired && dd <= releaseRange) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
      if(!(gate>0))s.strafeT=null;
      if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const energy=squadWeaponEnergy(s,t),factor=s.n*RULES.damage*C.squadFireK(s)*(s.drive?.pw?1:0),gun=energy.gun*factor,ion=energy.ion*factor,tt=gun+ion,x=inc.get(t.id);
-      if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:C.COMBAT.ionShield*ion,hull:C.COMBAT.ionHull*ion,direct:gun,ion,...(energy.gunShots>0&&energy.gun>0?{shot:energy.gun/energy.gunShots}:{})},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
+      if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)/* craft attack from inside the shield shell: guns and ion guns act on the ship itself (user decision 2026-11-16) */C.combatAdd(x,t,s.pos,{direct:gun,ionDirect:ion,...(energy.gunShots>0&&energy.gun>0?{shot:energy.gun/energy.gunShots}:{})},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
      }
      if(r.lineReady&&!s.ran&&(dd<Math.max(900,t.p.len*.45)||dd<Math.max(1800,t.p.len*.6)&&dot(sub(s.pos,t.pos),r.dir)>0||w.time>=r.until)){const rel=squadRelease(w,sys,s,t,true,aimK);s.ran=true;s.runs=(s.runs||0)+1;
       if(rel.length||s.relG?.length){(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[]),...rel]});s.relG=null;}

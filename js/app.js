@@ -8656,7 +8656,7 @@ function trialRenderSets(){
  b.forEach((q,i)=>{const d=tv.norm(q.vel);for(let k=0;k<K;k++){const j=i*K+k,s=k/(K-1),p=tv.add(tv.sub(q.pos,P),d,-q.len*s);pos.set(p,j*3);col.set([q.col[0],q.col[1],q.col[2],Math.round(235*(1-s*.7))],j*4);size[j]=q.size*(1-s*.55);}});
  view.setPoints('trialBolts',pos,col,size);
  const now=performance.now()/1000,swDt=trial.swAt?Math.min(.1,now-trial.swAt):0;trial.swAt=now;
- const fires=[...(trial.battle?spaceFires(now):[]),...swFxPoints(trial.paused?0:swDt),...trialSwArcPoints(),...(trial.cord?.length?craftOrdPoints(P):[])],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
+ const fires=[...(trial.battle?spaceFires(now):[]),...(trial.battle?trialShellPoints(P,trial.paused?0:swDt):[]),...swFxPoints(trial.paused?0:swDt),...trialSwArcPoints(),...(trial.cord?.length?craftOrdPoints(P):[])],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
  fires.forEach((q,j)=>{const i=f.length+ms0.length*2+j;fp.set(q[0],i*3);fc.set(q[1],i*4);fs[i]=q[2];});
  f.forEach((e,i)=>{const k=e.life/e.max;fp.set(tv.sub(e.pos,P),i*3);fc.set([e.col[0],e.col[1],e.col[2],Math.round(255*Math.min(1,k*1.4)*(e.col[0]===150?.45:1))],i*4);fs[i]=e.size*(e.max>1?1.4-k*.6:e.col[0]===150?1.6-k*.8:1);});
  ms0.forEach((m,j)=>{const i=f.length+j*2,ion=m.ion,fl=ion?.75+Math.random()*.5:1;fp.set(tv.sub(m.pos,P),i*3);fc.set(ion?[225,240,255,255]:[255,235,190,255],i*4);fs[i]=7*fl;fp.set(tv.add(tv.sub(m.pos,P),m.h,-14),i*3+3);fc.set(ion?[120,175,255,220]:[255,140,60,220],i*4+4);fs[i+1]=12*fl;});
@@ -9652,14 +9652,29 @@ function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
  // v24 Missiles and a craft's bolts (it flies inside the field) strike the hull directly; ion torpedoes are physical
  // rounds that work on the ship itself without the field (docs/shield-deflection-v24.md).
- if(kind==='bolt'&&trial.craft)kind='direct';
+ const kind0=kind;if(kind==='bolt'&&trial.craft)kind='direct';
+ // User decision 2026-11-16「シールドは艦の周囲に展開される形で、小型機はその中に入り込んで攻撃できる」: a craft inside the target's
+ // shield shell strikes the ship itself with every weapon, its ion guns included (on the ship, as ion torpedoes do);
+ // from outside the shell its fire meets the shield like any other.
+ if(kind==='ion'&&trial.craft)kind='iontorp';if(kind!==kind0&&!spaceInShell(u,trial.P))kind=kind0;
  let h;if(kind==='ion'){x.sf+=tt;x.hull+=C.COMBAT.ionHull*tt;x.ion+=tt;h=C.COMBAT.ionHull*tt;}else if(kind==='iontorp'){x.ionDirect=(x.ionDirect||0)+tt;h=0;}else if(kind==='missile'||kind==='direct'){x.direct+=tt;h=tt;}else{x.sf+=tt;x.hull+=tt;h=tt;}
  // Each call is one shot of `shot` TT (user decision 2026-11-15「1発ごとに各区画で判断」); combatMerge carries the count.
  if(h>0&&shot>0){x.shotE=(x.shotE||0)+h;x.shotN=(x.shotN||0)+h/shot;}
  x.aim.auto=(x.aim.auto||0)+h+.1*tt;if(B.me)x.from=[...B.me.pos];
  if(q&&t?.rot&&t.semi){const point=trialApplyT(t.rot,tv.sub(q,t.pos)),z=C.combatZoneAt(u.p,point,t.semi);x.zw=x.zw||new Array(30).fill(0);x.zw[z]+=h;(x.hits||(x.hits=[])).push({point,energy:kind==='missile'||kind==='direct'||kind==='iontorp'?0:tt,ion:kind==='ion'?tt:0,direct:kind==='missile'||kind==='direct'?tt:0,src:B.me?.id});}
  B.extra.set(u.id,x);}
-function spaceImpact(pos,vel,u,size){const sh=u&&u.shield>0;sndAt(sh?'hit_shield':'hit_hull',pos,{gain:.7});for(let k=0;k<(sh?5:7);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),30+Math.random()*90)),life:sh?.35:.6,max:sh?.35:.6,size:size*(sh?1.3:.9),col:sh?[120,190,255]:[255,170+(Math.random()*50|0),90]});}
+// The shield shell: the field stands around the ship as an ellipsoid a little larger than the hull (half-dimensions
+// × k + m metres). Small craft fly inside it to attack (spaceDamage); a hit on a shielded ship lights it (trialShellPoints).
+const SHIELD_SHELL={k:1.2,m:20,life:.6,points:420,max:12};
+function spaceShellFrame(u){const B=trial.battle;if(!B||!u?.p)return null;const semi=[u.p.len/2,(u.p.height||u.p.len*.2)/2,(u.p.width||u.p.len*.5)/2].map(v=>v*SHIELD_SHELL.k+SHIELD_SHELL.m);return {center:spaceWorld(u),R:spaceRotU(B.E,u),semi};}
+function spaceInShell(u,world){const f=spaceShellFrame(u);if(!f||!world)return false;const l=trialApplyT(f.R,tv.sub(world,f.center));return Math.hypot(l[0]/f.semi[0],l[1]/f.semi[1],l[2]/f.semi[2])<1;}
+function spaceShellFlash(u,world){const f=spaceShellFrame(u);if(!f)return;const l=trialApplyT(f.R,tv.sub(world,f.center)),d=tv.norm(l.map((v,i)=>v/f.semi[i])),list=trial.shellFx||(trial.shellFx=[]),old=list.find(e=>e.u===u);
+ if(old){old.dir=d;old.life=SHIELD_SHELL.life;}else{list.push({u,dir:d,life:SHIELD_SHELL.life});if(list.length>SHIELD_SHELL.max)list.shift();}}
+const SHELL_DIRS=(()=>{const n=SHIELD_SHELL.points,g=Math.PI*(3-Math.sqrt(5)),out=[];for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,r=Math.sqrt(1-y*y);out.push([Math.cos(g*i)*r,y,Math.sin(g*i)*r]);}return out;})();
+function trialShellPoints(P,dt){const list=trial.shellFx||[],pts=[];for(const e of list){e.life-=dt;const f=e.life>0&&!e.u.dead&&e.u.shield>0?spaceShellFrame(e.u):null;if(!f)continue;const k=e.life/SHIELD_SHELL.life,base=tv.sub(f.center,P);
+ for(const d of SHELL_DIRS){const c=d[0]*e.dir[0]+d[1]*e.dir[1]+d[2]*e.dir[2],a=k*(.12+.88*Math.exp(-(1-c)/.08));if(a<.04)continue;pts.push([tv.add(base,trialApply(f.R,[d[0]*f.semi[0],d[1]*f.semi[1],d[2]*f.semi[2]])),[120,190,255,Math.round(235*a)],Math.max(6,f.semi[0]*.035)*(.6+.8*a)]);}}
+ trial.shellFx=list.filter(e=>e.life>0&&!e.u.dead);return pts;}
+function spaceImpact(pos,vel,u,size){const sh=u&&u.shield>0;if(sh&&trial.battle)spaceShellFlash(u,pos);sndAt(sh?'hit_shield':'hit_hull',pos,{gain:.7});for(let k=0;k<(sh?5:7);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),30+Math.random()*90)),life:sh?.35:.6,max:sh?.35:.6,size:size*(sh?1.3:.9),col:sh?[120,190,255]:[255,170+(Math.random()*50|0),90]});}
 function trialExplosion(pos,vel,L,big){
  sndAt(big?'ship_destroyed':'explosion_large',pos,{near:Math.max(1500,L*2),far:Math.max(60000,L*40),gain:1});
  trial.fx.push({pos,vel,life:big?1.1:.7,max:big?1.1:.7,size:L*(big?3.2:1.6),col:[255,250,235]});
