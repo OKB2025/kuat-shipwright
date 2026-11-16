@@ -39,6 +39,9 @@
 // tick 0 through the new per-tick state (the heat state's hit-heat filter, the incoming records' shot counts); the first
 // numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1 is tick 4, unit 0 crew 183.64 against 183 (casualties judged per
 // shot instead of the whole tick's penetration as one shot). Two recordings in a row gave the same file (sha256 88608d79…).
+// Re-recorded on 174ca47 (2026-11-16, user decision「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」): the
+// shield's absorbed share no longer heats the ship. First numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0,
+// unit 0 digest[28] (heat store ht.qJ) 0 against 3.49e19 J. Two recordings in a row gave the same file (sha256 b245c89d…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
