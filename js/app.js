@@ -8592,13 +8592,13 @@ function trialGunnery(dt){
  const segHit=(t,a0,a1)=>{const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(t.pos,a0),seg)/l2,0,1),q=tv.add(a0,seg,k);return tv.len(tv.sub(q,t.pos))<Rt?q:null;};
  // Ships are ellipsoids of their own length, height and width.
  const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);return tv.len(tv.add(pa,d,k))<1?tv.add(a0,tv.sub(a1,a0),k):null;};
- const shipHit=(t,q,tt,kind,w)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t);spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
+ const shipHit=(t,q,tt,kind,w,shell)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t);if(shell)spaceShieldBurst(q,t.vel,Math.max(8,t.radius*.05),kind==='ion');else spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
  const pq=trialPilotThreats(trial.craft?undefined:Math.max(0,...trial.turrets.map(t=>t.reach||TRIAL_GUN.range),...trial.missiles.map(m=>m.range||0)));
  for(const b of trial.bolts){const liveDt=Math.min(dt,Math.max(0,b.life));b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
   if(!b.esc&&liveDt>0&&pq.length&&trialPilotHit(b.prev,liveDt<dt?tv.add(b.prev,b.vel,liveDt):b.pos,pq,b.weight,1,b.hitScale)){b.life=0;continue;}
   if(!b.esc&&trial.escorts?.length){let hitE=null;for(const e of trial.escorts){const sd=tv.sub(b.pos,b.prev),l=tv.len(sd);if(l>0&&trialBoxOnLine({pos:e.pos,rot:e.R,radius:e.p.len*.5,semi:[e.p.len*.5,(e.p.height||e.p.len*.2)*.5,(e.p.width||e.p.len*.5)*.5]},b.prev,tv.scale(sd,1/l),l,1)){hitE=e;break;}}if(hitE){b.life=0;spaceImpact(b.pos,hitE.V,{shield:1},10);if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：随伴艦 ${esc(hitE.name)} に命中`);}continue;}}
-  for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
+  for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const u=t.unit,qs=u?.shield>0&&!(trial.craft&&spaceInShell(u,trial.P))?ellipsoidEntry(t.pos,t.rot,t.semi.map(v=>v*SHIELD_SHELL.k+SHIELD_SHELL.m),b.prev,b.pos):null;if(qs){b.life=0;shipHit(t,qs,b.tt||0,b.ion?'ion':'bolt',b.weight,true);continue;}const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
  // (a missile homing on a small craft bursts on it)
  for(const m of trial.missiles){const q=m.target;if(pq&&q?.kind&&q.alive&&m.life>0&&trialPilotHit(m.prev,m.pos,[q],1,1.5))m.life=0;}
  for(const m of trial.missiles)for(const t of trial.targets){if(!t.alive||m.life<=0)continue;if(t.ship){const q=segShip(t,m.prev,m.pos);if(q){m.life=0;shipHit(t,q,m.tt??10,m.ion?'iontorp':'missile',m.weight);}continue;}const q=segHit(t,m.prev,m.pos);if(q){m.life=0;hitTarget(t,q,m.weight);for(let k=0;k<10;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60+Math.random()*200)),life:.8,max:.8,size:Rt*.3,col:[255,150,70]});}}
@@ -8656,7 +8656,7 @@ function trialRenderSets(){
  b.forEach((q,i)=>{const d=tv.norm(q.vel);for(let k=0;k<K;k++){const j=i*K+k,s=k/(K-1),p=tv.add(tv.sub(q.pos,P),d,-q.len*s);pos.set(p,j*3);col.set([q.col[0],q.col[1],q.col[2],Math.round(235*(1-s*.7))],j*4);size[j]=q.size*(1-s*.55);}});
  view.setPoints('trialBolts',pos,col,size);
  const now=performance.now()/1000,swDt=trial.swAt?Math.min(.1,now-trial.swAt):0;trial.swAt=now;
- const fires=[...(trial.battle?spaceFires(now):[]),...(trial.battle?trialShellPoints(P,trial.paused?0:swDt):[]),...swFxPoints(trial.paused?0:swDt),...trialSwArcPoints(),...(trial.cord?.length?craftOrdPoints(P):[])],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
+ const fires=[...(trial.battle?spaceFires(now):[]),...swFxPoints(trial.paused?0:swDt),...trialSwArcPoints(),...(trial.cord?.length?craftOrdPoints(P):[])],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
  fires.forEach((q,j)=>{const i=f.length+ms0.length*2+j;fp.set(q[0],i*3);fc.set(q[1],i*4);fs[i]=q[2];});
  f.forEach((e,i)=>{const k=e.life/e.max;fp.set(tv.sub(e.pos,P),i*3);fc.set([e.col[0],e.col[1],e.col[2],Math.round(255*Math.min(1,k*1.4)*(e.col[0]===150?.45:1))],i*4);fs[i]=e.size*(e.max>1?1.4-k*.6:e.col[0]===150?1.6-k*.8:1);});
  ms0.forEach((m,j)=>{const i=f.length+j*2,ion=m.ion,fl=ion?.75+Math.random()*.5:1;fp.set(tv.sub(m.pos,P),i*3);fc.set(ion?[225,240,255,255]:[255,235,190,255],i*4);fs[i]=7*fl;fp.set(tv.add(tv.sub(m.pos,P),m.h,-14),i*3+3);fc.set(ion?[120,175,255,220]:[255,140,60,220],i*4+4);fs[i+1]=12*fl;});
@@ -9650,7 +9650,7 @@ function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.m
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
 function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
- // v24 Missiles and a craft's bolts (it flies inside the field) strike the hull directly; ion torpedoes are physical
+ // v24 Missiles, and a craft's bolts fired from inside the target's shield shell (spaceInShell), strike the hull directly; ion torpedoes are physical
  // rounds that work on the ship itself without the field (docs/shield-deflection-v24.md).
  const kind0=kind;if(kind==='bolt'&&trial.craft)kind='direct';
  // User decision 2026-11-16「シールドは艦の周囲に展開される形で、小型機はその中に入り込んで攻撃できる」: a craft inside the target's
@@ -9664,17 +9664,18 @@ function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;
  if(q&&t?.rot&&t.semi){const point=trialApplyT(t.rot,tv.sub(q,t.pos)),z=C.combatZoneAt(u.p,point,t.semi);x.zw=x.zw||new Array(30).fill(0);x.zw[z]+=h;(x.hits||(x.hits=[])).push({point,energy:kind==='missile'||kind==='direct'||kind==='iontorp'?0:tt,ion:kind==='ion'?tt:0,direct:kind==='missile'||kind==='direct'?tt:0,src:B.me?.id});}
  B.extra.set(u.id,x);}
 // The shield shell: the field stands around the ship as an ellipsoid a little larger than the hull (half-dimensions
-// × k + m metres). Small craft fly inside it to attack (spaceDamage); a hit on a shielded ship lights it (trialShellPoints).
-const SHIELD_SHELL={k:1.2,m:20,life:.6,points:420,max:12};
+// × k + m metres). Small craft fly inside it to attack (spaceDamage); ships' bolts burst on it (spaceShieldBurst).
+const SHIELD_SHELL={k:1.2,m:20};
 function spaceShellFrame(u){const B=trial.battle;if(!B||!u?.p)return null;const semi=[u.p.len/2,(u.p.height||u.p.len*.2)/2,(u.p.width||u.p.len*.5)/2].map(v=>v*SHIELD_SHELL.k+SHIELD_SHELL.m);return {center:spaceWorld(u),R:spaceRotU(B.E,u),semi};}
 function spaceInShell(u,world){const f=spaceShellFrame(u);if(!f||!world)return false;const l=trialApplyT(f.R,tv.sub(world,f.center));return Math.hypot(l[0]/f.semi[0],l[1]/f.semi[1],l[2]/f.semi[2])<1;}
-function spaceShellFlash(u,world){const f=spaceShellFrame(u);if(!f)return;const l=trialApplyT(f.R,tv.sub(world,f.center)),d=tv.norm(l.map((v,i)=>v/f.semi[i])),list=trial.shellFx||(trial.shellFx=[]),old=list.find(e=>e.u===u);
- if(old){old.dir=d;old.life=SHIELD_SHELL.life;}else{list.push({u,dir:d,life:SHIELD_SHELL.life});if(list.length>SHIELD_SHELL.max)list.shift();}}
-const SHELL_DIRS=(()=>{const n=SHIELD_SHELL.points,g=Math.PI*(3-Math.sqrt(5)),out=[];for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,r=Math.sqrt(1-y*y);out.push([Math.cos(g*i)*r,y,Math.sin(g*i)*r]);}return out;})();
-function trialShellPoints(P,dt){const list=trial.shellFx||[],pts=[];for(const e of list){e.life-=dt;const f=e.life>0&&!e.u.dead&&e.u.shield>0?spaceShellFrame(e.u):null;if(!f)continue;const k=e.life/SHIELD_SHELL.life,base=tv.sub(f.center,P);
- for(const d of SHELL_DIRS){const c=d[0]*e.dir[0]+d[1]*e.dir[1]+d[2]*e.dir[2],a=k*(.12+.88*Math.exp(-(1-c)/.08));if(a<.04)continue;pts.push([tv.add(base,trialApply(f.R,[d[0]*f.semi[0],d[1]*f.semi[1],d[2]*f.semi[2]])),[120,190,255,Math.round(235*a)],Math.max(6,f.semi[0]*.035)*(.6+.8*a)]);}}
- trial.shellFx=list.filter(e=>e.life>0&&!e.u.dead);return pts;}
-function spaceImpact(pos,vel,u,size){const sh=u&&u.shield>0;if(sh&&trial.battle)spaceShellFlash(u,pos);sndAt(sh?'hit_shield':'hit_hull',pos,{gain:.7});for(let k=0;k<(sh?5:7);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),30+Math.random()*90)),life:sh?.35:.6,max:sh?.35:.6,size:size*(sh?1.3:.9),col:sh?[120,190,255]:[255,170+(Math.random()*50|0),90]});}
+// Where a segment a0→a1 first enters an ellipsoid (centre, world→local R, half-axes); null if it does not, or if it
+// starts inside (a craft firing from within a shell).
+function ellipsoidEntry(center,R,semi,a0,a1){const la=trialApplyT(R,tv.sub(a0,center)),lb=trialApplyT(R,tv.sub(a1,center)),p=la.map((v,i)=>v/semi[i]),d=lb.map((v,i)=>v/semi[i]-p[i]),A=tv.dot(d,d),B=2*tv.dot(p,d),Cc=tv.dot(p,p)-1;if(!(A>0)||Cc<=0)return null;const D=B*B-4*A*Cc;if(D<0)return null;const k=(-B-Math.sqrt(D))/(2*A);return k>=0&&k<=1?tv.add(a0,tv.sub(a1,a0),k):null;}
+// A bolt bursting on a shield: the turbolaser's flash, or an ion bolt's blue-white crackle, at the field (user decision
+// 2026-11-16「被弾した時にシールド全体を光らせる必要はなく、シールドの位置でターボレーザー、イオンが炸裂するだけでいい」).
+function spaceShieldBurst(pos,vel,size,ion){sndAt('hit_shield',pos,{gain:.7});trial.fx.push({pos,vel,life:.18,max:.18,size:size*2.2,col:ion?[225,240,255]:[255,225,170]});
+ for(let k=0;k<(ion?9:6);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120)),life:ion?.45:.3,max:ion?.45:.3,size:size*(ion?.8:1),col:ion?[150+(Math.random()*60|0),205,255]:[255,150+(Math.random()*70|0),70]});}
+function spaceImpact(pos,vel,u,size){const sh=u&&u.shield>0;sndAt(sh?'hit_shield':'hit_hull',pos,{gain:.7});for(let k=0;k<(sh?5:7);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),30+Math.random()*90)),life:sh?.35:.6,max:sh?.35:.6,size:size*(sh?1.3:.9),col:sh?[120,190,255]:[255,170+(Math.random()*50|0),90]});}
 function trialExplosion(pos,vel,L,big){
  sndAt(big?'ship_destroyed':'explosion_large',pos,{near:Math.max(1500,L*2),far:Math.max(60000,L*40),gain:1});
  trial.fx.push({pos,vel,life:big?1.1:.7,max:big?1.1:.7,size:L*(big?3.2:1.6),col:[255,250,235]});
@@ -10226,7 +10227,7 @@ function spaceShots(shots){
   // v20.6 A salvo: the whole broadside leaves the ship at once (many bolts within a moment, and a heavier report).
   const sv=!!s.salvo&&!s.ff,n=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)};o.fac=sndFac(a);sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
   for(let i=0;i<n;i++){const emitter=spaceShotEmitter(a,t,i,!!s.ion,s.sourceFit,s.sourceMuzzle);if(!emitter)continue;const from=emitter.pos,tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(tw,spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d),mount=a.p.surface?.mounts.find(m=>m.id===emitter.fit),reach=s.ion?C.GUN_BANDS.long.range:C.GUN_BANDS[mount?.band]?.range||C.fleetReach(a.p),direction=C.gunScatter(emitter.dir||tv.norm(d),a.p,reach,C.fleetSystems(a).fire);if(dist<1)continue;
-   trial.vbolts.push({pos:from,vel:tv.scale(direction,TRIAL_GUN.boltSpeed),life:reach/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t,sourceFit:emitter.fit,sourceCell:emitter.cell,sourceUnit:emitter.unit});}
+   trial.vbolts.push({pos:from,vel:tv.scale(direction,TRIAL_GUN.boltSpeed),life:reach/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],ion:!!s.ion,target:t,sourceFit:emitter.fit,sourceCell:emitter.cell,sourceUnit:emitter.unit});}
   if(s.launches?.length){sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)});for(const packet of s.launches){const from=packet.origin?tv.add(B.O,trialApply(B.E,packet.origin)):spaceHullPoint(a,.3),axis=packet.axis?trialApply(B.E,packet.axis):tv.norm(tv.sub(spaceWorld(t),from)),vel=tv.add(spaceVel(a),axis,2600),life=Math.min(2.5,C.missileRange(packet)/Math.max(1,tv.len(vel)));for(let k=0;k<Math.min(4,Math.ceil(packet.n));k++)trial.fx.push({pos:from,vel,life,max:life,size:packet.ion?10:9,col:packet.ion?[205,230,255]:[255,210,150]});}}
   else if(s.msl>0&&Math.random()<.5&&(sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}
   // v22 ion torpedoes: blue-white, flickering as they go
@@ -10238,6 +10239,7 @@ function spaceBolts(dt){
   if(b.delay>0){b.delay-=dt;return true;}const previous=b.pos,step=Math.min(dt,Math.max(0,b.life));b.pos=tv.add(b.pos,b.vel,step);b.life-=dt;const t=b.target;
   // Fleet damage is already accounted for in Core. A visible bolt only makes
   // an impact flash if this same physical segment intersects the target hull.
+  if(t&&t.shield>0){const f=spaceShellFrame(t),q=f&&ellipsoidEntry(f.center,f.R,f.semi,previous,b.pos);if(q){spaceShieldBurst(q,spaceVel(t),Math.max(8,t.p.len*.02),!!b.ion);if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+.12);return false;}}
   if(t){const R=spaceRotU(trial.battle.E,t),center=spaceWorld(t),semi=[t.p.len/2,(t.p.height||t.p.len*.2)/2,(t.p.width||t.p.len*.5)/2],a=trialApplyT(R,tv.sub(previous,center)).map((v,i)=>v/semi[i]),z=trialApplyT(R,tv.sub(b.pos,center)).map((v,i)=>v/semi[i]),v=tv.sub(z,a),k=C.clamp(-tv.dot(a,v)/Math.max(1e-12,tv.dot(v,v)),0,1);
    if(tv.len(tv.add(a,v,k))<1){const point=tv.add(previous,tv.sub(b.pos,previous),k);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
   return b.life>0;
