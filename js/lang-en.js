@@ -5006,7 +5006,7 @@ root.KS_EN={
   "噴射口が塞がったエンジンがあります（推力に寄与しません）。": "Some engine exhausts are blocked and produce no thrust.",
   "船体から離れて浮いている区画が {0} 個あります。": "{0} compartments are detached from the hull.",
   "取り付け面を失った装備が {0} 基あります。": "{0} equipment mounts have lost their supporting surfaces.",
-  "ほかの装備・機器と重なって取り付けられない装備が {0} 基あります。左右対称で中心線の近くに置くと、対の装備が重なります。": "{0} equipment mounts cannot be fitted because they overlap other equipment. With left/right symmetry, a mount placed near the centreline overlaps its own mirrored twin.",
+  "ほかの装備と重なって取り付けられない装備が {0} 基あります。左右対称で中心線の近くに置くと、対の装備が重なります。": "{0} equipment mounts cannot be fitted because they overlap other mounts. With left/right symmetry, a mount placed near the centreline overlaps its own mirrored twin.",
   "装甲外板の上に置かれた装備が {0} 基あります。装甲外板には武装・装備を取り付けられません。": "{0} equipment mounts are on armor plating. Weapons and equipment cannot attach to armor plating.",
   "重なり合っている区画があります（{0} 区画）。": "Compartments overlap ({0} compartments).",
   "骨組みと構造物が途切れた断面があります。縦強度がゼロです。": "A cross-section has no continuous framing or structure. Longitudinal strength is zero.",

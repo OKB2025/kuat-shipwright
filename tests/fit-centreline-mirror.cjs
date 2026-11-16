@@ -24,5 +24,13 @@ test('a fitting refused for interference is reported as a clash, not as floating
  s.fits=[2,3].map((id,i)=>({id,k:'triple40',p:[100,20,i?-.1:.1],n:[0,1,0],a:2,ped:0,float:true,mountMode:'top',host:1,local:[0,.5,i?-.0005:.0005],localNormal:[0,1,0],placement:{...meta},tw:i?2:3}));s.nextId=4;
  const L=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s)))),S=C.computeStats(L),bad=(S.warnings||[]).filter(w=>w.lv==='bad').map(w=>w.text);
  assert.ok(bad.some(t=>/重なって取り付けられない装備が 2 基/.test(t)),bad.join(' / '));
+ const clash=(S.warnings||[]).find(w=>w.code==='fit-clash');assert.equal(JSON.stringify(clash.targets.map(t=>t.id).sort()),'[2,3]','the warning selects both fittings');
  assert.ok(!bad.some(t=>/浮いている|取り付け面を失った/.test(t)),bad.join(' / '));
+});
+
+test('the same refusal reason without a real overlap (a lost surface, a blocked launcher) stays reported as floating',()=>{
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'Lone');s.parts=[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20]}];s.links=[];
+ s.fits=[{id:2,k:'triple40',p:[100,60,40],n:[0,1,0],a:2,ped:0,float:true,mountMode:'top',host:1,local:[0,.5,.2],localNormal:[0,1,0],placement:{modelVersion:C.PLACEMENT_MODEL_VERSION,mode:'direct',geometryRevision:1,validationFailed:true,repairRequired:true,repairReason:'placement-interference'}}];s.nextId=3;
+ const L=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s)))),S=C.computeStats(L),bad=(S.warnings||[]).filter(w=>w.lv==='bad').map(w=>w.text);
+ assert.ok(!bad.some(t=>/重なって取り付けられない/.test(t)),bad.join(' / '));assert.ok(bad.some(t=>/浮いている|取り付け面を失った/.test(t)),bad.join(' / '));
 });
