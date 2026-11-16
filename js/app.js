@@ -10373,7 +10373,7 @@ function spaceStep(dt){
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
-  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
+  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
   spaceBumps(b.bumps);spaceBump(B.me);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
@@ -10551,7 +10551,7 @@ const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof Yar
 const fleetPending=new Map();
 async function fleetAssetLoad(source,opts={}){
  const cached=fleet.assets.get(source);
- if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);}}
+ if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}}
  else if(cached)return cached.stats||opts.lite?cached:fleetAssetStats(cached);
  let payload=null,key=source,alias=null;
  if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
@@ -10682,7 +10682,7 @@ function bindFleet(){
  $('#panel').addEventListener('change',change);
  window.addEventListener('keydown',e=>{if(fleet.mode==='design'||e.target.matches('input,textarea,select'))return;if(e.code==='Space'){e.preventDefault();if(fleet.battle?.phase==='execute'||fleet.replay){fleet.playing=!fleet.playing;fleet.lastClock=0;fleetRender();}}if(e.key==='Escape'){fleet.command='select';fleet.clean=false;$('#app').classList.remove('fleet-clean');fleetRender();}});
 }
-function fleetPrune(){if(typeof voy!=='undefined'&&voy.w)return;const keys=new Set([...fleet.review,...(fleet.battle?.units||[])].map(u=>u.key));for(const k of fleet.assets.keys())if(!keys.has(k))fleet.assets.delete(k);view?.pruneFleet(keys);}
+function fleetPrune(){if(typeof voy!=='undefined'&&voy.w)return;const keys=new Set([...fleet.review,...(fleet.battle?.units||[])].map(u=>u.key));for(const k of fleet.assets.keys())if(!keys.has(k)){fleet.assets.delete(k);C.setHullRadial?.(k,null);}view?.pruneFleet(keys);}
 
 st.surfaceMode='horizontal';st.structPitch=0;st.structRoll=0;
 function surfaceControls(p,selected){const pitch=selected?p.pitch||0:st.structPitch,roll=selected?p.roll||0:st.structRoll;return `<div class="surface-controls"><h4>配置の向き</h4>${selected?`<p class="note">${p.surfaceNormal?'接触面に沿った座標系':'船体の水平座標系'}で回転します。</p><button class="chip" data-surface-reset>水平へ戻す</button>`:seg('surfacemode',[['horizontal','水平を保つ'],['surface','接触面に沿う']],st.surfaceMode)}<div class="sliders">${slider(selected?'surfacePitch':'newSurfacePitch','前後の傾き',pitch,-180,180,1,deg(pitch))}${slider(selected?'surfaceRoll':'newSurfaceRoll','左右の傾き',roll,-180,180,1,deg(roll))}</div>${!selected?'<p class="note">接触面の法線にパーツの上方向を揃え、底面を接地させます。斜面・舷側・下面に対応。回転は接触面上の方位、傾きはその面に対する追加角度です。</p>':''}</div>`;}
@@ -11851,7 +11851,7 @@ async function voyPrepare(source) {
   if(p.catalogOnly||previous?.src==='example'&&p.profileVersion!==C.FLEET_PROFILE_VERSION){
    // fleetAsset has already cached this response and uploaded its geometry.
    // Remove every alias too, so a retry can request the current worker result.
-   for(const [key,cached]of fleet.assets)if(cached===a){fleet.assets.delete(key);view?.fleetCache?.delete(key);}
+   for(const [key,cached]of fleet.assets)if(cached===a){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}
    throw new Error('stale example fleet profile');
   }
   // (a design of a made faction this device does not know serves every faction, as 全陣営 does)

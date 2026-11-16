@@ -64500,7 +64500,7 @@ const HULL_RADIAL={lon:360,lat:180,bigLen:20000,bigLon:720,bigLat:720},HULL_RADI
 function hullRadialMap(tris,center,len){
  const T=tris instanceof Float32Array?tris:Float32Array.from(tris||[]);if(T.length<9)return null;const c=center||[0,0,0];let R=0;
  for(let i=0;i<T.length;i+=3)R=Math.max(R,Math.hypot(T[i]-c[0],T[i+1]-c[1],T[i+2]-c[2]));if(!(R>0))return null;R=R*1.01+1;
- const big=(len||0)>=HULL_RADIAL.bigLen,nLon=big?HULL_RADIAL.bigLon:HULL_RADIAL.lon,nLat=big?HULL_RADIAL.bigLat:HULL_RADIAL.lat,r=new Float32Array(nLon*nLat),bvh=buildBVH(T);
+ const big=Math.max(len||0,2*R)>=HULL_RADIAL.bigLen,nLon=big?HULL_RADIAL.bigLon:HULL_RADIAL.lon,nLat=big?HULL_RADIAL.bigLat:HULL_RADIAL.lat,r=new Float32Array(nLon*nLat),bvh=buildBVH(T);
  for(let i=0;i<nLat;i++){const lat=-Math.PI/2+(i+.5)*Math.PI/nLat,cl=Math.cos(lat),sl=Math.sin(lat);
   for(let j=0;j<nLon;j++){const lon=j*2*Math.PI/nLon,d=[cl*Math.cos(lon),sl,cl*Math.sin(lon)],h=rayBVH(bvh,[c[0]+d[0]*R,c[1]+d[1]*R,c[2]+d[2]*R],[-d[0],-d[1],-d[2]],R);r[i*nLon+j]=h?Math.max(0,R-h.t):0;}}
  return {nLon,nLat,R,r};
@@ -64530,7 +64530,7 @@ function hullCollide(list,opts={}){
  const out=[],give=(u,dp,dv)=>{if(u.manual){const b=u.bump||(u.bump={dp:[0,0,0],dv:[0,0,0],vn:0});for(let i=0;i<3;i++){b.dp[i]+=dp[i];b.dv[i]+=dv[i];}return;}u.pos=add(u.pos,dp);u.velocity=add(u.velocity||[0,0,0],dv);};
  // (pad: the pushes of earlier pairs move ships a little within the same call)
  const n=list.length;for(const ij of hullPairs(list,opts.pad??150)){
-  const i=Math.floor(ij/n),j=ij-i*n,a=list[i],z=list[j];if(opts.skip&&opts.skip(a,z))continue;const c0=hullOverlap(a,z);if(!c0)continue;const c=hullRefine(a,z,c0);if(!c)continue;
+  const i=Math.floor(ij/n),j=ij-i*n,a=list[i],z=list[j];if(opts.skip&&opts.skip(a,z))continue;const c0=hullOverlap(a,z);if(!c0)continue;const c=opts.radial?hullRefine(a,z,c0):c0;if(!c)continue;
   const ma=hullMass(a),mz=hullMass(z),ia=opts.fixed?.(a)?0:1/ma,iz=opts.fixed?.(z)?0:1/mz,sum=ia+iz;if(!(sum>0))continue;
   const va=a.velocity||[0,0,0],vz=z.velocity||[0,0,0],vn=(vz[0]-va[0])*c.n[0]+(vz[1]-va[1])*c.n[1]+(vz[2]-va[2])*c.n[2];
   give(a,mul(c.n,-c.depth*ia/sum),[0,0,0]);give(z,mul(c.n,c.depth*iz/sum),[0,0,0]);
@@ -64825,7 +64825,9 @@ function fleetTick(b,dt,opts={}){
  }
  // Current power allocation controls this tick's thrust; the thermal update follows motion and accrual once.
  moveFleet();
- const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead&&!u.hyperBurst));
+ // Outer-surface maps only where the caller asks (the trial, whose ships each have their map before they appear): a fleet
+ // battle or a voyage started before its maps arrive keeps the hull box throughout (Opus/high review 2026-11-16).
+ const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead&&!u.hyperBurst),{radial:!!opts.radial});
  for(const c of contacts){hullImpact(incoming.get(c.a.id),c.a,c.z,c);hullImpact(incoming.get(c.z.id),c.z,c.a,c);if(c.vn>HULL_HIT.min){b.bumps.push({a:c.a.id,z:c.z.id,point:c.point,vn:c.vn});if(c.vn>5)b.events.push({time:b.time+dt,text:`${c.a.name}と${c.z.name}が衝突（相対速度 ${Math.round(c.vn)} m/s）`,id:c.a.id});}}
  const time=b.time+dt,ctx={rand:()=>fleetRandom(b),time,damage:DMG,ev:(u,text)=>b.events.push({time,text:u.name+'：'+text,id:u.id}),sunk:(u,why)=>b.events.push({time,text:`${u.name}：撃沈（${why}）`,id:u.id,sunk:true}),out:(u,why)=>b.events.push({time,text:`${u.name}：戦闘不能（${why}）`,id:u.id}),hit:opts.onHit};
  // v21 Superweapons (a piloted ship's fire on command); stopped and overloaded reactors recover.

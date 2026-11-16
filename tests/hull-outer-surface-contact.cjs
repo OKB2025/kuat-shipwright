@@ -1,7 +1,8 @@
 // User request 2026-11-16「当たり判定は船の外面に出るように。デススターなどで試したが当たり判定が遠すぎて赤道トレンチに入る前に衝突した」:
 // collision and hits use the visible outer surface. A ship's radial map (Core.hullRadialMap, built by the Worker from its
 // render meshes) gives the distance from its centre to the outermost surface along each direction; the hull box stays the
-// first, coarse check, and ships without a map keep it as before.
+// first, coarse check, and ships without a map keep it as before. Maps are used only where the caller asks (the trial):
+// a fleet battle or a voyage, whose maps may arrive after it started, keeps the box (Opus/high review 2026-11-16).
 const path=require('node:path'),assert=require('node:assert/strict'),{test}=require('node:test');
 const {C}=require('../scripts/update-ship-examples.cjs').loadRuntime(process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'));
 const s=C.buildDesign('deathstar'),T=[];for(const p of s.parts){if(p.k==='struct'){p._solidCutShip=s;for(const v of C.structTriangles(p))T.push(v);}else if(p.k==='slaser')for(const v of C.superweaponBodyTriangles(p))T.push(v);}
@@ -18,8 +19,9 @@ test('a craft inside the equatorial trench touches nothing; the box test alone s
  C.setHullRadial('test-deathstar',map);try{
   const d=dir(0,90),inTrench=craft(d.map(v=>v*78500)),a=ds();
   assert.equal(C.hullRefine(a,inTrench,{depth:1,n:[0,1,0],point:[0,0,0]}),null,'no contact in the trench');
-  const out=C.hullCollide([a,inTrench]);assert.equal(out.length,0,'hullCollide: no contact');
-  C.setHullRadial('test-deathstar',null);assert.ok(C.hullCollide([ds(),craft(d.map(v=>v*78500))]).length>0,'without the map the box reports a contact');
+  const out=C.hullCollide([a,inTrench],{radial:true});assert.equal(out.length,0,'hullCollide with maps (the trial): no contact');
+  assert.ok(C.hullCollide([ds(),craft(d.map(v=>v*78500))]).length>0,'a caller that does not ask for maps (fleet battle, voyage) keeps the box');
+  C.setHullRadial('test-deathstar',null);assert.ok(C.hullCollide([ds(),craft(d.map(v=>v*78500))],{radial:true}).length>0,'without the map the box reports a contact');
  }finally{C.setHullRadial('test-deathstar',null);}
 });
 test('below the outer surface away from the trench is a contact, pushed out along the surface normal',()=>{

@@ -135,7 +135,7 @@ function waitForStats(ms) {
 // ---------- transfer helpers ----------
 // The outer surface for collision and hits (Core.hullRadialMap): the solid meshes of a fleet model, around its centre.
 // Built once per model and kept for the session (the Death Star's takes a few seconds; an ordinary ship far less).
-const radialCache = new Map(), RADIAL_SKIP = /^(gen|shield|hyper|hangar|hatchOpen|hatchRay|trialTarget)$/;
+const RADIAL_CACHE_MAX = 24, radialCache = new Map(), RADIAL_SKIP = /^(gen|shield|hyper|hangar|hatchOpen|hatchRay|trialTarget)$/;
 // (every solid mesh of the model: hull, structures and plates, engines and nozzles, fittings, turrets; not the interior
 // machinery drawn in cutaways, the open hatches or the trial's target marker)
 const radialMeshes = geometry => Object.keys(geometry.meshes).filter(name => !RADIAL_SKIP.test(name));
@@ -993,7 +993,8 @@ async function fleetJob(job) {
   // profileKnown/statsKnown: the page already holds this design's profile or figures (same design, same engine).
   else if (job.statsOnly) post({type: 'fleet', id: job.id, stats: displayStats, profile: job.profileKnown ? null : profile, design: serial, ms: now() - t0, src, cacheSaved, profileSrc});
   else {
-  let radial = null; if (geometry && gid) { radial = radialCache.get(gid); if (radial === undefined) { radial = geometryRadial(geometry, (profile || rec.profile)?.len); radialCache.set(gid, radial); } }
+  // Not for a preparation (a save prepares both models and discards the reply). The cache keeps the most recent models.
+  let radial = null; if (geometry && gid && !job.prepareOnly) { radial = radialCache.get(gid); if (radial === undefined) { radial = geometryRadial(geometry, (profile || rec.profile)?.len); radialCache.set(gid, radial); while (radialCache.size > RADIAL_CACHE_MAX) radialCache.delete(radialCache.keys().next().value); } else { radialCache.delete(gid); radialCache.set(gid, radial); } }
   post({type: 'fleet', id: job.id, radial, stats: job.statsKnown ? null : displayStats, profile: lite || job.profileKnown ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved, profileSrc}, transfer); }
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
