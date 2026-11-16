@@ -3962,9 +3962,14 @@ async function openExample(key) {
 }
 async function fillHangarsRemote() {
   if (!ship) return;
-  const before = snap(); showBusyOverlay('空き容積に航空区画を配置中…');
+  const before = snap(), target = ship, sent = C.publicJSON(ship), history = [undoStack.length, undoStack[undoStack.length - 1], redoStack.length, redoStack[redoStack.length - 1]]; showBusyOverlay('空き容積に航空区画を配置中…');
   try {
-    const r = await YardEngineClient.request('op', {gen: eng.gen, state: C.publicJSON(ship), op: 'fillHangars', args: [st.size.hangar, st.fill[0], st.fill[1], st.mirror]});
+    const r = await YardEngineClient.request('op', {gen: eng.gen, state: sent, op: 'fillHangars', args: [st.size.hangar, st.fill[0], st.fill[1], st.mirror]});
+    // Audit 2026-11-16: the reply is for the design as it was sent. A different ship, or an edit, Undo, Redo or Delete
+    // made while waiting (each moves the history), would be overwritten by it, so it is discarded instead. The engine's
+    // own adoption of computed fields while waiting is not a user edit and does not discard it (review 2026-11-16).
+    const moved = undoStack.length !== history[0] || undoStack[undoStack.length - 1] !== history[1] || redoStack.length !== history[2] || redoStack[redoStack.length - 1] !== history[3];
+    if (ship !== target || moved) { if (ship === target) hideBusyOverlay(); toast('待っているあいだに設計が変わったため、自動充填の結果を破棄しました'); return; }
     if (!r.result) { hideBusyOverlay(); toast('空きが見つかりませんでした'); return; }
     C.patchShip(ship, JSON.parse(r.state)); ship._client = true;
     undoStack.push(before); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;
@@ -15630,18 +15635,21 @@ function msNormalize(st) {
  msNavigationNormalize(st);
 }
 // Saving: the state is brought up to date at once; it is written a moment later (one write for a burst of edits).
-let msSaveT = 0, msWriting = false;
+// Audit 2026-11-16 (msWrite race): two writes in flight shared one flag, so the first to finish cleared it and the newer
+// one was skipped as if cancelled. Each write now has a generation: only the newest is stored, and a synchronous flush
+// (page exit) covers every write started before it.
+let msSaveT = 0, msWriting = 0, msWriteGen = 0, msFlushedGen = 0;
 function msSave() {
  const st = MS;if (!st) return;msNormalize(st);st.savedAt = Date.now();
  clearTimeout(msSaveT);msSaveT = setTimeout(msWrite, 200);msCloudPush();
 }
 async function msWrite() {
- msSaveT = 0;const st = MS;if (!st) return;let ok = false;msWriting = true;
- try { const data = await pack(st); ok = msWriting ? LS.set(MS_KEY, data) : true; } catch (e) { ok = false; } finally { msWriting = false; }
+ msSaveT = 0;const st = MS;if (!st) return;let ok = false;const gen = ++msWriteGen;msWriting++;
+ try { const data = await pack(st); ok = gen === msWriteGen && gen > msFlushedGen ? LS.set(MS_KEY, data) : true; } catch (e) { ok = false; } finally { msWriting = Math.max(0, msWriting - 1); }
  if (!ok && !msUI.warned) { msUI.warned = true; toast('この端末では任務を保存できません（このページを開いているあいだは続けられます）'); }
 }
 // Leaving the page with a write still to come: written at once, uncompressed.
-function msFlush() { if (!MS || !msSaveT && !msWriting) return; clearTimeout(msSaveT); msSaveT = 0; msWriting = false; try { LS.set(MS_KEY, JSON.stringify(MS)); } catch (e) {} }
+function msFlush() { if (!MS || !msSaveT && !msWriting) return; clearTimeout(msSaveT); msSaveT = 0; msFlushedGen = msWriteGen; try { LS.set(MS_KEY, JSON.stringify(MS)); } catch (e) {} }
 // The artifact's own store (when the viewer gives it one) keeps a copy, so a cleared browser does not lose the mission.
 function msCloudPush() {
  clearTimeout(msUI.cloud.timer);
