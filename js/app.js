@@ -5554,7 +5554,9 @@ function designUIRequests(part,request){
   }
   return {part:next,request:r,...(fit?{list:'fits'}:{}),symmetry:source.symmetry+axis};
  };
- if(st.mirror&&Math.abs((request.list==='fits'?part.p:part.c)[2])>1e-5)rows.push(mirrored(rows[0],'z'));
+ // User report 2026-11-16 (a triple turret on the dorsal apex, 0.1 m off the centreline): a fitting within its own radius of
+ // the centreline gets no twin, as placeFit already rules; the twin would stand in it and both were refused as floating.
+ if(st.mirror&&Math.abs((request.list==='fits'?part.p:part.c)[2])>(request.list==='fits'?Math.max(1e-5,C.FITS[part.k]?.r||0):1e-5))rows.push(mirrored(rows[0],'z'));
  if(st.vmirror){const base=rows.slice();for(const row of base)rows.push(mirrored(row,'y'));}
  return rows;
 }

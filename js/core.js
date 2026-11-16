@@ -52329,12 +52329,12 @@ function baseComputeStats(ship,options={}) {
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid),vlsInfo=missileStatus(ship,invalid);
   // fittings
   const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]};
-  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0, weaponCrew = 0;
+  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, clashFits = 0, pedVol = 0, weaponCrew = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};let aaCh=AA_CHANNELS.base;
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
     if(!f.float&&raw.cat==='w'&&!raw.msl)allGunVolleyTT+=(raw.tt||0)+(raw.ion||0);
-    if (f.float) { floatFits++; if (f._onPlate) plateFits++; }
+    if (f.float) { floatFits++; if (f._onPlate) plateFits++; if (f.placement?.repairReason === 'placement-interference') clashFits++; }
     // v21 Craft weapons sit flush on their mount (drawn without a pedestal), so they carry no pedestal mass.
     const foundation=turretSupportGeometry(f),ph=fitHasPedestal(f)?Math.max(0,foundation?(f.ped||0):(f.base||0)+(f.ped||0)-(f.low||0)):0,pr=d.r*.8,pv=(foundation?.volume||0)+Math.PI*pr*pr*ph;pedVol+=pv;
     // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
@@ -52458,7 +52458,7 @@ function baseComputeStats(ship,options={}) {
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, fireControl:ship.parts.some(p=>p.k==='firecontrol'&&!p.surfaceUnplaced&&!info[p.id]?.overlap),fireControlVolume:ship.parts.filter(p=>['firecontrol','targetComputer'].includes(p.k)&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),bridgeVolume:ship.parts.filter(p=>(equipmentSpec(p)?.group==='bridge'||['bridge','command'].includes(p.k))&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0)+commandCompartments(ship).reduce((n,p)=>n+partVolume(p),0),aimGuns:ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w'&&!FITS[f.k].msl&&!FITS[f.k].craft).reduce((n,f)=>n+(f.aggregateCount||1),0), sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost:Math.round(cost), costBy:costBreakdown(cost,costBy),
-    floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol, engineSupportVolume:nozzleFoundations.reduce((n,e)=>n+e.volume,0),engineSupportMass:nozzleFoundations.reduce((n,e)=>n+e.volume*.3,0),
+    floating, floatFits, plateFits, clashFits, overlap, info, fitInfo, hatchInfo, pedVol, engineSupportVolume:nozzleFoundations.reduce((n,e)=>n+e.volume,0),engineSupportMass:nozzleFoundations.reduce((n,e)=>n+e.volume*.3,0),
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp, reactorVolumes, reactantEfficiency:reactantBurnEfficiency(reactorVolumes),
     // Reactors left out of the output because their interior placement is invalid (traced in the warnings).
@@ -52493,7 +52493,9 @@ function warnings(S) {
   else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
   if (S.bridges === 0) add2('bad', '艦橋がありません。命中率が大きく落ちます。');
   if (S.floating) add2('bad', `船体から離れて浮いている区画が ${S.floating} 個あります。`);
-  if (S.floatFits - (S.plateFits || 0) > 0) add2('bad', `取り付け面を失った装備が ${S.floatFits - (S.plateFits || 0)} 基あります。`);
+  // A fitting refused because it stands in another fitting or equipment is reported as that, not as a lost surface.
+  if (S.clashFits > 0) add2('bad', `ほかの装備・機器と重なって取り付けられない装備が ${S.clashFits} 基あります。左右対称で中心線の近くに置くと、対の装備が重なります。`);
+  if (S.floatFits - (S.plateFits || 0) - (S.clashFits || 0) > 0) add2('bad', `取り付け面を失った装備が ${S.floatFits - (S.plateFits || 0) - (S.clashFits || 0)} 基あります。`);
   if (S.plateFits) add2('bad', `装甲外板の上に置かれた装備が ${S.plateFits} 基あります。装甲外板には武装・装備を取り付けられません。`);
   if (S.overlap) add2('warn', `重なり合っている区画があります（${S.overlap} 区画）。`);
   if (S.cutSection) add2('bad', '縦強度の断面評価で支持断面が不足しています。縦強度による加速制限を確認してください。');
@@ -67077,7 +67079,7 @@ function groundingStats(ship,S){
  // A fitting whose recorded attachment failed (its host surface was cut away, or it could not be
  // resolved) is floating even though it is flagged float; it is reported, not skipped.
  const severedFits=[];
- for(const f of ship.fits){if(f.float&&f._onLoose){looseFits.push(f.id);continue;}if(f.float){if(isAnchoredFit(f)&&(f._fitPlacementError||f.placement?.validationFailed)){if(fitSeveredByCut(ship,f))severedFits.push(f.id);else floatingFits.push(f.id);}continue;}const up=FITS[f.k]?.window?(f.n||AXES[f.a]):fitUp(f),hung=(f.mountOffset||0)>tol,probes=[...(hung?[]:[Math.min(tol,.05),Math.min(tol,.25),tol,tol*3,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)))),...(hung?bodyProbes(f,up):[])];
+ for(const f of ship.fits){if(f.float&&f._onLoose){looseFits.push(f.id);continue;}if(f.float){if(isAnchoredFit(f)&&(f._fitPlacementError||f.placement?.validationFailed)){if(f.placement?.repairReason==='placement-interference')continue;/* reported as a clash (clashFits) */if(fitSeveredByCut(ship,f))severedFits.push(f.id);else floatingFits.push(f.id);}continue;}const up=FITS[f.k]?.window?(f.n||AXES[f.a]):fitUp(f),hung=(f.mountOffset||0)>tol,probes=[...(hung?[]:[Math.min(tol,.05),Math.min(tol,.25),tol,tol*3,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)))),...(hung?bodyProbes(f,up):[])];
   if(hullOK&&probes.some(q=>inHull(ship,q)))continue;let onGround=false,onLoose=false;
   for(const p of parts){const b=box.get(p.id);if(!b)continue;for(const q of probes){if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!safeIn(p,q))continue;if(looseSet.has(p.id))onLoose=true;else onGround=true;}if(onGround)break;}
   if(!onGround&&onLoose)looseFits.push(f.id);else if(!onGround)floatingFits.push(f.id);}
