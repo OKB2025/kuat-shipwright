@@ -32,3 +32,11 @@ test('a ship without power that then loses its bridge is out of action',()=>{
  const br=mods.findIndex(m=>m.k==='bridge');assert.ok(br>=0,'the CR90 has a bridge module');u.mods[br]=0;
  assert.equal(u.out,'電源喪失','the recorded reason stays the first one');assert.equal(C.outOfAction(u),true);assert.equal(C.fleetEffective(u),false);
 });
+// Physics review 2026-11-16 (FAIL on edd5df3): the automation check reads the reactors, so a ship crewed 95% by automation
+// (recusantDn) was out of action again from power loss alone. Judged as if the plant ran, it stays in the fight.
+test('a highly automated ship that only lost power stays in the fight',()=>{
+ const u=C.fleetUnit('r','recusantDn',JSON.parse(JSON.stringify(F.designs.recusantDn.p)),0),mods=u.p.modules;
+ assert.ok(u.p.autoCrew/(u.p.autoCrew+u.p.crewNeed)>.9,'mostly automated');
+ for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor'||mods[i].k==='gen')u.mods[i]=0;C.syncPowerLossDisabled(u);
+ assert.equal(u.out,'電源喪失');assert.equal(C.outOfAction(u),false);assert.equal(C.fleetEffective(u),true);
+});

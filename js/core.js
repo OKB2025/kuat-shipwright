@@ -63818,23 +63818,24 @@ function fleetArc(u,target,rates){const dx=target.pos[0]-u.pos[0],dy=target.pos[
 // The module list of a design indexed once by kind (a battle asks every tick).
 const FLEET_SYS_KINDS=['reactor','shield','engine','weapon','launcher','hangar','battery','fire','automation','sensor','hyper'],fleetSysIndex=new WeakMap();
 function fleetSysIdx(mods){let x=fleetSysIndex.get(mods);if(x)return x;x={kinds:FLEET_SYS_KINDS.map(k=>{const idx=[],sh=[];mods.forEach((m,i)=>{if(m.k===k){idx.push(i);sh.push(m.share);}});return {k,idx:Int32Array.from(idx),sh:Float64Array.from(sh)};}),bridge:Int32Array.from(mods.flatMap((m,i)=>m.k==='bridge'?[i]:[]))};fleetSysIndex.set(mods,x);return x;}
-function fleetSystems(u){
+function fleetSystems(u,opts){
  const mods=u.p.modules||[],um=u.mods||[],X=fleetSysIdx(mods),out={};
  for(const {k,idx,sh} of X.kinds){if(!idx.length){out[k]=1;continue;}let s=0;for(let j=0;j<idx.length;j++){const v=um[idx[j]];if(v>0)s+=sh[j]*v;}out[k]=clamp(s,0,1);}
  let br=!X.bridge.length;for(let j=0;j<X.bridge.length&&!br;j++)if(um[X.bridge[j]]>0)br=true;
- for(const k of FLEET_SYS_KINDS)if(k!=='reactor')out[k]*=powerFactor(u,k);
- if(u.p.grid?.domains?.length){const domains=u.p.grid.domains,total=domains.reduce((a,d)=>a+(d.P||0),0);out.reactor=total>0?clamp(domains.reduce((a,d)=>a+powerDomainWatts(u,d.id,true),0)/total,0,1):0;}
+ /* opts.skipPower: what stands, as if the plant were running (for a disabling reason other than power loss) */if(!opts?.skipPower)for(const k of FLEET_SYS_KINDS)if(k!=='reactor')out[k]*=powerFactor(u,k);
+ if(!opts?.skipPower&&u.p.grid?.domains?.length){const domains=u.p.grid.domains,total=domains.reduce((a,d)=>a+(d.P||0),0);out.reactor=total>0?clamp(domains.reduce((a,d)=>a+powerDomainWatts(u,d.id,true),0)/total,0,1):0;}
  out.bridge=br;out.hasReactor=X.kinds[0].idx.length>0;out.hasBridge=X.bridge.length>0;return out;
 }
 // Automation covers its posts only while its units stand and the reactors and ion load let it run.
-const fleetAutoAvail=(u,sys)=>{if(!(u.p.autoCrew>0))return 1;const s=sys||fleetSystems(u);return clamp((s.automation??1)*(s.hasReactor?s.reactor:1)*(1-COMBAT.ionReactor*(u.ionK||0))*swPower(u,false,false),0,1);};
+// opts.skipPower: judged as if the plant were running (the reason being asked for is not power loss).
+const fleetAutoAvail=(u,sys,opts)=>{if(!(u.p.autoCrew>0))return 1;const s=sys||fleetSystems(u),power=!opts?.skipPower;return clamp((s.automation??1)*(power&&s.hasReactor?s.reactor:1)*(1-COMBAT.ionReactor*(u.ionK||0))*(power?swPower(u,false,false):1),0,1);};
 // Share of all posts manned: the crew aboard plus the posts automation still covers.
-const fleetCrewRatio=(u,sys)=>{const need=u.p.crewNeed||0,a=u.p.autoCrew||0;return need+a>0?(Math.max(0,u.crew)+a*fleetAutoAvail(u,sys))/(need+a):1;};
+const fleetCrewRatio=(u,sys,opts)=>{const need=u.p.crewNeed||0,a=u.p.autoCrew||0;return need+a>0?(Math.max(0,u.crew)+a*fleetAutoAvail(u,sys,opts))/(need+a):1;};
 const fleetCrewEff=u=>{const need=(u.p.crewNeed||0)+(u.p.autoCrew||0);return need>0?clamp((fleetCrewRatio(u)-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
 // Why a ship is out of action, or null.
-function fleetOutReason(u,sys,opts){const p=u.p,s=sys||fleetSystems(u),available=opts?.skipPower?1:shipElectricalAvailableW(u);if(!opts?.skipPower&&(available!==null?!(available>0):s.hasReactor&&p.grid?.P>0&&s.reactor<=0))return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
+function fleetOutReason(u,sys,opts){const p=u.p,s=sys||fleetSystems(u,opts),available=opts?.skipPower?1:shipElectricalAvailableW(u);if(!opts?.skipPower&&(available!==null?!(available>0):s.hasReactor&&p.grid?.P>0&&s.reactor<=0))return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
  if(u.gridState&&(Object.values(u.gridState.domains).some(d=>d.trip>0)||Object.keys(u.gridState.local).length))return null;
- if((p.crewNeed||0)+(p.autoCrew||0)>0&&fleetCrewRatio(u,s)<FLEET_MIN_CREW)return (p.autoCrew||0)>0&&fleetAutoAvail(u,s)<.999?'操艦不能（自動化装置の停止）':'乗員不足';return null;}
+ if((p.crewNeed||0)+(p.autoCrew||0)>0&&fleetCrewRatio(u,s,opts)<FLEET_MIN_CREW)return (p.autoCrew||0)>0&&fleetAutoAvail(u,s,opts)<.999?'操艦不能（自動化装置の停止）':'乗員不足';return null;}
 // Out of action: disabled for a reason that takes the ship out of the fight. A ship that has lost power is not (user
 // decision 2026-11-16「電源喪失は戦闘不能扱いではないようにしよう。単に動けなくなり、シールドを失い、発電量がゼロになり、星の重力に
 // 少しずつ引かれていく」): it stays in the battle and can be fired on, while the existing disabled state keeps it from
