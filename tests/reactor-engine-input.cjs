@@ -6,8 +6,12 @@ function fixture(n=2,architecture=1){
  const engines=architecture===2?cores.map(c=>({...c,shaftCapacityW:2*P,ratedShaftCapacityW:2*P,nozzleShaftCapacityW:2*P})):cores;
  return {profile:{version:1,massKg:1e6,ratedThrustN:5e-10*n,ratedAccelMps2:5e-16*n,structuralAccelerationLimitMps2:10000,inertialFactor:1,accelerationLimitMps2:10000,...(architecture===2?{architectureVersion:2,cores}:{}),engines},sources:[{id:'p1',domain:'main',powerW:P,maxPowerW:1.4*P}],links:cores.map(c=>({from:'p1',to:c.powerNode,cap:2*P,efficiency:1,ok:true})),cores};
 }
+// 2026-11-16 PR #112 (curve-B engine waste): each 1 m3 core normally takes 3.4e17 W and wastes 5%*sqrt(load), so waste heat and thrust
+// follow C.engineOperatingPoint for an equal split of the total input over n cores instead of a flat 5%. Thrust keeps the mass-bound
+// shaft coefficient (1-PROPULSION.wasteFraction)*wattsPerNewton, so a 95% point reproduces the retired P/wattsPerNewton.
+const curve=(n,totalW)=>{const op=C.engineOperatingPoint(fixture(n).cores[0],totalW/n);return {waste:n*op.wasteHeatW,useful:n*op.usefulPropulsionW,thrust:n*op.usefulPropulsionW/((1-C.PROPULSION.wasteFraction)*wattsPerNewton)};};
 for(const architecture of [1,2])test(`architecture${architecture}: four old tiny nameplates share25percent once and fullreactor output once`,()=>{
- const f=fixture(4,architecture);for(const throttle of [0,.25,1]){const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle,mode:'propulsion'});near(a.actualInputW,P*throttle);near(a.power.draw,P*throttle);near(a.wasteHeatW,.05*P*throttle);near(a.actualThrustN,P*throttle/wattsPerNewton);near(a.power.engineBudgets[0].drawW,P*throttle);assert.ok(a.engines.every(e=>e.actualInputW<=P*throttle));}
+ const f=fixture(4,architecture);for(const throttle of [0,.25,1]){const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle,mode:'propulsion'});near(a.actualInputW,P*throttle);near(a.power.draw,P*throttle);near(a.wasteHeatW,curve(4,P*throttle).waste);near(a.actualThrustN,curve(4,P*throttle).thrust);near(a.power.engineBudgets[0].drawW,P*throttle);assert.ok(a.engines.every(e=>e.actualInputW<=P*throttle));}
 });
 test('full propulsion keeps required hotel and cooling power while quarter throttle leaves power for other consumers',()=>{
  const f=fixture(),otherLoads=[{id:'hotel',kind:'fixed',domain:'main',requestedInputW:.01*P},{id:'cooling',kind:'cooling',domain:'main',requestedInputW:.02*P},{id:'guns',kind:'weapons',domain:'main',requestedInputW:P}];
@@ -21,14 +25,14 @@ test('a damaged or heat-disabled owner gives its unused budget to the healthy ow
  for(const architecture of [1,2])for(const state of [{available:false},{thermalLimit:0},{damageLimit:0,coreDamageLimit:0}]){const f=fixture(2,architecture),a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,states:{2:state},throttle:1,mode:'propulsion'});near(a.actualInputW,P);near(a.engines.find(e=>e.id===2).actualInputW,0);near(a.engines.find(e=>e.id===3).actualInputW,P);}
 });
 test('explicit physical feed and nozzle limits remain effective',()=>{
- const f=fixture(1,2);f.profile.engines[0].shaftCapacityW=.19*P;const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle:1,mode:'propulsion'});near(a.actualInputW,.2*P);near(a.usefulPropulsionW,.19*P);
+ const f=fixture(1,2);f.profile.engines[0].shaftCapacityW=.19*P;const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle:1,mode:'propulsion'});near(a.actualInputW,C.engineInputForUsefulPower({...f.cores[0],availableInputW:2*P},.19*P));near(a.usefulPropulsionW,.19*P);/* PR #112 curve-B: the input whose useful share is the .19P shaft limit (was .2P at a flat 95%) */
  f.profile.engines[0].shaftCapacityW=2*P;f.profile.cores[0].pathCapacityW=.1*P;const b=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle:1,mode:'propulsion'});near(b.actualInputW,.1*P);
 });
 test('overload uses the finite allowed reactor generation without a new base-output cap',()=>{
  const f=fixture();const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle:1,mode:'overload'});near(a.actualInputW,1.4*P);near(a.power.draw,1.4*P);near(a.power.engineBudgets[0].limitW,1.4*P);
 });
 test('feed loss is charged against the one shared source rather than silently refunded',()=>{
- const f=fixture();for(const l of f.links)l.efficiency=.8;for(const throttle of [.25,1]){const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle,mode:'propulsion'});near(a.actualInputW,.8*P*throttle);near(a.power.draw,P*throttle);near(a.power.feedLossW,.2*P*throttle);near(a.wasteHeatW,.04*P*throttle);}
+ const f=fixture();for(const l of f.links)l.efficiency=.8;for(const throttle of [.25,1]){const a=C.solveShipPropulsion(f.profile,{sources:f.sources,links:f.links,throttle,mode:'propulsion'});near(a.actualInputW,.8*P*throttle);near(a.power.draw,P*throttle);near(a.power.feedLossW,.2*P*throttle);near(a.wasteHeatW,curve(2,.8*P*throttle).waste);/* PR #112 curve-B: engine waste on the .8P*throttle actually received */}
 });
 test('missing reactor power cannot be replaced by an obsolete positive engine rating',()=>{
  const f=fixture();for(const e of f.profile.engines)e.ratedInputW=P;const a=C.solveShipPropulsion(f.profile,{sources:[],links:f.links,throttle:1,mode:'propulsion'});near(a.actualInputW,0);near(a.actualThrustN,0);near(a.wasteHeatW,0);
@@ -36,7 +40,9 @@ test('missing reactor power cannot be replaced by an obsolete positive engine ra
 
 test('normalizing an old snapshot rebinds source force while retaining the common mass drag law',()=>{
  const f=fixture(),p={profileVersion:C.FLEET_PROFILE_VERSION,maxSpeed:1000,modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1},...f.cores.map(e=>({k:'engine',part:e.id,port:e.powerNode,domain:'main',size:1,powerConnected:true}))],grid:{P,Pgen:P,De:2,fixed:0,cooling:0,Ds:0,Dw:0,powerPaths:f.links},propulsion:f.profile};
- const u=C.fleetUnit('new-source-reference','custom-reactor',p);assert.equal(u.p.propulsion.inputModelVersion,C.ENGINE_INPUT_MODEL_VERSION);near(u.p.propulsion.ratedThrustN,P/wattsPerNewton);assert.equal(u.p.motionResistance.model,'global-mass-power-law');near(u.p.maxSpeed,healthyGameAcceleration/expectedDragRate);assert.equal(u.p.motionResistance.version,C.MOTION_RESISTANCE_VERSION);const k=C.massDragRate(u);
- C.allocateShipPower(u,C.fleetSystems(u),{throttle:.25},.1,'propulsion');near(u.propulsion.actualInputW,.25*P);near(C.propulsionMotion(u).acc,.25*healthyGameAcceleration);near(C.propulsionTerminalSpeed(u,C.propulsionMotion(u).acc),.25*healthyGameAcceleration/expectedDragRate);near(C.massDragRate(u),k);
+ const u=C.fleetUnit('new-source-reference','custom-reactor',p);assert.equal(u.p.propulsion.inputModelVersion,C.ENGINE_INPUT_MODEL_VERSION);// 2026-11-16 PR #112 (curve-B waste + engine bus share): each of the two cores is rated for its P/2 share at load P/2/3.4e17, so the
+ // rated force, healthy acceleration and the quarter-throttle point come from curve(); the drag law itself is unchanged.
+ const healthy=curve(2,P).thrust/1e6*C.FLEET_RULES.accelScale,quarter=curve(2,.25*P).thrust/1e6*C.FLEET_RULES.accelScale;near(u.p.propulsion.ratedThrustN,curve(2,P).thrust);assert.equal(u.p.motionResistance.model,'global-mass-power-law');near(u.p.maxSpeed,healthy/expectedDragRate);assert.equal(u.p.motionResistance.version,C.MOTION_RESISTANCE_VERSION);const k=C.massDragRate(u);
+ C.allocateShipPower(u,C.fleetSystems(u),{throttle:.25},.1,'propulsion');near(u.propulsion.actualInputW,.25*P);near(C.propulsionMotion(u).acc,quarter);near(C.propulsionTerminalSpeed(u,C.propulsionMotion(u).acc),quarter/expectedDragRate);near(C.massDragRate(u),k);
  const overloaded=C.solveShipPropulsion(u.p.propulsion,{sources:f.sources,links:f.links,throttle:1,mode:'overload'});near(overloaded.actualInputW,1.4*P);
 });

@@ -42,7 +42,11 @@ test('funded acceleration has a finite mass-dependent equilibrium rather than a 
 });
 test('holding velocity requests actual engine electricity and heat through the existing solver',()=>{
  const u=unit(1e11),v=[.25/expectedRate(1e11),0,0],dt=.25,required=C.propulsionTargetAcceleration(u,v,v,dt),rated=C.propulsionMotion(u).acc0;
- assert.ok(required[0]>0);C.allocateShipPower(u,C.fleetSystems(u),{throttle:C.len(required)/rated,shields:0,weapons:0},dt,'balanced');
+ assert.ok(required[0]>0);
+ // 2026-11-16 PR #112 (curve-B engine waste): thrust per watt now rises as the load falls, so the throttle (an input fraction) that
+ // holds velocity is the input whose useful power is the required share of the full-input useful power, from C.engineOperatingPoint.
+ const spec=u.p.propulsion.engines[0],full=C.engineOperatingPoint(spec,spec.ratedInputW),throttle=C.engineInputForUsefulPower(spec,full.usefulPropulsionW*C.len(required)/rated)/full.actualInputW;
+ C.allocateShipPower(u,C.fleetSystems(u),{throttle,shields:0,weapons:0},dt,'balanced');
  assert.ok(u.propulsion.actualInputW>0);assert.ok(u.propulsion.wasteHeatW>0);const a=C.propulsionMotion(u).acc,q=C.integratePropulsionMotion(u,v,[a,0,0],dt);near(q.velocity[0],v[0]);
 });
 test('100 percent weapon priority preserves paid shots but cannot preserve a large ship speed',()=>{

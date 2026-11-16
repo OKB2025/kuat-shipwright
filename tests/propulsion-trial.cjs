@@ -35,17 +35,21 @@ function setup({supply=1e18,thermal=1,velocity=[0,0,0],tele=5}={}){
  run(`Object.assign(trial,{p:profile,battle:{me:unit},energy:{E:0,cap:0},powerMode:'balanced',P:[10000,10000,0],V:velocity.slice(),R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],stickX:0,rudder:0,level:false,tele:telegraph,craft:false,t:0,vf:0,dust:{H:100,pos:new Float32Array(0)},rec:{top:0},engF:0});`);
  return unit;
 }
+// 2026-11-16 PR #112 (curve-B engine waste): this engine's normal input is its 1e18 W rating, so a reduced input runs at a lower load with
+// less than 5% waste and gives more than the linear share of thrust. thrustShare(u,f) is the thrust (and engF) fraction and
+// wasteAt(u,f) the waste heat at input f*1e18 W, both from C.engineOperatingPoint; at f=1 they reproduce 1 and 5e16 W.
+const thrustShare=(u,f)=>{const s=u.p.propulsion.engines[0];return C.engineOperatingPoint(s,1e18*f).actualThrustN/C.engineOperatingPoint(s,1e18).actualThrustN;},wasteAt=(u,f)=>C.engineOperatingPoint(u.p.propulsion.engines[0],1e18*f).wasteHeatW;
 test('ENG-T04/15 direct controls use the same actual watts/newtons and one battle acceleration scale',()=>{
  for(const thermal of [1,.6,0]){
   const u=setup({thermal});run('trialStep(.1)');
-  near(u.propulsion.actualInputW,1e18*thermal);near(u.propulsion.actualThrustN,fullThrustN*thermal);near(u.propulsion.wasteHeatW,5e16*thermal);
-  near(run('trial.V[0]'),thermal>0?fullGameAcceleration*calibratedGain(.1)*thermal:fall([10000,10000,0],[0,0,0],.1,2).velocity[0]);near(run('trial.engF'),thermal);
+  near(u.propulsion.actualInputW,1e18*thermal);near(u.propulsion.actualThrustN,fullThrustN*thrustShare(u,thermal));near(u.propulsion.wasteHeatW,wasteAt(u,thermal));
+  near(run('trial.V[0]'),thermal>0?fullGameAcceleration*calibratedGain(.1)*thrustShare(u,thermal):fall([10000,10000,0],[0,0,0],.1,2).velocity[0]);near(run('trial.engF'),thrustShare(u,thermal));
   const other=setup({thermal});C.allocateShipPower(other,C.fleetSystems(other),{throttle:1,shields:0,weapons:0},.1,'balanced');
   near(other.propulsion.actualInputW,u.propulsion.actualInputW);near(other.propulsion.actualThrustN,u.propulsion.actualThrustN);
  }
 });
 test('a half-powered direct-control engine delivers half the actual acceleration',()=>{
- const u=setup({supply:5e17});run('trialStep(.1)');near(u.propulsion.actualThrustN,.5*fullThrustN);near(run('trial.V[0]'),.5*fullGameAcceleration*calibratedGain(.1));near(run('trial.engF'),.5);
+ const u=setup({supply:5e17});run('trialStep(.1)');near(u.propulsion.actualInputW,5e17);near(u.propulsion.actualThrustN,thrustShare(u,.5)*fullThrustN);near(run('trial.V[0]'),thrustShare(u,.5)*fullGameAcceleration*calibratedGain(.1));near(run('trial.engF'),thrustShare(u,.5));/* PR #112 curve-B: half input, thrustShare(u,.5) of the thrust */
 });
 test('ENG-T13 direct blackout enters disabled fall, retains momentum and stops angular controls',()=>{
  const u=setup({supply:0,velocity:[5,3,2],tele:1});run('trial.w=[.3,.2,.1];trial.stickX=1;trialStep(.1)');
@@ -71,7 +75,7 @@ test('ENG-T13/15 a powerless escort follows the same disabled fall instead of it
 test('a powered escort bounds all formation corrections by the shared actual acceleration',()=>{
  const u=setup({thermal:.6});
  run(`trial.jump=null;trial.escorts=[{key:'escort',p:profile,powerUnit:unit,slot:[0,0,2000],pos:[10000,10000,1000],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],f:[1,0,0]}];escortsStep(.1);`);
- near(u.propulsion.actualThrustN,.6*fullThrustN);near(run('tv.len(trial.escorts[0].V)'),.6*fullGameAcceleration*calibratedGain(.1));
+ near(u.propulsion.actualThrustN,thrustShare(u,.6)*fullThrustN);near(run('tv.len(trial.escorts[0].V)'),thrustShare(u,.6)*fullGameAcceleration*calibratedGain(.1));/* PR #112 curve-B: see thrustShare */
 });
 
 test('solo player controls start and restart real automatically wired machinery even with an old bus flag',()=>{

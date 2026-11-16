@@ -38,15 +38,23 @@ function profile() {
       ratedThrustN: fullThrustN, ratedAccelMps2: fullAcceleration, accelerationLimitMps2: fullAcceleration}};
 }
 function unit() { return C.fleetUnit('motion-test', 'motion', profile()); }
+// 2026-11-16 PR #112 (curve-B engine waste): the fixture engine (~5 m3, normal input ~1.7e18 W) runs its 1e18 W at load ~0.59 and
+// wastes C.engineWasteFraction(load) instead of the retired flat 5%. fundedThrust(spec,W) is C.engineOperatingPoint's useful power
+// through the mass-bound shaft coefficient (1-PROPULSION.wasteFraction) x engineConversionCoefficient, which is W/k at 95%.
+// fundedAcceleration / fundedGameAcceleration are the full-input values once a unit rebinds its rated figures to the actual supply.
+const fundedThrust=(spec,W,wattsPerNewton=driveWattsPerNewton)=>C.engineOperatingPoint(spec,W).usefulPropulsionW/((1-C.PROPULSION.wasteFraction)*wattsPerNewton);
+const fundedAcceleration=fundedThrust(profile().propulsion.engines[0],1e18)/1e6,fundedGameAcceleration=fundedAcceleration*C.FLEET_RULES.accelScale;
 
 test('motion uses the actual physical result and the tactical scale exactly once', () => {
   const u = unit();C.allocateShipPower(u, C.fleetSystems(u), {throttle: 0}, 0);
   u.mods[1] = .25;u.ht.lim.engine = .25;
-  u.propulsion = {actualAccelMps2: fullAcceleration * .25, outputRatio: .25};
-  assert.equal(C.propulsionMotion(u).acc0, fullGameAcceleration);
-  near(C.propulsionMotion(u).acc, fullGameAcceleration * .25);
+  // PR #112 curve-B: the rated value is rebound to the funded operating point (was exactly fullGameAcceleration), so the injected
+  // quarter result is a quarter of that funded acceleration; the single tactical scale is checked exactly as before.
+  u.propulsion = {actualAccelMps2: fundedAcceleration * .25, outputRatio: .25};
+  near(C.propulsionMotion(u).acc0, fundedGameAcceleration);
+  near(C.propulsionMotion(u).acc, fundedGameAcceleration * .25);
   near(C.propulsionMotion(u).turn, .25);
-  near(C.propulsionMotion(u, .5).acc, fullGameAcceleration * .125);
+  near(C.propulsionMotion(u, .5).acc, fundedGameAcceleration * .125);
   u.propulsion.actualAccelMps2 = 0;
   assert.equal(C.propulsionMotion(u).acc, 0);
   assert.equal(C.propulsionMotion(u).turn, 0);
@@ -70,9 +78,9 @@ test('fleet acceleration is bounded by supplied force rather than legacy p.accel
   const u = unit();u.order = {...u.order, type: 'move', point: [10000, 0, 0]};
   const b = C.fleetBattle([u], false);
   C.fleetTick(b, .25, {collide: false});
-  near(u.velocity[0],analyticMotion(u,[0,0,0],[fullGameAcceleration,0,0],.25).v[0]);
+  near(u.velocity[0],analyticMotion(u,[0,0,0],[fundedGameAcceleration,0,0],.25).v[0]); // PR #112 curve-B: funded, not flat-95%, acceleration
   assert.equal(u.propulsion.actualInputW, 1e18);
-  near(u.propulsion.actualAccelMps2, fullAcceleration);
+  near(u.propulsion.actualAccelMps2, fundedAcceleration);
 });
 
 test('peaceful movement shares current power and uses disabled gravity after a blackout', () => {
@@ -81,7 +89,7 @@ test('peaceful movement shares current power and uses disabled gravity after a b
   const w = {time: 10, rand:()=>.5, units: new Map([[u.id, u]]), groups: new Map(),
     ctgs: new Map(), battles: new Map(), sides: [], sensors: false};
   R.peaceTick(w, 0, .25);
-  near(u.velocity[0],analyticMotion(u,[0,0,0],[fullGameAcceleration,0,0],.25).v[0]);
+  near(u.velocity[0],analyticMotion(u,[0,0,0],[fundedGameAcceleration,0,0],.25).v[0]); // PR #112 curve-B: funded acceleration
   assert.equal(u.propulsion.actualInputW, 1e18);
   u.p.grid.P = 0;u.p.grid.Pgen = 0;u.velocity = [40, 2, 3];
   const position = u.pos.slice(), heading = u.yaw;w.time += .25;
@@ -154,9 +162,11 @@ test('saved craft retain the validated engine profile and mass-bound conversion 
     role: 'fighter', speed: 1000, mass: 1000, crew: 1, aa: 1,
     gun: 0, strike: 0, armor: 1, powerProfile: p,
   }});
-  assert.equal(d.craft.powerProfile.propulsion.engines[0].wattsPerNewton, driveWattsPerNewton);
+  // PR #112 curve-B: the stale coefficient (1) is still replaced by the mass-bound law; the saved profile coefficient is the 95% shaft
+  // coefficient over the efficiency at the engine's own load (C.engineOperatingPoint), which equalled driveWattsPerNewton only at 95%.
+  {const saved=d.craft.powerProfile.propulsion.engines[0];near(saved.wattsPerNewton, driveWattsPerNewton*(1-C.PROPULSION.wasteFraction)/C.engineOperatingPoint(saved,saved.ratedInputW).efficiency);}
   const key = R.registerDesignCraft(d);
-  near(R.CRAFT[key].powerProfile.propulsion.ratedAccelMps2, fullAcceleration);
+  near(R.CRAFT[key].powerProfile.propulsion.ratedAccelMps2, fundedAcceleration); // PR #112 curve-B: rated figure rebound to the funded operating point
   assert.deepEqual(plain(C.cleanDesignCraft(plain(d)).craft.powerProfile),
     plain(d.craft.powerProfile));
   const invalid = plain(p);invalid.propulsion.engines[0].driveProfileId = 'unbounded';
@@ -200,7 +210,8 @@ test('a stale result cannot move a unit without a finite valid descriptor', () =
 test('a legacy combined acceleration remains only an upper bound on real powered movement',()=>{
  const p=profile();delete p.propulsion;p.mass=1000;p.accel=.2;
  const model=C.legacyPropulsionProfile(p,1000);assert.equal(model.legacyMovementCapSource,'profile.accel');near(model.ratedAccelMps2,fullAcceleration);assert.equal(model.legacyUpperMovementCapMps2,.2/C.FLEET_RULES.accelScale);
- const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');const wattsPerNewton=C.engineConversionCoefficient(u.p.propulsion.engines[0]),input=Math.min(1e18*throttle,1e6*(.2/C.FLEET_RULES.accelScale)*wattsPerNewton);near(u.propulsion.actualInputW,input);near(C.propulsionMotion(u).acc,input/wattsPerNewton/1e6*C.FLEET_RULES.accelScale);}
+ const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');const wattsPerNewton=C.engineConversionCoefficient(u.p.propulsion.engines[0]),engine=u.p.propulsion.engines[0],input=Math.min(1e18*throttle,C.engineInputForUsefulPower({...engine,availableInputW:1e18},1e6*(.2/C.FLEET_RULES.accelScale)*(1-C.PROPULSION.wasteFraction)*wattsPerNewton));near(u.propulsion.actualInputW,input);near(C.propulsionMotion(u).acc,fundedThrust(engine,input,wattsPerNewton)/1e6*C.FLEET_RULES.accelScale);}
+ /* PR #112 curve-B: the capped input is the one whose useful power funds the .2 cap (was cap x wattsPerNewton at a flat 95%), and the motion follows the funded thrust */
  u.mods[0]=0;C.allocateShipPower(u,C.fleetSystems(u),{throttle:1},0,'balanced');assert.equal(u.propulsion.actualInputW,0);assert.equal(C.propulsionMotion(u).acc,0);
  delete p.accel;near(C.legacyPropulsionProfile(p,1000).accelerationLimitMps2,fullAcceleration);for(const invalid of [NaN,Infinity,-1]){p.accel=invalid;assert.equal(C.legacyPropulsionProfile(p,1000),null);}
 });
@@ -242,8 +253,8 @@ test('saved power profiles retain verified physical volume without a retired den
   p.propulsion.engines[0].effectiveMachineryVolumeM3=1e20;
   p.propulsion.engines[0].maxInputW=1e32;
   const clean=C.cleanCraftPowerProfile(p);
-  near(clean.propulsion.ratedThrustN,fullThrustN);
-  const engine=clean.propulsion.engines[0];assert.equal(engine.valid,true);assert.ok(engine.effectiveMachineryVolumeM3<1,'cached claimed volume cannot enlarge the real machinery');assert.equal(engine.availableInputW,1e18);const point=C.engineOperatingPoint(engine,1e18);assert.ok(point.loadFactor>1);near(point.wasteHeatW,5e16);
+  const engine=clean.propulsion.engines[0];near(clean.propulsion.ratedThrustN,fundedThrust(engine,1e18)); // PR #112 curve-B: the overloaded real body (load >1) converts at its curve-B efficiency
+  assert.equal(engine.valid,true);assert.ok(engine.effectiveMachineryVolumeM3<1,'cached claimed volume cannot enlarge the real machinery');assert.equal(engine.availableInputW,1e18);const point=C.engineOperatingPoint(engine,1e18);assert.ok(point.loadFactor>1);near(point.wasteHeatW,1e18*Math.min(C.ENGINE_HEAT_CURVE.max,C.ENGINE_HEAT_CURVE.k*Math.sqrt(point.loadFactor)));assert.ok(point.wasteHeatW>5e16,'PR #112 curve-B: an engine above its normal load wastes more than the 5% baseline');
 });
 
 test('a blueprint owns the physical machinery and connected reactor supply instead of cached input ratings', () => {
@@ -283,14 +294,17 @@ test('aircraft shields and guns share the current finite plant with propulsion',
   const s={id:'budget',craft:'motionBudget',side:0,h:[1,0,0],pos:[0,0,0],vel:[0,0,0],weaponDemand:true};
   R.squadPropulsion(s,.5,0);s.drive.shield=0;
   R.squadPropulsion(s,.5,0);
-  near(s.drive.pw.sh,2e17);near(s.drive.pw.wpn,8e17);near(s.propulsion.actualInputW,0);near(s.weaponPowerK,.8);
+  // 2026-11-16 PR #112 (shield recharge x0.5): shields draw C.SHIELD_RECHARGE_K of their 2e17 W design rate, and the guns receive
+  // the remainder of the 1e18 W plant (was 2e17 / 8e17 / .8); the priority order and the closed budget are unchanged.
+  const shieldW=2e17*C.SHIELD_RECHARGE_K;
+  near(s.drive.pw.sh,shieldW);near(s.drive.pw.wpn,1e18-shieldW);near(s.propulsion.actualInputW,0);near(s.weaponPowerK,(1e18-shieldW)/1e18);
   near(s.drive.pw.eng+s.drive.pw.wpn+s.drive.pw.sh,1e18);
   // With genuinely more connected source power, the same higher-priority
   // demands leave their actual remainder for navigation at half throttle.
   s.drive.p.grid.P=s.drive.p.grid.Pgen=2e18;
   for(const domain of s.drive.p.grid.domains||[]){domain.P=2e18;for(const source of domain.sources||[])source.P=2e18;}
   R.squadPropulsion(s,.5,0);
-  near(s.drive.pw.sh,2e17);near(s.drive.pw.wpn,1e18);near(s.weaponPowerK,1);near(s.propulsion.actualInputW,8e17);
+  near(s.drive.pw.sh,shieldW);near(s.drive.pw.wpn,1e18);near(s.weaponPowerK,1);near(s.propulsion.actualInputW,2e18-1e18-shieldW); // PR #112: was 2e17 / 8e17
   near(s.drive.pw.eng+s.drive.pw.wpn+s.drive.pw.sh,2e18);assert.ok(s.drive.propulsion.power.draw<=s.drive.pw.P*(1+1e-12));
   const d=C.cleanDesignCraft({name:'Shielded',dims:[10,4,3],craft:{role:'fighter',speed:1000,aa:1,armor:1,crew:1,shield:true,powerProfile:profile()}});
   assert.equal(R.CRAFT[R.registerDesignCraft(d)].shield,true);
