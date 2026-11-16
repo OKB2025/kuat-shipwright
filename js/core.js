@@ -55773,10 +55773,7 @@ function engineSceneSupply(ship,part){
  if(!ship?.parts)return {availableInputW:0,nominalInputW:0,sourceIds:[]};
  const ordinary=ship.parts.find(p=>p.id===part?.id)===part;if(ordinary&&ship._boundsPass?.engineSceneSupply)return ship._boundsPass.engineSceneSupply.get(part.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]};
  const groups=powerDomainGroups(ship),owners=propulsionOwners(ship).map(p=>p.id===part?.id?part:p),ports=new Set(ship.parts.map(p=>'p'+p.id)),links=(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'&&ports.has(l.from)&&ports.has(l.to)),sources=ship.parts.filter(p=>electricalSourcePower(p)>0).map(p=>({id:'p'+p.id,powerW:electricalSourcePower(p),domain:groups.of(p)}));if(part&&['engine','engineCore'].includes(part.k)&&!owners.some(p=>p.id===part.id))owners.push(part);
- // A whole-ship bus (user decision 2026-11-16「エンジン用に反応炉をつけてる艦は速度を大幅に下げてる原因になってるので修正」, whole-ship bus
- // chosen): every engine draws on every source in its power domain, not only the reactor it was wired to; its size limits
- // it through heat (engineWasteFraction). Explicit wiring still adds its own links.
- for(const p of owners)for(const src of sources)if(src.domain===groups.of(p)&&!links.some(l=>l.from===src.id&&l.to==='p'+p.id))links.push({from:src.id,to:'p'+p.id});
+ for(const p of owners)if(!links.some(l=>l.to==='p'+p.id)){const reactor=reactorFor(ship,p);if(reactor&&groups.of(reactor)===groups.of(p))links.push({from:'p'+reactor.id,to:'p'+p.id});}
  const specs=owners.map(p=>({id:p.id,machineryId:p.id,powerNode:'p'+p.id,domain:groups.of(p),effectiveMachineryVolumeM3:machineryGeometry(p,ship).volume})),key=JSON.stringify([sources,links,specs]),cached=ENGINE_SCENE_SUPPLY_CACHE.get(ship),supply=cached?.key===key?cached.supply:connectedEngineSupply(specs,sources,links);
  if(cached?.key!==key)ENGINE_SCENE_SUPPLY_CACHE.set(ship,{key,supply});if(ordinary&&ship._boundsPass)ship._boundsPass.engineSceneSupply=supply;
  return supply.get(part?.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]};
@@ -68462,7 +68459,7 @@ const HEAT={
  // Converter ratings, W per m³, as multiples of the yard's reactor power density (fictional). hdis is the
  // internal converter; radiator is the weaker 'low' wing type (its discharge surface rating, × disK.radiator/disK.hdis).
  // Every converter accepts every heat grade (user decision 2026-11-12): there is no grade-restricted path.
- disK:{hdis:2,radiator:.1},
+ disK:{hdis:.5,radiator:.1}/* hdis ×0.25 (user decision 2026-11-16「冷却設備の能力はもっと低くていい。まだ作例でも全然容積が余ってる状態。」): a converter twice the reactor's size rejects its output */,
  // Electrical W a converter draws per W of heat it ACTUALLY converts (user decision 2026-11-12), the same
  // for the internal hdis and every wing discharge surface. The input becomes low-grade heat aboard that the
  // converters must also take; nothing is counted twice (heat-converters.md). Old keys are kept readable.
@@ -68610,8 +68607,6 @@ function heatNetwork(ship,S){
  for(const w of fd.rows||[])for(const k of w.links)links.push({kind:'power',from:'p'+k.src,to:'f'+w.id,cap:k.P,auto:true,ok:true,l:k.l});
  for(const s of src){if(s.k==='weapon'){if(!(fd.rows||[]).some(w=>'f'+w.id===s.id&&w.links.length))links.push({kind:'power',from:null,to:s.id,cap:0,auto:true,ok:false,why:'no-source'});continue;}
   if(s.k==='reactor'||s.k==='feed')continue;const owner=ship.parts.find(p=>p.id===s.part);
-  // engines: the whole-ship bus — a link from every reactor in the engine's domain (see engineSceneSupply)
-  if(s.k==='engine'&&owner){const rs=ship.parts.filter(q=>isReactor(q)&&domains.of(q)===domains.of(owner));if(rs.length){for(const q of rs)links.push({kind:'power',from:'p'+q.id,to:s.id,cap:s.w,auto:true,ok:true,why:null,direct:false});continue;}}
   let r=s.k==='engine'?reactorFor(ship,owner):s.k==='sw'?ship.parts.find(p=>p.id===s.gen):near(s.at,owner);if(r&&owner&&domains.of(r)!==domains.of(owner))r=null;
   links.push({kind:'power',from:r?'p'+r.id:null,to:s.id,cap:s.k==='sw'?swIn[s.sw]&&SW_COMBAT[swIn[s.sw].k].share*(r?reactorPower(r):0):s.k==='hotel'?g.fixed*s.w/Math.max(1,tot.hotel):s.k==='engine'?s.w:g.Ds*s.w/Math.max(1e-30,tot.shield||1),auto:true,ok:!!r,why:r?null:'no-source',direct:s.k==='sw'});}
  for(const d of dis)if(strict&&d.part!=null){const owner=ship.parts.find(p=>p.id===d.part),r=owner&&near(d.at,owner);d.power=d.cap*(HEAT.disPowerK[d.k]??HEAT.disPowerK.wing);d.powered=!!r;links.push({kind:'power',from:r?'p'+r.id:null,to:d.id,cap:d.power,auto:true,ok:!!r,why:r?null:'no-source'});if(!r)d.cap=0;}
