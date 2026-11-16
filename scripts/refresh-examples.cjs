@@ -9,7 +9,7 @@
 // Core.buildDesign in its own process. Catalogue ships get their design and their combat row (computed
 // from that design); craft and the older sample designs get their design only. A side whose content
 // changed is rewritten; an unchanged side is left as it is. data/fleet.js is then assembled from the
-// files. Nothing here depends on the hashes of the source files.
+// files. Nothing is written unless every selected example builds (a failed run leaves the repository as it was). Nothing here depends on the hashes of the source files.
 //
 // A model change that alters computed figures needs a version bump (Core.EXAMPLE_PROFILE_VERSION, see
 // docs/prepared-examples.md) and then this refresh, so the stored rows carry the new model.
@@ -28,6 +28,8 @@ function parse(args){
 }
 // Build one ship and leave its row and blueprint in out/<key>.row.json and out/<key>.blueprint.json.
 function worker(root,key,out){
+ // Test hook (tests/refresh-examples-atomic.cjs): the listed examples fail on purpose.
+ if(String(process.env.KS_REFRESH_FAIL_KEYS||'').split(',').includes(key))throw Error('forced failure for '+key);
  const sources=G.sourceHashes(root),{C,R,data}=G.loadRuntime(root);let blueprint=null,entry=null;
  // The saved design is made by the authoring tool; a catalogue ship's row is then computed from that saved design
  // loaded back (deserialize and the ordinary load steps), the path the game takes, so the stored figures equal
@@ -52,13 +54,17 @@ async function main(){
  let next=0;const lane=async()=>{while(next<order.length){const key=order[next++],r=await run(root,key,out);
   if(r.code!==0){failed.push(key+': '+r.err);console.error(`${key} failed: ${r.err}`);continue;}
   const {entry}=JSON.parse(fs.readFileSync(path.join(out,key+'.row.json'),'utf8')),raw=fs.readFileSync(path.join(out,key+'.blueprint.json'));
-  if(entry&&F.sha(F.stable(JSON.parse(raw.toString('utf8'))))!==entry.model.blueprintSha256)throw Error('Blueprint does not match its catalogue row: '+key);
-  const changed=F.storeShip(root,manifest,key,{row:entry,blueprintRaw:raw});
-  report.push({key,...changed,seconds:Math.round(r.ms/1000)});console.log(`${key.padEnd(14)} design ${changed.design.padEnd(9)} combat ${String(changed.combat||'-').padEnd(9)} ${Math.round(r.ms/1000)} s`);}};
- await Promise.all(Array.from({length:Math.min(o.jobs,order.length)},lane));
- fs.rmSync(out,{recursive:true,force:true});
- if(G.stable(sources)!==G.stable(G.sourceHashes(root)))throw Error('Model sources changed during the refresh; run it again once they are stable');
- if(failed.length){F.writeManifest(root,manifest);throw Error('Failed: '+failed.join(' | '));}
+  if(entry&&F.sha(F.stable(JSON.parse(raw.toString('utf8'))))!==entry.model.blueprintSha256){failed.push(key+': Blueprint does not match its catalogue row');console.error(`${key} failed: blueprint does not match its row`);continue;}
+  built.push({key,entry,raw,ms:r.ms});console.log(`${key.padEnd(14)} built ${Math.round(r.ms/1000)} s`);}};
+ // Audit 2026-11-16: nothing is written until every selected example has built and the model sources are unchanged.
+ // Writing each example as it finished left data/examples rewritten without data/fleet.js and the manifest when a
+ // later example failed (the stored files and their hashes then disagreed). On a failure the repository is untouched.
+ const built=[];
+ try{await Promise.all(Array.from({length:Math.min(o.jobs,order.length)},lane));}finally{fs.rmSync(out,{recursive:true,force:true});}
+ if(G.stable(sources)!==G.stable(G.sourceHashes(root)))throw Error('Model sources changed during the refresh; nothing was written. Run it again once they are stable');
+ if(failed.length)throw Error('Failed (nothing was written): '+failed.join(' | '));
+ for(const {key,entry,raw,ms} of built.sort((a,b)=>order.indexOf(a.key)-order.indexOf(b.key))){const changed=F.storeShip(root,manifest,key,{row:entry,blueprintRaw:raw});
+  report.push({key,...changed,seconds:Math.round(ms/1000)});console.log(`${key.padEnd(14)} design ${changed.design.padEnd(9)} combat ${String(changed.combat||'-').padEnd(9)}`);}
  manifest.built=new Date().toISOString().slice(0,10);F.writeManifest(root,manifest);F.assemble(root);
  console.log(`Refreshed ${report.length} examples: ${report.filter(r=>r.design==='updated').length} design and ${report.filter(r=>r.combat==='updated').length} combat files rewritten, the rest unchanged`);
 }
