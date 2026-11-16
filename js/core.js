@@ -60113,12 +60113,13 @@ function refitShipThermal(ship,key,options={}){
   fireShare=peak>0?Math.max(0,peak-peakBase)/peak:0;
   const next=margin*peak,converged=Math.abs(next-requestedCapacityW)<=Math.max(1,next*1e-9);requestedCapacityW=next;operatingPresets=presets;if(converged)break;
  }
+ let cruiseCapacityW=0;
  // v25 Converters are sized for a sustained cruise at CRUISE_SPEED_TARGET.target of the maximum speed (user decisions
  // 2026-11-16「最高速度の6〜8割が持続的な巡航速度」「排熱装置の能力をさらに減らそう」): shields held, guns idle, the
  // engines at the share that gives that speed. Combat beyond it runs on the heat store, then the automatic governor.
  // A superweapon's firing heat is still converted (2026-11-15「発射の熱も排熱」) and is added on top.
  {const cruise=shipThermalCruiseModel(ship,S,{P,S:Q,H}),share=cruise.shareFor(CRUISE_SPEED_TARGET.target),held=cruise.settled(share),fireW=Math.max(0,...Object.values(operatingPresets).map(x=>x.fireHeatW||0));
-  requestedCapacityW=held.generatedW+fireW;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
+  requestedCapacityW=held.generatedW+fireW;cruiseCapacityW=held.generatedW;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
  // v25 Banks a builder already placed beyond that size shrink with it (every bank by the same linear factor; the
  // distribution hub keeps its size), so a ship cannot keep the old full-thrust or full-combat cooling.
  if(existingCapacity>requestedCapacityW*(1+1e-6)){
@@ -60152,7 +60153,10 @@ function refitShipThermal(ship,key,options={}){
   }
  }finally{ship._building=oldBuilding;}
  const banks=ship.parts.filter(p=>p.k==='hdis'&&partVolume(p)>0),caps=banks.map(p=>dissipatorCap(p,S)),capacityW=caps.reduce((a,b)=>a+b,0),source=new Map(),put=(id,w)=>{if(w>0)source.set(id,Math.max(source.get(id)||0,w));};
- if(requestedCapacityW>0&&capacityW<requestedCapacityW*(1-1e-5))throw new Error(key+': 散逸装置の実船内容積が不足しています（必要 '+Math.ceil(requestedCapacityW/density)+' m³、設置 '+Math.floor(capacityW/density)+' m³）');
+ // v25 (user decision 2026-11-16, Onager「Cool what fits」): a superweapon's firing heat is converted as far as the hull holds
+ // converters; the rest goes to the heat store. The cruise share must still be fully installed.
+ const fireShortfallW=Math.max(0,requestedCapacityW-capacityW);
+ if(requestedCapacityW>0&&capacityW<Math.max(cruiseCapacityW,requestedCapacityW-requestedCapacityW*fireShare)*(1-1e-5))throw new Error(key+': 散逸装置の実船内容積が不足しています（必要 '+Math.ceil(requestedCapacityW/density)+' m³、設置 '+Math.floor(capacityW/density)+' m³）');
  for(const p of ship.parts){
   if(isReactor(p))put('p'+p.id,HEAT.waste.reactor*ratedReactorPower(p)*reactorFactor);
   else if(p.k==='shield'||p.k==='localShield')put('p'+p.id,HEAT.waste.shield*shieldLoad(p)*shieldFactor);
@@ -60171,7 +60175,7 @@ function refitShipThermal(ship,key,options={}){
  if(allPaths>available){const per=Math.floor(available/Math.max(1,source.size));used=used.sort((a,b)=>caps[b]-caps[a]).slice(0,per);usedCapacityW=used.reduce((n,j)=>n+caps[j],0);
   if(!(per>0)||requestedCapacityW>0&&usedCapacityW<requestedCapacityW*(1-1e-5))throw new Error(key+': 実機の熱輸送路が保存上限を超えています');}
  for(const [from,w] of source)for(const j of used)ship.links.push({kind:'heat',from,to:'p'+banks[j].id,cap:margin*w*caps[j]/Math.max(1,usedCapacityW)});
- ship._shipThermalRefit={key,requestedCapacityW,capacityW,coolingPowerW:capacityW*HEAT.disPowerK.hdis,requestedVolumeM3:missingVolume+existing.reduce((n,p)=>n+partVolume(p),0),installedVolumeM3:banks.reduce((n,p)=>n+partVolume(p),0),addedParts:made.map(p=>p.id),margin,sourcePowerW:P,requestedInput:{engines:E,weapons:W,shields:Q,fixed:H,superweapons:SW},operatingPresets,envelope:{weaponFactor,shieldFactor,reactorFactor,electricalFeedLossBoundW:feedBound.heatW},capacityRatio:requestedCapacityW>0?capacityW/requestedCapacityW:1};
+ ship._shipThermalRefit={key,requestedCapacityW,capacityW,cruiseCapacityW,fireShortfallW,coolingPowerW:capacityW*HEAT.disPowerK.hdis,requestedVolumeM3:missingVolume+existing.reduce((n,p)=>n+partVolume(p),0),installedVolumeM3:banks.reduce((n,p)=>n+partVolume(p),0),addedParts:made.map(p=>p.id),margin,sourcePowerW:P,requestedInput:{engines:E,weapons:W,shields:Q,fixed:H,superweapons:SW},operatingPresets,envelope:{weaponFactor,shieldFactor,reactorFactor,electricalFeedLossBoundW:feedBound.heatW},capacityRatio:requestedCapacityW>0?capacityW/requestedCapacityW:1};
  return ship;
 }
 function shipThermalBank(ship,volume,index,beside=null){
