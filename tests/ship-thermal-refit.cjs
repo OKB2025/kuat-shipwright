@@ -32,8 +32,10 @@ test('a fixed-only load includes hotel waste and the cooling plant own power hea
  // 2026-11-12: converter input follows the converted heat (the unmargined peak), not the margined rating.
  // 2026-11-16 PR #112: converters are sized for the sustained cruise (refitShipThermal/shipThermalCruiseModel), not the
  // margined preset peak; the 1.15 sizing margin belonged to the retired peak model. A hotel-only cruise is still the
- // hotel and reactor waste plus the converters' own power heat.
- near(meta.requestedCapacityW,fixedWaste*H/(1-fixedWaste*C.HEAT.disPowerK.hdis),1e-8);near(meta.requestedCapacityW,meta.operatingPresets.sustainedCruise.generatedW,1e-8);
+ // hotel and reactor waste plus the converters' own power heat. Later on 2026-11-16 the cruise is sized so balanced running
+ // (HEAT.balanceTarget, with CRUISE_SIZING_MARGIN for the services of a moving ship) holds it: ships sized to the exact
+ // cruise heat settled under the 70% hyperspace entry speed.
+ const k=C.HEAT.balanceTarget*C.CRUISE_SIZING_MARGIN;near(meta.operatingPresets.sustainedCruise.generatedW,fixedWaste*H/(1-fixedWaste*C.HEAT.disPowerK.hdis),1e-8);near(meta.requestedCapacityW,meta.operatingPresets.sustainedCruise.generatedW/k,1e-8);
  assert.ok(meta.capacityW>H);near(meta.coolingPowerW,meta.capacityW*C.HEAT.disPowerK.hdis);
 });
 

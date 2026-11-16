@@ -25,7 +25,11 @@ test('retained structural acceleration and inertia constrain the actual input an
  assert.ok(unit.propulsion.actualAccelMps2<=50*(1+1e-9),'structure and inertia remain effective in live propulsion');
  const thrustLimit=limited.massKg*limited.accelerationLimitMps2;
  assert.ok(unit.propulsion.actualThrustN<=thrustLimit*(1+1e-9));
- near(unit.propulsion.wasteHeatW,unit.propulsion.actualInputW*.05,'heat uses the limited received input');
+ /* 2026-11-16 engine curve B (user decision: waste = clamp(0.05*sqrt(L),0,0.6), L = input / normal input): was actualInputW*.05, the retired flat
+    waste. The check still ties the heat to the structurally limited input that each core actually received. */
+ const normal=new Map(limited.engines.map(e=>[e.machineryId??e.id,e.normalInputW]));assert.ok((unit.propulsion.cores||[]).length>0&&unit.propulsion.cores.every(c=>normal.get(c.id)>0),'every live core has its installed normal input');
+ near(unit.propulsion.wasteHeatW,unit.propulsion.cores.reduce((n,c)=>n+c.actualInputW*C.engineWasteFraction(c.actualInputW/normal.get(c.id)),0),'heat uses the limited received input');
+ near(unit.propulsion.cores.reduce((n,c)=>n+c.actualInputW,0),unit.propulsion.actualInputW,'the cores share the limited input');
 });
 
 test('a real attachment diagnosis does not replace the retained framing and longitudinal calculations',()=>{
