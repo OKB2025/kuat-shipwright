@@ -13,7 +13,8 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const C=vm.runInContext('Core',cx),ships=new Map();
 function ship(key){if(!ships.has(key))ships.set(key,C.SHIP_EXAMPLES[key]._testBuild(key.startsWith('recusant')?{}:{stage:'fitted'}));return ships.get(key);}
 const plans={
- mc30c:{monCalPD:10,single500:16,cmsl:8,trc:2},
+ // v25 (PR #112): the MC-30C carries no tractor beams (user's instruction); trc:2 removed.
+ mc30c:{monCalPD:10,single500:16,cmsl:8},
  mc75:{monCalPD:20,monCal34:12,monCal150Ion:16,cmsl:12,trc:6},
  munificent:{munBow:1,munTwin:18,pd:58},
  providence:{monCalPD:58,monCal200Triple:14,cmsl:34,trc:4},
@@ -58,11 +59,14 @@ test('Lucrehulk rapid quads use the full CIS model and the LH-3210 freighter rem
  for(const f of guns){const d=C.fitSpec(f);assert.equal(d.barrels,4);assert.equal(d.tt,4);assert.ok(d.fm>=C.fitSpec({k:'quad500'}).fm);assert.equal(f.float,false);assert.ok(guns.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<.01&&Math.abs(g.p[2]+f.p[2])<.01),'mirrored equatorial rapid battery');}
  const cargo=ship('lh3210');assert.equal(cargo.fits.filter(f=>C.FITS[f.k]?.cat==='w'&&f.k!=='trc').length,0);assert.equal(cargo.fits.filter(f=>f.k==='trc').length,6);
 });
-test('CR90 native light/heavy guns and Dreadnaught conventional guns retain their distinct rosters',()=>{
+// v25 (PR #112): the Dreadnaught's armament is the user's design (34 TT spherical turbolasers in the blisters,
+// triple spherical PD lasers, 6 MT single heavy lasers), replacing the v22 Legends roster (quad200/twin200/pd).
+test('CR90 native light/heavy guns and the Dreadnaught armament from the user design retain their distinct rosters',()=>{
  const cr=ship('cr90');for(const [k,n] of Object.entries({twin500MT:2,single6MT:4}))assert.equal(cr.fits.filter(f=>f.k===k).length,n,k);
  const native=cr.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(native.length,6);assert.ok(native.every(f=>['twin500MT','single6MT'].includes(f.k)));for(const f of native)assert.equal(C.fitSpec(f).boltTT,f.k==='twin500MT'?.0005:.000006);
- const dn=ship('dreadnaught');assert.equal(dn.fits.filter(f=>f.k==='twin200').length,10);assert.equal(dn.fits.filter(f=>f.k==='quad200').length,20);assert.equal(dn.fits.filter(f=>f.k==='pd').length,10);
- for(const s of [cr,dn]){assert.equal(s.fits.filter(f=>f.k.startsWith('monCal')||f.k.startsWith('casemate')).length,0);assert.equal(s.fits.filter(f=>f.float).length,0);}
+ const dn=ship('dreadnaught');for(const [k,n] of Object.entries({monCal34:10,monCalPD:20,single6MT:10}))assert.equal(dn.fits.filter(f=>f.k===k).length,n,k);assert.equal(dn.fits.length,40);
+ assert.equal(cr.fits.filter(f=>f.k.startsWith('monCal')||f.k.startsWith('casemate')).length,0);
+ for(const s of [cr,dn])assert.equal(s.fits.filter(f=>f.float).length,0);
 });
 
 test('GR-75 carries exactly two conventional laser turrets',()=>{
