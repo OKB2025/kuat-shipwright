@@ -80949,7 +80949,7 @@ function shipThermalCruiseModel(ship,S,options={}){
  // One cruise load at engine share x with the converters drawing coolingInputW: the heat it leaves aboard.
  const memo=new Map(),engine=x=>{if(!memo.has(x))memo.set(x,solve(x));return memo.get(x);};
  const at=(x,coolingInputW=0)=>{const e=engine(x),draw=e.inputW+Q+H+coolingInputW,feedHeatW=e.inputW>0?Math.min(feedBound.heatW,e.inputW*feedBound.maxFraction/Math.max(1e-12,1-feedBound.maxFraction)):0;
-  return {x,generatedW:HEAT.waste.reactor*draw+e.engineHeatW+HEAT.waste.shield*Q+HEAT.waste.hotel*(H+coolingInputW)+feedHeatW,enginesW:e.inputW,accelMps2:e.accelMps2};};
+  return {x,generatedW:HEAT.waste.reactor*draw+e.engineHeatW+HEAT.waste.shield*Q+HEAT.waste.hotel*(H+coolingInputW)+feedHeatW,inputW:draw,enginesW:e.inputW,accelMps2:e.accelMps2};};
  // The converters' own input is charged from the heat they convert; settle it for the load.
  const settled=x=>{let c=0,r=at(x,0);for(let i=0;i<12;i++){const n=r.generatedW*HEAT.disPowerK.hdis;if(Math.abs(n-c)<=Math.max(1,n*1e-9))break;c=n;r=at(x,c);}return {...r,coolingInputW:c};};
  const full=engine(1),maxA=maxAccel??full.accelMps2,ratio=x=>maxA>0?engine(x).accelMps2/maxA:0;
@@ -81011,7 +81011,7 @@ function refitShipThermal(ship,key,options={}){
   // Balanced running holds the heat made at HEAT.balanceTarget of the rejection, beside the services a moving ship also runs; the
   // cruise is sized with that margin so balanced running actually holds it (2026-11-16: sized to the exact cruise heat, ships
   // settled at 0.66–0.69 of their top speed, under the 70% hyperspace entry speed, and never jumped).
-  requestedCapacityW=held.generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)+fireW;cruiseCapacityW=cruise.settled(cruise.shareFor(CRUISE_SPEED_TARGET.low)).generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)/* held in balanced running, like the request; the least the hull must hold: a 60% cruise (the decision's lower bound) */;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
+  requestedCapacityW=held.generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)+fireW;cruiseCapacityW=cruise.settled(cruise.shareFor(CRUISE_SPEED_TARGET.low)).generatedW/(HEAT.balanceTarget*CRUISE_SIZING_MARGIN)/* held in balanced running, like the request; the least the hull must hold: a 60% cruise (the decision's lower bound) */;fireShare=requestedCapacityW>0?fireW/requestedCapacityW:0;operatingPresets.sustainedCruise={mode:'balanced',share,speedRatio:cruise.ratio(share),inputW:held.inputW/* the plant's whole cruise load: engines, shields, services and the converters' own input */,generatedW:held.generatedW,enginesW:held.enginesW,coolingReservationW:held.coolingInputW};}
  // v25 Banks a builder already placed beyond that size shrink with it (every bank by the same linear factor; the
  // distribution hub keeps its size), so a ship cannot keep the old full-thrust or full-combat cooling.
  if(existingCapacity>requestedCapacityW*(1+1e-6)){
