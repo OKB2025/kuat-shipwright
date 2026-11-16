@@ -47,7 +47,9 @@ function powerProfile() {
 test('live propulsion retains its planning limits across throttle and power changes', () => {
   const p = powerProfile().propulsion;
   for (const [throttle, powerW, expected] of [
-    [1, planningInputW, 150], [.25, planningInputW, 125], [0, planningInputW, 0], [1, 0, 0],
+    /* 2026-11-16 engine curve B: the quarter-throttle case was 125 (= .25 * 500). The fixture's normal input equals its rated input, so at a quarter of
+       the input the curve wastes 0.05*sqrt(.25) instead of 0.05 and the force is .25*500*(1-w(.25))/(1-w(1)) = 128.3. */
+    [1, planningInputW, 150], [.25, planningInputW, 500 * .25 * (1 - C.engineWasteFraction(.25)) / (1 - C.engineWasteFraction(1))], [0, planningInputW, 0], [1, 0, 0],
   ]) {
     const result = C.solveShipPropulsion(p, {
       throttle, sources: [{id: 'p1', domain: 'main', powerW}],
@@ -92,7 +94,20 @@ test('a real architecture-two engine and paid feed retain planning limits while 
   const original = JSON.stringify(profile);
   for (const [throttle, available] of [[1, rated], [.25, rated], [0, rated], [1, 0], [1, rated * .25]]) {
     const result = C.solveShipPropulsion(profile, {throttle, sources: [{id: 'p1', domain: 'main', powerW: available}], links: fleet.grid.powerPaths});
-    const input = Math.min(throttle * available * efficiency, rated * efficiency, structural*.5*descriptor.massKg*wattsPerNewton), thrust = input / wattsPerNewton;
+    /* 2026-11-16 engine curve B (user decision: waste = clamp(0.05*sqrt(L),0,0.6), L = input / normal input). Was: input = min(throttle*available*eff,
+       rated*eff, structural*.5*mass*wattsPerNewton), thrust = input/wattsPerNewton, waste = input*.05 -- a flat 5% waste. wattsPerNewton keeps the
+       5% in it, so the shaft coefficient is (1-PROPULSION.wasteFraction)*wattsPerNewton and the curve sets how much of the input reaches the shaft.
+       This large core runs at L ~ 1e-3 and wastes ~0.2%, so the structural force limit is met with less input than the flat model needed. */
+    const normalInputW = descriptor.cores[0].normalInputW;assert.ok(normalInputW > 0, 'the core has a finite normal input');
+    const thrustOf = w => w * (1 - C.engineWasteFraction(w / normalInputW)) / ((1 - C.PROPULSION.wasteFraction) * wattsPerNewton);
+    const requested = Math.min(throttle * available * efficiency, rated * efficiency), forceLimitN = structural*.5*descriptor.massKg;
+    let input = requested;
+    if (thrustOf(requested) > forceLimitN) {
+      near(thrustOf(result.actualInputW), forceLimitN);
+      assert.ok(result.actualInputW < requested, 'the structural limit trims the input');
+      input = result.actualInputW;
+    }
+    const thrust = thrustOf(input);
     assert.equal(result.version, 2);
     near(result.ratedAccelMps2, descriptor.ratedAccelMps2);
     near(result.accelerationLimitMps2, structural * .5);
@@ -100,7 +115,7 @@ test('a real architecture-two engine and paid feed retain planning limits while 
     near(result.inertialFactor, .5);
     near(result.actualInputW, input);
     near(result.actualThrustN, thrust);
-    near(result.wasteHeatW, input * .05);
+    near(result.wasteHeatW, input * C.engineWasteFraction(input / normalInputW));/* 2026-11-16 curve B: was input * .05 */
     near(result.actualAccelMps2, Math.min(thrust / descriptor.massKg, structural*.5));
     near(result.power.draw, input / efficiency);
     near(result.power.feedLossW, result.power.draw - input);
@@ -148,7 +163,9 @@ test('fighter flight loses acceleration and turning when stopped or unpowered', 
     near(powered.acc, .3);
     const quarter = R.squadPropulsion(squad, .25, 0);
     near(quarter.acc0, powered.acc0);
-    near(quarter.acc, .25);
+    /* 2026-11-16 engine curve B: was .25. The fixture engine's normal input is its rated input (L = 1 at full input), so the quarter-input run
+       wastes 0.05*sqrt(.25) instead of the flat 0.05 and gives (1-w(.25))/(1-w(1)) more force; it is still below the full-throttle .3. */
+    near(quarter.acc, .25 * (1 - C.engineWasteFraction(.25)) / (1 - C.engineWasteFraction(1)));
     assert.ok(quarter.turn > 0 && quarter.turn < powered.turn);
     const stopped = R.squadPropulsion(squad, 0, 0);
     near(stopped.acc0, powered.acc0);
