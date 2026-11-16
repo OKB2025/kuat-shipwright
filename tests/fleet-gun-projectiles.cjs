@@ -1,10 +1,11 @@
+// 2026-11-16: the stubbed sound helpers include sndGunRange (gunfire falls off with distance); no expectation changed.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),cx=vm.createContext({console}),run=code=>vm.runInContext(code,cx);
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 run(`const C=Core,I=[1,0,0,0,1,0,0,0,1],impacts=[],trial={battle:{b:{units:[]},E:I},vbolts:[],fx:[]},TRIAL_GUN={boltSpeed:4500},SPACE_RULES={step:.25};
  const tv={add:(a,b,k=1)=>a.map((v,i)=>v+k*b[i]),sub:(a,b)=>a.map((v,i)=>v-b[i]),scale:(a,k)=>a.map(v=>v*k),dot:(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),len:a=>Math.hypot(...a),norm:C.norm};
  const trialApplyT=(r,v)=>[r[0]*v[0]+r[3]*v[1]+r[6]*v[2],r[1]*v[0]+r[4]*v[1]+r[7]*v[2],r[2]*v[0]+r[5]*v[1]+r[8]*v[2]],spaceWorld=u=>u.pos,spaceVel=u=>u.velocity||[0,0,0],spaceRotU=(e,u)=>u.rot||I,spaceHullPoint=u=>u.pos;
- const sndAt=()=>{},sndFac=()=>'',sndSalvo=()=>'',sndPick=()=>'',swShotFx=()=>{},spaceImpact=(point,velocity,target)=>impacts.push({point,target});
+ const sndAt=()=>{},sndGunRange=()=>({}),sndFac=()=>'',sndSalvo=()=>'',sndPick=()=>'',swShotFx=()=>{},spaceImpact=(point,velocity,target)=>impacts.push({point,target});
  const emitterCalls=[],spaceShotEmitter=(a,t,index,ion,sourceFit,sourceMuzzle)=>{emitterCalls.push({index,ion,sourceFit,sourceMuzzle});return {pos:sourceMuzzle||a.pos,dir:[0,0,1],fit:sourceFit??7,cell:'physical-cell',unit:a.id};};
  let seed=77;Math.random=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296;};
 `);
