@@ -69,8 +69,9 @@ test('CR90 native light/heavy guns and the Dreadnaught armament from the user de
  for(const s of [cr,dn])assert.equal(s.fits.filter(f=>f.float).length,0);
 });
 
-test('GR-75 carries exactly two conventional laser turrets',()=>{
- const s=ship('gr75'),guns=s.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(guns.length,2);assert.ok(guns.every(f=>f.k==='pd'&&!f.float));assert.ok(guns.some(f=>f.p[2]>0)&&guns.some(f=>f.p[2]<0));
+// v25 (PR #112): the GR-75's two guns are the user's design: small turrets (cturret) under the forward hull, not the v22 top PD guns.
+test('GR-75 carries exactly two small turrets from the user design',()=>{
+ const s=ship('gr75'),guns=s.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(guns.length,2);assert.ok(guns.every(f=>f.k==='cturret'&&!f.float&&f.a===3));assert.ok(guns.some(f=>f.p[2]>0)&&guns.some(f=>f.p[2]<0));
 });
 
 test('Sphyrna uses two native bow twin heavy lasers and one aft twin light turbolaser',()=>{
