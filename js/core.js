@@ -61782,8 +61782,12 @@ function onaBuild(opt={}){
  // straight from the main reactor.
  for(const sg of [-1,1]){const body=onaWeaponBody(s,sg);part('sbeam',(sg<0?'左舷':'右舷')+'125 PT超重合成ターボレーザー',body.center,38.2,{reactor:gen.id,weaponBody:body.weaponBody,weaponMuzzle:body.weaponMuzzle});}
  // The converters for the firing loss: one room each side of the slot, in the 34 m the composite machinery gave up
- // (x 640 to 674). The hull's lens section clips the room; only the volume kept earns capacity.
- for(const sg of [-1,1])placePart(s,'hdis',[657,66.5,sg*88],Math.cbrt(34*62*90),{label:(sg<0?'左舷':'右舷')+SW_CONVERTER_LABEL,room:[34,90,62],autoFit:false});
+ // (x 640 to 674). The room stands inside the lens-shaped hull with 1 m to spare: rays at x 640–674 put the hull's
+ // faces at y 46–87 at z 104, and the exposed-hull survey shows no face inside the room only out to z 95: so z 55–95,
+ // y 48–85 (reference-fidelity review 2026-11-16: the earlier 90 × 62 m room came out through the upper and lower
+ // faces, taking 12,240 m² off the exposed hull; at z 55–100 the survey still lost 459 m²). The thermal refit makes
+ // up the capacity the smaller rooms give up.
+ for(const sg of [-1,1])placePart(s,'hdis',[657,66.5,sg*75],Math.cbrt(34*37*40),{label:(sg<0?'左舷':'右舷')+SW_CONVERTER_LABEL,room:[34,37,40],autoFit:false});
  // ---- the stern engine block (v24; added after the earlier parts so their ids stay as published) ----
  // The STL closes the hull directly forward of the five nozzles: the central engine's housing (r 15 m)
  // runs from its nozzle to the inner faces of the stern plates, and the block beside the core starts

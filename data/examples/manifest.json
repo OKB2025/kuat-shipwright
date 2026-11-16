@@ -1,6 +1,6 @@
 {
  "schemaVersion": 2,
- "built": "2026-11-15",
+ "built": "2026-11-16",
  "ships": {
   "acclamator": {
    "combat": {
@@ -333,12 +333,12 @@
   },
   "onager": {
    "combat": {
-    "sha256": "382a98df3e5670468e3bcb589190dfdab80d9bb70944c7e792b6d9ab77730565"
+    "sha256": "52146fb490dc5acc6d476d9436b2df0032140ebfd17a2ede1cfabe1ff0be78a6"
    },
    "design": {
-    "sha256": "df72cd1c09557caf584104f6c07e460cba5405f821f8c1f0de7edfe752dba8af",
-    "jsonSha256": "8c77271b07cebdf50d183ff27026f9b953f90dbb4d23df8e689c7bf4e5ecea58",
-    "blueprintSha256": "4f24087f6bf7e4b75648fad2a4b1125e26f499b798ed22b8e7f13dafcf3906e3"
+    "sha256": "a768a972dbd7017cbc2ec38a4b7fef50666007120ba3fbd6c3498d6f5c84bb74",
+    "jsonSha256": "c7f38390897883f7dbbbe8e6efa3917433a7d9148134b9bcf7bac9c969fe096e",
+    "blueprintSha256": "0e20cc10ca6d5d839825584dff166875fcb587305cc346eee0b665ed8df37da0"
    }
   },
   "providence": {
