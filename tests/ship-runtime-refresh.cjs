@@ -53,7 +53,9 @@ test('generator rejects fighter, unregistered and stale physical profiles',()=>{
 });
 test('catalogue coverage includes all selectable named capital examples and CIS families',()=>{
  const {C,data}=loadRuntime(root),keys=exampleKeys(C,data),physical=['venator','imperial','executor',...Object.entries(C.SHIP_EXAMPLES).filter(([,d])=>!d.craft).map(([key])=>key)];
- assert.deepEqual(keys,[...new Set(physical)].sort());assert.deepEqual(Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort(),keys);for(const key of ['munificent','providence','providenceDn','recusant','recusantDn','lucrehulk','lh3210','subjugator','acclamator'])assert.ok(keys.includes(key),key);
+ assert.deepEqual(keys,[...new Set(physical)].sort());// 2026-11-16 PR #112: the Executor is the user's own design and is not refitted (its cooling and hangars are follow-up work in
+ // docs/handoff-2026-11-15); every other catalogue key still is.
+ assert.deepEqual(Array.from(C.SHIP_SYSTEM_REFIT_KEYS).sort(),keys.filter(k=>k!=='executor'));for(const key of ['munificent','providence','providenceDn','recusant','recusantDn','lucrehulk','lh3210','subjugator','acclamator'])assert.ok(keys.includes(key),key);
 });
 test('CLI can generate independent shards or validate them without ambiguous output modes',()=>{
  assert.deepEqual(parseArgs(['--keys','imperial,venator','cr90','--patch','/tmp/profile.json']).keys,['imperial','venator','cr90']);assert.deepEqual(parseArgs(['--merge','a.json','--merge','b.json']).merges,['a.json','b.json']);

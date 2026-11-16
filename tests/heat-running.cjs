@@ -11,13 +11,21 @@ function duel(scale,heat,secs){
  const a=C.fleetUnit('a','mc80liberty',prof(),0),b=C.fleetUnit('b','mc80liberty',prof(),1);b.pos=[30000,0,0];b.yaw=Math.PI;
  a.order={...a.order,type:'attack',target:'b',fire:true,...(heat?{heat}:{})};b.order={...b.order,type:'attack',target:'a',fire:true,...(heat?{heat}:{})};
  const B=C.fleetBattle([a,b],true);B.seed=7;let peak=0,over=0,n=0;
- for(let t=0;t<secs;t+=.25){C.fleetTick(B,.25,{});const h=a.ht;peak=Math.max(peak,h.qJ/h.capacityJ);if(t>=20&&h.cap>0){n++;if(h.madeW>h.cap*1.02)over++;}}
- return {a,B,peak,over,n,events:B.events.filter(e=>/全力運転を解除/.test(e.text))};
+ let madeMax=0,run=0,longest=0,sum=0,peakLate=0,limLate=1;for(let t=0;t<secs;t+=.25){C.fleetTick(B,.25,{});const h=a.ht;peak=Math.max(peak,h.qJ/h.capacityJ);madeMax=Math.max(madeMax,h.madeW||0);if(t>=5){peakLate=Math.max(peakLate,h.qJ/h.capacityJ);limLate=Math.min(limLate,...Object.values(h.lim||{}).map(v=>Number.isFinite(v)?v:1));}if(t>=20&&h.cap>0){n++;sum+=h.madeW/h.cap;if(h.madeW>h.cap*1.02){over++;run++;longest=Math.max(longest,run);}else run=0;}}
+ return {a,B,peak,peakLate,limLate,over,n,madeMax,longest,mean:n?sum/n:0,events:B.events.filter(e=>/全力運転を解除/.test(e.text))};
 }
+// 2026-11-16 PR #112 (converters sized for a 70% sustained cruise): the regenerated MC80's own cooling no longer covers combat, so
+// 'enough' and 'too little' cooling are scaled from the heat it actually makes in this duel (measured with ample cooling).
+let COMBAT_SCALE=null;function combatScale(){if(COMBAT_SCALE==null){const r=duel(100,'full',30),cap0=F.designs.mc80liberty.p.heat.dis.reduce((a,d)=>a+d.cap,0);COMBAT_SCALE=r.madeMax/cap0;}return COMBAT_SCALE;}
 test('balanced running holds the heat made within the rejection capacity of a ship with too little cooling',()=>{
- const r=duel(.7,'balance',90);
- assert.equal(r.a.out,null,'no shutdown: '+r.a.out);assert.ok(r.peak<C.HEAT.limitAt,'the store stays under the limiting band: '+r.peak);
- assert.equal(r.over,0,`heat made within capacity after the first seconds (${r.over}/${r.n} steps over)`);assert.ok(r.a.ht.runK<1,'output is held back: '+r.a.ht.runK);
+ const r=duel(.7*combatScale(),'balance',90);
+ assert.equal(r.a.out,null,'no shutdown: '+r.a.out);// 2026-11-16 PR #112: the opening charge of every weapon from empty puts about 40% of the (unchanged, ~1 s) store in one
+ // 0.25 s step before any governor can answer, and a burst taken while governed drains at HEAT.drainS. The store may stand in the
+ // limiting band for a few seconds, but output is never limited after the opening seconds and the store never nears critical.
+ assert.ok(r.peak<C.HEAT.restartAt,'the store stays well under critical: '+r.peak);assert.equal(r.limLate,1,`no output limiting after the opening seconds (store peak ${r.peakLate})`);
+ // 2026-11-16 PR #112: with converters sized for the cruise, weapon bursts briefly exceed the rejection before the governor answers;
+ // the store takes them. Balanced running holds the heat made within capacity on average and never over it for more than four heat solves (3 s).
+ assert.ok(r.mean<=1,`heat made within capacity on average after the first seconds (mean ${r.mean})`);assert.ok(r.longest<=12,`no burst over capacity lasts more than four heat solves (3 s; ${r.longest} steps of .25 s; ${r.over}/${r.n} over)`);assert.ok(r.a.ht.runK<1,'output is held back: '+r.a.ht.runK);
  assert.equal(r.events.length,0);assert.equal(C.heatRunMode(r.a),'balance');
 });
 test('full running ignores heat until the store is half full, then warns and returns to balanced running',()=>{
@@ -26,7 +34,7 @@ test('full running ignores heat until the store is half full, then warns and ret
  assert.ok(r.peak>=C.HEAT.fullWarnAt,'it ran until the warning level: '+r.peak);assert.equal(r.a.out,null);
 });
 test('a ship with enough cooling is not held back in either mode',()=>{
- for(const m of ['balance','full']){const r=duel(1,m,40);assert.equal(r.a.heatGov.weapon,1,m);assert.equal(r.a.heatGov.engine,1,m);assert.equal(r.events.length,0,m);}
+ for(const m of ['balance','full']){const r=duel(2*combatScale(),m,40);assert.equal(r.a.heatGov.weapon,1,m);assert.equal(r.a.heatGov.engine,1,m);assert.equal(r.events.length,0,m);}
 });
 // 2026-11-15, user decisions「自動全力運転は外す」「排熱は被弾とも釣り合う」. The fourth case stated automatic full running
 // (a ship left to itself ran full while it had a target); it now states the opposite, and a fifth case checks that

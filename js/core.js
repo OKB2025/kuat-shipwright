@@ -76428,7 +76428,7 @@ function engineTransmission(ship){
  // the main reactor. A source already reaching the engine through an authored route keeps that route only.
  {const reaches=(from,to)=>{const seen=new Set([from]);for(let pass=0;pass<ports.size;pass++){let changed=false;for(const e of edges.values())if(seen.has(e.from)&&!seen.has(e.to)){seen.add(e.to);changed=true;}if(!changed)break;}return seen.has(to);};
   // An engine's own feed limit (a user's feedCapacityW) caps the sum over all its routes, not each route.
-  for(const p of owners){const add=sources.filter(r=>domains.of(r)===domains.of(p)&&!reaches('p'+r.id,'p'+p.id));if(!add.length)continue;
+  for(const p of owners){if(p.reactor===0)continue;/* an explicit disconnection (reactor 0) earns no automatic power */const add=sources.filter(r=>domains.of(r)===domains.of(p)&&!reaches('p'+r.id,'p'+p.id));if(!add.length)continue;
    const legacy=Number.isFinite(p.ratedInputW)&&Math.abs((p.feedCapacityW||0)-p.ratedInputW*1.3)<=Math.max(1,p.ratedInputW)*1e-9,own=Number.isFinite(p.feedCapacityW)&&!legacy?Math.max(0,p.feedCapacityW):null,into=[...edges.values()].filter(e=>e.to==='p'+p.id).reduce((n,e)=>n+e.limit,0),room=own==null?Infinity:Math.max(0,own-into),total=add.reduce((n,r)=>n+electricalSourcePower(r),0);
    for(const r of add){const w=electricalSourcePower(r);put({from:'p'+r.id,to:'p'+p.id,cap:Math.min(w*maximumPowerModeFactor(),room===Infinity?Infinity:room*w/Math.max(1e-30,total))},true);}}}
  const relevant=new Set(targets.keys());for(let pass=0;pass<ports.size;pass++){let changed=false;for(const e of edges.values())if(relevant.has(e.to)&&!relevant.has(e.from)){relevant.add(e.from);changed=true;}if(!changed)break;}
@@ -76637,7 +76637,7 @@ function engineSceneSupply(ship,part){
  const groups=powerDomainGroups(ship),owners=propulsionOwners(ship).map(p=>p.id===part?.id?part:p),ports=new Set(ship.parts.map(p=>'p'+p.id)),links=(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'&&ports.has(l.from)&&ports.has(l.to)),sources=ship.parts.filter(p=>electricalSourcePower(p)>0).map(p=>({id:'p'+p.id,powerW:electricalSourcePower(p),domain:groups.of(p)}));if(part&&['engine','engineCore'].includes(part.k)&&!owners.some(p=>p.id===part.id))owners.push(part);
  for(const p of owners)if(!links.some(l=>l.to==='p'+p.id)){const reactor=reactorFor(ship,p);if(reactor&&groups.of(reactor)===groups.of(p))links.push({from:'p'+reactor.id,to:'p'+p.id});}
  // v25 Ship-wide engine bus, as in engineTransmission: every source of the engine's domain reaches it.
- for(const p of owners)for(const r of sources)if(r.domain===groups.of(p)&&!links.some(l=>l.from===r.id&&l.to==='p'+p.id))links.push({from:r.id,to:'p'+p.id});
+ for(const p of owners)if(p.reactor!==0)for(const r of sources)if(r.domain===groups.of(p)&&!links.some(l=>l.from===r.id&&l.to==='p'+p.id))links.push({from:r.id,to:'p'+p.id});
  const specs=owners.map(p=>({id:p.id,machineryId:p.id,powerNode:'p'+p.id,domain:groups.of(p),effectiveMachineryVolumeM3:machineryGeometry(p,ship).volume})),key=JSON.stringify([sources,links,specs]),cached=ENGINE_SCENE_SUPPLY_CACHE.get(ship),supply=cached?.key===key?cached.supply:connectedEngineSupply(specs,sources,links);
  if(cached?.key!==key)ENGINE_SCENE_SUPPLY_CACHE.set(ship,{key,supply});if(ordinary&&ship._boundsPass)ship._boundsPass.engineSceneSupply=supply;
  return supply.get(part?.id)||{availableInputW:0,nominalInputW:0,sourceIds:[]};
@@ -85045,7 +85045,9 @@ function shieldRechargeStep(u,s={},dt=0,options={}){
  // Remove only the deliberate storage-headroom trim from maintenance. A
  // fully paid small top-up is not a failing generator; operating limits,
  // disconnected feeds and unfunded watts still reduce the nominal fraction.
- const headroom=u.pw?.policy===FLIGHT_POWER_POLICY.id?u.pw.shieldHeadroomFraction:null,maintenance=Number.isFinite(headroom)&&headroom>0&&headroom<1?clamp((u.shF??1)/headroom,0,1):(u.shF??1);
+ // Under the flight policy the field asks for SHIELD_RECHARGE_K of its design draw (user decision 2026-11-16, x0.5): fully paid, that
+ // share is full maintenance, not a failing generator (shF is measured against the design draw).
+ const flight=u.pw?.policy===FLIGHT_POWER_POLICY.id,paid=(u.shF??1)/(flight?SHIELD_RECHARGE_K:1),headroom=flight?u.pw.shieldHeadroomFraction:null,maintenance=Number.isFinite(headroom)&&headroom>0&&headroom<1?clamp(paid/headroom,0,1):clamp(paid,0,1);
  const D=(p.D||0)*shieldFactor,eff=D*(u.shF??1),gen0=eff*step*damage*(incoming>0?COMBAT.fireGen:1),decay=(u.out||u.pw?.policy!==FLIGHT_POWER_POLICY.id||u.pw.requestedShieldRechargeW>0?Math.max(0,1-maintenance)*D*step*damage*.5:0),short=incoming+(u.shieldMax-u.shield)+decay-gen0;
  const bd=short>0&&u.bank>0&&u.shieldMax>0?Math.min(u.bank,COMBAT.bankRate*D*step*damage,short):0;u.bank-=bd;u.bankUse=bd/Math.max(1e-6,step);
  const fr=u.shieldMax>0?clamp(u.shield/u.shieldMax,0,1):0,bleed=u.shieldMax>0?Math.pow(1-fr,COMBAT.bleedK):1,gen=gen0+bd,had=u.shield>0,next=u.shield+gen-decay;u.bleed=bleed;
@@ -89840,7 +89842,8 @@ function shipFuelState(u){
 function shipFuelAvailableEnergyJ(u,exceptKey=null){
  const f=shipFuelState(u);if(!f)return 0;if(!f.capacityKnown)return Infinity;
  const reserved=Object.entries(f.reservations).reduce((n,[key,r])=>n+(key===exceptKey?0:r.fuelEnergyJ),0);
- return Math.max(0,f.capacityJ-f.fuelEnergyJ-reserved);
+ // Below a millionth of a millionth of the load the remainder is rounding of capacity minus use (one ulp of a 5e17 J load is 64 J): empty.
+ const left=f.capacityJ-f.fuelEnergyJ-reserved;return left>f.capacityJ*1e-12?left:0;
 }
 function shipFuelAvailableElectricalJ(u,exceptKey=null){
  return shipFuelAvailableEnergyJ(u,exceptKey)/(1+Math.max(0,HEAT.waste.reactor||0));
@@ -90007,7 +90010,11 @@ const heatLim=(u,k)=>u?.ht?.online===false?0:1,heatSwLim=(u,i)=>heatLim(u,'sw');
 function heatRunMode(u){return u?.order?.heat==='full'?'full':'balance';}
 function heatGovernor(u){
  const h=u?.ht;if(!h||h.online===false||!(h.capacityJ>0))return {fill:0,engine:1,weapon:1,active:false,mode:heatRunMode(u)};
- const fill=h.qJ/h.capacityJ,band=clamp((HEAT.governEnd-fill)/(HEAT.governEnd-HEAT.governStart),0,1),mode=heatRunMode(u),g=mode==='full'?band:Math.min(band,clamp(h.runK??1,0,1));
+ // The heat already made this interval but not yet solved counts too (2026-11-16, PR #112: with converters sized for the cruise, a
+ // store of about a second of combat heat filled within one 0.75 s heat interval before the governor saw it). It is the fill the
+ // next heat solve will find if the heat keeps coming at its rate so far: net of what the converters reject, so ample cooling is
+ // not read as a full store, and a surge is seen while it builds.
+ const el=Math.max(0,h.elapsed||0),pend=heatPendingJ(h),rej=Math.max(0,h.cap??swRatedRejectionW(u)),fill=(h.qJ+Math.max(0,pend-rej*el+(el>0?Math.max(0,pend/el-rej)*Math.max(0,HEAT.dt-el):0)))/h.capacityJ,band=clamp((HEAT.governEnd-fill)/(HEAT.governEnd-HEAT.governStart),0,1),mode=heatRunMode(u),g=mode==='full'?band:Math.min(band,clamp(h.runK??1,0,1));
  return {fill,engine:HEAT.governEngineFloor+(1-HEAT.governEngineFloor)*g,weapon:g,active:g<1,mode};
 }
 // After each heat solve: balanced running moves its output factor toward the point where the heat made equals

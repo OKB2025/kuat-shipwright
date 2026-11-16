@@ -36,8 +36,8 @@ test('a battle-owned pilot receives no duplicate solo recharge before its world 
  C.combatResolve(ctx,u,C.combatIncoming(),.1,C.fleetSystems(u));near(u.shield,expected,'the shared combat helper advances storage once');
 });
 test('the shared update retains established under-fire generation, reserve spending and decay',()=>{
- const u=fixture(true);u.p.reserve=50;u.bank=20;u.shield=60;u.p.shieldBuffer=100;u.p.D=10;u.shF=.5;u.pw={policy:C.FLIGHT_POWER_POLICY.id,requestedShieldRechargeW:1};
- const dt=.25,incoming=5,gen0=10*.5*dt*C.COMBAT.fireGen,decay=.5*10*dt*.5,bd=Math.min(20,C.COMBAT.bankRate*10*dt,incoming+(100-60)+decay-gen0),expected=60+gen0+bd-decay;
+ const u=fixture(true);u.p.reserve=50;u.bank=20;u.shield=60;u.p.shieldBuffer=100;u.p.D=10;u.shF=.5*C.SHIELD_RECHARGE_K/* 2026-11-16 PR #112 (shield recharge x0.5): under the flight policy a fully paid request is K of the design draw, so half funding is shF .5K */;u.pw={policy:C.FLIGHT_POWER_POLICY.id,requestedShieldRechargeW:1};
+ const dt=.25,incoming=5,gen0=10*u.shF*dt*C.COMBAT.fireGen,decay=.5*10*dt*.5,bd=Math.min(20,C.COMBAT.bankRate*10*dt,incoming+(100-60)+decay-gen0),expected=60+gen0+bd-decay;
  const q=C.shieldRechargeStep(u,{shield:1,battery:1},dt,{incomingShieldTT:incoming});near(q.generatedTT,gen0);near(q.reserveSpentTT,bd);near(q.decayedTT,decay);near(u.bank,20-bd);near(u.shield,expected);
 });
 test('an unfunded solo shield cannot refill stored energy or generate fictitious reactant use',()=>{
@@ -47,15 +47,18 @@ test('an unfunded solo shield cannot refill stored energy or generate fictitious
 test('fully funded one-third headroom top-ups finish in one step at varying frame times',()=>{
  for(const dt of [.01,.03,.05,.1,.23,.75,1.7]){
   const u=fixture(),deficit=u.p.D*dt/3;C.shieldReceive(u,{energy:deficit/(1-C.SHIELD_MODEL.deflectMax)});const before=u.shield;tick(dt);
-  near(u.shF,1/3);near(u.pw.shieldHeadroomFraction,1/3);near(u.shield,u.shieldMax,'paid top-up cannot stall at the old one-third fixed point');near(u.shield-before,u.pw.sh*dt/TT*C.K.deflect);tick(dt);near(u.pw.sh,0);near(u.propulsion.actualInputW/TT,95);
+  near(u.shF,1/3);near(u.pw.shieldHeadroomFraction,Math.min(1,(1/3)/C.SHIELD_RECHARGE_K))/* 2026-11-16 PR #112: headroom is the top-up against the K-scaled request */;near(u.shield,u.shieldMax,'paid top-up cannot stall at the old one-third fixed point');near(u.shield-before,u.pw.sh*dt/TT*C.K.deflect);tick(dt);near(u.pw.sh,0);near(u.propulsion.actualInputW/TT,95);
  }
 });
 test('intentional headroom never hides real operating derating, finite feed shortage or offline field loss',()=>{
  const dt=.3,u=fixture(),s=C.fleetSystems(u),D=u.p.D;u.shield=u.shieldMax-D*dt/3;
  C.allocateShipPower(u,s,{throttle:0,shields:u.p.grid.Ds*.5},dt);
- near(u.pw.shieldHeadroomFraction,2/3);near(u.shF,1/3);const before=u.shield,q=C.shieldRechargeStep(u,s,dt);near(q.decayedTT,D*dt*.25,'the pre-existing half operating limit still decays');near(u.shield,before+D*dt/3-D*dt*.25);assert.ok(u.shield<u.shieldMax);
+ // 2026-11-16 PR #112 (shield recharge x0.5): the half-derated field asks .5K of the design draw; the top-up need is a third,
+ // the headroom is need/request (at most 1), the paid share is shF/K and the half operating limit still decays by half.
+ const KS=C.SHIELD_RECHARGE_K,ask=.5*KS,need=1/3,hr=Math.min(1,need/ask),dec=(f,h)=>(1-Math.min(1,(f/KS)/h))*.5;
+ near(u.pw.shieldHeadroomFraction,hr);near(u.shF,Math.min(ask,need));const before=u.shield,q=C.shieldRechargeStep(u,s,dt);near(q.decayedTT,D*dt*dec(u.shF,hr),'the pre-existing half operating limit still decays');near(q.decayedTT,D*dt*.25);near(u.shield,before+D*dt*u.shF-D*dt*.25);assert.ok(u.shield<u.shieldMax);
  const limited=fixture(),ls=C.fleetSystems(limited);limited.shield=limited.shieldMax-limited.p.D*dt/3;limited.p.grid.powerPaths.find(l=>l.to==='p3').cap=limited.p.grid.Ds/6;
- C.allocateShipPower(limited,ls,{throttle:0,shields:limited.p.grid.Ds*.5},dt);near(limited.pw.shieldHeadroomFraction,2/3);near(limited.shF,1/6);const loss=C.shieldRechargeStep(limited,ls,dt);near(loss.decayedTT,limited.p.D*dt*.375,'a finite path shortage is not exempted by a paid smaller request');
+ C.allocateShipPower(limited,ls,{throttle:0,shields:limited.p.grid.Ds*.5},dt);near(limited.pw.shieldHeadroomFraction,hr);near(limited.shF,1/6);const loss=C.shieldRechargeStep(limited,ls,dt);near(loss.decayedTT,limited.p.D*dt*dec(1/6,hr),'a finite path shortage is not exempted by a paid smaller request');assert.ok(loss.decayedTT>limited.p.D*dt*.25,'the shortage decays more than the operating limit alone');
  const offline=fixture(),os=C.fleetSystems(offline);offline.out='電源喪失';offline.shF=0;offline.pw={policy:C.FLIGHT_POWER_POLICY.id,requestedShieldRechargeW:0,shieldHeadroomFraction:1/3};const field=offline.shield;const stopped=C.shieldRechargeStep(offline,os,dt);near(stopped.generatedTT,0);near(stopped.decayedTT,offline.p.D*dt*.5);near(offline.shield,field-stopped.decayedTT);
  const legacy=fixture(),legacyBefore=legacy.shield;legacy.shF=1/3;legacy.pw={requestedShieldRechargeW:legacy.p.grid.Ds/3,shieldHeadroomFraction:1/3};const old=C.shieldRechargeStep(legacy,C.fleetSystems(legacy),dt);near(old.decayedTT,legacy.p.D*dt/3,'old policy keeps its established nominal maintenance formula');near(legacy.shield,legacyBefore);
 });
