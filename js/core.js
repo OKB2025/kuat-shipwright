@@ -84035,7 +84035,7 @@ function engineHeatThrottleCap(u,gov,dt){
  const p=u.p,g=p.grid||{},pr=p.propulsion,cores=pr&&(pr.cores||pr.engines),De=Math.max(0,g.De||0);if(!(De>0))return 1;
  const c=u._engineHeatFull&&u._engineHeatFull.p===p?u._engineHeatFull:(u._engineHeatFull={p,W:cores?.length?engineHeatForInput(cores,De).wasteHeatW:PROPULSION.wasteFraction*De});
  const perX=Math.max(1e-30,c.W+HEAT.waste.reactor*De),h=u.ht,rej=Math.max(0,h?.cap??swRatedRejectionW(u)),otherW=(HEAT.waste.hotel+HEAT.waste.reactor)*Math.max(0,(g.fixed||0)-(g.cooling||0))+Math.max(0,h?.coolingSelfW||0);
- return clamp((Math.max(0,rej-otherW)+gov.roomJ/dt)/perX,0,1);
+ return {perX,spareW:Math.max(0,rej-otherW),cap:x=>clamp((Math.max(0,rej-otherW)+gov.roomJ/dt)/perX,0,1)};
 }
 function fleetPowerStep(u,s,t,raw,dt,volley=1){
  const p=u.p,g=p.grid,mode=FLIGHT_POWER_POLICY.id;u.mode=mode;
@@ -84050,8 +84050,11 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // survey: a Providence's store holds about 0.4 s of its rejection, one 0.25 s step at moderate throttle put the whole store in,
  // and the governor swung between floor and full until the ship blacked out). Engine heat is taken linear in throttle from
  // the heat at full input, which overstates it at part load under curve B, so the cap errs on the safe side.
- const engCap=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):1;
- const want={throttle:Math.min(man*gov.engine,engCap),shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),gov.mode==='balance'&&Number.isFinite(gov.roomJ)?gov.roomJ/Math.max(1e-9,dt*(HEAT.waste.weapon+HEAT.waste.reactor)):Infinity)*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
+ // Weapon charging gets what the spare rejection and the store's room leave after the engines' heat (physics of the same
+ // step; without the spare rejection a ship with ample converters was held to its store's room, propulsion-surface-power).
+ const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
+  weaponHeatW=hb?Math.max(0,hb.spareW+gov.roomJ/dt-hb.perX*throttle):Infinity;
+ const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
  const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;

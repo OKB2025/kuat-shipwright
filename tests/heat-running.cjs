@@ -41,8 +41,10 @@ test('a ship left to itself runs balanced: full running only on an order',()=>{
  assert.equal(C.heatRunMode({order:{},manual:true}),'balance');assert.equal(C.heatRunMode({order:{heat:'full'}}),'full');assert.equal(C.heatRunMode({order:{heat:'full'},manual:true}),'full');
 });
 test('balanced running counts the heat of hits: a ship taking hits holds back further than its own heat alone asks',()=>{
- const own=duel(.7,'balance',10),k0=own.a.ht.runK;
- const prof=()=>{const p=JSON.parse(JSON.stringify(F.designs.mc80liberty.p));for(const d of p.heat.dis)d.cap*=.7;return p;};
+ // 2026-11-16 PR #112: cooling scaled from the duel's combat heat as in the first case; at a fixed .7 of the cruise-sized
+ // converters the ship held runK near 0 with or without hits, so the comparison measured nothing.
+ const sc=.7*combatScale(),own=duel(sc,'balance',10),k0=own.a.ht.runK;
+ const prof=()=>{const p=JSON.parse(JSON.stringify(F.designs.mc80liberty.p));for(const d of p.heat.dis)d.cap*=sc;return p;};
  const a=C.fleetUnit('a','mc80liberty',prof(),0),b=C.fleetUnit('b','mc80liberty',prof(),1);b.pos=[30000,0,0];b.yaw=Math.PI;
  a.order={...a.order,type:'attack',target:'b',fire:true,heat:'balance'};b.order={...b.order,type:'attack',target:'a',fire:true,heat:'balance'};
  const B=C.fleetBattle([a,b],true);B.seed=7;const cap=()=>a.ht.cap||1;
