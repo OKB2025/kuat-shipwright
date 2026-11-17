@@ -90054,7 +90054,7 @@ function heatGovernor(u){
  // store of about a second of combat heat filled within one 0.75 s heat interval before the governor saw it). It is the fill the
  // next heat solve will find if the heat keeps coming at its rate so far: net of what the converters reject, so ample cooling is
  // not read as a full store, and a surge is seen while it builds.
- const el=Math.max(0,h.elapsed||0),pend=heatPendingJ(h),rej=Math.max(0,h.cap??swRatedRejectionW(u)),fill=(h.qJ+Math.max(0,pend-rej*el+(el>0?Math.max(0,pend/el-rej)*Math.max(0,HEAT.dt-el):0)))/h.capacityJ,band=clamp((HEAT.governEnd-fill)/(HEAT.governEnd-HEAT.governStart),0,1),mode=heatRunMode(u),g=mode==='full'?band:Math.min(band,clamp(h.runK??1,0,1));
+ const el=Math.max(0,h.elapsed||0),pend=pendingLedgerJ(h)/* a state with no ledger has nothing pending */,rej=Math.max(0,h.cap??swRatedRejectionW(u)),fill=(h.qJ+Math.max(0,pend-rej*el+(el>0?Math.max(0,pend/el-rej)*Math.max(0,HEAT.dt-el):0)))/h.capacityJ,band=clamp((HEAT.governEnd-fill)/(HEAT.governEnd-HEAT.governStart),0,1),mode=heatRunMode(u),g=mode==='full'?band:Math.min(band,clamp(h.runK??1,0,1));
  // Room left in the store below governStart as it stands now (not projected): a single step's weapon charging, the
  // recharge after a volley, may not take the store past it in balanced running (physics review 2026-11-16: a store above
  // limitAt lowers damageLimit for good, and the recharge after the first volley put 43% of the store in one 0.25 s step).
