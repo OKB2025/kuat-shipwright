@@ -80907,6 +80907,16 @@ function constructShipSystems(ship,key){
   propulsion.engines.forEach((e,i)=>{e.ratedInputW=installedInputW*bodyCaps[i]/Math.max(1,bodyCapacityW);const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3*(1+1e-12))||'advanced';e.feedCapacityW=e.ratedInputW*1.3;{const spec=resolveEngineSpec(e,ship);if(!spec.valid)throw new Error(key+': 実装機関の実容量が不足しています（機関 #'+e.id+'：'+(spec.issues||[]).join(', ')+'）');};});propulsion.inputW=installedInputW;
   wirePower();refitShipThermal(ship,key,{stats:measured,powerW:baselinePowerW,E:installedInputW,W,S:Q,H,margin:1.15});syncCompartments(ship);wirePower();straightenShipMachineryRooms(ship);syncCompartments(ship);wirePower();
   const volumeCalibration=ENGINE_INPUT_MODEL_VERSION>=2?{measured,basis:'authored-geometry-reactor-supply',targetG:null}:SHIP_ENGINE_ACCEL_TARGETS[key]?shipRefitTargetEngineVolume(ship,key,propulsion,wirePower,{powerW:baselinePowerW,W,S:Q,H,margin:1.15},shipRefitMeasure(ship)):SHIP_MILITARY_ACCEL_TARGETS[key]?shipRefitMilitaryEngineVolume(ship,key,propulsion,wirePower,{powerW:baselinePowerW,W,S:Q,H,margin:1.15},shipRefitMeasure(ship)):{measured};measured=volumeCalibration.measured;if(volumeCalibration.trace)requestedInputW=installedInputW=propulsion.inputW;
+  // v27 The layout steps after the support sizing (the drives' thermal sizing, the machinery straightening) can leave a support
+  // bank less room than it was given when it was packed; top the support up against the finished layout's measured support
+  // (2026-11-17: the Death Star's trench ship hangars left one integrity bank at 7%, its structural limit 105 G instead of 180 G).
+  for(let pass=0;pass<2;pass++){
+   const m=shipRefitMeasure(ship),need=m.mass*1.03,shortInertial=Number.isFinite(m.inertialSupport)?Math.max(0,need-m.inertialSupport)/(120*field):0,shortIntegrity=Number.isFinite(m.integritySupport)?Math.max(0,need-m.integritySupport)/(180*field):0;
+   if(!(shortInertial>Math.max(.1,m.mass/120*1e-5))&&!(shortIntegrity>Math.max(.1,m.mass/180*1e-5))){measured=m;break;}
+   if(shortInertial>Math.max(.1,m.mass/120*1e-5))addedInertial.push(...shipRefitAddVolume(ship,'inertial',shortInertial*1.02,'追加慣性補償設備'));
+   if(shortIntegrity>Math.max(.1,m.mass/180*1e-5))addedIntegrity.push(...shipRefitAddVolume(ship,'integrity',shortIntegrity*1.02,'追加構造維持設備'));
+   syncCompartments(ship);wirePower();refitShipThermal(ship,key,{stats:m,powerW:baselinePowerW,E:installedInputW,W,S:Q,H,margin:1.15});syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);
+  }
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
   ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.referenceTargetG??propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),reconfiguredReactors,addedInertial:[...new Set([...addedInertial.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='inertial').map(p=>p.id)])],addedIntegrity:[...new Set([...addedIntegrity.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='integrity').map(p=>p.id)])],addedPumps:[...new Set([...addedPumps.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='pump').map(p=>p.id)])],powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:weaponBranchInputW,weaponBusBudgetW,weaponBranchInputW,originalEngineOutlets,thermal:ship._shipThermalRefit};
   ship.shipSystemRefit.engineCoreIds=propulsion.engines.filter(p=>p.k==='engineCore').map(p=>p.id);
@@ -84070,21 +84080,29 @@ function ionOverload(u,energy,hit={},ctx){return ionOverloadJ(u,Math.max(0,Numbe
 // needs nothing. A Dj-less profile that does have a hyperdrive and a mass (pre-v24 saves, the craft catalogue) needs the
 // kinetic term.
 function hyperKineticJ(massKg,speedMps){const b=clamp((speedMps||0)/SPEED_OF_LIGHT_MPS,0,1-1e-15);return Math.max(0,massKg||0)*SPEED_OF_LIGHT_MPS*SPEED_OF_LIGHT_MPS*Math.expm1(-.5*Math.log1p(-b*b));}
-function hyperDriveFitted(p){return (p?.grid?.Dj||0)>0||(p?.modules||[]).some(m=>m?.k==='hyper');}
-function hyperChargeNeedJ(p,extraMassKg=0){
- if(!hyperDriveFitted(p))return 0;
+// A drive is fitted when the profile has a jump draw or a hyperdrive module, or names a hyperdrive class; a unit also by its
+// class (u.info.hyper, or u.hyperClass for a squadron's drive). Readiness counts the same (hyperspaceReadiness hasHyperdrive),
+// so a drive known only by class needs its burst charge too (2026-11-17 review: such craft held their burst forever).
+function hyperDriveFitted(p){return (p?.grid?.Dj||0)>0||(p?.modules||[]).some(m=>m?.k==='hyper')||p?.hyperClass>0||p?.hyper>0;}
+function hyperChargeNeedJ(p,extraMassKg=0,known=false){
+ if(!known&&!hyperDriveFitted(p))return 0;
  return Math.max(0,p?.grid?.Dj||0)*HYPER_CHARGE.seconds+HYPER_ENTRY_KE_PER_KG*(motionMassKg(p)+Math.max(0,Number(extraMassKg)||0));
 }
-function hyperUnitNeedJ(u){return hyperChargeNeedJ(u?.p,u?.hyperTowKg||0);}
+function hyperUnitNeedJ(u){return hyperChargeNeedJ(u?.p,u?.hyperTowKg||0,u?.info?.hyper>0||u?.hyperClass>0);}
 // The charge's reactor heat (HEAT.waste.reactor of its input) is governed like weapon charging, at the lowest priority: it
 // takes what the balanced-running budget (engineHeatThrottleCap: the spare rejection at HEAT.balanceTarget plus the store's
 // room below governStart) leaves after this step's engine and weapon heat, times the governor's factor; in full running only
 // the factor applies (2026-11-17: charging from all spare power ungoverned blacked a CR90 out within a minute).
 function hyperChargeHeatCapW(u,dt){
  const H=heatProfile(u?.p),h=H?heatOf(u):null;if(!h||h.online===false||!(h.capacityJ>0)||!(dt>0))return Infinity;
- const gov=heatGovernor(u),k=clamp(gov.weapon??1,0,1);if(!(k>0))return 0;if(gov.mode!=='balance'||!Number.isFinite(gov.roomJ))return Infinity;
+ // The governor as read at the start of this step (u.heatGov, as for the engines and weapons): read after the step's heat is
+ // booked but before any of it is rejected, a coarse step looks full (a 20 s step of a CR90's services is five stores).
+ const gov=u.heatGov||heatGovernor(u),k=clamp(gov.weapon??1,0,1);if(!(k>0))return 0;if(gov.mode!=='balance'||!Number.isFinite(gov.roomJ))return Infinity;
  const De=Math.max(0,u.p.grid?.De||0),hb=engineHeatThrottleCap(u,gov,dt),x=De>0?clamp(Math.max(0,u.propulsion?.actualInputW??(u.maneuver||0)*De)/De,0,1):0,wpnW=Math.max(0,u.pw?.wpn||0)*(HEAT.waste.weapon+HEAT.waste.reactor);
- return k*Math.max(0,hb.budget-hb.heatAt(x)-wpnW)/Math.max(1e-12,HEAT.waste.reactor);
+ const rej=Math.max(0,heatDeliverableRejectionW(u)),covered=Number.isFinite(h.cap)?clamp(h.cap,0,rej):0,spareW=Math.max(0,hb.spareW-(rej-covered));
+ // The engines' and weapons' heat take the covered rejection first and then the store's room; the covered rejection is a reading
+ // of the last heat solve, extrapolated over at most one heat interval.
+ return k*Math.max(0,spareW*HEAT.balanceTarget*Math.min(dt,HEAT.dt)/dt+Math.max(0,gov.roomJ)/dt-hb.heatAt(x)-wpnW)/Math.max(1e-12,HEAT.waste.reactor);
 }
 function hyperChargeStep(u,P,drawW,dt){
  const need=hyperUnitNeedJ(u);if(!(need>0)){if(u)u.hyperE=0;return 0;}
@@ -84096,7 +84114,7 @@ function hyperChargeStep(u,P,drawW,dt){
 }
 function hyperCharged(u){const need=hyperUnitNeedJ(u);return need>0?Math.min(1,Math.max(0,u.hyperE||0)/need):1;}
 // The idle spare a ship charges from (computeStats jumpSpareW), for estimates; the live rate is u.pw.hyper.
-function hyperChargeNominalW(p){const g=p?.grid||{};return Math.max(0,(g.P||0)-(g.fixed||0)-(g.cooling||0)-.3*(g.Ds||0));}
+function hyperChargeNominalW(p){const g=p?.grid||{};return Number.isFinite(g.Jspare)?Math.max(0,g.Jspare):Math.max(0,(g.P||0)-(g.fixed||0)-(g.cooling||0)-.3*(g.Ds||0));}
 function hyperChargeLeftS(u,rateW){const left=Math.max(0,hyperUnitNeedJ(u)-Math.max(0,u?.hyperE||0));if(!(left>0))return 0;const r=Math.max(rateW||0,u?.pw?.hyper||0,hyperChargeNominalW(u?.p));return r>0?left/r:Infinity;}
 function engineHeatThrottleCap(u,gov,dt){
  const p=u.p,g=p.grid||{},pr=p.propulsion,cores=pr&&(pr.cores||pr.engines),De=Math.max(0,g.De||0),h=u.ht,H=heatProfile(p);
@@ -84665,7 +84683,7 @@ function fleetProfile(S,name,ship){
  if(S.craftSystems)out.systems=cleanCraftSystems(S.craftSystems);
  out.energyModel={version:ship?.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta,unit:ship?.surfaces?.mode==='strict'?'energy':'legacy-effect',assumption:true};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
- out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),cooling:S.dissipatorPower||0,De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0,Dj:dr.jump||0,Pgen:S.reactorSplit?.gen??S.power??0,Paux:S.reactorSplit?.aux??0};
+ out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),cooling:S.dissipatorPower||0,...(Number.isFinite(S.jumpSpareW)?{Jspare:S.jumpSpareW}:{}),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0,Dj:dr.jump||0,Pgen:S.reactorSplit?.gen??S.power??0,Paux:S.reactorSplit?.aux??0};
  // v22 The embarked combat craft's stores at their canon load (C.CRAFT_LOADOUT): the TT one craft brings to the
  // fight in torpedoes, missiles and bombs, and the share of it that is ion. The fleet model spends it as they attack.
  {let n=0,T=0,I=0,R=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0)||!r.type)continue;const o=craftOrdnance(r.type),t=o.reduce((a,x)=>a+x.n*x.tt,0);n+=r.deployable;T+=r.deployable*t;I+=r.deployable*o.filter(x=>x.ion).reduce((a,x)=>a+x.n*x.tt,0);R+=r.deployable*o.filter(x=>!x.ion).reduce((a,x)=>a+x.n,0);}if(n>0&&T>0){out.airOrd=Math.round(T/n*10)/10;out.airIon=Math.round(I/T*1000)/1000;/* TT per round of the hull-striking stores, for the per-shot casualty rule */if(R>0&&T>I)out.airOrdShot=+((T-I)/R).toPrecision(4);}}
@@ -90776,7 +90794,8 @@ function wingStatsRaw(ship,S){
    parts:M.parts.map(q=>q.id),structs:M.structs.map(q=>q.id),fits:M.fits.map(f=>f.id),hits:sweep?.hits||[]});}
  S.wings=out;S.wingMass=extra;
  // the root conduits, the reinforcement and the actuators are carried mass: they cost acceleration
- if(extra>0&&S.mass>0){const k=S.mass/(S.mass+extra);for(const key of ['accelG','aEff','aThrust','aStruct','thrustG','structG'])if(Number.isFinite(S[key]))S[key]*=k;S.mass+=extra;}
+ if(extra>0&&S.mass>0){const k=S.mass/(S.mass+extra);for(const key of ['accelG','aEff','aThrust','aStruct','thrustG','structG'])if(Number.isFinite(S[key]))S[key]*=k;S.mass+=extra;
+  /* v27 the burst charge covers the carried mass too (2026-11-17 review) */if(S.jumpChargeJ>0){S.jumpChargeJ+=HYPER_ENTRY_KE_PER_KG*extra*1000;if(S.jumpOK&&S.jumpSpareW>0)S.jumpChargeS=S.jumpChargeJ/S.jumpSpareW;}}
  for(const x of out){const tg=[{list:'parts',id:x.id}];
   for(const h of x.hits)S.warnings.push({lv:'warn',code:'foil-clash',partId:x.id,text:`Sフォイル #${x.id} が ${h.angle}° で ${h.name} と干渉します。`,targets:tg});
   if(x.foil&&Math.abs(x.open-x.stow)<.5)S.warnings.push({lv:'info',code:'foil-still',partId:x.id,text:`Sフォイル #${x.id} の収納角と展開角が同じです（動きません）。`,targets:tg});}
@@ -91603,7 +91622,7 @@ function squadPowerLossState(s,u){
 const SQUAD_POWER_TICKS=new WeakMap();
 function squadPropulsion(s,throttle,dt,prepare=false){
  const craft=CRAFT[s.craft],profile=craftPowerOf(craft);if(!profile){s.propulsion=null;s.weaponPowerK=0;return {acc:0,acc0:0,turn:0};}
- let u=s.drive;if(!u||u._profile!==profile){u=s.drive=C.fleetUnit(s.id+':drive',s.craft,profile,s.side);u._profile=profile;}
+ let u=s.drive;if(!u||u._profile!==profile){u=s.drive=C.fleetUnit(s.id+':drive',s.craft,profile,s.side);u._profile=profile;}u.hyperClass=Number(craft?.hyper)||0;/* v27 a drive known by class charges too */
  const reference=C.calibrateMotionResistance(profile),left=(s.ldg||[]).reduce((n,x,i)=>n+(s.ammo?.[i]||0)*(x.mass||0),0),massKg=profile.propulsion.massKg+left*1000;
  if(u.p===profile||u.p.propulsion.massKg!==massKg){const descriptor={...profile.propulsion,massKg,ratedAccelMps2:massKg>0?profile.propulsion.ratedThrustN/massKg:0};u.p={...profile,...(reference?{motionResistance:reference}:{}),propulsion:descriptor};}
  // v27 The squad keeps its hyperdrive charge (s.hyperE) across drive rebuilds; craft leave the hangar charged.
@@ -93222,13 +93241,13 @@ function peaceTick(w, sys, dt) {
  if (contacts.length) { const ctx = combatCtx(w, sys), hit = new Set(); for (const c of contacts) { hit.add(c.a); hit.add(c.z); } for (const u of hit) applyDamage(w, sys, u, inc.get(u.id), dt, sysOf.get(u.id), ctx); }
  // Still unsettled: a ship under way (moving), or one short of its station or of the point ordered (far).
  let moving = false, far = false;
- for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
+ for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || u.jump || u.hyperBurst || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
  return {moving, far};
 }
 function peaceMoves(w, dt) {
  // A pilot release or restored world may contain moving units without a
  // pending navigation command. Their passive resistance still owns a clock.
- for(const u of w.units.values())if(alive(u)&&!u.manual&&!u.out&&!u.warp&&!u.towedBy&&u.sys!=null&&!w.battles.has(u.sys)&&len(u.velocity||[0,0,0])>1e-9&&!w.stir?.has(u.sys))stir(w,u.sys);
+ for(const u of w.units.values())if(alive(u)&&!u.manual&&!u.out&&!u.warp&&!u.towedBy&&u.sys!=null&&!w.battles.has(u.sys)&&(len(u.velocity||[0,0,0])>1e-9||u.jump||u.hyperBurst)&&!w.stir?.has(u.sys))stir(w,u.sys);
  if (!w.stir?.size) return;
  // A system is settled when no ship moves: at once if all are on their marks, after a few seconds at rest if some cannot close on theirs.
  for (const [sys, r] of [...w.stir]) { if (w.battles.has(sys)) { w.stir.delete(sys); continue; } const st = peaceTick(w, sys, dt); if (!st || !st.moving && !st.far) { w.stir.delete(sys); continue; } r.still = st.moving ? 0 : r.still + dt; if (r.still > 5) w.stir.delete(sys); }
@@ -94643,7 +94662,7 @@ function squadHyperspaceAdvance(w,s,route,dt,allowBurst=false){
    // power charges the drive.
    const previous=HULLS;try{hullsFor(w,s.sys);const aligned=dot(norm(s.h||[1,0,0]),dir)>=Math.cos(C.HYPERSPACE_ALIGN_RAD);squadPropulsion(s,aligned?0:1,dt,true);const speed=Math.min(len(s.vel||[0,0,0]),C.propulsionTerminalSpeed(s.drive||CRAFT[s.craft]?.powerProfile));steer(s,add(s.pos,scale(dir,Math.max(5000,speed*Math.max(1,dt)*2))),speed,dt,true);}finally{HULLS=previous;}}
  }
- const status=C.hyperspaceReadiness(s.drive,s.vel,dir,{forwardDirection:s.h,hyperClass,dt,requireCharge:true,alignWithinRad:C.HYPERSPACE_ALIGN_RAD});
+ const status=C.hyperspaceReadiness(s.drive,s.vel,dir,{forwardDirection:s.h,hyperClass,dt,requireCharge:!s.hyperBurst,alignWithinRad:s.hyperBurst?undefined:C.HYPERSPACE_ALIGN_RAD});
  if(!s.hyperBurst&&allowBurst&&status.ready)s.hyperBurst=C.hyperspaceBurstStart(s.vel,dir,C.motionMassKg(s.drive?.p));
  const burstComplete=!!s.hyperBurst&&s.hyperBurst.t>=C.HYPERSPACE_BURST_SECONDS-1e-12;
  return {...status,ready:status.ready&&burstComplete,driveReady:status.ready,burstComplete,reason:status.ready&&!burstComplete?'hyper-burst':status.reason};

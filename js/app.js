@@ -9306,7 +9306,8 @@ function trialSublight(dt){
  const j=trial.jump;if(!trialCoasting())return;
  if(!j.follow){
   if(j.phase!=='enter'){trialStep(dt);return;}
-  trial.w=[0,0,0];trial.mainThrustShare=1;trial.thrustWant=1;trialGunnery(dt);
+  // v27 the hyperdrive moves the ship; its engines idle, as the escorts' do (2026-11-17 review: full engine input for the burst)
+  trial.w=[0,0,0];trial.mainThrustShare=1;trial.thrustWant=0;trialGunnery(dt);
   const unit=trialSystemsUnit(),next=C.hyperspaceBurstStep(unit,j.burst,dt,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()});
   if(next.blocked){trialCancelJump(true);return;}
   trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.vf=tv.dot(trial.V,j.dir);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;return;

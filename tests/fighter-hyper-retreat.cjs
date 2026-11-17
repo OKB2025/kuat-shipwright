@@ -12,15 +12,18 @@ function retreatFixture(air=[{craft:'xwing',n:6,wingNo:1},{craft:'tie_ln',n:6,wi
  return {w,home,g,wing,from,to};
 }
 function leave(a){
- // Cohort tests begin in a legitimate forward cruise. Physical acceleration
- // from rest is covered by the dedicated hyperspace preparation tests.
  const route=Rts.routePath(a.w.sector,a.home.sys,a.to),from=a.w.sector.systems[route.path[0]].pos,to=a.w.sector.systems[route.path[1]].pos,dir=Core.norm([to[0]-from[0],0,to[1]-from[1]]);
- a.home.yaw=Math.atan2(dir[2],dir[0]);a.home.velocity=Core.mul(dir,.95*Core.propulsionTerminalSpeed(a.home));Core.allocateShipPower(a.home,Core.fleetSystems(a.home),{throttle:1},0,'balanced');
- // v24 A cruising carrier has long since charged its hyperdrive from spare power.
+ // v27 (2026-11-17) No sublight entry speed: the carrier lies stopped with its bow on the jump vector (the 5 deg alignment
+ // gate) and a full charge, which now holds the jump field and the burst to 0.5c. A carrier on station has long since
+ // charged from spare power; charging time itself is covered by tests/hyper-charge.cjs.
+ a.home.yaw=Math.atan2(dir[2],dir[0]);a.home.velocity=[0,0,0];
  for(const id of a.g.units){const u=a.w.units.get(id);if(u)u.hyperE=Core.hyperChargeNeedJ(u.p);}
  const r=Rts.orderJump(a.w,a.g.id,a.to);if(!r.ok)throw Error(r.why);a.g.spool.t=a.g.spool.need-.25;
  for(let i=0;i<80&&!a.g.transit;i++)Rts.tick(a.w,.25);
- if(!a.g.transit)throw Error('Cruising carrier did not complete actual jump preparation: '+JSON.stringify(Rts.groupHyperspaceReadiness(a.w,a.g)));
+ if(!a.g.transit)throw Error('Charged carrier at rest did not complete actual jump preparation: '+JSON.stringify(Rts.groupHyperspaceReadiness(a.w,a.g)));
+ // The departure was the drive's own burst from rest to 0.5c along the jump vector, paid out of the store.
+ const v=a.home.hyperEntryVelocity,speed=v?Core.len(v):0;
+ if(!(Math.abs(speed/Core.HYPERSPACE_BURST_SPEED_MPS-1)<1e-9)||!(Core.dot(v,dir)>=speed*Math.cos(Core.HYPERSPACE_ALIGN_RAD))||a.home.hyperE!==0)throw Error('The carrier did not burst to 0.5c on its jump vector from its charge: '+JSON.stringify({v,speed,hyperE:a.home.hyperE}));
  return a;
 }
 function advance(a,predicate,limit=2400){for(let i=0;i<limit&&!predicate();i++)Rts.tick(a.w,.25);if(!predicate())throw Error('Timed out at '+a.w.time);}
@@ -30,7 +33,10 @@ test('mixed wings let drive-equipped aircraft follow while aircraft without driv
  assert.equal(r.xN,6);assert.equal(r.xState,'return');assert.equal(r.phase,'spool');assert.equal(r.sys,r.from);assert.equal(r.tieN,0);assert.equal(r.tieState,'lost');assert.equal(r.order,'auto');assert.equal(r.raid,false);
 });
 test('self-powered withdrawal follows real lanes at its own drive class and lands through carrier hatches',()=>{
- const r=run(`(()=>{const a=leave(retreatFixture([{craft:'bwing',n:6}])),s=[...a.w.squads.values()][0];advance(a,()=>s.follow?.phase==='back');const f=s.follow,trip=f.t1-f.t0,route=Rts.routePath(a.w.sector,a.from,a.to),expected=Rts.pathSeconds(route,Rts.CRAFT.bwing.hyper),start=Rts.followMapPos(a.w,s),wasAway=s.sys===null&&s.state==='follow';advance(a,()=>s.state==='docked');return {trip,expected,wasAway,startFinite:start.every(Number.isFinite),homeSys:a.home.sys,sys:s.sys,to:a.to,n:s.n,follow:!!s.follow,ops:s.ops,t:s.t};})()`);
+ const r=run(`(()=>{const a=leave(retreatFixture([{craft:'bwing',n:6}])),s=[...a.w.squads.values()][0],need=Core.hyperUnitNeedJ(s.drive),burstJ=Core.hyperKineticJ(Core.motionMassKg(s.drive.p),Core.HYPERSPACE_BURST_SPEED_MPS),charged=Core.hyperCharged(s.drive);advance(a,()=>s.follow?.phase==='back');const entry=Core.len(s.hyperEntryVelocity||[0,0,0])/Core.HYPERSPACE_BURST_SPEED_MPS,spent=s.hyperE,f=s.follow,trip=f.t1-f.t0,route=Rts.routePath(a.w.sector,a.from,a.to),expected=Rts.pathSeconds(route,Rts.CRAFT.bwing.hyper),start=Rts.followMapPos(a.w,s),wasAway=s.sys===null&&s.state==='follow';advance(a,()=>s.state==='docked');return {need,burstJ,charged,entry,spent,trip,expected,wasAway,startFinite:start.every(Number.isFinite),homeSys:a.home.sys,sys:s.sys,to:a.to,n:s.n,follow:!!s.follow,ops:s.ops,t:s.t};})()`);
+ // v27 (2026-11-17) The B-wing's drive (known by its class) holds the burst to 0.5c, the squadron leaves the hangar charged,
+ // and its own drive takes it from its spool speed to 0.5c on the jump vector, spending the whole charge.
+ assert.ok(r.burstJ>0&&r.need>=r.burstJ*(1-1e-12),'the B-wing drive needs the burst charge: '+r.need+' vs '+r.burstJ);assert.equal(r.charged,1);assert.ok(Math.abs(r.entry-1)<1e-9,'entry at '+r.entry+' of 0.5c');assert.equal(r.spent,0);
  assert.equal(r.trip,r.expected);assert.equal(r.wasAway,true);assert.equal(r.startFinite,true);assert.equal(r.homeSys,r.to);assert.equal(r.sys,r.to);assert.equal(r.n,6);assert.equal(r.follow,false);assert.equal(r.ops,null);assert.ok(r.t>0);
 });
 for(const kind of ['launch','land'])test(`partial ${kind} preserves aboard aircraft and temporarily splits only the airborne cohort`,()=>{

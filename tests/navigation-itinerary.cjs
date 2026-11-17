@@ -3,7 +3,8 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const {C,R,G,D}=vm.runInContext('({C:Core,R:Rts,G:Galaxy,D:YardFleetData.designs})',cx),plain=x=>JSON.parse(JSON.stringify(x));
 // A finite synthetic drive craft keeps topology tests independent of stock
-// X-wing endurance. Actual allocation, fuel, heat and the 70% gate stay active.
+// X-wing endurance. Actual allocation, fuel, heat, the hyperdrive charge and the
+// 5 deg alignment gate stay active (v27, 2026-11-17: there is no sublight entry speed).
 const navigationCraft='navigation-topology-drive';
 function navigationCraftProfile(){const massKg=1e6,P=1e18,K=C.engineConversionCoefficient(massKg);return{profileVersion:C.FLEET_PROFILE_VERSION,name:'Finite topology drive',hp:1e12,len:20,width:10,height:5,turnRate:1,D:0,wCap:0,crewNeed:1,crewMax:1,crewCapacity:1,modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1},{k:'engine',part:2,port:'p2',domain:'main',size:1,share:1,powerConnected:true},{k:'hyper',part:3,port:'p3',domain:'main',size:1,share:1,powerConnected:true}],grid:{P,Pgen:P,fixed:0,cooling:0,De:P,Ds:0,Dw:0,powerPaths:[{from:'p1',to:'p2',cap:P,ok:true}]},propulsion:{version:C.PROPULSION_MODEL_VERSION,massKg,ratedThrustN:P/K,ratedAccelMps2:P/K/massKg,accelerationLimitMps2:P/K/massKg,engines:[{id:2,machineryId:2,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',valid:true,available:true,connected:true,outletAvailable:true,driveProfileId:'standard',machineryShape:'cylinder',machineryLengthM:2,machineryRadiusM:1,effectiveMachineryVolumeM3:2*Math.PI,ratedInputW:P,ratedThrustN:P/K,wattsPerNewton:K,direction:[1,0,0],pathCapacityW:P}]},fuel:{version:1,capacityKnown:true,capacityJ:1e23,specificEnergyJPerKg:C.fuelSpecificEnergyJPerKg()}};}
 R.CRAFT[navigationCraft]={name:'Finite topology drive',role:'fighter',hyper:1,mass:1000,size:1,dims:[20,10,5],crew:1,armor:1,aa:0,strike:0,speed:C.propulsionTerminalSpeed(navigationCraftProfile()),powerProfile:navigationCraftProfile()};
@@ -18,12 +19,17 @@ function fixture(kinds=['branch','branch','branch'],air=false){
 }
 function complete(f,dt=20){let n=0;while((f.g.spool||f.g.transit)&&n++<3000)R.tick(f.w,dt);assert.ok(n<3000);return f.g.sys;}
 
-function departCruising(f,dest){
+// v27 (2026-11-17) The carrier lies stopped with its bow on the jump vector and a full charge: the drive itself takes it
+// to 0.5c. The MC80's charge (the jump field plus the burst, about 1.8e26 J) takes about 41 s at its idle spare, longer than
+// this 20 s window, and nothing charges in hyperspace, so each departure starts from a store charged on station (charging
+// time is covered by tests/hyper-charge.cjs). Craft out keep their own charge; they left the hangar charged.
+function departCharged(f,dest){
  const route=R.routePath(f.S,f.u.sys,dest),a=f.S.systems[route.path[0]].pos,b=f.S.systems[route.path[1]].pos,dir=C.norm([b[0]-a[0],0,b[1]-a[1]]);
- f.u.yaw=Math.atan2(dir[2],dir[0]);f.u.velocity=C.mul(dir,.95*C.propulsionTerminalSpeed(f.u));C.allocateShipPower(f.u,C.fleetSystems(f.u),{throttle:1},0,'balanced');
- for(const s of f.w.squads.values())if(s.sys===f.u.sys&&['out','return'].includes(s.state)){R.squadPropulsion(s,1,0);const speed=C.propulsionTerminalSpeed(s.drive);assert.ok(speed>0);s.h=dir.slice();s.vel=C.mul(dir,.95*speed);}
+ f.u.yaw=Math.atan2(dir[2],dir[0]);f.u.velocity=[0,0,0];
+ for(const id of f.g.units){const u=f.w.units.get(id);if(u)u.hyperE=C.hyperChargeNeedJ(u.p);}
  assert.equal(R.orderJump(f.w,f.g.id,dest).ok,true);R.tick(f.w,f.g.spool.need+.1);
- let n=0;while(!f.g.transit&&n++<80)R.tick(f.w,.25);assert.ok(f.g.transit,'the charged, cruising carrier completes real staggered entry');
+ let n=0;while(!f.g.transit&&n++<80)R.tick(f.w,.25);assert.ok(f.g.transit,'the charged carrier at rest completes real staggered entry');
+ const v=f.u.hyperEntryVelocity,speed=C.len(v||[0,0,0]);assert.ok(Math.abs(speed/C.HYPERSPACE_BURST_SPEED_MPS-1)<1e-9,'the drive took the carrier from rest to 0.5c: '+speed);assert.ok(C.dot(v,dir)>=speed*Math.cos(C.HYPERSPACE_ALIGN_RAD));assert.equal(f.u.hyperE,0);
 }
 
 test('one topology service groups consecutive major edges and isolates every branch edge without mutating the route',()=>{
@@ -70,11 +76,13 @@ test('legacy full-route spool and in-flight snapshots migrate to the next unpass
 
 test('carrier-follow craft stop at each actual segment and start a new spool if the carrier has moved on',()=>{
  const f=fixture(['branch','branch','branch'],true),s=[...f.w.squads.values()][0];s.state='out';s.sys=0;s.ops=null;s.pos=C.add(f.u.pos,[1000000,0,0]);s.h=[1,0,0];
- departCruising(f,3);assert.equal(s.follow.dest,1);assert.equal(f.g.transit.to,1);
+ departCharged(f,3);assert.equal(s.follow.dest,1);assert.equal(f.g.transit.to,1);
  // The slow flight remains on its first passage while the carrier is ordered
  // onward; following still has to visit node 1 and spend another spool.
- let preparation=0;while(s.follow?.phase==='spool'&&preparation++<800)R.tick(f.w,.25);assert.equal(s.follow.phase,'back','the finite craft completes its actual charged departure');s.follow.t1=f.w.time+100;s.follow.legs.at(-1).t1=s.follow.t1;
- complete(f);assert.equal(f.g.sys,1);departCruising(f,3);assert.equal(f.g.transit.to,2);
+ let preparation=0;while(s.follow?.phase==='spool'&&preparation++<800)R.tick(f.w,.25);assert.equal(s.follow.phase,'back','the finite craft completes its actual charged departure');
+ // It came about from its own heading on its own and its drive took it to 0.5c from the charge it left the hangar with.
+ assert.ok(Math.abs(C.len(s.hyperEntryVelocity||[0,0,0])/C.HYPERSPACE_BURST_SPEED_MPS-1)<1e-9,'craft entry at 0.5c');assert.equal(s.hyperE,0);s.follow.t1=f.w.time+100;s.follow.legs.at(-1).t1=s.follow.t1;
+ complete(f);assert.equal(f.g.sys,1);departCharged(f,3);assert.equal(f.g.transit.to,2);
  let n=0;while(!(s.follow?.phase==='spool'&&s.follow.from===1)&&n++<1000)R.tick(f.w,.25);
  assert.ok(n<1000);assert.equal(s.sys,1);assert.equal(s.follow.dest,2);assert.ok(s.follow.go>f.w.time);assert.equal(s.state,'return');
 });
