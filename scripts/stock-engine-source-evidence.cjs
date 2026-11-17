@@ -66,12 +66,15 @@ function normalizeStructure(part,normalizations){
 // v27 (2026-11-17) The automatic support under a turret is derived geometry. A source saved with an older support version (the
 // outline of the turret's base) is compared with the support the current rules make at the same anchor and height (the circle
 // inside that base): the source fit takes the actual support only when the versions differ and the height (base) is the same.
+// The stated rule: same height (base) and the new footprint within the old one's reach (regression review 2026-11-17).
+const supportReach=q=>Math.max(0,...(q?.polys||[]).flatMap(p=>p.map(v=>Math.hypot(v[0],v[1]))));
+function supportVersionChangeAccepted(fit,actual){const a=actual?.mountSupport,b=fit?.mountSupport;return !!(a&&b&&a.version!==b.version&&Math.abs((fit.base||0)-(actual.base||0))<=1e-6*Math.max(1,Math.abs(fit.base||0))&&supportReach(a)<=supportReach(b)*(1+1e-9)+1e-6);}
 function withCurrentSupport(fit,actual){
- const out=copy(fit),a=actual?.mountSupport,b=fit?.mountSupport;if(a&&b&&a.version!==b.version&&Math.abs((fit.base||0)-(actual.base||0))<=1e-6*Math.max(1,Math.abs(fit.base||0))){out.mountSupport=copy(a);for(const k of ['low','slope'])if(Object.hasOwn(actual,k))out[k]=actual[k];else delete out[k];}return out;
+ const out=copy(fit),a=actual?.mountSupport,b=fit?.mountSupport;if(supportVersionChangeAccepted(fit,actual)){out.mountSupport=copy(a);for(const k of ['low','slope'])if(Object.hasOwn(actual,k))out[k]=actual[k];else delete out[k];}return out;
 }
 function posePair(C,source,actual){
  const before=pick(source,FIT_FIELDS),after=pick(actual,FIT_FIELDS),normalizations=[];if(!after)return {before,after,normalizations};
- if(before.mountSupport&&after.mountSupport&&before.mountSupport.version!==after.mountSupport.version&&Math.abs((source.base||0)-(actual.base||0))<=1e-6*Math.max(1,Math.abs(source.base||0))){before.mountSupport=copy(after.mountSupport);for(const k of ['low','slope'])if(Object.hasOwn(after,k))before[k]=after[k];normalizations.push('round-support-footprint-version');}
+ if(supportVersionChangeAccepted(source,actual)){before.mountSupport=copy(after.mountSupport);for(const k of ['low','slope'])if(Object.hasOwn(after,k))before[k]=after[k];normalizations.push('round-support-footprint-version');}
  for(const field of ['float','launcherBlocked'])for(const value of [before,after])if(value[field]===false){delete value[field];normalizations.push('false-'+field+'-default');}
  // These additions are accepted only on the command-window family whose
  // original predicates already used slope||0 and commandEnabled!==false.

@@ -59,3 +59,10 @@
 ## テスト
 
 `tests/hyper-charge.cjs`、`tests/hyperspace-entry-burst.cjs`、`tests/hyperspace-speed-gate.cjs`、`tests/hyperspace-trial-physics.cjs`、`tests/hyperspace-copy-ui.cjs`、`tests/flight-controls-ui.cjs`、`tests/navigation-itinerary.cjs`、`tests/fighter-hyper-retreat.cjs`。旧規則（70%、0.9c）の期待値はこの決定に合わせて書き換えました。
+
+## 既知の制限（2026-11-17 のレビューで確認）
+
+- 余剰電力がまったくない艦は充電が進まず、準備（spool）のまま待ち続けます。待ちの上限はありません。その間、その星系は平時でも毎刻み更新されます。命令を取り消せば止まります。
+- 旋回できない艦（据置型、機関を失った艦）は跳躍方向へ向けないので、戦略マップでは「針路合わせ中」のまま進みません。
+- 充電時間の見積もり（設計画面、到着予定）は、熱で充電が絞られる分を見込みません。
+- 戦略マップで充電不足のために止まった加速を中断して返す経路（`jumpDepartures`）を通すテストはまだありません。
