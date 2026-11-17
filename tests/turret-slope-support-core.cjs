@@ -39,3 +39,13 @@ test('legacy fitting scales size native, ball and procedural foundations once re
   for(const scale of [.5,2,1,2,.5]){const sample=measure(scale);near(sample.f.base,baseline.f.base*scale,1e-4);near(sample.geometry.volume,baseline.geometry.volume*scale**3,1e-4);for(let i=0;i<6;i++){near(sample.localBounds[i],baseline.localBounds[i]*scale,1e-4);near(sample.bounds[i],baseline.bounds[i]*scale,1e-4);}if(k==='monCal80'){const a=C.REFERENCE_ASSETS[C.FITS[k].asset],radius=Math.max(...sample.foot.map(p=>Math.hypot(...p)));near(radius,a.sphereRadiusM*C.weaponModelScale(sample.f)*scale);}}
  }
 });
+test('a user part saved with an older support keeps no support made against the stand-in hull; a current one is kept',()=>{
+ // High review 2026-11-17: normalizeAssemblyTemplate loads the template on a stand-in 100 x 40 x 20 hull. An older support was
+ // made again against that hull (a 21.7 m pillar, then saved as current). It is dropped instead and made on the ship it is placed on.
+ const s=C.newShip({L:300,W:200,H:100,assembly:true},'A');s.parts=[{id:1,k:'struct',form:'box',c:[100,10,0],s:[200,160,20],roll:20}];s.fits=[];s.links=[];s.armor={hull:0,cit:0};s.nextId=2;s.detail=0;
+ const f=C.placeFit(s,'pd',C.rayPart([83,100,23],[0,-1,0],s.parts[0]).p,[0,1,0],.3,false,{mountMode:'top'}).fit;assert.ok(f.mountSupport&&f.base>0);
+ const cap=C.assemblyCapture(s,{parts:[],fits:[f.id]},{name:'t'});assert.ok(!cap.error,cap.error);
+ const current=C.normalizeAssemblyTemplate(JSON.parse(JSON.stringify(cap.template))).fits[0];assert.ok(current.mountSupport,'a current support is kept');near(current.base,f.base,1e-6);
+ const old=JSON.parse(JSON.stringify(cap.template));for(const q of old.fits)q.mountSupport.version=1;const made=C.normalizeAssemblyTemplate(old).fits[0];
+ assert.equal(made.mountSupport,undefined,'no support made against the stand-in hull');assert.equal(made.base||0,0);
+});

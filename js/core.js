@@ -75655,7 +75655,7 @@ function deserialize(o,internalOptions=null){
   if(!internalOptions?.deferPlacementGeometry)refreshPlacementGeometry(s);
   delete s._propulsionRoutingDeferred;
   // v27 Supports saved in an older form are made again here, so a cold load and the Worker give the same support and mass.
-  {const big=Math.max(s.hull.L,s.hull.H,s.hull.W,200)*2;for(const f of s.fits){if(!f._supportRemake)continue;delete f._supportRemake;if(!f.float)try{mountTurretSupport(s,f,big);normalizeFitMount(f);}catch{}}}
+  {const big=Math.max(s.hull.L,s.hull.H,s.hull.W,200)*2;for(const f of s.fits){if(!f._supportRemake)continue;delete f._supportRemake;if(internalOptions?.skipSupportRemake)continue;if(!f.float)try{mountTurretSupport(s,f,big);normalizeFitMount(f);}catch{}}}
   return adoptWeaponFits(s);
 }
 
@@ -83849,7 +83849,7 @@ function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
    // (exp(-r1^2/2s^2)-exp(-r2^2/2s^2)); only the angle is sampled (the whole circle when the aim point is inside the hull, the
    // span between the two tangents when it is outside). With no offset this is gunEllipseChance (physics review 2026-11-17).
    const rot=t.rot,local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(t.yaw||0),sn=Math.sin(t.yaw||0);return [v[0]*c+v[2]*sn,v[1],-v[0]*sn+v[2]*c];},p=t.p||t,r=local(right),w=local(up),size=t.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
-   let A=0,B=0,Cc=0;for(let i=0;i<3;i++){const q=size[i]*size[i];A+=r[i]*r[i]*q;B+=r[i]*w[i]*q;Cc+=w[i]*w[i]*q;}const det=Math.max(1e-12,A*Cc-B*B),Q=(x,y,x2,y2)=>(Cc*x*x2-B*(x*y2+y*x2)+A*y*y2)/det,ax=-ox,ay=-oy,qc=Q(ax,ay,ax,ay)-1,inside=qc<=0;
+   let A=0,B=0,Cc=0;for(let i=0;i<3;i++){const q=size[i]*size[i];A+=r[i]*r[i]*q;B+=r[i]*w[i]*q;Cc+=w[i]*w[i]*q;}const det=Math.max(1e-12,A*Cc-B*B),Q=(x,y,x2,y2)=>(Cc*x*x2-B*(x*y2+y*x2)+A*y*y2)/det,ax=-ox,ay=-oy,qc=Q(ax,ay,ax,ay)-1,inside=qc<=1e-12/* on the edge counts as inside: the tangents are ill-conditioned there */;
    if(!(sigma>0))return inside?1:0;const N=64,k2=1/(2*sigma*sigma);let lo=-Math.PI,hi=Math.PI;
    if(!inside){
     // Outside the hull's shadow the directions that reach it lie between the two tangents from the aim point: the roots of
@@ -84723,7 +84723,7 @@ let profileModelKeyMemo=null;
 // here: the engine adds the page's own hash of that file (KS_SOURCE_SHA256) to its cache key. null: no caching.
 function profileModelKey(){
  if(profileModelKeyMemo)return profileModelKeyMemo;
- const versions=[MOTION_RESISTANCE_VERSION,WEAPON_PROFILE_VERSION,SUBLIGHT_REFERENCE_VERSION,ENGINE_TRANSMISSION_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,PROPULSION_MODEL_VERSION,PLACEMENT_MODEL_VERSION,TRENCH_ARMAMENT_VERSION,SURFACE_VERSION].join('.');
+ const versions=[MOTION_RESISTANCE_VERSION,WEAPON_PROFILE_VERSION,SUBLIGHT_REFERENCE_VERSION,ENGINE_TRANSMISSION_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,PROPULSION_MODEL_VERSION,PLACEMENT_MODEL_VERSION,TRENCH_ARMAMENT_VERSION,SURFACE_VERSION,TURRET_SUPPORT_VERSION/* derived figures made with another support version are not reused */].join('.');
  let tables=null;try{const R=typeof Rts!=='undefined'?Rts:null,craftRates=R?.CRAFT?Object.keys(R.CRAFT).sort().map(t=>[t,craftLaserRate(t)]):[];tables=placementKeyHash(JSON.stringify([PARTS,FITS]))+':'+placementKeyHash(JSON.stringify(CRAFT_PRICE_CATALOG))+':'+placementKeyHash(JSON.stringify(craftRates));}catch(error){console.error('profileModelKey: the part tables cannot be hashed; derived figures are not cached',error);return null;}
  return profileModelKeyMemo='f'+FLEET_PROFILE_VERSION+'.c'+COST_MODEL.version+'.'+costModelSignature()+'.e'+EXAMPLE_PROFILE_VERSION+'.v'+versions+'.t'+tables;
 }
@@ -89505,7 +89505,7 @@ function normalizeAssemblyTemplate(o){
  o=migrateWeaponDesign(o);
  if(!o||typeof o!=='object'||o.format!=='starship-yard-part'||o.v!==1)throw new Error('ユーザー部品の形式ではありません');
  if(!Array.isArray(o.parts)||!Array.isArray(o.fits)||o.parts.length>ASSEMBLY_LIMITS.parts||o.fits.length>ASSEMBLY_LIMITS.fits||!(o.parts.length+o.fits.length))throw new Error('ユーザー部品の部品数が不正です');
- const s=deserialize({format:'starship-yard',v:3,name:'tpl',hull:{plan:'rect',sec:'rect',L:100,W:40,H:20},cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[],armor:{hull:.5,cit:0},parts:o.parts,fits:o.fits,groups:o.groups||[],surfaces:o.surfaces,links:o.netLinks,nextId:1});
+ const s=deserialize({format:'starship-yard',v:3,name:'tpl',hull:{plan:'rect',sec:'rect',L:100,W:40,H:20},cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[],armor:{hull:.5,cit:0},parts:o.parts,fits:o.fits,groups:o.groups||[],surfaces:o.surfaces,links:o.netLinks,nextId:1},{skipSupportRemake:true}/* a template's fits have no hull of their own: an old support is dropped here and made on the ship it is placed on (high review 2026-11-17: remade against this stand-in hull it stood 21.7 m tall) */);
  const str=(v,n,d)=>typeof v==='string'&&v.trim()?v.trim().slice(0,n):d;
  const t={format:'starship-yard-part',v:1,id:str(o.id,40,'up'+Date.now().toString(36)).replace(/[^\w-]/g,'_'),name:str(o.name,40,'ユーザー部品'),category:Object.hasOwn(ASSEMBLY_CATEGORIES,o.category)?o.category:'composite',description:str(o.description,400,''),origin:Object.hasOwn(ASSEMBLY_ORIGINS,o.origin)?o.origin:'center',mount:Object.hasOwn(ASSEMBLY_MOUNTS,o.mount)?o.mount:'bottom',
   size:Array.isArray(o.size)&&o.size.length===3&&o.size.every(Number.isFinite)?o.size.map(v=>clamp(v,0,DESIGN_LIMITS.coordinate)):[0,0,0],parts:s.parts.map(publicCopyOf),fits:s.fits.map(f=>{const q=publicCopyOf(f);if(q.host!=null&&!s.parts.some(p=>p.id===q.host)){delete q.host;delete q.local;delete q.localNormal;}delete q.float;return q;}),groups:(s.groups||[]).map(publicCopyOf),
