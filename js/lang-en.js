@@ -4587,7 +4587,6 @@ root.KS_EN={
   "クラス": "Class",
   "跳躍電力 可": "Jump Power Sufficient",
   "跳躍電力 不足": "Jump Power Insufficient",
-  "余剰電力で充電 {0} 秒": "Charges from Spare Power in {0} s",
   "充電用の余剰電力なし": "No Spare Power to Charge",
   "· 装甲外板 {0} m（表面の {1}）": "· Armor Plating {0} m ({1} of Surface)",
   "· 搭載艦 {0} 隻": "· Embarked Ships {0}",
@@ -5342,7 +5341,6 @@ root.KS_EN={
   "離脱隊": "Withdrawal Group",
   "離脱できません（発進準備中か航行中）": "Cannot Withdraw While Preparing to Launch or in Transit",
   "{0}：安全な星系がありません": "{0}: No Safe System",
-  "{0}：{1}へ離脱（準備 {2} 秒）": "{0}: Withdraw to {1} (Preparation {2} s)",
   "任務群を合流しました": "Task Forces Merged",
   "{0} を {1} へ（到着まで {2}）": "Send {0} to {1} (Arrival in {2})",
   "{0} を {1} へ（全任務群の到着まで {2}）": "Send {0} to {1} (All Groups Arrive in {2})",
@@ -6222,7 +6220,6 @@ root.KS_EN={
   "低軌道": "Low Orbit",
   "光速の {0}%": "{0}% of Light Speed",
   "ハイパードライブ充填中 · {0}へ {1} 秒": "Hyperdrive Charging · {0} in {1} s",
-  "ハイパードライブ充電 {0}% · {1}へ あと約 {2} 秒": "Hyperdrive Charging {0}% · {1} in about {2} s",
   "ハイパードライブ充電 {0}% · {1}へ（余剰電力なし — スロットルを絞ると充電できます）": "Hyperdrive Charging {0}% · {1} (no spare power — ease the throttle to charge)",
   "亜光速へ加速 · {0}": "Accelerating to Sublight Speed · {0}",
   "亜光速 · {0} — ハイパースペースへ突入": "Sublight · {0} — Entering Hyperspace",
@@ -10616,45 +10613,17 @@ Object.assign(root.KS_EN.messages,{
  "シールド再生中": "Shields regenerating",
  "兵装使用・充電中": "Weapons firing or charging",
  "推進電力不足": "Insufficient propulsion power",
- "ジャンプ速度へ加速中": "Accelerating to jump speed",
  "ハイパードライブ充電中": "Hyperdrive charging",
  "随伴艦のハイパードライブ充電中": "Escort hyperdrive charging",
- "ジャンプ速度に到達": "Jump speed reached",
  "ジャンプ待機": "Jump standby",
- "航行不能 · {0}% / 70%": "Navigation disabled · {0}% / 70%",
- "ハイパードライブ給電停止 · {0}% / 70%": "Hyperdrive unpowered · {0}% / 70%",
- "シールド再生中 · {0}% / 70%": "Shields regenerating · {0}% / 70%",
- "兵装使用・充電中 · {0}% / 70%": "Weapons firing or charging · {0}% / 70%",
- "推進電力不足 · {0}% / 70%": "Insufficient propulsion power · {0}% / 70%",
- "ジャンプ速度へ加速中 · {0}% / 70%": "Accelerating to jump speed · {0}% / 70%",
- "ハイパードライブ充電中 · {0}% / 70%": "Hyperdrive charging · {0}% / 70%",
- "随伴艦のハイパードライブ充電中 · {0}% / 70%": "Escort hyperdrive charging · {0}% / 70%",
- "ジャンプ速度に到達 · {0}% / 70%": "Jump speed reached · {0}% / 70%",
- "ジャンプ待機 · {0}% / 70%": "Jump standby · {0}% / 70%",
- "通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block the jump."
 });
 Object.assign(root.KS_EN.messages,{
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry. Jumping during battle withdraws from the battle area, followed by the escorts.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。シールド再生や兵装の使用・充電中はジャンプできません。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. Shield regeneration and weapon use or charging block entry. Jumping during battle withdraws from the battle area, followed by the escorts.",
  "W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · L ミサイル照準{0} · G 主砲照準 · P 給電優先順 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離": "W/S Throttle · A/D Rudder · R/F Pitch · Q/E Roll · Space Fire · C Salvo/Continuous · T Escorts · M Missiles · L Missile aim{0} · G Aiming · P Power Priority · J Star Map · H Screenshot · Z Level · X Midships · V Camera · Drag to aim · Scroll to zoom"
 });
 Object.assign(root.KS_EN.messages,{"スロットル出力（0%から100%）": "Throttle output (0% to 100%)"});
 Object.assign(root.KS_EN.messages,{
- "通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。": "The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed. Jumping during battle withdraws from the battle area, followed by the escorts.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の70%へ実際の推力で加速してからジャンプします。被弾や射撃中でも、その速度を満たしていればジャンプできます。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship accelerates under real thrust to 70% of its maximum sublight speed before jumping. It may jump while under fire or firing, provided it still meets that speed. Jumping during battle withdraws from the battle area, followed by the escorts."
 });
 Object.assign(root.KS_EN.messages,{
- "ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になればジャンプできます。準備中も砲撃でき、被弾だけで準備が止まることはありません。": "A working hyperdrive can jump once forward speed reaches at least 70% of maximum sublight speed. Guns remain available during preparation; incoming fire alone does not stop it.",
- "離脱準備（速度・給電待ち）": "Withdrawal preparation (waiting for speed or power)",
- "発進準備（速度・給電待ち）→ {0}": "Departure preparation (waiting for speed or power) → {0}",
- "（速度・給電待ち）": "(waiting for speed or power)",
- "到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は {0} 秒です。発進には通常航行の最大速度の70%以上が必要ですが、砲撃や被弾だけで準備は止まりません。": "Arrival time depends on the slowest hyperdrive in the task group. The base preparation time in combat is {0} seconds. Departure requires at least 70% of maximum sublight speed; firing and incoming hits alone do not stop preparation.",
- "ハイパードライブ充填中 · {0}へ あと {1} 秒（速度・給電待ち）": "Hyperdrive charging · {0}: {1} seconds remaining (waiting for speed or power)",
  "ハイパードライブ充填中 · {0}へ あと {1} 秒": "Hyperdrive charging · {0}: {1} seconds remaining",
  "連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます。": "Continuous fire: each gun fires as soon as it reloads, maximizing the number of shots and maintaining constant pressure on the enemy.",
  "斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません。": "Salvo fire: guns of the same type fire together. Simultaneous hits penetrate armor more easily, especially with larger calibers, and the first salvo can fire as soon as the target enters range. Waiting slightly reduces the number of shots, and the enemy receives no fire between salvos."
@@ -10664,17 +10633,8 @@ Object.assign(root.KS_EN.messages,{
  "上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。": "Push up to lower the nose; pull down to raise it. Move left or right to roll; release to center."
 });
 Object.assign(root.KS_EN.messages,{
- "通常航行の最大速度の70%へ実際の推力で加速し、充填後はハイパードライブで1.25秒かけて光速の90%へ加速してからジャンプします。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。": "The ship reaches 70% of its ordinary maximum speed under real engine thrust. Once charged, the hyperdrive accelerates it to 90% of light speed over 1.25 seconds before entry. Preparation may continue under fire or while firing; steering and guns lock during the final burst.",
- "ハイパードライブが稼働し、前進速度が通常航行の最大速度の70%以上になれば、突入前の加速を開始します。準備中も砲撃でき、被弾だけで準備が止まることはありません。充填後は1.25秒かけて光速の90%へ加速してからジャンプします。突入前の加速中は操縦と射撃を固定します。": "A working hyperdrive begins its final burst once charge is complete and forward speed reaches 70% of ordinary maximum speed. Guns remain available during preparation; incoming fire alone does not stop it. The burst reaches 90% of light speed in 1.25 seconds, with steering and guns locked.",
- "ジャンプ準備速度へ加速 · {0}": "Accelerating to Jump Preparation Speed · {0}",
- "ハイパードライブ加速 · {0} — ハイパースペースへ突入": "Hyperdrive Acceleration · {0} — Entering Hyperspace",
  "ハイパードライブ加速": "Hyperdrive Acceleration",
  "ハイパードライブ加速 → {0}": "Hyperdrive Acceleration → {0}",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の70%へ実際の推力で加速し、充填後はハイパードライブで1.25秒かけて光速の90%へ加速してからジャンプします。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship reaches 70% of its ordinary maximum speed under real engine thrust. Once charged, the hyperdrive accelerates it to 90% of light speed over 1.25 seconds before entry. Preparation may continue under fire or while firing; steering and guns lock during the final burst.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。通常航行の最大速度の70%へ実際の推力で加速し、充填後はハイパードライブで1.25秒かけて光速の90%へ加速してからジャンプします。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). The ship reaches 70% of its ordinary maximum speed under real engine thrust. Once charged, the hyperdrive accelerates it to 90% of light speed over 1.25 seconds before entry. Preparation may continue under fire or while firing; steering and guns lock during the final burst. Jumping during battle withdraws from the battle area, followed by the escorts.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の70%へ実際の推力で加速し、充填後はハイパードライブで1.25秒かけて光速の90%へ加速してからジャンプします。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship reaches 70% of its ordinary maximum speed under real engine thrust. Once charged, the hyperdrive accelerates it to 90% of light speed over 1.25 seconds before entry. Preparation may continue under fire or while firing; steering and guns lock during the final burst.",
- "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。通常航行の最大速度の70%へ実際の推力で加速し、充填後はハイパードライブで1.25秒かけて光速の90%へ加速してからジャンプします。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). The ship reaches 70% of its ordinary maximum speed under real engine thrust. Once charged, the hyperdrive accelerates it to 90% of light speed over 1.25 seconds before entry. Preparation may continue under fire or while firing; steering and guns lock during the final burst. Jumping during battle withdraws from the battle area, followed by the escorts.",
- "到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は {0} 秒です。発進準備には通常航行の最大速度の70%以上が必要ですが、砲撃や被弾だけで準備は止まりません。充填後はハイパードライブで1.25秒かけて光速の90%へ加速してから突入します。": "Arrival time depends on the slowest hyperdrive in the task group. The base preparation time in combat is {0} seconds. Preparation requires 70% of ordinary maximum speed; firing and incoming hits alone do not stop it. Once charged, the hyperdrive accelerates to 90% of light speed in 1.25 seconds before entry."
 });
 Object.assign(root.KS_EN.messages,{
  "発進準備中の艦は操艦できません。準備を取り消すか、3D視点で追尾してください。": "A ship preparing to jump cannot be piloted manually. Cancel preparation or follow it in the 3D view.",
@@ -10735,5 +10695,29 @@ Object.assign(root.KS_EN.messages,{
  "低出力の変換放出面":"Low-output Discharge Surface",
  "翼の表面そのものが熱エネルギー変換・放出装置です。どちらの方式もすべての廃熱（反応炉・武装・推進・生活設備）を扱えます。通常型は能力が低い代わりの方式です。能力は露出した放出面の面積に比例し、Sフォイルを畳むと下がります。変換した熱に比例して電力を使います。":"The wing surface itself is a thermal energy conversion and discharge device. Both types handle all waste heat (reactors, weapons, propulsion, life support). The low-output type has a lower rating. Capacity is proportional to the exposed discharge area and falls when S-foils are closed. It draws power in proportion to the heat it converts.",
  "TIE の太陽電池翼のように、片面で集電して艦の発電に加わり、翼そのものの両面が熱エネルギー変換・放出面です（架空技術）。外に出ているので被弾すると失われます。面積に比例します。":"Like a TIE's solar wings, one face collects power for the ship's generation and both faces of the wing are thermal energy conversion and discharge surfaces (fictional technology). Being external, it is lost when hit. Proportional to area."
+
+});
+Object.assign(root.KS_EN.messages,{
+  "ハイパードライブ充電中 · {0}%": "Hyperdrive charging · {0}%",
+  "随伴艦のハイパードライブ充電中 · {0}%": "Escort hyperdrive charging · {0}%",
+  "ジャンプ準備完了": "Ready to jump",
+  "針路合わせ中": "Aligning to the jump vector",
+  "ハイパードライブ加速 · {0} / 50% — ハイパースペースへ突入": "Hyperdrive Acceleration · {0} / 50% — Entering Hyperspace",
+  "ハイパードライブを余剰電力で満充電すると、ドライブが自動で光速の50%まで加速してから突入します。通常航行の速度は問いません。準備中も砲撃でき、被弾だけで準備が止まることはありません。突入前の加速中は操縦と射撃を固定します。": "Once the hyperdrive is fully charged from spare power, the drive itself accelerates the ship to 50% of light speed and enters hyperspace; ordinary flight speed does not matter. Guns remain available during preparation; incoming fire alone does not stop it. Steering and guns lock during the final burst.",
+  "ハイパードライブを余剰電力で満充電すると、ドライブが自動で光速の50%まで加速してからジャンプします。通常航行の速度は問いません。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。": "Once the hyperdrive is fully charged from spare power, the drive itself accelerates the ship to 50% of light speed and jumps; ordinary flight speed does not matter. Preparation may continue under fire or while firing; steering and guns lock during the final burst.",
+  "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。ハイパードライブを余剰電力で満充電すると、ドライブが自動で光速の50%まで加速してからジャンプします。通常航行の速度は問いません。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). Once the hyperdrive is fully charged from spare power, the drive itself accelerates the ship to 50% of light speed and jumps; ordinary flight speed does not matter. Preparation may continue under fire or while firing; steering and guns lock during the final burst.",
+  "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（演習時間）。ハイパードライブを余剰電力で満充電すると、ドライブが自動で光速の50%まで加速してからジャンプします。通常航行の速度は問いません。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (simulation time). Once the hyperdrive is fully charged from spare power, the drive itself accelerates the ship to 50% of light speed and jumps; ordinary flight speed does not matter. Preparation may continue under fire or while firing; steering and guns lock during the final burst. Jumping during battle withdraws from the battle area, followed by the escorts.",
+  "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。ハイパードライブを余剰電力で満充電すると、ドライブが自動で光速の50%まで加速してからジャンプします。通常航行の速度は問いません。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). Once the hyperdrive is fully charged from spare power, the drive itself accelerates the ship to 50% of light speed and jumps; ordinary flight speed does not matter. Preparation may continue under fire or while firing; steering and guns lock during the final burst.",
+  "ハイパードライブ クラス {0} · 主要交易路は速く、支線は遅い（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）。ハイパードライブを余剰電力で満充電すると、ドライブが自動で光速の50%まで加速してからジャンプします。通常航行の速度は問いません。被弾や射撃中でも準備できますが、突入前の加速中は操縦と射撃を固定します。戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。": "Class {0} hyperdrive · Major trade routes are faster than connecting hyperlanes (real passage time; “Skip” in hyperspace advances to a few seconds before arrival). Once the hyperdrive is fully charged from spare power, the drive itself accelerates the ship to 50% of light speed and jumps; ordinary flight speed does not matter. Preparation may continue under fire or while firing; steering and guns lock during the final burst. Jumping during battle withdraws from the battle area, followed by the escorts.",
+  "到着時間は任務群で最も遅いハイパードライブで決まります。交戦中の任務群の基本準備時間は {0} 秒で、全艦のハイパードライブが満充電になるまで続きます。砲撃や被弾だけで準備は止まりません。満充電の後、ドライブが自動で光速の50%まで加速してから突入します。通常航行の速度は問いません。": "Arrival time depends on the slowest hyperdrive in the task group. The base preparation time in combat is {0} seconds, and preparation lasts until every ship's hyperdrive is fully charged. Firing and incoming hits alone do not stop it. Once charged, the drives accelerate to 50% of light speed on their own before entry; ordinary flight speed does not matter.",
+  "離脱準備（給電待ち）": "Withdrawal preparation (waiting for power)",
+  "発進準備（給電待ち）→ {0}": "Departure preparation (waiting for power) → {0}",
+  "（給電待ち）": "(waiting for power)",
+  "発進準備 · ハイパードライブ充電 {0}% → {1}": "Departure preparation · Hyperdrive charging {0}% → {1}",
+  "発進準備 · 針路合わせ中 → {0}": "Departure preparation · Aligning to the jump vector → {0}",
+  "ハイパードライブ充電 {0}% · {1}へ あと約 {2}": "Hyperdrive Charging {0}% · {1} in about {2}",
+  "ハイパードライブ充填中 · {0}へ あと {1} 秒（給電待ち）": "Hyperdrive charging · {0}: {1} seconds remaining (waiting for power)",
+  "余剰電力で充電 {0}（光速の50%までの加速分を含む）": "Charges from Spare Power in {0} (including the burst to 50% of light speed)",
+  "{0}：{1}へ離脱（準備 {2}）": "{0}: Withdraw to {1} (Preparation {2})"
 });
 })(typeof window==="undefined"?globalThis:window);
