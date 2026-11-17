@@ -28,7 +28,8 @@ test('a ship ordered to dock flies in through the mouth, docks, rides with its h
  for(let t=0;t<900&&!g.docked;t+=.25)C.fleetTick(B,.25,{});
  assert.ok(g.docked,'docked within fifteen minutes');assert.equal(g.docked.host,'h');assert.equal(g.docked.hatch,99);assert.ok(B.events.some(e=>/格納庫に入渠/.test(e.text)));
  assert.equal(C.dockState(h,g).inside,true,'it is inside the bay');
- const hp0=g.hp,e0=g.energy;for(let t=0;t<240;t+=.25)C.fleetTick(B,.25,{});
+ const hp0=g.hp,e0=g.energy;g.hyperE=0;for(let t=0;t<240;t+=.25)C.fleetTick(B,.25,{});
+ assert.ok(C.hyperCharged(g)>=1-Math.exp(-240/C.DOCK.refillS)-1e-6,'the host charges the hyperdrive at the dock refill rate at least (「燃料・充電」): '+C.hyperCharged(g));
  assert.ok(g.energy>e0&&g.energy>=g.p.wCap*.8,'weapon energy refilled (its stores grow back with the weapon modules being repaired): '+g.energy/g.p.wCap);assert.ok(g.hp>hp0,'hull repaired');
  assert.ok(g.mods.every((v,i)=>g.p.modules[i].k==='hull'||v>1-.5*Math.exp(-240/C.DOCK.repairS)-.01),'modules repaired at the dock repair rate');assert.ok(g.crew>=(g.p.crewMax??g.p.crewNeed)*.9,'crew made up');
  if(fuelCap)assert.ok(C.shipFuelState(g).fuelEnergyJ<f.capacityJ*.1,'fuel refilled');

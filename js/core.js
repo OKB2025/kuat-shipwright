@@ -80921,7 +80921,7 @@ function constructShipSystems(ship,key){
    if(!(shortInertial>Math.max(.1,m.mass/120*1e-5))&&!(shortIntegrity>Math.max(.1,m.mass/180*1e-5))){measured=m;break;}
    if(shortInertial>Math.max(.1,m.mass/120*1e-5))addedInertial.push(...shipRefitAddVolume(ship,'inertial',shortInertial*1.02,'追加慣性補償設備'));
    if(shortIntegrity>Math.max(.1,m.mass/180*1e-5))addedIntegrity.push(...shipRefitAddVolume(ship,'integrity',shortIntegrity*1.02,'追加構造維持設備'));
-   syncCompartments(ship);wirePower();refitShipThermal(ship,key,{stats:m,powerW:baselinePowerW,E:installedInputW,W,S:Q,H,margin:1.15});syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);
+   syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);/* the thermal sizing is not rerun here: it resized the converters (Death Star: rated rejection halved; physics review 2026-11-17) */
   }
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
   ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.referenceTargetG??propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),reconfiguredReactors,addedInertial:[...new Set([...addedInertial.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='inertial').map(p=>p.id)])],addedIntegrity:[...new Set([...addedIntegrity.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='integrity').map(p=>p.id)])],addedPumps:[...new Set([...addedPumps.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='pump').map(p=>p.id)])],powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:weaponBranchInputW,weaponBusBudgetW,weaponBranchInputW,originalEngineOutlets,thermal:ship._shipThermalRefit};
@@ -83819,18 +83819,23 @@ function gunTargetEllipse(target,direction){
 // a ship holding its course sits on the aim point and is hit as before; one that turned or changed speed has left it, and is
 // hit only as far as the spread still reaches it.
 const GUN_BOLT_MPS=4500,GUN_TRACK_S=10;
-function observeMotion(units,dt){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const T=u._trackT=(u._trackT||0)+dt,k=u._track||(u._track=[]);if(u.warp||u.docked)k.length=0;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
+// A ship not observed for more than a step (out of battle on the strategic map, another system) starts a new track.
+function observeMotion(units,dt,now){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const k=u._track||(u._track=[]);if(u.warp||u.docked||Number.isFinite(now)&&Number.isFinite(u._trackAt)&&now-u._trackAt>dt*1.5+1e-9)k.length=0;if(Number.isFinite(now))u._trackAt=now;const T=u._trackT=(u._trackT||0)+dt;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
 // Where the target is now relative to where a shot fired a time of flight ago was aimed.
 function gunAimOffset(t,d){const k=t?._track;if(!k?.length||!(d>0))return null;const T=t._trackT,want=T-d/GUN_BOLT_MPS;let s=k[0];for(let i=k.length-1;i>=0;i--)if(k[i].t<=want+1e-9){s=k[i];break;}const e=T-s.t;if(!(e>0))return null;return sub(t.pos,add(s.pos,mul(s.vel,e)));}
 function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
  if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),state=fireState??(u.p?.modules?fleetSystems(u).fire:1),sigma=d*gunDispersion(u.p||u,range,state)*aimFactor(u),off=gunAimOffset(t,d);
  if(off){const n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right),ox=dot(off,right),oy=dot(off,up);
   if(Math.hypot(ox,oy)>1e-6*Math.max(1,t.p?.len||1)){
-   // The hull's shadow across the line of fire as a quadratic form in (right, up); spread samples about the aim point (Rayleigh
-   // rings of equal weight) counted where they fall inside it.
+   // The hull's shadow across the line of fire is the ellipse q.M^-1.q<=1 in (right, up), M=[[A,B],[B,C]]. The spread is integrated in
+   // polar coordinates about the aim point: along each direction the Rayleigh integral over the chord inside the ellipse is exact
+   // (exp(-r1^2/2s^2)-exp(-r2^2/2s^2)); only the angle is sampled (the whole circle when the aim point is inside the hull, the
+   // angle the hull subtends when it is outside). With no offset this is gunEllipseChance (physics review 2026-11-17).
    const rot=t.rot,local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(t.yaw||0),sn=Math.sin(t.yaw||0);return [v[0]*c+v[2]*sn,v[1],-v[0]*sn+v[2]*c];},p=t.p||t,r=local(right),w=local(up),size=t.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
-   let A=0,B=0,Cc=0;for(let i=0;i<3;i++){const q=size[i]*size[i];A+=r[i]*r[i]*q;B+=r[i]*w[i]*q;Cc+=w[i]*w[i]*q;}const det=Math.max(1e-12,A*Cc-B*B),inside=(x,y)=>(Cc*x*x-2*B*x*y+A*y*y)/det<=1;
-   if(!(sigma>0))return inside(-ox,-oy)?1:0;const K=8,N=16;let hit=0;for(let i=0;i<K;i++){const rr=sigma*Math.sqrt(-2*Math.log(1-(i+.5)/K));for(let j=0;j<N;j++){const an=(j+.5*(i&1))*2*Math.PI/N;if(inside(rr*Math.cos(an)-ox,rr*Math.sin(an)-oy))hit++;}}return hit/(K*N);}}
+   let A=0,B=0,Cc=0;for(let i=0;i<3;i++){const q=size[i]*size[i];A+=r[i]*r[i]*q;B+=r[i]*w[i]*q;Cc+=w[i]*w[i]*q;}const det=Math.max(1e-12,A*Cc-B*B),Q=(x,y,x2,y2)=>(Cc*x*x2-B*(x*y2+y*x2)+A*y*y2)/det,ax=-ox,ay=-oy,qc=Q(ax,ay,ax,ay)-1,inside=qc<=0;
+   if(!(sigma>0))return inside?1:0;const N=64,major=Math.sqrt((A+Cc+Math.hypot(A-Cc,2*B))/2),la=Math.hypot(ax,ay),half=inside?Math.PI:Math.min(Math.PI,Math.asin(Math.min(1,major/la))*1.02+1e-9),mid=inside?0:Math.atan2(-ay,-ax),k2=1/(2*sigma*sigma);let sum=0;
+   for(let i=0;i<N;i++){const an=mid-half+(i+.5)*2*half/N,ex=Math.cos(an),ey=Math.sin(an),qa=Q(ex,ey,ex,ey),qb=Q(ax,ay,ex,ey),disc=qb*qb-qa*qc;if(!(disc>0))continue;const sq=Math.sqrt(disc),r2=(-qb+sq)/qa;if(!(r2>0))continue;const r1=Math.max(0,(-qb-sq)/qa);sum+=Math.exp(-r1*r1*k2)-Math.exp(-r2*r2*k2);}
+   return clamp(sum/N*(half/Math.PI),0,1);}}
  const ellipse=gunTargetEllipse(t,direction);return gunEllipseChance(ellipse[0],ellipse[1],sigma);
 }
 function gunScatter(direction,p,range=GUN_BANDS.long.range,fireState=1,random=Math.random,aim){
@@ -85947,7 +85952,7 @@ function dockStep(units,b,dt){
   if(u.order?.type!=='dock'||!host||host.dead||host.team!==u.team)continue;const ds=dockState(host,u);
   if(ds?.inside&&dockRelativeSpeed(host,u)<=DOCK.speed){u.docked={host:host.id,hatch:ds.mouth.hatchId,local:dockWorldToLocal(host,u.pos)};u.velocity=[...(host.velocity||[0,0,0])];b?.events?.push({time:b.time,text:`${u.name}：${host.name}の格納庫に入渠`,id:u.id});}}
 }
-function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt);
+function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt,b.time);
  const pdStep={abstractPointDefense:true};
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
  const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
@@ -93288,7 +93293,7 @@ function peaceMoves(w, dt) {
 }
 function battleTick(w, sys, dt) {
  const pdStep=pointDefenseStep(w);
- const us = systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)]));C.observeMotion(us,dt);/* v27 evasion counts in the hit chance */
+ const us = systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)]));C.observeMotion(us,dt,w.time);/* v27 evasion counts in the hit chance */
  for(const u of us)if(u.maneuver===undefined)u.maneuver=effectiveOrder(u,w).type==='hold'&&!(len(u.velocity||[0,0,0])>0)?0:1;
  const DMG = RULES.damage, inc = new Map(us.map(u => [u.id, C.combatIncoming()])), plan = groupStations(w, sys, us, byId, sysOf, dt);
  // v25 sensors and contacts, then the S-foils (SENS-004, WING-004)

@@ -33,7 +33,8 @@ test('the spread still reaches a large ship that has left the aim point',()=>{
 });
 test('weaving wide at long range leaves the aim point entirely; close in the same weave cannot escape the hull',()=>{
  const weave=(t,T)=>{t.velocity=[0,0,Math.floor(T/2)%2?300:-300];};
- assert.equal(chance('imperial',15000,weave),0);assert.ok(chance('imperial',3000,weave)>.9);
+ // (2026-11-17 physics review: the spread is integrated exactly along each direction, so its far tail still counts)
+ const far=chance('imperial',15000,weave),held=chance('imperial',15000,()=>{});assert.ok(far<held*.25,`the weave leaves most of the spread behind: ${far} against ${held}`);assert.ok(chance('imperial',3000,weave)>.9);
 });
 test('the offset is the miss of a shot led on the old velocity, taken over the time of flight',()=>{
  const t=C.fleetUnit('b','cr90',plain(F.designs.cr90.p),1);t.pos=[9000,0,0];t.velocity=[0,0,0];
@@ -42,7 +43,16 @@ test('the offset is the miss of a shot led on the old velocity, taken over the t
  // a shot from close by flew less than a quarter second: it was aimed on the newest reading
  const near=C.gunAimOffset(t,500);assert.ok(Math.abs(near[2])<=400*DT+1e-6,'a short flight sees almost none of it: '+near);
 });
+test('a small offset changes the chance only a little: no jump from the formula used with no offset',()=>{
+ for(const [key,d,yaw] of [['cr90',6000,0],['cr90',6000,Math.PI/2],['cr90',10000,0],['imperial',15000,0]]){
+  const t=C.fleetUnit('b',key,plain(F.designs[key].p),1);t.pos=[d,0,0];t.yaw=yaw;t.velocity=[0,0,0];const p0=C.gunHitChance(shooter(),t,d,RANGE);
+  t._trackT=10;t._track=[{t:0,pos:[d,0,.001],vel:[0,0,0]}];const p1=C.gunHitChance(shooter(),t,d,RANGE);assert.ok(p0>0,'hit sometimes: '+p0);assert.ok(Math.abs(p1-p0)<=p0*.02+1e-6,`${key} at ${d} m, yaw ${yaw}: ${p0} with no offset, ${p1} with 1 mm`);}
+});
+test('a ship not observed for more than a step starts a new track',()=>{
+ const t=C.fleetUnit('b','cr90',plain(F.designs.cr90.p),1);t.pos=[0,0,0];t.velocity=[100,0,0];C.observeMotion([t],DT,1);C.observeMotion([t],DT,1.25);assert.equal(t._track.length,2);
+ t.pos=[5e6,0,0];C.observeMotion([t],DT,900);assert.equal(t._track.length,1,'the old system\'s samples are gone');
+});
 test('both battle clocks observe the ships\' motion',()=>{
  const src=fs.readFileSync(path.join(root,'js/core.js'),'utf8');
- assert.match(src,/function fleetTick\(b,dt,opts=\{\}\)\{observeMotion\(/);assert.match(src,/C\.observeMotion\(us,dt\);/);
+ assert.match(src,/function fleetTick\(b,dt,opts=\{\}\)\{observeMotion\(/);assert.match(src,/C\.observeMotion\(us,dt,w\.time\);/);
 });
