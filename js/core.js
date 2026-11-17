@@ -72748,6 +72748,12 @@ function mountTurretSupport(ship,f,big){
  // with the smaller box the Recusant dreadnought's thermal refit packed a converter bank into its stern auxiliary reactor).
  {const lowWhole=Math.min(0,...whole.polys.flatMap(p=>p.map(q=>q[2])));if(Number.isFinite(lowWhole))f.mountSupport.outlineLow=lowWhole;}f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
 }
+// The mass of a turret's foundation is still taken over the whole base outline (the area ratio of the outline to the round
+// support that is seen). 2026-11-17: counting only the circle changed every armed ship's mass by about 0.01%, and that alone
+// sent the Recusant dreadnought's thermal refit down a path that packed a converter bank into its stern auxiliary reactor
+// (power -11%, rated acceleration -29%). The figures of the examples stay as they were; the refit's sensitivity is a separate
+// defect, recorded in docs/ship-docking.md.
+function turretSupportMassRatio(f){const area=q=>Math.abs(q.reduce((n,p,i)=>{const r=q[(i+1)%q.length];return n+p[0]*r[1]-r[0]*p[1];},0))/2,ring=area(turretSupportFootprint(f)),whole=area(turretSupportFootprint(f,true));return ring>1e-9&&whole>ring?whole/ring:1;}
 function turretSupportGeometry(f){
  if(!turretSupportEligible(f)||!validTurretSupport(f.mountSupport))return null;const s=f.mountSupport,fr=fitFrameOf(f),key=JSON.stringify([f.p,fr.up,fr.fw,fr.rt]),cached=TURRET_SUPPORT_GEOMETRY.get(s);if(cached?.key===key)return cached.geometry;
  const triangles=[],world=q=>add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,q[2]))),put=(a,b,c)=>{if(len(cross(sub(b,a),sub(c,a)))>1e-9)triangles.push(...a,...b,...c);};let volume=0;
@@ -73207,7 +73213,7 @@ function baseComputeStats(ship,options={}) {
     if(!f.float&&raw.cat==='w'&&!raw.msl)allGunVolleyTT+=(raw.tt||0)+(raw.ion||0);
     if (f.float) { floatFits++; if (f._onPlate) plateFits++; if (fitPlacementClash(ship, f)) { clashFits++; clashFitIds.push(f.id); } }
     // v21 Craft weapons sit flush on their mount (drawn without a pedestal), so they carry no pedestal mass.
-    const foundation=turretSupportGeometry(f),ph=fitHasPedestal(f)?Math.max(0,foundation?(f.ped||0):(f.base||0)+(f.ped||0)-(f.low||0)):0,pr=d.r*.8,pv=(foundation?.volume||0)+Math.PI*pr*pr*ph;pedVol+=pv;
+    const foundation=turretSupportGeometry(f),ph=fitHasPedestal(f)?Math.max(0,foundation?(f.ped||0):(f.base||0)+(f.ped||0)-(f.low||0)):0,pr=d.r*.8,pv=(foundation?.volume||0)*(foundation?turretSupportMassRatio(f):1)+Math.PI*pr*pr*ph;pedVol+=pv;
     // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
     const exteriorBank=chargeInfo[f.id]?.housingUsed||0, bankHardware=PARTS.capacitor;hpSum+=exteriorBank*bankHardware.dens*bankHardware.hp;crew+=exteriorBank*bankHardware.crew/1000;
     const m = d.mass + pv * 0.3 + exteriorBank*bankHardware.dens, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; const price=fitBuildCost(f,raw)+partBuildCost({id:-1,k:'capacitor'},exteriorBank);cost += price; costBy[d.cat === 'w' ? 'weapons' : 'command'] += price;
@@ -81159,12 +81165,9 @@ function shipThermalBank(ship,volume,index,beside=null){
    if(inside){center=q;room=size;break outer;}
   }
  }
- // With no clear box the bank is packed flexibly about a fallback point. That point is taken outside every occupied compartment
- // where one exists (2026-11-17: a point inside the Recusant dreadnought's stern auxiliary reactor left the bank packed into it).
- const freePoints=anchors.filter(q=>!occupied.some(o=>[0,1,2].every(a=>q[a]>o.b[a]-.02&&q[a]<o.b[a+3]+.02))),pool=freePoints.length?freePoints:anchors;
- const previous=ship.parts.filter(p=>p.k==='hdis'),fallback=previous.length?pool.reduce((best,q)=>{
+ const previous=ship.parts.filter(p=>p.k==='hdis'),fallback=previous.length?anchors.reduce((best,q)=>{
   const distance=c=>Math.min(...previous.map(p=>len(sub(c,p.c))));return distance(q)>distance(best)?q:best;
- },pool[0]):pool[0];
+ },anchors[0]):anchors[0];
  const p=placePart(ship,'hdis',center||fallback,d,{label:'艦内高エネルギー散逸区画 '+(index+1),...(room?{room,autoFit:false}:{autoFit:true})});
  return p;
 }
@@ -90971,7 +90974,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
   combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
-  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
+  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportMassRatio, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();
