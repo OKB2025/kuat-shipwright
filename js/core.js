@@ -72696,14 +72696,16 @@ function supportSubtract(poly,clip){
 }
 const TURRET_SUPPORT_FOOTPRINTS=new Map(),TURRET_SUPPORT_BVH=new WeakMap(),TURRET_SUPPORT_GEOMETRY=new WeakMap();
 function turretSupportFootprint(f){
- const d=fitSpec(f),scale=f.scale||1,id=f.skinAsset||d.asset,a=REFERENCE_ASSETS[id],key='ring2|'+(id||f.k)+'|'+weaponModelScale(f)+'|'+scale;let native=TURRET_SUPPORT_FOOTPRINTS.get(key);
+ const d=fitSpec(f),scale=f.scale||1,id=f.skinAsset||d.asset,a=REFERENCE_ASSETS[id],key='ring3|'+(id||f.k)+'|'+weaponModelScale(f)+'|'+scale;let native=TURRET_SUPPORT_FOOTPRINTS.get(key);
  if(!native){
   if(a?.sphereRadiusM){const r=a.sphereRadiusM*weaponModelScale(f)*scale;native=Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*r,Math.sin(i*Math.PI/16)*r]);}
-  else if(a){const model=decodeReference(id),neutral={k:f.k,p:[0,0,0],a:2,ped:0,base:0,low:0,scale,...(f.skinAsset?{skinAsset:f.skinAsset}:{})},points=[];let low=Infinity;for(let i=0;i<model.pos.length;i+=3){const p=referenceFitPoint(neutral,Array.from(model.pos.subarray(i,i+3)));points.push(p);low=Math.min(low,p[1]);}const base=points.filter(p=>p[1]<=low+Math.max(.03,d.hm*.025)).map(p=>[p[0],p[2]]),ring=base.reduce((m,q)=>Math.max(m,Math.hypot(q[0],q[1])),0);
-   // v27 (user decision 2026-11-17「支持台も…砲塔の形になってしまうのでそうではなくターレットリングのサイズに合わせて」): the support is a
-   // round barbette of the turret ring's size (the circle about the training axis that holds the turret's base), not the
-   // outline of the turret's base.
-   native=ring>1e-6?Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*ring,Math.sin(i*Math.PI/16)*ring]):surfaceHull2(base);}
+  else if(a){const model=decodeReference(id),neutral={k:f.k,p:[0,0,0],a:2,ped:0,base:0,low:0,scale,...(f.skinAsset?{skinAsset:f.skinAsset}:{})},points=[];let low=Infinity;for(let i=0;i<model.pos.length;i+=3){const p=referenceFitPoint(neutral,Array.from(model.pos.subarray(i,i+3)));points.push(p);low=Math.min(low,p[1]);}const base=points.filter(p=>p[1]<=low+Math.max(.03,d.hm*.025)).map(p=>[p[0],p[2]]),hull=surfaceHull2(base);
+   // v27 (user decisions 2026-11-17「支持台も…砲塔の形になってしまうのでそうではなくターレットリングのサイズに合わせて」「砲塔の底面からはみ出ない
+   // サイズの円で」): the support is a round barbette about the training axis, the largest circle that stays inside the
+   // turret's base outline (not the outline itself, and not a circle around it).
+   let ring=hull.length>=3?Infinity:0;for(let i=0;i<hull.length;i++){const p=hull[i],q=hull[(i+1)%hull.length],ex=q[0]-p[0],ey=q[1]-p[1],l=Math.hypot(ex,ey);if(l>1e-9)ring=Math.min(ring,Math.abs(ex*p[1]-ey*p[0])/l);}
+   const centred=hull.length>=3&&hull.every((p,i)=>{const q=hull[(i+1)%hull.length];return ((q[0]-p[0])*(-p[1])-(q[1]-p[1])*(-p[0]))*((hull[1][0]-hull[0][0])*(-hull[0][1])-(hull[1][1]-hull[0][1])*(-hull[0][0]))>=0;});
+   native=centred&&Number.isFinite(ring)&&ring>1e-6?Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*ring,Math.sin(i*Math.PI/16)*ring]):hull;}
   if(!native||native.length<3){const r=d.r*.72;native=Array.from({length:24},(_,i)=>[Math.cos(i*Math.PI/12)*r,Math.sin(i*Math.PI/12)*r]);}
   TURRET_SUPPORT_FOOTPRINTS.set(key,native);
  }
