@@ -84071,7 +84071,7 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // step; without the spare rejection a ship with ample converters was held to its store's room, propulsion-surface-power).
  const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
   weaponHeatW=hb?Math.max(0,hb.budget-hb.heatAt(throttle)):Infinity;
- const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
+ const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),shieldGovernor:gov.shield,weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
  const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);if(u.propulsion)u._engineHeatLast={x:want.throttle,wasteW:Math.max(0,u.propulsion.wasteHeatW||0),inputW:Math.max(0,u.propulsion.actualInputW||0)};let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
@@ -84374,6 +84374,9 @@ function shipCombatPowerDemand(u,want={},dt=0){
   if(!(missing>tolerance)&&!u.underFire)shields=0;
   else if(step>0&&!u.underFire&&p.D>0&&g.Ds>0)shields=Math.min(shields,missing*g.Ds/(p.D*step));
  }
+ // The heat governor's share of the recharge (2026-11-17). It is applied after the intent, like the storage-headroom trim, so a
+ // governed field recharges more slowly without being read as a failing generator (no decay).
+ if(Number.isFinite(want.shieldGovernor))shields*=clamp(want.shieldGovernor,0,1);
  if(p.surface?.mounts&&step>0){
   surfaceCapacitorSync(u);
   const mounts=p.surface.mounts,banks=surfaceBanks(u),factor=weaponInputFactor(p),shared={},states=mounts.map(m=>surfaceMountState(u,m,shared)),target=want.weaponTarget,query=target?surfaceFireQuery(u,target):null,distance=target?len(sub(target.pos,u.pos)):0,weights=mounts.map((m,i)=>positive(m.power)*states[i].operable*states[i].capacitorK),total=weights.reduce((a,b)=>a+b,0),byModule=new Map();
@@ -90049,7 +90052,7 @@ const heatLim=(u,k)=>u?.ht?.online===false?0:1,heatSwLim=(u,i)=>heatLim(u,'sw');
 function heatRunMode(u){return u?.order?.heat==='full'?'full':'balance';}
 function heatGovernor(u){
  // The heat state is made here if it is not yet (a first RTS step of 20 s ran its engines ungoverned and blacked out, 2026-11-16).
- const h=u&&heatProfile(u.p)?heatOf(u):u?.ht;if(!h||h.online===false||!(h.capacityJ>0))return {fill:0,engine:1,weapon:1,active:false,mode:heatRunMode(u)};
+ const h=u&&heatProfile(u.p)?heatOf(u):u?.ht;if(!h||h.online===false||!(h.capacityJ>0))return {fill:0,engine:1,weapon:1,shield:1,active:false,mode:heatRunMode(u)};
  // The heat already made this interval but not yet solved counts too (2026-11-16, PR #112: with converters sized for the cruise, a
  // store of about a second of combat heat filled within one 0.75 s heat interval before the governor saw it). It is the fill the
  // next heat solve will find if the heat keeps coming at its rate so far: net of what the converters reject, so ample cooling is
@@ -90059,7 +90062,10 @@ function heatGovernor(u){
  // recharge after a volley, may not take the store past it in balanced running (physics review 2026-11-16: a store above
  // limitAt lowers damageLimit for good, and the recharge after the first volley put 43% of the store in one 0.25 s step).
  const roomJ=Math.max(0,HEAT.governStart*h.capacityJ-h.qJ-Math.max(0,pend-rej*el));
- return {fill,engine:HEAT.governEngineFloor+(1-HEAT.governEngineFloor)*g,weapon:g,active:g<1,mode,roomJ};
+ // Shield recharging follows the same factor as weapon charging (2026-11-17: with converters sized for the cruise, the recharge
+ // heat of a field under light fire alone exceeded the rejection of an Arquitens, a CR90, a Hammerhead and a Republic transport,
+ // and they blacked out in 7-57 s; before, shields were never governed).
+ return {fill,engine:HEAT.governEngineFloor+(1-HEAT.governEngineFloor)*g,weapon:g,shield:g,active:g<1,mode,roomJ};
 }
 // After each heat solve: balanced running moves its output factor toward the point where the heat made equals
 // balanceTarget of the rejection capacity; full running holds it at 1 and ends at fullWarnAt.

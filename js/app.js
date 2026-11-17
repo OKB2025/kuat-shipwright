@@ -8491,7 +8491,7 @@ function trialPowerStep(dt,want){
  if(me.ionDrained){en.E=Math.max(0,en.E-me.ionDrained);me.ionDrained=0;}
  me.energy=en.E;me.maneuver=C.clamp(trial.thrustWant||0,0,1);me.order={...me.order,power:mode};
  const gov=C.heatGovernor(me);me.heatGov=gov;
- const demand={throttle:me.maneuver*gov.engine,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*lim('shield')),weaponFireW:Math.max(0,want||0)*input*gov.weapon,weapons:Math.max(0,Math.min(g.Dw*s.weapon,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon')*gov.weapon)};
+ const demand={throttle:me.maneuver*gov.engine,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*lim('shield')),shieldGovernor:gov.shield,weaponFireW:Math.max(0,want||0)*input*gov.weapon,weapons:Math.max(0,Math.min(g.Dw*s.weapon,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon')*gov.weapon)};
  const solved=C.allocateShipPower(me,s,demand,dt,mode),got=solved.got,P=solved.P||0;
  if(me.p?.surface?.mounts&&typeof C.surfaceManualCharge==='function'){
   const offered=got.weapons,charged=C.surfaceManualCharge(me,offered,dt);got.weapons=dt>0?Math.min(offered,charged*TT_J*input/dt):0;got.draw=Math.max(0,got.draw-offered+got.weapons);en.E=me.energy;

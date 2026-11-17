@@ -19,6 +19,6 @@ test('the governor never reaches the band where heat damage begins',()=>{
 });
 
 test('a ship without heat state or in blackout is not governed',()=>{
- /* 2026-11-15: the governor also reports the heat-running mode (user decision: balanced running by default, full on order) */assert.deepEqual({...C.heatGovernor({})},{fill:0,engine:1,weapon:1,active:false,mode:'balance'});
+ /* 2026-11-15: the governor also reports the heat-running mode (user decision: balanced running by default, full on order) *//* 2026-11-17: shield recharging is governed too (regression of PR #112, tests/shield-recharge-governor.cjs) */assert.deepEqual({...C.heatGovernor({})},{fill:0,engine:1,weapon:1,shield:1,active:false,mode:'balance'});
  assert.equal(C.heatGovernor({ht:{online:false,qJ:9,capacityJ:10}}).active,false);
 });
