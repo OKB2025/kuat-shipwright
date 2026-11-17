@@ -12,6 +12,11 @@ function profile(massKg=1e6,physicalAccel=500,legacySpeed=1200){
  modules:[{k:'reactor',part:1,port:'p1',domain:'main',share:1,size:1},{k:'engine',part:2,port:'p2',domain:'main',share:1,size:1,powerConnected:true}],grid:{P:input,Pgen:input,fixed:0,cooling:0,De:input,Ds:0,Dw:0},
  propulsion:{version:C.PROPULSION_MODEL_VERSION,massKg,ratedThrustN:massKg*physicalAccel,ratedAccelMps2:physicalAccel,accelerationLimitMps2:physicalAccel,engines:[e]}};
 }
+// 2026-11-16 PR #112 (curve-B engine waste): profile() sizes the input as mass x accel x coefficient, i.e. for the retired flat 95%.
+// The fixture engine (2*pi m3, normal input 2.14e18 W) now wastes C.engineWasteFraction(load), so the paid acceleration for W received
+// is paidAccel(p,W): C.engineOperatingPoint's useful power through the mass-bound shaft coefficient (1-PROPULSION.wasteFraction) x
+// engineConversionCoefficient(mass). The common drag law (expectedRate) is unchanged and is still asserted against fixed numbers.
+const paidAccel=(p,W,mass=p.propulsion.massKg)=>C.engineOperatingPoint(p.propulsion.engines[0],W).usefulPropulsionW/((1-C.PROPULSION.wasteFraction)*C.engineConversionCoefficient(mass))/mass;
 const unit=(key='custom-equilibrium',p=profile())=>C.fleetUnit('balanced-speed',key,p);
 const paid=(u,fraction)=>{C.allocateShipPower(u,C.fleetSystems(u),{throttle:fraction},0,'propulsion');return C.propulsionMotion(u).acc;};
 
@@ -21,20 +26,23 @@ test('one common drag law meets both cold reference points after finite mandator
  for(const[key,mass,nominalG,coldG,speed]of[['tie_ln',smallMass,4100,3999.1037971899486,2000],['venator',largeMass,3000,2972.473437207956,1000]]){
  const p=profile(mass,nominalG*C.G0);p.grid.fixed=p.grid.P*(1-coldG/nominalG);
  const before=JSON.stringify(p),u=unit(key,p),alias=unit('unrelated-name',p),a=coldG*C.G0*C.FLEET_RULES.accelScale,plan=C.healthyMotionPlan(u.p);
- assert.equal(u.p.motionResistance.version,C.MOTION_RESISTANCE_VERSION);assert.equal(u.p.motionResistance.model,'global-mass-power-law');near(C.massDragRate(u),a/speed);near(C.massDragRate(alias),a/speed);near(C.propulsionTerminalSpeed(u),speed);near(u.p.maxSpeed,speed);near(u.p.mglt,speed/C.MGLT.ms);near(C.integratePropulsionMotion(u,[speed,0,0],[a,0,0],10).velocity[0],speed);assert.equal(JSON.stringify(p),before);assert.equal(u.p.speedReference.status,'published');
- near(plan.accelerationMps2,coldG*C.G0);near(plan.engineInputW,p.grid.P-p.grid.fixed);near(plan.sourceDrawW,p.grid.P);assert.ok(Object.isFrozen(plan));assert.equal(C.healthyMotionPlan(u.p),plan,'unchanged profile reuses its compact immutable planning result');
- for(const field of['massKg','ratedAccelMps2','accelerationLimitMps2'])near(u.p.propulsion[field],p.propulsion[field]);for(const field of['driveProfileId','effectiveMachineryVolumeM3','machineryLengthM','machineryRadiusM'])assert.equal(u.p.propulsion.engines[0][field],p.propulsion.engines[0][field]);
+ /* PR #112 curve-B: the anchor law (rate = cold acceleration / reference speed, and that acceleration holding the reference speed) is
+    unchanged; this fixture's funded acceleration is no longer exactly the cold anchor, so its terminal speed scales with funded/cold. */
+ const funded=paidAccel(p,p.grid.P-p.grid.fixed),fundedSpeed=speed*funded/(coldG*C.G0);
+ assert.equal(u.p.motionResistance.version,C.MOTION_RESISTANCE_VERSION);assert.equal(u.p.motionResistance.model,'global-mass-power-law');near(C.massDragRate(u),a/speed);near(C.massDragRate(alias),a/speed);near(C.propulsionTerminalSpeed(u),fundedSpeed);near(u.p.maxSpeed,fundedSpeed);near(u.p.mglt,fundedSpeed/C.MGLT.ms);near(C.integratePropulsionMotion(u,[speed,0,0],[a,0,0],10).velocity[0],speed);assert.equal(JSON.stringify(p),before);assert.equal(u.p.speedReference.status,'published');
+ near(plan.accelerationMps2,funded);near(plan.engineInputW,p.grid.P-p.grid.fixed);near(plan.sourceDrawW,p.grid.P);assert.ok(Object.isFrozen(plan));assert.equal(C.healthyMotionPlan(u.p),plan,'unchanged profile reuses its compact immutable planning result');
+ near(u.p.propulsion.massKg,p.propulsion.massKg);for(const field of['ratedAccelMps2','accelerationLimitMps2'])near(u.p.propulsion[field],paidAccel(p,p.grid.P),field);/* PR #112 curve-B: the rated figures are rebound to the full-source operating point; they equalled the flat-95% input sizing before */for(const field of['driveProfileId','effectiveMachineryVolumeM3','machineryLengthM','machineryRadiusM'])assert.equal(u.p.propulsion.engines[0][field],p.propulsion.engines[0][field]);
  }
 });
 test('more finite source power at the same mass raises equilibrium instead of recalibrating resistance',()=>{
  const first=profile(),second=profile(1e6,1000),before=JSON.stringify([first,second]),a=unit('venator',first),b=unit('tie_ln',second);
- near(C.massDragRate(a),expectedRate(1e6));near(C.massDragRate(b),C.massDragRate(a));near(paid(b,1),2*paid(a,1));near(C.propulsionTerminalSpeed(b),2*C.propulsionTerminalSpeed(a));near(b.p.maxSpeed,2*a.p.maxSpeed);near(a.p.maxSpeed,C.FLEET_RULES.accelScale*500/expectedRate(1e6));assert.notEqual(a.p.maxSpeed,1000);assert.notEqual(b.p.maxSpeed,2000);assert.equal(JSON.stringify([first,second]),before);
+ near(C.massDragRate(a),expectedRate(1e6));near(C.massDragRate(b),C.massDragRate(a));/* PR #112 curve-B: twice the source power no longer gives exactly twice the force; ratio from paidAccel (was 2) */const ratio=paidAccel(second,second.grid.P)/paidAccel(first,first.grid.P);assert.ok(ratio>1);near(paid(b,1),ratio*paid(a,1));near(C.propulsionTerminalSpeed(b),ratio*C.propulsionTerminalSpeed(a));near(b.p.maxSpeed,ratio*a.p.maxSpeed);near(a.p.maxSpeed,C.FLEET_RULES.accelScale*paidAccel(first,first.grid.P)/expectedRate(1e6));assert.notEqual(a.p.maxSpeed,1000);assert.notEqual(b.p.maxSpeed,2000);assert.equal(JSON.stringify([first,second]),before);
  for(const field of['effectiveMachineryVolumeM3','machineryLengthM','machineryRadiusM'])assert.equal(a.p.propulsion.engines[0][field],b.p.propulsion.engines[0][field]);
 });
 test('healthy planning reuses stable results and invalidates actual source power and whole-mass changes',()=>{
- const p=profile(),before=JSON.stringify(p),first=C.healthyMotionPlan(p);assert.equal(C.healthyMotionPlan(p),first);near(first.accelerationMps2,500);near(first.engineInputW,p.grid.P);near(first.sourceDrawW,p.grid.P);assert.equal(JSON.stringify(p),before);
- p.grid.P*=.5;p.grid.Pgen=p.grid.P;const half=C.healthyMotionPlan(p);assert.notEqual(half,first);near(half.accelerationMps2,250);near(half.engineInputW,p.grid.P);near(C.propulsionTerminalSpeed(p),250*C.FLEET_RULES.accelScale/expectedRate(1e6));
- p.propulsion.massKg=2e6;const loaded=C.healthyMotionPlan(p);assert.notEqual(loaded,half);near(loaded.accelerationMps2,p.grid.P/C.engineConversionCoefficient(2e6)/2e6);assert.equal(C.healthyMotionPlan(p),loaded);near(C.propulsionTerminalSpeed(p),loaded.accelerationMps2*C.FLEET_RULES.accelScale/expectedRate(2e6));
+ const p=profile(),before=JSON.stringify(p),first=C.healthyMotionPlan(p);assert.equal(C.healthyMotionPlan(p),first);near(first.accelerationMps2,paidAccel(p,p.grid.P));/* PR #112 curve-B: accelerations from paidAccel (were 500, 250 and P/k/m) */near(first.engineInputW,p.grid.P);near(first.sourceDrawW,p.grid.P);assert.equal(JSON.stringify(p),before);
+ p.grid.P*=.5;p.grid.Pgen=p.grid.P;const half=C.healthyMotionPlan(p);assert.notEqual(half,first);near(half.accelerationMps2,paidAccel(p,p.grid.P));near(half.engineInputW,p.grid.P);near(C.propulsionTerminalSpeed(p),paidAccel(p,p.grid.P)*C.FLEET_RULES.accelScale/expectedRate(1e6));
+ p.propulsion.massKg=2e6;const loaded=C.healthyMotionPlan(p);assert.notEqual(loaded,half);near(loaded.accelerationMps2,paidAccel(p,p.grid.P,2e6));assert.equal(C.healthyMotionPlan(p),loaded);near(C.propulsionTerminalSpeed(p),loaded.accelerationMps2*C.FLEET_RULES.accelScale/expectedRate(2e6));
 });
 test('reducing actual force to25percent decelerates from full equilibrium toward quarter equilibrium',()=>{
  const u=unit(),k=expectedRate(1e6),a=500*C.FLEET_RULES.accelScale,v=a/k,dt=10/k,full=C.integratePropulsionMotion(u,[0,0,0],[a,0,0],dt),quarter=C.integratePropulsionMotion(u,[v,0,0],[a*.25,0,0],dt,{maxSpeed:1200});
@@ -46,15 +54,16 @@ test('obsolete speed options neither remove funded force nor clamp overspeed',()
 });
 test('actual mass controls the common drag rate and nearly proportional drag force',()=>{
  const u=unit(),k=C.massDragRate(u),input=u.p.grid.P;u.p.propulsion={...u.p.propulsion,massKg:2e6,ratedAccelMps2:250};near(C.massDragRate(u)/k,Math.pow(2,dragExponent));near(2e6*C.massDragRate(u)/(1e6*k),Math.pow(2,1+dragExponent));
- const a=paid(u,1),expected=input/C.engineConversionCoefficient(2e6)/2e6*C.FLEET_RULES.accelScale;near(a,expected);near(C.propulsionTerminalSpeed(u,a),expected/expectedRate(2e6));
+ const a=paid(u,1),expected=paidAccel(u.p,input,2e6)*C.FLEET_RULES.accelScale;/* PR #112 curve-B: was input/k(2e6)/2e6 */near(a,expected);near(C.propulsionTerminalSpeed(u,a),expected/expectedRate(2e6));
 });
 test('throttle, damage and thermal shutdown do not change the common resistance law',()=>{
  const u=unit(),k=C.massDragRate(u),model=JSON.stringify(u.p.motionResistance);for(const throttle of[1,.25,0]){paid(u,throttle);near(C.massDragRate(u),k);}
  C.shipHeatBlackout(u);u.mods[1]=0;near(C.massDragRate(u),k);assert.equal(JSON.stringify(u.p.motionResistance),model);near(C.integratePropulsionMotion(u,[123,0,0],[0,0,0],1/k).velocity[0],123/Math.E);
 });
 test('paid input gives full and quarter terminal speeds through the shared solver',()=>{
- const u=unit(),k=expectedRate(1e6),fullA=500*C.FLEET_RULES.accelScale,fullV=fullA/k;
- for(const fraction of[1,.25,0]){const a=paid(u,fraction);near(u.propulsion.actualInputW,u.p.grid.P*fraction);near(a,fullA*fraction);near(C.propulsionTerminalSpeed(u,a),fullV*fraction);if(fraction<1)assert.ok(C.integratePropulsionMotion(u,[fullV,0,0],[a,0,0],10).velocity[0]<fullV);near(C.massDragRate(u),k);}
+ const u=unit(),k=expectedRate(1e6),fullA=paidAccel(u.p,u.p.grid.P)*C.FLEET_RULES.accelScale,fullV=fullA/k;
+ /* PR #112 curve-B: the paid acceleration at each input share comes from paidAccel (was fullA*fraction with fullA from 500) */
+ for(const fraction of[1,.25,0]){const a=paid(u,fraction),expectedA=paidAccel(u.p,u.p.grid.P*fraction)*C.FLEET_RULES.accelScale;near(u.propulsion.actualInputW,u.p.grid.P*fraction);near(a,expectedA);near(C.propulsionTerminalSpeed(u,a),expectedA/k);if(fraction<1)assert.ok(C.integratePropulsionMotion(u,[fullV,0,0],[a,0,0],10).velocity[0]<fullV);near(C.massDragRate(u),k);}
 });
 test('real structural limits reduce input and terminal speed without changing resistance',()=>{
  const p=profile();p.propulsion.accelerationLimitMps2=p.propulsion.structuralAccelerationLimitMps2=50;p.propulsion.inertialFactor=1;const u=unit('imperial',p),k=expectedRate(1e6),out=[];
@@ -71,7 +80,7 @@ test('the exported calibration is read-only and never follows a design power or 
 });
 test('mass-only hulks still brake but invalid propulsion cannot invent a powered equilibrium',()=>{
  for(const p of[{maxSpeed:1200,mass:10},{maxSpeed:1200,propulsion:{version:1,massKg:1e6,ratedAccelMps2:NaN,accelerationLimitMps2:500}}]){near(C.massDragRate(p),expectedRate(p.mass?1e4:1e6));near(C.propulsionTerminalSpeed(p),0);}
- near(C.massDragRate({len:1e9}),0);near(C.propulsionTerminalSpeed({len:1e9}),0);const p=unit('custom-zero-speed-hint',profile(1e6,500,0)).p;near(p.maxSpeed,500*C.FLEET_RULES.accelScale/expectedRate(1e6));assert.ok(p.maxSpeed>0);
+ near(C.massDragRate({len:1e9}),0);near(C.propulsionTerminalSpeed({len:1e9}),0);const p=unit('custom-zero-speed-hint',profile(1e6,500,0)).p;near(p.maxSpeed,paidAccel(p,p.grid.P)*C.FLEET_RULES.accelScale/expectedRate(1e6));/* PR #112 curve-B: was 500*scale/rate */assert.ok(p.maxSpeed>0);
 });
 test('loaded squadron mass and expended stores follow the common law on the copied descriptor',()=>{
  const key='terminalCalibrationStores',p=profile(),s={id:key,craft:key,side:0,h:[1,0,0],pos:[0,0,0],vel:[10,0,0],ldg:[{mass:1000}],ammo:[1]};R.CRAFT[key]={name:'Finite stores and common drag',speed:1200,powerProfile:p};
@@ -80,5 +89,5 @@ test('loaded squadron mass and expended stores follow the common law on the copi
 });
 test('old cached custom speed hints do not retune drag before adding store mass',()=>{
  for(const version of[1,C.MOTION_RESISTANCE_VERSION]){const key='oldTerminalCalibration'+version,p=plain(unit().p);delete p.maxSpeed;p.motionResistance={version,referenceMassKg:1,referenceAccelMps2:1e20,referenceSpeedMps:1,ratePerKg:1e20};R.CRAFT[key]={name:'Old finite snapshot',speed:1500,powerProfile:p};const s={id:key,craft:key,side:0,h:[1,0,0],pos:[0,0,0],vel:[0,0,0],ldg:[{mass:1000}],ammo:[1]};
- try{R.squadPropulsion(s,0,0);const base=R.CRAFT[key].powerProfile;near(base.maxSpeed,500*C.FLEET_RULES.accelScale/expectedRate(1e6));assert.notEqual(base.maxSpeed,1500);assert.equal(base.motionResistance.version,C.MOTION_RESISTANCE_VERSION);near(C.massDragRate(s.drive),expectedRate(2e6));}finally{delete R.CRAFT[key];}}
+ try{R.squadPropulsion(s,0,0);const base=R.CRAFT[key].powerProfile;near(base.maxSpeed,paidAccel(profile(),profile().grid.P)*C.FLEET_RULES.accelScale/expectedRate(1e6));/* PR #112 curve-B: was 500*scale/rate */assert.notEqual(base.maxSpeed,1500);assert.equal(base.motionResistance.version,C.MOTION_RESISTANCE_VERSION);near(C.massDragRate(s.drive),expectedRate(2e6));}finally{delete R.CRAFT[key];}}
 });

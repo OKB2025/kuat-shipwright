@@ -12,6 +12,9 @@ function wingShip(){
  C.placePart(s,'gen',[4,1,0],.5,{allowOverlap:true},false);C.placePart(s,'struct',[5.2,1,0],[.4,.4,.4],{form:'box'},false);C.placePart(s,'pump',[5.2,1,0],.15,{allowOverlap:true},false);
  return {s,w};
 }
+// 2026-11-16 PR #112: converter capacity per volume x0.25 (HEAT.disK.hdis 2 → .5). The lightly loaded 0.6 m converter of
+// these cases keeps its former rating with four times the volume (edge × ∛4); the 0.2 m shortfall case is unchanged.
+const LIGHT_HDIS_D=.6*Math.cbrt(4);
 function boxShip(hdisD){
  const ship=C.newShip({L:40,W:24,H:20,plan:'rect',sec:'rect'},'Converter fixture');
  ship.parts=[{id:1,k:'gen',c:[30,10,0],d:2},{id:4,k:'pump',c:[30,10,3],d:.5},...(hdisD?[{id:2,k:'hdis',c:[20,10,0],d:hdisD}]:[])];ship.fits=[];ship.nextId=5;return ship;
@@ -24,7 +27,7 @@ test('the hull skin removes no heat and is not a sink in any network',()=>{
 });
 
 test('hotel (low-grade) heat reaches an hdis converter, and every converter accepts every grade',()=>{
- const S=C.computeStats(boxShip(.6)),N=S.heat.net,j=N.dis.findIndex(d=>d.k==='hdis');
+ const S=C.computeStats(boxShip(LIGHT_HDIS_D)),N=S.heat.net,j=N.dis.findIndex(d=>d.k==='hdis');
  assert.equal(N.dis[j].grade,'all');
  const hotel=N.src.map((s,i)=>[s,i]).filter(([s])=>s.k==='hotel').map(([,i])=>i);assert.ok(hotel.length);
  assert.ok(N.links.some(l=>hotel.includes(l.s)&&l.d===j),'a hotel source has a path to the converter');
@@ -56,7 +59,7 @@ test('an S-foil converts less with its foils closed than open',()=>{
 });
 
 test('converter input follows the heat actually converted and is itself heat aboard',()=>{
- const S=C.computeStats(boxShip(.6)),e=S.heat.presets.combat,K=C.HEAT.disPowerK.hdis,rated=S.dissipatorRatedPower;
+ const S=C.computeStats(boxShip(LIGHT_HDIS_D)),e=S.heat.presets.combat,K=C.HEAT.disPowerK.hdis,rated=S.dissipatorRatedPower;
  assert.ok(e.converterW>0&&e.converterW<rated*.99,'the input is below the rating when the converter is lightly loaded');
  assert.ok(Math.abs(e.converterW-K*e.out)<=K*K*e.out*1.5,'input = K × converted heat, within the one-pass error K² of the heat');near(S.dissipatorPower,e.converterW);
  assert.ok(['hdis','wing','radiator','solar'].every(k=>C.HEAT.disPowerK[k]===K),'one coefficient for every converter');

@@ -6,8 +6,12 @@ function ship(){const s=C.newShip({L:40,W:24,H:20},'Propulsion fixture');s.parts
 function spec(overrides={}){return {id:2,machineryId:2,valid:true,ratedInputW:1e18,effectiveMachineryVolumeM3:1e18/3.4e17,driveProfileId:'standard',profileWattsPerNewton:2e9,wattsPerNewton:2e9,ratedThrustN:5e8,direction:[1,0,0],...overrides};}
 function solve({h=1,u=1,power=1e18,damage=1,connected=true}={}){const requests=C.buildPropulsionRequests([spec()],{2:{thermalLimit:h,damageLimit:damage,connected}},u);return C.resolvePropulsion(requests,{2:power},1e6);}
 test('fixed input/thrust/waste/acceleration examples share one pure calculation',()=>{
- for(const [state,P,F,Q,a]of [[{},1e18,5e8,5e16,500],[{h:.25},2.5e17,1.25e8,1.25e16,125],[{h:0},0,0,0,0],[{u:0},0,0,0,0],[{power:5e17},5e17,2.5e8,2.5e16,250]]){const r=solve(state);near(r.totalActualInputW,P);near(r.totalThrustN,F);near(r.wasteHeatW,Q);near(r.freeAccelerationMps2,a);}
- assert.equal(solve({h:.25}).outputRatio,.25);assert.equal(solve({connected:false}).totalThrustN,0);assert.equal(solve({damage:0}).totalThrustN,0);
+ // 2026-11-16 PR #112 (curve-B engine waste): below the engine's normal input (here 1e18 W) waste is 5%*sqrt(load), so partial
+ // input yields more than a linear share of thrust; those rows take thrust/heat/acceleration from C.engineOperatingPoint.
+ const partial=P=>{const op=C.engineOperatingPoint(spec(),P);return [P,op.actualThrustN,op.wasteHeatW,op.actualThrustN/1e6];};
+ assert.ok(partial(2.5e17)[1]>1.25e8&&partial(2.5e17)[2]<1.25e16,'a lightly loaded engine converts more of its input than the full-load 95%');
+ for(const [state,P,F,Q,a]of [[{},1e18,5e8,5e16,500],[{h:.25},...partial(2.5e17)],[{h:0},0,0,0,0],[{u:0},0,0,0,0],[{power:5e17},...partial(5e17)]]){const r=solve(state);near(r.totalActualInputW,P);near(r.totalThrustN,F);near(r.wasteHeatW,Q);near(r.freeAccelerationMps2,a);}
+ near(solve({h:.25}).outputRatio,partial(2.5e17)[1]/5e8);/* 2026-11-16 PR #112 (curve-B engine waste): outputRatio is thrust/rated thrust, no longer equal to the 25% input share */assert.equal(solve({connected:false}).totalThrustN,0);assert.equal(solve({damage:0}).totalThrustN,0);
 });
 test('a shared machinery input is divided across outlets and vectors use the opposite exhaust direction',()=>{
  const requests=C.buildPropulsionRequests([spec({id:2,direction:[1,0,0]}),spec({id:3,direction:[0,0,1]})]);
@@ -36,7 +40,9 @@ test('invalid input, coefficients, mass and broken owner references fail safely'
  const s=ship();C.migrateLegacyPropulsion(s);s.parts[1].machineryId=99;assert.equal(C.resolveEngineSpec(s.parts[1],s).valid,false);s.parts[1].machineryId=undefined;s.parts[1].propulsionModelVersion=9;assert.equal(C.resolveEngineSpec(s.parts[1],s).valid,false);assert.equal(C.resolveEngineSpec({}).valid,false);
 });
 test('new exposed-turbine placement uses the common mass-dependent conversion law while resizing preserves rating and machinery',()=>{
- const s=ship();s.parts=s.parts.filter(p=>p.k!=='engine');const p=C.placePart(s,'engine',[-5,10,6],18,{...C.equipmentOptions('exposedTurbine'),d:18,reactor:1,allowOverlap:true},false);assert.equal(p.driveProfileId,'standard');const massKg=C.computeStats(s).mass*1000;assert.equal(C.resolveEngineSpec(p,s,massKg).wattsPerNewton,C.engineConversionCoefficient(massKg));const before=plain([p.ratedInputW,p.machineryLengthM,p.machineryRadiusM,p.machineryOffsetM]);C.resizeEngine(p,36);C.enforceEquipment(p);assert.deepEqual(plain([p.ratedInputW,p.machineryLengthM,p.machineryRadiusM,p.machineryOffsetM]),before);
+ const s=ship();s.parts=s.parts.filter(p=>p.k!=='engine');const p=C.placePart(s,'engine',[-5,10,6],18,{...C.equipmentOptions('exposedTurbine'),d:18,reactor:1,allowOverlap:true},false);assert.equal(p.driveProfileId,'standard');const massKg=C.computeStats(s).mass*1000;// 2026-11-16 PR #112 (curve-B engine waste): the profile coefficient keeps the 5% baseline in its shaft coefficient and divides by the
+ // efficiency at the engine's own load (C.engineOperatingPoint), so it equals the common mass law only at the retired flat 95%.
+ {const placed=C.resolveEngineSpec(p,s,massKg);near(placed.wattsPerNewton,C.engineConversionCoefficient(massKg)*(1-C.PROPULSION.wasteFraction)/C.engineOperatingPoint(placed,placed.ratedInputW).efficiency);}const before=plain([p.ratedInputW,p.machineryLengthM,p.machineryRadiusM,p.machineryOffsetM]);C.resizeEngine(p,36);C.enforceEquipment(p);assert.deepEqual(plain([p.ratedInputW,p.machineryLengthM,p.machineryRadiusM,p.machineryOffsetM]),before);
 });
 test('invalid fresh edits leave saved state untouched and declared volume cannot increase capacity',()=>{
  const s=ship(),p=s.parts[1],before=C.publicJSON(p);assert.equal(C.updateEngineSpec(p,{ratedInputW:Infinity},s).ok,false);assert.equal(C.publicJSON(p),before);

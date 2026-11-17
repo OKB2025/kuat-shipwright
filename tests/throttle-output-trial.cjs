@@ -5,7 +5,14 @@ const C=vm.runInContext('Core',cx),app=fs.readFileSync(path.join(root,'js/app.js
 const near=(a,b,label='value',epsilon=1e-9)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*epsilon,`${label}: ${a} != ${b}`);
 // Controlled motion fixtures do not trip thermally; shutdown behavior is tested explicitly.
 C.HEAT.qAllowJPerKg=1e25;
-const smallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,largeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,smallRate=3999.1037971899486*C.G0*C.FLEET_RULES.accelScale/2000,largeRate=2972.473437207956*C.G0*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(largeRate/smallRate)/Math.log(largeMass/smallMass),rate=mass=>smallRate*Math.pow(mass/smallMass,dragExponent),gameA=(P,M=1e6)=>P/C.engineConversionCoefficient(M)/M*C.FLEET_RULES.accelScale,steadyInput=(v,M=1e6)=>v*rate(M)*M*C.engineConversionCoefficient(M)/C.FLEET_RULES.accelScale;
+const fixtureEngine={valid:true,effectiveMachineryVolumeM3:2*Math.PI,machineryLengthM:2,machineryRadiusM:1,machineryShape:'cylinder',driveProfileId:'standard'};
+const smallMass=C.ENGINE_CONVERSION.referenceSmallMassKg,largeMass=C.ENGINE_CONVERSION.referenceLargeMassKg,smallRate=3999.1037971899486*C.G0*C.FLEET_RULES.accelScale/2000,largeRate=2972.473437207956*C.G0*C.FLEET_RULES.accelScale/1000,dragExponent=Math.log(largeRate/smallRate)/Math.log(largeMass/smallMass),rate=mass=>smallRate*Math.pow(mass/smallMass,dragExponent),thrustN=(P,M=1e6)=>C.engineOperatingPoint(fixtureEngine,P).usefulPropulsionW/((1-C.PROPULSION.wasteFraction)*C.engineConversionCoefficient(M)),gameA=(P,M=1e6)=>thrustN(P,M)/M*C.FLEET_RULES.accelScale,steadyInput=(v,M=1e6)=>{const want=v*rate(M)*M*(1-C.PROPULSION.wasteFraction)*C.engineConversionCoefficient(M)/C.FLEET_RULES.accelScale;let lo=0,hi=1e24;for(let i=0;i<200;i++){const mid=(lo+hi)/2;if(C.engineOperatingPoint(fixtureEngine,mid).usefulPropulsionW<want)lo=mid;else hi=mid;}return hi;};
+// 2026-11-16 PR #112 (curve-B engine waste): the fixture engine below (2*pi m3 cylinder, normal input 2.14e18 W) wastes
+// C.engineWasteFraction(load) of what it receives instead of the retired flat 5%, so thrust, heat and the main-engine output ratio
+// (thrust / rated thrust) are no longer linear in input. thrustN/gameA/steadyInput use C.engineOperatingPoint's useful power through
+// the mass-bound shaft coefficient (1-PROPULSION.wasteFraction) x engineConversionCoefficient (W/k at 95%); heatW is its waste heat,
+// and outputShare(P,rating) the thrust share that the plume and trialMainOutput report.
+const heatW=P=>C.engineOperatingPoint(fixtureEngine,P).wasteHeatW,outputShare=(P,rating=1e18)=>thrustN(P)/thrustN(rating);
 const engineHeatJ=u=>(u.ht?.e?.engine||0)+(u.ht?.engineE||[]).reduce((n,J)=>n+Math.max(0,J||0),0);
 const accountedHeatJ=u=>(u.ht?.operatingHeatJ||0)+Object.values(u.ht?.e||{}).reduce((n,J)=>n+Math.max(0,J||0),0)+['engineE','reactorE','feedE','esw'].reduce((n,key)=>n+(u.ht?.[key]||[]).reduce((a,J)=>a+Math.max(0,J||0),0),0);
 run(`
@@ -47,24 +54,26 @@ function setup({rating=1e18,supply=rating,massKg=1e6,referenceMassKg=massKg,maxS
 }
 
 test('quarter throttle requests quarter engine input independently of current speed',()=>{
- for(const speed of [0,500]){const u=setup({tele:2,velocity:[speed,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,2.5e17,'quarter power');near(u.propulsion.actualThrustN,2.5e17/C.engineConversionCoefficient(1e6),'quarter thrust');near(run('trialMainOutput()'),.25,'quarter plume');const equilibrium=gameA(2.5e17)/rate(1e6);near(run('trial.V[0]'),equilibrium+(speed-equilibrium)*Math.exp(-rate(1e6)*.1),'quarter output and fixed resistance');assert.equal(run('trial.V[0]')>speed,speed<equilibrium,'the same funded output accelerates below its equilibrium and slows above it');}
+ for(const speed of [0,500]){const u=setup({tele:2,velocity:[speed,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,2.5e17,'quarter power');near(u.propulsion.actualThrustN,thrustN(2.5e17),'quarter thrust');near(run('trialMainOutput()'),outputShare(2.5e17),'quarter plume');/* PR #112 curve-B: were 2.5e17/k and .25 */const equilibrium=gameA(2.5e17)/rate(1e6);near(run('trial.V[0]'),equilibrium+(speed-equilibrium)*Math.exp(-rate(1e6)*.1),'quarter output and fixed resistance');assert.equal(run('trial.V[0]')>speed,speed<equilibrium,'the same funded output accelerates below its equilibrium and slows above it');}
 });
 
 test('full throttle keeps requesting real power at the old nominal maximum speed',()=>{
- const u=setup({velocity:[1000,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,1e18);near(u.propulsion.actualThrustN,1e18/C.engineConversionCoefficient(1e6));near(run('trialMainOutput()'),1);near(engineHeatJ(u),u.propulsion.wasteHeatW*.1,'maintaining engine output accrues its source-attributed heat');
+ const u=setup({velocity:[1000,0,0]});run('trialStep(.1)');near(u.propulsion.actualInputW,1e18);near(u.propulsion.actualThrustN,thrustN(1e18));near(run('trialMainOutput()'),1);/* PR #112 curve-B: was 1e18/k */near(engineHeatJ(u),u.propulsion.wasteHeatW*.1,'maintaining engine output accrues its source-attributed heat');
 });
 
 for(const nominal of[1000,2000])test(`a controlled ${nominal} m/s equilibrium falls toward quarter speed at quarter paid output`,()=>{
  const rating=steadyInput(nominal),u=setup({rating,maxSpeed:nominal,velocity:[nominal,0,0]}),calibration=JSON.stringify(u.p.motionResistance),k=rate(1e6);
- run('trialStep(.5)');near(run('trial.V[0]'),nominal,'full output and drag balance without a velocity clamp');near(u.propulsion.actualInputW,rating);near(engineHeatJ(u),rating*.05*.5,'full output heat');
- run('trialSetThrottle(.25);trialStep(.5)');const first=nominal*.25+nominal*.75*Math.exp(-k*.5);near(run('trial.V[0]'),first,'quarter output starts slowing continuously');assert.ok(first>nominal*.25&&first<nominal);near(u.propulsion.actualInputW,rating*.25);near(run('trialMainOutput()'),.25);
- const settle=10/k;run(`trialStep(${settle})`);near(run('trial.V[0]'),nominal*.25+nominal*.75*Math.exp(-k*(settle+.5)),'settled quarter output');assert.ok(Math.abs(run('trial.V[0]')/nominal-.25)<.0003,'quarter funded output approaches one quarter of the full-output equilibrium');near(engineHeatJ(u),rating*.05*(.5+.25*(settle+.5)),'source heat follows actual full and quarter input');assert.equal(JSON.stringify(u.p.motionResistance),calibration,'reducing the throttle does not recalibrate or weaken drag');
+ run('trialStep(.5)');near(run('trial.V[0]'),nominal,'full output and drag balance without a velocity clamp');near(u.propulsion.actualInputW,rating);near(engineHeatJ(u),heatW(rating)*.5,'full output heat');
+ /* PR #112 curve-B: quarter input gives the thrust share q (not .25), so the quarter equilibrium is nominal*q; heat is heatW(input) */
+ const q=outputShare(rating*.25,rating);assert.ok(q>.25,'a lighter load converts more of its input');
+ run('trialSetThrottle(.25);trialStep(.5)');const first=nominal*q+nominal*(1-q)*Math.exp(-k*.5);near(run('trial.V[0]'),first,'quarter output starts slowing continuously');assert.ok(first>nominal*q&&first<nominal);near(u.propulsion.actualInputW,rating*.25);near(run('trialMainOutput()'),q);
+ const settle=10/k;run(`trialStep(${settle})`);near(run('trial.V[0]'),nominal*q+nominal*(1-q)*Math.exp(-k*(settle+.5)),'settled quarter output');assert.ok(Math.abs(run('trial.V[0]')/nominal-q)<.0003,'quarter funded output approaches its funded share of the full-output equilibrium');near(engineHeatJ(u),heatW(rating)*.5+heatW(rating*.25)*(settle+.5),'source heat follows actual full and quarter input');assert.equal(JSON.stringify(u.p.motionResistance),calibration,'reducing the throttle does not recalibrate or weaken drag');
  const before=run('trial.V[0]');run('trialSetThrottle(0);trialStep(1)');near(run('trial.V[0]'),before*Math.exp(-k),'idle coasts down with unchanged resistance');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.equal(JSON.stringify(u.p.motionResistance),calibration);
 });
 
 test('actual power shortage lowers the force-balance speed even with a full throttle command',()=>{
  const nominal=2000,rating=steadyInput(nominal),u=setup({rating,supply:rating*.5,maxSpeed:nominal,velocity:[nominal,0,0]}),calibration=JSON.stringify(u.p.motionResistance);
- run('trialStep(80)');near(run('trial.V[0]'),nominal*.5+nominal*.5*Math.exp(-rate(1e6)*80),'half-funded terminal motion');near(u.propulsion.actualInputW,rating*.5);near(u.propulsion.actualThrustN,rating*.5/C.engineConversionCoefficient(1e6));near(run('trialMainOutput()'),.5);near(engineHeatJ(u),rating*.5*.05*80,'half-funded source heat');assert.equal(JSON.stringify(u.p.motionResistance),calibration);
+ run('trialStep(80)');const h=outputShare(rating*.5,rating);/* PR #112 curve-B: half input gives the thrust share h (was .5) and heatW(input) heat */near(run('trial.V[0]'),nominal*h+nominal*(1-h)*Math.exp(-rate(1e6)*80),'half-funded terminal motion');near(u.propulsion.actualInputW,rating*.5);near(u.propulsion.actualThrustN,thrustN(rating*.5));near(run('trialMainOutput()'),h);near(engineHeatJ(u),heatW(rating*.5)*80,'half-funded source heat');assert.equal(JSON.stringify(u.p.motionResistance),calibration);
 });
 
 test('a vessel above its nominal full-output equilibrium slows naturally instead of snapping to a ceiling',()=>{
@@ -100,18 +109,18 @@ test('steering-only power is not rendered as forward main-engine thrust',()=>{
 });
 
 test('partial electrical supply limits both actual thrust and exhaust below the requested full output',()=>{
- const u=setup({supply:2.5e17});run('trialStep(.1)');near(u.propulsion.actualInputW,2.5e17);near(u.propulsion.actualThrustN,2.5e17/C.engineConversionCoefficient(1e6));near(run('trialMainOutput()'),.25);near(run('trial.thrust'),.25);
+ const u=setup({supply:2.5e17});run('trialStep(.1)');near(u.propulsion.actualInputW,2.5e17);near(u.propulsion.actualThrustN,thrustN(2.5e17));near(run('trialMainOutput()'),outputShare(2.5e17));near(run('trial.thrust'),outputShare(2.5e17));/* PR #112 curve-B: were 2.5e17/k, .25 and .25 */
 });
 
 test('actual draw payload receives funded main-engine output instead of speed or steering allocation',()=>{
- for(const row of [{tele:2,expected:.25},{tele:5,expected:1},{tele:1,expected:0},{tele:1,steer:true,expected:0},{tele:5,supply:0,expected:0}]){
+ for(const row of [{tele:2,expected:outputShare(2.5e17)/* PR #112 curve-B: was .25 */},{tele:5,expected:1},{tele:1,expected:0},{tele:1,steer:true,expected:0},{tele:5,supply:0,expected:0}]){
   setup({tele:row.tele,supply:row.supply??1e18,velocity:[500,0,0]});run(`trial.stickX=${row.steer?1:0};trialStep(.1);Object.assign(trial,{on:true,paused:true,last:1000,hud:1000,asset:{key:'actual-engine-draw'},camMode:'chase',targets:[],turrets:[],jump:null});glowEase.clear();trialLoop(1001)`);
   near(run('drawnFrame.fleet[0].glow'),row.expected,'actual renderer input');assert.ok(run('renderHealth.frames')>0);
  }
 });
 
 test('reverse output uses paid propulsion and changes the acceleration direction',()=>{
- const u=setup({tele:0});run('delete trial.throttle;trialStep(.1)');near(u.propulsion.actualInputW,2.5e17);assert.ok(run('trial.V[0]')<0);near(run('trialMainOutput()'),.25);near(engineHeatJ(u),u.propulsion.wasteHeatW*.1,'reverse propulsion heat');
+ const u=setup({tele:0});run('delete trial.throttle;trialStep(.1)');near(u.propulsion.actualInputW,2.5e17);assert.ok(run('trial.V[0]')<0);near(run('trialMainOutput()'),outputShare(2.5e17));/* PR #112 curve-B: was .25 */near(engineHeatJ(u),u.propulsion.wasteHeatW*.1,'reverse propulsion heat');
 });
 
 test('position and velocity agree across frame partitions under constant output and resistance',()=>{
@@ -127,7 +136,9 @@ test('the HUD velocity is recomputed after the planetary floor removes inward mo
 test('direct output drives actual automatically wired hardware and retains its fuel and heat ledgers',()=>{
  const {soloTrialDesign}=require('./helpers/solo-trial-design.cjs'),design=soloTrialDesign(C);C.syncCompartments(design);C.remount(design);C.syncCompartments(design);const stats=C.computeStats(design),profile=C.fleetProfile(stats,design.name,design);
  setup();cx.hardwareProfile=profile;run('trial.p=hardwareProfile;trial.battle=null;trial.systemsUnit=null;trialSetThrottle(1);trial.V=[0,0,0];trialStep(.1)');const unit=run('trial.systemsUnit');assert.ok(unit.propulsion.actualInputW>0);assert.ok(unit.propulsion.actualThrustN>0);assert.ok(run('trialMainOutput()')>0);assert.ok(C.shipFuelState(unit).consumedKg>0);assert.ok(accountedHeatJ(unit)>0,'source-attributed or already-solved heat is retained before and after the thermal interval');
- const fuel=C.shipFuelState(unit).consumedKg;run('trialSetThrottle(0);trialStep(.1);trialSetThrottle(.25);trialStep(.1)');assert.equal(run('trial.systemsUnit'),unit);assert.ok(C.shipFuelState(unit).consumedKg>fuel);assert.ok(run('trialMainOutput()')>0&&run('trialMainOutput()')<=.25+1e-8);
+ const fuel=C.shipFuelState(unit).consumedKg;run('trialSetThrottle(0);trialStep(.1);trialSetThrottle(.25);trialStep(.1)');assert.equal(run('trial.systemsUnit'),unit);assert.ok(C.shipFuelState(unit).consumedKg>fuel);/* 2026-11-16 PR #112 (curve-B engine waste): quarter input gives more than a quarter of the rated thrust, so the plume bound is the
+    funded thrust share at a quarter of each engine's input (C.engineOperatingPoint) rather than .25 */
+ const quarterShare=unit.p.propulsion.engines.reduce((n,e)=>n+C.engineOperatingPoint(e,.25*e.availableInputW).actualThrustN,0)/unit.p.propulsion.ratedThrustN;assert.ok(run('trialMainOutput()')>0&&run('trialMainOutput()')<=quarterShare+1e-8,run('trialMainOutput()')+' > '+quarterShare);
 });
 
 test('zero-throttle flight follows the actual three-dimensional nose with mass-dependent inertia and no invented thrust',()=>{

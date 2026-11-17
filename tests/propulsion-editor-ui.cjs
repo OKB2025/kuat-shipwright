@@ -99,9 +99,14 @@ test('new machinery derives available input from its real reactor rather than vo
  const run=setup();run(`st.multi.parts.clear();st.sel=null;st.part='engineCore';const fresh=pendingEngineCore();`);
  assert.equal(run('Object.hasOwn(fresh,"ratedInputW")'),false);assert.equal(run('Object.hasOwn(fresh,"machineryGradeId")'),false);assert.equal(run('C.resolveEngineSpec(fresh,ship).availableInputW'),0);
  run(`ship.parts.push({id:4,k:'gen',c:[60,20,15],d:2},{id:5,k:'aux',c:[70,20,15],d:3});ship.nextId=6;fresh.reactor=4;`);
- const first=run('C.resolveEngineSpec(fresh,ship).availableInputW');assert.equal(first,run('C.reactorPower(ship.parts.find(p=>p.id===4))'));assert.ok(first>0);
- run('ship.parts.find(p=>p.id===4).d=2.5');assert.equal(run('C.resolveEngineSpec(fresh,ship).availableInputW'),run('C.reactorPower(ship.parts.find(p=>p.id===4))'),'the displayed source maximum follows a reactor resize without an engine rating edit');
- run('fresh.reactor=5');const second=run('C.resolveEngineSpec(fresh,ship).availableInputW');assert.equal(second,run('C.reactorPower(ship.parts.find(p=>p.id===5))'));assert.notEqual(second,first);
+ // 2026-11-16 PR #112: ship-wide engine bus — every reactor of the engine's power domain feeds it (engineTransmission), so the
+ // source maximum is the domain's reactor output (here reactors 4 and 5), not the one reactor the engine names. The old final
+ // check (rebinding to reactor 5 gives reactor 5's output) belonged to the retired one-reactor feed; the bound reactor no
+ // longer selects the source, so rebinding leaves the domain total unchanged.
+ const domainPower=()=>run('[4,5].reduce((n,id)=>n+C.reactorPower(ship.parts.find(p=>p.id===id)),0)');
+ const first=run('C.resolveEngineSpec(fresh,ship).availableInputW');assert.equal(first,domainPower());assert.ok(first>run('C.reactorPower(ship.parts.find(p=>p.id===4))'));
+ run('ship.parts.find(p=>p.id===4).d=2.5');assert.equal(run('C.resolveEngineSpec(fresh,ship).availableInputW'),domainPower(),'the displayed source maximum follows a reactor resize without an engine rating edit');assert.notEqual(domainPower(),first);
+ const resized=domainPower();run('fresh.reactor=5');const second=run('C.resolveEngineSpec(fresh,ship).availableInputW');assert.equal(second,resized,'rebinding within the domain keeps the shared bus');
  run('fresh.ratedInputW=1;fresh.machineryGradeId="legacy-refit"');assert.equal(run('C.resolveEngineSpec(fresh,ship).availableInputW'),second,'an old manual limit cannot throttle the reactor-derived maximum');
  run('fresh.ratedInputW=1e30;fresh.d=.1;fresh.length=.1');assert.equal(run('C.resolveEngineSpec(fresh,ship).availableInputW'),second,'small valid machinery is not given an artificial volume input cap');
  const html=run('engineSpecControls(fresh,true)');assert.match(html,/接続炉からの最大入力/);assert.match(html,/放熱面・排熱設備/);assert.doesNotMatch(html,/data-engine-field="ratedInputW"|data-engine-field="machineryGradeId"|通常定格入力|通常定格に対する入力倍率|NaN|Infinity/);
@@ -153,7 +158,9 @@ test('engine readouts use confirmed whole-vessel mass and withhold force while t
  const run=setup();run(`ship.parts.push({id:4,k:'gen',c:[70,20,0],d:4});ship.parts[0].reactor=4;S={mass:10,propulsion:{preset:"combat",cores:[],engines:[]}};C.computeStats=()=>{throw Error('UI cannot recompute whole-vessel physics')};`);
  const first=plain(run('engineSpecForUI(selItem())'));
  assert.equal(first.conversionMassKg,10000);
- assert.equal(first.wattsPerNewton,run('C.engineConversionCoefficient(S.mass*1000)'));
+ // 2026-11-16 PR #112: engine efficiency curve B — the shaft coefficient is the mass-confirmed conversion coefficient less the
+ // 5% baseline, and input per newton at the rated point is that over the curve's efficiency (no longer the coefficient itself).
+ assert.equal(first.shaftWattsPerNewton,(1-run('C.PROPULSION.wasteFraction'))*run('C.engineConversionCoefficient(S.mass*1000)'));assert.equal(first.wattsPerNewton,first.shaftWattsPerNewton/run('C.engineOperatingPoint(engineSpecForUI(selItem()),engineSpecForUI(selItem()).ratedInputW)').efficiency);
  assert.equal(first.ratedThrustN,first.ratedInputW/first.wattsPerNewton);
  assert.ok(run('enginePerformance(selItem())').includes('>'+first.ratedThrustN+' N<'));
  run('S={mass:1000000,propulsion:{preset:"combat",cores:[],engines:[]}}');const second=plain(run('engineSpecForUI(selItem())'));

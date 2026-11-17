@@ -79,7 +79,10 @@ test('fleet distance LOD omits decorative meshes while preserving the functional
  const renderer={gl,meshes:{},off:[0,0,0],cam:{target:[0,0,0],fov:.72},canvas:{height:700},eye:()=>[0,0,1000],fleetCache:new Map([['surface',asset]]),look:{shadow:false},drawMesh:name=>drawn.push(name),drawLines:()=>{},drawRays:()=>{},setLights:()=>{},setPoints:()=>{},drawPoints:()=>{}};
  const options={fleet:[{key:'surface',pos:[0,0,0]}],lod:true,mode:'review'};
  G.Renderer.prototype.drawFleet.call(renderer,{},options);assert.ok(drawn.includes('surfaceArmor'));assert.ok(drawn.includes('surfaceDevices'));assert.ok(drawn.includes('surfaceDetail'));
- drawn.length=0;renderer.eye=()=>[0,0,30000];G.Renderer.prototype.drawFleet.call(renderer,{},options);assert.ok(drawn.includes('surfaceArmor'));assert.ok(!drawn.includes('surfaceDetail'));assert.ok(!drawn.includes('surfaceDevices'));assert.equal(C.publicJSON(ship),before);
+ /* 2026-11-16 distant-ship specks (user request, gfx.js FLEET_SPECK): a ship beyond 90% of the far plane (cam.far, else cam.r*8+6000 as in the projection)
+    is drawn as a speck instead of its model. This mock had no cam.r, so its far plane was 6008 m and the 30 km ship became a speck. The camera is now
+    given the orbit radius its eye actually has, so this case still checks the modelled shell-only LOD (about 4.5 px) it was written for. */
+ drawn.length=0;renderer.eye=()=>[0,0,30000];renderer.cam.r=30000;G.Renderer.prototype.drawFleet.call(renderer,{},options);assert.ok(drawn.includes('surfaceArmor'));assert.ok(!drawn.includes('surfaceDetail'));assert.ok(!drawn.includes('surfaceDevices'));assert.equal(C.publicJSON(ship),before);
 });
 
 test('surface armor, equipment ports and actual guns remain attached to an animated S-foil',()=>{

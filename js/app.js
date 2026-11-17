@@ -5559,7 +5559,9 @@ function designUIRequests(part,request){
   }
   return {part:next,request:r,...(fit?{list:'fits'}:{}),symmetry:source.symmetry+axis};
  };
- if(st.mirror&&Math.abs((request.list==='fits'?part.p:part.c)[2])>1e-5)rows.push(mirrored(rows[0],'z'));
+ // User report 2026-11-16 (a triple turret on the dorsal apex, 0.1 m off the centreline): a fitting within its own radius of
+ // the centreline gets no twin, as placeFit already rules; the twin would stand in it and both were refused as floating.
+ if(st.mirror&&Math.abs((request.list==='fits'?part.p:part.c)[2])>(request.list==='fits'?Math.max(1e-5,C.FITS[part.k]?.r||0):1e-5))rows.push(mirrored(rows[0],'z'));
  if(st.vmirror){const base=rows.slice();for(const row of base)rows.push(mirrored(row,'y'));}
  return rows;
 }
@@ -8245,7 +8247,7 @@ async function trialStart(opts={}){
  // back again: the engine is told so and returns only the trial model (the profile is tens of MB on a large ship).
  // The trial gets its own top-level copy, so a renamed flagship does not rename the fleet's asset.
  const known=opts.design&&fleet.assets?[...fleet.assets.values()].find(x=>x.design===opts.design&&x.p&&!x.p.catalogOnly)||null:null;
- let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
+ let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};C.setHullRadial?.(key,r.radial||null);if(view)view.loadFleet(key,r.geometry);
   if(!a.stats)YardEngineClient.request('fleet',{design:data,statsOnly:true,...(known?{profileKnown:true}:{})}).then(r=>{a.stats=r.stats;if(trial.asset!==a)return;for(const t of trial.turrets)if(t.cap)t.charge=Math.max(t.charge||0,C.clamp(r.stats?.chargeInfo?.[t.id]?.ratio??0,0,1));}).catch(e=>console.warn('trial figures',e));
   if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k,{lite:true});}}
  catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
@@ -8596,8 +8598,8 @@ function trialGunnery(dt){
    if(t.hits>=TRIAL_GUN.hitsToKill){t.alive=false;t.respawn=4;trial.gun.kills++;sndAt('explosion_small',t.pos);for(let k=0;k<46;k++)trial.fx.push({pos:t.pos,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*(.6+Math.random()*2.2))),life:1.6,max:1.6,size:Rt*(.25+Math.random()*.4),col:[255,170+Math.random()*60|0,90]});trial.fx.push({pos:t.pos,vel:t.vel,life:.5,max:.5,size:Rt*4,col:[255,245,220]});}};
  const segHit=(t,a0,a1)=>{const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(t.pos,a0),seg)/l2,0,1),q=tv.add(a0,seg,k);return tv.len(tv.sub(q,t.pos))<Rt?q:null;};
  // Ships are ellipsoids of their own length, height and width.
- const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);return tv.len(tv.add(pa,d,k))<1?tv.add(a0,tv.sub(a1,a0),k):null;};
- const shipHit=(t,q,tt,kind,w,shell)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t);if(shell)spaceShieldBurst(shell,t.vel,Math.max(8,t.radius*.05),kind==='ion');/* shell: where the bolt met the field (q is the hull point below it, for the zone of the hit) */else spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
+ const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);if(!(tv.len(tv.add(pa,d,k))<1))return null;const m=C.hullRadialOf?.(t.unit);return m?radialSegment(m,la,lb,a0,a1):tv.add(a0,tv.sub(a1,a0),k);};
+ const shipHit=(t,q,tt,kind,w,shell,aimK)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t,aimK);if(shell)spaceShieldBurst(shell,t.vel,Math.max(8,t.radius*.05),kind==='ion');/* shell: where the bolt met the field (q is the hull point below it, for the zone of the hit) */else spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
  const pq=trialPilotThreats(trial.craft?undefined:Math.max(0,...trial.turrets.map(t=>t.reach||TRIAL_GUN.range),...trial.missiles.map(m=>m.range||0)));
  for(const b of trial.bolts){const liveDt=Math.min(dt,Math.max(0,b.life));b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
@@ -8606,7 +8608,7 @@ function trialGunnery(dt){
   for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const u=t.unit,qs=u?.shield>0&&!(trial.craft&&spaceInShell(u,trial.P));if(qs){const h=shellHitPoint(t.pos,t.rot,t.semi,b.prev,b.pos);if(h){b.life=0;shipHit(t,h.hull,b.tt||0,b.ion?'ion':'bolt',b.weight,h.shell);continue;}}const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
  // (a missile homing on a small craft bursts on it)
  for(const m of trial.missiles){const q=m.target;if(pq&&q?.kind&&q.alive&&m.life>0&&trialPilotHit(m.prev,m.pos,[q],1,1.5))m.life=0;}
- for(const m of trial.missiles)for(const t of trial.targets){if(!t.alive||m.life<=0)continue;if(t.ship){const q=segShip(t,m.prev,m.pos);if(q){m.life=0;shipHit(t,q,m.tt??10,m.ion?'iontorp':'missile',m.weight);}continue;}const q=segHit(t,m.prev,m.pos);if(q){m.life=0;hitTarget(t,q,m.weight);for(let k=0;k<10;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60+Math.random()*200)),life:.8,max:.8,size:Rt*.3,col:[255,150,70]});}}
+ for(const m of trial.missiles)for(const t of trial.targets){if(!t.alive||m.life<=0)continue;if(t.ship){const q=segShip(t,m.prev,m.pos);if(q){m.life=0;shipHit(t,q,m.tt??10,m.ion?'iontorp':'missile',m.weight,null,m.aimK);}continue;}const q=segHit(t,m.prev,m.pos);if(q){m.life=0;hitTarget(t,q,m.weight);for(let k=0;k<10;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60+Math.random()*200)),life:.8,max:.8,size:Rt*.3,col:[255,150,70]});}}
  trial.bolts=trial.bolts.filter(b=>b.life>0);trial.missiles=trial.missiles.filter(m=>{if(m.life<=0&&!m.burst){m.burst=true;}return m.life>0;});
  for(const t of trial.targets){if(t.ship)continue;if(t.alive){t.pos=tv.add(t.pos,t.vel,dt);t.spin+=dt*(t.ionT>0?0:.3);const up=tv.norm(t.pos);t.rot=trialAxisMatrix(up,t.spin,t.rot);t.rot=trialFrame(trialApply(t.rot,[1,0,0]),up);}else if((t.respawn-=dt)<=0)Object.assign(t,trialSpawnTarget(t.id,false));}
  const due=performance.now();if(!trial.rays.busy&&due-trial.rays.last>140&&trial.turrets.length)trialRays(due);
@@ -8619,6 +8621,15 @@ function trialMissileCells(l){
  const count=Math.max(1,l.salvo||1),total=Math.max(0,Math.floor(l.ammo||0));
  if(!Array.isArray(l.cellAmmo)||l.cellAmmo.length!==count||l.cellAmmo.reduce((a,b)=>a+b,0)!==total)l.cellAmmo=Array.from({length:count},(_,i)=>Math.min(6,Math.floor(total/count)+(i<total%count?1:0)));
  return l.cellAmmo;
+}
+// Missile aim (user request 2026-11-16「ミサイルのロックオンはターボレーザー、エンジン、艦橋にもできるように」): the locked ship as a
+// whole, or its turbolasers, engines or bridge. A missile homes on the nearest intact module of that kind on the ship
+// (its place in the battle profile: along the length, up and across), and its hit is aimed at that kind.
+const TRIAL_MSL_AIM=['auto','weapon','engine','bridge'],TRIAL_MSL_AIM_NAME={auto:'艦体',weapon:'ターボレーザー',engine:'エンジン',bridge:'艦橋'};
+function trialAimPart(t,k,from){
+ const u=t?.unit,mods=u?.p?.modules;if(!k||k==='auto'||!mods?.length||!t.semi||!t.rot)return null;let best=null,bd=Infinity;
+ for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!==k||!((u.mods?.[i]??1)>0))continue;const l=[((m.at??.5)-.5)*2*t.semi[0],(m.y??0)*t.semi[1],(m.z??0)*t.semi[2]],w=tv.add(t.pos,trialApply(t.rot,l)),d=tv.len(tv.sub(w,from));if(d<bd){bd=d;best=l;}}
+ return best;
 }
 function trialMissiles(dt,lock){
  if(!(dt>0)||!Number.isFinite(dt))return;
@@ -8633,14 +8644,15 @@ function trialMissiles(dt,lock){
    const cell=ship?l.pendingCells?.shift()??i:0;if(ship&&!(cells[cell]>0)){l.queue--;continue;}
    if(!spaceAmmo(l,true,1)){l.queue=0;break;}l.queue--;if(ship)cells[cell]--;
    const ax=trialApply(R,l.axis),mouth=ship?l.muzzles?.[cell]||l.origin:l.origin,pos=tv.add(trial.P,trialApply(R,tv.sub(mouth,center))),jit=tv.norm(tv.add(ax,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),.12)),range=C.missileRange(l);
-   trial.missiles.push({pos,prev:pos,base:[...trial.V],h:jit,s:TRIAL_MSL.launch,life:C.missileFlightLife(range),range,traveled:0,kind:l.kind,cell:ship?cell:undefined,target:lock||null,dir:trial.aim?trial.aim.dir:ax,weight:1,trail:0,boost:.6,tt:l.tt,ion:!!l.ion});
+   const aimK=lock&&trial.mslAim&&trial.mslAim!=='auto'?trial.mslAim:null,aimLocal=aimK?trialAimPart(lock,aimK,pos):null;
+   trial.missiles.push({pos,prev:pos,base:[...trial.V],h:jit,s:TRIAL_MSL.launch,life:C.missileFlightLife(range),range,traveled:0,kind:l.kind,cell:ship?cell:undefined,target:lock||null,dir:trial.aim?trial.aim.dir:ax,weight:1,trail:0,boost:.6,tt:l.tt,ion:!!l.ion,...(aimLocal?{aimK,aimLocal}:{})});
    trial.fx.push({pos,vel:trial.V,life:.25,max:.25,size:14,col:l.ion?[190,220,255]:[255,210,150]});trial.gun.missiles=(trial.gun.missiles||0)+1;sndAt('missile',pos,{gain:.8});
   }
  }
  for(const m of trial.missiles){
   m.prev=m.pos;m.range=C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);if(!(m.life>0)||m.traveled>=m.range){m.life=0;continue;}
   const step=Math.min(dt,m.life);m.boost-=step;
-  let want=m.dir;if(m.target&&m.target.alive&&m.boost<=0){const t=m.target,rel=tv.sub(t.pos,m.pos),vrel=tv.sub(t.vel,m.base),tgo=tv.len(rel)/Math.max(300,m.s);want=tv.norm(tv.add(rel,vrel,tgo));}
+  let want=m.dir;if(m.target&&m.target.alive&&m.boost<=0){const t=m.target,aimAt=m.aimLocal&&t.rot?tv.add(t.pos,trialApply(t.rot,m.aimLocal)):t.pos,rel=tv.sub(aimAt,m.pos),vrel=tv.sub(t.vel,m.base),tgo=tv.len(rel)/Math.max(300,m.s);want=tv.norm(tv.add(rel,vrel,tgo));}
   if(m.boost<=0){const c=C.clamp(tv.dot(m.h,want),-1,1),ang=Math.acos(c),maxA=TRIAL_MSL.turn*step;if(ang>1e-5){const ax=tv.cross(m.h,want),l=tv.len(ax);if(l>1e-9)m.h=tv.norm(trialRot(m.h,tv.scale(ax,1/l),Math.min(ang,maxA)));}}
   m.s=Math.min(TRIAL_MSL.speed,m.s+TRIAL_MSL.accel*step);const velocity=tv.add(m.base,m.h,m.s),distance=tv.len(velocity)*step,travel=Math.min(distance,Math.max(0,m.range-m.traveled));
   if(distance>0)m.pos=tv.add(m.pos,velocity,step*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);m.life-=dt;if(m.traveled>=m.range)m.life=0;
@@ -8788,7 +8800,7 @@ function trialMarkers(){
  for(const it of items){let el=box.querySelector(`[data-tmark="${it.id}"]`);if(!el){el=document.createElement('div');el.className='th-tmark';el.dataset.tmark=it.id;el.innerHTML='<i></i><b></b><s><em class="sh"></em></s>';box.append(el);}
   seen.add(it.id);const rel=tv.sub(it.pos,trial.P),q=view.project(rel),on=q[2]>-1&&q[2]<1&&q[0]>rect.left&&q[0]<rect.right&&q[1]>rect.top&&q[1]<rect.bottom;el.hidden=!on;if(!on)continue;
   const x=q[0]-hr.left,y=q[1]-hr.top,d=tv.len(tv.sub(rel,eye)),u=it.u,km=d/1000,dist=km<10?km.toFixed(1):Math.round(km)+'',lock=!!(it.t&&(trial.aim?.lock===it.t||trial.heldLock===it.t));
-  const lab=it.lab?it.lab(dist):u?`${u.team?'敵':'友'} ${shipTag(u.name)} · ${dist} km${u.out?' · 戦闘不能':''}${u.boarding?' · 移乗戦':u.tractor?.mode==='capture'&&u.tractor.lock?' · 接舷':''}`:`標的 ${dist} km${it.t.hits?' · '+Math.round(it.t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`;
+  const lab=it.lab?it.lab(dist):u?`${u.team?'敵':'友'} ${shipTag(u.name)} · ${dist} km${u.out==='電源喪失'?' · 電源喪失':u.out?' · 戦闘不能':''}${u.boarding?' · 移乗戦':u.tractor?.mode==='capture'&&u.tractor.lock?' · 接舷':''}`:`標的 ${dist} km${it.t.hits?' · '+Math.round(it.t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`;
   vis.push({el,it,x,y,lab,lock,pri:lock||(u&&u.id===follow&&B?.followSq==null)?-1:it.sq?d*2+1:d});}
  vis.sort((a,b)=>a.pri-b.pri);const placed=[],hit=r=>placed.some(p=>r[0]<p[2]&&r[2]>p[0]&&r[1]<p[3]&&r[3]>p[1]);let nLab=0;
  for(const v of vis){const {el,it,x,y,lab,lock}=v,u=it.u;el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
@@ -8952,10 +8964,10 @@ function trialHudHTML(){
  <div class="th-stick" data-th-stick role="slider" aria-label="操縦桿（ピッチとロール）" aria-description="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" title="上へ押すと機首下げ、下へ引くと機首上げ。左右はロール、離すと中立。" aria-valuetext="中立"><span class="lab up">下げ</span><span class="lab down">上げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
  <button type="button" class="th-btn th-level" data-trial-cmd="neutral" aria-keyshortcuts="Z X" title="水平に戻し、舵を中央に戻す（Z・X）">水平・舵中央</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
- <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trialMissileHudState().text}</small></button>
+ <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trialMissileHudState().text}</small></button><button type="button" class="th-mslaim" data-trial-cmd="mslaim" data-th="mslaim" title="ミサイルの照準（L）" aria-label="ミサイルの照準を切り替え" ${trial.launchers.length?'':'hidden'}>${TRIAL_MSL_AIM_NAME[trial.mslAim||'auto']}</button>
  ${trialSwKinds().length?`<button type="button" class="th-sw" data-trial-cmd="sw" data-th="sw" aria-label="超兵器発射">超兵器<small data-th="swstate">充電</small></button>${(trial.p?.sw?.length||0)>1?`<button type="button" class="th-swmode" data-trial-cmd="swnext" data-th="swmode" aria-label="発射する超兵器を選択">全門</button>`:''}<p class="th-swinfo${trialSwKinds().includes('sbeam')?'':' low'}" data-th="swinfo" aria-live="off" hidden></p>`:''}
  <i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
- <p class="th-keys">W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+((trial.p?.sw?.length||0)>1?' · N 発射する砲を選択':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
+ <p class="th-keys">W/S スロットル · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル · L ミサイル照準${trialSwKinds().length?' · B 超兵器'+((trial.p?.sw?.length||0)>1?' · N 発射する砲を選択':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
 }
 function trialBindHud(hud){
  const throttle=hud.querySelector('[data-th-throttle]');
@@ -8990,7 +9002,7 @@ function trialHudUpdate(full){
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);trialFlightReadouts(hud);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam','視点 '+trialCamName(trial.camMode));set('camq',trialCamName(trial.camMode));
- const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!u.out&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
+ const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!C.outOfAction(u)&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
  const w=q('warn');if(w){const hint=trialArcHint(),txt=trialPropulsionWarning()||trialCraftSystemsWarning()||trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(sourceText(w) !== String(txt))w.textContent=txt;}
  const bar=q('speedbar');if(bar)bar.style.height=(trialMainOutput()*100).toFixed(1)+'%';
@@ -9064,7 +9076,7 @@ function trialSelfUpdate(hud){
  const allies=(B?.b.units||[]).filter(u=>u.team===0&&!u.manual),log=(B?.ticker||[]).slice(-3).reverse();
  // v22.3 Damage is by module: the ship's crew aboard (乗員 %) in place of a hull bar.
  const cr=crewShare(me),secs=cr==null?'':`<div class="ts-row"><span>乗員</span><i class="crew${crewCls(cr)}"><em style="width:${crewPct(cr)}%"></em></i><small>${crewPct(cr)}%</small></div>`;
- const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}</b>${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
+ const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out==='電源喪失'?' · 電源喪失（航行不能）':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}</b>${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
  setHTML(el,html);
 }
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
@@ -9110,6 +9122,7 @@ function trialCommand(cmd){
  else if(cmd==='mute'){sndToggle();return;}
  else if(cmd==='pause'){trialPause();return;}
  else if(cmd==='missile'){if(!trial.launchers.length){toast('ミサイル発射管がありません');return;}trial.mslOrder=true;}
+ else if(cmd==='mslaim'){const i=(TRIAL_MSL_AIM.indexOf(trial.mslAim||'auto')+1)%TRIAL_MSL_AIM.length;trial.mslAim=TRIAL_MSL_AIM[i];toast('ミサイルの照準：'+TRIAL_MSL_AIM_NAME[trial.mslAim]);const b=$('#trialHud [data-th="mslaim"]');if(b)b.textContent=TRIAL_MSL_AIM_NAME[trial.mslAim];}
  else if(cmd==='sw')trialSwFire();
  else if(cmd==='swmode'||cmd==='swnext')trialSwMode();
  else if(cmd.startsWith('swselect:'))trialSwSelect(cmd.slice(9));
@@ -9653,7 +9666,7 @@ function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.p
 function trialEscortMode(free){trial.escortFree=free==null?!trial.escortFree:!!free;const B=trial.battle;if(B)spaceOrders(B.b);toast(trial.escortFree?'随伴艦：自由攻撃 — 近い敵から攻撃します':'随伴艦：護衛 — 旗艦と敵のあいだに入り、旗艦を狙う敵を優先して撃ちます');}
 function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.out||u.absent)continue;if(u.trialStatic){trialStaticOrder(u);continue;}if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
-function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
+function spaceDamage(u,tt,kind,q,t,aimK){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
  // v24 Missiles, and a craft's bolts fired from inside the target's shield shell (spaceInShell), strike the hull directly; ion torpedoes are physical
  // rounds that work on the ship itself without the field (docs/shield-deflection-v24.md).
@@ -9665,7 +9678,7 @@ function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;
  let h;if(kind==='ion'){x.sf+=tt;x.hull+=C.COMBAT.ionHull*tt;x.ion+=tt;h=C.COMBAT.ionHull*tt;}else if(kind==='iontorp'){x.ionDirect=(x.ionDirect||0)+tt;h=0;}else if(kind==='missile'||kind==='direct'){x.direct+=tt;h=tt;}else{x.sf+=tt;x.hull+=tt;h=tt;}
  // Each call is one shot of `shot` TT (user decision 2026-11-15「1発ごとに各区画で判断」); combatMerge carries the count.
  if(h>0&&shot>0){x.shotE=(x.shotE||0)+h;x.shotN=(x.shotN||0)+h/shot;}
- x.aim.auto=(x.aim.auto||0)+h+.1*tt;if(B.me)x.from=[...B.me.pos];
+ const ak=aimK&&aimK!=='auto'?aimK:'auto',aw=ak==='auto'?h+.1*tt:h;x.aim[ak]=(x.aim[ak]||0)+aw;if(ak!=='auto'&&C.COMBAT?.exposed?.[ak]&&h>0){x.snipe=x.snipe||{};x.snipe[ak]=(x.snipe[ak]||0)+h;}/* an aimed missile weighs its hull share, as combatAdd weighs a missile's direct hit (physics review 2026-11-16) *//* a missile guided onto that part strikes it (hold 1) */if(B.me)x.from=[...B.me.pos];
  if(q&&t?.rot&&t.semi){const point=trialApplyT(t.rot,tv.sub(q,t.pos)),z=C.combatZoneAt(u.p,point,t.semi);x.zw=x.zw||new Array(30).fill(0);x.zw[z]+=h;(x.hits||(x.hits=[])).push({point,energy:kind==='missile'||kind==='direct'||kind==='iontorp'?0:tt,ion:kind==='ion'?tt:0,direct:kind==='missile'||kind==='direct'?tt:0,src:B.me?.id});}
  B.extra.set(u.id,x);}
 // The shield shell: the field stands around the ship as an ellipsoid a little larger than the hull (half-dimensions
@@ -9673,6 +9686,10 @@ function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;
 const SHIELD_SHELL={k:1.2,m:20};
 function spaceShellFrame(u){const B=trial.battle;if(!B||!u?.p)return null;const semi=[u.p.len/2,(u.p.height||u.p.len*.2)/2,(u.p.width||u.p.len*.5)/2].map(v=>v*SHIELD_SHELL.k+SHIELD_SHELL.m);return {center:spaceWorld(u),R:spaceRotU(B.E,u),semi};}
 function spaceInShell(u,world){const f=spaceShellFrame(u);if(!f||!world)return false;const l=trialApplyT(f.R,tv.sub(world,f.center));return Math.hypot(l[0]/f.semi[0],l[1]/f.semi[1],l[2]/f.semi[2])<1;}
+// Where a segment first meets a ship's outer surface (its radial map; la, lb in the ship's frame about its centre), as a
+// world point between a0 and a1; null if it passes outside (user request 2026-11-16「当たり判定は船の外面に出るように」).
+function radialSegment(m,la,lb,a0,a1){const inside=l=>{const r=Math.hypot(l[0],l[1],l[2]);return r<1e-6||r<C.hullRadialAt(m,[l[0]/r,l[1]/r,l[2]/r]);},len=tv.len(tv.sub(lb,la)),n=Math.min(256,Math.max(8,Math.ceil(len/Math.max(1,m.R*.004))));
+ for(let i=0;i<=n;i++){const k=i/n,l=tv.add(la,tv.sub(lb,la),k);if(inside(l))return tv.add(a0,tv.sub(a1,a0),k);}return null;}
 // Where a segment a0→a1 first enters an ellipsoid (centre, world→local R, half-axes); null if it does not, or if it
 // starts inside (a craft firing from within a shell).
 function ellipsoidEntry(center,R,semi,a0,a1){const la=trialApplyT(R,tv.sub(a0,center)),lb=trialApplyT(R,tv.sub(a1,center)),p=la.map((v,i)=>v/semi[i]),d=lb.map((v,i)=>v/semi[i]-p[i]),A=tv.dot(d,d),B=2*tv.dot(p,d),Cc=tv.dot(p,p)-1;if(!(A>0)||Cc<=0)return null;const D=B*B-4*A*Cc;if(D<0)return null;const k=(-B-Math.sqrt(D))/(2*A);return k>=0&&k<=1?tv.add(a0,tv.sub(a1,a0),k):null;}
@@ -9866,7 +9883,7 @@ function trialSwTargets(w){
  return out.sort((a,b)=>a.off-b.off||a.r-b.r);
 }
 function trialSwFire(selection=trial.swSelect??'all'){
- const B=trial.battle,me=B?.me;if(!B){const u=trialSwSolo();if(u)trialSwSoloFire(u,selection);else toast('超兵器がありません');return;}if(!me){toast('超兵器を使えません');return;}if(me.out){toast('自艦は戦闘不能です');return;}
+ const B=trial.battle,me=B?.me;if(!B){const u=trialSwSolo();if(u)trialSwSoloFire(u,selection);else toast('超兵器がありません');return;}if(!me){toast('超兵器を使えません');return;}if(me.out){toast(me.out==='電源喪失'?'自艦は電源喪失：超兵器を撃てません':'自艦は戦闘不能です');return;}
  trialSwSyncFrame();const sw=me.p.sw||[];let fired=0,waiting=0,none=0;
  for(const i of trialSwIndexes(me,selection)){const w=sw[i],x=me.sw[i];if(!x||!(x.st==='ready'||w.k==='hion'&&x.st==='charge'&&x.c>=C.ION_BOLT.fireMin)){if(x&&x.st!=='down')waiting++;continue;}
   const tg=w.k==='sbeam'?[]:trialSwTargets(w),options=tg.length?{free:false,to:tg.map(t=>t.u.id)}:{free:true,dir:trialApplyT(B.E,swAxisWorld(me,w))};
@@ -10249,7 +10266,8 @@ function spaceBolts(dt){
   // an impact flash if this same physical segment intersects the target hull.
   if(t&&t.shield>0){const f=spaceShellFrame(t),h=f&&shellHitPoint(f.center,f.R,f.semi.map(v=>(v-SHIELD_SHELL.m)/SHIELD_SHELL.k),previous,b.pos),q=h?.shell;if(q){spaceShieldBurst(q,spaceVel(t),Math.max(8,t.p.len*.02),!!b.ion);if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+.12);return false;}}
   if(t){const R=spaceRotU(trial.battle.E,t),center=spaceWorld(t),semi=[t.p.len/2,(t.p.height||t.p.len*.2)/2,(t.p.width||t.p.len*.5)/2],a=trialApplyT(R,tv.sub(previous,center)).map((v,i)=>v/semi[i]),z=trialApplyT(R,tv.sub(b.pos,center)).map((v,i)=>v/semi[i]),v=tv.sub(z,a),k=C.clamp(-tv.dot(a,v)/Math.max(1e-12,tv.dot(v,v)),0,1);
-   if(tv.len(tv.add(a,v,k))<1){const point=tv.add(previous,tv.sub(b.pos,previous),k);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
+   const m=tv.len(tv.add(a,v,k))<1&&C.hullRadialOf?.(t),rp=m?radialSegment(m,trialApplyT(R,tv.sub(previous,center)),trialApplyT(R,tv.sub(b.pos,center)),previous,b.pos):null;
+   if(m?rp:tv.len(tv.add(a,v,k))<1){const point=rp||tv.add(previous,tv.sub(b.pos,previous),k);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
   return b.life>0;
  });
 }
@@ -10350,7 +10368,7 @@ function spaceCineEnd(){const k=trial.cine;if(!k)return;trial.cine=null;if(view)
 // v20.6 The escorts jump one after another (the smallest first), not all at once: each waits its turn (depart.t below 0).
 function spaceDepartEscorts(){const B=trial.battle,us=B.b.units.filter(u=>u.team===0&&!u.manual&&!u.dead&&!u.absent).sort((a,b)=>(a.p.len||0)-(b.p.len||0)),gap=us.length>1?Math.min(.6,2.4/(us.length-1)):0;us.forEach((u,i)=>{u.depart={t:-i*gap};});}
 function spaceWithdraw(){const B=trial.battle;B.result={kind:'withdrew',dest:trial.jump?.dest};B.left=true;trial.targets=[];}
-function spaceEnd(kind){const B=trial.battle;if(B.result)return;if(B.patrol&&patrolBattleEnd(kind))return;B.result={kind,fate:B.me.fate,why:B.me.out};trial.fire=trial.fireKey=false;if(!trial.jump)setTimeout(spaceShowResult,kind==='win'?1500:2600);}
+function spaceEnd(kind,why){const B=trial.battle;if(B.result)return;if(B.patrol&&patrolBattleEnd(kind))return;B.result={kind,fate:B.me.fate,why:why??B.me.out};trial.fire=trial.fireKey=false;if(!trial.jump)setTimeout(spaceShowResult,kind==='win'?1500:2600);}
 function spaceLog(text,u){const B=trial.battle;if(!B)return;const who=!u?'':u.manual?'自艦：':(u.team?'敵 ':'友 ')+shipShort(u.name)+'：';B.ticker.push({t:B.b.time,text:who+text});if(B.ticker.length>40)B.ticker.shift();}
 function spaceStep(dt){
  const B=trial.battle;if(!B||B.left)return;const b=B.b;
@@ -10362,16 +10380,18 @@ function spaceStep(dt){
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
-  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
+  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
   spaceBumps(b.bumps);spaceBump(B.me);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
-  for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(u.out&&!was.out&&u.team===1)B.disabled++;}
+  for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(C.outOfAction(u)&&!C.outOfAction(was)&&u.team===1)B.disabled++;}
   for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&B.me.mods[i]<=0;}
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
-  if(B.me.dead||B.me.out){spaceEnd(B.me.dead?'sunk':'out');break;}
-  if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||u.out)&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}}
+  // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
+  if(B.me.dead||C.outOfAction(B.me)){spaceEnd(B.me.dead?'sunk':'out');break;}
+  if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
+  if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out','standoff');break;}/* no ship on either side can act: a stand-off */}
  spaceRefresh();
 }
 // Drive glow can swell smoothly, but a loss of real output extinguishes it
@@ -10407,7 +10427,7 @@ function spaceDrawUnits(){
 }
 function spaceShowResult(){
  const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
- const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:`旗艦戦闘不能（${r.why||''}）`;
+ const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:r.why==='standoff'?'膠着：双方とも行動できる艦がありません':`旗艦戦闘不能（${r.why||''}）`;
  const foes=B.b.units.filter(u=>u.team===1),allies=B.b.units.filter(u=>u.team===0&&!u.manual);
  const rts=!!B.rts,crew=crewShare(me),sub2=rts&&r.kind==='win'?'この星系の戦闘は終わりました':rts&&r.kind==='withdrew'?'敵はこの星系から退きました':sub;
  el.innerHTML=`<div class="th-card th-result-card"><b class="${r.kind==='win'?'win':r.kind==='withdrew'?'':'lose'}">${rts&&r.kind==='withdrew'?'敵が撤退':title}</b><p>${esc(sub2)}</p><dl><dt>敵艦</dt><dd>撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} / ${foes.length} 隻</dd><dt>僚艦</dt><dd>${allies.length?`健在 ${allies.filter(u=>!u.dead&&!u.out).length} / ${allies.length} 隻`:'なし'}</dd><dt>${rts?'自艦':'旗艦'}</dt><dd>乗員 ${crew==null?'':crewPct(crew)+'%（'}${num(Math.round(me.crew))} 名${crew==null?'':'）'} · 装甲 ${Math.round(me.armor*100)}%</dd><dt>射撃</dt><dd>${num(trial.gun.shots)} 発 · 命中 ${num(Math.round(trial.gun.hits))}${trial.gun.pdKills?` · 点防御 撃墜 ${trial.gun.pdKills}`:''}</dd></dl><div class="th-result-go"><button type="button" class="th-btn" data-trial-cmd="exit">${rts?'操艦終了':trial.pat?'帰還':trialSandbox()?'公試終了':'艦隊画面へ戻る'}</button>${rts?'':'<button type="button" class="th-btn" data-trial-cmd="retry">もう一度</button>'}<button type="button" class="th-btn" data-trial-cmd="resultClose">このまま航行</button></div></div>`;el.hidden=false;
@@ -10422,7 +10442,7 @@ async function spaceBattleLaunch(){
  await fleetSetMode('design');await trialStart({design:asset.design,battle:plan,system:fleet.system||'coruscant',returnTo:'tactical'});
 }
 function trialSetPower(){trial.powerMode='balanced';toast('給電優先順：シールド・艦内設備 → 兵装 → 航行');}
-const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
+const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swnext',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyM:'missile',KeyL:'mslaim',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
@@ -10538,7 +10558,7 @@ const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof Yar
 const fleetPending=new Map();
 async function fleetAssetLoad(source,opts={}){
  const cached=fleet.assets.get(source);
- if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);}}
+ if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}}
  else if(cached)return cached.stats||opts.lite?cached:fleetAssetStats(cached);
  let payload=null,key=source,alias=null;
  if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
@@ -10562,9 +10582,9 @@ async function fleetAssetLoad(source,opts={}){
   const ex=opts.lite&&payload?.key?fleetExampleData(key):null;if(ex)payload.lite=!ex.p?.catalogOnly;
   const r=await YardEngineClient.request('fleet',payload),profile=r.profile||(ex?.p?.catalogOnly?null:ex?.p);
   if(profile?.catalogOnly||ex?.p?.catalogOnly&&!r.profile)throw new Error('catalogue-only fleet profile');
-  asset={key,design:r.design,stats:r.stats||null,p:profile,geometry:r.geometry,payload};if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
+  asset={key,design:r.design,stats:r.stats||null,p:profile,geometry:r.geometry,payload,radial:r.radial||null};C.setHullRadial?.(key,asset.radial);if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
  }else if(!asset.stats&&!opts.lite)await fleetAssetStats(asset);
- if(alias){fleet.assets.set(alias,asset);if(view)view.loadFleet(alias,asset.geometry);}
+ if(alias){fleet.assets.set(alias,asset);C.setHullRadial?.(alias,asset.radial);if(view)view.loadFleet(alias,asset.geometry);}
  return asset;
 }
 // The figures of an asset first prepared for its model only (the engine has the design built, in memory or on disk).
@@ -10599,7 +10619,7 @@ function fleetPowerName(){return '固定優先順';}
 function fleetOrderText(u){const o=u.order,pw=' · 出力 '+fleetPowerName(u);if(o.type==='move')return `移動 → ${(o.point[0]/1000).toFixed(1)}, ${(o.point[2]/1000).toFixed(1)} km / 高度 ${(o.point[1]/1000).toFixed(1)} km`+pw;if(o.type==='attack')return '攻撃 → '+(fleetUnits().find(t=>t.id===o.target)?.name||'目標消失')+(o.aim&&o.aim!=='auto'?`（${C.AIM_KINDS[o.aim]}を照準）`:'')+pw;return '停止・位置保持'+pw;}
 // Combat state for the readouts: sunk, out of the fight, or fighting, and why.
 const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
-function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
+function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out==='電源喪失'?'電源喪失（航行不能）':u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
 function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)return '';const g={};mods.forEach((m,i)=>{if(m.k==='hull')return;const x=g[m.k]||(g[m.k]={n:0,lost:0,hit:0});x.n++;const v=u.mods[i]??1;if(v<=0)x.lost++;else if(v<1)x.hit++;});
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}
 function fleetPowerHTML(u,editable){const o=u.order,combat=fleet.battle.combat,autoPD=C.automaticPointDefenseEnabled(u);
@@ -10669,7 +10689,7 @@ function bindFleet(){
  $('#panel').addEventListener('change',change);
  window.addEventListener('keydown',e=>{if(fleet.mode==='design'||e.target.matches('input,textarea,select'))return;if(e.code==='Space'){e.preventDefault();if(fleet.battle?.phase==='execute'||fleet.replay){fleet.playing=!fleet.playing;fleet.lastClock=0;fleetRender();}}if(e.key==='Escape'){fleet.command='select';fleet.clean=false;$('#app').classList.remove('fleet-clean');fleetRender();}});
 }
-function fleetPrune(){if(typeof voy!=='undefined'&&voy.w)return;const keys=new Set([...fleet.review,...(fleet.battle?.units||[])].map(u=>u.key));for(const k of fleet.assets.keys())if(!keys.has(k))fleet.assets.delete(k);view?.pruneFleet(keys);}
+function fleetPrune(){if(typeof voy!=='undefined'&&voy.w)return;const keys=new Set([...fleet.review,...(fleet.battle?.units||[])].map(u=>u.key));for(const k of fleet.assets.keys())if(!keys.has(k)){fleet.assets.delete(k);C.setHullRadial?.(k,null);}view?.pruneFleet(keys);}
 
 st.surfaceMode='horizontal';st.structPitch=0;st.structRoll=0;
 function surfaceControls(p,selected){const pitch=selected?p.pitch||0:st.structPitch,roll=selected?p.roll||0:st.structRoll;return `<div class="surface-controls"><h4>配置の向き</h4>${selected?`<p class="note">${p.surfaceNormal?'接触面に沿った座標系':'船体の水平座標系'}で回転します。</p><button class="chip" data-surface-reset>水平へ戻す</button>`:seg('surfacemode',[['horizontal','水平を保つ'],['surface','接触面に沿う']],st.surfaceMode)}<div class="sliders">${slider(selected?'surfacePitch':'newSurfacePitch','前後の傾き',pitch,-180,180,1,deg(pitch))}${slider(selected?'surfaceRoll':'newSurfaceRoll','左右の傾き',roll,-180,180,1,deg(roll))}</div>${!selected?'<p class="note">接触面の法線にパーツの上方向を揃え、底面を接地させます。斜面・舷側・下面に対応。回転は接触面上の方位、傾きはその面に対する追加角度です。</p>':''}</div>`;}
@@ -11838,7 +11858,7 @@ async function voyPrepare(source) {
   if(p.catalogOnly||previous?.src==='example'&&p.profileVersion!==C.FLEET_PROFILE_VERSION){
    // fleetAsset has already cached this response and uploaded its geometry.
    // Remove every alias too, so a retry can request the current worker result.
-   for(const [key,cached]of fleet.assets)if(cached===a){fleet.assets.delete(key);view?.fleetCache?.delete(key);}
+   for(const [key,cached]of fleet.assets)if(cached===a){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}
    throw new Error('stale example fleet profile');
   }
   // (a design of a made faction this device does not know serves every faction, as 全陣営 does)
@@ -14619,13 +14639,13 @@ function voyPilotStep(dt) {
  voyWarpFx(B, w, sys, dt);
  // Bolts from the other ships, one burst per battle step in which they fired.
  if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (!u.manual) { const x = voyShotOf(u, t0); if (x) shots.push(x); } for (const x of w.swShots || []) if (x.sys === sys && x.t > t0) shots.push({...x, sw: true}); spaceShots(shots); }
- for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { if (u.side !== me.side) B.kills++; } else if (u.out && !was.out && u.side !== me.side) B.disabled++; }
+ for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { if (u.side !== me.side) B.kills++; } else if (C.outOfAction(u) && !C.outOfAction(was) && u.side !== me.side) B.disabled++; }
  spaceBumps(R.systemUnits(w, sys).map(u => u.lastBump));spaceBump(me);voyBoardFx(w, sys, dt);
  for (const t of trial.turrets) { const i = B.modIndex.get(t.id); t.dead = i != null && me.mods[i] <= 0; }
  for (const l of trial.launchers) { const i = B.modIndex.get(l.id); l.dead = i != null && me.mods[i] <= 0; }
  const log = w.battles.get(sys)?.log || [];let li = log.length;while (li > 0 && log[li - 1].n > B.seen) li--;for (; li < log.length; li++) { const e = log[li];B.seen = e.n;const u = w.units.get(e.id), text = e.text.replace(/^[^：]*：/, ''); spaceLog(text, u ? {...u, team: u.side === me.side ? 0 : 1, manual: u === me} : null); if (u === me && /破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈|崩壊/.test(text)) toast('自艦：' + esc(text)); }
  voyPilotThreats();
- if (me.dead || me.out) { spaceEnd(me.dead ? 'sunk' : 'out'); return; }
+ if (me.dead || C.outOfAction(me)) { spaceEnd(me.dead ? 'sunk' : 'out'); return; }/* power loss is not out of action (user decision 2026-11-16) */
  // Flying in a quiet system is just flying; a battle that began (or was on) and is over ends the sortie.
  if (w.battles.has(sys)) B.hadBattle = true;
  else if (B.hadBattle) { const foes = R.systemUnits(w, sys).filter(u => u.side !== me.side); spaceEnd(foes.some(R.fighting) ? 'withdrew' : 'win'); }
@@ -15415,7 +15435,7 @@ function patrolBattleWatch(B, dt) {
   if (!B.leaving && up.length && !foes.some(u => u.warp) && up.every(u => C.fleetIntegrity(u) < (foes.some(u => u.dead || u.out) ? .45 : .22))) {
    B.leaving = true;up.forEach((u, i) => { u.depart = {t: -1.5 - i * .5}; });spaceLog('敵艦が撤退を開始');toast('敵艦が撤退を開始 — ハイパースペースへ離脱していきます');
   }
-  if (B.leaving && foes.every(u => u.dead || u.out || u.absent)) spaceEnd('win');
+  if (B.leaving && foes.every(u => u.dead || C.outOfAction(u) || u.absent)) spaceEnd('win');
   return;
  }
  if (B.patrolEnd != null && (B.patrolEnd -= dt) <= 0) patrolBattleDissolve();

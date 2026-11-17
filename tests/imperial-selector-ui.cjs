@@ -32,8 +32,11 @@ test('Imperial variant selector and source metadata retain English coverage',()=
  for(const text of texts){const translated=run('KSI18n.t('+JSON.stringify(text)+')');assert.doesNotMatch(translated,/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u,text);}
  assert.match(run('KSI18n.t("インペリアルII級｜重砲戦艦")'),/Imperial II-class/);
 });
+// v25 (PR #112): the Executor example is now the user's uploaded design, registered in SHIP_EXAMPLES like the Imperials.
+// The retired DREADNOUGHT_EXAMPLES model card no longer shows; its provenance is the registered credit/source.
 test('modern Imperial metadata suppresses the obsolete model credit without hiding Executor provenance',()=>{
  const {run,section}=setup();run(`let ship={reference:'imperial2'},S=null,st={tab:'hull'},cards=[];const hullEditorShip=()=>({hullSkin:null}),panel={insertAdjacentHTML:(where,html)=>cards.push(html)};`);section('function referencePanel(panel)', 'function referenceStatsHTML()');
  for(const key of ['imperial','imperial2'])for(const tab of ['hull','systems']){run('ship.reference='+JSON.stringify(key)+';st.tab='+JSON.stringify(tab)+';cards=[];referencePanel(panel)');assert.equal(run('cards.length'),0,'registered '+key+' cannot inherit a retired model source');}
- run('ship.reference="executor";st.tab="hull";cards=[];referencePanel(panel)');assert.equal(run('cards.length'),1);assert.match(run('cards[0]'),/参照モデル/);assert.ok(run('cards[0].includes(C.DREADNOUGHT_EXAMPLES.executor.source)'));
+ run('ship.reference="executor";st.tab="hull";cards=[];referencePanel(panel)');assert.equal(run('cards.length'),0,'registered executor cannot inherit the retired model source');
+ const exe=run('JSON.stringify(C.SHIP_EXAMPLES.executor)');assert.match(exe,/Executor_1230G_ISD_Bridge\.json/);assert.match(exe,/ユーザー/);
 });

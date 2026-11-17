@@ -23,7 +23,13 @@ test('embarked squadrons add their craft mass to the carrier; it accelerates les
 // Physics review 2026-11-14: a ship whose acceleration is capped by its structure (recusantDn, nebulonb) slows down
 // under load too: the structure allows the same force, so its acceleration limit falls with the mass.
 test('a ship limited by its structure slows down under load as well',()=>{
- for(const key of ['recusantDn','nebulonb']){const p=C.emptyDesignProfile(plain(data.designs[key].p)),m=C.motionMassKg(p),pr=p.propulsion;assert.ok(pr.structuralAccelerationLimitMps2<pr.ratedAccelMps2,key+' is limited by its structure');
+ // 2026-11-16 PR #112: engine efficiency curve B (5%·√L, at most 60%) and the regenerated examples: the Nebulon-B's engines
+ // run at about 520× their normal load, so its thrust fell by the 60% cap (7.2e12 → 3.0e12 N) and its structure (1.9e4 m/s²)
+ // no longer caps it (1.35e4 m/s²). The case covers every example its structure caps instead of a fixed pair; the Recusant
+ // dreadnought is still one of them.
+ const limited=Object.keys(data.designs).filter(key=>{const pr=data.designs[key].p?.propulsion&&C.emptyDesignProfile(plain(data.designs[key].p)).propulsion;return pr&&pr.structuralAccelerationLimitMps2<pr.ratedAccelMps2;});
+ assert.ok(limited.includes('recusantDn'),'recusantDn is limited by its structure: '+limited.join(','));
+ for(const key of limited){const p=C.emptyDesignProfile(plain(data.designs[key].p)),m=C.motionMassKg(p),pr=p.propulsion;assert.ok(pr.structuralAccelerationLimitMps2<pr.ratedAccelMps2,key+' is limited by its structure');
   const q=C.loadedShipProfile(p,m/1000*.25),qr=q.propulsion;near(qr.structuralAccelerationLimitMps2*qr.massKg,pr.structuralAccelerationLimitMps2*pr.massKg,1e-9);near(qr.structuralAccelerationLimitMps2,pr.structuralAccelerationLimitMps2/1.25,1e-9);
   assert.ok(qr.accelerationLimitMps2<=qr.structuralAccelerationLimitMps2*(1+1e-12),key+': the effective limit follows');assert.ok(C.propulsionTerminalSpeed(q)<C.propulsionTerminalSpeed(p)*.9,key+': top speed falls under load');
   assert.equal(pr.structuralAccelerationLimitMps2,C.emptyDesignProfile(plain(data.designs[key].p)).propulsion.structuralAccelerationLimitMps2,'the design profile is not changed');}
