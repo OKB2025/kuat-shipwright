@@ -72742,7 +72742,11 @@ function mountTurretSupport(ship,f,big){
  }
  return {top,polys};};
  const ring=solve(footRing),whole=footOutline===footRing?ring:solve(footOutline),polys=ring.polys;let top=Math.max(ring.top,whole.top);
- if(!polys.length||top<=1e-5&&!polys.some(p=>p.some(q=>q[2]<-1e-3)))return;top=Math.max(0,top);f.mountSupport={version:TURRET_SUPPORT_VERSION,top,polys};f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
+ if(!polys.length||top<=1e-5&&!polys.some(p=>p.some(q=>q[2]<-1e-3)))return;top=Math.max(0,top);f.mountSupport={version:TURRET_SUPPORT_VERSION,top,polys};
+ // The space the turret's base stands over (the whole outline, down to its lowest hull) is kept for what is laid out around the
+ // turret (referenceFitAABB): the interior packing sees the same occupied box as before the support became round (2026-11-17:
+ // with the smaller box the Recusant dreadnought's thermal refit packed a converter bank into its stern auxiliary reactor).
+ {const lowWhole=Math.min(0,...whole.polys.flatMap(p=>p.map(q=>q[2])));if(Number.isFinite(lowWhole))f.mountSupport.outlineLow=lowWhole;}f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
 }
 function turretSupportGeometry(f){
  if(!turretSupportEligible(f)||!validTurretSupport(f.mountSupport))return null;const s=f.mountSupport,fr=fitFrameOf(f),key=JSON.stringify([f.p,fr.up,fr.fw,fr.rt]),cached=TURRET_SUPPORT_GEOMETRY.get(s);if(cached?.key===key)return cached.geometry;
@@ -77156,7 +77160,7 @@ function authoredTurretAngles(g,dir){
 }
 function aimAuthoredTurretAt(g,dir){return aimAuthoredTurret(g,...authoredTurretAngles(g,dir));}
 function authoredTurretInArc(g,dir){const [yaw,elevation]=authoredTurretAngles(g,dir),limits=g.limits||AUTHORED_TURRET_LIMITS;return elevation>=limits.lo-1e-10&&elevation<=limits.hi+1e-10&&(!Number.isFinite(limits.yaw)||Math.abs(yaw)<=limits.yaw+1e-10);}
-function referenceFitAABB(f){const points=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));const support=turretSupportGeometry(f);if(support)points.push(support.bounds.slice(0,3),support.bounds.slice(3));else if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrameOf(f).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
+function referenceFitAABB(f){const points=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));const support=turretSupportGeometry(f);if(support){points.push(support.bounds.slice(0,3),support.bounds.slice(3));const s0=f.mountSupport,fr=fitFrameOf(f),lowWhole=Number.isFinite(s0.outlineLow)?s0.outlineLow:(f.low||0);for(const q of turretSupportFootprint(f,true))for(const z of [s0.top,lowWhole])points.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,z))));}else if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrameOf(f).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
 
 function clipReferenceBox(d,b){
  const pp=[],uv=[],idx=[];
@@ -81155,9 +81159,12 @@ function shipThermalBank(ship,volume,index,beside=null){
    if(inside){center=q;room=size;break outer;}
   }
  }
- const previous=ship.parts.filter(p=>p.k==='hdis'),fallback=previous.length?anchors.reduce((best,q)=>{
+ // With no clear box the bank is packed flexibly about a fallback point. That point is taken outside every occupied compartment
+ // where one exists (2026-11-17: a point inside the Recusant dreadnought's stern auxiliary reactor left the bank packed into it).
+ const freePoints=anchors.filter(q=>!occupied.some(o=>[0,1,2].every(a=>q[a]>o.b[a]-.02&&q[a]<o.b[a+3]+.02))),pool=freePoints.length?freePoints:anchors;
+ const previous=ship.parts.filter(p=>p.k==='hdis'),fallback=previous.length?pool.reduce((best,q)=>{
   const distance=c=>Math.min(...previous.map(p=>len(sub(c,p.c))));return distance(q)>distance(best)?q:best;
- },anchors[0]):anchors[0];
+ },pool[0]):pool[0];
  const p=placePart(ship,'hdis',center||fallback,d,{label:'艦内高エネルギー散逸区画 '+(index+1),...(room?{room,autoFit:false}:{autoFit:true})});
  return p;
 }
@@ -81732,7 +81739,7 @@ function buildMandatorReference(){
  // become quads on the same mounts. New ventral guns are seated against the
  // complete hull, clear of the hull, the machinery and every other mount.
 for(const f of s.fits)if(f.k==='stl')f.k='quad175';const oldLock=s._lockedCache;s._lockedCache=cache(s);s._rayLock={env:null,tris:new Map()};const terrain=s.parts.filter(p=>p.k==='struct'&&!p.plate).map(p=>({p,b:partAABB(p)})),hardware=s.parts.filter(p=>p.k!=='struct').map(p=>({p,b:partAABB(p)})),sampleCache=new Map();const inside=q=>inHull(s,q)||terrain.some(({p,b})=>q.every((v,i)=>v>b[i]+.015&&v<b[i+3]-.015)&&inStruct(p,q))||hardware.some(({p,b})=>q.every((v,i)=>v>b[i]+.015&&v<b[i+3]-.015)&&inPart(p,q));
-function clear(f){const a=REFERENCE_ASSETS[FITS[f.k].asset],origin=fitOrigin(f),up=fitUp(f),g=authoredTurretGeometry(f);if(!a||!g)return false;let samples=sampleCache.get(f.k);if(!samples){const m=decodeReference(FITS[f.k].asset),seen=new Set();samples=[];for(const i of new Set(m.idx)){const p=Array.from(m.pos.subarray(i*3,i*3+3)),key=p.join(',');if(!seen.has(key)){seen.add(key);samples.push(p);}}for(let j=0;j<m.idx.length;j+=48){const p=[0,1,2].map(k=>(m.pos[m.idx[j]*3+k]+m.pos[m.idx[j+1]*3+k]+m.pos[m.idx[j+2]*3+k])/3);samples.push(p);}sampleCache.set(f.k,samples);}if(!a.sphereRadiusM){const foot=turretSupportFootprint(f),fr=fitFrameOf(f);for(let i=0;i<foot.length;i++)for(const t of [0,.25,.5,.75]){const a=foot[i],b=foot[(i+1)%foot.length],q=add(origin,add(mul(fr.fw,a[0]+(b[0]-a[0])*t),add(mul(fr.rt,a[1]+(b[1]-a[1])*t),mul(up,.05))));if(inside(q))return false;}}for(const p of samples){const q=referenceFitPoint(f,p);if(dot(sub(q,origin),up)>.04&&inside(q))return false;}for(const q of g.muzzles){if(inside(q))return false;const hit=rayEnv(s,add(q,mul(g.fw,.05)),g.fw,{structOnly:true,maxT:s.hull.L*2});if(hit)return false;}return true;}
+function clear(f){const a=REFERENCE_ASSETS[FITS[f.k].asset],origin=fitOrigin(f),up=fitUp(f),g=authoredTurretGeometry(f);if(!a||!g)return false;let samples=sampleCache.get(f.k);if(!samples){const m=decodeReference(FITS[f.k].asset),seen=new Set();samples=[];for(const i of new Set(m.idx)){const p=Array.from(m.pos.subarray(i*3,i*3+3)),key=p.join(',');if(!seen.has(key)){seen.add(key);samples.push(p);}}for(let j=0;j<m.idx.length;j+=48){const p=[0,1,2].map(k=>(m.pos[m.idx[j]*3+k]+m.pos[m.idx[j+1]*3+k]+m.pos[m.idx[j+2]*3+k])/3);samples.push(p);}sampleCache.set(f.k,samples);}if(!a.sphereRadiusM){const foot=turretSupportFootprint(f,true)/* the base's outline, as before the support became round */,fr=fitFrameOf(f);for(let i=0;i<foot.length;i++)for(const t of [0,.25,.5,.75]){const a=foot[i],b=foot[(i+1)%foot.length],q=add(origin,add(mul(fr.fw,a[0]+(b[0]-a[0])*t),add(mul(fr.rt,a[1]+(b[1]-a[1])*t),mul(up,.05))));if(inside(q))return false;}}for(const p of samples){const q=referenceFitPoint(f,p);if(dot(sub(q,origin),up)>.04&&inside(q))return false;}for(const q of g.muzzles){if(inside(q))return false;const hit=rayEnv(s,add(q,mul(g.fw,.05)),g.fw,{structOnly:true,maxT:s.hull.L*2});if(hit)return false;}return true;}
 
 function place(k,x,zf,zone,opt={}){if(zone==='ventral'&&opt.tilt==null)return placeOne(k,x,zf,zone,{...opt,tilt:false})||placeOne(k,x,zf,zone,{...opt,tilt:true});return placeOne(k,x,zf,zone,opt);}
 function placeOne(k,x,zf,zone,opt={}){const why=()=>false;let h,n,side=zone==='side';if(side){const sb=sectionBase(mandatorHull(s),x);h=sidePoint(s,x,sb.edge+(opt.y??0),1);if(!h||Math.abs(h.n[2])<.85)return false;n=h.n;}else{let z=opt.z??sectionBase(mandatorHull(s),x).hw*zf;{const reach=s.hull.H*3+400;h=rayEnv(s,[x,zone==='ventral'?-reach:reach,z],[0,zone==='ventral'?1:-1,0],{maxT:reach*3,structOnly:true});}if(!h)return why('nohit');n=[0,zone==='ventral'?-1:1,0];if(zone==='ventral'&&opt.tilt!==false){if(!(h.n[1]<-.6))return why('steep');n=h.n;}}
@@ -87407,7 +87414,7 @@ function placementFitContact(ship,fit,parent){
  parent._solidCutShip=ship;const T=structTriangles(parent);if(!T.length)return {connected:false,area:0,regions:[],reason:'contact-zero'};const epsilon=placementEpsilon(T)*4,frame=FITS[fit.k]?.window?windowFrame(fit):fitFrameOf(fit),world=q=>add(fit.p,add(mul(frame.fw,q[0]),add(mul(frame.rt,q[1]),mul(frame.up,q[2]||0))));
  let polygons;if(validTurretSupport(fit.mountSupport))polygons=fit.mountSupport.polys.map(poly=>poly.map(world));
  else if(FITS[fit.k]?.window){const w=fit.width||FITS[fit.k].fm,h=fit.height||FITS[fit.k].wm;polygons=[[[-w/2,-h/2,0],[w/2,-h/2,0],[w/2,h/2,0],[-w/2,h/2,0]].map(world)];}
- else polygons=[turretSupportFootprint(fit).map(q=>world([q[0],q[1],0]))];
+ else polygons=[turretSupportFootprint(fit,true).map(q=>world([q[0],q[1],0]))];
  const points=polygons.flat(),bounds=[0,1,2].map(i=>Math.min(...points.map(p=>p[i]))-epsilon).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))+epsilon)),overlaps=b=>[0,1,2].every(i=>b[i]<=bounds[i+3]&&b[i+3]>=bounds[i]);
  let bvh=TURRET_SUPPORT_BVH.get(T);if(!bvh){bvh=buildBVH(T);TURRET_SUPPORT_BVH.set(T,bvh);}const candidates=[],stack=[0];
  while(stack.length){const id=stack.pop();if(!overlaps(Array.from(bvh.B.subarray(id*6,id*6+6))))continue;if(!bvh.C[id]){stack.push(bvh.L[id],bvh.R[id]);continue;}for(let k=bvh.S[id];k<bvh.S[id]+bvh.C[id];k++)candidates.push(bvh.idx[k]*9);}
