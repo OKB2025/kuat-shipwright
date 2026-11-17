@@ -677,7 +677,7 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
       // A manual pedestal sits above the automatic hull-following foundation.
       if(f.float)return;
       const d=C.fitSpec(f),ph=fitPedestalHeight(f);
-      if(!d.casemate&&(f.mountSupport||!f.localMount&&f.mountAxis==null)&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
+      /* v27 a wall- or axis-mounted turret shows its manual support too (user report 2026-11-17) */if(!d.casemate&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       if(plainFitAsset(f)&&!familyReferenceAsset(f)&&!FIT_SKIP_BODY?.has(f.id))appendPlainFit(g,f);
       return;
     }
@@ -808,7 +808,7 @@ function fitRayColdBounds(f){
   // The reference box already contains the complete articulated asset and
   // automatic foundation. Only its separate manual pedestal needs a union.
   const ph=fitPedestalHeight(f);
-  if(!s.casemate&&(f.mountSupport||!f.localMount&&f.mountAxis==null)&&ph>.3&&C.fitHasPedestal(f)){
+  if(!s.casemate&&ph>.3&&C.fitHasPedestal(f)){
    const fr=C.fitFrameOf(f),o=C.fitOrigin(f),r=s.r*.72*(f.pedSize||1)*1.45;
    for(const x of [-r,r])for(const y of [-ph,0])for(const z of [-r,r])for(let a=0;a<3;a++){const v=o[a]+fr.fw[a]*x+fr.up[a]*y+fr.rt[a]*z;b[a]=Math.min(b[a],v);b[a+3]=Math.max(b[a+3],v);}
   }
