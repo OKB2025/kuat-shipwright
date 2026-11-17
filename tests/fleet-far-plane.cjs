@@ -32,3 +32,10 @@ test('a ship too small to model is a speck of at most FLEET_SPECK.maxPx on scree
  assert.ok(d<=90000*.9+1,'drawn inside the far plane: '+d);assert.ok(px<=6+1e-6&&px>0,'size on screen '+px);
  assert.ok(Math.abs(px-300/195000*r.focal)<1e-6,'its projected size is kept');
 });
+// 2026-11-17「普通にもっと遠くからでも確認できるように／大型艦であるほど遠くから見えるように、デススターサイズはほぼ惑星と同レベルで」.
+test('specks last 7.5 times farther than before, and a battle station never fades out',()=>{
+ const before=300/.15*(850/(2*Math.tan(.36))),seen=d=>!!scene(300,d).speck;
+ assert.ok(seen(before*5),'a 300 m ship is still a speck five times beyond the old limit');assert.ok(!seen(before*10),'but not ten times beyond it');
+ const ds=scene(160000,1e10);/* 10 million km: 0.016 px */assert.ok(ds.speck,'a 160 km station is a speck at any distance');
+ const ships=scene(1600,1e10);assert.equal(ships.speck,null,'a 1.6 km ship is gone at that distance');
+});
