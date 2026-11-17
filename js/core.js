@@ -84683,7 +84683,7 @@ const FLEET_PROFILE_VERSION=24;/* 24 (2026-11-15, PR #107): heat model - no hull
 // statistics read, and the tables they use. Then regenerate the stored rows
 // (scripts/refresh-examples.cjs). tests/example-profile-version.cjs recomputes small
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
-const EXAMPLE_PROFILE_VERSION=2;/* 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
+const EXAMPLE_PROFILE_VERSION=3;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
@@ -92419,7 +92419,7 @@ function groupHyperspaceReadiness(w,g){
 function jumpDepartures(w){
  for(const g of w.groups.values()){
   const sp=g.spool;if(!sp)continue;const status=groupHyperspaceReadiness(w,g);sp.readiness=status;
-  if(sp.burstStarted&&(sp.blocked||status.units.some(u=>!u.powerReady))){abortGroupHyperspaceBurst(w,g);continue;}
+  if(sp.burstStarted&&(sp.blocked||status.units.some(u=>!u.powerReady)||g.units.some(id=>w.units.get(id)?.hyperBurst?.held))){abortGroupHyperspaceBurst(w,g);continue;}/* v27 a burst held for want of charge is aborted and refunded, not left waiting (regression review 2026-11-17) */
   if(sp.blocked||!sp.burstStarted&&!status.ready)continue;spoolSequence(w,g);
   if(g.spool&&sp.seq&&sp.left>=sp.seq.length&&Number.isFinite(sp.entryStartedAt)&&w.time-sp.entryStartedAt>=sp.seq.length*sp.gap)departGroup(w,g);
  }
@@ -93188,7 +93188,7 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
   if (u.towedBy) continue;
   if(u.hyperBurst){
    const before=u.hyperBurst.t,advance=C.hyperspaceBurstStep(u,u.hyperBurst,dt,{forwardDirection:[Math.cos(u.yaw),0,Math.sin(u.yaw)]});
-   if(!advance.blocked){u.velocity=advance.velocity;u.pos=add(u.pos,advance.displacement);if(advance.complete){const remaining=Math.max(0,dt-(u.hyperBurst.t-before));u.pos=add(u.pos,scale(u.velocity,remaining));}}
+   u.hyperBurst.held=!!advance.blocked;if(!advance.blocked){u.velocity=advance.velocity;u.pos=add(u.pos,advance.displacement);if(advance.complete){const remaining=Math.max(0,dt-(u.hyperBurst.t-before));u.pos=add(u.pos,scale(u.velocity,remaining));}}
    u.maneuver=0;u.turnK=0;continue;/* v27 the hyperdrive moves the ship; the engines idle */
   }
   // Disabled: the planet pulls it down until it burns up (C.hullFall), unless a beam holds it.

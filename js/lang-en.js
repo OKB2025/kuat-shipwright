@@ -10719,6 +10719,7 @@ Object.assign(root.KS_EN.messages,{
   "ハイパードライブ充電 {0}% · {1}へ あと約 {2}": "Hyperdrive Charging {0}% · {1} in about {2}",
   "ハイパードライブ充填中 · {0}へ あと {1} 秒（給電待ち）": "Hyperdrive charging · {0}: {1} seconds remaining (waiting for power)",
   "余剰電力で充電 {0}（光速の50%までの加速分を含む）": "Charges from Spare Power in {0} (including the burst to 50% of light speed)",
-  "{0}：{1}へ離脱（準備 {2}）": "{0}: Withdraw to {1} (Preparation {2})"
+  "{0}：{1}へ離脱（準備 {2}）": "{0}: Withdraw to {1} (Preparation {2})",
+  "充電待ち": "waiting for charge"
 });
 })(typeof window==="undefined"?globalThis:window);
