@@ -6089,7 +6089,7 @@ function engineSpecAction(field,value,fresh=false){
  const apply=q=>{
   if(q.k==='engineCore')return C.updateEngineSpec(q,{[field==='d'?'machineryDiameterM':field]:value},ship);
   if(shape){
-   const max=field==='d'?C.DESIGN_LIMITS.engineDiameter:C.DESIGN_LIMITS.engineLength;
+   const max=field==='d'?C.engineDesignLimits(ship).diameter:C.engineDesignLimits(ship).length;
    if(value<.01||value>max)return {ok:false,reasons:['invalid-input']};
    const external=C.equipmentSpec(q)?.engineStyle==='exposed',previousLength=q.nozzleLength??C.partDims(q).l,coupled=external&&Number.isFinite(q.machineryOffsetM)&&Math.abs(q.machineryOffsetM-previousLength/2)<=Math.max(1,previousLength)*1e-9;
    if(field==='d'&&C.parametricEngine(q)&&(q.machineryId==null||q.machineryId===q.id))C.resizeEngine(q,value,q.engineLength);else q[field]=value;
@@ -6134,10 +6134,10 @@ function engineSpecControls(p,fresh=false,multiple=false){
  const select=(field,label,current,catalog)=>{const rows=Object.entries(catalog||{}).filter(([id,d])=>id===current||(!id.startsWith('legacy')&&!d.migrationOnly&&!d.legacy));if(rows.length<2)return '';return `<label class="field-label">${label}<select data-engine-field="${field}" data-engine-new="${fresh?'1':'0'}" aria-label="${label}">${rows.map(([id,d])=>`<option value="${esc(id)}" ${id===current?'selected':''}>${esc(d.name||d.label||id)}</option>`).join('')}</select></label>`;};
  return `<div class="pgroup blueprint-card" id="engine-spec-editor"><h4>${multiple?'選択した機関の一括仕様':'機関の内部機構'}</h4>${multiple?'<p class="note">表示値は先頭の機関です。変更した項目を選択中の全機関と対称部品へ適用します。</p>':''}
  ${select('driveProfileId','推進プロファイル',spec.driveProfileId,profiles)}
- ${input('machineryDiameterM','内部機関の直径（m）',spec.machineryDiameterM,.01,C.DESIGN_LIMITS.engineDiameter)}${input('machineryLengthM','内部機関の長さ（m）',spec.machineryLengthM,.01,C.DESIGN_LIMITS.engineLength)}${core?'':external?'<p class="note">外部機関は機関本体とノズルが一体です。</p>':input('machineryOffsetM','ノズルから機関までの距離（m）',p.machineryOffsetM??0,0,C.DESIGN_LIMITS.engineLength)}
+ ${input('machineryDiameterM','内部機関の直径（m）',spec.machineryDiameterM,.01,C.engineDesignLimits(ship).diameter)}${input('machineryLengthM','内部機関の長さ（m）',spec.machineryLengthM,.01,C.engineDesignLimits(ship).length)}${core?'':external?'<p class="note">外部機関は機関本体とノズルが一体です。</p>':input('machineryOffsetM','ノズルから機関までの距離（m）',p.machineryOffsetM??0,0,C.engineDesignLimits(ship).length)}
  <dl class="engineering-stats"><div><dt>実機関容積</dt><dd>${num(spec.machineryVolumeM3,3)} m³</dd></div><div><dt>入力から推力への係数</dt><dd>${engineMassCurrentForUI()?sci(spec.wattsPerNewton)+' W/N':'計算中…'}</dd></div></dl>
  <div id="enginePerformance">${enginePerformance(p)}</div><p class="note">機関への最大入力は接続された反応炉の出力から計算します。実推力と廃熱は実給電で決まり、持続出力は放熱面・排熱設備と熱輸送路に制限されます。</p></div>
- ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${nozzleAppearanceControls(p,!fresh)}${input('d','ノズル径（m）',p.d,.01,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.DESIGN_LIMITS.engineLength)}<p class="note">ノズルの変更は内部機関の寸法と接続する炉を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
+ ${core?'':`<div class="pgroup" id="engine-nozzle-editor"><h4>ノズルの外観</h4>${nozzleAppearanceControls(p,!fresh)}${input('d','ノズル径（m）',p.d,.01,C.engineDesignLimits(ship).diameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,.01,C.engineDesignLimits(ship).length)}<p class="note">ノズルの変更は内部機関の寸法と接続する炉を維持します。出口・干渉・質量は形状に応じて変わります。</p></div>`}`;
 }
 function propulsionFiguresHTML(side=false){
  const p=propulsionPreviewForUI();if(!p)return '';
@@ -6204,7 +6204,7 @@ function changeNozzleAppearance(value,selected){
 }
 function independentNozzleControls(p,selected){
  const fresh=selected?'0':'1',dir=p.dir||[-1,0,0],yaw=Math.atan2(dir[2],-dir[0])*180/Math.PI,pitch=Math.asin(C.clamp(dir[1],-1,1))*180/Math.PI,input=(field,label,value,max)=>`<label class="field-label">${label}<input type="number" step="any" min=".01" max="${max}" data-engine-field="${field}" data-engine-new="${fresh}" value="${value}" aria-label="${label}"></label>`;
- return `<div class="pgroup blueprint-card" id="engine-nozzle-editor"><h4>ノズル</h4>${nozzleAppearanceControls(p,selected)}${input('d','ノズル径（m）',p.d,C.DESIGN_LIMITS.engineDiameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,C.DESIGN_LIMITS.engineLength)}${engineMachineryControls(p,!selected)}<div class="sliders">${slider(selected?'engineYaw':'newEngineYaw','左右の向き',Math.round(yaw),-70,70,1,deg(yaw))}${slider(selected?'enginePitch':'newEnginePitch','上下の向き',Math.round(pitch),-60,60,1,deg(pitch))}</div><p class="note">ノズルの位置・向きは機関本体から独立しています。撤去しても機関本体は残ります。</p>${selected?engineDriveHTML(p)+`<div id="enginePerformance">${enginePerformance(p)}</div>`:''}</div>`;
+ return `<div class="pgroup blueprint-card" id="engine-nozzle-editor"><h4>ノズル</h4>${nozzleAppearanceControls(p,selected)}${input('d','ノズル径（m）',p.d,C.engineDesignLimits(ship).diameter)}${input('nozzleLength','ノズルの奥行き（m）',p.nozzleLength??p.d*.32,C.engineDesignLimits(ship).length)}${engineMachineryControls(p,!selected)}<div class="sliders">${slider(selected?'engineYaw':'newEngineYaw','左右の向き',Math.round(yaw),-70,70,1,deg(yaw))}${slider(selected?'enginePitch':'newEnginePitch','上下の向き',Math.round(pitch),-60,60,1,deg(pitch))}</div><p class="note">ノズルの位置・向きは機関本体から独立しています。撤去しても機関本体は残ります。</p>${selected?engineDriveHTML(p)+`<div id="enginePerformance">${enginePerformance(p)}</div>`:''}</div>`;
 }
 function engineCoreControls(p,selected,multiple=false){
  if(!selected)p=pendingEngineCore();
