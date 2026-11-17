@@ -14,16 +14,16 @@ test('its body has the bulb, the neck, the stepped works and the housing of the 
  // every ring of the body: its distance from the centre along the dish axis and its radius, to the nearest 10 m
  const T=C.superweaponBodyTriangles(laser),rings=new Set();for(let i=0;i<T.length;i+=3){const d=sub([T[i],T[i+1],T[i+2]],C0),k=dot(d,ax);rings.add(Math.round(k/10)*10+':'+Math.round(Math.sqrt(Math.max(0,dot(d,d)-k*k))/10)*10);}
  const rim=Math.round(R*Math.sin(20*rad)/10)*10;/* the rim is 20 degrees from the dish axis on the source model; the housing fills its well */
- for(const [k,r,what] of [[8200,1500,'throat at the core'],[11600,1500,'throat'],[20500,4400,'bulb at its widest'],[29400,2000,'neck'],[33800,2000,'neck end'],[33800,5200,'first step'],[38000,5200,'first step end'],[38000,7200,'second step'],[45000,7200,'second step end'],[45000,9400,'third step'],[52700,9400,'third step end, on the floor of the wide well'],[52700,rim,'housing, as wide as the dish']])
+ for(const [k,r,what] of [[10600,1500,'throat at the core'],[11600,1500,'throat'],[20500,4400,'bulb at its widest'],[29400,2000,'neck'],[33800,2000,'neck end'],[33800,5200,'first step'],[38000,5200,'first step end'],[38000,7200,'second step'],[45000,7200,'second step end'],[45000,9400,'third step'],[52700,9400,'third step end, on the floor of the wide well'],[52700,rim,'housing, as wide as the dish']])
   assert.ok(rings.has(k+':'+r),`${what}: no ring at ${k} m with radius ${r} m`);
 });
 test('the superlaser rests on the station and the command room is clear of its well',()=>{
  const S=C.computeStats(ship);assert.deepEqual(JSON.parse(JSON.stringify(S.ungrounded.parts)),[]);assert.ok(!S.info?.[laser.id]?.floating,'the superlaser touches the floor of its well');assert.ok(!S.warnings.some(w=>/浮いている区画|接地していない部品/.test(w.text)));
 });
-test('the polar column is two reactant silos, and the reactor core keeps its 8 km radius',()=>{
+test('the polar column is two reactant silos, and the reactor core has the 10.4 km radius of the cutaway drawing',()=>{
  const silos=ship.parts.filter(p=>p.k==='fuel');assert.equal(silos.length,2);for(const s of silos){assert.ok(Math.abs(s.c[0]-R)<1&&Math.abs(s.c[2])<1,'on the polar axis');}
  assert.ok(silos.some(s=>s.c[1]>R)&&silos.some(s=>s.c[1]<R),'one above and one below the core');
- const core=ship.parts.find(p=>p.k==='gen');assert.equal(core.d,16000);assert.ok(!C.computeStats(ship).warnings.some(w=>/反応物サイロがありません/.test(w.text)));
+ const core=ship.parts.find(p=>p.k==='gen');assert.equal(core.d,20800);/* user decision 2026-11-17「炉心は断面図の大きさ、残りは補助炉」: 10.4 km radius (before: 8 km, 「反応炉はそのままで」) */assert.ok(!C.computeStats(ship).warnings.some(w=>/反応物サイロがありません/.test(w.text)));
 });
 test('the station skin is kept through save and load, and an unknown paint still falls back',()=>{
  assert.equal(ship.paint,'station');const d=JSON.parse(JSON.stringify(C.serialize(ship)));assert.equal(C.deserialize(d).paint,'station');

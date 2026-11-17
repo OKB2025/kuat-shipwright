@@ -71,7 +71,7 @@ test('light speed, the 0.5c burst and its kinetic energy per kilogram',()=>{
  near(C.hyperKineticJ(1,.9*c),(1/Math.sqrt(1-.81)-1)*c*c,1e-12,'high speed: exact');near(C.hyperKineticJ(1e6,C.HYPERSPACE_BURST_SPEED_MPS),KE*1e6,1e-12,'linear in mass');
 });
 test('a stock ship\'s full charge is 10 s of Dj plus the kinetic energy at 0.5c of its mass, its load and its tow',()=>{
- for(const [key,J] of [['imperial',7.977e26],['venator',1.817e26],['executor',1.413e29],['deathstar',1.237e34]]){const p=FLEET[key].p;
+ for(const [key,J] of [['imperial',7.977e26],['venator',1.817e26],['executor',1.413e29],['deathstar',1.525e34]/* regenerated 2026-11-17: 1.09e15 t, class 4 */]){const p=FLEET[key].p;
   assert.equal(C.hyperDriveFitted(p),true,key);near(C.hyperChargeNeedJ(p),10*p.grid.Dj+KE*p.propulsion.massKg,1e-12,key);near(C.hyperChargeNeedJ(p),J,1e-3,key+' scale');
   assert.ok(KE*p.propulsion.massKg>50*10*p.grid.Dj,key+': the burst is most of the charge');}
  for(const key of ['imperial','venator']){const p=FLEET[key].p,base=C.hyperChargeNeedJ(p);

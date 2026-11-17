@@ -41,8 +41,8 @@ test('manual blackout retains instantaneous inertia then follows disabled gravit
 });
 
 test('source loss rejects a jump start and cancels a pending manual spool without resuming it',()=>{
- const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});trialJump('b');const blocked=trial.jump===null,before=trial.V.slice();trial.jump={phase:'spool',t:2,age:2,priorThrottle:.25};trialJumpStep(1);const cancelled=trial.jump===null,after=trial.V.slice(),command=trial.throttle;u.p.crewCapacity=1;u.crew=1;u.ht.qJ=.8*u.ht.capacityJ;C.powerTick(u,300);trialJumpStep(1);return {blocked,cancelled,restored:u.out===null,stillCancelled:trial.jump===null,before,after,command,message:notices[0]};})()`);
- assert.equal(r.blocked,true);assert.equal(r.cancelled,true);assert.equal(r.restored,true);assert.equal(r.stillCancelled,true);assert.deepEqual(plain(r.after),plain(r.before));assert.equal(r.command,.25);assert.match(r.message,/給電停止/);
+ const r=run(`(()=>{const u=fixture();C.ionOverload(u,1000,{moduleIndex:1});trialJump('b');const blocked=trial.jump===null,before=trial.V.slice();trial.jump={phase:'spool',t:2,age:2,priorThrottle:.25};const lever=trial.throttle;trialJumpStep(1);const cancelled=trial.jump===null,after=trial.V.slice(),command=trial.throttle;u.p.crewCapacity=1;u.crew=1;u.ht.qJ=.8*u.ht.capacityJ;C.powerTick(u,300);trialJumpStep(1);return {blocked,cancelled,restored:u.out===null,stillCancelled:trial.jump===null,before,after,command,lever,message:notices[0]};})()`);
+ assert.equal(r.blocked,true);assert.equal(r.cancelled,true);assert.equal(r.restored,true);assert.equal(r.stillCancelled,true);assert.deepEqual(plain(r.after),plain(r.before));assert.equal(r.command,r.lever,'v27 (2026-11-17): the jump no longer takes the lever, so a cancelled spool leaves it where the pilot has it (before: restored to the 0.25 held at the jump order)');assert.match(r.message,/給電停止/);
 });
 
 test('practice ion pulses share finite geometric energy in distance order across several targets',()=>{

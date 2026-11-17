@@ -101,12 +101,13 @@ test('every hyperspace phase translates its composed destination, speed and coun
     const Core = vm.runInContext('Core', c), p = vm.runInContext('YardFleetData.designs.deathstar.p', c), M = Core.motionMassKg(p), r = Core.hyperChargeNominalW(p);
     const need = 10 * p.grid.Dj + (1 / Math.sqrt(.75) - 1) * 299792458 ** 2 * M, s = Math.ceil(.595 * need / r);
     assert.ok(Math.abs(Core.hyperChargeNeedJ(p) / need - 1) < 1e-9, 'charge need = jump field + relativistic KE at half light speed');
-    assert.ok(s >= 60 && s < 3600, `${s} s`);
+    assert.ok(s >= 10 && s < 3600, `${s} s`);/* 28 s on the regenerated Death Star (idle spare 3.3e32 W) */
     c.hyperUnit = {p,hyperE:.405 * need,pw:{hyper:r}};
     c.jump = {phase:'spool',t:9};
     const text = vm.runInContext("trialHyperText(jump,'コルサント',Infinity)", c);
-    assert.equal(text, `ハイパードライブ充電 40% · コルサントへ あと約 ${Math.floor(s / 60)}分 ${s % 60}秒`);
-    assert.equal(translated(text), `Hyperdrive Charging 40% · Coruscant in about ${Math.floor(s / 60)} min ${s % 60} s`);
+    const dur = s < 60 ? [`${s} 秒`, `${s} s`] : [`${Math.floor(s / 60)}分 ${s % 60}秒`, `${Math.floor(s / 60)} min ${s % 60} s`];/* trialDurText: under a minute in seconds */
+    assert.equal(text, `ハイパードライブ充電 40% · コルサントへ あと約 ${dur[0]}`);
+    assert.equal(translated(text), `Hyperdrive Charging 40% · Coruscant in about ${dur[1]}`);
   }
   vm.runInContext('trialSystemsUnit=()=>null', c);
 });
