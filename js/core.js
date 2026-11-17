@@ -80919,8 +80919,12 @@ function constructShipSystems(ship,key){
   for(let pass=0;pass<2;pass++){
    const m=shipRefitMeasure(ship),need=m.mass*1.03,shortInertial=Number.isFinite(m.inertialSupport)?Math.max(0,need-m.inertialSupport)/(120*field):0,shortIntegrity=Number.isFinite(m.integritySupport)?Math.max(0,need-m.integritySupport)/(180*field):0;
    if(!(shortInertial>Math.max(.1,m.mass/120*1e-5))&&!(shortIntegrity>Math.max(.1,m.mass/180*1e-5))){measured=m;break;}
-   if(shortInertial>Math.max(.1,m.mass/120*1e-5))addedInertial.push(...shipRefitAddVolume(ship,'inertial',shortInertial*1.02,'追加慣性補償設備'));
-   if(shortIntegrity>Math.max(.1,m.mass/180*1e-5))addedIntegrity.push(...shipRefitAddVolume(ship,'integrity',shortIntegrity*1.02,'追加構造維持設備'));
+   // The top-up takes what the hull still has room for: a hull with no room left keeps the support it has, as before this
+   // step existed (2026-11-17: the Lucrehulks were 1,499 m3 short, which stopped the whole example refresh).
+   let added=false;const tryAdd=(k,v,label,list)=>{const before=new Set(ship.parts.map(p=>p.id));try{list.push(...shipRefitAddVolume(ship,k,v,label));added=true;}catch{ship.parts=ship.parts.filter(p=>before.has(p.id));/* nothing half-placed is kept */}};
+   if(shortInertial>Math.max(.1,m.mass/120*1e-5))tryAdd('inertial',shortInertial*1.02,'追加慣性補償設備',addedInertial);
+   if(shortIntegrity>Math.max(.1,m.mass/180*1e-5))tryAdd('integrity',shortIntegrity*1.02,'追加構造維持設備',addedIntegrity);
+   if(!added){syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);break;}
    syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);/* the thermal sizing is not rerun here: it resized the converters (Death Star: rated rejection halved; physics review 2026-11-17) */
   }
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
