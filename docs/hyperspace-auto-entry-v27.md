@@ -1,0 +1,61 @@
+# ハイパースペース突入（v27）：速度条件の廃止、光速の50%への自動加速、充電の拡大
+
+ユーザー決定（2026-11-17）：「ハイパードライブは充電をさらに大きくして最高速度70%ルールは無くして自動的に光速の50%まで加速してから突入」。
+
+この文書が現行の仕様です。次の文書の「最高速度の70%」「光速の90%」の記述は履歴として残してあり、この文書が置き換えます：
+[flight-controls-power-and-hyperspace.md](flight-controls-power-and-hyperspace.md)、[flight-scene-and-hatches.md](flight-scene-and-hatches.md)、[hyperdrive-charging.md](hyperdrive-charging.md)、[engine-bus-and-cruise-cooling.md](engine-bus-and-cruise-cooling.md)（エグゼクターが巡航 0.26 でジャンプできない件は、速度条件がなくなったため解消）。
+
+## 規則
+
+- 通常航行の速度は突入の条件にしません。`HYPERSPACE_ENTRY_SPEED_FRACTION` は削除しました。
+- 給電があり満充電になると、ドライブ自身が艦をその時点の速度から光速の50%（`HYPERSPACE_BURST_SPEED_MPS` = 149,896,229 m/s）まで 1.25 秒（`HYPERSPACE_BURST_SECONDS`）で加速し、突入します。この間、推進機関は使いません。
+- 公試は機首の向きへ跳びます。戦略マップの艦と小型機は、跳躍方向へ 5°以内（`HYPERSPACE_ALIGN_RAD`）に回頭してから加速を始めます。準備中は今の速度を保ち、加速はしません。
+- 公試の復帰（リバージョン）も光速の50%から減速します。
+
+## 満充電の量
+
+`必要量 = HYPER_CHARGE.seconds(10 s) × grid.Dj + (γ−1)·(m + m_tow)·c²`、γ は 0.5c での値（γ−1 = 0.1547、1 kg あたり 1.390×10¹⁶ J）。
+
+- m は `motionMassKg`（搭載物を含む）。曳航中は曳かれる艦の質量 m_tow を足します（`u.hyperTowKg`）。
+- ドライブを持たない艦は 0。ジャンプの定格を持たない旧プロファイルや小型機のカタログでも、ドライブ（モジュールまたは等級）と質量があれば加速分が必要です。
+- 設計画面の「余剰電力で充電」は、この量を停止時の余剰電力で割った時間です。
+
+再生成前の `data/fleet.js` での値（停止時の余剰電力で割った時間）：
+
+| 艦 | 必要量 | 時間 | v24 |
+| --- | --- | --- | --- |
+| インペリアル | 7.98×10²⁶ J | 約 83 s | 約 10 s |
+| ヴェネター | 1.82×10²⁶ J | 約 52 s | 約 10 s |
+| エグゼクター | 1.41×10²⁹ J | 約 88 s | 約 10 s |
+| CR90 | 7.44×10²³ J | 約 78 s | 約 10 s |
+| デス・スター | 1.24×10³⁴ J | 約 19 分 | 約 10 s |
+
+## 充電の速さ
+
+- その刻みで負荷と冷却に使われずに残った電力すべてを使います（定格 Dj の上限は廃止）。燃料の残りで制限します。
+- 充電した電力は反応炉の発電として計上し、4% の反応炉熱と燃料を使います。
+- 熱の優先度は最下位です。使えるのは「実際に動いている冷却の余り（直前の熱計算の値、熱計算 1 回分まで）」と「蓄熱の空き」から、推進と武装の熱を引いた残りです。武装が電力を使っている間は蓄熱の空きを使いません。熱が高い艦は充電が遅くなり、`governEnd` で止まります。
+- 準備中（spool）の艦は超兵器の充電を止め、余剰をドライブに回します。
+
+## 加速と充電の消費
+
+- 加速は速度が上がるぶんの運動エネルギーを充電から引きます。足りなければその刻みは進みません（`hyper-charging`）。
+- 中断した加速は開始時の速度に戻り、引いた分は返します（`hyperspaceBurstRefund`）。
+- 残り（10 s × Dj）は突入時に使い切ります。ハイパースペース内では充電しません。経由地ごとに満充電し直します。
+
+## 準備判定（`hyperspaceReadiness`）
+
+理由の優先順：`disabled` > `hyper-unavailable` > `hyper-unpowered` > `hyper-charging`（`requireCharge` 指定時）> `aligning`（`alignWithinRad` 指定時）。`accelerating` と速度の項目は削除しました。
+
+## 小型機
+
+- 充電は中隊（`s.hyperE`）が持ち、格納庫から出るときは満充電です。飛行中は余剰で充電し、着艦後の再武装で満充電に戻ります。ドックに入渠した艦も充電されます。
+- 等級だけでドライブを持つ機種（Yウィング、Bウィング、ラムダ、Uウィング、センチネル）も同じ規則です。
+
+## 到着時間の見積もり
+
+`orderJump` の `eta` と `jumpEstimate` は充電時間を含みます（最初の区間は残りの充電、以降の区間は満充電）。補給船団の見積もりも同じです。
+
+## テスト
+
+`tests/hyper-charge.cjs`、`tests/hyperspace-entry-burst.cjs`、`tests/hyperspace-speed-gate.cjs`、`tests/hyperspace-trial-physics.cjs`、`tests/hyperspace-copy-ui.cjs`、`tests/flight-controls-ui.cjs`、`tests/navigation-itinerary.cjs`、`tests/fighter-hyper-retreat.cjs`。旧規則（70%、0.9c）の期待値はこの決定に合わせて書き換えました。
