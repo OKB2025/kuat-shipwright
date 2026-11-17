@@ -23,7 +23,7 @@ Scale: the sphere is 540 px across, so 296 m a pixel at 160 km. Distances are al
 
 | Feature on the drawing | Measured | In the example |
 | --- | --- | --- |
-| Reactor core | radius 10.4 km | radius 8 km, **not changed**: at 10.4 km the reactor's power and waste heat double. Approved by the user, 2026-11-15:「反応炉はそのままで」 |
+| Reactor core | radius 10.4 km | radius 10.4 km, as drawn. User decision 2026-11-17:「炉心は断面図の大きさ、残りは補助炉」(12 auxiliary reactors carry the rest of the plant). This replaces the 2026-11-15 decision「反応炉はそのままで」(8 km). The far half of the equatorial trench now holds 56 ion engine nozzles (user: 「デススターは加速度500Gくらいで」, then「上限の約 217 G で妥協」) and the near side three ship hangars (user:「赤道トレンチは艦船ドックで実際に船が入って補給が受けられるように」「ドックを別パーツにするのではなく、航空機の格納庫と同じ扱い」); no before/after renders of the trench were made for these. |
 | Amplifier bulb | 11.6 km to 29.4 km, 4.4 km at its widest | the same |
 | Neck | 29.4 km to 33.5 km, 2 km in radius | the same |
 | Works between neck and housing | 33.5 km to 52.7 km, growing to 9.4 km in radius | three steps: 5.2, 7.2 and 9.4 km |

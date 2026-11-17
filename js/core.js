@@ -72683,9 +72683,9 @@ function turretSupportEligible(f){
  return !!(d?.cat==='w'&&fitHasPedestal(f)&&!d.casemate&&!d.wallOnly&&!f.tilt&&!isSurfaceBattery(f)&&f.mountMode!=='auto'&&f.mountMode!=='trench'&&(explicit||(!f.localMount&&f.mountAxis==null)));
 }
 // v24 A support may top out at the mount point itself (a fitting on a ridge or apex): it then fills down to the slopes.
-// version 2 (2026-11-17): the footprint is the circle inside the turret's base. A version 1 support (the base's outline) is not
+// version 2, 3 (2026-11-17): the footprint is the circle inside the turret's base. A version 1 support (the base's outline) is not
 // valid: it is made again wherever the design is loaded, so every path computes the same support and mass.
-const TURRET_SUPPORT_VERSION=2;
+const TURRET_SUPPORT_VERSION=3;/* 3: the height is taken over the whole base outline again */
 function validTurretSupport(s){return !!(s?.version===TURRET_SUPPORT_VERSION&&Number.isFinite(s.top)&&s.top>=0&&(s.top>1e-6||s.polys?.some?.(p=>p?.some?.(q=>q?.[2]<s.top-1e-6)))&&s.top<=DESIGN_LIMITS.coordinate&&Array.isArray(s.polys)&&s.polys.length>0&&s.polys.length<=4096&&s.polys.every(p=>Array.isArray(p)&&p.length>=3&&p.length<=128&&p.every(q=>Array.isArray(q)&&q.length===3&&q.every(Number.isFinite)&&q.every(v=>Math.abs(v)<=DESIGN_LIMITS.coordinate)&&q[2]<=s.top+1e-5)));}
 function supportArea(p){let a=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i][0]*q[1]-q[0]*p[i][1];}return a/2;}
 function supportClip(poly,a,b,c){
@@ -72698,8 +72698,8 @@ function supportSubtract(poly,clip){
  const out=[];let rest=poly;for(let i=0;i<clip.length&&rest.length>=3;i++){const a=clip[i],b=clip[(i+1)%clip.length],A=a[1]-b[1],B=b[0]-a[0],D=a[0]*b[1]-a[1]*b[0],piece=supportClip(rest,-A,-B,-D);if(piece.length>=3&&Math.abs(supportArea(piece))>1e-7)out.push(piece);rest=supportClip(rest,A,B,D);}return out;
 }
 const TURRET_SUPPORT_FOOTPRINTS=new Map(),TURRET_SUPPORT_BVH=new WeakMap(),TURRET_SUPPORT_GEOMETRY=new WeakMap();
-function turretSupportFootprint(f){
- const d=fitSpec(f),scale=f.scale||1,id=f.skinAsset||d.asset,a=REFERENCE_ASSETS[id],key='ring3|'+(id||f.k)+'|'+weaponModelScale(f)+'|'+scale;let native=TURRET_SUPPORT_FOOTPRINTS.get(key);
+function turretSupportFootprint(f,outline=false){
+ const d=fitSpec(f),scale=f.scale||1,id=f.skinAsset||d.asset,a=REFERENCE_ASSETS[id],key=(outline?'outline|':'ring3|')+(id||f.k)+'|'+weaponModelScale(f)+'|'+scale;let native=TURRET_SUPPORT_FOOTPRINTS.get(key);
  if(!native){
   if(a?.sphereRadiusM){const r=a.sphereRadiusM*weaponModelScale(f)*scale;native=Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*r,Math.sin(i*Math.PI/16)*r]);}
   else if(a){const model=decodeReference(id),neutral={k:f.k,p:[0,0,0],a:2,ped:0,base:0,low:0,scale,...(f.skinAsset?{skinAsset:f.skinAsset}:{})},points=[];let low=Infinity;for(let i=0;i<model.pos.length;i+=3){const p=referenceFitPoint(neutral,Array.from(model.pos.subarray(i,i+3)));points.push(p);low=Math.min(low,p[1]);}const base=points.filter(p=>p[1]<=low+Math.max(.03,d.hm*.025)).map(p=>[p[0],p[2]]),hull=surfaceHull2(base);
@@ -72708,7 +72708,7 @@ function turretSupportFootprint(f){
    // turret's base outline (not the outline itself, and not a circle around it).
    let ring=hull.length>=3?Infinity:0;for(let i=0;i<hull.length;i++){const p=hull[i],q=hull[(i+1)%hull.length],ex=q[0]-p[0],ey=q[1]-p[1],l=Math.hypot(ex,ey);if(l>1e-9)ring=Math.min(ring,Math.abs(ex*p[1]-ey*p[0])/l);}
    const centred=hull.length>=3&&hull.every((p,i)=>{const q=hull[(i+1)%hull.length];return ((q[0]-p[0])*(-p[1])-(q[1]-p[1])*(-p[0]))*((hull[1][0]-hull[0][0])*(-hull[0][1])-(hull[1][1]-hull[0][1])*(-hull[0][0]))>=0;});
-   native=centred&&Number.isFinite(ring)&&ring>1e-6?Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*ring,Math.sin(i*Math.PI/16)*ring]):hull;}
+   native=!outline&&centred&&Number.isFinite(ring)&&ring>1e-6?Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*ring,Math.sin(i*Math.PI/16)*ring]):hull;}
   if(!native||native.length<3){const r=d.r*.72;native=Array.from({length:24},(_,i)=>[Math.cos(i*Math.PI/12)*r,Math.sin(i*Math.PI/12)*r]);}
   TURRET_SUPPORT_FOOTPRINTS.set(key,native);
  }
@@ -72718,8 +72718,12 @@ function turretSupportFootprint(f){
 }
 function mountTurretSupport(ship,f,big){
  delete f.mountSupport;f.base=f.low=f.slope=0;if(!turretSupportEligible(f))return;
- const fr=fitFrameOf(f),foot=turretSupportFootprint(f),corners=[];for(const q of foot)for(const h of [-big,big])corners.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,h))));
- const bounds=[0,1,2].map(a=>Math.min(...corners.map(p=>p[a]))-1e-5).concat([0,1,2].map(a=>Math.max(...corners.map(p=>p[a]))+1e-5)),overlap=b=>[0,1,2].every(a=>b[a]<=bounds[a+3]&&b[a+3]>=bounds[a]),candidates=[];
+ // v27 The support that is seen is the round barbette (the circle inside the base); the height the turret stands at is still
+ // taken over the whole base outline, so no part of the base sinks into a slope or step outside the circle (reference review
+ // 2026-11-17: with the circle alone turrets dropped by up to 87 m on the Recusant dreadnought).
+ const fr=fitFrameOf(f),footRing=turretSupportFootprint(f),footOutline=turretSupportFootprint(f,true),corners=[];for(const q of footOutline.concat(footRing))for(const h of [-big,big])corners.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,h))));
+ const bounds=[0,1,2].map(a=>Math.min(...corners.map(p=>p[a]))-1e-5).concat([0,1,2].map(a=>Math.max(...corners.map(p=>p[a]))+1e-5)),overlap=b=>[0,1,2].every(a=>b[a]<=bounds[a+3]&&b[a+3]>=bounds[a]);
+ const solve=foot=>{const candidates=[];
  const collect=(T,bvh)=>{
   if(!T?.length)return;if(!bvh){bvh=TURRET_SUPPORT_BVH.get(T);if(!bvh){bvh=buildBVH(T);TURRET_SUPPORT_BVH.set(T,bvh);}}
   const stack=[0];while(stack.length){const nd=stack.pop(),b=Array.from(bvh.B.subarray(nd*6,nd*6+6));if(!overlap(b))continue;if(!bvh.C[nd]){stack.push(bvh.L[nd],bvh.R[nd]);continue;}
@@ -72736,6 +72740,8 @@ function mountTurretSupport(ship,f,big){
  let top=0;const polys=[];for(let i=0;i<candidates.length;i++){const own=candidates[i];let pieces=[own.poly];for(let j=0;j<candidates.length&&pieces.length;j++){if(i===j)continue;const other=candidates[j],da=other.A-own.A,db=other.B-own.B,dd=other.D-own.D,coplanar=Math.abs(da)+Math.abs(db)+Math.abs(dd)<1e-7;if(coplanar&&j>i)continue;const cover=coplanar?other.poly:supportClip(other.poly,da,db,dd-1e-7);if(cover.length<3||Math.abs(supportArea(cover))<1e-7)continue;pieces=pieces.flatMap(p=>supportSubtract(p,cover));}
   for(const poly of pieces){const p=poly.map(q=>[q[0],q[1],own.A*q[0]+own.B*q[1]+own.D]);for(const q of p)top=Math.max(top,q[2]);polys.push(p);}
  }
+ return {top,polys};};
+ const ring=solve(footRing),whole=footOutline===footRing?ring:solve(footOutline),polys=ring.polys;let top=Math.max(ring.top,whole.top);
  if(!polys.length||top<=1e-5&&!polys.some(p=>p.some(q=>q[2]<-1e-3)))return;top=Math.max(0,top);f.mountSupport={version:TURRET_SUPPORT_VERSION,top,polys};f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
 }
 function turretSupportGeometry(f){
@@ -80921,7 +80927,9 @@ function constructShipSystems(ship,key){
   // v27 The layout steps after the support sizing (the drives' thermal sizing, the machinery straightening) can leave a support
   // bank less room than it was given when it was packed; top the support up against the finished layout's measured support
   // (2026-11-17: the Death Star's trench ship hangars left one integrity bank at 7%, its structural limit 105 G instead of 180 G).
-  for(let pass=0;pass<2;pass++){
+  // Giant ships only (over GIANT_SHIP_LENGTH_M): the other examples keep the support they had (reference and physics reviews
+  // 2026-11-17: on Venator and MC75 the top-up added 40 and 80 compartments whose mass, power and heat were not re-sized).
+  for(let pass=0;pass<2&&giantShip(ship);pass++){
    const m=shipRefitMeasure(ship),need=m.mass*1.03,shortInertial=Number.isFinite(m.inertialSupport)?Math.max(0,need-m.inertialSupport)/(120*field):0,shortIntegrity=Number.isFinite(m.integritySupport)?Math.max(0,need-m.integritySupport)/(180*field):0;
    if(!(shortInertial>Math.max(.1,m.mass/120*1e-5))&&!(shortIntegrity>Math.max(.1,m.mass/180*1e-5))){measured=m;break;}
    // The top-up takes what the hull still has room for: a hull with no room left keeps the support it has, as before this
@@ -83829,7 +83837,7 @@ function gunTargetEllipse(target,direction){
 // hit only as far as the spread still reaches it.
 const GUN_BOLT_MPS=4500,GUN_TRACK_S=10;
 // A ship not observed for more than a step (out of battle on the strategic map, another system) starts a new track.
-function observeMotion(units,dt,now){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const k=u._track||(u._track=[]);if(u.warp||u.docked||Number.isFinite(now)&&Number.isFinite(u._trackAt)&&now-u._trackAt>dt*1.5+1e-9)k.length=0;if(Number.isFinite(now))u._trackAt=now;const T=u._trackT=(u._trackT||0)+dt;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
+function observeMotion(units,dt,now){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const k=u._track||(u._track=[]);if(u.warp||u.docked||Number.isFinite(now)&&Number.isFinite(u._trackAt)&&Math.abs(now-u._trackAt)>dt*1.5+1e-9)k.length=0;if(Number.isFinite(now))u._trackAt=now;const T=u._trackT=(u._trackT||0)+dt;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
 // Where the target is now relative to where a shot fired a time of flight ago was aimed.
 function gunAimOffset(t,d){const k=t?._track;if(!k?.length||!(d>0))return null;const T=t._trackT,want=T-d/GUN_BOLT_MPS;let s=k[0];for(let i=k.length-1;i>=0;i--)if(k[i].t<=want+1e-9){s=k[i];break;}const e=T-s.t;if(!(e>0))return null;return sub(t.pos,add(s.pos,mul(s.vel,e)));}
 function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
@@ -83839,12 +83847,20 @@ function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
    // The hull's shadow across the line of fire is the ellipse q.M^-1.q<=1 in (right, up), M=[[A,B],[B,C]]. The spread is integrated in
    // polar coordinates about the aim point: along each direction the Rayleigh integral over the chord inside the ellipse is exact
    // (exp(-r1^2/2s^2)-exp(-r2^2/2s^2)); only the angle is sampled (the whole circle when the aim point is inside the hull, the
-   // angle the hull subtends when it is outside). With no offset this is gunEllipseChance (physics review 2026-11-17).
+   // span between the two tangents when it is outside). With no offset this is gunEllipseChance (physics review 2026-11-17).
    const rot=t.rot,local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(t.yaw||0),sn=Math.sin(t.yaw||0);return [v[0]*c+v[2]*sn,v[1],-v[0]*sn+v[2]*c];},p=t.p||t,r=local(right),w=local(up),size=t.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
    let A=0,B=0,Cc=0;for(let i=0;i<3;i++){const q=size[i]*size[i];A+=r[i]*r[i]*q;B+=r[i]*w[i]*q;Cc+=w[i]*w[i]*q;}const det=Math.max(1e-12,A*Cc-B*B),Q=(x,y,x2,y2)=>(Cc*x*x2-B*(x*y2+y*x2)+A*y*y2)/det,ax=-ox,ay=-oy,qc=Q(ax,ay,ax,ay)-1,inside=qc<=0;
-   if(!(sigma>0))return inside?1:0;const N=64,major=Math.sqrt((A+Cc+Math.hypot(A-Cc,2*B))/2),la=Math.hypot(ax,ay),half=inside?Math.PI:Math.min(Math.PI,Math.asin(Math.min(1,major/la))*1.02+1e-9),mid=inside?0:Math.atan2(-ay,-ax),k2=1/(2*sigma*sigma);let sum=0;
-   for(let i=0;i<N;i++){const an=mid-half+(i+.5)*2*half/N,ex=Math.cos(an),ey=Math.sin(an),qa=Q(ex,ey,ex,ey),qb=Q(ax,ay,ex,ey),disc=qb*qb-qa*qc;if(!(disc>0))continue;const sq=Math.sqrt(disc),r2=(-qb+sq)/qa;if(!(r2>0))continue;const r1=Math.max(0,(-qb-sq)/qa);sum+=Math.exp(-r1*r1*k2)-Math.exp(-r2*r2*k2);}
-   return clamp(sum/N*(half/Math.PI),0,1);}}
+   if(!(sigma>0))return inside?1:0;const N=64,k2=1/(2*sigma*sigma);let lo=-Math.PI,hi=Math.PI;
+   if(!inside){
+    // Outside the hull's shadow the directions that reach it lie between the two tangents from the aim point: the roots of
+    // qb^2 = qa qc, i.e. e.G.e = 0 with G = v v^T - qc M^-1, v = M^-1 a (physics review 2026-11-17: a fixed span about the
+    // centre missed directions beside a long hull). The integrand is smooth inside that span.
+    const v0=(Cc*ax-B*ay)/det,v1=(A*ay-B*ax)/det,g11=v0*v0-qc*Cc/det,g12=v0*v1+qc*B/det,g22=v1*v1-qc*A/det,a0=(g11+g22)/2,rr=Math.hypot((g11-g22)/2,g12),psi=Math.atan2(g12,(g11-g22)/2),w=Math.acos(clamp(rr>0?-a0/rr:1,-1,1)),mid=Math.atan2(-ay,-ax),wrap=x=>{x=(x-mid)%(2*Math.PI);if(x>Math.PI)x-=2*Math.PI;if(x<-Math.PI)x+=2*Math.PI;return x;},
+     toward=f=>{const ex=Math.cos(f),ey=Math.sin(f);return Q(ax,ay,ex,ey)<0?f:f+Math.PI;},d1=wrap(toward((psi+w)/2)),d2=wrap(toward((psi-w)/2));
+    lo=mid+Math.min(d1,d2);hi=mid+Math.max(d1,d2);if(!(hi>lo))return 0;}
+   let sum=0;
+   for(let i=0;i<N;i++){const an=lo+(i+.5)*(hi-lo)/N,ex=Math.cos(an),ey=Math.sin(an),qa=Q(ex,ey,ex,ey),qb=Q(ax,ay,ex,ey),disc=qb*qb-qa*qc;if(!(disc>0))continue;const sq=Math.sqrt(disc),r2=(-qb+sq)/qa;if(!(r2>0))continue;const r1=Math.max(0,(-qb-sq)/qa);sum+=Math.exp(-r1*r1*k2)-Math.exp(-r2*r2*k2);}
+   return clamp(sum/N*((hi-lo)/(2*Math.PI)),0,1);}}
  const ellipse=gunTargetEllipse(t,direction);return gunEllipseChance(ellipse[0],ellipse[1],sigma);
 }
 function gunScatter(direction,p,range=GUN_BANDS.long.range,fireState=1,random=Math.random,aim){
@@ -86029,7 +86045,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // quality included) as bolts, and only the bolts whose line meets its shield or hull deliver their share (the trial adds them
   // to opts.extra for the next step). Missiles, bombs and craft keep the common model.
   const boltOnly=!u.manual&&!!opts.boltGuns?.has?.(t.id);let bolt=null;
-  if(boltOnly){const fg=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*quality,fi=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*quality;if(fg+fi>0)bolt={gun:fg*dt*DMG,ion:fi*dt*DMG,shot:fleetShotTT(u),src:u.id,from:u.pos.slice(),reach:fleetReach(p)};gun=0;ion=0;}
+  if(boltOnly){const fg=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*quality,fi=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*quality;if(fg+fi>0)bolt={gun:fg*dt*DMG,ion:fi*dt*DMG,shot:fleetShotTT(u),src:u.id,from:u.pos.slice(),reach:fleetReach(p),aim:aimBefore/* the convergence the hit chance was taken at */};gun=0;ion=0;}
   // Missiles draw on each intact launcher's magazine.
   // v22 Ion torpedo launchers draw on their magazines the same way; their share goes to the ion channel.
   let msl=0,imsl=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=missileMaxRange(u)){const total=(p.modules||[]).filter(m=>m.k==='launcher').length;
@@ -90948,7 +90964,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
   combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
-  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
+  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();

@@ -52,6 +52,17 @@ test('a ship not observed for more than a step starts a new track',()=>{
  const t=C.fleetUnit('b','cr90',plain(F.designs.cr90.p),1);t.pos=[0,0,0];t.velocity=[100,0,0];C.observeMotion([t],DT,1);C.observeMotion([t],DT,1.25);assert.equal(t._track.length,2);
  t.pos=[5e6,0,0];C.observeMotion([t],DT,900);assert.equal(t._track.length,1,'the old system\'s samples are gone');
 });
+test('an aim point outside the hull but near its long side is integrated over every direction (checked against sampling)',()=>{
+ // Physics review 2026-11-17: beside a long hull the directions that hit span more than a half turn.
+ const d=6000,u=shooter(),t=C.fleetUnit('b','cr90',plain(F.designs.cr90.p),1);t.pos=[d,0,0];t.yaw=Math.PI/2;t.velocity=[0,0,0];
+ const sigma=d*C.gunDispersion(u.p,RANGE,C.fleetSystems(u).fire)*(Number.isFinite(u.aim)?C.aimSpread(u.aim):1),a=(t.p.len||1)/2,b=(t.p.height||t.p.len*.2)/2;
+ const at=(z,y)=>{t._trackT=10;t._track=[{t:0,pos:[d,y,z],vel:[0,0,0]}];return C.gunHitChance(u,t,d,RANGE);};   // the aim point, relative to the ship's centre
+ let seed=12345;const rnd=()=>(seed=(seed*1664525+1013904223)>>>0)/4294967296,gauss=()=>Math.sqrt(-2*Math.log(1-rnd()))*Math.cos(2*Math.PI*rnd());
+ for(const [z,y] of [[.73*a,.75*b],[.9*a,.6*b],[0,1.5*b]]){assert.ok((z/a)**2+(y/b)**2>1,'outside the hull');let hit=0;const N=400000;for(let i=0;i<N;i++){const pz=z+sigma*gauss(),py=y+sigma*gauss();if((pz/a)**2+(py/b)**2<=1)hit++;}
+  const mc=hit/N,p=at(z,y);assert.ok(Math.abs(p-mc)<=Math.max(.004,mc*.05),`aim at (${z.toFixed(0)}, ${y.toFixed(0)}) m: ${p} against ${mc} sampled`);}
+ // no step across the hull's edge
+ const k=.8,zc=k*a,yc=Math.sqrt(1-k*k)*b,inP=at(zc*.999,yc*.999),outP=at(zc*1.001,yc*1.001);assert.ok(Math.abs(inP-outP)<=Math.max(inP,outP)*.03+1e-4,`${inP} just inside, ${outP} just outside`);
+});
 test('both battle clocks observe the ships\' motion',()=>{
  const src=fs.readFileSync(path.join(root,'js/core.js'),'utf8');
  assert.match(src,/function fleetTick\(b,dt,opts=\{\}\)\{observeMotion\(/);assert.match(src,/C\.observeMotion\(us,dt,w\.time\);/);
