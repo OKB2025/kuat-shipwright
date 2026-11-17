@@ -3777,11 +3777,11 @@ function fleetFarPlane(r,fleet){
  const eye=r.eye(),t=c.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1,focal=(r.canvas?.height||700)/(2*Math.tan((c.fov||.72)/2));let far=base;
  for(const u of fleet){if(!u||u.dead||u.hidden)continue;const a=r.fleetCache?.get(u.key);if(!a)continue;
   const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz);
-  if((rx*d[0]+ry*d[1]+rz*d[2])/l>-L&&L/Math.max(1,dist)*focal>=FLEET_SPECK.modelPx)far=Math.max(far,(dist+L)*FLEET_SPECK.farMargin);}
+  const need=(dist+L)*FLEET_SPECK.farMargin;if(Number.isFinite(need)&&(rx*d[0]+ry*d[1]+rz*d[2])/l>-L&&L/Math.max(1,dist)*focal>=FLEET_SPECK.modelPx)far=Math.max(far,need);}
  return far;
 }
 Renderer.prototype.drawFleet=function(m,opt){
- const gl=this.gl,old=this.meshes,off=this.off,shields=[],specks=[],farPlane=fleetFarPlane(this,opt.fleet),speckFar=farPlane*.9;gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
+ const gl=this.gl,old=this.meshes,off=this.off,shields=[],specks=[],farPlane=this._fleetFar>0?this._fleetFar:fleetFarPlane(this,opt.fleet)/* draw() has it for this frame; a direct call computes it */,speckFar=farPlane*.9;gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
  const eye=this.eye(),vd=(()=>{const t=this.cam.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1;return [d[0]/l,d[1]/l,d[2]/l];})(),focal=this.canvas.height/(2*Math.tan((this.cam.fov||.72)/2)),SHELL=['hull','struct','plate','surfaceArmor','refHull','refStruct'],FULL=['hull','struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'],OUTER=FULL.filter(n=>!['gen','shield','hyper','hangar'].includes(n));this.lodSkipped=0;
  // v20.2 Key-light shadows for the ships largest on screen (not pieces of wrecks or ships in a jump).
