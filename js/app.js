@@ -9079,7 +9079,7 @@ function trialSelfUpdate(hud){
  const allies=(B?.b.units||[]).filter(u=>u.team===0&&!u.manual),log=(B?.ticker||[]).slice(-3).reverse();
  // v22.3 Damage is by module: the ship's crew aboard (乗員 %) in place of a hull bar.
  const cr=crewShare(me),secs=cr==null?'':`<div class="ts-row"><span>乗員</span><i class="crew${crewCls(cr)}"><em style="width:${crewPct(cr)}%"></em></i><small>${crewPct(cr)}%</small></div>`;
- const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out==='電源喪失'?' · 電源喪失（航行不能）':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}</b>${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
+ const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out==='電源喪失'?' · 電源喪失（航行不能）':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}${me.trialDocked?' · 入渠中（補給）':''}</b>${me.trialDocked?`<p class="ts-line">${esc(me.trialDocked.hostName)}の${esc(me.trialDocked.label)}で補給中。推力を上げると出渠します。</p>`:''}${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
  setHTML(el,html);
 }
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
@@ -9663,11 +9663,31 @@ function spaceRefresh(){
  for(const u of B.b.units){if(u.manual||u.dead||u.absent||(u.team!==1&&!B.me)||B.rts&&u.warp&&u.warp.t<0)continue;const t=live.get(u.id)||{id:u.id,ship:true,unit:u,hits:0};
   Object.assign(t,{alive:true,ally:u.team===mine,pos:spaceWorld(u),vel:spaceVel(u),rot:spaceRotU(B.E,u),radius:u.p.len*.5,semi:[u.p.len*.5,(u.p.height||u.p.len*.2)*.5,(u.p.width||u.p.len*.5)*.5]});trial.targets.push(t);}
 }
+// v26 Docking in the trial (user decisions 2026-11-17: the Death Star's equatorial trench is a ship dock where ships really enter
+// and are resupplied). The player's ship docks in a friendly ship's dock when it is inside it, nearly at rest relative to it and
+// with the throttle at zero; there it is resupplied as at its home port (C.dockResupplyStep, and the trial's own weapon store)
+// and keeps station with its host. Any thrust, or leaving the dock, takes it out. (trialDocked, not the fleet's docked: the
+// player, not Core, moves this ship.)
+function spaceDockStep(dt){
+ const B=trial.battle,me=B?.me;if(!me||me.dead||!(dt>0))return;
+ let at=null;for(const h of B.b.units){if(h===me||h.dead||h.absent||h.team!==me.team||!h.p?.docks?.length)continue;const ds=C.dockState(h,me);if(ds?.inside){at={h,ds};break;}}
+ const slow=at&&tv.len(tv.sub(me.velocity||[0,0,0],at.h.velocity||[0,0,0]))<=C.DOCK.speed,idle=!((trial.thrustWant||0)>.02);
+ if(at&&slow&&idle){
+  if(!me.trialDocked||me.trialDocked.host!==at.h.id){me.trialDocked={host:at.h.id,dock:at.ds.dock.id,label:at.ds.dock.label,hostName:at.h.name};spaceLog(`${at.h.name}の${at.ds.dock.label}に入渠`,me);}
+  C.dockResupplyStep(me,dt);const en=trial.energy;if(en&&en.cap>0)en.E=Math.min(en.cap,en.E+(en.cap-en.E)*(1-Math.exp(-dt/C.DOCK.refillS)));
+  trial.V=trialApply(B.E,at.h.velocity||[0,0,0]);
+ }else if(me.trialDocked){const name=me.trialDocked.hostName||'母艦';delete me.trialDocked;spaceLog(`${name}のドックを出る`,me);}
+}
 function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.pos=loc(tv.sub(trial.P,B.O));me.velocity=loc(trial.V);const f=loc(trialCol(trial.R,0));me.yaw=Math.atan2(f[2],f[0]);me.swFrame={origin:me.pos.slice(),axes:[0,1,2].map(i=>loc(trialCol(trial.R,i)))};me.order={...me.order,power:trial.powerMode};}
 // v21.1 The flagship's escorts guard it (order 'escort': between it and the threat, firing first on whoever fires
 // on it, screening its bridge) unless the player frees them to attack (T / 随伴艦 button: trial.escortFree).
 function trialEscortMode(free){trial.escortFree=free==null?!trial.escortFree:!!free;const B=trial.battle;if(B)spaceOrders(B.b);toast(trial.escortFree?'随伴艦：自由攻撃 — 近い敵から攻撃します':'随伴艦：護衛 — 旗艦と敵のあいだに入り、旗艦を狙う敵を優先して撃ちます');}
-function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.out||u.absent)continue;if(u.trialStatic){trialStaticOrder(u);continue;}if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
+// v26 A friendly ship that has lost much (C.dockNeed) makes for a friendly dock when one is in the battle, stays docked until it is
+// resupplied, then goes back to its duty (user decisions 2026-11-17).
+function spaceDockHost(b,u){return b.units.filter(h=>h!==u&&!h.dead&&!h.out&&!h.absent&&h.team===u.team&&h.p?.docks?.length).sort((a,z)=>C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)))[0]||null;}
+function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.absent)continue;if(u.trialStatic){trialStaticOrder(u);continue;}
+ if(typeof C.dockNeed==='function'){const need=C.dockNeed(u),host=u.docked?b.units.find(h=>h.id===u.docked.host):spaceDockHost(b,u);if(host&&!host.dead&&(u.docked?need>C.DOCK.full:need>=C.DOCK.want)){u.order={...u.order,type:'dock',target:host.id,fire:true,launch:false};continue;}}
+ if(u.out)continue;if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
 function spaceDamage(u,tt,kind,q,t,aimK){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
@@ -10384,7 +10404,7 @@ function spaceStep(dt){
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
   const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
-  spaceBumps(b.bumps);spaceBump(B.me);
+  spaceBumps(b.bumps);spaceBump(B.me);spaceDockStep(SPACE_RULES.step);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
   for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(C.outOfAction(u)&&!C.outOfAction(was)&&u.team===1)B.disabled++;}
