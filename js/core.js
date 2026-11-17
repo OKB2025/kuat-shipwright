@@ -83806,8 +83806,26 @@ function gunTargetEllipse(target,direction){
  const local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(target.yaw||0),s=Math.sin(target.yaw||0);return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];},r=local(right),u=local(up),size=target.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
  let a=0,b=0,c=0;for(let i=0;i<3;i++){const s=size[i]*size[i];a+=r[i]*r[i]*s;b+=r[i]*u[i]*s;c+=u[i]*u[i]*s;}const d=Math.hypot(a-c,2*b);return [Math.sqrt(Math.max(1e-12,(a+c+d)/2)),Math.sqrt(Math.max(1e-12,(a+c-d)/2))];
 }
+// v27 Hits are decided in space, not on the ship (user decisions 2026-11-17「速度の出てる艦が…避けようとしてて弾も逸れてるのに当たった
+// 判定なるのは艦隊戦でも致命的」「期待値は艦そのものではなく空間に持たせるべき」). A bolt flies at GUN_BOLT_MPS. The bolts arriving now
+// were fired a time of flight ago at the point the target would reach holding the velocity it had then; the guns' spread is a
+// Gaussian about that aim point in space. The hit chance is the share of that spread the hull covers where the ship really is:
+// a ship holding its course sits on the aim point and is hit as before; one that turned or changed speed has left it, and is
+// hit only as far as the spread still reaches it.
+const GUN_BOLT_MPS=4500,GUN_TRACK_S=10;
+function observeMotion(units,dt){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const T=u._trackT=(u._trackT||0)+dt,k=u._track||(u._track=[]);if(u.warp||u.docked)k.length=0;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
+// Where the target is now relative to where a shot fired a time of flight ago was aimed.
+function gunAimOffset(t,d){const k=t?._track;if(!k?.length||!(d>0))return null;const T=t._trackT,want=T-d/GUN_BOLT_MPS;let s=k[0];for(let i=k.length-1;i>=0;i--)if(k[i].t<=want+1e-9){s=k[i];break;}const e=T-s.t;if(!(e>0))return null;return sub(t.pos,add(s.pos,mul(s.vel,e)));}
 function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
- if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),ellipse=gunTargetEllipse(t,direction),state=fireState??(u.p?.modules?fleetSystems(u).fire:1);return gunEllipseChance(ellipse[0],ellipse[1],d*gunDispersion(u.p||u,range,state)*aimFactor(u));
+ if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),state=fireState??(u.p?.modules?fleetSystems(u).fire:1),sigma=d*gunDispersion(u.p||u,range,state)*aimFactor(u),off=gunAimOffset(t,d);
+ if(off){const n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right),ox=dot(off,right),oy=dot(off,up);
+  if(Math.hypot(ox,oy)>1e-6*Math.max(1,t.p?.len||1)){
+   // The hull's shadow across the line of fire as a quadratic form in (right, up); spread samples about the aim point (Rayleigh
+   // rings of equal weight) counted where they fall inside it.
+   const rot=t.rot,local=v=>{if(rot?.length===9)return [v[0]*rot[0]+v[1]*rot[3]+v[2]*rot[6],v[0]*rot[1]+v[1]*rot[4]+v[2]*rot[7],v[0]*rot[2]+v[1]*rot[5]+v[2]*rot[8]];const c=Math.cos(t.yaw||0),sn=Math.sin(t.yaw||0);return [v[0]*c+v[2]*sn,v[1],-v[0]*sn+v[2]*c];},p=t.p||t,r=local(right),w=local(up),size=t.semi||[(p.len||1)/2,(p.height||p.len*.2||1)/2,(p.width||p.len*.5||1)/2];
+   let A=0,B=0,Cc=0;for(let i=0;i<3;i++){const q=size[i]*size[i];A+=r[i]*r[i]*q;B+=r[i]*w[i]*q;Cc+=w[i]*w[i]*q;}const det=Math.max(1e-12,A*Cc-B*B),inside=(x,y)=>(Cc*x*x-2*B*x*y+A*y*y)/det<=1;
+   if(!(sigma>0))return inside(-ox,-oy)?1:0;const K=8,N=16;let hit=0;for(let i=0;i<K;i++){const rr=sigma*Math.sqrt(-2*Math.log(1-(i+.5)/K));for(let j=0;j<N;j++){const an=(j+.5*(i&1))*2*Math.PI/N;if(inside(rr*Math.cos(an)-ox,rr*Math.sin(an)-oy))hit++;}}return hit/(K*N);}}
+ const ellipse=gunTargetEllipse(t,direction);return gunEllipseChance(ellipse[0],ellipse[1],sigma);
 }
 function gunScatter(direction,p,range=GUN_BANDS.long.range,fireState=1,random=Math.random,aim){
  let x=0,y=0,s=0;for(let i=0;i<16;i++){x=2*random()-1;y=2*random()-1;s=x*x+y*y;if(s<1)break;}if(!(s>0&&s<1))return norm(direction);const k=Math.sqrt(-2*Math.log(s)/s)*gunDispersion(p,range,fireState)*(Number.isFinite(aim)?aimSpread(aim):1),n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right);return norm(add(add(n,mul(right,x*k)),mul(up,y*k)));
@@ -84100,9 +84118,9 @@ function hyperChargeHeatCapW(u,dt){
  const gov=u.heatGov||heatGovernor(u),k=clamp(gov.weapon??1,0,1);if(!(k>0))return 0;if(gov.mode!=='balance'||!Number.isFinite(gov.roomJ))return Infinity;
  const De=Math.max(0,u.p.grid?.De||0),hb=engineHeatThrottleCap(u,gov,dt),x=De>0?clamp(Math.max(0,u.propulsion?.actualInputW??(u.maneuver||0)*De)/De,0,1):0,wpnW=Math.max(0,u.pw?.wpn||0)*(HEAT.waste.weapon+HEAT.waste.reactor);
  const rej=Math.max(0,heatDeliverableRejectionW(u)),covered=Number.isFinite(h.cap)?clamp(h.cap,0,rej):0,spareW=Math.max(0,hb.spareW-(rej-covered));
- // The engines' and weapons' heat take the covered rejection first and then the store's room; the covered rejection is a reading
+ // The engines' and weapons' heat take the covered rejection first; the covered rejection is a reading
  // of the last heat solve, extrapolated over at most one heat interval.
- return k*Math.max(0,spareW*HEAT.balanceTarget*Math.min(dt,HEAT.dt)/dt+Math.max(0,gov.roomJ)/dt-hb.heatAt(x)-wpnW)/Math.max(1e-12,HEAT.waste.reactor);
+ return k*Math.max(0,spareW*HEAT.balanceTarget*Math.min(dt,HEAT.dt)/dt+Math.max(0,gov.roomJ)*(wpnW>0?0:1)/dt-hb.heatAt(x)-wpnW)/Math.max(1e-12,HEAT.waste.reactor);/* while the weapons draw, the store's room is theirs; the charge, lowest in priority, takes only running cooling then (heat-running 2026-11-17) */
 }
 function hyperChargeStep(u,P,drawW,dt){
  const need=hyperUnitNeedJ(u);if(!(need>0)){if(u)u.hyperE=0;return 0;}
@@ -85923,7 +85941,7 @@ function dockStep(units,b,dt){
   if(u.order?.type!=='dock'||!host||host.dead||host.team!==u.team)continue;const ds=dockState(host,u);
   if(ds?.inside&&dockRelativeSpeed(host,u)<=DOCK.speed){u.docked={host:host.id,hatch:ds.mouth.hatchId,local:dockWorldToLocal(host,u.pos)};u.velocity=[...(host.velocity||[0,0,0])];b?.events?.push({time:b.time,text:`${u.name}：${host.name}の格納庫に入渠`,id:u.id});}}
 }
-function fleetTick(b,dt,opts={}){
+function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt);
  const pdStep={abstractPointDefense:true};
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
  const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
@@ -85985,7 +86003,13 @@ function fleetTick(b,dt,opts={}){
   // v22 Each craft that arrives brings its stores (p.airOrd TT); they are spent as the craft attack, and lost with them.
   while(u.queue.length&&u.queue[0][0]<=b.time){const n=u.queue.shift()[1];u.air+=n;if(p.airOrd>0)u.ordPool=(u.ordPool||0)+n*p.airOrd;}
   if(!t)continue;const aim=fleetAim(u,t,true),defenseAA=automaticPointDefenseEnabled(t)?Math.max(0,(t.p.aa||0)-((t.manual?t.p.dualPurpose:dualIdle(t))?.aa||0)):0;
-  const quality=crewEff*(aim?.8:1),gunHit=quality*F.gunHit,ionHit=quality*F.ionHit,hit=quality*F.fall,gun=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*gunHit,ion=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*ionHit;
+  const quality=crewEff*(aim?.8:1),gunHit=quality*F.gunHit,ionHit=quality*F.ionHit,hit=quality*F.fall;let gun=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*gunHit,ion=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*ionHit;
+  // v27 Bolt-resolved targets (opts.boltGuns, the trial's own ship; user report 2026-11-17「命中してない弾が命中扱いになる」): the
+  // guns' and ion guns' fire at it is not landed here at the expected hit rate. The shot record carries what was fired (crew
+  // quality included) as bolts, and only the bolts whose line meets its shield or hull deliver their share (the trial adds them
+  // to opts.extra for the next step). Missiles, bombs and craft keep the common model.
+  const boltOnly=!u.manual&&!!opts.boltGuns?.has?.(t.id);let bolt=null;
+  if(boltOnly){const fg=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*quality,fi=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*quality;if(fg+fi>0)bolt={gun:fg*dt*DMG,ion:fi*dt*DMG,shot:fleetShotTT(u),src:u.id,from:u.pos.slice(),reach:fleetReach(p)};gun=0;ion=0;}
   // Missiles draw on each intact launcher's magazine.
   // v22 Ion torpedo launchers draw on their magazines the same way; their share goes to the ion channel.
   let msl=0,imsl=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=missileMaxRange(u)){const total=(p.modules||[]).filter(m=>m.k==='launcher').length;
@@ -86003,13 +86027,17 @@ function fleetTick(b,dt,opts={}){
   // (user decision 2026-11-15「1発ごとに各区画で判断」; physics review: these took the guns' size).
   let dN=0;{const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0),mShot=mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,oShot=p.airOrdShot>0?p.airOrdShot:p.airOrd>0?p.airOrd:0;if(msl>0)dN+=msl/mShot;if(ord>0&&oShot>0)dN+=ord/oShot;if(fd>0)dN+=fd/FLEET_AIR_GUN_BOLT;}
   const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+ord+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd};if(dN>0)amt.directShot=(msl+ord+fd)/dN;
+  // v27 At a bolt-resolved target the ship's missiles land when they arrive: their damage rides on the launch record and the
+  // trial delivers it as the missiles reach the ship (point defence has already taken its share above).
+  let mdmg=null;if(boltOnly&&msl+imsl>0){const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0);mdmg={direct:msl*hd,ionDirect:imsl*hd,shot:mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,src:u.id,from:u.pos.slice()};amt.direct=(ord+fd)*hd;amt.ionDirect=iord*hd;if(!(ord+fd>0))delete amt.directShot;}
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
   if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
   else combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);
   // What misses may strike a ship of our own close to the target.
-  const miss=Math.max(0,1-hit);if(miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
-  const trenchPackets=fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,salvo:vk>1,...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
+  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
+  if(bolt)shots.push({from:u.id,to:t.id,team:u.team,ion:bolt.ion>bolt.gun,gun:(bolt.gun+bolt.ion)/Math.max(1e-12,DMG),msl:0,salvo:vk>1,bolt});
+  const trenchPackets=boltOnly?null:fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,salvo:vk>1,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
  }
  // Current power allocation controls this tick's thrust; the thermal update follows motion and accrual once.
  moveFleet();
@@ -90892,7 +90920,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT, converterPowerW, wingPowerK, converterShortfall, coolingDemandW, towHeatRelief, wingConverterM3, wingDischargeArea, wingDischargeW,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   loadedShipProfile, motionMassKg, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, EXAMPLE_PROFILE_VERSION, profileModelKey, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
-  SPEED_OF_LIGHT_MPS, HYPER_ENTRY_KE_PER_KG, HYPERSPACE_ALIGN_RAD, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep, hyperspaceBurstRefund, hyperKineticJ, hyperUnitNeedJ, hyperChargeNominalW, hyperChargeLeftS, hyperDriveFitted,
+  SPEED_OF_LIGHT_MPS, HYPER_ENTRY_KE_PER_KG, HYPERSPACE_ALIGN_RAD, HYPERSPACE_BURST_SPEED_MPS, HYPERSPACE_BURST_SECONDS, hyperspaceReadiness, hyperspaceCommitted, hyperspaceBurstStart, hyperspaceBurstStep, hyperspaceBurstRefund, hyperKineticJ, GUN_BOLT_MPS, observeMotion, gunAimOffset, hyperUnitNeedJ, hyperChargeNominalW, hyperChargeLeftS, hyperDriveFitted,
   MOTION_RESISTANCE_VERSION, MOTION_RESISTANCE, MASS_DRAG, INERTIA_MOVEMENT, inertiaAlignmentRate, motionResistanceRate, healthyMotionPlan, calibrateMotionResistance, massDragRate, propulsionTerminalSpeed, integratePropulsionMotion, propulsionTargetAcceleration,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   ensurePrimaryHull,primaryHullPart,isHullStructure,editableHullProfile,syncHullStructure,setHullStructureDimensions,hullStructureResizeError,hullStructureShip,hullStructureGeometry,hullLocalPoint,hullWorldPoint,hullOwnSolidCut,hullWorldSolidCut,
@@ -93254,7 +93282,7 @@ function peaceMoves(w, dt) {
 }
 function battleTick(w, sys, dt) {
  const pdStep=pointDefenseStep(w);
- const us = systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)]));
+ const us = systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)]));C.observeMotion(us,dt);/* v27 evasion counts in the hit chance */
  for(const u of us)if(u.maneuver===undefined)u.maneuver=effectiveOrder(u,w).type==='hold'&&!(len(u.velocity||[0,0,0])>0)?0:1;
  const DMG = RULES.damage, inc = new Map(us.map(u => [u.id, C.combatIncoming()])), plan = groupStations(w, sys, us, byId, sysOf, dt);
  // v25 sensors and contacts, then the S-foils (SENS-004, WING-004)

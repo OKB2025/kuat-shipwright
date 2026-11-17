@@ -8057,7 +8057,7 @@ const TRIAL_RUDDER=['取舵一杯','取舵','舵中央','面舵','面舵一杯']
 // The orbit centre floats above the ship and the default view is nearly level,
 // so the reticle (screen centre) looks at the horizon with the ship below it.
 const TRIAL_CAM_PH=1.54,TRIAL_CAM_LIFT=.2;
-const TRIAL_GUN={boltSpeed:4500,range:40000,aim:20000,maxBolts:2400,hitsToKill:10,targets:4};
+const TRIAL_GUN={boltSpeed:C.GUN_BOLT_MPS/* the speed Core's hit chance assumes */,range:40000,aim:20000,maxBolts:2400,hitsToKill:10,targets:4};
 // How the main batteries are laid: on the reticle, held on an enemy whatever
 // the view, or trained fore-and-aft at their initial bearing.
 const GUN_MODES={
@@ -9873,7 +9873,9 @@ function spaceDeaths(){
  B.started=true;
 }
 // Fire and debris age in every mode (flight, battle or a fleet battle watched in 3D).
-function trialFxStep(dt){for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);}
+// v27 A missile fired at the flown ship (e.home, e.dmg) homes on it and delivers its share when it reaches its shield or hull
+// (spaceBoltDamage); one that runs out of range delivers nothing.
+function trialFxStep(dt){for(const e of trial.fx){if(e.home&&e.dmg){const t=e.home,B=trial.battle;if(t.dead||!B||B.result){e.life=0;continue;}const c=spaceWorld(t),d=tv.sub(c,e.pos),l=tv.len(d),sp=Math.max(2600,tv.len(tv.sub(e.vel,spaceVel(t))));e.vel=tv.add(spaceVel(t),tv.scale(d,sp/Math.max(1,l)));const R=Math.max(t.p.len||100,t.p.width||0)*.5*(t.shield>0?1.15:.9);if(l<=R+sp*dt){spaceBoltDamage(t,e.dmg);spaceImpact(e.pos,spaceVel(t),t,Math.max(8,(t.p.len||100)*.02));e.life=0;continue;}}e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);}
 // ---------- v21 superweapons in the 3D battle ----------
 // B fires the selected emitters (all or an individual cannon); N changes that selection. Composite beams
 // stay on their actual muzzle axis while hyper-ion cannons use their own side arcs. Core accounts for
@@ -10281,24 +10283,30 @@ function spaceShots(shots){
  for(const s of shots)if(s.sw)swShotFx(s,byId);
  for(const s of shots){if(s.sw)continue;const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;
   // v20.6 A salvo: the whole broadside leaves the ship at once (many bolts within a moment, and a heavier report).
-  const sv=!!s.salvo&&!s.ff,n=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,...sndGunRange(a.p.len)};o.fac=sndFac(a);sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
+  const sv=!!s.salvo&&!s.ff,n0=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6),n=s.bolt?Math.max(1,n0):n0;if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,...sndGunRange(a.p.len)};o.fac=sndFac(a);sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
   for(let i=0;i<n;i++){const emitter=spaceShotEmitter(a,t,i,!!s.ion,s.sourceFit,s.sourceMuzzle);if(!emitter)continue;const from=emitter.pos,tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(tw,spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d),mount=a.p.surface?.mounts.find(m=>m.id===emitter.fit),reach=s.ion?C.GUN_BANDS.long.range:C.GUN_BANDS[mount?.band]?.range||C.fleetReach(a.p),direction=C.gunScatter(emitter.dir||tv.norm(d),a.p,reach,C.fleetSystems(a).fire);if(dist<1)continue;
-   trial.vbolts.push({pos:from,vel:tv.scale(direction,TRIAL_GUN.boltSpeed),life:reach/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],ion:!!s.ion,target:t,sourceFit:emitter.fit,sourceCell:emitter.cell,sourceUnit:emitter.unit});}
-  if(s.launches?.length){sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)});for(const packet of s.launches){const from=packet.origin?tv.add(B.O,trialApply(B.E,packet.origin)):spaceHullPoint(a,.3),axis=packet.axis?trialApply(B.E,packet.axis):tv.norm(tv.sub(spaceWorld(t),from)),vel=tv.add(spaceVel(a),axis,2600),life=Math.min(2.5,C.missileRange(packet)/Math.max(1,tv.len(vel)));for(let k=0;k<Math.min(4,Math.ceil(packet.n));k++)trial.fx.push({pos:from,vel,life,max:life,size:packet.ion?10:9,col:packet.ion?[205,230,255]:[255,210,150]});}}
+   trial.vbolts.push({pos:from,vel:tv.scale(direction,TRIAL_GUN.boltSpeed),life:reach/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],ion:!!s.ion,target:t,sourceFit:emitter.fit,sourceCell:emitter.cell,sourceUnit:emitter.unit,dmg:s.bolt?{gun:s.bolt.gun/n,ion:s.bolt.ion/n,shot:s.bolt.shot,src:s.bolt.src,from:s.bolt.from}:null});}
+  if(s.launches?.length){sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)});for(const packet of s.launches){const from=packet.origin?tv.add(B.O,trialApply(B.E,packet.origin)):spaceHullPoint(a,.3),axis=packet.axis?trialApply(B.E,packet.axis):tv.norm(tv.sub(spaceWorld(t),from)),vel=tv.add(spaceVel(a),axis,2600),life=s.mdmg?Math.max(2.5,C.missileRange(packet)/2600*1.5):Math.min(2.5,C.missileRange(packet)/Math.max(1,tv.len(vel))),nk=Math.min(4,Math.ceil(packet.n)),ofKind=s.launches.filter(q=>!!q.ion===!!packet.ion).reduce((n,q)=>n+Math.min(4,Math.ceil(q.n)),0),dmg=s.mdmg?{direct:packet.ion?0:s.mdmg.direct/ofKind,ionDirect:packet.ion?s.mdmg.ionDirect/ofKind:0,shot:s.mdmg.shot,src:s.mdmg.src,from:s.mdmg.from}:null;for(let k=0;k<nk;k++)trial.fx.push({pos:from,vel,life,max:life,size:packet.ion?10:9,col:packet.ion?[205,230,255]:[255,210,150],...(dmg?{home:t,dmg}:{})});}}
+  else if(s.mdmg){/* v27 legacy missiles at the flown ship: they fly to it and deliver on arrival */const from=spaceHullPoint(a,.3),life=Math.max(2.5,tv.len(tv.sub(spaceWorld(t),from))/2600*1.5);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life,max:life,size:9,col:[255,210,150],home:t,dmg:{...s.mdmg}});}
   else if(s.msl>0&&Math.random()<.5&&(sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}
   // v22 ion torpedoes: blue-white, flickering as they go
   if(!s.launches?.length&&s.imsl>0&&Math.random()<.5&&(sndAt('missile',spaceWorld(a),{gain:.6}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3),v=tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600);trial.fx.push({pos:from,vel:v,life:2.5,max:2.5,size:10,col:[205,230,255]});for(let j=0;j<3;j++)trial.fx.push({pos:tv.add(from,v,.2+j*.25),vel:tv.add(v,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60),life:.5+j*.3,max:.5+j*.3,size:5,col:[150,195,255]});}}
  if(trial.vbolts.length>1600)trial.vbolts.splice(0,trial.vbolts.length-1600);
 }
+// v27 A bolt fired at the flown ship that reaches it: its share of the fired energy goes into the next step's incoming
+// (merged in Core like any hit; dmg already carries the battle's damage scale).
+function spaceBoltDamage(t,d){const B=trial.battle;if(!B||B.result||!d||t.dead)return;const g=Math.max(0,d.gun||0),i=Math.max(0,d.ion||0),dr=Math.max(0,d.direct||0),di=Math.max(0,d.ionDirect||0);if(!(g+i+dr+di>0))return;
+ const x=B.extra.get(t.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:d.src};x.sf+=g+C.COMBAT.ionShield*i;x.hull+=g+C.COMBAT.ionHull*i;x.ion+=i;x.direct+=dr;x.ionDirect=(x.ionDirect||0)+di;
+ const h=g+C.COMBAT.ionHull*i+dr;if(h>0&&d.shot>0){x.shotE=(x.shotE||0)+h;x.shotN=(x.shotN||0)+h/d.shot;}x.aim.auto=(x.aim.auto||0)+h+.1*(g+i+di);if(d.from)x.from=d.from.slice();x.src=d.src;B.extra.set(t.id,x);}
 function spaceBolts(dt){
  trial.vbolts=trial.vbolts.filter(b=>{
   if(b.delay>0){b.delay-=dt;return true;}const previous=b.pos,step=Math.min(dt,Math.max(0,b.life));b.pos=tv.add(b.pos,b.vel,step);b.life-=dt;const t=b.target;
-  // Fleet damage is already accounted for in Core. A visible bolt only makes
-  // an impact flash if this same physical segment intersects the target hull.
-  if(t&&t.shield>0){const f=spaceShellFrame(t),h=f&&shellHitPoint(f.center,f.R,f.semi.map(v=>(v-SHIELD_SHELL.m)/SHIELD_SHELL.k),previous,b.pos),q=h?.shell;if(q){spaceShieldBurst(q,spaceVel(t),Math.max(8,t.p.len*.02),!!b.ion);if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+.12);return false;}}
+  // Fleet damage is already accounted for in Core, except for fire at the flown ship (b.dmg): a visible bolt
+  // makes an impact flash, and for the flown ship delivers its share, only if this physical segment meets the shield or hull.
+  if(t&&t.shield>0){const f=spaceShellFrame(t),h=f&&shellHitPoint(f.center,f.R,f.semi.map(v=>(v-SHIELD_SHELL.m)/SHIELD_SHELL.k),previous,b.pos),q=h?.shell;if(q){if(b.dmg)spaceBoltDamage(t,b.dmg);spaceShieldBurst(q,spaceVel(t),Math.max(8,t.p.len*.02),!!b.ion);if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+.12);return false;}}
   if(t){const R=spaceRotU(trial.battle.E,t),center=spaceWorld(t),semi=[t.p.len/2,(t.p.height||t.p.len*.2)/2,(t.p.width||t.p.len*.5)/2],a=trialApplyT(R,tv.sub(previous,center)).map((v,i)=>v/semi[i]),z=trialApplyT(R,tv.sub(b.pos,center)).map((v,i)=>v/semi[i]),v=tv.sub(z,a),k=C.clamp(-tv.dot(a,v)/Math.max(1e-12,tv.dot(v,v)),0,1);
    const m=tv.len(tv.add(a,v,k))<1&&C.hullRadialOf?.(t),rp=m?radialSegment(m,trialApplyT(R,tv.sub(previous,center)),trialApplyT(R,tv.sub(b.pos,center)),previous,b.pos):null;
-   if(m?rp:tv.len(tv.add(a,v,k))<1){const point=rp||tv.add(previous,tv.sub(b.pos,previous),k);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
+   if(m?rp:tv.len(tv.add(a,v,k))<1){const point=rp||tv.add(previous,tv.sub(b.pos,previous),k);if(b.dmg)spaceBoltDamage(t,b.dmg);spaceImpact(point,spaceVel(t),t,Math.max(8,t.p.len*.02));if(t.manual)trial.hitFlash=Math.min(1,(trial.hitFlash||0)+(t.shield>0?.12:.35));return false;}}
   return b.life>0;
  });
 }
@@ -10411,7 +10419,7 @@ function spaceStep(dt){
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
-  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
+  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,boltGuns:B.me?new Set([B.me.id]):null/* v27 enemy gun fire at the flown ship lands only by the bolts that reach it */,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
   spaceBumps(b.bumps);spaceBump(B.me);spaceDockStep(SPACE_RULES.step);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
