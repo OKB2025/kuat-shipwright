@@ -9079,7 +9079,7 @@ function trialSelfUpdate(hud){
  const allies=(B?.b.units||[]).filter(u=>u.team===0&&!u.manual),log=(B?.ticker||[]).slice(-3).reverse();
  // v22.3 Damage is by module: the ship's crew aboard (乗員 %) in place of a hull bar.
  const cr=crewShare(me),secs=cr==null?'':`<div class="ts-row"><span>乗員</span><i class="crew${crewCls(cr)}"><em style="width:${crewPct(cr)}%"></em></i><small>${crewPct(cr)}%</small></div>`;
- const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out==='電源喪失'?' · 電源喪失（航行不能）':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}${me.trialDocked?' · 入渠中（補給）':''}</b>${me.trialDocked?`<p class="ts-line">${esc(me.trialDocked.hostName)}の${esc(me.trialDocked.label)}で補給中。推力を上げると出渠します。</p>`:''}${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
+ const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out==='電源喪失'?' · 電源喪失（航行不能）':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}${me.trialDocked?' · 入渠中（補給）':''}</b>${me.trialDocked?`<p class="ts-line">${esc(me.trialDocked.hostName)}の格納庫で補給中。推力を上げると出渠します。</p>`:''}${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}${surfaceRuntimeHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
  setHTML(el,html);
 }
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
@@ -9670,10 +9670,12 @@ function spaceRefresh(){
 // player, not Core, moves this ship.)
 function spaceDockStep(dt){
  const B=trial.battle,me=B?.me;if(!me||me.dead||!(dt>0))return;
- let at=null;for(const h of B.b.units){if(h===me||h.dead||h.absent||h.team!==me.team||!h.p?.docks?.length)continue;const ds=C.dockState(h,me);if(ds?.inside){at={h,ds};break;}}
- const slow=at&&tv.len(tv.sub(me.velocity||[0,0,0],at.h.velocity||[0,0,0]))<=C.DOCK.speed,idle=!((trial.thrustWant||0)>.02);
- if(at&&slow&&idle){
-  if(!me.trialDocked||me.trialDocked.host!==at.h.id){me.trialDocked={host:at.h.id,dock:at.ds.dock.id,label:at.ds.dock.label,hostName:at.h.name};spaceLog(`${at.h.name}の${at.ds.dock.label}に入渠`,me);}
+ let at=null;for(const h of B.b.units){if(h===me||h.dead||h.absent||h.team!==me.team||!h.p?.mouths?.length)continue;const ds=C.dockState(h,me);if(ds&&(ds.inside||ds.corridor)&&(!at||ds.inside&&!at.ds.inside))at={h,ds};}
+ // In a fitting mouth's corridor or bay the host's hull lets the ship through (it is flying into the hangar).
+ me.dockCorridor=!!at;
+ const slow=at?.ds.inside&&tv.len(tv.sub(me.velocity||[0,0,0],at.h.velocity||[0,0,0]))<=C.DOCK.speed,idle=!((trial.thrustWant||0)>.02);
+ if(slow&&idle){
+  if(!me.trialDocked||me.trialDocked.host!==at.h.id){me.trialDocked={host:at.h.id,hatch:at.ds.mouth.hatchId,hostName:at.h.name};spaceLog(`${at.h.name}の格納庫に入渠`,me);}
   C.dockResupplyStep(me,dt);const en=trial.energy;if(en&&en.cap>0)en.E=Math.min(en.cap,en.E+(en.cap-en.E)*(1-Math.exp(-dt/C.DOCK.refillS)));
   trial.V=trialApply(B.E,at.h.velocity||[0,0,0]);
  }else if(me.trialDocked){const name=me.trialDocked.hostName||'母艦';delete me.trialDocked;spaceLog(`${name}のドックを出る`,me);}
@@ -9684,9 +9686,9 @@ function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.p
 function trialEscortMode(free){trial.escortFree=free==null?!trial.escortFree:!!free;const B=trial.battle;if(B)spaceOrders(B.b);toast(trial.escortFree?'随伴艦：自由攻撃 — 近い敵から攻撃します':'随伴艦：護衛 — 旗艦と敵のあいだに入り、旗艦を狙う敵を優先して撃ちます');}
 // v26 A friendly ship that has lost much (C.dockNeed) makes for a friendly dock when one is in the battle, stays docked until it is
 // resupplied, then goes back to its duty (user decisions 2026-11-17).
-function spaceDockHost(b,u){return b.units.filter(h=>h!==u&&!h.dead&&!h.out&&!h.absent&&h.team===u.team&&h.p?.docks?.length).sort((a,z)=>C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)))[0]||null;}
+function spaceDockHost(b,u){return b.units.filter(h=>h!==u&&!h.dead&&!h.out&&!h.absent&&h.team===u.team&&(h.p?.mouths||[]).some(m=>C.dockState(h,u)?.mouth===m)).sort((a,z)=>C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)))[0]||null;}
 function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.manual||u.dead||u.absent)continue;if(u.trialStatic){trialStaticOrder(u);continue;}
- if(typeof C.dockNeed==='function'){const need=C.dockNeed(u),host=u.docked?b.units.find(h=>h.id===u.docked.host):spaceDockHost(b,u);if(host&&!host.dead&&(u.docked?need>C.DOCK.full:need>=C.DOCK.want)){u.order={...u.order,type:'dock',target:host.id,fire:true,launch:false};continue;}}
+ {const need=C.dockNeed(u),host=u.docked?b.units.find(h=>h.id===u.docked.host):spaceDockHost(b,u);if(host&&!host.dead&&(u.docked?need>C.DOCK.full:need>=C.DOCK.want)){u.order={...u.order,type:'dock',target:host.id,fire:true,launch:false};continue;}}
  if(u.out)continue;if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
 function spaceDamage(u,tt,kind,q,t,aimK){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
