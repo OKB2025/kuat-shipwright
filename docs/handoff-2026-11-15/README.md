@@ -362,6 +362,30 @@ PR は内容ごとに分け、それぞれ main を基準にドラフトで出�
 - 充電装置の要らない武装が充電されない不具合を修正。`housingCapacity` は充電装置のある武装だけに付ける。main 向けの別 PR #114 にも同じ修正がある。
 - 未対応：エグゼクターの変換装置と格納区画（上の文書の「未対応」）。
 
+### PR #112 の最終状態（2026-11-17、6c5ad5d＋テスト・文書）
+
+- **全テスト**：525 ファイルを最終のコードで実行し、PR 前の監査（57dd537、`/tmp/ks-verify/20261116-audit-full/`）と比べた。
+  - PR 前より失敗が増えたファイルは 0。失敗しているテストの名前が増えたファイルも 0。
+  - 良くなったのは 4 ファイル（custom-factions、load-sizes、source-manifest、surface-energy-review）。
+  - 合計：3,162 合格・504 不合格（PR 前は 519 ファイルで 3,142 合格・508 不合格）。不合格は PR 前からのもの。
+  - `example-figures-regression` は 40 分で時間切れ。PR 前の監査でも同じ時間切れ。
+  - 結果：`/tmp/ks-verify/20261116-pr112-full5/final/`（summary.txt、worse.txt、better.txt、name-diff.txt）。
+- **生成物**：`refresh-examples --jobs 2` は書き換え 0 で安定。`update-asset-manifest --check` は合格。戦闘の再現性記録は ff4a7ad で取り直し、書き込みなしで合格。
+- **ブラウザ**（6c5ad5d）：`browser-trial-spawn`、`browser-battle-station`、`browser-hyperspace-entry-burst` は合格。`browser-prepared-ship-cache` は出力先が `docs/benchmarks/` に固定で指定できないため未実行。
+- **レビュー**：
+  - 物理：ジャンプ中の超兵器の充電保持は PASS。均衡運転の 1 ステップの上限は UNVERIFIED（`docs/engine-bus-and-cruise-cooling.md`）。途中の FAIL 3 回（蓄熱が損傷域に入るテストの緩和、エンジンのない艦の例外、排熱と熱の見積もりの抜け）は解消済み。
+  - 原本照合（アクラメイター）：partConstraints は PASS。前回の FAIL（集合ホールの孤立）は解消。referenceShape・physicalValidity・evidenceValidity は UNVERIFIED（外観のシルエットとハッチの拡大画像、DK 断面図との重ね合わせ、main との物理値の対照表が不足）。外装 21 部品と武装 28 基は main と一致（`/tmp/ks-verify/20261117-acclamator-final/exterior-diff.txt`）。
+  - 回帰：UNVERIFIED のあと、Opus/high の追加レビューで 3 点とも PASS（保存形式、準備済み設計と現行コードの一致、機関配分の決定性）。準備済み設計の一致を確かめたのはアクラメイター・CR90・GR-75 の 3 隻。
+- **既知の課題（次の作業で扱う）**：
+  1. エグゼクターは均衡運転で最高速度の 0.26 までしか出ず、超空間に入れない（下の 3 の再設計で直す）。
+  2. アクラメイターの格納容量は 208 → 156。説明文の「LAAT/i 32 機、LAAT/c 9 機」（大きさ 181）は入らない。説明文を直すか、格納庫を戻すかを決める。
+  3. アクラメイターの下部共通格納庫と移送甲板のつなぎ目は、隙間 1.4 m で判定の許容差 1.5 m に対して余裕 0.1 m。移送甲板とリフトを `autoFit:false` で固定する案は、揚陸甲板の配置が変わって兵員が 15,696 名に減ったので見送った。`tests/acclamator-hangar-network.cjs` が連絡を守る。
+  4. `sizeReferenceReactors` が区画形の主反応炉の `room` を拡大するとき `p.d` を更新しない（アクラメイターの保存値 65.85、読み込み後 65.57。質量の差 0.45 kg）。`setRoomSize` を使って作り直す。
+  5. 計算値が変わったので `EXAMPLE_PROFILE_VERSION` を上げるのが望ましい（今は価格表の署名の違いで、main のキャッシュが使われずに済んでいる）。
+  6. 手で編集した保存ファイルで主反応炉に `room` が付いていると、main と違う形で読み込まれる（アプリからは作れない）。
+  7. `CLAUDE.md` の「ハッシュが一致しないと Worker は組み直す」は古い（`docs/prepared-examples.md` のとおり、2026-11-12 から Worker は組み直さない）。
+  8. サブジュゲイターは、テスト用の 20 秒刻みの進め方では最初の 1 ステップで停電する（main でも同じ）。ゲーム本体は 0.25 秒刻み。
+
 ### #112 のマージ後に進める順と、決まっていること（2026-11-16 の回答）
 
 1. **艦載機を設計した小型艦として飛ばす**（別 PR）。
