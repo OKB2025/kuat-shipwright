@@ -2,8 +2,8 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js']){let source=fs.readFileSync(path.join(root,f),'utf8');if(f==='js/gfx.js')source=source.replace('return {meshPreview,','return {launcherReferenceSkin,meshPreview,');vm.runInContext(source,cx,{filename:f});}
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),fit=patch=>({id:1,k:'shipMsl',p:[13,7,-23],a:2,ped:0,base:0,low:0,float:false,...patch});
 function vertices(g){return Array.from(g.idx.subarray(0,g.ni)).map(k=>Array.from(g.pos.subarray(k*3,k*3+3)));}
-test('ship cells are exactly twice the compact pod size and repeat a bounded open housing',()=>{
- const d=C.fitSpec(fit({})),air=C.FITS.cmsl;assert.deepEqual([d.fm,d.hm,d.wm],[air.fm*2,air.hm*2,air.wm*2]);
+test('ship cells hold the craft missile (12 × 2.25 × 2.25 m since 2026-11-11) and repeat a bounded open housing',()=>{
+ const d=C.fitSpec(fit({})),air=C.FITS.cmsl;assert.deepEqual([d.fm,d.hm,d.wm],[12,2.25,2.25]);assert.equal(C.storeCapacity(d.store,'cmsl'),6);assert.ok(air.fm<d.fm);
  const small=G.meshFits({fits:[fit({})]}),large=G.meshFits({fits:[fit({launcherCols:16,launcherRows:16})]});assert.ok(large.ni>small.ni);assert.ok(large.ni/3<5000,'shared grid walls bound procedural geometry');
 });
 test('yawed and pitched external housing and supports stay inside the physical selectable bounds',()=>{

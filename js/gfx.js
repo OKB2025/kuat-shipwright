@@ -628,7 +628,33 @@ function concussionLauncherMesh(g,f){
 }
 // Repeated ship cells share a real open-front box. The dark rear panel and
 // dividers lie behind the mouths; no solid front quad seals the launch path.
+// The ship-scale concussion launcher: a face panel with round tubes over an interior compartment as deep as the
+// missile. Each tube shows its bore wall and the loaded round; the panel frame is the measured margin.
+function roundTubeLauncherMesh(g,p){
+ const [L,H,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt],o=p.bodyCenter,fr=p.bodyFrame,t=.4,[fy,fz]=p.frame||[0,0],[,ch,cw]=p.cellSize,r=Math.min((p.bore||Math.min(ch,cw)*.9)/2,Math.min(ch,cw)/2-.05),N=16,UV=[[0,0],[1,0],[1,1],[0,1]];
+ const at=(x,y,z)=>C.add(o,C.add(C.mul(fr.fw,x),C.add(C.mul(fr.up,y),C.mul(fr.rt,z)))),face=L/2;
+ // Compartment shell behind the panel (back wall and four side walls).
+ box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
+ for(const sign of [-1,1]){box(g,M,o,0,sign*(H-t)/2,0,L,t,W,FC.body);box(g,M,o,0,0,sign*(W-t)/2,L,H-t*2,t,FC.body);}
+ // Face frame around the tube grid.
+ if(fy>0)for(const sign of [-1,1])box(g,M,o,face-t/2,sign*(H-fy)/2,0,t,fy,W,FC.body);
+ if(fz>0)for(const sign of [-1,1])box(g,M,o,face-t/2,0,sign*(W-fz)/2,t,H-fy*2,fz,FC.body);
+ // Raised rows leave a face strip between consecutive rows of tubes.
+ const raise=p.rowRaise||0,rows=p.rows||1;if(raise>0)for(let r=1;r<rows;r++)box(g,M,o,face-t/2,-H/2+fy+r*ch+(r-.5)*raise,0,t,raise,W-fz*2,FC.body);
+ for(const c of p.cellCenters){
+  const cy=C.dot(C.sub(c,o),fr.up),cz=C.dot(C.sub(c,o),fr.rt),ring=[];
+  for(let i=0;i<=N;i++){const a=i/N*Math.PI*2,cs=Math.cos(a),sn=Math.sin(a),k=1/Math.max(Math.abs(cs)/(ch/2),Math.abs(sn)/(cw/2));ring.push([[cy+cs*r,cz+sn*r],[cy+cs*k,cz+sn*k]]);}
+  for(let i=0;i<N;i++){const [a0,b0]=ring[i],[a1,b1]=ring[i+1];quad(g,[at(face,...b0),at(face,...b1),at(face,...a1),at(face,...a0)],fr.fw,UV,FC.ring,255);}
+  // A closed round lid sits in a shallow round recess in front of each tube's ready missile; a hinge on the upper edge.
+  const depth=Math.min(.8,L*.05),front=at(face,cy,cz),seat=at(face-depth,cy,cz),lid=at(face-depth*.25,cy,cz),lidR=Math.max(r-.12,r*.97);
+  axisFrustum(g,front,seat,r,r,FC.dark,false,true,N);
+  axisFrustum(g,seat,lid,lidR,lidR,FC.body,[false,true],false,N);
+  axisFrustum(g,lid,at(face-depth*.15,cy,cz),lidR*.3,lidR*.3,FC.ring,[false,true],false,N);
+  box(g,M,o,face-depth*.3,cy+lidR*.92,cz,depth*.5,r*.12,r*.5,FC.ring);
+ }
+}
 function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
+ if(p.tube==='round'){roundTubeLauncherMesh(g,p);return;}
  const [L,H,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt],o=p.bodyCenter,t=.035;
  box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
  box(g,M,o,-L/2+t+.008,0,0,.016,H-t*2,W-t*2,FC.dark);

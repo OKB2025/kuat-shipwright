@@ -5,10 +5,12 @@ const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x));
 const craft=()=>{const s=C.newShip({L:12,W:6,H:4,assembly:true},'Ordnance fixture');C.placePart(s,'struct',[6,2,0],[8,3,3],{form:'box'});return s;};
 
 test('a pylon takes six missiles, three torpedoes or two bombs and is the pylon alone',()=>{
- const st=C.FITS.cpylon.store;assert.equal(C.storeCapacity(st,'cmsl'),6);assert.equal(C.storeCapacity(st,'ptorp'),3);assert.equal(C.storeCapacity(st,'bomb'),2);
+ const st=C.FITS.cpylon.store;assert.equal(C.storeCapacity(st,'cmsl'),6);assert.equal(C.storeCapacity(st,'ptorp'),3);assert.equal(C.storeCapacity(st,'bomb'),3);
  const s=craft(),r=C.placeFit(s,'cpylon',[6,.5,1],[0,-1,0],0,true);assert.ok(r.fit,r.err);
  const b=C.fitAABB(r.fit),d=C.FITS.cpylon;assert.ok(Math.abs((b[4]-b[1])-d.hm)<1e-6,'no stores hang from the design');
- const S=C.computeStats(s),stations=plain(C.craftStations(s,S));assert.deepEqual(stations,[{fit:'cpylon',mount:'wing',count:2}],'a mirrored pair is one station');
+ const S=C.computeStats(s),stations=plain(C.craftStations(s,S));assert.deepEqual(stations.map(({fit,mount,count})=>({fit,mount,count})),[{fit:'cpylon',mount:'wing',count:2}],'a mirrored pair is one station');
+ // 2026-11-11 user decision: the pylons share the landing equipment's spare rated load (rating less the design mass) as one pool.
+ const spare=Math.max(0,S.craftSystems.landingSupport-S.mass);assert.ok(Math.abs(stations[0].liftPool-spare)<1e-9);assert.ok(Math.abs(stations[0].store.maxMass-spare)<1e-9);
 });
 test('launch tubes are retired into pylons and old bomb-bay fittings into bomb-bay compartments',()=>{
  assert.equal(C.FITS.ctorp.catalogHidden,true);assert.equal(C.FITS.cbomb.catalogHidden,true);
