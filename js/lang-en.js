@@ -7014,6 +7014,7 @@ root.KS_EN={
   "通れる開口がない": "no opening it can pass",
   "格納庫に空きがない": "no room in the hangar",
   "牽引されている": "under tow",
+  "時間内に入れない": "could not get in in time",
   "ジャンプに入る": "entering a jump",
   "入渠先が行動不能": "the host is disabled",
   "入渠先が行動不能です": "The host is disabled",

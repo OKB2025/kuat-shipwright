@@ -85750,11 +85750,11 @@ function hullFall(u,dt,rand=Math.random){
 function hullCarve(u,dy){if(!dy||!u.velocity)return;const c=Math.cos(dy),s=Math.sin(dy),x=u.velocity[0],z=u.velocity[2];u.velocity[0]=x*c-z*s;u.velocity[2]=x*s+z*c;}
 // Ships keep clear of one another: one closing on another eases off and
 // passes above or below it. Returns the change to the wanted velocity.
-function hullAvoid(u,list,want){
+function hullAvoid(u,list,want,skip=null){
  const h=hullHalf(u.p),r0=Math.hypot(h[0],h[2]),f=[Math.cos(u.yaw||0),Math.sin(u.yaw||0)];let up=0,slow=0;
  // v24 list may be a grid (hullGrid with k ≥ 1.12): only the ships sharing a cell are looked at
  if(list&&list.g)list=hullNear(list,u);
- for(const x of list){if(x===u||x.dead||x.absent||x.towedBy===u.id||u.towedBy===x.id)continue;const hx=hullHalf(x.p),r=(r0+Math.hypot(hx[0],hx[2]))*1.12,dx=u.pos[0]-x.pos[0],dz=u.pos[2]-x.pos[2],d2=dx*dx+dz*dz;if(d2>r*r)continue;
+ for(const x of list){if(x===u||x.dead||x.absent||x.towedBy===u.id||u.towedBy===x.id||skip&&skip(x)/* v28 a docking ship and its host do not steer clear of each other */)continue;const hx=hullHalf(x.p),r=(r0+Math.hypot(hx[0],hx[2]))*1.12,dx=u.pos[0]-x.pos[0],dz=u.pos[2]-x.pos[2],d2=dx*dx+dz*dz;if(d2>r*r)continue;
   const dy=u.pos[1]-x.pos[1],clear=(h[1]+hx[1])*2.2;if(Math.abs(dy)>clear)continue;
   // v20 Ships in close order (side by side, nose to tail) are left alone while their hull boxes keep a margin apart.
   const gap=hullBoxGap(u,h,x,hx),m=Math.max(60,.5*Math.min(h[2],hx[2]));if(gap>m)continue;
@@ -93356,7 +93356,7 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
     want = scale(norm(delta), speed);const hor = hyp(want[0], want[2]) * (d < near ? clamp(ahead, 0, 1) : 1);want[0] = Math.cos(u.yaw) * hor;want[2] = Math.sin(u.yaw) * hor;
    }
   }
-  want = C.hullAvoid(u, clearOf, want);
+  want = C.hullAvoid(u, clearOf, want, x => dockingAt(w, u, x) || dockingAt(w, x, u));
   u.turnK = clamp(turned / Math.max(1e-6, (u.p.turnRate||0) * dt), -1, 1);
   const required=C.propulsionTargetAcceleration(u,u.velocity,want,dt),need=len(required),applied=scale(required,Math.min(1,acc/Math.max(1e-12,need))),motion=C.integratePropulsionMotion(u,u.velocity,applied,dt);u.velocity=motion.velocity;u.pos=add(u.pos,motion.displacement);
   u.maneuver = acc0 > 0 ? clamp(Math.max(need/acc0,turnNeed), 0, 1) : 0;
@@ -94707,7 +94707,7 @@ function orderUnit(w, id, o) {
  // v28 Dock: enter a hangar of a ship of our own side (dockCheck: a mouth it fits, room in the hangar, the same system).
  if (o.type === 'dock' && !dockCheck(w, id, o.target).ok) return false;
  if (o.type && o.type !== 'dock') dockRelease(w, u);
- u.order = {...u.order, ...o};if (o.type) delete u.order.recall;if(Object.hasOwn(o,'autoPointDefense'))C.setAutomaticPointDefense(u,o.autoPointDefense);if (o.type && o.type !== 'attack' && o.type !== 'escort' && o.type !== 'dock') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;stir(w, u.sys);return true;
+ u.order = {...u.order, ...o};if (o.type) { delete u.order.recall; delete u.order.dockSince; }if(Object.hasOwn(o,'autoPointDefense'))C.setAutomaticPointDefense(u,o.autoPointDefense);if (o.type && o.type !== 'attack' && o.type !== 'escort' && o.type !== 'dock') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;stir(w, u.sys);return true;
 }
 // Task groups: 自動交戦 (auto), hold, move (point), attack (target); the formation;
 // power and aim for every ship of the group. Ships on orders of their own rejoin.
@@ -95070,6 +95070,7 @@ function dockCarried(w, x, c) {
 // (the mouth's traffic is shared with the craft's launches and landings, carrier.mq), into hangar room counted in the craft's
 // own unit (C.shipStowSize against the hangar's slots, with the squadrons and ships already assigned there). Aboard it is a
 // carried ship: it rides, jumps and is lost with its carrier, is resupplied (carriedTick), and leaves by 'launch'.
+const DOCK_GIVE_UP_S = 900;
 const dockDims = u => [u.p.len || 10, u.p.width || (u.p.len || 10) * .4, u.p.height || (u.p.len || 10) * .2];
 const dockFitsMouth = (m, u) => { const [L, W, H] = dockDims(u), o = [...m.o].sort((a, b) => b - a), x = [W, H].sort((a, b) => b - a); return x[0] <= o[0] && x[1] <= o[1] && L <= Math.max(...m.bs); };
 function stowUsed(w, host, except = null) { let n = 0; for (const s of w.squads.values()) if (s.home === host.id && s.n > 0) n += s.n * (CRAFT[s.craft]?.size || 1); for (const x of w.units.values()) if (x.carrier === host.id && !x.dead && x !== except) n += C.shipStowSize(dockDims(x)); return n; }
@@ -95104,7 +95105,7 @@ function dockTick(w, dt) {
  for (const u of w.units.values()) {
   if (u.order?.type !== 'dock') { if (u.dockLane) dockRelease(w, u); continue; }
   if (!alive(u)) { dockRelease(w, u); if (!u.dead && u.status !== 'carried') { u.order = {...u.order, type: 'hold'}; delete u.order.target; } continue; }/* withdrawn or sent to the rear: the order ends */
-  const h = w.units.get(u.order.target), stop = why => { dockRelease(w, u); u.order = {...u.order, type: 'hold'}; delete u.order.target; delete u.order.recall; event(w, `${u.name}：入渠を中止（${why}）`, {side: u.side, sys: u.sys}); };
+  const h = w.units.get(u.order.target), stop = why => { dockRelease(w, u); u.order = {...u.order, type: 'hold'}; delete u.order.target; delete u.order.recall; delete u.order.dockSince; event(w, `${u.name}：入渠を中止（${why}）`, {side: u.side, sys: u.sys}); };
   if (!h || !alive(h) || h.side !== u.side) { stop('入渠先が失われた'); continue; }
   if (h.sys !== u.sys || h.warp || h.jump) { stop('入渠先がいない'); continue; }
   // A ship that can no longer fly in (disabled, under tow) or is leaving (jumping) gives up the lane and the order.
@@ -95112,9 +95113,11 @@ function dockTick(w, dt) {
   if (u.jump || u.warp) { stop('ジャンプに入る'); continue; }
   if (h.out) { stop('入渠先が行動不能'); continue; }
   const ds = C.dockState(h, u);if (!ds) { stop('通れる開口がない'); continue; }
+  // A docking that does not complete is given up and reported (the order would otherwise keep its system awake for ever).
+  if (!(u.order.dockSince <= w.time)) u.order = {...u.order, dockSince: w.time}; else if (w.time - u.order.dockSince > DOCK_GIVE_UP_S) { stop('時間内に入れない'); continue; }
   if (!ds.inside || u.dockLane?.host !== h.id/* only the ship that holds the lane goes aboard */ || len(sub(u.velocity || [0, 0, 0], h.velocity || [0, 0, 0])) > C.DOCK.speed) continue;
   if (C.shipStowSize(dockDims(u)) > stowRoom(w, h, u) + 1e-9) { stop('格納庫に空きがない'); continue; }
-  const recalled = u.order.recall === true && u.carrier === h.id;dockRelease(w, u);u.carrier = h.id;u.order = {...u.order, type: 'group'};delete u.order.target;delete u.order.recall;dockCarried(w, u, h);
+  const recalled = u.order.recall === true && u.carrier === h.id;dockRelease(w, u);u.carrier = h.id;u.order = {...u.order, type: 'group'};delete u.order.target;delete u.order.recall;delete u.order.dockSince;dockCarried(w, u, h);
   // It stays aboard through a battle (physics review 2026-11-18: carriers launch their ships when a battle starts, and a ship
   // that had just docked was put out again in the same step); it leaves by the carrier's launch order. A carrier's own ship
   // called back by the recall keeps its setting (the recall holds the ships aboard by holdCarried, as before v28).
@@ -95126,7 +95129,7 @@ function orderDock(w, id, hostId) { const r = dockCheck(w, id, hostId); if (!r.o
 // The carrier calls its ships in: each makes for the hangar and docks as above (it was "within 5 km, at once" until v28).
 function recallCarried(w, id) {
  const c = w.units.get(id);if (!c || !alive(c) || c.out) return 0;let n = 0;
- for (const x of carriedOf(w, c, false)) { if (!alive(x) || x.out || x.sys !== c.sys || x.towedBy || !dockCheck(w, x.id, c.id).ok) continue; dockRelease(w, x); x.order = {...x.order, type: 'dock', target: c.id, recall: true}; delete x.order.point; n++; }
+ for (const x of carriedOf(w, c, false)) { if (!alive(x) || x.out || x.sys !== c.sys || x.towedBy || !dockCheck(w, x.id, c.id).ok) continue; dockRelease(w, x); x.order = {...x.order, type: 'dock', target: c.id, recall: true}; delete x.order.point; delete x.order.dockSince; n++; }
  if (n) { stir(w, c.sys); event(w, `${c.name} が搭載艦 ${n} 隻を呼び戻す`, {side: c.side, sys: c.sys}); }
  return n;
 }

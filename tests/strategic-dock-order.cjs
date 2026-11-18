@@ -87,3 +87,27 @@ test('a docking ship that is disabled, taken in tow, or sets out on a jump gives
 
 test('a disabled host takes no ship',()=>{const {w,h,gs:[g]}=world();h.out='電源喪失';assert.equal(R.dockCheck(w,g.id,h.id).ok,false);});
 
+// Extra review 2026-11-18 (Opus/high): the fixture's mouth stands 3 km ahead of the hull, so hull avoidance, the real
+// position of a mouth inside the hull and a turn on the spot were never exercised. With a Venator's own mouths the host
+// fled from the docking ship (hull avoidance) and the ship never got in; from close in, a ship that had to turn first
+// never set out (a system at peace settled after 5 s without motion).
+function realWorld(guests,place){
+ const host={key:'real-host',p:plain(F.designs.venator.p),info:{...plain(F.designs.venator.info)}},small={key:'real-guest',p:plain(F.designs.cr90.p),info:{mass:4e4,hyper:1,capital:false,sensor:0}};
+ const w=R.createWorld({mode:'test',sensors:false,convoyMode:false,designs:[host,small],sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:host.key},...Array.from({length:guests},()=>({design:small.key}))],[]]});
+ const us=[...w.units.values()].filter(u=>u.side===0),h=us.find(u=>u.key==='real-host'),gs=us.filter(u=>u!==h);h.pos=[0,0,0];h.yaw=0;h.velocity=[0,0,0];R.orderUnit(w,h.id,{type:'hold'});gs.forEach((g,i)=>place(g,i));return {w,h,gs};
+}
+test('a corvette docks in a Venator\'s own hangar at peace, and the Venator stays where it is',()=>{
+ const {w,h,gs:[g]}=realWorld(1,g=>{g.pos=[3000,0,1500];g.yaw=0;g.velocity=[0,0,0];});const check=R.dockCheck(w,g.id,h.id);assert.equal(check.ok,true,JSON.stringify(check));
+ assert.equal(R.orderDock(w,g.id,h.id).ok,true);const t=run(w,900,()=>g.status==='carried');
+ assert.ok(t!=null,'aboard within fifteen minutes; order '+JSON.stringify(g.order)+' at '+g.pos.map(Math.round)+' wait '+g.dockWait);assert.ok(C.len(h.pos)<50,'the host did not flee: '+h.pos.map(Math.round));assert.equal(h.out,null);
+});
+test('two corvettes that start close in, facing away, both get aboard at peace',()=>{
+ const {w,h,gs}=world(2);gs[0].pos=[4500,0,0];gs[1].pos=[4300,0,600];for(const g of gs){g.yaw=0;g.velocity=[0,0,0];assert.equal(R.orderDock(w,g.id,h.id).ok,true);}
+ assert.ok(run(w,900,()=>gs.every(g=>g.status==='carried'))!=null,'both aboard: '+gs.map(g=>g.status+' '+g.pos.map(Math.round)).join(' | '));
+});
+test('a docking that cannot complete is given up and reported',()=>{
+ const {w,h,gs:[g]}=world();R.orderDock(w,g.id,h.id);run(w,2);g.p={...g.p,maxSpeed:0,accel:0};const pin=g.pos.slice();
+ for(let t=0;t<1000&&g.order.type==='dock';t+=.25){g.pos=pin.slice();g.velocity=[0,0,0];R.tick(w,.25);}
+ assert.equal(g.order.type,'hold');assert.equal(g.dockLane,undefined);assert.ok(w.events.some(e=>/入渠を中止（時間内に入れない）/.test(e.text)));
+});
+
