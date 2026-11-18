@@ -42,7 +42,7 @@
 // Re-recorded on 174ca47 (2026-11-16, user decision「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」): the
 // shield's absorbed share no longer heats the ship. First numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0,
 // unit 0 digest[28] (heat store ht.qJ) 0 against 3.49e19 J. Two recordings in a row gave the same file (sha256 b245c89d…).
-// Re-recorded on 6aeadbd with the regenerated examples (2026-11-18, user decisions「今のシステムのまま、射撃の損失を下げよう」
+// Re-recorded on the tree committed as 6e8314d (core.js of 6aeadbd, examples regenerated) (2026-11-18, user decisions「今のシステムのまま、射撃の損失を下げよう」
 // 「電力の5%損失に直す、そして出力はトン数に合わせる」: ENERGY_MODEL.eta .75 → .95, HEAT.waste.weapon .25 → .05,
 // docs/weapon-heat-share.md). Guns charge with less input and leave less heat aboard. First numeric difference against the
 // 69dc4aa recording with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0, unit 0 digest[12] (u.energy, the charge held) 5.7733 against
