@@ -108,3 +108,12 @@ test('manual ship salvos spend the corresponding cells and retain partial final 
  const {run}=trialSetup('shipMsl',3);run('fire();for(let i=0;i<8;i++)trialMissiles(.15,null)');assert.equal(run('trial.gun.missiles'),3);assert.deepEqual(plain(run('unit.launcherCellAmmo[1]')),[5,5,5]);
  run('unit.launcherCellAmmo[1]=[0,2,1];unit.ammo[1]=3;for(let volley=0;volley<3;volley++){launcher.reload=0;fire();for(let i=0;i<8;i++)trialMissiles(.15,null)}');assert.equal(run('trial.gun.missiles'),6);assert.deepEqual(plain(run('unit.launcherCellAmmo[1]')),[0,0,0]);assert.equal(run('unit.ammo[1]'),0);
 });
+
+test('strategic-map rounds land on a small ship from every launch range instead of circling it',()=>{
+ // 2026-11-18: the strike was judged at the start of a 0.25 s step (650 m at full speed against a reach of 300 m), and at
+ // these launch ranges every round stepped across the 100 m target until its motor ran out (docs/missiles-arrive.md).
+ for(const distance of [6014,8617,13138,26153,41086,54101]){const {w,u,t}=world('shipMsl',distance),seen=new Map();
+  for(let s=0;s<70;s+=.25){R.tick(w,.25);for(const m of w.missiles)seen.set(m.id,m);}
+  const launched=[...seen.values()],hit=launched.filter(m=>m.hit>0).length;assert.equal(launched.length,6,distance+' m: the cell fired its six rounds');assert.equal(hit,6,distance+' m: '+hit+' of 6 struck');}
+});
+

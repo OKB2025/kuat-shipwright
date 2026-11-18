@@ -85029,7 +85029,7 @@ const outOfAction=u=>!!u?.out&&(u.out!=='電源喪失'||!!(u.p&&fleetOutReason(u
 // A ship that can act: alive, and not disabled for any reason (power loss included).
 const fleetActs=u=>!u.dead&&!u.out;
 const fleetEffective=u=>!u.dead&&!outOfAction(u);
-function fleetFrame(b,shots=[]){return {time:b.time,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,autoPointDefense:automaticPointDefenseEnabled(u),mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
+function fleetFrame(b,shots=[]){return {time:b.time,missiles:(b.missiles||[]).map(m=>[m.pos[0],m.pos[1],m.pos[2],m.team,m.n])/* v28 salvos in flight, for a replay to draw: x, y, z, team, rounds */,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,autoPointDefense:automaticPointDefenseEnabled(u),mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
 function fleetRandom(b){let t=(b.seed=(b.seed+0x6D2B79F5)|0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
 // ---------- combat damage (v14) ----------
 // A ship has no hit-point pool. Fire that gets past the shields loads the
@@ -85128,7 +85128,7 @@ function combatAdd(inc,t,from,amt,aim,src){
  inc.sf+=amt.sf||0;inc.hull+=amt.hull||0;inc.direct+=amt.direct||0;inc.ion+=amt.ion||0;inc.ionDirect=(inc.ionDirect||0)+(amt.ionDirect||0);
  const w=(amt.hull||0)+(amt.direct||0)+.1*((amt.sf||0)+(amt.ionDirect||0));if(!(w>0))return;const k=aim||'auto';
  {const h=amt.hull||0,d=amt.direct||0,ds=amt.directShot>0?amt.directShot:amt.shot;if(h>0&&amt.shot>0){inc.shotE=(inc.shotE||0)+h;inc.shotN=(inc.shotN||0)+h/amt.shot;}if(d>0&&ds>0){inc.shotE=(inc.shotE||0)+d;inc.shotN=(inc.shotN||0)+d/ds;}}inc.aim[k]=(inc.aim[k]||0)+w;
- if(from&&COMBAT.exposed[k]){const h=aimHold(t,k,len(sub(from,t.pos)));if(h>0){inc.snipe=inc.snipe||{};inc.snipe[k]=(inc.snipe[k]||0)+w*h;}}
+ if(from&&COMBAT.exposed[k]){const h=aimHold(t,k,amt.aimRange>0?amt.aimRange:len(sub(from,t.pos))/* v28 a salvo that arrives keeps the range it was aimed from (its launch range); `from` is then where it came in, close to the ship */);if(h>0){inc.snipe=inc.snipe||{};inc.snipe[k]=(inc.snipe[k]||0)+w*h;}}
  if(from){const fw=combatFaces(t,from);for(let f=0;f<6;f++)inc.face[f]+=fw[f]*w;}
  if(src!=null)inc.by[src]=(inc.by[src]||0)+w;
 }
@@ -85750,11 +85750,11 @@ function hullFall(u,dt,rand=Math.random){
 function hullCarve(u,dy){if(!dy||!u.velocity)return;const c=Math.cos(dy),s=Math.sin(dy),x=u.velocity[0],z=u.velocity[2];u.velocity[0]=x*c-z*s;u.velocity[2]=x*s+z*c;}
 // Ships keep clear of one another: one closing on another eases off and
 // passes above or below it. Returns the change to the wanted velocity.
-function hullAvoid(u,list,want){
+function hullAvoid(u,list,want,skip=null){
  const h=hullHalf(u.p),r0=Math.hypot(h[0],h[2]),f=[Math.cos(u.yaw||0),Math.sin(u.yaw||0)];let up=0,slow=0;
  // v24 list may be a grid (hullGrid with k ≥ 1.12): only the ships sharing a cell are looked at
  if(list&&list.g)list=hullNear(list,u);
- for(const x of list){if(x===u||x.dead||x.absent||x.towedBy===u.id||u.towedBy===x.id)continue;const hx=hullHalf(x.p),r=(r0+Math.hypot(hx[0],hx[2]))*1.12,dx=u.pos[0]-x.pos[0],dz=u.pos[2]-x.pos[2],d2=dx*dx+dz*dz;if(d2>r*r)continue;
+ for(const x of list){if(x===u||x.dead||x.absent||x.towedBy===u.id||u.towedBy===x.id||skip&&skip(x)/* v28 a docking ship and its host do not steer clear of each other */)continue;const hx=hullHalf(x.p),r=(r0+Math.hypot(hx[0],hx[2]))*1.12,dx=u.pos[0]-x.pos[0],dz=u.pos[2]-x.pos[2],d2=dx*dx+dz*dz;if(d2>r*r)continue;
   const dy=u.pos[1]-x.pos[1],clear=(h[1]+hx[1])*2.2;if(Math.abs(dy)>clear)continue;
   // v20 Ships in close order (side by side, nose to tail) are left alone while their hull boxes keep a margin apart.
   const gap=hullBoxGap(u,h,x,hx),m=Math.max(60,.5*Math.min(h[2],hx[2]));if(gap>m)continue;
@@ -85993,6 +85993,49 @@ function dockStep(units,b,dt){
   if(u.order?.type!=='dock'||!host||host.dead||host.team!==u.team)continue;const ds=dockState(host,u);
   if(ds?.inside&&dockRelativeSpeed(host,u)<=DOCK.speed){u.docked={host:host.id,hatch:ds.mouth.hatchId,local:dockWorldToLocal(host,u.pos)};u.velocity=[...(host.velocity||[0,0,0])];b?.events?.push({time:b.time,text:`${u.name}：${host.name}の格納庫に入渠`,id:u.id});}}
 }
+// v28 Salvos in flight in a fleet battle (b.missiles), the same flight as the strategic map's (Rts w.missiles): they leave at
+// MISSILE_FLIGHT.launch, accelerate to .speed, clear a physical tube along its axis, then lead their target. A salvo is spent
+// at its range or at the end of its motor's life, and is lost with its target. What reaches the target (within 300 m or 0.4
+// of its length of its centre) strikes the hull directly.
+// Point defence shoots missiles and torpedoes down as it does small craft (user decision 2026-11-18「ミサイル、魚雷も小型機と
+// 同じ扱いで点防御で撃墜できるように」): every ship of the other side with automatic point defence engages the salvos within
+// .pdRange (plus half its length) for as long as they are there, at .pdKill rounds per second per point of anti-air (the
+// strategic map's rate), as far as its fire-control channels reach (AA_CHANNELS.salvo rounds launched together by one ship
+// are one target) and its point defence is funded. Nothing is taken at the launch or as a share on arrival any more.
+const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:6000,pdKill:.012});
+function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
+ const live=new Map(alive.map(u=>[u.id,u])),arrived=[],log=()=>b.missileLog||(b.missileLog={hit:0,downed:0});
+ for(const m of b.missiles){
+  if(!(m.n>0))continue;const t=live.get(m.target);if(!t){m.life=0;m.n=0;m.lost='target';continue;}
+  if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;m.lost='spent';continue;}
+  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=Math.min(MISSILE_FLIGHT.speed,m.s+MISSILE_FLIGHT.accel*flightDt);
+  const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,travel=Math.min(distance,Math.max(0,m.range-m.traveled));if(distance>0)m.pos=add(m.pos,mul(velocity,seconds*travel/distance));m.traveled=Math.min(m.range,m.traveled+travel);};
+  const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=mul(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
+  const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),r=len(aim);m.vel=mul(norm(add(aim,mul(t.velocity||[0,0,0],r/Math.max(300,m.s)))),m.s);advance(m.vel,follow);}m.life-=dt;
+  // Expiry is resolved before the strike, including the final capped step.
+  if(m.traveled>=m.range||!(m.life>0)){m.life=0;m.n=0;m.lost='spent';continue;}
+  // The strike is judged along the path flown in this step (its closest approach to the target), so a round that would step
+  // across the target's reach lands instead of circling it: at 2600 m/s a 0.25 s step is 650 m against a reach of 300 m, and
+  // judged at the step's start a third of an MC75's rounds flew past a 600 m ship until their motors ran out (2026-11-18).
+  const seg=sub(m.pos,from),sl=dot(seg,seg),k=sl>0?clamp(dot(sub(t.pos,from),seg)/sl,0,1):0,d=len(sub(t.pos,add(from,mul(seg,k))));
+  if(!(m.launchClearance>0)&&d<Math.max(300,t.p.len*.4))arrived.push({m,t,from});
+ }
+ // Point defence, on every salvo within reach this step (those about to strike included).
+ for(const x of alive){
+  if(x.dead||x.out||x.manual||!automaticPointDefenseEnabled(x))continue;const aa=Math.max(0,(x.p.aa||0)-(dualIdle(x)?.aa||0));if(!(aa>0))continue;
+  const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,groups=new Map();
+  for(const m of b.missiles){if(!(m.n>0)||m.team===x.team||m.launchClearance>0||len(sub(m.pos,x.pos))>reach)continue;let g=groups.get(m.salvo??m.id);if(!g)groups.set(m.salvo??m.id,g={n:0,list:[]});g.n+=m.n;g.list.push(m);}
+  let left=x.p.aaCh??AA_CHANNELS.base*4;
+  for(const g of groups.values()){if(!(left>0))break;const need=Math.max(1,Math.ceil(g.n/AA_CHANNELS.salvo)),got=Math.min(need,left),funded=fundAutomaticPointDefense(x,g.list[0].pos,dt,pdStep,got/need);if(!(funded>0))continue;left-=got;
+   const kill=Math.min(g.n,MISSILE_FLIGHT.pdKill*aa*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*got/need*funded);if(!(kill>0))continue;for(const m of g.list){const part=kill*m.n/g.n;m.n-=part;m.downed=(m.downed||0)+part;log().downed+=part;}}
+ }
+ for(const {m,t,from} of arrived){
+  if(!(m.n>1e-9)){m.n=0;continue;}const tt=m.n*m.tt*DMG,inc=incoming.get(t.id);
+  if(inc)combatAdd(inc,t,from/* where the step began: the side the round came in on */,{...(m.ion?{ionDirect:tt}:{direct:tt,shot:m.tt}),...(m.aim&&m.aimRange>0?{aimRange:m.aimRange}:{})},m.aim||null,m.from);
+  log().hit+=m.n;m.hit=m.n;m.n=0;
+ }
+ b.missiles=b.missiles.filter(m=>m.n>1e-9&&m.life>0);
+}
 function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt,b.time);
  const pdStep={abstractPointDefense:true};
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
@@ -86033,7 +86076,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
  // Choose the shared battery's role from the common pre-step snapshot, before
  // any gun fires or an arriving flight is added to its carrier's aircraft.
  const defenseThreats=before.filter(x=>{if(x.manual||x.out||x.order.fire===false)return false;if(x.air>0)return true;if(!((x.p.msl||0)+(x.p.imsl||0)>0))return false;const launchers=(x.p.modules||[]).map((m,i)=>m.k==='launcher'?i:-1).filter(i=>i>=0);return !launchers.length||launchers.some(i=>x.mods[i]>0&&x.ammo[i]>0);});
- for(const u of alive)fleetDefense(u,defenseThreats.filter(x=>x.air>0||len(sub(x.pos,u.pos))<=missileMaxRange(x)).map(x=>({team:x.team,pos:u.pos})));
+ for(const u of alive)fleetDefense(u,defenseThreats.filter(x=>x.air>0||len(sub(x.pos,u.pos))<=missileMaxRange(x)).map(x=>({team:x.team,pos:u.pos})).concat((b.missiles||[]).filter(m=>m.n>0&&m.team!==u.team&&(m.target===u.id||len(sub(m.pos,u.pos))<=MISSILE_FLIGHT.pdRange+u.p.len*.5)).map(m=>({team:m.team,pos:u.pos}))));
  for(const u of alive){const o=u.order,p=u.p,s=sys.get(u.id),crewEff=fleetCrewEff(u);
   if(u.manual)continue;
   let t=null,raw=0,F=null,distance=0;const enemies=alive.filter(x=>x.team!==u.team),live=enemies.filter(fleetEffective),pool=live.length?live:enemies,reach=Math.max(fleetReach(p),missileMaxRange(u));
@@ -86046,7 +86089,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   {const prev=u.aimPrev,vel=u.velocity||[0,0,0],yaw=u.yaw||0;let motion=0;if(prev&&dt>0){const dyaw=Math.abs(Math.atan2(Math.sin(yaw-prev.yaw),Math.cos(yaw-prev.yaw)))/dt,acc0=propulsionMotion(u).acc0||0;motion=aimMotion(p.turnRate>0?dyaw/p.turnRate:0,acc0>0?len(sub(vel,prev.vel))/dt/acc0:0);}u.aimPrev={yaw,vel:vel.slice()};
   u.aim=aimAfter(aimBefore,p,dt,vk>0?(volleyMode(u)==='salvo'?1:dt/VOLLEY.T):0,motion);}
   const fire=fleetPowerStep(u,s,t&&byId.get(t.id),raw,dt,vk);u.firingAt=t?t.id:null;
-  const missilePackets=fleetMissileStep(u,dt,!!(b.combat&&!u.out&&t&&((p.msl||0)+(p.imsl||0)>0)),{legacyContinuous:true,distance});
+  const boltTarget=!u.manual&&!!t&&!!opts.boltGuns?.has?.(t.id),missilePackets=fleetMissileStep(u,dt,!!(b.combat&&!u.out&&t&&((p.msl||0)+(p.imsl||0)>0)),{legacyContinuous:boltTarget/* the trial's flown ship keeps the continuous launch record (mdmg) */,distance});
   const requested=!!b.combat&&!u.out&&o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
   const hatchSeconds=u.hatchTarget?(p.hatchOpenSeconds||4):(p.hatchCloseSeconds||4);u.hatchOpen=sliding?clamp(oldOpen+(u.hatchTarget?1:-1)*dt/hatchSeconds,0,1):0;
   if(!b.combat||u.out)continue;
@@ -86060,13 +86103,22 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // guns' and ion guns' fire at it is not landed here at the expected hit rate. The shot record carries what was fired (crew
   // quality included) as bolts, and only the bolts whose line meets its shield or hull deliver their share (the trial adds them
   // to opts.extra for the next step). Missiles, bombs and craft keep the common model.
-  const boltOnly=!u.manual&&!!opts.boltGuns?.has?.(t.id);let bolt=null;
+  const boltOnly=boltTarget;let bolt=null;
   if(boltOnly){const fg=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*quality,fi=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*quality;if(fg+fi>0)bolt={gun:fg*dt*DMG,ion:fi*dt*DMG,shot:fleetShotTT(u),src:u.id,from:u.pos.slice(),reach:fleetReach(p),aim:aimBefore/* the convergence the hit chance was taken at */};gun=0;ion=0;}
   // Missiles draw on each intact launcher's magazine.
   // v22 Ion torpedo launchers draw on their magazines the same way; their share goes to the ion channel.
-  let msl=0,imsl=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=missileMaxRange(u)){const total=(p.modules||[]).filter(m=>m.k==='launcher').length;
-   if(!total&&!(p.profileVersion>=5)&&(u.pw?.P||0)>0&&powerFactor(u,'reactor')>0){msl=(p.msl||0)/20*crewEff;imsl=(p.imsl||0)/20*crewEff;}else for(const packet of missilePackets){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*(isConcussionLauncher(packet.kind)?1:crewEff);if(packet.ion)imsl+=damage;else msl+=damage;}
-   const fundedAA=msl+imsl>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,icpt=1-.7*fundedAA/(fundedAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
+  // v28 Missiles and torpedoes fly and strike when they arrive (user decision 2026-11-17「ミサイル、魚雷は実際に届いた時にして。
+  // 航空機と同じ扱い」, docs/missiles-arrive.md). A launch puts a salvo into b.missiles; fleetMissilesFly moves it, point defence
+  // shoots at it while it is within reach, and a salvo that runs out of range or whose target is gone delivers nothing.
+  // msl/imsl (damage of this step) stay 0 for flown salvos; mslL/imslL are what was launched, for the shot record.
+  // Only the trial's flown ship (boltOnly) keeps the launch-time record: the trial flies those itself (v27).
+  let msl=0,imsl=0,mslL=0,imslL=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=missileMaxRange(u)){const total=(p.modules||[]).filter(m=>m.k==='launcher').length,flown=[];
+   if(!total&&!(p.profileVersion>=5)&&(u.pw?.P||0)>0&&powerFactor(u,'reactor')>0){if(boltOnly){msl=(p.msl||0)/20*crewEff;imsl=(p.imsl||0)/20*crewEff;}else{u.mslT=(u.mslT||0)-dt;if(u.mslT<=0){u.mslT=20;const n=(p.msl||0)/RULES_MISSILE_TT*crewEff,ni=(p.imsl||0)/RULES_MISSILE_TT*crewEff;if(n>0)flown.push({n,tt:RULES_MISSILE_TT,ion:false,kind:'legacy'});if(ni>0)flown.push({n:ni,tt:RULES_MISSILE_TT,ion:true,kind:'itorp'});}}}
+   else for(const packet of missilePackets){const k=isConcussionLauncher(packet.kind)?1:crewEff;if(boltOnly){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*k;if(packet.ion)imsl+=damage;else msl+=damage;}else flown.push({...packet,n:packet.n*k});}
+   if(boltOnly){const fundedAA=msl+imsl>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,icpt=1-.7*fundedAA/(fundedAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
+   else for(const packet of flown){if(!(packet.n>0))continue;const launch=missileLaunchWorld(u,packet,t),native=isConcussionLauncher(packet.kind),range=missileRange(packet);
+    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range):MISSILE_FLIGHT.legacyLife,...(aim?{aim,aimRange:distance}:{})/* the part the ship aims at and the range it aimed from, as the launch-time damage carried them */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
+    if(packet.ion)imslL+=packet.n*packet.tt/dt;else mslL+=packet.n*packet.tt/dt;}}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*fleetAirGun(p)*(1-.5*airEnemy/(u.air+airEnemy+1));
   const chK=Math.min(1,(t.p.aaCh??AA_CHANNELS.base*4)/Math.max(1,Math.ceil(u.air/AA_CHANNELS.flight))),fundedAirAA=u.air>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,loss=Math.min(u.air,(fundedAirAA*.012*chK+airEnemy*.012/enemies.length)*dt);
@@ -86089,11 +86141,12 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // What misses may strike a ship of our own close to the target.
   const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
   if(bolt)shots.push({from:u.id,to:t.id,team:u.team,ion:bolt.ion>bolt.gun,gun:(bolt.gun+bolt.ion)/Math.max(1e-12,DMG),msl:0,salvo:vk>1,bolt});
-  const trenchPackets=boltOnly?null:fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,salvo:vk>1,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
+  const trenchPackets=boltOnly?null:fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,salvo:vk>1,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
  }
  // Current power allocation controls this tick's thrust; the thermal update follows motion and accrual once.
  moveFleet();
  dockStep(alive,b,dt);
+ if(b.missiles?.length)fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys);
  // Outer-surface maps only where the caller asks (the trial, whose ships each have their map before they appear): a fleet
  // battle or a voyage started before its maps arrive keeps the hull box throughout (Opus/high review 2026-11-16).
  const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead&&!u.hyperBurst&&!u.docked&&u.order?.type!=='dock'&&!u.dockCorridor/* v26 docked and docking ships pass through their host's hangar mouth (the player's ship: dockCorridor, set by the trial) */),{radial:!!opts.radial});
@@ -86117,11 +86170,11 @@ function fleetAiOrders(work){
 function fleetCommit(b){
  if(b.phase!=='plan'||b.winner!==null||!b.units.some(u=>u.team===0&&fleetEffective(u)))return null;
  const seconds=clamp(Number(b.seconds)||FLEET_RULES.seconds,5,30),work={...b,units:b.units.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity],order:JSON.parse(JSON.stringify(u.order)),queue:u.queue.map(q=>[...q]),mods:(u.mods||[]).slice(),ammo:(u.ammo||[]).slice(),...combatClone(u)})),events:[]};
- work.ionBolts=JSON.parse(JSON.stringify(b.ionBolts||[]));fleetAiOrders(work);
+ work.ionBolts=JSON.parse(JSON.stringify(b.ionBolts||[]));work.missiles=JSON.parse(JSON.stringify(b.missiles||[]));if(b.missileLog)work.missileLog={...b.missileLog};fleetAiOrders(work);
  const frames=[fleetFrame(work)];for(let t=0;t<seconds;t+=FLEET_RULES.step){const shots=fleetTick(work,FLEET_RULES.step);frames.push(fleetFrame(work,shots));if(b.combat){const teams=[0,1].map(k=>work.units.some(u=>u.team===k&&fleetEffective(u)));if(!teams[0]||!teams[1]){work.winner=teams[0]?0:teams[1]?1:-1;break;}/* both sides present but none can act (all without power): a stand-off */if(!work.units.some(fleetActs)){work.winner=-1;break;}}}
- b.phase='execute';b.last={frames,units:work.units,events:work.events,winner:work.winner,time:work.time,duration:work.time-b.time,seed:work.seed,ionBolts:work.ionBolts};return b.last;
+ b.phase='execute';b.last={frames,units:work.units,events:work.events,winner:work.winner,time:work.time,duration:work.time-b.time,seed:work.seed,ionBolts:work.ionBolts,missiles:work.missiles,missileN:work.missileN,missileLog:work.missileLog};return b.last;
 }
-function fleetFinish(b){if(b.phase!=='execute'||!b.last)return false;b.units=b.last.units;b.time=b.last.time;b.winner=b.last.winner;if(b.last.seed!=null)b.seed=b.last.seed;b.ionBolts=b.last.ionBolts||[];b.events.push(...b.last.events);b.events=b.events.slice(-80);b.turn++;b.phase=b.winner!==null?'finished':'plan';return true;}
+function fleetFinish(b){if(b.phase!=='execute'||!b.last)return false;b.units=b.last.units;b.time=b.last.time;b.winner=b.last.winner;if(b.last.seed!=null)b.seed=b.last.seed;b.ionBolts=b.last.ionBolts||[];b.missiles=b.last.missiles||[];if(b.last.missileN!=null)b.missileN=b.last.missileN;if(b.last.missileLog)b.missileLog=b.last.missileLog;b.events.push(...b.last.events);b.events=b.events.slice(-80);b.turn++;b.phase=b.winner!==null?'finished':'plan';return true;}
 function fleetSample(result,elapsed){const fs=result.frames,t=fs[0].time+clamp(elapsed,0,result.duration);let i=Math.min(fs.length-2,Math.max(0,Math.floor((t-fs[0].time)/FLEET_RULES.step))),a=fs[i],b=fs[i+1]||a,q=clamp((t-a.time)/Math.max(1e-9,b.time-a.time),0,1),L=(x,y)=>lerp(x??0,y??x??0,q);return {time:t,shots:b.shots,units:a.units.map((u,k)=>{const v=b.units[k],w=q>=1?v:u;return {...u,pos:u.pos.map((x,j)=>lerp(x,v.pos[j],q)),velocity:u.velocity.map((x,j)=>lerp(x,v.velocity[j],q)),yaw:u.yaw+fleetAngle(v.yaw-u.yaw)*q,hp:L(u.hp,v.hp),shield:L(u.shield,v.shield),shieldMax:L(u.shieldMax,v.shieldMax),bank:L(u.bank,v.bank),bankMax:L(u.bankMax,v.bankMax),armor:L(u.armor,v.armor),energy:L(u.energy,v.energy),load:L(u.load,v.load),crew:L(u.crew,v.crew),air:L(u.air,v.air),launched:L(u.launched,v.launched),hatchOpen:L(u.hatchOpen,v.hatchOpen),hatchTarget:q>0?v.hatchTarget:u.hatchTarget,dead:w.dead,out:w.out,fate:w.fate,mode:w.mode,mods:w.mods,ammo:w.ammo,fire:w.fire,sec:w.sec};})};}
 
 // A structure's local +Y may follow any contacted face, including the underside.
@@ -93279,6 +93332,8 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
      dest = C.escortStation(u, t, th, Math.max(0, mates.indexOf(u)), Math.max(1, mates.length));speedCap = Math.max(0,u.p.maxSpeed||0);
      if (len(sub(dest, u.pos)) < Math.max(600, u.p.len * .6)) { const a = th || add(t.pos, [Math.cos(t.yaw) * 1e4, 0, Math.sin(t.yaw) * 1e4]), hb = Math.atan2(a[2] - u.pos[2], a[0] - u.pos[0]); head = hb + (Math.abs(angle(u.yaw - hb - Math.PI / 2)) < Math.abs(angle(u.yaw - hb + Math.PI / 2)) ? Math.PI / 2 : -Math.PI / 2); }
     }
+    // v28 Dock: make for the point outside the mouth, wait there for the lane, then for the berth inside (the fleet battle's rule).
+    if (o.type === 'dock' && t && t.side === u.side && alive(t) && !t.warp) { const ds = C.dockState(t, u); if (ds) { const mine = dockLane(w, t, u, ds), close = ds.inside || ds.through || len(sub(ds.local, ds.approach)) < (u.p.len || 10) * C.DOCK.margin + 200; dest = mine ? (close ? ds.berthWorld : ds.approachWorld) : C.dockLocalToWorld(t, add(ds.approach, scale(ds.mouth.n, 800 + (u.p.len || 10) * 3)))/* waiting its turn: well clear of the mouth */; speedCap = Math.max(0, u.p.maxSpeed || 0); attack = false; } }
    }
   }
   // v21 A ready composite beam takes the helm: the bow turns onto its target (the beam is fixed dead ahead).
@@ -93301,14 +93356,14 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
     want = scale(norm(delta), speed);const hor = hyp(want[0], want[2]) * (d < near ? clamp(ahead, 0, 1) : 1);want[0] = Math.cos(u.yaw) * hor;want[2] = Math.sin(u.yaw) * hor;
    }
   }
-  want = C.hullAvoid(u, clearOf, want);
+  want = C.hullAvoid(u, clearOf, want, x => dockingAt(w, u, x) || dockingAt(w, x, u));
   u.turnK = clamp(turned / Math.max(1e-6, (u.p.turnRate||0) * dt), -1, 1);
   const required=C.propulsionTargetAcceleration(u,u.velocity,want,dt),need=len(required),applied=scale(required,Math.min(1,acc/Math.max(1e-12,need))),motion=C.integratePropulsionMotion(u,u.velocity,applied,dt);u.velocity=motion.velocity;u.pos=add(u.pos,motion.displacement);
   u.maneuver = acc0 > 0 ? clamp(Math.max(need/acc0,turnNeed), 0, 1) : 0;
  }
  // Hulls that meet are pushed apart, and the impact damages both (C.hullCollide).
 
- const contacts = C.hullCollide(us.filter(u => !u.warp&&!u.hyperBurst), {skip: (a, z) => a.towedBy === z.id || z.towedBy === a.id, fixed: u => !!u.towedBy});
+ const contacts = C.hullCollide(us.filter(u => !u.warp&&!u.hyperBurst), {skip: (a, z) => a.towedBy === z.id || z.towedBy === a.id || dockingAt(w, a, z) || dockingAt(w, z, a)/* v28 a ship entering a hangar passes its host's hull at the mouth */, fixed: u => !!u.towedBy});
  for (const c of contacts) { C.hullImpact(inc.get(c.a.id), c.a, c.z, c); C.hullImpact(inc.get(c.z.id), c.z, c.a, c); if (c.vn > C.HULL_HIT.min) { c.a.lastBump = c.z.lastBump = {t: w.time, point: c.point, vn: c.vn, a: c.a.id, z: c.z.id}; if (c.vn > 5 && w.time - (c.a.bumpLog || -99) > 6) { c.a.bumpLog = w.time; blog(w, sys, `${c.a.name}と${c.z.name}が衝突（相対速度 ${Math.round(c.vn)} m/s）`, c.a); } } }
  return contacts;
 }
@@ -93324,7 +93379,7 @@ function peaceTick(w, sys, dt) {
  if (contacts.length) { const ctx = combatCtx(w, sys), hit = new Set(); for (const c of contacts) { hit.add(c.a); hit.add(c.z); } for (const u of hit) applyDamage(w, sys, u, inc.get(u.id), dt, sysOf.get(u.id), ctx); }
  // Still unsettled: a ship under way (moving), or one short of its station or of the point ordered (far).
  let moving = false, far = false;
- for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || u.jump || u.hyperBurst || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
+ for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || u.jump || u.hyperBurst || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='dock'){moving=true;break;}/* v28 a ship turning toward a hangar or waiting its turn there is not at rest: 'far' alone lets the system settle after 5 s without motion, and a ship that had to turn first never set out */if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
  return {moving, far};
 }
 function peaceMoves(w, dt) {
@@ -93401,13 +93456,18 @@ function battleTick(w, sys, dt) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
   m.range=Number.isFinite(m.range)&&m.range>0?m.range:C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);
   if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;continue;}
-  const rel=sub(t.pos,m.pos),d=len(rel),flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(2600,m.s+650*flightDt);
+  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(2600,m.s+650*flightDt);
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,remaining=Math.max(0,m.range-m.traveled),travel=Math.min(distance,remaining);if(distance>0)m.pos=add(m.pos,velocity,seconds*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);};
   // A physical tube/VLS clears its mount along the actual barrel axis before homing.
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
   const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),range=len(aim);m.vel=scale(norm(add(aim,t.velocity||[0,0,0],range/Math.max(300,m.s))),m.s);advance(m.vel,follow);}m.life-=dt;
   // Expiry is resolved before proximity damage, including the final capped step.
   if(m.traveled>=m.range||!(m.life>0)){m.life=0;m.n=0;continue;}
+  // v28 The strike is judged along the path flown in this step (its closest approach to the target), as in the fleet
+  // battle (fleetMissilesFly): judged at the step's start, a round at 2600 m/s (650 m a step) stepped across a small
+  // target's 300 m reach again and again until its motor ran out; against a 100 m ship every round of a volley was lost
+  // at 31 of 402 launch ranges between 3 and 58 km (2026-11-18, tests/missile-launcher-range.cjs).
+  const seg=sub(m.pos,from),sl=seg[0]*seg[0]+seg[1]*seg[1]+seg[2]*seg[2],tk=sl>0?clamp(((t.pos[0]-from[0])*seg[0]+(t.pos[1]-from[1])*seg[1]+(t.pos[2]-from[2])*seg[2])/sl,0,1):0,d=len(sub(t.pos,[from[0]+seg[0]*tk,from[1]+seg[1]*tk,from[2]+seg[2]*tk]));
   // Every enemy ship within reach adds its point defence, weighted by the arc facing the salvo.
   // v21.2 …as far as its fire control has targets to spare (C.AA_CHANNELS: a salvo of eight is one target).
   let kill = 0;for (const x of us) { if (x.side === m.side || x.warp || x.manual || !C.automaticPointDefenseEnabled(x)) continue; const r = len(sub(m.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; if (x.aaLeft == null || x.aaT !== w.time) { x.aaLeft = x.p.aaCh ?? 4; x.aaT = w.time; } if (!(x.aaLeft > 0)) continue; const need = Math.max(1, Math.ceil(m.n / C.AA_CHANNELS.salvo)), got = Math.min(need, x.aaLeft),aa=pdToward(x,m.pos,true),funded=aa>0?C.fundAutomaticPointDefense(x,m.pos,dt,pdStep,got/need):0;if(!(funded>0))continue;x.aaLeft -= got;kill += RULES.pdMissile * aa * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt * got / need * funded; }
@@ -93416,7 +93476,7 @@ function battleTick(w, sys, dt) {
   if (!(m.launchClearance>0) && d < Math.max(300, t.p.len * .4)) {
    // v22 a round's own hit (craft stores) or the ship missile's; ion rounds work on the ion channel
    const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {ionDirect: tt} : {direct: tt};if (!m.ion) amt.shot = m.tt ?? RULES.missileTT;
-   C.combatAdd(inc.get(t.id), t, m.pos, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
+   C.combatAdd(inc.get(t.id), t, from/* v28 where the step began: the side the round came in on (m.pos may be past the ship) */, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
   else if (m.life <= 0) m.n = 0;
  }
  w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0 || m.sys !== sys);
@@ -94590,7 +94650,7 @@ function tick(w, dt) {
  if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); aiBoarding(w, sys, systemUnits(w, sys)); } }
  if ((w.timers.ai -= dt) <= 0) { w.timers.ai = RULES.aiStrategic; for (const sd of w.sides) if (sd.ai) aiStrategic(w, sd.id); }
  tractorResistance(w);
- carriedTick(w);
+ dockTick(w, dt);carriedTick(w, dt);
  for (const [sys] of w.battles) battleTick(w, sys, dt);
  peaceMoves(w, dt);
  for (const u of w.units.values()) if (alive(u)&&!u.manual&&u.sys!=null&&!w.battles.has(u.sys)&&u._peacePowerTime!==w.time){C.fleetPowerStep(u,C.fleetSystems(u),null,0,dt);u._peacePowerTime=w.time;}
@@ -94637,14 +94697,17 @@ function checkResult(w) {
 // Ships: 'group' (follow the task group), or an order of their own.
 function orderUnit(w, id, o) {
  const u = w.units.get(id);if (!u || !alive(u) || w.sides[u.side].ai) return false;
- if (o.type && !['group', 'auto', 'hold', 'move', 'attack', 'escort'].includes(o.type)) return false;
+ if (o.type && !['group', 'auto', 'hold', 'move', 'attack', 'escort', 'dock'].includes(o.type)) return false;
  if(Object.hasOwn(o,'autoPointDefense')&&typeof o.autoPointDefense!=='boolean')return false;
  // v25 emission mode (SENS-005) and S-foils (WING-003)
  if (o.emit != null && !EMIT_MODES.includes(o.emit)) return false;if (o.foil != null && !FOIL_MODES.includes(o.foil)) return false;
  if (o.type === 'attack' && !w.units.has(o.target)) return false;
  // v21.1 Escort: guard a ship of our own side (not itself).
  if (o.type === 'escort') { const t = w.units.get(o.target); if (!t || t === u || t.side !== u.side || !alive(t)) return false; }
- u.order = {...u.order, ...o};if(Object.hasOwn(o,'autoPointDefense'))C.setAutomaticPointDefense(u,o.autoPointDefense);if (o.type && o.type !== 'attack' && o.type !== 'escort') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;stir(w, u.sys);return true;
+ // v28 Dock: enter a hangar of a ship of our own side (dockCheck: a mouth it fits, room in the hangar, the same system).
+ if (o.type === 'dock' && !dockCheck(w, id, o.target).ok) return false;
+ if (o.type && o.type !== 'dock') dockRelease(w, u);
+ u.order = {...u.order, ...o};if (o.type) { delete u.order.recall; delete u.order.dockSince; }if(Object.hasOwn(o,'autoPointDefense'))C.setAutomaticPointDefense(u,o.autoPointDefense);if (o.type && o.type !== 'attack' && o.type !== 'escort' && o.type !== 'dock') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;stir(w, u.sys);return true;
 }
 // Task groups: 自動交戦 (auto), hold, move (point), attack (target); the formation;
 // power and aim for every ship of the group. Ships on orders of their own rejoin.
@@ -94986,10 +95049,12 @@ function mergeGroups(w, a, b) {
 // jump with it and are lost with it; launched, they join its task group, and
 // it takes them back aboard when they come within carryRange.
 function carriedOf(w, u, docked = true) { const out = []; for (const x of w.units.values()) if (x.carrier === u.id && !x.dead && (docked ? x.status === 'carried' : x.status !== 'carried')) out.push(x); return out; }
-function launchCarried(w, id) {
- const c = w.units.get(id);if (!c || !alive(c) || c.sys == null || c.jump || c.out) return 0;const g = w.groups.get(c.group), list = carriedOf(w, c);
+function launchCarried(w, id, auto = false) {
+ const c = w.units.get(id);if (!c || !alive(c) || c.sys == null || c.jump || c.out) return 0;const g = w.groups.get(c.group), list = carriedOf(w, c).filter(x => !auto || x.autoLaunch !== false)/* v28 a ship that docked by order stays aboard when a battle starts */;
  list.forEach((x, n) => { const sideK = n % 2 ? 1 : -1, off = (c.p.width || c.p.len * .4) * .5 + (x.p.width || 60) * .5 + 150 + 120 * (n >> 1);
   x.status = 'ready';x.sys = c.sys;x.pos = add(c.pos, frameVec([Math.cos(c.yaw), 0, Math.sin(c.yaw)], [-c.p.len * .15, 0, sideK * off]));x.yaw = c.yaw;x.velocity = [...(c.velocity || [0, 0, 0])];
+  // v28 It leaves by a hangar mouth it fits (outside it, clear of the hull, the later ones farther out), where one is known.
+  { const m = (c.p.mouths || []).find(q => Array.isArray(q.o) && Array.isArray(q.bs) && dockFitsMouth(q, x)); if (m) { const L = x.p.len || 10, out = add(m.p, scale(m.n, L * C.DOCK.margin + 200 + (L * C.DOCK.margin + 120) * n)); x.pos = C.dockLocalToWorld(c, out); const wn = sub(C.dockLocalToWorld(c, add(m.p, m.n)), C.dockLocalToWorld(c, m.p)); x.velocity = add(c.velocity || [0, 0, 0], scale(wn, C.DOCK.speed * .5)); } }
   x.group = g ? g.id : null;if (g && !g.units.includes(x.id)) g.units.push(x.id);x.order = {...x.order, type: 'group'};x.launchedAt = w.time; });
  if (list.length) event(w, `${c.name} から搭載艦 ${list.length} 隻（${list.map(x => x.name).join('・')}）が発進`, {side: c.side, sys: c.sys});
  return list.length;
@@ -94997,6 +95062,76 @@ function launchCarried(w, id) {
 function dockCarried(w, x, c) {
  const g = w.groups.get(x.group);if (g) { g.units = g.units.filter(i => i !== x.id); if (g.flag === x.id) g.flag = g.units[0] || null; }
  x.status = 'carried';x.group = c.group;x.sys = c.sys;x.pos = [...c.pos];x.jump = null;releaseTractor(w, x, '収容');
+}
+// ---------- docking (v28) ----------
+// User decisions 2026-11-17「赤道トレンチは艦船ドックで実際に船が入って補給が受けられるように」, 2026-11-18「小型機(艦載機)の着艦と
+// 艦艇の格納は根本的に同じ」(docs/ship-docking.md). A ship ordered to dock enters a hangar mouth of a ship of its own side as
+// small craft land: by a mouth its section passes (C.dockState, the fleet battle's rule), one at a time through each mouth
+// (the mouth's traffic is shared with the craft's launches and landings, carrier.mq), into hangar room counted in the craft's
+// own unit (C.shipStowSize against the hangar's slots, with the squadrons and ships already assigned there). Aboard it is a
+// carried ship: it rides, jumps and is lost with its carrier, is resupplied (carriedTick), and leaves by 'launch'.
+const DOCK_GIVE_UP_S = 900;
+const dockDims = u => [u.p.len || 10, u.p.width || (u.p.len || 10) * .4, u.p.height || (u.p.len || 10) * .2];
+const dockFitsMouth = (m, u) => { const [L, W, H] = dockDims(u), o = [...m.o].sort((a, b) => b - a), x = [W, H].sort((a, b) => b - a); return x[0] <= o[0] && x[1] <= o[1] && L <= Math.max(...m.bs); };
+function stowUsed(w, host, except = null) { let n = 0; for (const s of w.squads.values()) if (s.home === host.id && s.n > 0) n += s.n * (CRAFT[s.craft]?.size || 1); for (const x of w.units.values()) if (x.carrier === host.id && !x.dead && x !== except) n += C.shipStowSize(dockDims(x)); return n; }
+// The hangar's room in the craft's unit: the design's hangar capacity (info.hangarCap, the order of battle's figure).
+function stowRoom(w, host, except = null) { return Math.max(0, host.info?.hangarCap || 0) - stowUsed(w, host, except); }
+function dockCheck(w, id, hostId) {
+ const u = w.units.get(id), h = w.units.get(hostId);
+ if (!u || !alive(u) || u.out) return {ok: false, why: 'この艦は命令を受けられません'};
+ if (!h || !alive(h) || h === u || h.side !== u.side) return {ok: false, why: '入渠先には味方の別の艦を選んでください'};
+ if (h.sys == null || h.sys !== u.sys || h.warp || h.jump) return {ok: false, why: '同じ星系にいて、ジャンプ中でない艦にだけ入渠できます'};
+ if (h.out) return {ok: false, why: '入渠先が行動不能です'};
+ if (!(h.p.mouths || []).some(m => Array.isArray(m.o) && Array.isArray(m.bs) && dockFitsMouth(m, u))) return {ok: false, why: `${h.name}には、${u.name}が通れる格納庫の開口がありません`};
+ const need = C.shipStowSize(dockDims(u)), room = stowRoom(w, h, u);
+ if (need > room + 1e-9) return {ok: false, why: `${h.name}の格納庫に空きがありません（必要 ${need}、空き ${Math.max(0, Math.round(room * 100) / 100)}）`, need, room};
+ return {ok: true, need, room};
+}
+const dockingAt = (w, a, z) => a.order?.type === 'dock' && a.order.target === z.id;
+function dockRelease(w, u) { if (!u.dockLane) return; const h = w.units.get(u.dockLane.host); if (h?.dockLanes?.[u.dockLane.mouth] === u.id) delete h.dockLanes[u.dockLane.mouth]; delete u.dockLane; delete u.dockWait; }
+// The lane through a mouth: one ship at a time, not while craft are using the mouth, sliding doors open. Returns whether u holds it.
+function dockLane(w, h, u, ds) {
+ const ms = mouthsOf(h), i = ms.indexOf(ds.mouth);if (i < 0) return true;const lanes = h.dockLanes || (h.dockLanes = {}), q = h.mq || (h.mq = []), cur = lanes[i] != null ? w.units.get(lanes[i]) : null;
+ if (cur && cur !== u && (!alive(cur) || !dockingAt(w, cur, h))) delete lanes[i];
+ if (lanes[i] != null && lanes[i] !== u.id) { u.dockWait = 'lane'; return false; }
+ if (lanes[i] == null) { if ((q[i] || 0) > w.time) { u.dockWait = 'craft'; return false; } lanes[i] = u.id; u.dockLane = {host: h.id, mouth: i}; }
+ requestHatch(w, h, ds.mouth, i);q[i] = Math.max(q[i] || 0, w.time + 2);/* craft keep off this mouth while the ship passes */
+ if (ds.mouth.sl && mouthOpen(h, ds.mouth, i) < .999) { u.dockWait = 'door'; return false; }
+ delete u.dockWait;return true;
+}
+// After the moves: a docking ship that is inside the bay and slow against its host goes aboard; one whose host is gone,
+// has left the system or has no room any more gives the order up.
+function dockTick(w, dt) {
+ for (const u of w.units.values()) {
+  if (u.order?.type !== 'dock') { if (u.dockLane) dockRelease(w, u); continue; }
+  if (!alive(u)) { dockRelease(w, u); if (!u.dead && u.status !== 'carried') { u.order = {...u.order, type: 'hold'}; delete u.order.target; } continue; }/* withdrawn or sent to the rear: the order ends */
+  const h = w.units.get(u.order.target), stop = why => { dockRelease(w, u); u.order = {...u.order, type: 'hold'}; delete u.order.target; delete u.order.recall; delete u.order.dockSince; event(w, `${u.name}：入渠を中止（${why}）`, {side: u.side, sys: u.sys}); };
+  if (!h || !alive(h) || h.side !== u.side) { stop('入渠先が失われた'); continue; }
+  if (h.sys !== u.sys || h.warp || h.jump) { stop('入渠先がいない'); continue; }
+  // A ship that can no longer fly in (disabled, under tow) or is leaving (jumping) gives up the lane and the order.
+  if (u.out || u.towedBy) { stop(u.out ? '航行不能' : '牽引されている'); continue; }
+  if (u.jump || u.warp) { stop('ジャンプに入る'); continue; }
+  if (h.out) { stop('入渠先が行動不能'); continue; }
+  const ds = C.dockState(h, u);if (!ds) { stop('通れる開口がない'); continue; }
+  // A docking that does not complete is given up and reported (the order would otherwise keep its system awake for ever).
+  if (!(u.order.dockSince <= w.time)) u.order = {...u.order, dockSince: w.time}; else if (w.time - u.order.dockSince > DOCK_GIVE_UP_S) { stop('時間内に入れない'); continue; }
+  if (!ds.inside || u.dockLane?.host !== h.id/* only the ship that holds the lane goes aboard */ || len(sub(u.velocity || [0, 0, 0], h.velocity || [0, 0, 0])) > C.DOCK.speed) continue;
+  if (C.shipStowSize(dockDims(u)) > stowRoom(w, h, u) + 1e-9) { stop('格納庫に空きがない'); continue; }
+  const recalled = u.order.recall === true && u.carrier === h.id;dockRelease(w, u);u.carrier = h.id;u.order = {...u.order, type: 'group'};delete u.order.target;delete u.order.recall;delete u.order.dockSince;dockCarried(w, u, h);
+  // It stays aboard through a battle (physics review 2026-11-18: carriers launch their ships when a battle starts, and a ship
+  // that had just docked was put out again in the same step); it leaves by the carrier's launch order. A carrier's own ship
+  // called back by the recall keeps its setting (the recall holds the ships aboard by holdCarried, as before v28).
+  if (!recalled) u.autoLaunch = false;
+  event(w, `${u.name}：${h.name}の格納庫に入渠`, {side: u.side, sys: h.sys});
+ }
+}
+function orderDock(w, id, hostId) { const r = dockCheck(w, id, hostId); if (!r.ok) return r; const u = w.units.get(id); if (w.sides[u.side].ai) return {ok: false, why: 'この艦は命令を受けられません'}; return orderUnit(w, id, {type: 'dock', target: hostId}) ? r : {ok: false, why: '命令できません'}; }
+// The carrier calls its ships in: each makes for the hangar and docks as above (it was "within 5 km, at once" until v28).
+function recallCarried(w, id) {
+ const c = w.units.get(id);if (!c || !alive(c) || c.out) return 0;let n = 0;
+ for (const x of carriedOf(w, c, false)) { if (!alive(x) || x.out || x.sys !== c.sys || x.towedBy || !dockCheck(w, x.id, c.id).ok) continue; dockRelease(w, x); x.order = {...x.order, type: 'dock', target: c.id, recall: true}; delete x.order.point; delete x.order.dockSince; n++; }
+ if (n) { stir(w, c.sys); event(w, `${c.name} が搭載艦 ${n} 隻を呼び戻す`, {side: c.side, sys: c.sys}); }
+ return n;
 }
 function recoverCarried(w, id, quiet = false) {
  const c = w.units.get(id);if (!c || !alive(c) || c.out) return 0;let n = 0;
@@ -95006,18 +95141,21 @@ function recoverCarried(w, id, quiet = false) {
 }
 // Docked ships follow their carrier; with it gone they are gone. Carriers launch
 // theirs when a battle starts in their system (unless told to keep them aboard).
-function carriedTick(w) {
+function carriedTick(w, dt = 0) {
  for (const x of w.units.values()) {
   if (x.status !== 'carried' || x.dead) continue;const c = w.units.get(x.carrier);
   if (!c || c.dead) { x.dead = true;x.fate = 'carrier';if (c) event(w, `${x.name} は ${c.name} とともに失われた`, {side: x.side, sys: c.sys}); continue; }
   x.sys = c.sys;x.pos = [...c.pos];x.yaw = c.yaw;if (c.velocity) x.velocity = [...c.velocity];
-  if (x.autoLaunch !== false && c.sys != null && w.battles.has(c.sys) && !c.jump && !c.out && alive(c) && !c.holdCarried) launchCarried(w, c.id);
+  // v28 A ship aboard is resupplied and repaired as a docked ship is in a fleet battle (C.dockResupplyStep: rounds, crew, hull,
+  // modules, armour, heat damage, fuel, stored energy), while its carrier can act.
+  if (dt > 0 && alive(c) && !c.out) C.dockResupplyStep(x, dt);
+  if (x.autoLaunch !== false && c.sys != null && w.battles.has(c.sys) && !c.jump && !c.out && alive(c) && !c.holdCarried) launchCarried(w, c.id, true);
  }
 }
 function orderCarried(w, id, what) {
  const c = w.units.get(id);if (!c || !alive(c)) return {ok: false, why: 'この艦は命令を受けられません'};
  if (what === 'launch') { c.holdCarried = false; const n = launchCarried(w, id); return n ? {ok: true, n} : {ok: false, why: carriedOf(w, c).length ? '今は発進できません（ジャンプ準備中か航行不能）' : '艦内に搭載艦がいません'}; }
- if (what === 'recover') { c.holdCarried = true; const n = recoverCarried(w, id); const left = carriedOf(w, c, false).filter(alive).length; return n ? {ok: true, n, left} : {ok: false, why: left ? `搭載艦が遠すぎます（${Math.round(RULES.carryRange / 1000)} km 以内に呼び戻してください）` : '収容する艦がありません'}; }
+ if (what === 'recover') { c.holdCarried = true; const n = recallCarried(w, id); const left = carriedOf(w, c, false).filter(alive).length; return n ? {ok: true, n, left, docking: true} : {ok: false, why: left ? '呼び戻せる搭載艦がいません（別の星系にいるか、航行不能か、格納庫に入れません）' : '収容する艦がありません'}; }
  if (what === 'hold') { c.holdCarried = !c.holdCarried; return {ok: true, hold: c.holdCarried}; }
  return {ok: false, why: '不明な命令'};
 }
@@ -95255,7 +95393,7 @@ function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i
 
 return {routeItinerary,jumpEstimate,normalizeJumpNavigation,convoyKit, aiPlan, FACTION_FORMAT, FACTION_VERSION, FACTION_ID, BUILTIN_FACTIONS, FACTION_REL, FACTION_PAINTS, FACTION_NAMES, FACTION_EMBLEMS, FACTION_HOME, isCustomFaction, factionBase, normalizeFactionDef, factionDef, registerFaction, unregisterFaction, customFactions, factionOr, factionRelation, rivalOf, factionsJSON, factionsFromJSON, vehicleServes, CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
- detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupHyperspaceReadiness, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
+ detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderDock, dockCheck, stowRoom, stowUsed, recallCarried, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupHyperspaceReadiness, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, supplyGive, rearTick, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
  squadFireArc,squadLaserEnergy,squadWeaponEnergy,craftLaserArcs,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,

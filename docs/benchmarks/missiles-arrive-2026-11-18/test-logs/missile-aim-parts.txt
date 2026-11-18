@@ -1,0 +1,6 @@
+ok 1 - the cycle: hull, turbolasers, engines, bridge
+ok 2 - a missile homes on the nearest intact module of the chosen kind, at its place on the ship
+ok 3 - the hit is aimed at that kind; exposed kinds (turbolasers, bridge) are struck as the missile was guided onto them
+# tests 3
+# pass 3
+# fail 0

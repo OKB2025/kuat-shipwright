@@ -1,0 +1,11 @@
+ok 1 - actual automatic discharge conserves the mounted bank and marks only its paid output without duplicate heat
+ok 2 - one shared step prevents missiles, aircraft and toggles from reusing the same battery rate
+ok 3 - automatic firing creates real next-step recharge demand and reduces funded engine output until replenished
+ok 4 - empty, sub-bolt, disconnected, destroyed and overheated mounts cannot fund interception
+ok 5 - a finite depleted bank yields only its paid fraction and never becomes negative
+ok 6 - aggregate PD uses its own known output watts and pooled finite stores, leaving unrelated heavy-gun demand out
+ok 7 - destroyed or disconnected aggregate shared PD cannot borrow a healthy ordinary battery and its stored power
+ok 8 - a combat preview clone pays from its own bank without mutating the live firing or heat ledgers
+# tests 8
+# pass 8
+# fail 0

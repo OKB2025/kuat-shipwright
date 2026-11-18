@@ -1,0 +1,5 @@
+ok 1 - the order bar offers Dock for a ship selection only, and the order line names the host
+ok 2 - every text of the dock command has an English form
+# tests 2
+# pass 2
+# fail 0

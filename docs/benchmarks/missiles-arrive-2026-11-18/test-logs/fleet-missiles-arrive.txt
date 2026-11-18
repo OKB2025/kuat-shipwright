@@ -1,0 +1,11 @@
+ok 1 - a launch strikes nothing until the salvo has flown to its target
+ok 2 - a round that steps across the target's reach lands instead of circling it
+ok 3 - a salvo that runs out of range delivers nothing
+ok 4 - a salvo whose target is gone is lost with it
+ok 5 - point defence shoots the salvo down in flight, not at the launch
+ok 6 - missiles at the trial's flown ship keep the launch record the trial flies itself
+ok 7 - a salvo carries the part its ship is ordered to aim at
+ok 8 - salvos in flight carry over a committed turn of the fleet battle screen
+# tests 8
+# pass 8
+# fail 0
