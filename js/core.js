@@ -86017,9 +86017,11 @@ const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.3
 // (MISSILE_FLIGHT.pdKill per unit of anti-air a second). The anti-air is spread over the ship's fire-control channels, one for each
 // AA_CHANNELS.flight craft in reach: a lone craft meets one channel's share, not the whole ship's.
 const CRAFT_HIT=Object.freeze({kill:.5});
-function fleetCraftCasualties(b,alive,hits,dt,pdStep,sys){
+function fleetCraftCasualties(b,alive,hits,bolts,dt,pdStep,sys){
  const down=(u,why)=>{if(u.dead)return;u.dead=true;u.fate='shot';u.fire=(u.fire||[]).map(()=>0);delete u.docked;b.events.push({time:b.time+dt,text:`${u.name}：撃墜（${why}）`,id:u.id,sunk:true});};
- for(const u of alive){const h=hits.get(u.id);if(!(h>0)||u.dead||u.docked)continue;if(fleetRandom(b)<1-Math.pow(1-CRAFT_HIT.kill,h))down(u,'被弾');}
+ // hits: the expected number landed (each shot hits with chance p and then downs with .kill, so the craft survives exp(-kill·h));
+ // bolts: whole bolts that struck (the trial's flown bolts), each survived with 1-kill.
+ for(const u of alive){const h=hits.get(u.id)||0,n=bolts.get(u.id)||0;if(!(h+n>0)||u.dead||u.docked)continue;if(fleetRandom(b)<1-Math.exp(-CRAFT_HIT.kill*h)*Math.pow(1-CRAFT_HIT.kill,n))down(u,'被弾');}
  for(const x of alive){
   if(x.dead||x.out||x.manual||craftUnit(x)||!automaticPointDefenseEnabled(x))continue;const aa=Math.max(0,(x.p.aa||0)-(dualIdle(x)?.aa||0));if(!(aa>0))continue;
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,craft=alive.filter(u=>!u.dead&&!u.docked&&u.team!==x.team&&craftUnit(u)&&len(sub(u.pos,x.pos))<=reach);if(!craft.length)continue;
@@ -86063,7 +86065,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
 }
 function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt,b.time);
  const pdStep={abstractPointDefense:true};
- const craftHits=new Map();
+ const craftHits=new Map(),craftBolts=new Map(),craftHit=(x,landed,shot)=>{if(landed>0&&shot>0&&craftUnit(x))craftHits.set(x.id,(craftHits.get(x.id)||0)+landed/shot);};/* v29 expected bolts landed on craft units by the common model; whole bolts the trial saw strike */
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
  const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
  for(const u of alive)syncPowerLossDisabled(u,{out:(x,why)=>b.events.push({time:b.time,text:`${x.name}：戦闘不能（${why}）`,id:x.id})});
@@ -86086,9 +86088,10 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // fly, fire and land): it runs in on its target at its pass speed with its bow (its fixed guns) on it, skims over or under the
   // hull, flies on until it has room to turn, and comes round again. A ship stands off and holds; a craft never stops to shoot.
   let pass=null;
-  if(o.type==='attack'&&t&&!t.dead&&craftUnit(u)){const hu=hullHalf(u.p),ht=hullHalf(t.p),big=Math.max(ht[0],ht[2]),R=craftPassSpeed(u)/Math.max(1e-6,nominalTurn||1),d=len(sub(t.pos,old.pos));
+  if(o.type==='attack'&&t&&!t.dead&&craftUnit(u)){const hu=hullHalf(u.p),ht=hullHalf(t.p),big=Math.max(ht[0],ht[2]),R=craftPassSpeed(u)/Math.max(1e-6,nominalTurn||1),d=len(sub(t.pos,old.pos));let run=0;
    pass=u.pass&&u.pass.target===t.id?u.pass:(u.pass={target:t.id,phase:'in',side:old.pos[1]>=t.pos[1]?1:-1});
-   if(pass.phase==='in'&&d<big*CRAFT_PASS.break+CRAFT_PASS.near){pass.phase='out';pass.dir=[Math.cos(u.yaw),0,Math.sin(u.yaw)];}else if(pass.phase==='out'&&d>big+CRAFT_PASS.extend+R*CRAFT_PASS.turns)pass.phase='in';
+   run=len(sub(add(t.pos,[0,(ht[1]+hu[1]+CRAFT_PASS.clear)*pass.side,0]),old.pos));/* to the point over the hull it runs in on: a tall target's centre is never that near */
+   if(pass.phase==='in'&&run<big*CRAFT_PASS.break+CRAFT_PASS.near){pass.phase='out';pass.dir=[Math.cos(u.yaw),0,Math.sin(u.yaw)];}else if(pass.phase==='out'&&d>big+CRAFT_PASS.extend+R*CRAFT_PASS.turns)pass.phase='in';
    const over=(ht[1]+hu[1]+CRAFT_PASS.clear)*pass.side;dest=pass.phase==='in'?add(t.pos,[0,over,0]):[old.pos[0]+pass.dir[0]*4000,t.pos[1]+over,old.pos[2]+pass.dir[2]*4000];
   }else if(u.pass)delete u.pass;
   // v21 A ready composite beam takes the helm: the bow turns onto its target.
@@ -86109,7 +86112,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
  }
  };
  const incoming=new Map(alive.map(u=>[u.id,combatIncoming()])),shots=[];b.bumps=[];
- for(const [id,x] of opts.extra||[]){const inc=incoming.get(id),t=alive.find(v=>v.id===id);if(inc&&t)combatMerge(inc,t,x);if(t&&x.bolts>0&&craftUnit(t))craftHits.set(id,(craftHits.get(id)||0)+x.bolts);/* v29 the flown ship's bolts that struck a craft */}
+ for(const [id,x] of opts.extra||[]){const inc=incoming.get(id),t=alive.find(v=>v.id===id);if(inc&&t)combatMerge(inc,t,x);if(t&&x.bolts>0&&craftUnit(t))craftBolts.set(id,(craftBolts.get(id)||0)+x.bolts);/* v29 the flown ship's bolts that struck a craft */}
  // This tactical model abstracts aircraft and missiles at their attacking ship.
  // Choose the shared battery's role from the common pre-step snapshot, before
  // any gun fires or an arriving flight is added to its carrier's aircraft.
@@ -86168,17 +86171,16 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // TT per shot of what strikes the hull directly (missiles, the craft's stores and guns), apart from the guns' shot
   // (user decision 2026-11-15「1発ごとに各区画で判断」; physics review: these took the guns' size).
   let dN=0;{const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0),mShot=mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,oShot=p.airOrdShot>0?p.airOrdShot:p.airOrd>0?p.airOrd:0;if(msl>0)dN+=msl/mShot;if(ord>0&&oShot>0)dN+=ord/oShot;if(fd>0)dN+=fd/FLEET_AIR_GUN_BOLT;}
-  if(craftUnit(t)&&gun+ion>0){const shot=fleetShotTT(u);if(shot>0)craftHits.set(t.id,(craftHits.get(t.id)||0)+(gun+ion)*dt/shot);}/* v29 bolts landed on a craft flying as a ship */
   const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+ord+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd};if(dN>0)amt.directShot=(msl+ord+fd)/dN;
   // v27 At a bolt-resolved target the ship's missiles land when they arrive: their damage rides on the launch record and the
   // trial delivers it as the missiles reach the ship (point defence has already taken its share above).
   let mdmg=null;if(boltOnly&&msl+imsl>0){const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0);mdmg={direct:msl*hd,ionDirect:imsl*hd,shot:mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,src:u.id,from:u.pos.slice()};amt.direct=(ord+fd)*hd;amt.ionDirect=iord*hd;if(!(ord+fd>0))delete amt.directShot;}
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
-  if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
-  else combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);
+  if(scr){const k=screenShare(scr,t,aim);craftHit(scr,(gun+ion)*k*dt,fleetShotTT(u));craftHit(t,(gun+ion)*(1-k)*dt,fleetShotTT(u));const part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
+  else{combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);craftHit(t,(gun+ion)*dt,fleetShotTT(u));}
   // What misses may strike a ship of our own close to the target.
-  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
+  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;craftHit(x,(g2+i2)*dt,fleetShotTT(u));combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
   if(bolt)shots.push({from:u.id,to:t.id,team:u.team,ion:bolt.ion>bolt.gun,gun:(bolt.gun+bolt.ion)/Math.max(1e-12,DMG),msl:0,salvo:vk>1,bolt});
   const trenchPackets=boltOnly?null:fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,salvo:vk>1,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
  }
@@ -86186,7 +86188,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
  moveFleet();
  dockStep(alive,b,dt);
  if(b.missiles?.length)fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys);
- fleetCraftCasualties(b,alive,craftHits,dt,pdStep,sys);
+ fleetCraftCasualties(b,alive,craftHits,craftBolts,dt,pdStep,sys);
  // Outer-surface maps only where the caller asks (the trial, whose ships each have their map before they appear): a fleet
  // battle or a voyage started before its maps arrive keeps the hull box throughout (Opus/high review 2026-11-16).
  const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead&&!u.hyperBurst&&!u.docked&&u.order?.type!=='dock'&&!u.dockCorridor/* v26 docked and docking ships pass through their host's hangar mouth (the player's ship: dockCorridor, set by the trial) */),{radial:!!opts.radial});

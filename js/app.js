@@ -8603,7 +8603,7 @@ function trialGunnery(dt){
  const segHit=(t,a0,a1)=>{const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(t.pos,a0),seg)/l2,0,1),q=tv.add(a0,seg,k);return tv.len(tv.sub(q,t.pos))<Rt?q:null;};
  // Ships are ellipsoids of their own length, height and width.
  const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);if(!(tv.len(tv.add(pa,d,k))<1))return null;const m=C.hullRadialOf?.(t.unit);return m?radialSegment(m,la,lb,a0,a1):tv.add(a0,tv.sub(a1,a0),k);};
- const shipHit=(t,q,tt,kind,w,shell,aimK)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t,aimK);if(shell)spaceShieldBurst(shell,t.vel,Math.max(8,t.radius*.05),kind==='ion');/* shell: where the bolt met the field (q is the hull point below it, for the zone of the hit) */else spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
+ const shipHit=(t,q,tt,kind,w,shell,aimK)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage.weight=w;/* shots this visible bolt stands for (the craft-scale rule counts them) */spaceDamage(t.unit,tt,kind,q,t,aimK);spaceDamage.weight=0;if(shell)spaceShieldBurst(shell,t.vel,Math.max(8,t.radius*.05),kind==='ion');/* shell: where the bolt met the field (q is the hull point below it, for the zone of the hit) */else spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
  const pq=trialPilotThreats(trial.craft?undefined:Math.max(0,...trial.turrets.map(t=>t.reach||TRIAL_GUN.range),...trial.missiles.map(m=>m.range||0)));
  for(const b of trial.bolts){const liveDt=Math.min(dt,Math.max(0,b.life));b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
@@ -9808,7 +9808,7 @@ function spaceOrders(b){const me=trial.battle?.me;for(const u of b.units){if(u.m
  if(u.out)continue;if(me&&!me.dead&&u.team===me.team&&!trial.escortFree&&!trial.rts){u.order={...u.order,type:'escort',target:me.id,fire:true,launch:true};continue;}const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
 // A bolt of the piloted ship lands on the zone (section and face) it struck.
 function spaceDamage(u,tt,kind,q,t,aimK){const B=trial.battle;if(!B||B.result)return;const shot=tt;tt*=SPACE_RULES.damage;const x=B.extra.get(u.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:B.me?.id};
- if(kind==='bolt'&&C.craftUnit(u))x.bolts=(x.bolts||0)+1;/* v29 a bolt on a craft flying as a ship: Core's craft-scale rule decides whether it goes down */
+ if((kind==='bolt'||kind==='ion')&&C.craftUnit(u))x.bolts=(x.bolts||0)+(spaceDamage.weight>0?spaceDamage.weight:1);/* v29 a bolt on a craft flying as a ship: Core's craft-scale rule decides whether it goes down */
  // h: what this hit brings to the armour (hull share plus the part that bypasses shields).
  // v24 Missiles, and a craft's bolts fired from inside the target's shield shell (spaceInShell), strike the hull directly; ion torpedoes are physical
  // rounds that work on the ship itself without the field (docs/shield-deflection-v24.md).
@@ -10414,6 +10414,7 @@ function spaceShots(shots){
 // (merged in Core like any hit; dmg already carries the battle's damage scale).
 function spaceBoltDamage(t,d,at){const B=trial.battle;if(!B||B.result||!d||t.dead)return;const g=Math.max(0,d.gun||0),i=Math.max(0,d.ion||0),dr=Math.max(0,d.direct||0),di=Math.max(0,d.ionDirect||0);if(!(g+i+dr+di>0))return;
  const x=B.extra.get(t.id)||{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:d.src};x.sf+=g+C.COMBAT.ionShield*i;x.hull+=g+C.COMBAT.ionHull*i;x.ion+=i;x.direct+=dr;x.ionDirect=(x.ionDirect||0)+di;
+ if(g+i>0&&d.shot>0&&C.craftUnit(t))x.bolts=(x.bolts||0)+(g+i)/(d.shot*SPACE_RULES.damage);/* v29 enemy bolts that reached a craft (the flown one included): Core's craft-scale rule decides */
  const h=g+C.COMBAT.ionHull*i+dr;if(h>0&&d.shot>0){x.shotE=(x.shotE||0)+h;x.shotN=(x.shotN||0)+h/d.shot;}x.aim.auto=(x.aim.auto||0)+h+.1*(g+i+di);if(d.from)x.from=d.from.slice();x.src=d.src;
  // where it struck, in the target's hull frame: the damage goes to the plating there, not spread over the whole surface
  if(at&&g+i>0&&typeof C.hullLocal==='function'){try{const local=C.hullLocal(t,trialApplyT(B.E,tv.sub(at,B.O)));if(local?.every?.(Number.isFinite))(x.hits||(x.hits=[])).push({point:local,energy:g+C.COMBAT.ionShield*i,ion:i,hull:g+C.COMBAT.ionHull*i,direct:0,src:d.src});}catch{}}

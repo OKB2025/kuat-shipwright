@@ -76,3 +76,28 @@ test('a battle with no craft units draws nothing from the battle\'s random seque
  const run=()=>{const a=ship('a','cr90',0),f=ship('f','nebulonb',1);f.pos=[8000,0,0];f.yaw=Math.PI;a.order={...a.order,type:'attack',target:'f',fire:true};f.order={...f.order,type:'attack',target:'a',fire:true};const B=C.fleetBattle([a,f],true);B.seed=11;tick(B,60);return B;};
  const B=run();assert.ok(!B.events.some(e=>/撃墜/.test(e.text)));
 });
+
+// Physics review 2026-11-18: the common model lands an expected number of bolts h (each shot hits with chance p, then downs with
+// .kill), so a craft survives exp(-kill·h), not (1-kill)^h (that is 1.39 times as deadly); whole bolts the trial saw strike keep
+// (1-kill)^n. The player's own craft is bolt-resolved (opts.boltGuns): enemy bolts reach the rule only through opts.extra.
+test('expected hits from the common model down a craft at exp(-kill·h)',()=>{
+ const shooter=()=>{const s=ship('s','nebulonb',1);s.pos=[4000,0,0];s.yaw=Math.PI;s.order={...s.order,type:'attack',target:'x',fire:true,autoPointDefense:false};return s;};
+ // measure the expected bolts landed in one step with the craft kept alive (the rule's own bookkeeping, read through the shot record)
+ const probe=shooter(),x0=craft('x','craft_xwing',0);x0.order={...x0.order,type:'hold',fire:false};const B0=C.fleetBattle([probe,x0],true);B0.seed=1;let landed=0;
+ for(let i=0;i<8;i++){const shots=C.fleetTick(B0,.25,{});x0.dead=false;for(const q of shots)if(q.from==='s'&&q.to==='x'&&!q.screen&&!q.ff)landed+=(q.gun||0)/C.fleetShotTT(probe);}
+ assert.ok(landed>0,'the frigate lands bolts on the craft: '+landed);const h=landed/8;
+ let down=0;const N=600;for(let i=1;i<=N;i++){const s=shooter(),x=craft('x','craft_xwing',0);x.order={...x.order,type:'hold',fire:false};const B=C.fleetBattle([s,x],true);B.seed=i*7919;C.fleetTick(B,.25,{});if(x.dead)down++;}
+ const want=1-Math.exp(-C.CRAFT_HIT.kill*h),old=1-Math.pow(1-C.CRAFT_HIT.kill,h);assert.ok(Math.abs(down/N-want)<.06,`downed ${down/N} in one step with ${h.toFixed(3)} expected bolts: want ${want.toFixed(3)} (the earlier formula gave ${old.toFixed(3)})`);
+});
+
+test('the flown craft is bolt-resolved: enemy bolts that reach it go through the rule by opts.extra',()=>{
+ const run=(seed,bolts)=>{const me=craft('me','craft_xwing',0),f=craft('f','craft_tie_ln',1);me.manual=true;f.pos=[1500,0,0];f.yaw=Math.PI;f.order={...f.order,type:'attack',target:'me',fire:true};const B=C.fleetBattle([me,f],true);B.seed=seed;
+  for(let i=0;i<40&&!me.dead;i++)C.fleetTick(B,.25,{boltGuns:new Set(['me']),extra:new Map(bolts&&i===0?[['me',{sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},from:null,src:'f',bolts}]]:[])});return me.dead;};
+ let none=0,two=0;const N=200;for(let i=1;i<=N;i++){if(run(i*7919,0))none++;if(run(i*7919,2))two++;}
+ assert.equal(none,0,'without bolts that reach it nothing is landed by the expected-hit model (ten seconds under fire)');assert.ok(Math.abs(two/N-.75)<.1,'two bolts: '+two/N);
+});
+
+test('a craft breaks off over a tall target too (the pass is judged on the point it runs in on)',()=>{
+ const x=craft('x','craft_xwing',0),f=ship('f','cr90',1);f.p.height=900;f.p.width=900;f.pos=[6000,0,0];f.order={...f.order,type:'hold',fire:false};x.order={...x.order,type:'attack',target:'f',fire:false};
+ const B=C.fleetBattle([x,f],true);B.seed=3;let out=0,last='in';tick(B,200,{},()=>{if(x.pass.phase!==last){last=x.pass.phase;if(last==='out')out++;}});assert.ok(out>=3,'passes over a 900 m tall target: '+out);
+});
