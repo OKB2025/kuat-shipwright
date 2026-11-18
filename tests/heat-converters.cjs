@@ -73,8 +73,9 @@ test('battle: the reservation follows this step\'s requested loads through the r
  const gun=200*C.HEAT.waste.weapon,reactor=C.HEAT.waste.reactor*210;
  near(d[0],gun*K*hd,1e-3,'the hdis on the gun path is funded for all the gun heat that reaches it');
  near(d[1],(10+reactor)*K*hd,1e-3,'the wing is funded for the hotel heat and the reactor loss');
- const small=Array.from(C.coolingDemandW(u,{...H,dis:[{...H.dis[0],cap:20,power:20*K},H.dis[1]]},{weapons:200,shields:0,throttle:0}));
- near(small[0],20*K,1e-12,'never above the rating');
+ // a converter rated at .4 of the gun heat (20 when the guns left .25 aboard; 2026-11-18 the share is .05, docs/weapon-heat-share.md)
+ const lim=gun*.4,small=Array.from(C.coolingDemandW(u,{...H,dis:[{...H.dis[0],cap:lim,power:lim*K},H.dis[1]]},{weapons:200,shields:0,throttle:0}));
+ near(small[0],lim*K,1e-12,'never above the rating');
  assert.ok(d[0]+d[1]<(H.dis[0].power+H.dis[1].power)*1e-3,'a large wing rating does not hold power away from propulsion');
  const idle=Array.from(C.coolingDemandW({p:{grid:{P:1000,fixed:0,De:0}},ht:{qJ:0}},H,{}));assert.deepEqual(idle,[0,0],'no heat, no reservation');
 });

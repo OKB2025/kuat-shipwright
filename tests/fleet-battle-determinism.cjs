@@ -42,6 +42,9 @@
 // Re-recorded on 174ca47 (2026-11-16, user decision「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」): the
 // shield's absorbed share no longer heats the ship. First numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0,
 // unit 0 digest[28] (heat store ht.qJ) 0 against 3.49e19 J. Two recordings in a row gave the same file (sha256 b245c89d…).
+// Re-recorded on ea30572 with the regenerated examples (2026-11-18, user decision「今のシステムのまま、射撃の損失を下げよう」: HEAT.waste.weapon .25 → .05,
+// docs/weapon-heat-share.md): weapon charging leaves less heat aboard, so the heat store and the governor's holds differ from
+// the first tick. Two recordings in a row gave the same file (sha256 2ff658c4…). The first differing digest field was not extracted.
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
