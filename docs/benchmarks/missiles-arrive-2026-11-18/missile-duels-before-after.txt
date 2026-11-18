@@ -1,0 +1,21 @@
+mc75 → dreadnaught 30000 m 60 s {}
+  before {"hpLost":491.4,"firstHullDamageAt":0.25,"ammoUsed":72,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":"電源喪失","dist":30000}
+  after  {"hpLost":251.9,"firstHullDamageAt":13,"ammoUsed":72,"inFlight":0,"peakSalvos":72,"log":{"hit":58.18874284767346,"downed":13.811257152326485},"targetOut":null,"dist":30000}
+mc75 → dreadnaught 30000 m 60 s {"nopd":true}
+  before {"hpLost":466.5,"firstHullDamageAt":0.25,"ammoUsed":72,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":null,"dist":30000}
+  after  {"hpLost":493,"firstHullDamageAt":13,"ammoUsed":72,"inFlight":0,"peakSalvos":72,"log":{"hit":72,"downed":0},"targetOut":"電源喪失","dist":30000}
+providence → imperial 40000 m 60 s {}
+  before {"hpLost":101.1,"firstHullDamageAt":0.25,"ammoUsed":204,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":null,"dist":40000}
+  after  {"hpLost":97.5,"firstHullDamageAt":0.5,"ammoUsed":204,"inFlight":0,"peakSalvos":204,"log":{"hit":195.05241926966508,"downed":8.947580730334716},"targetOut":null,"dist":40000}
+mc75 → imperial 30000 m 60 s {}
+  before {"hpLost":35.1,"firstHullDamageAt":0.25,"ammoUsed":72,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":null,"dist":30000}
+  after  {"hpLost":31.4,"firstHullDamageAt":0.75,"ammoUsed":72,"inFlight":0,"peakSalvos":72,"log":{"hit":62.78638087728999,"downed":9.213619122709973},"targetOut":null,"dist":30000}
+venator → munificent 20000 m 40 s {}
+  before {"hpLost":10.3,"firstHullDamageAt":0.25,"ammoUsed":24,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":null,"dist":20000}
+  after  {"hpLost":0,"firstHullDamageAt":0.5,"ammoUsed":24,"inFlight":0,"peakSalvos":24,"log":{"hit":0,"downed":24.00000000000007},"targetOut":null,"dist":20000}
+mc75 → arquitens 30000 m 60 s {}
+  before {"hpLost":422.2,"firstHullDamageAt":0.25,"ammoUsed":48,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":true,"dist":30000}
+  after  {"hpLost":409.9,"firstHullDamageAt":0.75,"ammoUsed":72,"inFlight":0,"peakSalvos":72,"log":{"hit":45.742902542472564,"downed":2.324750527422197},"targetOut":true,"dist":30000}
+arquitens → gozanti 5000 m 30 s {}
+  before {"hpLost":2.4,"firstHullDamageAt":0.25,"ammoUsed":4,"inFlight":0,"peakSalvos":0,"log":null,"targetOut":true,"dist":5000}
+  after  {"hpLost":2.5,"firstHullDamageAt":0.5,"ammoUsed":12,"inFlight":0,"peakSalvos":12,"log":{"hit":3.5562666666666694,"downed":0.4441585342229029},"targetOut":true,"dist":5000}

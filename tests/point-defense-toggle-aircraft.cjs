@@ -58,6 +58,14 @@ test('the actual tactical fleet aircraft-loss path honors the automatic-defence 
 });
 
 test('the actual tactical missile attenuation path honors OFF while preserving each finite launch',()=>{
- const result=[];for(const enabled of [false,true]){const f=tacticalFixture(enabled,'missile'),shots=C.fleetTick(f.battle,.25,{collide:false}),missile=shots.find(s=>s.from===f.enemy.id);assert.equal(f.enemy.ammo[1],5,'one real missile leaves its finite cell');assert.equal(missile?.launches?.length,1);assert.equal(missile.launches[0].n,1);assert.equal(missile.launches[0].tt,25);result.push({enabled,damage:missile.msl,reserved:f.u.dualDefense,energy:f.u.energy});}
- assert.equal(result[0].reserved,false);assert.equal(result[1].reserved,true);assert.ok(result[0].damage>result[1].damage,'OFF retains the unattenuated missile damage');assert.ok(result[1].damage>0,'point defence does not invent guaranteed destruction');assert.ok(result.every(r=>r.energy>=0));
+ // v28 (2026-11-18, user decisions「ミサイル、魚雷は実際に届いた時にして」「ミサイル、魚雷も小型機と同じ扱いで点防御で撃墜できるように」,
+ // docs/missiles-arrive.md): the round is launched whole and flies; point defence shoots at it while it is within reach.
+ // The case compared the launch record's damage (attenuated at the launch); it now compares what arrives.
+ const result=[];for(const enabled of [false,true]){const f=tacticalFixture(enabled,'missile'),shots=C.fleetTick(f.battle,.25,{collide:false}),missile=shots.find(s=>s.from===f.enemy.id);assert.equal(f.enemy.ammo[1],5,'one real missile leaves its finite cell');assert.equal(missile?.launches?.length,1);assert.equal(missile.launches[0].n,1);assert.equal(missile.launches[0].tt,25);
+  assert.ok(Math.abs(missile.msl-25)<1e-9,'the launch record carries the whole round');assert.equal(f.battle.missiles.length,1);assert.equal(f.battle.missiles[0].n,1,'nothing is taken at the launch');
+  f.enemy.ammo[1]=0;/* this one round only */let reserved=false;for(let t=0;t<30&&f.battle.missiles.length;t+=.25){C.fleetTick(f.battle,.25,{collide:false});reserved=reserved||f.u.dualDefense===true;}
+  assert.equal(f.battle.missiles.length,0,'the round arrived or was shot down');result.push({enabled,log:f.battle.missileLog||{hit:0,downed:0},reserved,energy:f.u.energy});}
+ assert.equal(result[0].reserved,false);assert.equal(result[1].reserved,true);
+ assert.ok(Math.abs(result[0].log.hit-1)<1e-9&&result[0].log.downed===0,'OFF: the whole round arrives: '+JSON.stringify(result[0].log));
+ assert.ok(result[1].log.downed>0&&result[1].log.hit<1,'ON: point defence shoots at it in flight: '+JSON.stringify(result[1].log));assert.ok(Math.abs(result[1].log.hit+result[1].log.downed-1)<1e-9,'what is not shot down arrives');assert.ok(result.every(r=>r.energy>=0));
 });
