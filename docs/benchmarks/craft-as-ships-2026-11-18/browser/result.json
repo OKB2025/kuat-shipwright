@@ -1,0 +1,658 @@
+{
+ "status": "PASS",
+ "own": "mc80liberty",
+ "errors": [],
+ "steps": [
+  {
+   "s": "editor ready"
+  },
+  {
+   "s": "trial entered",
+   "d": {
+    "battle": false
+   }
+  },
+  {
+   "s": "launched",
+   "d": {
+    "battle": true,
+    "time": 0,
+    "result": null,
+    "ticker": [
+     "友 T-65B Xウイング 1：発艦"
+    ],
+    "units": [
+     {
+      "id": "me",
+      "name": "MC80リバティ型スター・クルーザー",
+      "team": 0,
+      "manual": true,
+      "wing": null,
+      "craft": false,
+      "key": "trial-fxt8yg",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 0,
+      "pass": null,
+      "pos": [
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "id": "w1",
+      "name": "T-65B Xウイング 1",
+      "team": 0,
+      "manual": false,
+      "wing": {
+       "recall": false,
+       "aboard": null,
+       "clear": 3
+      },
+      "craft": true,
+      "key": "craft_xwing",
+      "order": "escort",
+      "target": "me",
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 60,
+      "fromMe": 89.0284616410555,
+      "pass": null,
+      "pos": [
+       69,
+       -55,
+       14
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "s": "target out",
+   "d": {
+    "battle": true,
+    "time": 0.75,
+    "result": null,
+    "ticker": [
+     "友 T-65B Xウイング 1：発艦",
+     "敵 CR90コルベット：静止目標として出現"
+    ],
+    "units": [
+     {
+      "id": "me",
+      "name": "MC80リバティ型スター・クルーザー",
+      "team": 0,
+      "manual": true,
+      "wing": null,
+      "craft": false,
+      "key": "trial-fxt8yg",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 0,
+      "pass": null,
+      "pos": [
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "id": "w1",
+      "name": "T-65B Xウイング 1",
+      "team": 0,
+      "manual": false,
+      "wing": {
+       "recall": false,
+       "aboard": null,
+       "clear": 2.25
+      },
+      "craft": true,
+      "key": "craft_xwing",
+      "order": "attack",
+      "target": "x1",
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 94.34211733731595,
+      "fromMe": 140.44774007482815,
+      "pass": null,
+      "pos": [
+       109,
+       -87,
+       13
+      ]
+     },
+     {
+      "id": "x1",
+      "name": "CR90コルベット",
+      "team": 1,
+      "manual": false,
+      "wing": null,
+      "craft": false,
+      "key": "cr90",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 7999.99999999987,
+      "pass": null,
+      "pos": [
+       8000,
+       0,
+       0
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "s": "attack",
+   "d": {
+    "nearest": 134.6291201783626,
+    "phases": [
+     "in",
+     "out"
+    ],
+    "state": {
+     "battle": true,
+     "time": 24,
+     "result": null,
+     "ticker": [
+      "友 T-65B Xウイング 1：発艦",
+      "敵 CR90コルベット：静止目標として出現"
+     ],
+     "units": [
+      {
+       "id": "me",
+       "name": "MC80リバティ型スター・クルーザー",
+       "team": 0,
+       "manual": true,
+       "wing": null,
+       "craft": false,
+       "key": "trial-fxt8yg",
+       "order": "hold",
+       "target": null,
+       "dead": false,
+       "absent": false,
+       "docked": false,
+       "out": null,
+       "speed": 0,
+       "fromMe": 0,
+       "pass": null,
+       "pos": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "id": "w1",
+       "name": "T-65B Xウイング 1",
+       "team": 0,
+       "manual": false,
+       "wing": {
+        "recall": false,
+        "aboard": null,
+        "clear": 0
+       },
+       "craft": true,
+       "key": "craft_xwing",
+       "order": "attack",
+       "target": "x1",
+       "dead": false,
+       "absent": false,
+       "docked": false,
+       "out": null,
+       "speed": 359.23672318006373,
+       "fromMe": 7894.091277158903,
+       "pass": "out",
+       "pos": [
+        7894,
+        -83,
+        0
+       ]
+      },
+      {
+       "id": "x1",
+       "name": "CR90コルベット",
+       "team": 1,
+       "manual": false,
+       "wing": null,
+       "craft": false,
+       "key": "cr90",
+       "order": "hold",
+       "target": null,
+       "dead": false,
+       "absent": false,
+       "docked": false,
+       "out": null,
+       "speed": 0,
+       "fromMe": 7999.99999999987,
+       "pass": null,
+       "pos": [
+        8000,
+        0,
+        0
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "s": "recalled",
+   "d": {
+    "battle": true,
+    "time": 24.25,
+    "result": null,
+    "ticker": [
+     "友 T-65B Xウイング 1：発艦",
+     "敵 CR90コルベット：静止目標として出現"
+    ],
+    "units": [
+     {
+      "id": "me",
+      "name": "MC80リバティ型スター・クルーザー",
+      "team": 0,
+      "manual": true,
+      "wing": null,
+      "craft": false,
+      "key": "trial-fxt8yg",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 0,
+      "pass": null,
+      "pos": [
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "id": "w1",
+      "name": "T-65B Xウイング 1",
+      "team": 0,
+      "manual": false,
+      "wing": {
+       "recall": true,
+       "aboard": null,
+       "clear": 0
+      },
+      "craft": true,
+      "key": "craft_xwing",
+      "order": "dock",
+      "target": "me",
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 360.00000841898145,
+      "fromMe": 7983.99027052621,
+      "pass": "out",
+      "pos": [
+       7984,
+       -83,
+       0
+      ]
+     },
+     {
+      "id": "x1",
+      "name": "CR90コルベット",
+      "team": 1,
+      "manual": false,
+      "wing": null,
+      "craft": false,
+      "key": "cr90",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 7999.99999999987,
+      "pass": null,
+      "pos": [
+       8000,
+       0,
+       0
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "s": "landed",
+   "d": {
+    "battle": true,
+    "time": 84.25,
+    "result": null,
+    "ticker": [
+     "友 T-65B Xウイング 1：発艦",
+     "敵 CR90コルベット：静止目標として出現",
+     "友 T-65B Xウイング 1：着艦・収容",
+     "友 T-65B Xウイング 1：MC80リバティ型スター・クルーザーの格納庫に入渠"
+    ],
+    "units": [
+     {
+      "id": "me",
+      "name": "MC80リバティ型スター・クルーザー",
+      "team": 0,
+      "manual": true,
+      "wing": null,
+      "craft": false,
+      "key": "trial-fxt8yg",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 0,
+      "pass": null,
+      "pos": [
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "id": "w1",
+      "name": "T-65B Xウイング 1",
+      "team": 0,
+      "manual": false,
+      "wing": {
+       "recall": true,
+       "aboard": 84.25,
+       "clear": 0
+      },
+      "craft": true,
+      "key": "craft_xwing",
+      "order": "dock",
+      "target": "me",
+      "dead": false,
+      "absent": true,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 65.73440002986317,
+      "pass": null,
+      "pos": [
+       46,
+       -45,
+       13
+      ]
+     },
+     {
+      "id": "x1",
+      "name": "CR90コルベット",
+      "team": 1,
+      "manual": false,
+      "wing": null,
+      "craft": false,
+      "key": "cr90",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 7999.99999999987,
+      "pass": null,
+      "pos": [
+       8000,
+       0,
+       0
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "s": "launched again",
+   "d": {
+    "battle": true,
+    "time": 84.75,
+    "result": null,
+    "ticker": [
+     "友 T-65B Xウイング 1：発艦",
+     "敵 CR90コルベット：静止目標として出現",
+     "友 T-65B Xウイング 1：着艦・収容",
+     "友 T-65B Xウイング 1：MC80リバティ型スター・クルーザーの格納庫に入渠",
+     "友 T-65B Xウイング 1：発艦"
+    ],
+    "units": [
+     {
+      "id": "me",
+      "name": "MC80リバティ型スター・クルーザー",
+      "team": 0,
+      "manual": true,
+      "wing": null,
+      "craft": false,
+      "key": "trial-fxt8yg",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 0,
+      "pass": null,
+      "pos": [
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "id": "w1",
+      "name": "T-65B Xウイング 1",
+      "team": 0,
+      "manual": false,
+      "wing": {
+       "recall": false,
+       "aboard": null,
+       "clear": 3
+      },
+      "craft": true,
+      "key": "craft_xwing",
+      "order": "attack",
+      "target": "x1",
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 60,
+      "fromMe": 89.0284616410555,
+      "pass": null,
+      "pos": [
+       69,
+       -55,
+       14
+      ]
+     },
+     {
+      "id": "x1",
+      "name": "CR90コルベット",
+      "team": 1,
+      "manual": false,
+      "wing": null,
+      "craft": false,
+      "key": "cr90",
+      "order": "hold",
+      "target": null,
+      "dead": false,
+      "absent": false,
+      "docked": false,
+      "out": null,
+      "speed": 0,
+      "fromMe": 7999.99999999987,
+      "pass": null,
+      "pos": [
+       8000,
+       0,
+       0
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "s": "before taking over",
+   "d": {
+    "me": "me",
+    "meWing": false,
+    "craft": false,
+    "name": "MC80リバティ型スター・クルーザー",
+    "key": "trial-fxt8yg",
+    "turrets": 100,
+    "speed": 0,
+    "hudName": "MC80リバティ型スター・クルーザー",
+    "busy": false,
+    "homeBtn": false,
+    "flyBtn": true,
+    "ship": {
+     "manual": true,
+     "order": "hold",
+     "key": "trial-fxt8yg",
+     "parked": false,
+     "speed": 0
+    }
+   }
+  },
+  {
+   "s": "flying the craft",
+   "d": {
+    "me": "w1",
+    "meWing": true,
+    "craft": true,
+    "name": "T-65B Xウイング",
+    "key": "trial-craft_xwing",
+    "turrets": 4,
+    "speed": 67.46710035772969,
+    "hudName": "T-65B Xウイング",
+    "home": "me",
+    "busy": false,
+    "homeBtn": true,
+    "flyBtn": false,
+    "ship": {
+     "manual": false,
+     "order": "hold",
+     "key": "park-trial-fxt8yg",
+     "parked": true,
+     "speed": 0
+    }
+   }
+  },
+  {
+   "s": "after 6 s at full throttle",
+   "d": {
+    "me": "w1",
+    "meWing": true,
+    "craft": true,
+    "name": "T-65B Xウイング",
+    "key": "trial-craft_xwing",
+    "turrets": 4,
+    "speed": 432.44163060831806,
+    "hudName": "T-65B Xウイング",
+    "home": "me",
+    "busy": false,
+    "homeBtn": true,
+    "flyBtn": false,
+    "ship": {
+     "manual": false,
+     "order": "hold",
+     "key": "park-trial-fxt8yg",
+     "parked": true,
+     "speed": 5.6860079069951786
+    }
+   }
+  },
+  {
+   "s": "back on the ship",
+   "d": {
+    "me": "me",
+    "meWing": false,
+    "craft": false,
+    "name": "MC80リバティ型スター・クルーザー",
+    "key": "trial-fxt8yg",
+    "turrets": 100,
+    "speed": 5.652972918224959,
+    "hudName": "MC80リバティ型スター・クルーザー",
+    "home": "me",
+    "busy": false,
+    "homeBtn": false,
+    "flyBtn": true,
+    "ship": {
+     "manual": true,
+     "order": "hold",
+     "key": "trial-fxt8yg",
+     "parked": false,
+     "speed": 5.669466351523459
+    }
+   }
+  },
+  {
+   "s": "craft lost, back on the ship",
+   "d": {
+    "me": "me",
+    "meWing": false,
+    "craft": false,
+    "name": "MC80リバティ型スター・クルーザー",
+    "key": "trial-fxt8yg",
+    "turrets": 100,
+    "speed": 5.490654706417715,
+    "hudName": "MC80リバティ型スター・クルーザー",
+    "home": "me",
+    "busy": false,
+    "homeBtn": false,
+    "flyBtn": true,
+    "ship": {
+     "manual": true,
+     "order": "hold",
+     "key": "trial-fxt8yg",
+     "parked": false,
+     "speed": 5.50667455092704
+    }
+   }
+  },
+  {
+   "s": "after restart",
+   "d": {
+    "craft": false,
+    "name": "MC80リバティ型スター・クルーザー",
+    "key": "trial-fxt8yg",
+    "fly": null,
+    "wing": null,
+    "mode": "trial",
+    "hudName": "MC80リバティ型スター・クルーザー"
+   }
+  }
+ ],
+ "craftKey": "craft_xwing"
+}
