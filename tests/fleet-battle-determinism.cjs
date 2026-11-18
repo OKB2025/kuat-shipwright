@@ -47,6 +47,8 @@
 // docs/weapon-heat-share.md). Guns charge with less input and leave less heat aboard. First numeric difference against the
 // 69dc4aa recording with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0, unit 0 digest[12] (u.energy, the charge held) 5.7733 against
 // 6.3306. Two recordings in a row gave the same file (sha256 84ee4a28…).
+// Re-recorded again the same day with the Imperial I/II main turrets holding three salvos (imperial, imperial2 regenerated;
+// more stored charge and 0.06-0.07% more mass). Two recordings in a row gave the same file (sha256 db45f75c…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest

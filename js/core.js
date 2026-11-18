@@ -78660,6 +78660,9 @@ function imperialUserLayoutDesign(key){
  engineOpening.c[1]=202.52;engineOpening.s[2]=127.07;
  ship.reference=key;ship.name=(key==='imperial2'?'インペリアルII級':'インペリアルI級')+'｜重砲戦艦';
  if(key==='imperial')for(const f of ship.fits)if(f.id>=107&&f.id<=114)f.k=f.id<=108?'ion':'stl';
+ // The eight main turrets hold three salvos (user decision 2026-11-18「インペリアル I / IIは主砲塔充電量を上げてもいい」「砲そのものは
+ // 変えずに設置設定で弄れる斉射回数の方を変えて充電区画を大きくする」): larger charge compartments, the guns themselves unchanged.
+ for(const f of ship.fits)if(f.id>=107&&f.id<=114)f.chargeSalvos=3;
  ship.parts=ship.parts.filter(p=>p.k!=='engineCore');
  for(const p of ship.parts)if(p.k==='engine'){delete p.machineryId;delete p.nozzleShare;}
  ship.links=[];

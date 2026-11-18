@@ -8,8 +8,8 @@ gozanti        Dw -21.0526%
 gr75           fixed -0.0000%, cooling -0.0000%, Dw -21.0526%
 hammerhead     Dw -21.0526%
 heraklon       same in all compared fields
-imperial       Dw -21.0526%
-imperial2      Dw -21.0526%
+imperial       Dw -21.0526%, accel -0.0807%, maxSpeed -0.0827%, hp 0.0384%, turnRate -0.0403%, mglt -0.0827%, mass 0.0738%, price 0.0609%
+imperial2      Dw -21.0526%, accel -0.0667%, maxSpeed -0.0684%, hp 0.0212%, turnRate -0.0334%, mglt -0.0684%, mass 0.0610%, price 0.0553%
 lh3210         fixed -0.1941%, cooling -0.3315%, Dw -21.0526%
 lucrehulk      fixed -7.9211%, cooling -12.6276%, Dw -21.0526%
 mandator2      fixed -0.9172%, cooling -15.4690%, Dw -21.0526%
