@@ -85128,7 +85128,7 @@ function combatAdd(inc,t,from,amt,aim,src){
  inc.sf+=amt.sf||0;inc.hull+=amt.hull||0;inc.direct+=amt.direct||0;inc.ion+=amt.ion||0;inc.ionDirect=(inc.ionDirect||0)+(amt.ionDirect||0);
  const w=(amt.hull||0)+(amt.direct||0)+.1*((amt.sf||0)+(amt.ionDirect||0));if(!(w>0))return;const k=aim||'auto';
  {const h=amt.hull||0,d=amt.direct||0,ds=amt.directShot>0?amt.directShot:amt.shot;if(h>0&&amt.shot>0){inc.shotE=(inc.shotE||0)+h;inc.shotN=(inc.shotN||0)+h/amt.shot;}if(d>0&&ds>0){inc.shotE=(inc.shotE||0)+d;inc.shotN=(inc.shotN||0)+d/ds;}}inc.aim[k]=(inc.aim[k]||0)+w;
- if(from&&COMBAT.exposed[k]){const h=aimHold(t,k,len(sub(from,t.pos)));if(h>0){inc.snipe=inc.snipe||{};inc.snipe[k]=(inc.snipe[k]||0)+w*h;}}
+ if(from&&COMBAT.exposed[k]){const h=aimHold(t,k,amt.aimRange>0?amt.aimRange:len(sub(from,t.pos))/* v28 a salvo that arrives keeps the range it was aimed from (its launch range); `from` is then where it came in, close to the ship */);if(h>0){inc.snipe=inc.snipe||{};inc.snipe[k]=(inc.snipe[k]||0)+w*h;}}
  if(from){const fw=combatFaces(t,from);for(let f=0;f<6;f++)inc.face[f]+=fw[f]*w;}
  if(src!=null)inc.by[src]=(inc.by[src]||0)+w;
 }
@@ -86031,7 +86031,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
  }
  for(const {m,t,from} of arrived){
   if(!(m.n>1e-9)){m.n=0;continue;}const tt=m.n*m.tt*DMG,inc=incoming.get(t.id);
-  if(inc)combatAdd(inc,t,from/* where the step began: the side the round came in on */,m.ion?{ionDirect:tt}:{direct:tt,shot:m.tt},m.aim||null,m.from);
+  if(inc)combatAdd(inc,t,from/* where the step began: the side the round came in on */,{...(m.ion?{ionDirect:tt}:{direct:tt,shot:m.tt}),...(m.aim&&m.aimRange>0?{aimRange:m.aimRange}:{})},m.aim||null,m.from);
   log().hit+=m.n;m.hit=m.n;m.n=0;
  }
  b.missiles=b.missiles.filter(m=>m.n>1e-9&&m.life>0);
@@ -86117,7 +86117,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    else for(const packet of missilePackets){const k=isConcussionLauncher(packet.kind)?1:crewEff;if(boltOnly){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*k;if(packet.ion)imsl+=damage;else msl+=damage;}else flown.push({...packet,n:packet.n*k});}
    if(boltOnly){const fundedAA=msl+imsl>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,icpt=1-.7*fundedAA/(fundedAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
    else for(const packet of flown){if(!(packet.n>0))continue;const launch=missileLaunchWorld(u,packet,t),native=isConcussionLauncher(packet.kind),range=missileRange(packet);
-    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range):MISSILE_FLIGHT.legacyLife,...(aim?{aim}:{})/* the part the ship is ordered to aim at, as the launch-time damage carried it */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
+    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range):MISSILE_FLIGHT.legacyLife,...(aim?{aim,aimRange:distance}:{})/* the part the ship aims at and the range it aimed from, as the launch-time damage carried them */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
     if(packet.ion)imslL+=packet.n*packet.tt/dt;else mslL+=packet.n*packet.tt/dt;}}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*fleetAirGun(p)*(1-.5*airEnemy/(u.air+airEnemy+1));
@@ -93454,13 +93454,18 @@ function battleTick(w, sys, dt) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
   m.range=Number.isFinite(m.range)&&m.range>0?m.range:C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);
   if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;continue;}
-  const rel=sub(t.pos,m.pos),d=len(rel),flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(2600,m.s+650*flightDt);
+  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(2600,m.s+650*flightDt);
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,remaining=Math.max(0,m.range-m.traveled),travel=Math.min(distance,remaining);if(distance>0)m.pos=add(m.pos,velocity,seconds*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);};
   // A physical tube/VLS clears its mount along the actual barrel axis before homing.
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
   const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),range=len(aim);m.vel=scale(norm(add(aim,t.velocity||[0,0,0],range/Math.max(300,m.s))),m.s);advance(m.vel,follow);}m.life-=dt;
   // Expiry is resolved before proximity damage, including the final capped step.
   if(m.traveled>=m.range||!(m.life>0)){m.life=0;m.n=0;continue;}
+  // v28 The strike is judged along the path flown in this step (its closest approach to the target), as in the fleet
+  // battle (fleetMissilesFly): judged at the step's start, a round at 2600 m/s (650 m a step) stepped across a small
+  // target's 300 m reach again and again until its motor ran out; against a 100 m ship every round of a volley was lost
+  // at 31 of 402 launch ranges between 3 and 58 km (2026-11-18, tests/missile-launcher-range.cjs).
+  const seg=sub(m.pos,from),sl=seg[0]*seg[0]+seg[1]*seg[1]+seg[2]*seg[2],tk=sl>0?clamp(((t.pos[0]-from[0])*seg[0]+(t.pos[1]-from[1])*seg[1]+(t.pos[2]-from[2])*seg[2])/sl,0,1):0,d=len(sub(t.pos,[from[0]+seg[0]*tk,from[1]+seg[1]*tk,from[2]+seg[2]*tk]));
   // Every enemy ship within reach adds its point defence, weighted by the arc facing the salvo.
   // v21.2 …as far as its fire control has targets to spare (C.AA_CHANNELS: a salvo of eight is one target).
   let kill = 0;for (const x of us) { if (x.side === m.side || x.warp || x.manual || !C.automaticPointDefenseEnabled(x)) continue; const r = len(sub(m.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; if (x.aaLeft == null || x.aaT !== w.time) { x.aaLeft = x.p.aaCh ?? 4; x.aaT = w.time; } if (!(x.aaLeft > 0)) continue; const need = Math.max(1, Math.ceil(m.n / C.AA_CHANNELS.salvo)), got = Math.min(need, x.aaLeft),aa=pdToward(x,m.pos,true),funded=aa>0?C.fundAutomaticPointDefense(x,m.pos,dt,pdStep,got/need):0;if(!(funded>0))continue;x.aaLeft -= got;kill += RULES.pdMissile * aa * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt * got / need * funded; }
@@ -93469,7 +93474,7 @@ function battleTick(w, sys, dt) {
   if (!(m.launchClearance>0) && d < Math.max(300, t.p.len * .4)) {
    // v22 a round's own hit (craft stores) or the ship missile's; ion rounds work on the ion channel
    const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {ionDirect: tt} : {direct: tt};if (!m.ion) amt.shot = m.tt ?? RULES.missileTT;
-   C.combatAdd(inc.get(t.id), t, m.pos, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
+   C.combatAdd(inc.get(t.id), t, from/* v28 where the step began: the side the round came in on (m.pos may be past the ship) */, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
   else if (m.life <= 0) m.n = 0;
  }
  w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0 || m.sys !== sys);

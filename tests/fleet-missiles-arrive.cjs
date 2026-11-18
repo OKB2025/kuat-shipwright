@@ -58,9 +58,26 @@ test('missiles at the trial\'s flown ship keep the launch record the trial flies
  assert.equal((f.B.missiles||[]).length,0,'no salvo in the battle');assert.ok(shots.some(s=>s.from==='a'&&s.mdmg&&(s.mdmg.direct>0)),'the shot record carries the damage to deliver');
 });
 
-test('a salvo carries the part its ship is ordered to aim at',()=>{
- const f=duel(30000);f.a.order={...f.a.order,aim:'engine'};tick(f.B,3);assert.ok(f.B.missiles.length>0);for(const m of f.B.missiles)assert.equal(m.aim,'engine');
- const g=duel(30000);tick(g.B,3);for(const m of g.B.missiles)assert.equal(m.aim,undefined,'no order, no aim');
+test('a salvo carries the part its ship aims at and the range it aimed from',()=>{
+ // Physics review 2026-11-18: launch-time missile damage was aimed from the launching ship; the share held on an exposed
+ // mark (aimHold) falls with that range. Judged from where the round comes in (a few hundred metres out) the whole strike
+ // would go to the mark.
+ const f=duel(30000);f.a.order={...f.a.order,aim:'bridge'};tick(f.B,3);assert.ok(f.B.missiles.length>0);for(const m of f.B.missiles){assert.equal(m.aim,'bridge');assert.ok(Math.abs(m.aimRange-30000)<1);}
+ const g=duel(30000);tick(g.B,3);for(const m of g.B.missiles){assert.equal(m.aim,undefined,'no order, no aim');assert.equal(m.aimRange,undefined);}
+ // the same strike from 500 m out, with and without the launch range, against the launch-time strike from 30 km
+ const t=f.b,amt={direct:100,shot:25},far=C.combatIncoming(),near=C.combatIncoming(),kept=C.combatIncoming();
+ C.combatAdd(far,t,[0,0,0],{...amt},'bridge','a');C.combatAdd(near,t,[t.pos[0]-500,0,0],{...amt},'bridge','a');C.combatAdd(kept,t,[t.pos[0]-500,0,0],{...amt,aimRange:30000},'bridge','a');
+ const share=inc=>(inc.snipe?.bridge||0)/inc.aim.bridge;assert.ok(share(far)>0&&share(far)<1,'at 30 km part of the strike holds the mark: '+share(far));
+ assert.ok(Math.abs(share(kept)-share(far))<1e-12,'the arriving salvo holds what the launch range gives');assert.ok(share(near)>share(far)*2,'without it the close-in point would hold far more: '+share(near));
+ assert.ok(Math.abs(share(far)-C.aimHold(t,'bridge',30000))<1e-12);
+});
+
+test('an AI ship that aims at a large target\'s bridge sends its missiles there too',()=>{
+ // fleetAim(u,t,true): a target 2.5 times the ship's size or more with its shields down to 92% or less
+ const pa=plain(F.designs.arquitens.p);pa.gunArcs=pa.gunArcs.map(()=>0);pa.ionArcs=(pa.ionArcs||[]).map(()=>0);
+ const a=C.fleetUnit('a','arquitens',pa,0),b=C.fleetUnit('b','imperial',plain(F.designs.imperial.p),1);b.pos=[30000,0,0];b.yaw=Math.PI;b.shield=b.shieldMax*.5;
+ a.order={...a.order,type:'hold',target:'b',fire:true};b.order={...b.order,type:'hold',fire:false,autoPointDefense:false};const B=C.fleetBattle([a,b],true);B.seed=7;
+ assert.equal(C.fleetAim(a,b,true),'bridge');tick(B,3);assert.ok(B.missiles.length>0);for(const m of B.missiles){assert.equal(m.aim,'bridge');assert.ok(m.aimRange>29000);}
 });
 
 test('salvos in flight carry over a committed turn of the fleet battle screen',()=>{
