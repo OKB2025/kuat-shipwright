@@ -69,7 +69,7 @@ test('editable arrangements (2×2, 2×4, 4×8) and raised rows set the face, com
  const f={k:'shipCmsl',p:[0,0,0],a:2,launcherCols:4,launcherRows:8,launcherRowRaise:2},d=C.fitSpec(f),g=C.launcherGeometry(f);near(d.hm,8*8.5+7*2+6);near(d.wm,44);assert.equal(g.rowRaise,2);
  const ys=[...new Set(g.muzzles.map(p=>C.dot(p,g.bodyFrame.up).toFixed(4)))].map(Number).sort((a,b)=>a-b);assert.equal(ys.length,8);for(let i=1;i<ys.length;i++)near(ys[i]-ys[i-1],10.5);
  const {s,wall}=fixture(),placedFit=placed(s,wall,{launcherCols:2,launcherRows:4,launcherRowRaise:3});assert.equal(placedFit.launcherRowRaise,3);C.syncCompartments(s);near(C.missileCells(s)[0].requiredVolume,50*(4*8.5+3*3+6)*(2*8.5+10));
- const loaded=C.deserialize(C.serialize(s));C.remount(loaded);assert.equal(loaded.fits[0].launcherRowRaise,3);assert.equal(C.shipLauncherConfig({k:'shipMsl',launcherRowRaise:5}).raise,0,'shipMsl has no row raise');
+ const loaded=C.deserialize(C.serialize(s));C.remount(loaded);assert.equal(loaded.fits[0].launcherRowRaise,3);assert.equal(C.shipLauncherConfig({k:'shipMsl',launcherRowRaise:5}).raise,undefined,'shipMsl has no row raise');
 });
 
 test('a curved host takes the panel along its local surface direction with level rows',()=>{
