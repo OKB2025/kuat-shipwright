@@ -1896,8 +1896,11 @@ Renderer.prototype.shadowInit = function () {
  return this.sh;
 };
 Renderer.prototype.shadowLayout = function (kind) {
- const S = this.sh; if (S.layout === kind) return; S.layout = kind; const n = kind === 'one' ? 1 : 2, s = S.size / n; S.tiles = [];
- for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) S.tiles.push({x: i * s, y: j * s, s, key: null, L: null, sig: null, used: -1, M: null});
+ const S = this.sh; if (S.layout === kind) return; S.layout = kind; S.tiles = []; const add = (x, y, s, big) => S.tiles.push({x, y, s, big, key: null, L: null, sig: null, used: -1, M: null});
+ if (kind === 'one') { add(0, 0, S.size, true); return; }
+ // v27 The fleet views: two half-size tiles for the ships largest on screen, and eight quarter-size tiles for ships farther off
+ // (2026-11-18: distant ships had no cast shadow at all, so a ship's look changed as it came near).
+ const h = S.size / 2, q = S.size / 4; add(0, 0, h, true); add(h, 0, h, true); for (let j = 0; j < 2; j++) for (let i = 0; i < 4; i++) add(i * q, h + j * q, q, false);
 };
 // Draws one tile: the casters' depth from the light L (in the ship's frame, toward the light), fitted
 // to the box b. The map's long side follows the ship's length (x) where the light allows.
@@ -1936,17 +1939,23 @@ Renderer.prototype.shadowDesign = function (opt) {
  }
  return t.M ? t : null;
 };
-// The fleet and space views: the (up to) four ships largest on screen get a tile. A map belongs to a
+// The fleet and space views: every ship ten pixels long or more gets a tile while tiles last (ten tiles). A map belongs to a
 // design lit from one side in its own frame, so ships of one design on one heading share it; a turning
 // ship's map is redrawn when its light has moved by about half a degree (two maps a frame at most).
 Renderer.prototype.shadowFleet = function (list) {
- const S = this.shadowInit(); if (!S) return null; this.shadowLayout('four'); S.frame++; const out = new Map(), W = this.look.L1; let budget = 2;
+ const S = this.shadowInit(); if (!S) return null; this.shadowLayout('fleet'); S.frame++; const out = new Map(), W = this.look.L1; let budget = 2;
  // A battle already drawn at the lowest resolution keeps a map for the largest ship only.
- for (const c of list.sort((a, b) => b.px - a.px).slice(0, (this.renderScale || 1) <= .55 ? 1 : 4)) {
+ // Ships of one design on one heading share a map, so the list is not cut short: a ship goes without only when no tile is left.
+ // The count no longer drops with the drawing resolution: maps are redrawn two a frame at most whatever their number, and a
+ // limit tied to the resolution made shadows come and go as the resolution moved (browser check 2026-11-18).
+ for (const c of list.sort((a, b) => b.px - a.px).slice(0, 64)) {
   const R = c.u.rot || yawMatrix(c.u.yaw || 0), L = [R[0] * W[0] + R[1] * W[1] + R[2] * W[2], R[3] * W[0] + R[4] * W[1] + R[5] * W[2], R[6] * W[0] + R[7] * W[1] + R[8] * W[2]];
   let best = null, bd = -2; for (const t of S.tiles) if (t.key === c.u.key && t.M) { const d = C.dot(t.L, L); if (d > bd) { bd = d; best = t; } }
-  if (best && bd > .99996) { best.used = S.frame; out.set(c.u, best); continue; }
-  if (budget > 0) { const t = best && best.used !== S.frame ? best : S.tiles.filter(x => x.used !== S.frame).sort((a, b) => a.used - b.used)[0];
+  // A ship grown large on screen moves from a quarter-size tile to a half-size one when one is free.
+  const grow = best && !best.big && c.px >= 140 && budget > 0 && S.tiles.some(x => x.big && x.used !== S.frame && x.key !== c.u.key);
+  if (best && bd > .99996 && !grow) { best.used = S.frame; out.set(c.u, best); continue; }
+  // The half-size tiles go to ships large on screen; a small ship takes a quarter-size tile, or a half-size one left free.
+  if (budget > 0) { const free = S.tiles.filter(x => x.used !== S.frame).sort((a, b) => a.used - b.used), t = best && best.used !== S.frame && !grow ? best : c.px >= 140 ? free.find(x => x.big) || free[0] : free.find(x => !x.big) || free[0];
    if (t) { const a = c.a; if (!a._casters) a._casters = Object.keys(a.meshes).filter(n => !SHADOW_SKIP.test(n)); this.shadowRender(t, a.meshes, a._casters, L, a.bounds, null); t.key = c.u.key; t.used = S.frame; budget--; out.set(c.u, t); continue; } }
   if (best && bd > .9986) { best.used = S.frame; out.set(c.u, best); }
  }
@@ -3788,7 +3797,7 @@ Renderer.prototype.drawFleet=function(m,opt){
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
  const eye=this.eye(),vd=(()=>{const t=this.cam.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1;return [d[0]/l,d[1]/l,d[2]/l];})(),focal=this.canvas.height/(2*Math.tan((this.cam.fov||.72)/2)),SHELL=['hull','struct','plate','surfaceArmor','refHull','refStruct'],FULL=['hull','struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'],OUTER=FULL.filter(n=>!['gen','shield','hyper','hangar'].includes(n));this.lodSkipped=0;
  // v20.2 Key-light shadows for the ships largest on screen (not pieces of wrecks or ships in a jump).
- let shadows=null;if(this.look?.shadow&&!this.noShadow){const c=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.clip||Math.abs((u.stretch||1)-1)>.02)continue;const a=this.fleetCache?.get(u.key);if(!a?.bounds||fleetFoilMoving(a,u))continue;const L=a.length||300,rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],px=L/Math.max(1,Math.hypot(rx,ry,rz))*focal;if(px>=140&&rx*vd[0]+ry*vd[1]+rz*vd[2]>=-L)c.push({u,a,px});}if(c.length)shadows=this.shadowFleet(c);}
+ let shadows=null;if(this.look?.shadow&&!this.noShadow){const c=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.clip||Math.abs((u.stretch||1)-1)>.02)continue;const a=this.fleetCache?.get(u.key);if(!a?.bounds||fleetFoilMoving(a,u))continue;const L=a.length||300,rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],px=L/Math.max(1,Math.hypot(rx,ry,rz))*focal;if(px>=10&&rx*vd[0]+ry*vd[1]+rz*vd[2]>=-L)c.push({u,a,px});}if(c.length)shadows=this.shadowFleet(c);}
  try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.shTile=shadows?.get(u)||null;
   const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz),px=L/Math.max(1,dist)*focal,ahead=rx*vd[0]+ry*vd[1]+rz*vd[2];
   const beyond=dist>speckFar;if(opt.lod&&(px<2.2||ahead<-L||beyond)){this.lodSkipped++;if((px<2.2||beyond)&&ahead>0&&(px>=FLEET_SPECK.minPx||L>=FLEET_SPECK.alwaysL)&&!u.clip)specks.push(u.pos,L,px,dist,!!u.wreck);continue;}const lod=opt.lod&&px<44&&(!u.turrets||a.surfaceTurrets);
