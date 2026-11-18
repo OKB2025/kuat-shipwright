@@ -85129,8 +85129,10 @@ function combatFaces(t,from){
 function hullBulk(p){const kg=p?.propulsion?.massKg;return kg>0?kg/1000*K.hpPerT:Math.max(1,p?.hp||1);}
 // User decision 2026-11-18「Xウィングのシールドは下げる。小型機のジェネレーター出力を頑張っても「数発しか防げないシールド」しか出せないくらいに数値を
 // 調整する」: a craft's generator gives CRAFT_SHIELD.scale of what the ship rule gives for its size (field, recharge and the heat
-// it sheds alike). The X-wing's field becomes 2.3e-8 TT, four of its own bolts (6e-9 TT), back in about two minutes.
-const CRAFT_SHIELD=Object.freeze({scale:5e-7});
+// it sheds alike). 「Xウィング対TIEはTIEが後方を取れれば4〜5秒間レーザーをあてつずければシールドが破れて撃墜できる形に」: the X-wing's field
+// becomes 4.65e-8 TT, eight TIE bolts (6e-9 TT), what a TIE/ln on its tail at 150 to 300 m lands in four to five seconds (it fires
+// 16.7 bolts a second and 7 to 20% of them land there).
+const CRAFT_SHIELD=Object.freeze({scale:1e-6});
 function craftShieldScale(p){if(!p||p.craftShieldScaled)return p;for(const k of ['shieldBuffer','D','shieldDissipationW','reserve'])if(Number.isFinite(p[k]))p[k]*=CRAFT_SHIELD.scale;p.craftShieldScaled=CRAFT_SHIELD.scale;return p;}
 function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[],shotE:0,shotN:0};}
 // TT per shot of what struck this tick (energy-weighted), 0 when unknown: the fire is then judged as a single shot.
@@ -85273,7 +85275,7 @@ function combatFires(ctx,u,dt,Q){
 function combatStatus(ctx,u){
  if(u.dead)return;syncPowerLossDisabled(u,ctx);u.crew=Math.max(0,u.crew);
  const N=u.sec.length,lost=u.secLost;
- if(lost.length>=2||lost.some(i=>i>0&&i<N-1)){u.dead=true;u.velocity=[0,0,0];u.fate=u.fateHint||'hull';u.fire=u.fire.map(()=>0);ctx.sunk(u,{reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',heat:'ジェネレーター過負荷爆発'}[u.fate]||'船体破断');return;}
+ if(lost.length>=2||lost.some(i=>i>0&&i<N-1)||lost.length&&craftUnit(u)/* v30 a craft that has lost any part of its airframe is gone */){u.dead=true;u.velocity=[0,0,0];u.fate=u.fateHint||'hull';u.fire=u.fire.map(()=>0);ctx.sunk(u,{reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',heat:'ジェネレーター過負荷爆発'}[u.fate]||'船体破断');return;}
  if(!u.out){const why=fleetOutReason(u);if(why){u.out=why;u.order={...u.order,type:'hold'};ctx.out(u,why);}}
 }
 // Everything that reached u this step (o, from combatIncoming): shields first,
