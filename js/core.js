@@ -245,11 +245,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "s3wx56",
+ "modelSignature": "2f844c",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1r5yi",
+   "signature": "dom9se",
    "build": 236723,
    "crew": 3000,
    "total": 239723,
@@ -295,8 +295,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 1.6906270265337486e-16,
-    "upS": 1.6906270265337486e-16,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -1328,8 +1328,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 3868023252851017700,
-     "fixed": 53503774612660380,
-     "cooling": 14617203776958722,
+     "fixed": 53487900207399910,
+     "cooling": 14601329371698246,
      "De": 3868023252851017000,
      "Ds": 2406363601183213000,
      "Dw": 4514560000000000,
@@ -2731,7 +2731,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>hotel",
        "n": "送電損失 p28>hotel",
        "g": "high",
-       "sh": 0.0058909,
+       "sh": 0.00589088,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2744,7 +2744,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p9",
        "n": "送電損失 p28>p9",
        "g": "high",
-       "sh": 0.0000191141,
+       "sh": 0.000019114,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -2770,7 +2770,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p11",
        "n": "送電損失 p28>p11",
        "g": "high",
-       "sh": 0.0000237099,
+       "sh": 0.0000237098,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2783,7 +2783,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p12",
        "n": "送電損失 p29>p12",
        "g": "high",
-       "sh": 0.0000237099,
+       "sh": 0.0000237098,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2809,7 +2809,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p14",
        "n": "送電損失 p29>p14",
        "g": "high",
-       "sh": 0.0000117121,
+       "sh": 0.000011712,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -2835,7 +2835,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p16",
        "n": "送電損失 p29>p16",
        "g": "high",
-       "sh": 0.0000127298,
+       "sh": 0.0000127297,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3173,7 +3173,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p32",
        "n": "送電損失 p28>p32",
        "g": "high",
-       "sh": 0.428305,
+       "sh": 0.428307,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3186,7 +3186,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f39",
        "n": "送電損失 p28>f39",
        "g": "high",
-       "sh": 0.000826707,
+       "sh": 0.000826704,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3212,7 +3212,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f41",
        "n": "送電損失 p28>f41",
        "g": "high",
-       "sh": 0.0000303031,
+       "sh": 0.000030303,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -3225,7 +3225,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f42",
        "n": "送電損失 p28>f42",
        "g": "high",
-       "sh": 0.0000294976,
+       "sh": 0.0000294975,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -3238,7 +3238,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f43",
        "n": "送電損失 p28>f43",
        "g": "high",
-       "sh": 0.000238475,
+       "sh": 0.000238474,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3264,7 +3264,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f39",
        "n": "送電損失 p29>f39",
        "g": "high",
-       "sh": 0.00102054,
+       "sh": 0.00102053,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3277,7 +3277,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f40",
        "n": "送電損失 p29>f40",
        "g": "high",
-       "sh": 0.000661365,
+       "sh": 0.000661363,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3329,7 +3329,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p37",
        "n": "送電損失 p28>p37",
        "g": "high",
-       "sh": 0.000202956,
+       "sh": 0.000202955,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3342,7 +3342,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p61",
        "n": "送電損失 p28>p61",
        "g": "high",
-       "sh": 0.000273179,
+       "sh": 0.000273178,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3355,7 +3355,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p62",
        "n": "送電損失 p28>p62",
        "g": "high",
-       "sh": 0.000364445,
+       "sh": 0.000364444,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3368,7 +3368,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p63",
        "n": "送電損失 p28>p63",
        "g": "high",
-       "sh": 0.000429704,
+       "sh": 0.000429703,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3381,7 +3381,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p64",
        "n": "送電損失 p28>p64",
        "g": "high",
-       "sh": 0.000443954,
+       "sh": 0.000443953,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3394,7 +3394,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p65",
        "n": "送電損失 p28>p65",
        "g": "high",
-       "sh": 0.000515193,
+       "sh": 0.000515191,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3407,7 +3407,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p66",
        "n": "送電損失 p28>p66",
        "g": "high",
-       "sh": 0.0000714378,
+       "sh": 0.0000714376,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3420,7 +3420,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p37",
        "n": "送電損失 p29>p37",
        "g": "high",
-       "sh": 6.22343e-9,
+       "sh": 6.22341e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3433,7 +3433,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p61",
        "n": "送電損失 p29>p61",
        "g": "high",
-       "sh": 7.59401e-9,
+       "sh": 7.59399e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3446,7 +3446,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p62",
        "n": "送電損失 p29>p62",
        "g": "high",
-       "sh": 8.26233e-9,
+       "sh": 8.26231e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3459,7 +3459,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p63",
        "n": "送電損失 p29>p63",
        "g": "high",
-       "sh": 1.14863e-8,
+       "sh": 1.14862e-8,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3485,7 +3485,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p65",
        "n": "送電損失 p29>p65",
        "g": "high",
-       "sh": 8.94032e-9,
+       "sh": 8.94029e-9,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3550,7 +3550,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p31",
        "n": "送電損失 p29>p31",
        "g": "high",
-       "sh": 0.0269937,
+       "sh": 0.0269936,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -10327,7 +10327,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "nly0v9",
+   "signature": "10gu12q",
    "build": 150608,
    "crew": 1000,
    "total": 151608,
@@ -11068,8 +11068,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1102223327698677000,
-     "fixed": 22544966018358868,
-     "cooling": 5112485464084082,
+     "fixed": 22535897018358868,
+     "cooling": 5103416464084083,
      "De": 1102223327698676900,
      "Ds": 679052165122877200,
      "Dw": 2418400000000000,
@@ -13150,7 +13150,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1oyczv6",
+   "signature": "10erka6",
    "build": 200818,
    "crew": 2000,
    "total": 202818,
@@ -13178,7 +13178,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.6980216089384449,
+    "navDemand": 0.6980216089759825,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -13196,8 +13196,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 1.0517465014609182e-16,
-    "upS": 1.0517465014609182e-16,
+    "up": 2.103493003034911e-16,
+    "upS": 2.103493003034911e-16,
     "down": 0.01,
     "T": 0
    },
@@ -13523,7 +13523,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0,
       "r": 0.011,
-      "share": 0.013323950102983251,
+      "share": 0.013323950109690194,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -13829,7 +13829,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.18,
       "z": -0.17,
       "r": 0.009,
-      "share": 0.008527334327702911,
+      "share": 0.008527334331995356,
       "domain": "main",
       "port": "p44",
       "powerConnected": true
@@ -13846,7 +13846,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.18,
       "z": 0.17,
       "r": 0.009,
-      "share": 0.008527334327702911,
+      "share": 0.008527334331995356,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -13863,7 +13863,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": -0.17,
       "r": 0.009,
-      "share": 0.008527334327702913,
+      "share": 0.008527334331995358,
       "domain": "main",
       "port": "p46",
       "powerConnected": true
@@ -13880,7 +13880,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0.17,
       "r": 0.009,
-      "share": 0.008527334327702913,
+      "share": 0.008527334331995358,
       "domain": "main",
       "port": "p47",
       "powerConnected": true
@@ -13897,7 +13897,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.12,
       "z": 0,
       "r": 0.009,
-      "share": 0.008527331968528685,
+      "share": 0.00852733197282113,
       "domain": "main",
       "port": "p48",
       "powerConnected": true
@@ -13914,7 +13914,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.12,
       "z": -0.11,
       "r": 0.009,
-      "share": 0.008527331378735209,
+      "share": 0.008527331383027652,
       "domain": "main",
       "port": "p49",
       "powerConnected": true
@@ -13931,7 +13931,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.12,
       "z": 0.11,
       "r": 0.009,
-      "share": 0.008527331378735209,
+      "share": 0.008527331383027652,
       "domain": "main",
       "port": "p50",
       "powerConnected": true
@@ -13939,16 +13939,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 8",
-      "w": 0.15845966764925135,
+      "w": 0.15845965974031745,
       "hits": 1,
-      "crew": 0.00000315390142531189,
-      "size": 0.0630780285062378,
+      "crew": 0.000003153901189188738,
+      "size": 0.06307802378377475,
       "at": 0.888,
       "part": 51,
       "y": -0.16,
       "z": -0.1,
       "r": 0.008,
-      "share": 0.006723588035293341,
+      "share": 0.006723587535302929,
       "domain": "main",
       "port": "p51",
       "powerConnected": true
@@ -14002,7 +14002,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.16,
       "z": 0.51,
       "r": 0.035,
-      "share": 0.4601305649124563,
+      "share": 0.46013056514407447,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -14020,7 +14020,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.16,
       "z": -0.51,
       "r": 0.035,
-      "share": 0.4601305649124564,
+      "share": 0.4601305651440746,
       "domain": "main",
       "port": "p4",
       "powerConnected": true
@@ -14084,7 +14084,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 24.25450553049494,
+      "w": 24.25450552574958,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -14096,7 +14096,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0008159384659828163,
+    "D": 0.0008159384735754153,
     "shieldBuffer": 0.08471702163444517,
     "wCap": 0,
     "fuel": {
@@ -14121,10 +14121,10 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 5500039556300302000,
-     "fixed": 83041700864090660,
-     "cooling": 21243544500786530,
+     "fixed": 83032486861882980,
+     "cooling": 21234330498578840,
      "De": 5500039556300302000,
-     "Ds": 3413886541672103400,
+     "Ds": 3413886573439537700,
      "Dw": 2502080000000000,
      "domains": [
       {
@@ -14822,7 +14822,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p12",
        "to": "p51",
-       "cap": 2477549020603590.5,
+       "cap": 2477548835116917,
        "auto": false,
        "ok": true,
        "routeId": "p12>p51",
@@ -14930,7 +14930,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p13",
        "to": "p51",
-       "cap": 2477549020603590.5,
+       "cap": 2477548835116917,
        "auto": false,
        "ok": true,
        "routeId": "p13>p51",
@@ -15038,7 +15038,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p51",
-       "cap": 2477549020603590.5,
+       "cap": 2477548835116917,
        "auto": false,
        "ok": true,
        "routeId": "p16>p51",
@@ -15192,7 +15192,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p51",
        "port": "p51",
-       "weight": 2477549020603590.5,
+       "weight": 2477548835116917,
        "domain": "main"
       },
       {
@@ -15220,14 +15220,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.47079,
-       "shaftWattsPerNewton": 2346919871.9472504,
-       "wattsPerNewton": 3039983226.4956665,
+       "profileWattsPerNewton": 2470441970.4582915,
+       "shaftWattsPerNewton": 2346919871.9353766,
+       "wattsPerNewton": 3039983226.480286,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32369351234,
+       "conversionMassKg": 76228.32368941464,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15249,7 +15249,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4418758,
+       "ratedThrustN": 904616760.4464526,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15261,8 +15261,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471646947800,
-       "cost": 6947.720577738195,
+       "costBasisInputW": 2242633471526394400,
+       "cost": 6947.720576945374,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -15294,14 +15294,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.47079,
-       "shaftWattsPerNewton": 2346919871.9472504,
-       "wattsPerNewton": 3039983226.4956665,
+       "profileWattsPerNewton": 2470441970.4582915,
+       "shaftWattsPerNewton": 2346919871.9353766,
+       "wattsPerNewton": 3039983226.480286,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32369351234,
+       "conversionMassKg": 76228.32368941464,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15323,7 +15323,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4418758,
+       "ratedThrustN": 904616760.4464526,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15335,8 +15335,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471646947800,
-       "cost": 6947.720577738195,
+       "costBasisInputW": 2242633471526394400,
+       "cost": 6947.720576945374,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -15370,14 +15370,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.47079,
-       "shaftWattsPerNewton": 2346919871.9472504,
-       "wattsPerNewton": 3039983226.4956665,
+       "profileWattsPerNewton": 2470441970.4582915,
+       "shaftWattsPerNewton": 2346919871.9353766,
+       "wattsPerNewton": 3039983226.480286,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32369351234,
+       "conversionMassKg": 76228.32368941464,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15399,7 +15399,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4418758,
+       "ratedThrustN": 904616760.4464526,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15411,8 +15411,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471646947800,
-       "cost": 6947.720577738195,
+       "costBasisInputW": 2242633471526394400,
+       "cost": 6947.720576945374,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -15445,14 +15445,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.47079,
-       "shaftWattsPerNewton": 2346919871.9472504,
-       "wattsPerNewton": 3039983226.4956665,
+       "profileWattsPerNewton": 2470441970.4582915,
+       "shaftWattsPerNewton": 2346919871.9353766,
+       "wattsPerNewton": 3039983226.480286,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32369351234,
+       "conversionMassKg": 76228.32368941464,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15474,7 +15474,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4418758,
+       "ratedThrustN": 904616760.4464526,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15486,8 +15486,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471646947800,
-       "cost": 6947.720577738195,
+       "costBasisInputW": 2242633471526394400,
+       "cost": 6947.720576945374,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -15515,19 +15515,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 5500039556300302000
       }
      ],
-     "massKg": 76228.32369351234,
-     "ratedThrustN": 1809151847.4261684,
-     "ratedAccelMps2": 23733.328502672324,
-     "structuralAccelerationLimitMps2": 184239.19466013007,
+     "massKg": 76228.32368941464,
+     "ratedThrustN": 1809151847.4353213,
+     "ratedAccelMps2": 23733.328504068195,
+     "structuralAccelerationLimitMps2": 184239.19466012614,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 23733.328502672324,
+     "accelerationLimitMps2": 23733.328504068195,
      "conversionModelVersion": 1,
-     "conversionMassKg": 76228.32369351234,
+     "conversionMassKg": 76228.32368941464,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[5500039556300302000,[[\"main\",5500039556300302000,[[8,2180440255828559000],[9,2180440255828559000],[12,1139159044643183600]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.41635262754496805,0.3964408316538128],[9,\"reactor\",13,\"p13\",\"main\",0.41635262754496805,0.3964408316538128],[12,\"reactor\",16,\"p16\",\"main\",0.21752114517284762,0.20711833669237442]]]"
     },
     "profileVersion": 24,
-    "maxSpeed": 1125.7072883915519,
+    "maxSpeed": 1125.7072884594709,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -15654,7 +15654,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.000993165,
+       "sh": 0.000993166,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -15667,7 +15667,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p3",
        "n": "送電損失 p16>p3",
        "g": "high",
-       "sh": 0.00000573866,
+       "sh": 0.00000573713,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -15680,7 +15680,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.00000573866,
+       "sh": 0.00000573713,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -15979,7 +15979,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.371219,
+       "sh": 0.371221,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16005,7 +16005,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f23",
        "n": "送電損失 p12>f23",
        "g": "high",
-       "sh": 0.0000670633,
+       "sh": 0.0000670634,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16044,7 +16044,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f26",
        "n": "送電損失 p12>f26",
        "g": "high",
-       "sh": 0.000238427,
+       "sh": 0.000238428,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16135,7 +16135,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.00926303,
+       "sh": 0.00926304,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16174,7 +16174,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.00000754671,
+       "sh": 0.00000754672,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16213,7 +16213,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p20",
        "n": "送電損失 p12>p20",
        "g": "high",
-       "sh": 0.000901804,
+       "sh": 0.000901564,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16226,7 +16226,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p44",
        "n": "送電損失 p12>p44",
        "g": "high",
-       "sh": 0.000655573,
+       "sh": 0.000655398,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16239,7 +16239,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p45",
        "n": "送電損失 p12>p45",
        "g": "high",
-       "sh": 0.000639904,
+       "sh": 0.000639734,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16252,7 +16252,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p46",
        "n": "送電損失 p12>p46",
        "g": "high",
-       "sh": 0.000634915,
+       "sh": 0.000634746,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16265,7 +16265,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p47",
        "n": "送電損失 p12>p47",
        "g": "high",
-       "sh": 0.000618724,
+       "sh": 0.000618559,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16278,7 +16278,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p48",
        "n": "送電損失 p12>p48",
        "g": "high",
-       "sh": 0.000372163,
+       "sh": 0.000372064,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16291,7 +16291,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p49",
        "n": "送電損失 p12>p49",
        "g": "high",
-       "sh": 0.000381765,
+       "sh": 0.000381664,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16304,7 +16304,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p50",
        "n": "送電損失 p12>p50",
        "g": "high",
-       "sh": 0.000363613,
+       "sh": 0.000363516,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16317,7 +16317,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p51",
        "n": "送電損失 p12>p51",
        "g": "high",
-       "sh": 0.000554341,
+       "sh": 0.000554194,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16564,7 +16564,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p14",
        "n": "送電損失 p12>p14",
        "g": "high",
-       "sh": 0.00383664,
+       "sh": 0.00383665,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16577,7 +16577,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p15",
        "n": "送電損失 p12>p15",
        "g": "high",
-       "sh": 0.055717,
+       "sh": 0.0557171,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16590,7 +16590,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p14",
        "n": "送電損失 p13>p14",
        "g": "high",
-       "sh": 0.055717,
+       "sh": 0.0557171,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16603,7 +16603,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p15",
        "n": "送電損失 p13>p15",
        "g": "high",
-       "sh": 0.00383664,
+       "sh": 0.00383665,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16616,7 +16616,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p14",
        "n": "送電損失 p16>p14",
        "g": "high",
-       "sh": 0.0656067,
+       "sh": 0.0656068,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16629,7 +16629,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p15",
        "n": "送電損失 p16>p15",
        "g": "high",
-       "sh": 0.0656067,
+       "sh": 0.0656068,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16732,11 +16732,11 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 8 #51",
        "k": "hdis",
        "g": "all",
-       "cap": 165169934706906050,
+       "cap": 165169922341127800,
        "m": 41,
        "sec": 4,
        "src": -1,
-       "power": 2477549020603590.5
+       "power": 2477548835116917
       },
       {
        "id": "p3",
@@ -16765,5545 +16765,5545 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 0,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 1,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 6,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 8,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 9,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 10,
-       "cap": 10065592617173127000,
+       "cap": 10065592555344237000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 11,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 12,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 18,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 19,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 20,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 21,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 22,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 23,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 24,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 25,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 26,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 27,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 28,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 29,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 30,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 31,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 32,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 33,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 39,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 46,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 47,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 56,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 57,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 58,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 65,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 66,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 66,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 67,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 67,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 68,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 70,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 70,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 71,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 71,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 72,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 72,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 73,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 73,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 77,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 77,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 78,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 78,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 78,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 78,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 79,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 79,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 79,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 79,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 79,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 80,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 80,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 80,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 80,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 80,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 81,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 81,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 81,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 1
       },
       {
        "s": 81,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 81,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 0
       },
       {
        "s": 82,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 82,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 82,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 83,
        "d": 0,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 1,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 2,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 3,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 4,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 5,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 6,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 7,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 8,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 4
       },
       {
        "s": 83,
        "d": 9,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       },
       {
        "s": 83,
        "d": 10,
-       "cap": 2013118523434625300,
+       "cap": 2013118511068847000,
        "sec": 2
       }
      ]
@@ -22318,7 +22318,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 56.28536441957759,
+    "mglt": 56.285364422973544,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -22404,7 +22404,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1d3pvss",
+   "signature": "12phofr",
    "build": 159845,
    "crew": 0,
    "total": 159845,
@@ -23347,8 +23347,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1222557086446111000,
-     "fixed": 30615096387746600,
-     "cooling": 1405415572860161.8,
+     "fixed": 30599934803547110,
+     "cooling": 1390253988660672.5,
      "De": 1222557086446111200,
      "Ds": 0,
      "Dw": 4836800000000000,
@@ -30352,7 +30352,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1exxi92",
+   "signature": "ll8y3p",
    "build": 100914,
    "crew": 1000,
    "total": 101914,
@@ -31013,8 +31013,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1563018329262275300,
-     "fixed": 21539428481478096,
-     "cooling": 2753597108272039,
+     "fixed": 21536348296289330,
+     "cooling": 2750516923083273.5,
      "De": 1563018329262275000,
      "Ds": 0,
      "Dw": 836800000000000,
@@ -33478,7 +33478,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "wzd59a",
+   "signature": "1gmewdj",
    "build": 88727,
    "crew": 1000,
    "total": 89727,
@@ -34060,8 +34060,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 945724981773398800,
-     "fixed": 18504599750230690,
-     "cooling": 1677540484969350.8,
+     "fixed": 18503086668613930,
+     "cooling": 1676027403352591,
      "De": 945724981773398800,
      "Ds": 0,
      "Dw": 418400000000000,
@@ -36107,7 +36107,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1ba6x4s",
+   "signature": "1nokb03",
    "build": 124155,
    "crew": 1000,
    "total": 125155,
@@ -36809,8 +36809,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2206610117981672200,
-     "fixed": 50108797169911370,
-     "cooling": 3889438509493061,
+     "fixed": 50103556740274910,
+     "cooling": 3884198079856607,
      "De": 2206610117981672400,
      "Ds": 0,
      "Dw": 1418400000000000,
@@ -40128,7 +40128,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "qln5kk",
+   "signature": "1ps8gax",
    "build": 133454,
    "crew": 1000,
    "total": 134454,
@@ -40977,8 +40977,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1506515099018379800,
-     "fixed": 19238422881571320,
-     "cooling": 2181231563176059.8,
+     "fixed": 19230129913764756,
+     "cooling": 2172938595369496.5,
      "De": 1506515099018379800,
      "Ds": 0,
      "Dw": 2418400000000000,
@@ -46764,7 +46764,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "1twlt9p",
+   "signature": "khz7m",
    "build": 102488,
    "crew": 0,
    "total": 102488,
@@ -46808,8 +46808,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 6.158296370940974e-17,
-    "upS": 6.158296370940974e-17,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -47562,8 +47562,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 570436489003940740,
-     "fixed": 18056428036223376,
-     "cooling": 1117634666656621,
+     "fixed": 18042956683345590,
+     "cooling": 1104163313778839.8,
      "De": 570436489003940740,
      "Ds": 0,
      "Dw": 3836800000000000,
@@ -50750,7 +50750,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1ga69q7",
+   "signature": "1vsa0pg",
    "build": 247128,
    "crew": 1000,
    "total": 248128,
@@ -50796,8 +50796,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 1.6772483501509824e-16,
-    "upS": 1.6772483501509824e-16,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -51685,8 +51685,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1250933725895009500,
-     "fixed": 21555884241108430,
-     "cooling": 5190802380766479,
+     "fixed": 21555274855734060,
+     "cooling": 5190192995392109,
      "De": 1250933725895009300,
      "Ds": 774253201961064100,
      "Dw": 167360000000000,
@@ -53729,7 +53729,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p1",
        "n": "送電損失 p33>p1",
        "g": "high",
-       "sh": 0.00000603878,
+       "sh": 0.00000603832,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -53742,7 +53742,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p2",
        "n": "送電損失 p32>p2",
        "g": "high",
-       "sh": 0.00000624348,
+       "sh": 0.00000624301,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -53755,7 +53755,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p3",
        "n": "送電損失 p33>p3",
        "g": "high",
-       "sh": 0.00000838988,
+       "sh": 0.00000838925,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -53768,7 +53768,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p4",
        "n": "送電損失 p32>p4",
        "g": "high",
-       "sh": 0.00000838988,
+       "sh": 0.00000838925,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -54041,7 +54041,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p22",
        "n": "送電損失 p15>p22",
        "g": "high",
-       "sh": 0.0127279,
+       "sh": 0.0127281,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -54054,7 +54054,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p23",
        "n": "送電損失 p15>p23",
        "g": "high",
-       "sh": 0.00342957,
+       "sh": 0.00342962,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -54067,7 +54067,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p24",
        "n": "送電損失 p15>p24",
        "g": "high",
-       "sh": 0.00342957,
+       "sh": 0.00342962,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -54262,7 +54262,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p24",
        "n": "送電損失 p18>p24",
        "g": "high",
-       "sh": 0.00752214,
+       "sh": 0.00752215,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -54314,7 +54314,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p23",
        "n": "送電損失 p19>p23",
        "g": "high",
-       "sh": 0.00752214,
+       "sh": 0.00752215,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -54431,7 +54431,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p22",
        "n": "送電損失 p33>p22",
        "g": "high",
-       "sh": 0.0841239,
+       "sh": 0.0841237,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -54444,7 +54444,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p23",
        "n": "送電損失 p33>p23",
        "g": "high",
-       "sh": 0.0252782,
+       "sh": 0.0252781,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -54457,7 +54457,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p24",
        "n": "送電損失 p33>p24",
        "g": "high",
-       "sh": 0.0322783,
+       "sh": 0.0322782,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -54496,7 +54496,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p27",
        "n": "送電損失 p15>p27",
        "g": "high",
-       "sh": 0.000172343,
+       "sh": 0.00017233,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -54509,7 +54509,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p49",
        "n": "送電損失 p15>p49",
        "g": "high",
-       "sh": 0.000398712,
+       "sh": 0.000398682,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -54522,7 +54522,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p50",
        "n": "送電損失 p15>p50",
        "g": "high",
-       "sh": 0.000158173,
+       "sh": 0.000158161,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -54535,7 +54535,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p51",
        "n": "送電損失 p15>p51",
        "g": "high",
-       "sh": 0.000579936,
+       "sh": 0.000579892,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -54548,7 +54548,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p52",
        "n": "送電損失 p15>p52",
        "g": "high",
-       "sh": 0.0000892884,
+       "sh": 0.0000892816,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -55120,7 +55120,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p21",
        "n": "送電損失 p33>p21",
        "g": "high",
-       "sh": 0.122599,
+       "sh": 0.1226,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -61841,7 +61841,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1ck94qu",
+   "signature": "javcwh",
    "build": 152697,
    "crew": 1000,
    "total": 153697,
@@ -61888,7 +61888,7 @@ const CRAFT_PRICE_CATALOG={
    },
    "heat": {
     "up": 0,
-    "upS": 0,
+    "upS": 2.6772468062942456e-16,
     "down": 0.01,
     "T": 1
    },
@@ -62819,8 +62819,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2437891546520883700,
-     "fixed": 34798007213805940,
-     "cooling": 8867195123505352,
+     "fixed": 34788155844041780,
+     "cooling": 8857343753741192,
      "De": 2437891546520883700,
      "Ds": 1515403510541095700,
      "Dw": 2836800000000000,
@@ -67511,7 +67511,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1t7zoy3",
+   "signature": "1bd5tyu",
    "build": 134698,
    "crew": 1000,
    "total": 135698,
@@ -67557,8 +67557,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 7.512417431261681e-17,
-    "upS": 7.512417431261681e-17,
+    "up": 1.5024834862523361e-16,
+    "upS": 1.5024834862523361e-16,
     "down": 0.01,
     "T": 0
    },
@@ -68254,8 +68254,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1933319393806428000,
-     "fixed": 26532874006716330,
-     "cooling": 3572631489456510.5,
+     "fixed": 26524227092099750,
+     "cooling": 3563984574839938,
      "De": 1933319393806428000,
      "Ds": 0,
      "Dw": 2418400000000000,
@@ -89700,7 +89700,11 @@ function assemblyIssues(ship){
 // ============================================================
 const HEAT={
  qAllowJPerKg:3.1931e13,capacityModel:'whole-ship-mass',runtimeRevision:2,
- waste:{reactor:.04,weapon:.25,shield:.3,engine:.05,hotel:1,sw:.12}, // share of drawn power left aboard as heat
+ // weapon .25 → .05 (user decision 2026-11-18「大型艦は射撃か移動かどちらかを選ぶ形で動けるような値に」): converters are sized for the
+ // cruise, so at .25 a stopped ISD or MC80 could charge its guns with a third of its plant only. At .05 a stopped capital ship
+ // charges with all the power it has and a ship under way gives the power to one or the other. The weapon's efficiency
+ // (ENERGY_MODEL.eta .75) is unchanged: the rest of the loss leaves the ship with the bolt (docs/weapon-heat-share.md).
+ waste:{reactor:.04,weapon:.05,shield:.3,engine:.05,hotel:1,sw:.12}, // share of drawn power left aboard as heat
  swShot:.02,         // share of a superweapon shot's energy left in its generator's direct system when it fires
  grade:{reactor:'high',weapon:'high',shield:'high',engine:'high',feed:'high',sw:'high',hotel:'low'},
  // Compatibility cooling is retired. These zero values retain readable old
