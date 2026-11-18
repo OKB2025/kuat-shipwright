@@ -84013,7 +84013,7 @@ const ENERGY_MODEL={version:1,eta:.95,superEta:.88,unit:'TT',assumption:true};
 // User decision 2026-11-16「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」: a shield makes heat only by
 // running (HEAT.waste.shield × its load); what it absorbs makes none. The 6% of the absorbed beam that was heat leaves
 // the ship with the rest (beamExternal .82 → .88; beamHeat .06 → 0; the 12% held for a moment is unchanged).
-const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,returnK:3,assumption:true};
+const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,returnK:6.5,wear:.0126,wearRecoverS:600,assumption:true};
 const ION_MODEL={version:2,unit:'J',blockedExternal:.95,shieldCost:.05,hullHeat:1,assumption:true};
 function weaponEnergy(spec,outputTT,shots=1){
  if(spec?.energyUnit==='effect')return {outputJ:null,inputJ:null,lossJ:null,eta:null,unit:'effect',outputEffect:Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0),assumption:false};
@@ -84128,7 +84128,7 @@ function ionPulseInteractionJ(pulseJ,incidentJ,shieldJ){
 }
 function shieldReceive(u,packet={},ctx){
  const energyJ=packet.energyJ??Math.max(0,packet.energy??packet.sf??0)*TT,ionJ=packet.ionJ??Math.max(0,packet.ion||0)*TT,capacityJ=Math.max(0,u.shieldMax||0)*TT,stateJ=Math.max(0,u.shieldTransient||0)*TT,roomJ=Math.max(0,capacityJ*SHIELD_MODEL.transientShare-stateJ),l=shieldEnergyLedger(u),split=shieldPacketEnergyJ(energyJ,ionJ,Math.max(0,u.shield||0)*TT,roomJ,capacityJ);
- u.shield=split.shieldAfterJ/TT;u.shieldTransient=(stateJ+split.storedDeltaJ)/TT;
+ u.shield=split.shieldAfterJ/TT;u.shieldTransient=(stateJ+split.storedDeltaJ)/TT;if(SHIELD_MODEL.wear>0)u.shieldWear=(u.shieldWear||0)+SHIELD_MODEL.wear*Math.max(0,split.incomingJ-split.leakedJ)/TT;
  const rec={...split,incoming:split.incomingJ/TT,external:split.externalJ/TT,storedDelta:split.storedDeltaJ/TT,onboardHeat:split.onboardHeatJ/TT,leaked:split.leakedJ/TT,blocked:split.blockedJ/TT,ionLeak:split.ionLeakJ/TT,beamLeak:split.beamLeakJ/TT,shieldWork:split.shieldWorkJ/TT,shieldDebit:split.shieldDebitJ/TT,unit:'J',legacyUnit:'TT'};
  l.incomingJ+=split.incomingJ;l.externalJ+=split.externalJ;l.shieldWorkJ+=split.shieldWorkJ;l.shieldDebitJ+=split.shieldDebitJ;l.shieldProcessingHeatJ+=split.shieldProcessingHeatJ;l.hullIonHeatJ+=split.ionLeakJ;l.ionLeakJ+=split.ionLeakJ;l.beamLeakJ+=split.beamLeakJ;l.transientJ=u.shieldTransient*TT;shieldLedgerAliases(l);u.lastShieldHit=rec;
  if(split.shieldProcessingHeatJ>0)shipHeatAdd(u,split.shieldProcessingHeatJ,ctx,'shield-hit');
@@ -85286,7 +85286,12 @@ function combatStatus(ctx,u){
 // electrical ledger; this step only spends granted generation or stored cells.
 function shieldRechargeStep(u,s={},dt=0,options={}){
  const p=u.p,step=Number.isFinite(dt)&&dt>0?dt:0,damage=Number.isFinite(options.damage)?Math.max(0,options.damage):1,incoming=Math.max(0,options.incomingShieldTT||0),shieldFactor=s.shield??1;
- u.shieldMax=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)*shieldFactor);u.bankMax=Math.max(0,(p.reserve||0)*(s.battery??1));u.bank=clamp(u.bank??u.bankMax,0,u.bankMax);
+ // v30 Wear (user decision 2026-11-18「遠距離であれば数十分撃ち合える形に」): a field that holds does not come through fire unmarked. Each TT it
+ // turns aside or absorbs takes SHIELD_MODEL.wear TT off what the generators can hold, until the fire stops; then it comes back over
+ // wearRecoverS. So fire the field can keep up with (long range) still brings it down, in tens of minutes; fire it cannot keep
+ // up with (close range) brings it down in a minute or two as before.
+ const fieldBase=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)*shieldFactor);if(!(incoming>0)&&u.shieldWear>0)u.shieldWear=Math.max(0,u.shieldWear-fieldBase*step/SHIELD_MODEL.wearRecoverS);
+ u.shieldMax=Math.max(0,fieldBase-Math.min(fieldBase,u.shieldWear||0));if(u.shield>u.shieldMax)u.shield=u.shieldMax;u.bankMax=Math.max(0,(p.reserve||0)*(s.battery??1));u.bank=clamp(u.bank??u.bankMax,0,u.bankMax);
  // Under fire only the established fireGen share replenishes the field.
  // Idle full fields retain their stored energy without a standby reservation.
  // Remove only the deliberate storage-headroom trim from maintenance. A
