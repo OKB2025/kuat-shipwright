@@ -9695,42 +9695,48 @@ function trialWingOrder(recall){
 // ship's turret rays, so each change asks it for the other's trial model.
 function trialFlyingCraft(){const B=trial.battle;return !!(B?.me?.wing&&trial.fly?.home!=null);}
 function trialFlyHomeUnit(){const B=trial.battle,F=trial.fly;return B&&F?.home!=null?B.b.units.find(u=>u.id===F.home&&!u.dead&&!u.absent)||null:null;}
-function trialFlyAdopt(a,u){
+function trialFlyAdopt(a,u,kept=null){
  const B=trial.battle,L=a.p.len;trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;
- trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets){t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;t.reload=Math.random()*t.cycle;}
- trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));
+ if(kept?.turrets){trial.turrets=kept.turrets;trial.launchers=kept.launchers||[];for(const l of trial.launchers){l.queue=0;l.pendingCells=[];}}
+ else{trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets){t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;t.reload=Math.random()*t.cycle;}
+  trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));}
  const bank=a.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);
  Object.assign(trial,{P:spaceWorld(u),V:spaceVel(u),R:spaceRotU(B.E,u),w:[0,0,0],rudder:0,level:false,vf:0,thrust:0,camF:null,warn:'',aim:null,lead:null,mslOrder:false,gunTarget:null,heldLock:null,fire:false,fireKey:false,stick:{x:0,y:0},keyStick:{x:0,y:0},
   energy:{E:Math.min(bank,Number.isFinite(u.energy)?u.energy:bank),cap:bank},engF:0,thrustWant:0,mainThrustShare:0,steeringWant:0,power:null,propulsion:null,systemsUnit:null,swSelect:'all',swSolo:null,surfaceTurretPoses:new Map()});
  trial.throttle=C.clamp(tv.len(trial.V)/Math.max(1,a.p.maxSpeed),0,1);
  u.manual=true;delete u.pass;delete u.trialParked;B.me=u;B.modIndex=new Map((a.p.modules||[]).map((m,i)=>[m.fit,i]).filter(([f])=>f!=null));
  if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600),r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));if(trial.camMode==='cockpit')trial.chaseR=r;else view.cam.r=r;}
+ for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&u.mods[i]<=0;}for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&u.mods[i]<=0;}
  trialDust();trialFoilReset();trialCraftSystemsReset();spaceSync();spaceOrders(B.b);spaceRefresh();trialHudRemount();
 }
 async function trialFly(id){
  const B=trial.battle,F=trial.fly||(trial.fly={busy:false,assets:new Map(),home:null,homeAsset:null,failed:false});if(!B||B.result||F.busy||!trial.on||trial.spectate)return false;
  if(trial.jump){toast('ハイパースペースへのジャンプ中は操縦を移せません');return false;}
- const ok=()=>{const me=trial.battle?.me,u=trial.battle?.b.units.find(x=>x.id===id);return trial.battle===B&&!B.result&&me&&u&&u!==me&&!u.absent&&!u.dead&&u.team===me.team?u:null;};
+ const ok=()=>{const me=trial.battle?.me,u=trial.battle?.b.units.find(x=>x.id===id);return trial.on&&trial.fly===F&&trial.battle===B&&!B.result&&!trial.jump&&me&&u&&u!==me&&!u.absent&&!u.dead&&u.team===me.team?u:null;};
  if(!ok()){toast('その機体には操縦を移せません');return false;}
- F.busy=true;let next=null,cur=null;
+ F.busy=true;let next=null,cur=null,asked=false;
+ // The engine holds the turret rays of the last trial model asked for: whenever this ends without the hand-over, it is asked
+ // again for the ship the trial is flying now (or told the trial is over), so the two never stay apart.
+ const resync=()=>{if(!asked)return;try{if(trial.on&&trial.asset?.design)YardEngineClient.request('fleet',{design:trial.asset.design,trial:true,profileKnown:true,statsKnown:!!trial.asset.stats}).catch(e=>console.warn('trial model',e));else YardEngineClient.post({type:'trialEnd'});}catch(e){}};
  try{
   const me=B.me;if(F.home==null){F.home=me.id;F.homeAsset=trial.asset;}
   cur=F.assets.get(me.id);if(!cur)F.assets.set(me.id,cur={trial:trial.asset,plain:me.plainKey||null});
   // the ship being left is drawn as a unit from now on: that needs its plain model (the flown ship's has its turrets apart)
   if(!cur.plain){const key='park-'+trial.asset.key;if(!fleet.assets.has(key)){const r=await YardEngineClient.request('fleet',{design:trial.asset.design,profileKnown:true,statsKnown:true});const pa={key,design:r.design||trial.asset.design,stats:trial.asset.stats,p:trial.asset.p,geometry:r.geometry,radial:r.radial||null};C.setHullRadial?.(key,pa.radial);if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,pa);}cur.plain=key;}
   const u0=ok();if(!u0)return false;next=F.assets.get(id);const src=next?.trial||fleet.assets.get(u0.key);if(!src?.design)throw new Error('設計データがありません');
-  const r=await YardEngineClient.request('fleet',{design:src.design,trial:true,profileKnown:true,statsKnown:!!src.stats});
+  asked=true;const r=await YardEngineClient.request('fleet',{design:src.design,trial:true,profileKnown:true,statsKnown:!!src.stats});
   if(!next){const key='trial-'+u0.key,a={key,design:r.design||src.design,stats:r.stats||src.stats||null,p:u0.p,geometry:r.geometry};C.setHullRadial?.(key,r.radial||null);if(view)view.loadFleet(key,r.geometry);F.assets.set(id,next={trial:a,plain:u0.key});}
- }catch(e){console.error(e);F.failed=true;toast('操縦を移せません：'+esc(e.message||e));return false;}finally{F.busy=false;}
- const u=ok();if(!u||trial.fly!==F||!trial.on){if(trial.on&&trial.fly===F&&trial.asset)YardEngineClient.request('fleet',{design:trial.asset.design,trial:true,profileKnown:true,statsKnown:!!trial.asset.stats}).catch(()=>{});return false;}
+ }catch(e){console.error(e);F.failed=true;resync();toast('操縦を移せません：'+esc(e.message||e));return false;}finally{F.busy=false;}
+ const u=ok();if(!u){resync();return false;}F.failed=false;
  // hand over: the unit left keeps what the trial held for it
  const me=B.me;spaceSync();if(trial.energy&&Number.isFinite(me.energy))me.energy=Math.min(me.p.wCap||trial.energy.E,trial.energy.E);
+ cur.turrets=trial.turrets;cur.launchers=trial.launchers;/* its guns' reload and charge and its launchers' rounds wait for the player's return */
  const wasDocked=!!me.trialDocked;me.manual=false;delete me.swFrame;me.dockCorridor=false;delete me.trialDocked;me.key=cur.plain;if(me.wing){me.wing.recall=wasDocked||me.wing.recall;}else me.trialParked=true;
- u.plainKey=next.plain;u.key=next.trial.key;if(u.docked)delete u.docked;trialFlyAdopt(next.trial,u);
+ u.plainKey=next.plain;u.key=next.trial.key;if(u.docked)delete u.docked;trialFlyAdopt(next.trial,u,next);
  spaceLog('操縦を移す',u);toast(u.id===F.home?'母艦の操縦に戻りました':`${esc(u.name)} の操縦に移りました`);return true;
 }
 // The flown craft is lost or out of action while its ship lives: the player is back aboard the ship.
-function trialFlyLost(){const F=trial.fly,B=trial.battle;if(!F||F.failed||!B?.me?.wing)return false;const h=trialFlyHomeUnit();if(!h||C.outOfAction(h))return false;if(!F.busy){toast('操縦していた機体を失いました。母艦に戻ります');trialFly(h.id).then(done=>{if(!done&&trial.fly===F)F.failed=true;});}return true;}
+function trialFlyLost(){const F=trial.fly,B=trial.battle;if(!F||F.failed||trial.jump||!B?.me?.wing)return false;const h=trialFlyHomeUnit();if(!h||C.outOfAction(h))return false;if(!F.busy){if(!F.lostToast){F.lostToast=true;toast('操縦していた機体を失いました。母艦に戻ります');}trialFly(h.id).then(done=>{if(done)F.lostToast=false;});}return true;}
 // A restart or the end of the flight puts the flown ship back to the one the trial started with.
 function trialFlyRestore(){const F=trial.fly;trial.fly=null;const a=F?.homeAsset;if(!a||trial.asset===a||!trial.asset)return false;trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));YardEngineClient.request('fleet',{design:a.design,trial:true,profileKnown:true,statsKnown:!!a.stats}).catch(e=>console.warn('trial model',e));return true;}
 // After each model step: a craft clear of the mouth meets hulls again; one that has landed on a recall is aboard (off the field,
