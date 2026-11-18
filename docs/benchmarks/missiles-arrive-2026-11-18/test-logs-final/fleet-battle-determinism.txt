@@ -1,0 +1,5 @@
+# fleet-battle-determinism: exact 96/96
+ok 1 - a fixed-seed fleet battle with hits, missiles, power loss and heat limits keeps its recorded state every tick
+# tests 1
+# pass 1
+# fail 0

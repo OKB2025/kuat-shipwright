@@ -1,0 +1,11 @@
+ok 1 - a ship ordered to dock goes aboard through the mouth, is resupplied there, and leaves when the carrier launches it
+ok 2 - an order to dock is refused where the ship cannot enter or there is no room
+ok 3 - ships pass a mouth one at a time; the second waits outside until the first is aboard
+ok 4 - a new order cancels the docking; a lost host ends it
+ok 5 - the carrier's recall sends its ships to dock instead of taking them aboard at once
+ok 6 - a ship that docks during a battle stays aboard and is repaired; the carrier's own ships still launch
+ok 7 - a docking ship that is disabled, taken in tow, or sets out on a jump gives up the lane and the order
+ok 8 - a disabled host takes no ship
+# tests 8
+# pass 8
+# fail 0
