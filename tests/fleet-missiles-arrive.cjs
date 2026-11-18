@@ -1,6 +1,6 @@
-// User decision 2026-11-17「ミサイル、魚雷は実際に届いた時にして。航空機と同じ扱い」(docs/missiles-arrive.md): in a fleet battle a
-// launch puts a salvo into b.missiles; it flies, the target's point defence takes its share as it arrives, and only then is
-// the hull struck. A salvo that runs out of range, or whose target is gone, delivers nothing. The trial's flown ship
+// User decisions 2026-11-17「ミサイル、魚雷は実際に届いた時にして。航空機と同じ扱い」and 2026-11-18「ミサイル、魚雷も小型機と同じ扱いで
+// 点防御で撃墜できるように」(docs/missiles-arrive.md): in a fleet battle a launch puts a salvo into b.missiles; it flies, point
+// defence shoots at it while it is within reach, and only what arrives strikes the hull. A salvo that runs out of range, or whose target is gone, delivers nothing. The trial's flown ship
 // (opts.boltGuns) keeps the launch-time record the trial flies itself (v27, tests/gun-hit-in-space.cjs).
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{test}=require('node:test');
 const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
@@ -44,7 +44,7 @@ test('a salvo whose target is gone is lost with it',()=>{
  const f=duel(30000);tick(f.B,3);assert.ok(f.B.missiles.length>0);f.b.dead=true;tick(f.B,.25);assert.equal(f.B.missiles.length,0);
 });
 
-test('the target\'s point defence takes its share when the salvo arrives, not at the launch',()=>{
+test('point defence shoots the salvo down in flight, not at the launch',()=>{
  const open=duel(20000,{target:'munificent'}),held=duel(20000,{target:'munificent',pd:true});
  tick(open.B,3);tick(held.B,3);
  const sum=B=>B.missiles.reduce((n,m)=>n+m.n,0);assert.ok(sum(held.B)>0);assert.equal(sum(held.B),sum(open.B),'nothing is taken at the launch');
@@ -56,6 +56,11 @@ test('the target\'s point defence takes its share when the salvo arrives, not at
 test('missiles at the trial\'s flown ship keep the launch record the trial flies itself',()=>{
  const f=duel(30000);f.b.manual=true;const shots=tick(f.B,3,{boltGuns:new Set(['b'])});
  assert.equal((f.B.missiles||[]).length,0,'no salvo in the battle');assert.ok(shots.some(s=>s.from==='a'&&s.mdmg&&(s.mdmg.direct>0)),'the shot record carries the damage to deliver');
+});
+
+test('a salvo carries the part its ship is ordered to aim at',()=>{
+ const f=duel(30000);f.a.order={...f.a.order,aim:'engine'};tick(f.B,3);assert.ok(f.B.missiles.length>0);for(const m of f.B.missiles)assert.equal(m.aim,'engine');
+ const g=duel(30000);tick(g.B,3);for(const m of g.B.missiles)assert.equal(m.aim,undefined,'no order, no aim');
 });
 
 test('salvos in flight carry over a committed turn of the fleet battle screen',()=>{

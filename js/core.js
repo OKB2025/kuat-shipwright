@@ -85029,7 +85029,7 @@ const outOfAction=u=>!!u?.out&&(u.out!=='電源喪失'||!!(u.p&&fleetOutReason(u
 // A ship that can act: alive, and not disabled for any reason (power loss included).
 const fleetActs=u=>!u.dead&&!u.out;
 const fleetEffective=u=>!u.dead&&!outOfAction(u);
-function fleetFrame(b,shots=[]){return {time:b.time,missiles:(b.missiles||[]).map(m=>({id:m.id,pos:[...m.pos],vel:[...m.vel],team:m.team,n:m.n,ion:m.ion,target:m.target})),units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,autoPointDefense:automaticPointDefenseEnabled(u),mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
+function fleetFrame(b,shots=[]){return {time:b.time,missiles:(b.missiles||[]).map(m=>[m.pos[0],m.pos[1],m.pos[2],m.team,m.n])/* v28 salvos in flight, for a replay to draw: x, y, z, team, rounds */,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,autoPointDefense:automaticPointDefenseEnabled(u),mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
 function fleetRandom(b){let t=(b.seed=(b.seed+0x6D2B79F5)|0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
 // ---------- combat damage (v14) ----------
 // A ship has no hit-point pool. Fire that gets past the shields loads the
@@ -86031,7 +86031,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
  }
  for(const {m,t,from} of arrived){
   if(!(m.n>1e-9)){m.n=0;continue;}const tt=m.n*m.tt*DMG,inc=incoming.get(t.id);
-  if(inc)combatAdd(inc,t,from/* where the step began: the side the round came in on */,m.ion?{ionDirect:tt}:{direct:tt,shot:m.tt},null,m.from);
+  if(inc)combatAdd(inc,t,from/* where the step began: the side the round came in on */,m.ion?{ionDirect:tt}:{direct:tt,shot:m.tt},m.aim||null,m.from);
   log().hit+=m.n;m.hit=m.n;m.n=0;
  }
  b.missiles=b.missiles.filter(m=>m.n>1e-9&&m.life>0);
@@ -86117,7 +86117,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    else for(const packet of missilePackets){const k=isConcussionLauncher(packet.kind)?1:crewEff;if(boltOnly){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*k;if(packet.ion)imsl+=damage;else msl+=damage;}else flown.push({...packet,n:packet.n*k});}
    if(boltOnly){const fundedAA=msl+imsl>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,icpt=1-.7*fundedAA/(fundedAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
    else for(const packet of flown){if(!(packet.n>0))continue;const launch=missileLaunchWorld(u,packet,t),native=isConcussionLauncher(packet.kind),range=missileRange(packet);
-    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range):MISSILE_FLIGHT.legacyLife,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
+    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range):MISSILE_FLIGHT.legacyLife,...(aim?{aim}:{})/* the part the ship is ordered to aim at, as the launch-time damage carried it */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
     if(packet.ion)imslL+=packet.n*packet.tt/dt;else mslL+=packet.n*packet.tt/dt;}}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*fleetAirGun(p)*(1-.5*airEnemy/(u.air+airEnemy+1));
