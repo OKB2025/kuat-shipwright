@@ -8251,7 +8251,7 @@ async function trialStart(opts={}){
  // back again: the engine is told so and returns only the trial model (the profile is tens of MB on a large ship).
  // The trial gets its own top-level copy, so a renamed flagship does not rename the fleet's asset.
  const known=opts.design&&fleet.assets?[...fleet.assets.values()].find(x=>x.design===opts.design&&x.p&&!x.p.catalogOnly)||null:null;
- let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};C.setHullRadial?.(key,r.radial||null);if(view)view.loadFleet(key,r.geometry);
+ let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await trialModelAsk(data,{lite:!!ex&&!ex.p?.catalogOnly,...(known?{profileKnown:true,statsKnown:!!known.stats}:{})}),profile=r.profile||(known?{...known.p}:null)||(ex?.p?.catalogOnly?null:ex?.p);if(!profile||profile.catalogOnly)throw new Error('catalogue-only fleet profile');a={key,design:r.design,stats:r.stats||known?.stats||null,p:profile,geometry:r.geometry};C.setHullRadial?.(key,r.radial||null);if(view)view.loadFleet(key,r.geometry);
   if(!a.stats)YardEngineClient.request('fleet',{design:data,statsOnly:true,...(known?{profileKnown:true}:{})}).then(r=>{a.stats=r.stats;if(trial.asset!==a)return;for(const t of trial.turrets)if(t.cap)t.charge=Math.max(t.charge||0,C.clamp(r.stats?.chargeInfo?.[t.id]?.ratio??0,0,1));}).catch(e=>console.warn('trial figures',e));
   if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k,{lite:true});}}
  catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
@@ -8269,7 +8269,7 @@ function trialStop(){
  if(!trial.on)return;if(trial.jump&&!trial.jump.follow)trialCancelJump(true);const msp=msPatrolCollect();if(shot.on)shotSet(false);trial.foilUnit=null;trial.systemsRuntime=null;trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
  document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';hud.classList.remove('spectate');if(view)view.renderScale=1;
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
- try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
+ trial.modelSeq=(trial.modelSeq||0)+1;try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
  if(view)view.setLines('trialBeams',{pos:new Float32Array(0),col:new Uint8Array(0)});
  trial.fly=null;trial.wing=null;trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.navigation=null;trial.cine=null;trial.pat=null;
  const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];trial.cord=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title'){if(msp)msPatrolDone(msp);else showTitle('missions');}
@@ -9117,7 +9117,7 @@ function trialCommand(cmd){
  else if(cmd==='cam'){trialSetCam(TRIAL_CAMS[(TRIAL_CAMS.indexOf(trial.camMode)+1)%TRIAL_CAMS.length]);toast('視点：'+trialCamName(trial.camMode));}
  else if(cmd==='reset'){if(trial.rts){toast('艦隊戦の途中では再開始できません');return;}if(trialSandbox()){trialSandboxEnd();return;}trialReset();}
  else if(cmd==='spawn'||cmd==='spawn-close'||cmd==='spawn-go'||cmd.startsWith('spawn-role:')){trialSpawnCommand(cmd);return;}
- else if(cmd==='wing-launch'){trialWingLaunch();return;}else if(cmd==='wing-fly'){const u=trialWingUnits().filter(u=>u.wing.aboard==null&&!u.docked).sort((a,z)=>C.len(C.sub(a.pos,trial.battle.me.pos))-C.len(C.sub(z.pos,trial.battle.me.pos)))[0];if(!u){toast('発艦している小型機がありません');return;}trialFly(u.id);return;}else if(cmd==='wing-home'){const h=trialFlyHomeUnit();if(h)trialFly(h.id);return;}else if(cmd==='wing-recall'||cmd==='wing-attack'){trialWingOrder(cmd==='wing-recall');return;}
+ else if(cmd==='wing-launch'){trialWingLaunch();return;}else if(cmd==='wing-fly'){const u=trialWingUnits().filter(u=>u.wing.aboard==null&&!u.docked&&!C.outOfAction(u)).sort((a,z)=>C.len(C.sub(a.pos,trial.battle.me.pos))-C.len(C.sub(z.pos,trial.battle.me.pos)))[0];if(!u){toast('発艦している小型機がありません');return;}trialFly(u.id).catch(e=>console.error(e));return;}else if(cmd==='wing-home'){const h=trialFlyHomeUnit();if(h)trialFly(h.id).catch(e=>console.error(e));return;}else if(cmd==='wing-recall'||cmd==='wing-attack'){trialWingOrder(cmd==='wing-recall');return;}
  else if(cmd==='foil'||cmd==='foil:open'||cmd==='foil:close'){trialFoilCommand(cmd.split(':')[1]);return;}
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]'),sp=$('#thSpawn');if(sp)sp.hidden=true;/* the card lies where the menu opens */if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
@@ -9693,6 +9693,9 @@ function trialWingOrder(recall){
 // back to the ship. The unit left behind flies on under Core (the ship holds; a craft goes back to its orders) and the unit taken
 // over becomes the flown ship with its own state (hull, shields, energy, heat stay on the units). The engine keeps one flown
 // ship's turret rays, so each change asks it for the other's trial model.
+// Every request for a flown ship's trial model, and the end of the trial, goes through here: the engine keeps the turret rays of
+// the last one asked for, and the count tells a late caller whether someone has asked since (extra review 2026-11-18).
+function trialModelAsk(design,extra={}){trial.modelSeq=(trial.modelSeq||0)+1;return YardEngineClient.request('fleet',{design,trial:true,...extra});}
 function trialFlyingCraft(){const B=trial.battle;return !!(B?.me?.wing&&trial.fly?.home!=null);}
 function trialFlyHomeUnit(){const B=trial.battle,F=trial.fly;return B&&F?.home!=null?B.b.units.find(u=>u.id===F.home&&!u.dead&&!u.absent)||null:null;}
 function trialFlyAdopt(a,u,kept=null){
@@ -9700,45 +9703,48 @@ function trialFlyAdopt(a,u,kept=null){
  if(kept?.turrets){trial.turrets=kept.turrets;trial.launchers=kept.launchers||[];for(const l of trial.launchers){l.queue=0;l.pendingCells=[];}}
  else{trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets){t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;t.reload=Math.random()*t.cycle;}
   trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));}
+ if(view)view.loadFleet(a.key,a.geometry);/* a redraw rebuild keeps only the flown ship's model */
  const bank=a.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);
  Object.assign(trial,{P:spaceWorld(u),V:spaceVel(u),R:spaceRotU(B.E,u),w:[0,0,0],rudder:0,level:false,vf:0,thrust:0,camF:null,warn:'',aim:null,lead:null,mslOrder:false,gunTarget:null,heldLock:null,fire:false,fireKey:false,stick:{x:0,y:0},keyStick:{x:0,y:0},
   energy:{E:Math.min(bank,Number.isFinite(u.energy)?u.energy:bank),cap:bank},engF:0,thrustWant:0,mainThrustShare:0,steeringWant:0,power:null,propulsion:null,systemsUnit:null,swSelect:'all',swSolo:null,surfaceTurretPoses:new Map()});
  trial.throttle=C.clamp(tv.len(trial.V)/Math.max(1,a.p.maxSpeed),0,1);
- u.manual=true;delete u.pass;delete u.trialParked;B.me=u;B.modIndex=new Map((a.p.modules||[]).map((m,i)=>[m.fit,i]).filter(([f])=>f!=null));
+ u.manual=true;delete u.pass;delete u.trialParked;u.order={...u.order,power:trial.powerMode,volley:trial.volley==='salvo'?'salvo':'stream'};B.me=u;B.modIndex=new Map((a.p.modules||[]).map((m,i)=>[m.fit,i]).filter(([f])=>f!=null));
  if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600),r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));if(trial.camMode==='cockpit')trial.chaseR=r;else view.cam.r=r;}
  for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&u.mods[i]<=0;}for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&u.mods[i]<=0;}
  trialDust();trialFoilReset();trialCraftSystemsReset();spaceSync();spaceOrders(B.b);spaceRefresh();trialHudRemount();
 }
 async function trialFly(id){
- const B=trial.battle,F=trial.fly||(trial.fly={busy:false,assets:new Map(),home:null,homeAsset:null,failed:false});if(!B||B.result||F.busy||!trial.on||trial.spectate)return false;
+ const B=trial.battle,F=trial.fly||(trial.fly={busy:false,assets:new Map(),home:null,homeAsset:null,error:false,lostFailed:false});if(!B||B.result||F.busy||!trial.on||trial.spectate)return false;
  if(trial.jump){toast('ハイパースペースへのジャンプ中は操縦を移せません');return false;}
- const ok=()=>{const me=trial.battle?.me,u=trial.battle?.b.units.find(x=>x.id===id);return trial.on&&trial.fly===F&&trial.battle===B&&!B.result&&!trial.jump&&me&&u&&u!==me&&!u.absent&&!u.dead&&u.team===me.team?u:null;};
+ const ok=()=>{const me=trial.battle?.me,u=trial.battle?.b.units.find(x=>x.id===id);return trial.on&&trial.fly===F&&trial.battle===B&&!B.result&&!trial.jump&&me&&u&&u!==me&&!u.absent&&!u.dead&&!C.outOfAction(u)&&u.team===me.team?u:null;};
  if(!ok()){toast('その機体には操縦を移せません');return false;}
- F.busy=true;let next=null,cur=null,asked=false;
- // The engine holds the turret rays of the last trial model asked for: whenever this ends without the hand-over, it is asked
- // again for the ship the trial is flying now (or told the trial is over), so the two never stay apart.
- const resync=()=>{if(!asked)return;try{if(trial.on&&trial.asset?.design)YardEngineClient.request('fleet',{design:trial.asset.design,trial:true,profileKnown:true,statsKnown:!!trial.asset.stats}).catch(e=>console.warn('trial model',e));else YardEngineClient.post({type:'trialEnd'});}catch(e){}};
+ F.busy=true;F.error=false;let next=null,cur=null,asked=false,mySeq=-1;
+ // The engine holds the turret rays of the last trial model asked for. When this ends without the hand-over and nobody has
+ // asked since, it is asked again for the ship the trial is flying now. (A trial that has ended sent its own trialEnd after this
+ // request; one that is starting asks for its own model.)
+ const resync=()=>{if(!asked||trial.modelSeq!==mySeq||!trial.on||trial.busy||!trial.asset?.design)return;trialModelAsk(trial.asset.design,{profileKnown:true,statsKnown:!!trial.asset.stats}).catch(e=>console.warn('trial model',e));};
  try{
   const me=B.me;if(F.home==null){F.home=me.id;F.homeAsset=trial.asset;}
   cur=F.assets.get(me.id);if(!cur)F.assets.set(me.id,cur={trial:trial.asset,plain:me.plainKey||null});
   // the ship being left is drawn as a unit from now on: that needs its plain model (the flown ship's has its turrets apart)
-  if(!cur.plain){const key='park-'+trial.asset.key;if(!fleet.assets.has(key)){const r=await YardEngineClient.request('fleet',{design:trial.asset.design,profileKnown:true,statsKnown:true});const pa={key,design:r.design||trial.asset.design,stats:trial.asset.stats,p:trial.asset.p,geometry:r.geometry,radial:r.radial||null};C.setHullRadial?.(key,pa.radial);if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,pa);}cur.plain=key;}
+  if(!cur.plain){const a0=trial.asset,key='park-'+a0.key;if(!fleet.assets.has(key)){const r=await YardEngineClient.request('fleet',{design:a0.design,profileKnown:true,statsKnown:true});if(!ok()||trial.asset!==a0)return false;const pa={key,design:r.design||a0.design,stats:a0.stats,p:a0.p,geometry:r.geometry,radial:r.radial||null};C.setHullRadial?.(key,pa.radial);if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,pa);}cur.plain=key;}
   const u0=ok();if(!u0)return false;next=F.assets.get(id);const src=next?.trial||fleet.assets.get(u0.key);if(!src?.design)throw new Error('設計データがありません');
-  asked=true;const r=await YardEngineClient.request('fleet',{design:src.design,trial:true,profileKnown:true,statsKnown:!!src.stats});
+  asked=true;const asking=trialModelAsk(src.design,{profileKnown:true,statsKnown:!!src.stats});mySeq=trial.modelSeq;const r=await asking;if(!ok()){resync();return false;}
   if(!next){const key='trial-'+u0.key,a={key,design:r.design||src.design,stats:r.stats||src.stats||null,p:u0.p,geometry:r.geometry};C.setHullRadial?.(key,r.radial||null);if(view)view.loadFleet(key,r.geometry);F.assets.set(id,next={trial:a,plain:u0.key});}
- }catch(e){console.error(e);F.failed=true;resync();toast('操縦を移せません：'+esc(e.message||e));return false;}finally{F.busy=false;}
- const u=ok();if(!u){resync();return false;}F.failed=false;
+ }catch(e){console.error(e);F.error=true;resync();toast('操縦を移せません：'+esc(e.message||e));return false;}finally{F.busy=false;}
+ const u=ok();if(!u){resync();return false;}
+ if(trial.modelSeq!==mySeq)trialModelAsk(next.trial.design,{profileKnown:true,statsKnown:!!next.trial.stats}).catch(e=>console.warn('trial model',e));/* someone asked for another model meanwhile */
  // hand over: the unit left keeps what the trial held for it
- const me=B.me;spaceSync();if(trial.energy&&Number.isFinite(me.energy))me.energy=Math.min(me.p.wCap||trial.energy.E,trial.energy.E);
+ const me=B.me;spaceSync();me.pos=tv.add(me.pos,me.velocity||[0,0,0],-B.acc);/* units are drawn carried forward by B.acc: without this it would jump ahead */if(trial.energy&&Number.isFinite(me.energy))me.energy=Math.min(me.p.wCap||trial.energy.E,trial.energy.E);
  cur.turrets=trial.turrets;cur.launchers=trial.launchers;/* its guns' reload and charge and its launchers' rounds wait for the player's return */
  const wasDocked=!!me.trialDocked;me.manual=false;delete me.swFrame;me.dockCorridor=false;delete me.trialDocked;me.key=cur.plain;if(me.wing){me.wing.recall=wasDocked||me.wing.recall;}else me.trialParked=true;
  u.plainKey=next.plain;u.key=next.trial.key;if(u.docked)delete u.docked;trialFlyAdopt(next.trial,u,next);
  spaceLog('操縦を移す',u);toast(u.id===F.home?'母艦の操縦に戻りました':`${esc(u.name)} の操縦に移りました`);return true;
 }
 // The flown craft is lost or out of action while its ship lives: the player is back aboard the ship.
-function trialFlyLost(){const F=trial.fly,B=trial.battle;if(!F||F.failed||trial.jump||!B?.me?.wing)return false;const h=trialFlyHomeUnit();if(!h||C.outOfAction(h))return false;if(!F.busy){if(!F.lostToast){F.lostToast=true;toast('操縦していた機体を失いました。母艦に戻ります');}trialFly(h.id).then(done=>{if(done)F.lostToast=false;});}return true;}
+function trialFlyLost(){const F=trial.fly,B=trial.battle;if(!F||F.lostFailed||trial.jump||!B?.me?.wing)return false;const h=trialFlyHomeUnit();if(!h||C.outOfAction(h))return false;if(!F.busy){if(!F.lostToast){F.lostToast=true;toast('操縦していた機体を失いました。母艦に戻ります');}trialFly(h.id).then(done=>{if(done)F.lostToast=false;else if(F.error)F.lostFailed=true;/* the engine could not give the ship's model: the flight ends as lost */}).catch(e=>{console.error(e);F.lostFailed=true;});}return true;}
 // A restart or the end of the flight puts the flown ship back to the one the trial started with.
-function trialFlyRestore(){const F=trial.fly;trial.fly=null;const a=F?.homeAsset;if(!a||trial.asset===a||!trial.asset)return false;trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));YardEngineClient.request('fleet',{design:a.design,trial:true,profileKnown:true,statsKnown:!!a.stats}).catch(e=>console.warn('trial model',e));return true;}
+function trialFlyRestore(){const F=trial.fly;trial.fly=null;const a=F?.homeAsset;if(!a||trial.asset===a||!trial.asset)return false;trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));trialModelAsk(a.design,{profileKnown:true,statsKnown:!!a.stats}).catch(e=>console.warn('trial model',e));return true;}
 // After each model step: a craft clear of the mouth meets hulls again; one that has landed on a recall is aboard (off the field,
 // resupplied when it next goes out).
 function trialWingStep(dt){
