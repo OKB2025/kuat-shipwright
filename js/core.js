@@ -83960,7 +83960,10 @@ function fleetHeading(u,t,d,sd){
 // Energy and protection coefficients are provisional game assumptions. The TT
 // conversion is shared with the yard; legacy effect ratings remain identified
 // as such until a design adopts the explicit energy model.
-const ENERGY_MODEL={version:1,eta:.75,superEta:.88,unit:'TT',assumption:true};
+// eta .75 → .95 (user decision 2026-11-18「電力の5%損失に直す、そして出力はトン数に合わせる」): a gun loses 5% of its electrical
+// input, all of it heat aboard (HEAT.waste.weapon = 1 − eta). The output stays the weapon's rated yield, so the input falls
+// to output/.95 (docs/weapon-heat-share.md).
+const ENERGY_MODEL={version:1,eta:.95,superEta:.88,unit:'TT',assumption:true};
 // v24 A field does two things to a beam (docs/shield-deflection-v24.md). It deflects a share of the hit,
 // deflectMax×f at strength f (the field's energy over its capacity), at no cost to its energy. It absorbs
 // what it did not deflect, and only that draws on its energy. A share (1−f)^leakK of the undeflected part,
@@ -89700,10 +89703,9 @@ function assemblyIssues(ship){
 // ============================================================
 const HEAT={
  qAllowJPerKg:3.1931e13,capacityModel:'whole-ship-mass',runtimeRevision:2,
- // weapon .25 → .05 (user decision 2026-11-18「大型艦は射撃か移動かどちらかを選ぶ形で動けるような値に」): converters are sized for the
- // cruise, so at .25 a stopped ISD or MC80 could charge its guns with a third of its plant only. At .05 a stopped capital ship
- // charges with all the power it has and a ship under way gives the power to one or the other. The weapon's efficiency
- // (ENERGY_MODEL.eta .75) is unchanged: the rest of the loss leaves the ship with the bolt (docs/weapon-heat-share.md).
+ // weapon .25 → .05 (user decisions 2026-11-18「大型艦は射撃か移動かどちらかを選ぶ形で動けるような値に」「電力の5%損失に直す」): the
+ // whole loss of a gun's input, 1 − ENERGY_MODEL.eta (.95). Converters are sized for the cruise, so at .25 a stopped ISD or
+ // MC80 could charge its guns with a third of its plant only (docs/weapon-heat-share.md).
  waste:{reactor:.04,weapon:.05,shield:.3,engine:.05,hotel:1,sw:.12}, // share of drawn power left aboard as heat
  swShot:.02,         // share of a superweapon shot's energy left in its generator's direct system when it fires
  grade:{reactor:'high',weapon:'high',shield:'high',engine:'high',feed:'high',sw:'high',hotel:'low'},
