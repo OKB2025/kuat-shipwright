@@ -49,6 +49,9 @@
 // 6.3306. Two recordings in a row gave the same file (sha256 84ee4a28…).
 // Re-recorded again the same day with the Imperial I/II main turrets holding three salvos (imperial, imperial2 regenerated;
 // more stored charge and 0.06-0.07% more mass). Two recordings in a row gave the same file (sha256 db45f75c…).
+// Re-recorded on b338e68 (FLEET_PROFILE_VERSION 24 → 25): against the recording above every digest number is within 1e-12
+// (KS_DETERMINISM_ALLOW_FLOAT=1, 96 of 96 ticks); only the hashed state carries the new version. Two recordings in a row
+// gave the same file (sha256 d91987d9…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
