@@ -677,7 +677,7 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
       // A manual pedestal sits above the automatic hull-following foundation.
       if(f.float)return;
       const d=C.fitSpec(f),ph=fitPedestalHeight(f);
-      if(!d.casemate&&(f.mountSupport||!f.localMount&&f.mountAxis==null)&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
+      /* v27 a wall- or axis-mounted turret shows its manual support too (user report 2026-11-17) */if(!d.casemate&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       if(plainFitAsset(f)&&!familyReferenceAsset(f)&&!FIT_SKIP_BODY?.has(f.id))appendPlainFit(g,f);
       return;
     }
@@ -808,7 +808,7 @@ function fitRayColdBounds(f){
   // The reference box already contains the complete articulated asset and
   // automatic foundation. Only its separate manual pedestal needs a union.
   const ph=fitPedestalHeight(f);
-  if(!s.casemate&&(f.mountSupport||!f.localMount&&f.mountAxis==null)&&ph>.3&&C.fitHasPedestal(f)){
+  if(!s.casemate&&ph>.3&&C.fitHasPedestal(f)){
    const fr=C.fitFrameOf(f),o=C.fitOrigin(f),r=s.r*.72*(f.pedSize||1)*1.45;
    for(const x of [-r,r])for(const y of [-ph,0])for(const z of [-r,r])for(let a=0;a<3;a++){const v=o[a]+fr.fw[a]*x+fr.up[a]*y+fr.rt[a]*z;b[a]=Math.min(b[a],v);b[a+3]=Math.max(b[a+3],v);}
   }
@@ -1603,7 +1603,7 @@ class Renderer {
     const w = this.canvas.width, h = this.canvas.height, c = this.cam;
     const e = this.eye();
     const up = c.frame ? [c.frame[3], c.frame[4], c.frame[5]] : Math.abs(Math.sin(c.ph)) < 1e-3 ? [Math.cos(c.th + Math.PI), 0, Math.sin(c.th + Math.PI)] : [0, 1, 0];
-    const P = c.ortho?M4.ortho(2*c.r*Math.tan(c.fov/2),w/h,Math.max(.5,c.r*.02),c.r*8+6000):M4.persp(c.fov, w / h, c.near || Math.max(0.5, c.r * 0.02), c.far || c.r * 8 + 6000);
+    const P = c.ortho?M4.ortho(2*c.r*Math.tan(c.fov/2),w/h,Math.max(.5,c.r*.02),c.r*8+6000):M4.persp(c.fov, w / h, c.near || Math.max(0.5, c.r * 0.02), Math.max(c.far || c.r * 8 + 6000, this._fleetFar || 0));
     const V = M4.lookAt(e, c.target, up);
     return {P, V, VP: M4.mul(P, V), eye: e};
   }
@@ -1643,6 +1643,7 @@ class Renderer {
     gl.colorMask(true,true,true,true);gl.depthMask(true);gl.disable(gl.SCISSOR_TEST);
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0.02, 0.03, 0.045, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    this._fleetFar = opt.fleet ? fleetFarPlane(this, opt.fleet) : 0;
     const m = this.matrices();
     // Shields shimmer in the animated fleet and trial views; the editor redraws
     // on demand, so it keeps one still frame of the pattern.
@@ -1895,8 +1896,11 @@ Renderer.prototype.shadowInit = function () {
  return this.sh;
 };
 Renderer.prototype.shadowLayout = function (kind) {
- const S = this.sh; if (S.layout === kind) return; S.layout = kind; const n = kind === 'one' ? 1 : 2, s = S.size / n; S.tiles = [];
- for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) S.tiles.push({x: i * s, y: j * s, s, key: null, L: null, sig: null, used: -1, M: null});
+ const S = this.sh; if (S.layout === kind) return; S.layout = kind; S.tiles = []; const add = (x, y, s, big) => S.tiles.push({x, y, s, big, key: null, L: null, sig: null, used: -1, M: null});
+ if (kind === 'one') { add(0, 0, S.size, true); return; }
+ // v27 The fleet views: two half-size tiles for the ships largest on screen, and eight quarter-size tiles for ships farther off
+ // (2026-11-18: distant ships had no cast shadow at all, so a ship's look changed as it came near).
+ const h = S.size / 2, q = S.size / 4; add(0, 0, h, true); add(h, 0, h, true); for (let j = 0; j < 2; j++) for (let i = 0; i < 4; i++) add(i * q, h + j * q, q, false);
 };
 // Draws one tile: the casters' depth from the light L (in the ship's frame, toward the light), fitted
 // to the box b. The map's long side follows the ship's length (x) where the light allows.
@@ -1935,17 +1939,23 @@ Renderer.prototype.shadowDesign = function (opt) {
  }
  return t.M ? t : null;
 };
-// The fleet and space views: the (up to) four ships largest on screen get a tile. A map belongs to a
+// The fleet and space views: every ship ten pixels long or more gets a tile while tiles last (ten tiles). A map belongs to a
 // design lit from one side in its own frame, so ships of one design on one heading share it; a turning
 // ship's map is redrawn when its light has moved by about half a degree (two maps a frame at most).
 Renderer.prototype.shadowFleet = function (list) {
- const S = this.shadowInit(); if (!S) return null; this.shadowLayout('four'); S.frame++; const out = new Map(), W = this.look.L1; let budget = 2;
+ const S = this.shadowInit(); if (!S) return null; this.shadowLayout('fleet'); S.frame++; const out = new Map(), W = this.look.L1; let budget = 2;
  // A battle already drawn at the lowest resolution keeps a map for the largest ship only.
- for (const c of list.sort((a, b) => b.px - a.px).slice(0, (this.renderScale || 1) <= .55 ? 1 : 4)) {
+ // Ships of one design on one heading share a map, so the list is not cut short: a ship goes without only when no tile is left.
+ // The count no longer drops with the drawing resolution: maps are redrawn two a frame at most whatever their number, and a
+ // limit tied to the resolution made shadows come and go as the resolution moved (browser check 2026-11-18).
+ for (const c of list.sort((a, b) => b.px - a.px).slice(0, 64)) {
   const R = c.u.rot || yawMatrix(c.u.yaw || 0), L = [R[0] * W[0] + R[1] * W[1] + R[2] * W[2], R[3] * W[0] + R[4] * W[1] + R[5] * W[2], R[6] * W[0] + R[7] * W[1] + R[8] * W[2]];
   let best = null, bd = -2; for (const t of S.tiles) if (t.key === c.u.key && t.M) { const d = C.dot(t.L, L); if (d > bd) { bd = d; best = t; } }
-  if (best && bd > .99996) { best.used = S.frame; out.set(c.u, best); continue; }
-  if (budget > 0) { const t = best && best.used !== S.frame ? best : S.tiles.filter(x => x.used !== S.frame).sort((a, b) => a.used - b.used)[0];
+  // A ship grown large on screen moves from a quarter-size tile to a half-size one when one is free.
+  const grow = best && !best.big && c.px >= 140 && budget > 0 && S.tiles.some(x => x.big && x.used !== S.frame && x.key !== c.u.key);
+  if (best && bd > .99996 && !grow) { best.used = S.frame; out.set(c.u, best); continue; }
+  // The half-size tiles go to ships large on screen; a small ship takes a quarter-size tile, or a half-size one left free.
+  if (budget > 0) { const free = S.tiles.filter(x => x.used !== S.frame).sort((a, b) => a.used - b.used), t = best && best.used !== S.frame && !grow ? best : c.px >= 140 ? free.find(x => x.big) || free[0] : free.find(x => !x.big) || free[0];
    if (t) { const a = c.a; if (!a._casters) a._casters = Object.keys(a.meshes).filter(n => !SHADOW_SKIP.test(n)); this.shadowRender(t, a.meshes, a._casters, L, a.bounds, null); t.key = c.u.key; t.used = S.frame; budget--; out.set(c.u, t); continue; } }
   if (best && bd > .9986) { best.used = S.frame; out.set(c.u, best); }
  }
@@ -3767,16 +3777,30 @@ Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(cons
 // brightness or an assumed command when the caller has no live result.
 function fleetEngineOutput(u){return !u.wreck&&Number.isFinite(u.glow)?C.clamp(u.glow,0,1):0;}
 function fleetHatchOpening(u,item,mode){const id=item.hatchId??/^(?:refSlideDoor|slideDoor|slideRay)_([^_]+)/.exec(item.name||'')?.[1],fallback=u.hatchOpenById&&!u.hatchLegacy?0:u.hatchOpen??0;return mode==='review'?0:C.clamp(u.hatchOpenById?.[id]??fallback,0,1);}
-const FLEET_SPECK=Object.freeze({px:2.5,minPx:.15,color:[214,222,232],wreck:[150,140,130]});
+// User request 2026-11-17「普通にもっと遠くからでも確認できるようにして／大型艦であるほど遠くから見えるように、デススターサイズは
+// ほぼ惑星と同レベルで」: a speck lasts down to minPx of projected length (0.15 before, 7.5 times nearer), and a ship of
+// alwaysL or more (a battle station) never fades out, like a planet; its speck keeps at least floorAlpha.
+const FLEET_SPECK=Object.freeze({px:2.5,minPx:.02,modelPx:2.2,maxPx:6,farMargin:1.2,alwaysL:10000,floorAlpha:.55,color:[214,222,232],wreck:[150,140,130]});
+// The far plane of a fleet view reaches every ship large enough on screen to be drawn as its model (2026-11-17, user report
+// 「デススターが遠距離でただの四角になってる」: the trial's far plane is 90 km, and a 160 km station 195 km off was drawn as a
+// speck of its projected size, a square hundreds of pixels wide). Depth resolution depends on the near plane, not on this.
+function fleetFarPlane(r,fleet){
+ const c=r.cam||{},base=c.far||(c.r||1)*8+6000;if(!fleet?.length||c.ortho||typeof r.eye!=='function')return base;
+ const eye=r.eye(),t=c.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1,focal=(r.canvas?.height||700)/(2*Math.tan((c.fov||.72)/2));let far=base;
+ for(const u of fleet){if(!u||u.dead||u.hidden)continue;const a=r.fleetCache?.get(u.key);if(!a)continue;
+  const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz);
+  const need=(dist+L)*FLEET_SPECK.farMargin;if(Number.isFinite(need)&&(rx*d[0]+ry*d[1]+rz*d[2])/l>-L&&L/Math.max(1,dist)*focal>=FLEET_SPECK.modelPx)far=Math.max(far,need);}
+ return far;
+}
 Renderer.prototype.drawFleet=function(m,opt){
- const gl=this.gl,old=this.meshes,off=this.off,shields=[],specks=[],speckFar=(this.cam.far||(this.cam.r||1)*8+6000)*.9;gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
+ const gl=this.gl,old=this.meshes,off=this.off,shields=[],specks=[],farPlane=this._fleetFar>0?this._fleetFar:fleetFarPlane(this,opt.fleet)/* draw() has it for this frame; a direct call computes it */,speckFar=farPlane*.9;gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
  const eye=this.eye(),vd=(()=>{const t=this.cam.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1;return [d[0]/l,d[1]/l,d[2]/l];})(),focal=this.canvas.height/(2*Math.tan((this.cam.fov||.72)/2)),SHELL=['hull','struct','plate','surfaceArmor','refHull','refStruct'],FULL=['hull','struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'],OUTER=FULL.filter(n=>!['gen','shield','hyper','hangar'].includes(n));this.lodSkipped=0;
  // v20.2 Key-light shadows for the ships largest on screen (not pieces of wrecks or ships in a jump).
- let shadows=null;if(this.look?.shadow&&!this.noShadow){const c=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.clip||Math.abs((u.stretch||1)-1)>.02)continue;const a=this.fleetCache?.get(u.key);if(!a?.bounds||fleetFoilMoving(a,u))continue;const L=a.length||300,rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],px=L/Math.max(1,Math.hypot(rx,ry,rz))*focal;if(px>=140&&rx*vd[0]+ry*vd[1]+rz*vd[2]>=-L)c.push({u,a,px});}if(c.length)shadows=this.shadowFleet(c);}
+ let shadows=null;if(this.look?.shadow&&!this.noShadow){const c=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.clip||Math.abs((u.stretch||1)-1)>.02)continue;const a=this.fleetCache?.get(u.key);if(!a?.bounds||fleetFoilMoving(a,u))continue;const L=a.length||300,rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],px=L/Math.max(1,Math.hypot(rx,ry,rz))*focal;if(px>=10&&rx*vd[0]+ry*vd[1]+rz*vd[2]>=-L)c.push({u,a,px});}if(c.length)shadows=this.shadowFleet(c);}
  try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.shTile=shadows?.get(u)||null;
   const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz),px=L/Math.max(1,dist)*focal,ahead=rx*vd[0]+ry*vd[1]+rz*vd[2];
-  const beyond=dist>speckFar;if(opt.lod&&(px<2.2||ahead<-L||beyond)){this.lodSkipped++;if((px<2.2||beyond)&&ahead>0&&px>=FLEET_SPECK.minPx&&!u.clip)specks.push(u.pos,L,px,dist,!!u.wreck);continue;}const lod=opt.lod&&px<44&&(!u.turrets||a.surfaceTurrets);
+  const beyond=dist>speckFar;if(opt.lod&&(px<2.2||ahead<-L||beyond)){this.lodSkipped++;if((px<2.2||beyond)&&ahead>0&&(px>=FLEET_SPECK.minPx||L>=FLEET_SPECK.alwaysL)&&!u.clip)specks.push(u.pos,L,px,dist,!!u.wreck);continue;}const lod=opt.lod&&px<44&&(!u.turrets||a.surfaceTurrets);
   this.meshes=a.meshes;this.off=u.pos;this.modelCenter=u.center||a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';
   this.engineTint=a.engine&&a.engine!=='blue'?C.engineGlowRGB(a.engine):null;this.engineK=1.25*fleetEngineOutput(u);
   // A piece of a broken ship: the part of the model inside its box, turned about its own centre, scorched, its torn edges glowing.
@@ -3816,9 +3840,10 @@ Renderer.prototype.drawFleet=function(m,opt){
  // User request 2026-11-16「ある程度遠くからでも艦が見えるように」: a ship too small to model (under 2.2 px), or beyond the far
  // plane (where its model would be clipped away), is a sunlit speck
  // of at least FLEET_SPECK.px pixels, fading with distance down to FLEET_SPECK.minPx of projected length. Beyond the far
- // plane it is drawn on the same line of sight inside it, scaled so its size on screen is unchanged.
- if(specks.length){const sp=[],sc=[],ss=[],far=(this.cam.far||(this.cam.r||1)*8+6000)*.9;for(let i=0;i<specks.length;i+=5){const pos=specks[i],L=specks[i+1],px=specks[i+2],dist=specks[i+3],wreck=specks[i+4],k=dist>far?far/dist:1;
-   sp.push(eye[0]+(pos[0]-eye[0])*k,eye[1]+(pos[1]-eye[1])*k,eye[2]+(pos[2]-eye[2])*k);const fade=Math.min(1,.35+.65*Math.max(0,Math.min(px,2.2)-FLEET_SPECK.minPx)/(2.2-FLEET_SPECK.minPx)),c=wreck?FLEET_SPECK.wreck:FLEET_SPECK.color;sc.push(c[0],c[1],c[2],Math.round(255*fade*(wreck?.6:1)));ss.push(L*k);}
+ // plane it is drawn on the same line of sight inside it, scaled so its size on screen is unchanged (at most FLEET_SPECK.maxPx).
+ // A ship large enough on screen to model is never a speck: the far plane reaches it (fleetFarPlane).
+ if(specks.length){const sp=[],sc=[],ss=[],far=speckFar;for(let i=0;i<specks.length;i+=5){const pos=specks[i],L=specks[i+1],px=specks[i+2],dist=specks[i+3],wreck=specks[i+4],k=dist>far?far/dist:1;
+   sp.push(eye[0]+(pos[0]-eye[0])*k,eye[1]+(pos[1]-eye[1])*k,eye[2]+(pos[2]-eye[2])*k);const fade=Math.max(L>=FLEET_SPECK.alwaysL?FLEET_SPECK.floorAlpha:0,Math.min(1,.35+.65*Math.max(0,Math.min(px,2.2)-FLEET_SPECK.minPx)/(2.2-FLEET_SPECK.minPx))),c=wreck?FLEET_SPECK.wreck:FLEET_SPECK.color;sc.push(c[0],c[1],c[2],Math.round(255*fade*(wreck?.6:1)));ss.push(Math.min(L*k,FLEET_SPECK.maxPx*k*dist/focal)/* a speck stays a speck: never larger than maxPx on screen */);}
   this.setPoints('fleetSpeck',new Float32Array(sp),new Uint8Array(sc),new Float32Array(ss));gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);this.drawPoints('fleetSpeck',m,[0,0,0],1,FLEET_SPECK.px,false);}
  this.setPoints('fleetGlow',new Float32Array(gp),new Uint8Array(gc),new Float32Array(gs));gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);this.drawLines('trialBeams',m,1);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
  gl.depthMask(true);

@@ -28,7 +28,12 @@ function setup(){
 }
 test('engine editor keeps physical machinery and drive controls while source capacity replaces manual input limits',()=>{
  const run=setup(),html=run('engineSpecControls(selItem())');
- for(const field of ['driveProfileId','machineryDiameterM','machineryLengthM','machineryOffsetM','d','nozzleLength'])assert.match(html,new RegExp('data-engine-field="'+field+'"'));
+ for(const field of ['machineryDiameterM','machineryLengthM','machineryOffsetM','d','nozzleLength'])assert.match(html,new RegExp('data-engine-field="'+field+'"'));
+ // 2026-11-17 (user report「機関は一種類しかないんだしこの選択欄は要らなくない？」): the drive profile select appears only when there
+ // is a choice. A standard engine has none; a migrated engine may still move to the standard profile.
+ assert.doesNotMatch(html,/data-engine-field="driveProfileId"/);
+ const legacy=run('(()=>{const p=selItem();const old=p.driveProfileId;p.driveProfileId="legacy-internal";const h=engineSpecControls(p);p.driveProfileId=old;return h;})()');
+ assert.match(legacy,/data-engine-field="driveProfileId"/);assert.match(legacy,/<option value="standard"/);
  for(const field of ['ratedInputW','machineryGradeId','wattsPerNewton'])assert.doesNotMatch(html,new RegExp('data-engine-field="'+field+'"'));
  assert.match(html,/接続炉からの最大入力/);assert.match(html,/未判定（熱平衡未解決）/);assert.doesNotMatch(html,/容積・仕様による入力上限|通常定格に対する入力倍率|定格・高密度化の追加費用|NaN|Infinity/);
  assert.doesNotMatch(html,/<option value="legacy/);

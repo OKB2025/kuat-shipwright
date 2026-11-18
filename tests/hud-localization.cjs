@@ -80,14 +80,34 @@ test('every hyperspace phase translates its composed destination, speed and coun
     }
   }
   assert.equal(c.KSI18n.t('ハイパースペース航行中 · コルサントまで 12 秒'), 'In Hyperspace · To Coruscant · 12 s');
+  // v27 (2026-11-17) Both burst phases (the piloted 'enter', a followed ship's 'accel') show the hyperdrive's own climb to half light speed.
+  for (const phase of ['accel', 'enter']) {
+    c.jump = {phase,t:1};
+    assert.equal(translated(vm.runInContext("trialHyperText(jump,'コルサント',12)", c)), 'Hyperdrive Acceleration · 6.7% of Light Speed / 50% — Entering Hyperspace', phase);
+  }
   // v24 A drive that is still charging from spare power waits in the spool phase.
+  // v27 A massless profile needs only the jump field (10 s of Dj = 1e10 J), so 4e9 J is still 40%; the time left is a duration
+  // (trialDurText) under the 'ハイパードライブ充電 {0}% · {1}へ あと約 {2}' key.
   for (const hyper of [2e9, 0]) {
     c.hyperUnit = {p:{grid:{P:1e12,Dj:1e9},modules:[]},hyperE:4e9,pw:{hyper}};
     vm.runInContext('var trialSystemsUnit=()=>hyperUnit', c);
     c.jump = {phase:'spool',t:9};
     const text = vm.runInContext("trialHyperText(jump,'コルサント',Infinity)", c);
     assert.match(text, /充電 40%/);
-    translated(text);
+    assert.match(translated(text), hyper > 0 ? /^Hyperdrive Charging 40% · Coruscant in about \d+ s$/ : /^Hyperdrive Charging 40% · Coruscant \(no spare power/);
+  }
+  // v27 The charge now holds the burst's kinetic energy ((gamma-1)Mc^2 at 0.5c), so a Death Star charging at its idle spare waits minutes.
+  {
+    const Core = vm.runInContext('Core', c), p = vm.runInContext('YardFleetData.designs.deathstar.p', c), M = Core.motionMassKg(p), r = Core.hyperChargeNominalW(p);
+    const need = 10 * p.grid.Dj + (1 / Math.sqrt(.75) - 1) * 299792458 ** 2 * M, s = Math.ceil(.595 * need / r);
+    assert.ok(Math.abs(Core.hyperChargeNeedJ(p) / need - 1) < 1e-9, 'charge need = jump field + relativistic KE at half light speed');
+    assert.ok(s >= 10 && s < 3600, `${s} s`);/* 28 s on the regenerated Death Star (idle spare 3.3e32 W) */
+    c.hyperUnit = {p,hyperE:.405 * need,pw:{hyper:r}};
+    c.jump = {phase:'spool',t:9};
+    const text = vm.runInContext("trialHyperText(jump,'コルサント',Infinity)", c);
+    const dur = s < 60 ? [`${s} 秒`, `${s} s`] : [`${Math.floor(s / 60)}分 ${s % 60}秒`, `${Math.floor(s / 60)} min ${s % 60} s`];/* trialDurText: under a minute in seconds */
+    assert.equal(text, `ハイパードライブ充電 40% · コルサントへ あと約 ${dur[0]}`);
+    assert.equal(translated(text), `Hyperdrive Charging 40% · Coruscant in about ${dur[1]}`);
   }
   vm.runInContext('trialSystemsUnit=()=>null', c);
 });
