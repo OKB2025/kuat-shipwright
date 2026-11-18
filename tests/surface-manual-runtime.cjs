@@ -19,8 +19,10 @@ for(const name of ['trialSystemsUnit','trialPowerFactor','trialPropulsionMotion'
 for(const line of app.split('\n'))if(line.startsWith('function trialSwSoloEnergy(')||line.startsWith('function trialSwSoloBeamEnergy('))run(line);
 
 test('manual charging uses the same input/output/loss boundary as common combat',()=>{
- const r=run(`(()=>{const u=fixture(),before=trial.energy.E;trialPowerStep(.25,0);return {stored:(trial.energy.E-before)*TT_J,input:u.pw.wpn*.25,heat:u.ht.e.weapon};})()`);
- assert.ok(r.stored>0);close(r.input,r.stored+r.heat);close(r.stored/r.input,.75);
+ const r=run(`(()=>{const u=fixture(),before=trial.energy.E;trialPowerStep(.25,0);return {stored:(trial.energy.E-before)*TT_J,input:u.pw.wpn*.25,heat:u.ht.e.weapon,share:C.HEAT.waste.weapon};})()`);
+ // 2026-11-18 (docs/weapon-heat-share.md): of the 25% a gun loses, HEAT.waste.weapon (.05, was .25) stays aboard as heat; the rest
+ // leaves the ship and is on no ledger yet (physics review 2026-11-18, open). Before, the case stated input = stored + heat.
+ assert.ok(r.stored>0);close(r.stored/r.input,.75);close(r.heat,r.input*r.share);assert.ok(r.share<=.25+1e-12,'heat is never more than the loss');close(r.input,r.stored+r.heat+r.input*(.25-r.share));
 });
 
 test('full manual cell banks draw no fictitious charge power or weapon heat',()=>{
