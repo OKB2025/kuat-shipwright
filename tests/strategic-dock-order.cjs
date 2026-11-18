@@ -9,12 +9,15 @@ for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core
 const {C,R,F}=vm.runInContext('({C:Core,R:Rts,F:YardFleetData})',cx),plain=v=>JSON.parse(JSON.stringify(v));
 // A hangar 2.5 km deep behind a mouth on the host's bow face, its opening 1.5 km by 0.8 km (the fixture of tests/ship-dock.cjs).
 const MOUTH={hatchId:99,p:[3000,0,0],n:[1,0,0],ax:[0,0,1],o:[1500,800],r:1,in:[1750,0,0],d:1250,sl:0,bs:[2500,1000,1600]};
-function world(guests=1,{slots=4000,mouth=MOUTH}={}){
+function world(guests=1,{slots=4000,mouth=MOUTH,enemy=false}={}){
  const hp=plain(F.designs.venator.p);hp.mouths=[plain(mouth)];hp.launch=0;hp.msl=0;hp.modules=hp.modules.filter(m=>m.k!=='launcher');
  const host={key:'dock-host',p:hp,info:{mass:1e7,hyper:1,capital:true,sensor:0,hangarCap:slots}},small={key:'dock-guest',p:plain(F.designs.cr90.p),info:{mass:4e4,hyper:1,capital:false,sensor:0}};
- const w=R.createWorld({mode:'test',sensors:false,convoyMode:false,designs:[host,small],sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:host.key},...Array.from({length:guests},()=>({design:small.key}))],[]]});
+ const w=R.createWorld({mode:'test',sensors:false,convoyMode:false,designs:[host,small],sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:host.key},...Array.from({length:guests},()=>({design:small.key}))],enemy?[{design:small.key}]:[]]});
  const us=[...w.units.values()].filter(u=>u.side===0),h=us.find(u=>u.key==='dock-host'),gs=us.filter(u=>u!==h);h.pos=[0,0,0];h.yaw=0;h.velocity=[0,0,0];R.orderUnit(w,h.id,{type:'hold'});
- gs.forEach((g,i)=>{g.pos=[9000+i*600,0,1500+i*900];g.yaw=Math.PI;g.velocity=[0,0,0];});return {w,h,gs};
+ gs.forEach((g,i)=>{g.pos=[9000+i*600,0,1500+i*900];g.yaw=Math.PI;g.velocity=[0,0,0];});
+ // an enemy corvette in the same system, far off and holding: with it there the system is in battle
+ const foe=[...w.units.values()].find(u=>u.side===1);if(foe){foe.sys=h.sys;w.groups.get(foe.group).sys=h.sys;foe.pos=[0,0,-40000];foe.velocity=[0,0,0];foe.order={...foe.order,type:'hold',fire:false};}
+ return {w,h,gs,foe};
 }
 const run=(w,seconds,until)=>{for(let t=0;t<seconds;t+=.25){R.tick(w,.25);if(until?.())return t;}return null;};
 
@@ -54,13 +57,24 @@ test('the carrier\'s recall sends its ships to dock instead of taking them aboar
 });
 
 // Reviews of 2026-11-18 (physics FAIL, regression UNVERIFIED on 2fdc1cd).
-test('a ship that docks during a battle stays aboard and is repaired; the carrier\'s own ships still launch',()=>{
- const {w,h,gs:[g]}=world();g.crew=Math.round((g.p.crewMax||g.crew)*.5);for(const x of g.sec)x.s=x.max*.4;g.hp=g.sec.reduce((n,x)=>n+x.s,0);const hp0=g.hp;
- w.battles.set(h.sys,{sys:h.sys,t0:w.time,log:[]});/* a battle is on in the carrier's system */R.orderDock(w,g.id,h.id);
- const t=run(w,600,()=>g.status==='carried');assert.ok(t!=null,'aboard');assert.equal(g.autoLaunch,false);
- for(let i=0;i<120;i++){if(!w.battles.has(h.sys))w.battles.set(h.sys,{sys:h.sys,t0:w.time,log:[]});R.tick(w,.25);assert.equal(g.status,'carried','still aboard at step '+i);}
+test('a ship that docks during a battle stays aboard and is repaired',()=>{
+ const {w,h,gs:[g],foe}=world(1,{enemy:true});g.crew=Math.round((g.p.crewMax||g.crew)*.5);for(const x of g.sec)x.s=x.max*.4;g.hp=g.sec.reduce((n,x)=>n+x.s,0);const hp0=g.hp;
+ for(const u of [h,g])u.order={...u.order,fire:false};run(w,5);assert.ok(w.battles.has(h.sys),'the system is in battle');R.orderDock(w,g.id,h.id);
+ const t=run(w,600,()=>g.status==='carried');assert.ok(t!=null,'aboard');assert.equal(g.autoLaunch,false);assert.ok(w.battles.has(h.sys),'still in battle');
+ for(let i=0;i<120;i++){R.tick(w,.25);assert.equal(g.status,'carried','still aboard at step '+i);}assert.ok(w.battles.has(h.sys));
  assert.ok(g.hp>hp0*1.1,'repaired while the battle goes on: '+g.hp+' from '+hp0);
  assert.equal(R.orderCarried(w,h.id,'launch').n,1,'it leaves on the carrier\'s order');
+});
+
+test('a carrier\'s own ship called back by the recall still launches in a battle once the hold is lifted; a ship that docked by order stays',()=>{
+ // Physics re-review 2026-11-18: autoLaunch=false on every ship that went aboard also stopped the carrier's own ships.
+ const {w,h,gs:[own,guest]}=world(2,{enemy:true});for(const u of [h,own,guest])u.order={...u.order,fire:false};own.carrier=h.id;own.autoLaunch=true;own.pos=[4200,0,0];own.yaw=0;/* facing away: it turns first */
+ run(w,5);assert.ok(w.battles.has(h.sys),'the system is in battle');
+ assert.equal(R.orderCarried(w,h.id,'recover').ok,true);assert.equal(R.orderDock(w,guest.id,h.id).ok,true);
+ assert.ok(run(w,1500,()=>own.status==='carried'&&guest.status==='carried')!=null,'both aboard');assert.equal(own.autoLaunch,true,'the recalled ship keeps its setting');assert.equal(guest.autoLaunch,false);assert.equal(own.order.recall,undefined);
+ run(w,5);assert.equal(own.status,'carried','held aboard by the recall (holdCarried)');assert.ok(w.battles.has(h.sys));
+ assert.equal(R.orderCarried(w,h.id,'hold').hold,false);R.tick(w,.25);
+ assert.notEqual(own.status,'carried','the carrier\'s own ship launches when the hold is lifted');assert.equal(guest.status,'carried','the ship that docked by order stays aboard');
 });
 
 test('a docking ship that is disabled, taken in tow, or sets out on a jump gives up the lane and the order',()=>{
