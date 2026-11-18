@@ -38,6 +38,10 @@ test('all fifty-one supplied fitting poses are retained while only the eight I-c
  for(const key of ['imperial','imperial2']){
   const ship=C.SHIP_EXAMPLES[key].build(),expected=plain(normalized.fits);assert.equal(ship.fits.length,51);
   if(key==='imperial')for(const f of expected)if(f.id>=107&&f.id<=114)f.k=f.id<=108?'ion':'stl';
+  // 2026-11-18, user decision「インペリアル I / IIは主砲塔充電量を上げてもいい」「砲そのものは変えずに設置設定で弄れる斉射回数の方を
+  // 変えて充電区画を大きくする」: the eight main turrets of both classes hold three salvos (docs/weapon-heat-share.md). Nothing else
+  // of the supplied fitting settings may differ.
+  for(const f of expected)if(f.id>=107&&f.id<=114)f.chargeSalvos=3;
   const authored=list=>plain(list).map(f=>{if(key==='imperial'&&f.id>=107&&f.id<=114){const old=expected.find(q=>q.id===f.id);f.p=f.p.map((v,i)=>{assert.ok(Math.abs(v-old.p[i])<1e-7,'only floating-point surface projection may adjust the mount centre');return old.p[i];});for(const field of ['base','low','slope','float','mountSupport'])delete f[field];}return f;});
   assert.deepEqual(authored(ship.fits),authored(expected),key+' keeps every authored fitting pose while refreshing changed automatic supports');
   const counts=Object.fromEntries([...new Set(ship.fits.map(f=>f.k))].map(k=>[k,ship.fits.filter(f=>f.k===k).length]));
@@ -74,7 +78,7 @@ test('old individual machinery and stale circuits are retired only in the new st
 
 test('creating either variant cannot mutate the immutable common source or another fresh recipe',()=>{
  const before=JSON.stringify(source),a=C.SHIP_EXAMPLES.imperial.build(),b=C.SHIP_EXAMPLES.imperial2.build();a.parts[0].c[0]+=100;a.fits[0].p[0]+=100;
- assert.equal(JSON.stringify(source),before);assert.deepEqual(shapes(b),expectedShapes());assert.deepEqual(plain(b.fits),plain(normalized.fits));assert.deepEqual(shapes(C.SHIP_EXAMPLES.imperial.build()),expectedShapes());
+ assert.equal(JSON.stringify(source),before);assert.deepEqual(shapes(b),expectedShapes());assert.deepEqual(plain(b.fits),plain(normalized.fits).map(f=>f.id>=107&&f.id<=114?{...f,chargeSalvos:3}:f)/* 2026-11-18: three salvos on the main turrets, as above */);assert.deepEqual(shapes(C.SHIP_EXAMPLES.imperial.build()),expectedShapes());
 });
 
 test('missing supplied data fails explicitly instead of reviving the obsolete Imperial II builder',()=>{

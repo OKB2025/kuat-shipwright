@@ -2604,7 +2604,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[3868023252851017700,[[\"main\",3868023252851017700,[[9,1934011626425508900],[10,1934011626425508900]]]],[[9,\"reactor\",28,\"p28\",\"main\",0.369297356445473,0.5],[10,\"reactor\",29,\"p29\",\"main\",0.369297356445473,0.5]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1062.7164879337965,
     "heat": {
      "v": 5,
@@ -11842,7 +11842,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1102223327698677000,[[\"main\",1102223327698677000,[[4,1102223327698677000]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.21046831134307648,1]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1972.6967697339708,
     "heat": {
      "v": 5,
@@ -15526,7 +15526,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[5500039556300302000,[[\"main\",5500039556300302000,[[8,2180440255828559000],[9,2180440255828559000],[12,1139159044643183600]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.41635262754496805,0.3964408316538128],[9,\"reactor\",13,\"p13\",\"main\",0.41635262754496805,0.3964408316538128],[12,\"reactor\",16,\"p16\",\"main\",0.21752114517284762,0.20711833669237442]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1125.7072884594709,
     "heat": {
      "v": 5,
@@ -25120,7 +25120,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1222557086446111000,[[\"main\",1222557086446111000,[[12,467258870096152450],[13,475812107909718600],[18,139743054220119900],[19,139743054220119900]]]],[[12,\"reactor\",17,\"p17\",\"main\",0.08922255851229448,0.3821979973585052],[13,\"reactor\",18,\"p18\",\"main\",0.0908557897041035,0.3891941842101391],[18,\"reactor\",23,\"p23\",\"main\",0.02668377986976615,0.11430390921567789],[19,\"reactor\",24,\"p24\",\"main\",0.02668377986976615,0.11430390921567789]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 921.5936810462163,
     "heat": {
      "v": 5,
@@ -31822,7 +31822,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1563018329262275300,[[\"main\",1563018329262275300,[[27,27433915231538176],[28,27433915231538176],[5,1508150498799199000]]]],[[5,\"reactor\",10,\"p10\",\"main\",0.2879796505452485,1],[27,\"dissipator\",1,\"p1\",\"main\",3.657860004649165,0.4847344277168651],[28,\"dissipator\",2,\"p2\",\"main\",3.657860004649161,0.48473442771686454]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1479.2117031490866,
     "heat": {
      "v": 5,
@@ -34823,7 +34823,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[945724981773398800,[[\"main\",945724981773398800,[[24,30285964800000000],[25,30285964800000000],[3,885153052173398800]]]],[[3,\"reactor\",9,\"p9\",\"main\",0.16901898507271898,1],[24,\"dissipator\",1,\"p1\",\"main\",4.03812459791652,0.49189265046423525],[25,\"dissipator\",2,\"p2\",\"main\",4.0381245979165215,0.49189265046423547]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1508.2475219789817,
     "heat": {
      "v": 5,
@@ -37762,7 +37762,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2206610117981672200,[[\"main\",2206610117981672400,[[29,27468570986406840],[30,27468570986406840],[4,1075836488004429300],[5,1075836488004429300]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.205429773822986,0.5],[5,\"reactor\",15,\"p15\",\"main\",0.205429773822986,0.5],[29,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.48027002702387084],[30,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.48027002702387106]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 842.5579459211037,
     "heat": {
      "v": 5,
@@ -42278,7 +42278,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1506515099018379800,[[\"main\",1506515099018379800,[[5,725364467027708200],[6,725364460545401600],[7,55786171445269980]]]],[[5,\"reactor\",16,\"p16\",\"main\",0.13850753349808245,0.4814850295893772],[6,\"reactor\",17,\"p17\",\"main\",0.13850753226029328,0.48148502528652853],[7,\"reactor\",18,\"p18\",\"main\",0.010652307028282303,0.03702994512409422]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1713.2017475375314,
     "heat": {
      "v": 5,
@@ -48386,7 +48386,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[570436489003940740,[[\"main\",570436489003940740,[[11,570436489003940740]]]],[[11,\"reactor\",16,\"p16\",\"main\",0.10892420941571125,1]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1233.7478032174936,
     "heat": {
      "v": 5,
@@ -53533,7 +53533,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1250933725895009500,[[\"main\",1250933725895009500,[[4,35036041961471444],[5,123039852448631140],[6,66800558468748540],[7,80581775358041580],[8,80581775358041580],[19,432852639065010400],[20,432041083235064770]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.006690093016967921,0.02800791219886897],[5,\"reactor\",16,\"p16\",\"main\",0.023494322177732088,0.09835841012328565],[6,\"reactor\",17,\"p17\",\"main\",0.012755491908383449,0.05340055758825636],[7,\"reactor\",18,\"p18\",\"main\",0.015386999856049683,0.0644173018042083],[8,\"reactor\",19,\"p19\",\"main\",0.015386999856049683,0.0644173018042083],[19,\"reactor\",32,\"p32\",\"main\",0.08265272718788991,0.3460236382669402],[20,\"reactor\",33,\"p33\",\"main\",0.08249776151006677,0.3453748782142323]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1817.9818038803091,
     "heat": {
      "v": 5,
@@ -64038,7 +64038,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2437891546520883700,[[\"main\",2437891546520883700,[[6,2437891546520883700]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.4655126634863613,1]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1692.8216028856268,
     "heat": {
      "v": 5,
@@ -69169,7 +69169,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1933319393806428000,[[\"main\",1933319393806428000,[[4,966659696903214000],[5,966659696903214000]]]],[[4,\"reactor\",21,\"p21\",\"main\",0.1845825877006375,0.5],[5,\"reactor\",22,\"p22\",\"main\",0.1845825877006375,0.5]]]"
     },
-    "profileVersion": 24,
+    "profileVersion": 25,
     "maxSpeed": 1056.7753942962738,
     "heat": {
      "v": 5,
@@ -84717,7 +84717,7 @@ function referenceSpeedProfile(profile,key){
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
 // Physical nozzle foundations now contribute their real material and thermal
 // mass. Saved combat figures need rebuilding without changing engine ratings.
-const FLEET_PROFILE_VERSION=24;/* 24 (2026-11-15, PR #107): heat model - no hull-skin cooling, converters charged for the heat converted, wing coefficient curve, heat paths without a capacity limit. A craft record or profile made before it is rebuilt. */
+const FLEET_PROFILE_VERSION=25;/* 25 (2026-11-18, PR #117): weapon efficiency .75 → .95 and weapon heat share .25 → .05 (docs/weapon-heat-share.md). A craft record or profile made before it carries eta .75 and is rebuilt (regression review: saved craft records are judged by this number alone). 24 (2026-11-15, PR #107): heat model - no hull-skin cooling, converters charged for the heat converted, wing coefficient curve, heat paths without a capacity limit. A craft record or profile made before it is rebuilt. */
 // Calculation-model version of everything derived from a saved design: statistics,
 // fleet and combat profiles, catalogue rows (data/fleet.js, data/examples/<key>/combat.json)
 // and the engine's derived-data cache. Examples are ordinary saved designs; their stored
