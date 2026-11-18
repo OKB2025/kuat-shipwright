@@ -1,0 +1,11 @@
+ok 1 - the real squad copy button retains custom model, count and loadout as independent configuration
+ok 2 - a wing copy keeps its own group and copies every squad, with a free wing number and fresh runtime IDs
+ok 3 - copy limits reject the whole operation without losing rows or overflowing normalized storage
+ok 4 - copied developed craft keep one model identity through fleet JSON while cost and occupied space grow
+ok 5 - the rendered air editor exposes squad and whole-wing copy at the correct hierarchy level
+ok 6 - a battle mission is applied to one selected wing and recall immediately clears its prior firing
+ok 7 - invalid wing mission targets and nonfinite CAP cannot mutate an existing valid order
+ok 8 - the direct battle-list buttons select the intended wing for a mission without issuing one to its sibling
+# tests 8
+# pass 8
+# fail 0

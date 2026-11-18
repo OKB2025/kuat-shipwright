@@ -1,0 +1,7 @@
+ok 1 - the real RTS aircraft clock obeys OFF and ON without borrowing ordinary gun tracking
+ok 2 - actual aircraft interception still requires electricity when automatic defence is enabled
+ok 3 - the actual tactical fleet aircraft-loss path honors the automatic-defence policy
+ok 4 - the actual tactical missile attenuation path honors OFF while preserving each finite launch
+# tests 4
+# pass 4
+# fail 0

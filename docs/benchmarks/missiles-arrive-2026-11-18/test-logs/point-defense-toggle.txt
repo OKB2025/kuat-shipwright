@@ -1,0 +1,9 @@
+ok 1 - OFF stops actual missile interception for both installed PD families without silencing aimed ship fire
+ok 2 - reenabling automatic interception uses the existing unit and resumes actual defence on the next step
+ok 3 - an OFF incoming threat adds no shot, capacitor debit, generation or weapon heat over the same idle ship
+ok 4 - OFF point defence can still deliberately attack a small craft through real charge and thermal paths
+ok 5 - raw restored OFF orders ignore stale diversion in both surface and aggregate aimed-fire queries
+ok 6 - the toggle never turns ordinary tracking cannons into automatic point defence
+# tests 6
+# pass 6
+# fail 0

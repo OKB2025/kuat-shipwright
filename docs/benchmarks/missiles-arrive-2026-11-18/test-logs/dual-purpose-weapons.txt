@@ -1,0 +1,19 @@
+ok 1 - only explicitly designated point defence automatically intercepts, independently of yield or tracking capability
+ok 2 - disabling automatic interception preserves deliberate fire for pure and dual-purpose PD mounts
+ok 3 - the real small dual-purpose gun intercepts missiles and craft while automatic interception is ON, and fires at ships only while it is OFF
+ok 4 - a newly arrived missile takes priority over a farther craft without resetting the battery
+ok 5 - switching automatic interception ON shares one reload and one energy debit; switching it OFF returns the gun to ship fire
+ok 6 - pure point defence stays automatic-only; a dual-purpose gun is kept for interception while ON even with no reachable threat, and fires on ships while OFF
+ok 7 - generated fleet profiles retain the dual-purpose rating and current revision through empty-complement sanitizing
+ok 8 - fleet role reservation removes only the shared battery while preserving other ship guns
+ok 9 - surface runtime does not spend a reserved dual-purpose bank as ship fire
+ok 10 - real RTS missile interception: the battery is reserved while ON and returns to ship fire when switched OFF
+ok 11 - the real tactical fleet clock keeps the battery for missile defence while ON and gives it to ship fire when OFF
+ok 12 - the real tactical fleet clock keeps the battery for aircraft defence while ON and gives it to ship fire when OFF
+ok 13 - a ship-firing battery (OFF) never intercepts arriving aircraft; ON it is reserved from the first step and intercepts them
+ok 14 - the shared battery is reserved while ON whatever the threat (independent AA still pays); OFF it fires on ships past ceased fire and empty magazines
+ok 15 - a twin gun in rapid fire keeps barrels ÷ cycle shots a second at 1/60, 1/30 and 1/20 s frames
+ok 16 - after a second without energy a rapid-fire gun resumes one barrel at a time
+# tests 16
+# pass 16
+# fail 0

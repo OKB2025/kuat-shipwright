@@ -1,0 +1,11 @@
+ok 1 - a released memory record restores the same figures, trial model and turret rays without recomputing
+ok 2 - an evicted record is read back from the database once and matches the first build
+ok 3 - statsOnly then the trial model, in a fresh Worker, equals the first build
+ok 4 - an older database record without packed caches derives its compartments again and gives the same answers
+ok 5 - a non-surface design: lite then full, and its model and trial variants keep their own builds
+ok 6 - a surface design stores both mesh variants from one build, equal to separate builds
+ok 7 - the derived collision shell is the stored shell and gives identical ray hits
+ok 8 - a fleet battle and a renamed trial flagship never write into a shared profile
+# tests 8
+# pass 8
+# fail 0

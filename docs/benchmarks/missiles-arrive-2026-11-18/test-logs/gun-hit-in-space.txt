@@ -1,0 +1,13 @@
+ok 1 - bolts fly at the speed the battles draw, and a ship with no track is judged where it is
+ok 2 - a ship holding its velocity sits on the aim point: it is hit exactly as a ship at rest
+ok 3 - a sudden change of speed, up or down, moves a small ship off the aim point
+ok 4 - the spread still reaches a large ship that has left the aim point
+ok 5 - weaving wide at long range leaves the aim point entirely; close in the same weave cannot escape the hull
+ok 6 - the offset is the miss of a shot led on the old velocity, taken over the time of flight
+ok 7 - a small offset changes the chance only a little: no jump from the formula used with no offset
+ok 8 - a ship not observed for more than a step starts a new track
+ok 9 - an aim point outside the hull but near its long side is integrated over every direction (checked against sampling)
+ok 10 - both battle clocks observe the ships' motion
+# tests 10
+# pass 10
+# fail 0

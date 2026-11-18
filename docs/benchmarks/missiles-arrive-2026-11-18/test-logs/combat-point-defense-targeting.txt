@@ -1,0 +1,11 @@
+ok 1 - only the actual twin and spherical point-defence definitions automatically intercept
+ok 2 - installed normal guns retain their output and tracking but contribute no automatic interception profile
+ok 3 - the real RTS missile step leaves missiles alone when only ordinary guns are installed
+ok 4 - dedicated point defence still intercepts in the same real RTS missile step
+ok 5 - normal guns can explicitly target a small craft unit through the ordinary attack order and electrical/thermal path
+ok 6 - explicit ordinary fire still respects range, firing arcs and loss of electrical power
+ok 7 - point-defence interception retains its electrical loss and firing-arc constraints
+ok 8 - old profiles cannot reuse mixed ordinary-gun AA totals or cached point-defence flags without rebuilding
+# tests 8
+# pass 8
+# fail 0

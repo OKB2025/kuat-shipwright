@@ -1,0 +1,16 @@
+ok 1 - manual flight spends the authoritative unit ammunition once for each actual shot
+ok 2 - re-entering piloting cannot refill a six-round descriptor over a depleted battle module
+ok 3 - a selected aircraft load of two or zero rounds is not replaced by the canonical six-round capacity
+ok 4 - the selected aircraft load is committed once to the powered unit and persists across pilot entries
+ok 5 - an unpowered descriptor cannot commit or spend a provisional aircraft load
+ok 6 - a legitimate supply refill is visible through the authoritative unit without exceeding selected capacity
+ok 7 - zero generation and a lost electronics grant block new orders without spending ammunition
+ok 8 - power lost during a ripple pauses pending shots and resumes without double consumption
+ok 9 - the exact pitched tube axis survives ship rotation and the initial missile boost
+ok 10 - zero or invalid elapsed time cannot launch or consume inventory
+ok 11 - only a launcher without an authoritative module uses its local stores
+ok 12 - manual HUD shows native salvo, actual cycle and finite ammunition instead of legacy constants
+ok 13 - manual HUD retains a legacy launcher’s eight-round salvo and twenty-second cycle
+# tests 13
+# pass 13
+# fail 0
