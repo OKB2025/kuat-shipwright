@@ -1,0 +1,5 @@
+ok 1 - gr75: the stored row equals a recomputation from its saved design under the same model key
+ok 2 - cr90: the stored row equals a recomputation from its saved design under the same model key
+# tests 2
+# pass 2
+# fail 0

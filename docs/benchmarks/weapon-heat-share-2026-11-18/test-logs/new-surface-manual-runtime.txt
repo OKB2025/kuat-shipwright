@@ -1,0 +1,11 @@
+ok 1 - manual charging uses the same input/output/loss boundary as common combat
+ok 2 - full manual cell banks draw no fictitious charge power or weapon heat
+ok 3 - a direct pilot cannot recharge or thrust during a common-grid trip
+ok 4 - manual blackout retains instantaneous inertia then follows disabled gravity and passive drag
+ok 5 - source loss rejects a jump start and cancels a pending manual spool without resuming it
+ok 6 - practice ion pulses share finite geometric energy in distance order across several targets
+ok 7 - a partially charged practice pulse consumes the common superweapon store exactly once
+ok 8 - a practice beam records emitted energy separately from safely released unused charge
+# tests 8
+# pass 8
+# fail 0

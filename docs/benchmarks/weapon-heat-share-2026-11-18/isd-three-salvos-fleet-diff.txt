@@ -1,0 +1,2 @@
+imperial       accel -0.0807%, maxSpeed -0.0827%, hp 0.0384%, turnRate -0.0403%, mglt -0.0827%, mass 0.0738%, price 0.0609%
+imperial2      Dw 0.0000%, accel -0.0667%, maxSpeed -0.0684%, hp 0.0212%, turnRate -0.0334%, mglt -0.0684%, mass 0.0610%, price 0.0553%

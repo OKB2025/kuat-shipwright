@@ -1,0 +1,17 @@
+ok 1 - craft_arc170: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 2 - craft_awing: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 3 - craft_btlb: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 4 - craft_hyena: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 5 - craft_tie_in: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 6 - craft_tie_ln: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 7 - craft_tie_sa: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 8 - craft_v19: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 9 - craft_vulture: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 10 - craft_vwing: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 11 - craft_xwing: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 12 - craft_z95: finite physical plant, complete systems and powered flight survive a 30 second firing run
+ok 13 - loading a modified fighter preserves its authored machinery and does not refit it again
+ok 14 - removing a saved fighter cooling bank leaves real thermal shortfall without automatic replacement
+# tests 14
+# pass 14
+# fail 0

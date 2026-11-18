@@ -1,0 +1,48 @@
+acclamator     other fields: links
+arquitens      other fields: links
+bc             identical
+carrier        identical
+cr90           other fields: links
+craft_arc170   other fields: links
+craft_awing    other fields: links
+craft_btlb     parts: +0 -0 changed engine×2[ratedInputW] hdis×1[d,room] | other fields: shieldTarget,links
+craft_hyena    other fields: links
+craft_tie_in   other fields: links
+craft_tie_ln   other fields: links
+craft_tie_sa   other fields: links
+craft_v19      other fields: links
+craft_vulture  other fields: links
+craft_vwing    other fields: links
+craft_xwing    other fields: links
+craft_z95      other fields: links
+deathstar      other fields: links
+destroyer      identical
+dreadnaught    other fields: links
+executor       identical
+frigate        identical
+gozanti        other fields: links
+gr75           other fields: links
+hammerhead     other fields: links
+heavy          identical
+heraklon       identical
+imperial       fits: +0 -0 changed ion×2[chargeSalvos] stl×6[chargeSalvos] | other fields: links
+imperial2      fits: +0 -0 changed oct40×8[chargeSalvos] | other fields: links
+lh3210         other fields: links
+lucrehulk      other fields: links
+mandator2      other fields: links
+mc30c          other fields: links
+mc75           other fields: links
+mc80home       other fields: links
+mc80liberty    other fields: links
+munificent     other fields: links
+nebulonb       other fields: links
+onager         other fields: links
+providence     other fields: links
+providenceDn   other fields: links
+recusant       other fields: links
+recusantDn     other fields: links
+reptransport   other fields: links
+sample         identical
+subjugator     other fields: links
+venator        other fields: links
+changed struct/hull/engine parts in all examples: 2

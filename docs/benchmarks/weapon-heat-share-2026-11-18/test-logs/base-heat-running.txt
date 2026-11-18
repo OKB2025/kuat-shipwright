@@ -1,0 +1,10 @@
+ok 1 - balanced running holds the heat made within the rejection capacity of a ship with too little cooling
+ok 2 - full running ignores heat until the store is half full, then warns and returns to balanced running
+ok 3 - a ship with enough cooling is not held back in either mode
+ok 4 - a ship left to itself runs balanced: full running only on an order
+ok 5 - balanced running counts the heat of hits: a ship taking hits holds back further than its own heat alone asks
+ok 6 - returning from full running is not driven to the floor by the hits taken while running full
+ok 7 - hits in volleys every fourth step hold the factor as steady hits of the same mean do
+# tests 7
+# pass 7
+# fail 0

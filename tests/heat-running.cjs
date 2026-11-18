@@ -43,13 +43,25 @@ test('a ship left to itself runs balanced: full running only on an order',()=>{
 test('balanced running counts the heat of hits: a ship taking hits holds back further than its own heat alone asks',()=>{
  // 2026-11-16 PR #112: cooling scaled from the duel's combat heat as in the first case; at a fixed .7 of the cruise-sized
  // converters the ship held runK near 0 with or without hits, so the comparison measured nothing.
- const sc=.7*combatScale(),own=duel(sc,'balance',10),k0=own.a.ht.runK;
+ // 2026-11-18 (HEAT.waste.weapon .25 → .05, docs/weapon-heat-share.md): the case compared runK after 10 s and passed on
+ // 69dc4aa only because the ship with hits had blacked out by then (電源喪失 at 3.75 s, runK reset to 0); before that its
+ // runK rose (0.30 → 0.49 → 1.0 against 0.37 without hits), because the hits are held back through the weapon charge's
+ // heat budget (the store's room and the allowance less hitW), not through runK. With the lower weapon heat the ship
+ // lasts the 10 s and the accident no longer passes. Physics review 2026-11-18: comparing the charge alone would pass by
+ // the same accident (a blacked-out ship charges nothing), and hits kept up for 10 s fill the store whatever the ship does
+ // (the store drains over HEAT.drainS). The case now puts the hits in for 2 s (a further 20% of the rejection), requires
+ // that neither ship shuts down or reaches the limiting band, and compares the mean weapon charging input from the first
+ // hit to 2 s after the last.
+ const sc=.7*combatScale();
  const prof=()=>{const p=JSON.parse(JSON.stringify(F.designs.mc80liberty.p));for(const d of p.heat.dis)d.cap*=sc;return p;};
- const a=C.fleetUnit('a','mc80liberty',prof(),0),b=C.fleetUnit('b','mc80liberty',prof(),1);b.pos=[30000,0,0];b.yaw=Math.PI;
- a.order={...a.order,type:'attack',target:'b',fire:true,heat:'balance'};b.order={...b.order,type:'attack',target:'a',fire:true,heat:'balance'};
- const B=C.fleetBattle([a,b],true);B.seed=7;const cap=()=>a.ht.cap||1;
- for(let t=0;t<10;t+=.25){C.fleetTick(B,.25,{});C.shipHeatAdd(a,cap()*.3*.25);}/* hits put in a further 30% of the rejection */
- assert.ok(a.ht.runK<k0-.05,`with hits ${a.ht.runK} against ${k0} without`);
+ const charge=hits=>{const a=C.fleetUnit('a','mc80liberty',prof(),0),b=C.fleetUnit('b','mc80liberty',prof(),1);b.pos=[30000,0,0];b.yaw=Math.PI;
+  a.order={...a.order,type:'attack',target:'b',fire:true,heat:'balance'};b.order={...b.order,type:'attack',target:'a',fire:true,heat:'balance'};
+  const B=C.fleetBattle([a,b],true);B.seed=7;const cap=()=>a.ht.cap||1;let sum=0,n=0,peak=0;
+  for(let t=0;t<10;t+=.25){C.fleetTick(B,.25,{});if(hits&&t>=3&&t<5)C.shipHeatAdd(a,cap()*.2*.25);peak=Math.max(peak,a.ht.qJ/a.ht.capacityJ);if(t>=3&&t<7){sum+=(a.pw?.wpn||0)/a.p.grid.P;n++;}}
+  return {wpn:sum/n,out:a.out,peak};};
+ const own=charge(false),hit=charge(true);
+ for(const [name,r]of [['without hits',own],['with hits',hit]]){assert.equal(r.out,null,name+': no shutdown');assert.ok(r.peak<C.HEAT.limitAt,name+': the store stays under the limiting band: '+r.peak);}
+ assert.ok(own.wpn>.1,'the ship charges its guns without hits: '+own.wpn);assert.ok(hit.wpn<own.wpn*.9,`weapon charging with hits ${hit.wpn} against ${own.wpn} without (share of the plant)`);
 });
 
 // Physics review 2026-11-15 (FAIL on 9233374): hits taken during full running were kept and counted as one step's rate on

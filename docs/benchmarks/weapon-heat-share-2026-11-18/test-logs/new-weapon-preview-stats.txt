@@ -1,0 +1,16 @@
+ok 1 - 40TT and70TT categories use each physical barrel across single, multiple and spherical variants
+ok 2 - maximum input and local heat match the existing shot-energy ledger at full sustained cadence
+ok 3 - displaying a legacy electrical model retains its actual nameplate and waste-heat path
+ok 4 - scaled weapons, broadside rows and trench aggregates retain per-barrel output but sum mount electricity
+ok 5 - fixed guns report zero traverse and real projectile launchers use per-round output and native ranges
+ok 6 - one, eight and sixteen-cell launchers display the actual packet energy of one round, not the complete salvo
+ok 7 - reactor-dependent superweapons show unresolved values until actual current Core results exist
+ok 8 - a resolved legacy superweapon displays its actual continuous charging heat and identifies that phase
+ok 9 - preview calculations are read-only and contain no additional balance coefficients
+ok 10 - the actual preview renders all five ratings with per-barrel output and full selected-mount rates
+ok 11 - editing a weapon uses its configured scale and stale superweapon stats never masquerade as current
+ok 12 - the redundant source-table screen is removed while the actual source metadata remains intact
+ok 13 - fresh legacy and strict ships use exactly their actual Core electrical profile without guessing from thermal mode
+# tests 13
+# pass 13
+# fail 0

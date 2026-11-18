@@ -1,0 +1,12 @@
+ok 1 - the hull skin removes no heat and is not a sink in any network
+ok 2 - hotel (low-grade) heat reaches an hdis converter, and every converter accepts every grade
+ok 3 - a heat shortfall names the converter volume and its electrical input
+ok 4 - a wing converter capacity scales with its discharge area, not its volume
+ok 5 - an S-foil converts less with its foils closed than open
+ok 6 - converter input follows the heat actually converted and is itself heat aboard
+ok 7 - battle: the reservation follows this step's requested loads through the real paths, not the rating
+ok 8 - battle: the converters' own input heat is removed by the next solve and leaves no 20 s store floor
+ok 9 - a ship blacked out by a full store restarts only while a friendly ship tows it
+# tests 9
+# pass 9
+# fail 0

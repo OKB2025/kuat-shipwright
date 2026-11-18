@@ -1,0 +1,14 @@
+ok 1 - every buildable example ship has recorded figures
+ok 2 - craft_vwing: computeStats figures match the recorded ones
+ok 3 - gozanti: computeStats figures match the recorded ones
+ok 4 - heraklon: computeStats figures match the recorded ones
+ok 5 - imperial: computeStats figures match the recorded ones
+ok 6 - imperial2: computeStats figures match the recorded ones
+ok 7 - mandator2: computeStats figures match the recorded ones
+ok 8 - venator: computeStats figures match the recorded ones
+ok 9 - gozanti: figures after moving the last structure equal a fresh computation
+ok 10 - gozanti: figures after moving the first structure equal a fresh computation
+ok 11 - craft_tie_ln: figures after moving the last structure equal a fresh computation
+# tests 11
+# pass 11
+# fail 0
