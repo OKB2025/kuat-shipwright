@@ -92,6 +92,8 @@
 
 ### テストの変更（レビュー対象）
 
+- `tests/helpers/example-figures.json`（作例の設計値の基準）：全 41 隻を取り直した（`scripts/capture-example-figures.cjs`）。取り直す前は 45 件中 40 件が不一致（[test-logs/new-example-figures-regression-before-recapture.txt](benchmarks/weapon-heat-share-2026-11-18/test-logs/new-example-figures-regression-before-recapture.txt)、差の一覧は [example-figures-diff.txt](benchmarks/weapon-heat-share-2026-11-18/example-figures-diff.txt)）。差が出た項目は、消費電力・熱・変換装置の消費電力・燃料・推進の見積もり（ほぼ全艦）、砲への給電路の長さ（17 隻、0.01〜4%）、戦闘負荷での加速（マンデイター II 0 → 155 G、V ウイング・GR-75・共和国輸送艦は相対 10⁻⁶ 台）。質量・炉出力・価格に差は無かった。ヘラクロン（砲なし）は差なし。取り直しのあと、インペリアル I / II（3 斉射分にしてから再度取り直し）、マンデイター II、ヴェネター、V ウイング、ヘラクロン、ゴザンティの 7 隻で 11/11 通過。全 41 隻での再実行（約 1 時間）はしていない。変更前の `main` でこのテストが通っていたかは実行していない（申し送りでは #116 で基準を取り直して確認済み）。
+
 - `tests/heat-converters.cjs`「never above the rating」：定格 20 の変換装置に 200 の武装の熱（0.25 で 50）を当てる前提だった。0.05 では熱が 10 で定格に届かないので、定格を「武装の熱 × 0.4」にした（0.25 のときは従来と同じ 20）。変更前のコードでも通る。
 - `tests/heat-running.cjs`「balanced running counts the heat of hits」：10 秒後の `runK` を比べていたが、変更前に通っていたのは、被弾を足した艦が 3.75 秒で電源喪失し `runK` が 0 に戻っていたため。被弾の熱は `runK` ではなく武装の充電の熱予算で抑えられている。被弾を 2 秒間（排熱能力の 20%）に限り、両方の艦が停電せず蓄熱が制限帯（70%）に入らないことを検査したうえで、武装への電力の平均（被弾ありが被弾なしの 0.9 倍未満）を比べる形にした。変更前のコードでも通る。
 - `tests/surface-manual-runtime.cjs`「manual charging uses the same input/output/loss boundary」：試験用の性能表の効率を 0.75 → `C.ENERGY_MODEL.eta` にし、蓄電 ÷ 入力の期待値を 0.95 にした。発熱率 ＝ 1 − 効率 の検査を足した。「入力 ＝ 蓄電 ＋ 熱」の検査はそのまま。変更前のコードでは通らない（効率と発熱率の値そのものを検査しているため）。
