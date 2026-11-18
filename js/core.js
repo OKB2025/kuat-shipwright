@@ -93332,6 +93332,8 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
      dest = C.escortStation(u, t, th, Math.max(0, mates.indexOf(u)), Math.max(1, mates.length));speedCap = Math.max(0,u.p.maxSpeed||0);
      if (len(sub(dest, u.pos)) < Math.max(600, u.p.len * .6)) { const a = th || add(t.pos, [Math.cos(t.yaw) * 1e4, 0, Math.sin(t.yaw) * 1e4]), hb = Math.atan2(a[2] - u.pos[2], a[0] - u.pos[0]); head = hb + (Math.abs(angle(u.yaw - hb - Math.PI / 2)) < Math.abs(angle(u.yaw - hb + Math.PI / 2)) ? Math.PI / 2 : -Math.PI / 2); }
     }
+    // v28 Dock: make for the point outside the mouth, wait there for the lane, then for the berth inside (the fleet battle's rule).
+    if (o.type === 'dock' && t && t.side === u.side && alive(t) && !t.warp) { const ds = C.dockState(t, u); if (ds) { const mine = dockLane(w, t, u, ds), close = ds.inside || ds.through || len(sub(ds.local, ds.approach)) < (u.p.len || 10) * C.DOCK.margin + 200; dest = mine ? (close ? ds.berthWorld : ds.approachWorld) : C.dockLocalToWorld(t, add(ds.approach, scale(ds.mouth.n, 800 + (u.p.len || 10) * 3)))/* waiting its turn: well clear of the mouth */; speedCap = Math.max(0, u.p.maxSpeed || 0); attack = false; } }
    }
   }
   // v21 A ready composite beam takes the helm: the bow turns onto its target (the beam is fixed dead ahead).
@@ -93361,7 +93363,7 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
  }
  // Hulls that meet are pushed apart, and the impact damages both (C.hullCollide).
 
- const contacts = C.hullCollide(us.filter(u => !u.warp&&!u.hyperBurst), {skip: (a, z) => a.towedBy === z.id || z.towedBy === a.id, fixed: u => !!u.towedBy});
+ const contacts = C.hullCollide(us.filter(u => !u.warp&&!u.hyperBurst), {skip: (a, z) => a.towedBy === z.id || z.towedBy === a.id || dockingAt(w, a, z) || dockingAt(w, z, a)/* v28 a ship entering a hangar passes its host's hull at the mouth */, fixed: u => !!u.towedBy});
  for (const c of contacts) { C.hullImpact(inc.get(c.a.id), c.a, c.z, c); C.hullImpact(inc.get(c.z.id), c.z, c.a, c); if (c.vn > C.HULL_HIT.min) { c.a.lastBump = c.z.lastBump = {t: w.time, point: c.point, vn: c.vn, a: c.a.id, z: c.z.id}; if (c.vn > 5 && w.time - (c.a.bumpLog || -99) > 6) { c.a.bumpLog = w.time; blog(w, sys, `${c.a.name}と${c.z.name}が衝突（相対速度 ${Math.round(c.vn)} m/s）`, c.a); } } }
  return contacts;
 }
@@ -93377,7 +93379,7 @@ function peaceTick(w, sys, dt) {
  if (contacts.length) { const ctx = combatCtx(w, sys), hit = new Set(); for (const c of contacts) { hit.add(c.a); hit.add(c.z); } for (const u of hit) applyDamage(w, sys, u, inc.get(u.id), dt, sysOf.get(u.id), ctx); }
  // Still unsettled: a ship under way (moving), or one short of its station or of the point ordered (far).
  let moving = false, far = false;
- for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || u.jump || u.hyperBurst || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
+ for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || u.jump || u.hyperBurst || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course'||o.type==='dock'/* v28 a ship waiting its turn at a hangar is not at rest */)far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
  return {moving, far};
 }
 function peaceMoves(w, dt) {
@@ -94648,7 +94650,7 @@ function tick(w, dt) {
  if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); aiBoarding(w, sys, systemUnits(w, sys)); } }
  if ((w.timers.ai -= dt) <= 0) { w.timers.ai = RULES.aiStrategic; for (const sd of w.sides) if (sd.ai) aiStrategic(w, sd.id); }
  tractorResistance(w);
- carriedTick(w);
+ dockTick(w, dt);carriedTick(w, dt);
  for (const [sys] of w.battles) battleTick(w, sys, dt);
  peaceMoves(w, dt);
  for (const u of w.units.values()) if (alive(u)&&!u.manual&&u.sys!=null&&!w.battles.has(u.sys)&&u._peacePowerTime!==w.time){C.fleetPowerStep(u,C.fleetSystems(u),null,0,dt);u._peacePowerTime=w.time;}
@@ -94695,14 +94697,17 @@ function checkResult(w) {
 // Ships: 'group' (follow the task group), or an order of their own.
 function orderUnit(w, id, o) {
  const u = w.units.get(id);if (!u || !alive(u) || w.sides[u.side].ai) return false;
- if (o.type && !['group', 'auto', 'hold', 'move', 'attack', 'escort'].includes(o.type)) return false;
+ if (o.type && !['group', 'auto', 'hold', 'move', 'attack', 'escort', 'dock'].includes(o.type)) return false;
  if(Object.hasOwn(o,'autoPointDefense')&&typeof o.autoPointDefense!=='boolean')return false;
  // v25 emission mode (SENS-005) and S-foils (WING-003)
  if (o.emit != null && !EMIT_MODES.includes(o.emit)) return false;if (o.foil != null && !FOIL_MODES.includes(o.foil)) return false;
  if (o.type === 'attack' && !w.units.has(o.target)) return false;
  // v21.1 Escort: guard a ship of our own side (not itself).
  if (o.type === 'escort') { const t = w.units.get(o.target); if (!t || t === u || t.side !== u.side || !alive(t)) return false; }
- u.order = {...u.order, ...o};if(Object.hasOwn(o,'autoPointDefense'))C.setAutomaticPointDefense(u,o.autoPointDefense);if (o.type && o.type !== 'attack' && o.type !== 'escort') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;stir(w, u.sys);return true;
+ // v28 Dock: enter a hangar of a ship of our own side (dockCheck: a mouth it fits, room in the hangar, the same system).
+ if (o.type === 'dock' && !dockCheck(w, id, o.target).ok) return false;
+ if (o.type && o.type !== 'dock') dockRelease(w, u);
+ u.order = {...u.order, ...o};if(Object.hasOwn(o,'autoPointDefense'))C.setAutomaticPointDefense(u,o.autoPointDefense);if (o.type && o.type !== 'attack' && o.type !== 'escort' && o.type !== 'dock') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;stir(w, u.sys);return true;
 }
 // Task groups: 自動交戦 (auto), hold, move (point), attack (target); the formation;
 // power and aim for every ship of the group. Ships on orders of their own rejoin.
@@ -95048,6 +95053,8 @@ function launchCarried(w, id) {
  const c = w.units.get(id);if (!c || !alive(c) || c.sys == null || c.jump || c.out) return 0;const g = w.groups.get(c.group), list = carriedOf(w, c);
  list.forEach((x, n) => { const sideK = n % 2 ? 1 : -1, off = (c.p.width || c.p.len * .4) * .5 + (x.p.width || 60) * .5 + 150 + 120 * (n >> 1);
   x.status = 'ready';x.sys = c.sys;x.pos = add(c.pos, frameVec([Math.cos(c.yaw), 0, Math.sin(c.yaw)], [-c.p.len * .15, 0, sideK * off]));x.yaw = c.yaw;x.velocity = [...(c.velocity || [0, 0, 0])];
+  // v28 It leaves by a hangar mouth it fits (outside it, clear of the hull, the later ones farther out), where one is known.
+  { const m = (c.p.mouths || []).find(q => Array.isArray(q.o) && Array.isArray(q.bs) && dockFitsMouth(q, x)); if (m) { const L = x.p.len || 10, out = add(m.p, scale(m.n, L * C.DOCK.margin + 200 + (L * C.DOCK.margin + 120) * n)); x.pos = C.dockLocalToWorld(c, out); const wn = sub(C.dockLocalToWorld(c, add(m.p, m.n)), C.dockLocalToWorld(c, m.p)); x.velocity = add(c.velocity || [0, 0, 0], scale(wn, C.DOCK.speed * .5)); } }
   x.group = g ? g.id : null;if (g && !g.units.includes(x.id)) g.units.push(x.id);x.order = {...x.order, type: 'group'};x.launchedAt = w.time; });
  if (list.length) event(w, `${c.name} から搭載艦 ${list.length} 隻（${list.map(x => x.name).join('・')}）が発進`, {side: c.side, sys: c.sys});
  return list.length;
@@ -95055,6 +95062,65 @@ function launchCarried(w, id) {
 function dockCarried(w, x, c) {
  const g = w.groups.get(x.group);if (g) { g.units = g.units.filter(i => i !== x.id); if (g.flag === x.id) g.flag = g.units[0] || null; }
  x.status = 'carried';x.group = c.group;x.sys = c.sys;x.pos = [...c.pos];x.jump = null;releaseTractor(w, x, '収容');
+}
+// ---------- docking (v28) ----------
+// User decisions 2026-11-17「赤道トレンチは艦船ドックで実際に船が入って補給が受けられるように」, 2026-11-18「小型機(艦載機)の着艦と
+// 艦艇の格納は根本的に同じ」(docs/ship-docking.md). A ship ordered to dock enters a hangar mouth of a ship of its own side as
+// small craft land: by a mouth its section passes (C.dockState, the fleet battle's rule), one at a time through each mouth
+// (the mouth's traffic is shared with the craft's launches and landings, carrier.mq), into hangar room counted in the craft's
+// own unit (C.shipStowSize against the hangar's slots, with the squadrons and ships already assigned there). Aboard it is a
+// carried ship: it rides, jumps and is lost with its carrier, is resupplied (carriedTick), and leaves by 'launch'.
+const dockDims = u => [u.p.len || 10, u.p.width || (u.p.len || 10) * .4, u.p.height || (u.p.len || 10) * .2];
+const dockFitsMouth = (m, u) => { const [L, W, H] = dockDims(u), o = [...m.o].sort((a, b) => b - a), x = [W, H].sort((a, b) => b - a); return x[0] <= o[0] && x[1] <= o[1] && L <= Math.max(...m.bs); };
+function stowUsed(w, host, except = null) { let n = 0; for (const s of w.squads.values()) if (s.home === host.id && s.n > 0) n += s.n * (CRAFT[s.craft]?.size || 1); for (const x of w.units.values()) if (x.carrier === host.id && !x.dead && x !== except) n += C.shipStowSize(dockDims(x)); return n; }
+// The hangar's room in the craft's unit: the design's hangar capacity (info.hangarCap, the order of battle's figure).
+function stowRoom(w, host, except = null) { return Math.max(0, host.info?.hangarCap || 0) - stowUsed(w, host, except); }
+function dockCheck(w, id, hostId) {
+ const u = w.units.get(id), h = w.units.get(hostId);
+ if (!u || !alive(u) || u.out) return {ok: false, why: 'この艦は命令を受けられません'};
+ if (!h || !alive(h) || h === u || h.side !== u.side) return {ok: false, why: '入渠先には味方の別の艦を選んでください'};
+ if (h.sys == null || h.sys !== u.sys || h.warp || h.jump) return {ok: false, why: '同じ星系にいて、ジャンプ中でない艦にだけ入渠できます'};
+ if (!(h.p.mouths || []).some(m => Array.isArray(m.o) && Array.isArray(m.bs) && dockFitsMouth(m, u))) return {ok: false, why: `${h.name}には、${u.name}が通れる格納庫の開口がありません`};
+ const need = C.shipStowSize(dockDims(u)), room = stowRoom(w, h, u);
+ if (need > room + 1e-9) return {ok: false, why: `${h.name}の格納庫に空きがありません（必要 ${need}、空き ${Math.max(0, Math.round(room * 100) / 100)}）`, need, room};
+ return {ok: true, need, room};
+}
+const dockingAt = (w, a, z) => a.order?.type === 'dock' && a.order.target === z.id;
+function dockRelease(w, u) { if (!u.dockLane) return; const h = w.units.get(u.dockLane.host); if (h?.dockLanes?.[u.dockLane.mouth] === u.id) delete h.dockLanes[u.dockLane.mouth]; delete u.dockLane; delete u.dockWait; }
+// The lane through a mouth: one ship at a time, not while craft are using the mouth, sliding doors open. Returns whether u holds it.
+function dockLane(w, h, u, ds) {
+ const ms = mouthsOf(h), i = ms.indexOf(ds.mouth);if (i < 0) return true;const lanes = h.dockLanes || (h.dockLanes = {}), q = h.mq || (h.mq = []), cur = lanes[i] != null ? w.units.get(lanes[i]) : null;
+ if (cur && cur !== u && (!alive(cur) || !dockingAt(w, cur, h))) delete lanes[i];
+ if (lanes[i] != null && lanes[i] !== u.id) { u.dockWait = 'lane'; return false; }
+ if (lanes[i] == null) { if ((q[i] || 0) > w.time) { u.dockWait = 'craft'; return false; } lanes[i] = u.id; u.dockLane = {host: h.id, mouth: i}; }
+ requestHatch(w, h, ds.mouth, i);q[i] = Math.max(q[i] || 0, w.time + 2);/* craft keep off this mouth while the ship passes */
+ if (ds.mouth.sl && mouthOpen(h, ds.mouth, i) < .999) { u.dockWait = 'door'; return false; }
+ delete u.dockWait;return true;
+}
+// After the moves: a docking ship that is inside the bay and slow against its host goes aboard; one whose host is gone,
+// has left the system or has no room any more gives the order up.
+function dockTick(w, dt) {
+ for (const u of w.units.values()) {
+  if (u.order?.type !== 'dock') { if (u.dockLane) dockRelease(w, u); continue; }
+  if (!alive(u)) { dockRelease(w, u); continue; }
+  const h = w.units.get(u.order.target), stop = why => { dockRelease(w, u); u.order = {...u.order, type: 'hold'}; delete u.order.target; event(w, `${u.name}：入渠を中止（${why}）`, {side: u.side, sys: u.sys}); };
+  if (!h || !alive(h) || h.side !== u.side) { stop('入渠先が失われた'); continue; }
+  if (h.sys !== u.sys || h.warp || h.jump) { stop('入渠先がいない'); continue; }
+  if (u.out || u.towedBy) continue;
+  const ds = C.dockState(h, u);if (!ds) { stop('通れる開口がない'); continue; }
+  if (!ds.inside || u.dockLane?.host !== h.id/* only the ship that holds the lane goes aboard */ || len(sub(u.velocity || [0, 0, 0], h.velocity || [0, 0, 0])) > C.DOCK.speed) continue;
+  if (C.shipStowSize(dockDims(u)) > stowRoom(w, h, u) + 1e-9) { stop('格納庫に空きがない'); continue; }
+  dockRelease(w, u);u.carrier = h.id;u.order = {...u.order, type: 'group'};delete u.order.target;dockCarried(w, u, h);
+  event(w, `${u.name}：${h.name}の格納庫に入渠`, {side: u.side, sys: h.sys});
+ }
+}
+function orderDock(w, id, hostId) { const r = dockCheck(w, id, hostId); if (!r.ok) return r; const u = w.units.get(id); if (w.sides[u.side].ai) return {ok: false, why: 'この艦は命令を受けられません'}; return orderUnit(w, id, {type: 'dock', target: hostId}) ? r : {ok: false, why: '命令できません'}; }
+// The carrier calls its ships in: each makes for the hangar and docks as above (it was "within 5 km, at once" until v28).
+function recallCarried(w, id) {
+ const c = w.units.get(id);if (!c || !alive(c) || c.out) return 0;let n = 0;
+ for (const x of carriedOf(w, c, false)) { if (!alive(x) || x.out || x.sys !== c.sys || x.towedBy || !dockCheck(w, x.id, c.id).ok) continue; dockRelease(w, x); x.order = {...x.order, type: 'dock', target: c.id}; delete x.order.point; n++; }
+ if (n) { stir(w, c.sys); event(w, `${c.name} が搭載艦 ${n} 隻を呼び戻す`, {side: c.side, sys: c.sys}); }
+ return n;
 }
 function recoverCarried(w, id, quiet = false) {
  const c = w.units.get(id);if (!c || !alive(c) || c.out) return 0;let n = 0;
@@ -95064,18 +95130,21 @@ function recoverCarried(w, id, quiet = false) {
 }
 // Docked ships follow their carrier; with it gone they are gone. Carriers launch
 // theirs when a battle starts in their system (unless told to keep them aboard).
-function carriedTick(w) {
+function carriedTick(w, dt = 0) {
  for (const x of w.units.values()) {
   if (x.status !== 'carried' || x.dead) continue;const c = w.units.get(x.carrier);
   if (!c || c.dead) { x.dead = true;x.fate = 'carrier';if (c) event(w, `${x.name} は ${c.name} とともに失われた`, {side: x.side, sys: c.sys}); continue; }
   x.sys = c.sys;x.pos = [...c.pos];x.yaw = c.yaw;if (c.velocity) x.velocity = [...c.velocity];
+  // v28 A ship aboard is resupplied and repaired as a docked ship is in a fleet battle (C.dockResupplyStep: rounds, crew, hull,
+  // modules, armour, heat damage, fuel, stored energy), while its carrier can act.
+  if (dt > 0 && alive(c) && !c.out) C.dockResupplyStep(x, dt);
   if (x.autoLaunch !== false && c.sys != null && w.battles.has(c.sys) && !c.jump && !c.out && alive(c) && !c.holdCarried) launchCarried(w, c.id);
  }
 }
 function orderCarried(w, id, what) {
  const c = w.units.get(id);if (!c || !alive(c)) return {ok: false, why: 'この艦は命令を受けられません'};
  if (what === 'launch') { c.holdCarried = false; const n = launchCarried(w, id); return n ? {ok: true, n} : {ok: false, why: carriedOf(w, c).length ? '今は発進できません（ジャンプ準備中か航行不能）' : '艦内に搭載艦がいません'}; }
- if (what === 'recover') { c.holdCarried = true; const n = recoverCarried(w, id); const left = carriedOf(w, c, false).filter(alive).length; return n ? {ok: true, n, left} : {ok: false, why: left ? `搭載艦が遠すぎます（${Math.round(RULES.carryRange / 1000)} km 以内に呼び戻してください）` : '収容する艦がありません'}; }
+ if (what === 'recover') { c.holdCarried = true; const n = recallCarried(w, id); const left = carriedOf(w, c, false).filter(alive).length; return n ? {ok: true, n, left, docking: true} : {ok: false, why: left ? '呼び戻せる搭載艦がいません（別の星系にいるか、航行不能か、格納庫に入れません）' : '収容する艦がありません'}; }
  if (what === 'hold') { c.holdCarried = !c.holdCarried; return {ok: true, hold: c.holdCarried}; }
  return {ok: false, why: '不明な命令'};
 }
@@ -95313,7 +95382,7 @@ function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i
 
 return {routeItinerary,jumpEstimate,normalizeJumpNavigation,convoyKit, aiPlan, FACTION_FORMAT, FACTION_VERSION, FACTION_ID, BUILTIN_FACTIONS, FACTION_REL, FACTION_PAINTS, FACTION_NAMES, FACTION_EMBLEMS, FACTION_HOME, isCustomFaction, factionBase, normalizeFactionDef, factionDef, registerFaction, unregisterFaction, customFactions, factionOr, factionRelation, rivalOf, factionsJSON, factionsFromJSON, vehicleServes, CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
- detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupHyperspaceReadiness, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
+ detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderDock, dockCheck, stowRoom, stowUsed, recallCarried, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupHyperspaceReadiness, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, supplyGive, rearTick, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
  squadFireArc,squadLaserEnergy,squadWeaponEnergy,craftLaserArcs,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,

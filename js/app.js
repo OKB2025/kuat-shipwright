@@ -13375,7 +13375,7 @@ const VOY_AIM = [['auto', '自動'], ['reactor', '反応炉'], ['bridge', '艦�
 // v20.6 How the guns fire: continuously (each gun as it is ready) or in salvos (all together).
 const VOY_VOLLEY = [['stream', '連続射撃'], ['salvo', '斉射']];
 const VOY_ORDER = {group: '任務群に従う', auto: '自動交戦', hold: '待機', move: '移動', attack: '攻撃', escort: '護衛', course: '進路'};
-const VOY_CMD_HINT = {move: '移動先を地図でタップ', attack: '攻撃する敵艦をタップ', strike: '攻撃する敵艦をタップ', cap: '制空する地点をタップ', escort: '直掩する味方艦をタップ', guard: '護衛する味方艦をタップ（その艦と脅威のあいだに位置取り、狙ってくる敵を優先して撃ち、射線をふさぎます）', tow: '牽引する戦闘不能の味方艦をタップ', capture: '移乗攻撃する敵艦をタップ（シールドが落ちた艦か戦闘不能の艦）', jump: 'ジャンプ先の星系を地図でタップ'};
+const VOY_CMD_HINT = {move: '移動先を地図でタップ', attack: '攻撃する敵艦をタップ', strike: '攻撃する敵艦をタップ', cap: '制空する地点をタップ', escort: '直掩する味方艦をタップ', dock: '入渠する味方艦をタップ（通れる格納庫の開口と空きがある艦。入ると補給・修理を受け、その艦と一緒に動きます。出すときは母艦の「搭載艦を発進」）', guard: '護衛する味方艦をタップ（その艦と脅威のあいだに位置取り、狙ってくる敵を優先して撃ち、射線をふさぎます）', tow: '牽引する戦闘不能の味方艦をタップ', capture: '移乗攻撃する敵艦をタップ（シールドが落ちた艦か戦闘不能の艦）', jump: 'ジャンプ先の星系を地図でタップ'};
 const voyCommon = (list, f) => { if (!list.length) return null; const v = f(list[0]); return list.every(x => f(x) === v) ? v : null; };
 // v22.3 Damage falls on modules, so no ship carries a hull bar, ours or the enemy's. Ours show instead the share of
 // the crew that sailed still aboard and alive (u.crew against the crew it put to sea, p.crewMax): it falls as hits
@@ -13387,7 +13387,7 @@ const crewPct = f => f >= 1 ? 100 : Math.floor(Math.max(0, f) * 100);
 const crewCls = f => f < .35 ? ' bad' : f < .7 ? ' mid' : '';
 function voyCrewHTML(u) { const f = crewShare(u); return f == null ? '' : `<span class="vcrew${crewCls(f)}" title="乗員 ${num(Math.round(u.crew || 0))} / ${num(Math.round(u.p.crewMax ?? u.p.crewNeed))} 名">乗員 ${crewPct(f)}%</span>`; }
 function voyStateName(prefix,name,html=false){return prefix+(html?`<span translate="no" data-unit-state-name>${esc(name)}</span>`:name);}
-function voyOrderText(o,html=false) { if (o.type === 'course') return `進路 ${Math.round(((o.hdg * 180 / Math.PI) % 360 + 360) % 360)}°`; return o.type === 'attack' ? voyStateName('攻撃：',voy.w.units.get(o.target)?.name || '—',html) : o.type === 'escort' ? voyStateName('護衛：',voy.w.units.get(o.target)?.name || '—',html) : VOY_ORDER[o.type] || ''; }
+function voyOrderText(o,html=false) { if (o.type === 'course') return `進路 ${Math.round(((o.hdg * 180 / Math.PI) % 360 + 360) % 360)}°`; return o.type === 'attack' ? voyStateName('攻撃：',voy.w.units.get(o.target)?.name || '—',html) : o.type === 'escort' ? voyStateName('護衛：',voy.w.units.get(o.target)?.name || '—',html) : o.type === 'dock' ? voyStateName('入渠：',voy.w.units.get(o.target)?.name || '—',html) : VOY_ORDER[o.type] || ''; }
 function voyGroupOrderText(g,html=false) { const w = voy.w, o = g.order; if (o.type === 'auto') { const t = g.auto?.target && w.units.get(g.auto.target); return t?voyStateName('自動交戦：',t.name,html):'自動交戦'; } return voyOrderText(o,html); }
 function voyUnitState(u,html=false) {
  const w = voy.w, cap = u.captured ? '拿捕艦 · ' : '';
@@ -13584,7 +13584,7 @@ function voyMergeButtons(g) { if (g.sys == null || g.transit || g.spool) return 
 // ---- tactical map ----
 function voyOrderButtons(kind, cur) {
  const b = (k, n) => `<button type="button" class="btn sm${cur === k && !voy.cmd ? ' on' : ''}" data-vord="${k}">${n}</button>`, c = (k, n) => `<button type="button" class="btn sm${voy.cmd?.type === k || cur === k && !voy.cmd ? ' on' : ''}" data-vact="cmd:${k}">${n}</button>`;
- return `<div class="vs-acts">${kind === 'ship' ? b('group', '任務群に従う') : ''}${b('auto', '自動交戦')}${b('hold', '待機')}${c('move', '移動')}${c('attack', '攻撃')}${c('guard', '護衛')}<button type="button" class="btn sm ghost" data-vact="withdraw">離脱</button></div>`;
+ return `<div class="vs-acts">${kind === 'ship' ? b('group', '任務群に従う') : ''}${b('auto', '自動交戦')}${b('hold', '待機')}${c('move', '移動')}${c('attack', '攻撃')}${c('guard', '護衛')}${kind === 'ship' ? c('dock', '入渠') : ''}<button type="button" class="btn sm ghost" data-vact="withdraw">離脱</button></div>`;
 }
 // ---- task force movement orders and the formation editor (v24: AI-001, FORM-001〜010) ----
 // Own formations (templates, R.normalizeFormation) live in the browser's store under FORM_KEY as
@@ -13848,7 +13848,7 @@ function voyShipCard(sel) {
 // A carrier's small ships: aboard or out with the task group.
 function voyCarriedTacHTML(u) {
  const w = voy.w, aboard = R.carriedOf(w, u), out = R.carriedOf(w, u, false).filter(x => R.alive(x));if (!aboard.length && !out.length) return '';
- return `<p class="vs-sub">搭載艦：艦内 ${aboard.length} 隻 · 発進中 ${out.length} 隻${u.holdCarried ? '（戦闘でも艦内に待機）' : ''}</p><div class="vs-acts">${aboard.length ? `<button type="button" class="btn sm" data-vcarry="launch:${u.id}">搭載艦を発進</button>` : ''}${out.length ? `<button type="button" class="btn sm" data-vcarry="recover:${u.id}">搭載艦を収容（${Math.round(R.RULES.carryRange / 1000)} km 以内）</button>` : ''}</div>`;
+ return `<p class="vs-sub">搭載艦：艦内 ${aboard.length} 隻 · 発進中 ${out.length} 隻${u.holdCarried ? '（戦闘でも艦内に待機）' : ''}</p><div class="vs-acts">${aboard.length ? `<button type="button" class="btn sm" data-vcarry="launch:${u.id}">搭載艦を発進</button>` : ''}${out.length ? `<button type="button" class="btn sm" data-vcarry="recover:${u.id}">搭載艦を呼び戻す（格納庫へ入渠）</button>` : ''}</div>`;
 }
 function voyFoeCard(fs) {
  const s = voyTacSel(), st = voyStage(fs), ct = voyContact(fs), idd = st >= 5;
@@ -13997,7 +13997,7 @@ function voySidebarClick(e) {
  if (d.vsendc) { const sys = voy.screen === 'tac' ? voy.tac.sys : voy.sel.sys, c = w.ctgs.get(d.vsendc), r = R.orderCtgJump(w, d.vsendc, sys, true); toast(r.ok ? `${esc(c?.name || '')} を ${esc(w.sector.systems[sys].name)} へ（全任務群の到着まで ${voyClock(r.eta)}）` : esc(r.why)); voyRenderSide(); return; }
  if (d.vboard) { voyBoardCmd(d.vboard); return; }
  if (d.vtrq) { const [mode, id] = d.vtrq.split(':'), t = w.units.get(id); if (t) voyTractorOrder(mode, t); voyRenderSide(); return; }
- if (d.vcarry) { const [what, id] = d.vcarry.split(':'), u = w.units.get(id), r = R.orderCarried(w, id, what); toast(r.ok ? (what === 'launch' ? `${esc(u?.name || '')}から搭載艦 ${r.n} 隻が発進` : `搭載艦 ${r.n} 隻を収容${r.left ? `（あと ${r.left} 隻は遠くにいます）` : ''}`) : esc(r.why)); voyRenderSide(); return; }
+ if (d.vcarry) { const [what, id] = d.vcarry.split(':'), u = w.units.get(id), r = R.orderCarried(w, id, what); toast(r.ok ? (what === 'launch' ? `${esc(u?.name || '')}から搭載艦 ${r.n} 隻が発進` : `搭載艦 ${r.n} 隻を呼び戻しました（格納庫へ入渠します）`) : esc(r.why)); voyRenderSide(); return; }
  if (d.vrec) { const u = w.units.get(d.vrec), r = R.orderRecover(w, d.vrec); toast(r.ok ? `${esc(u?.name || '')}を後方へ回収（約 ${Math.round(r.eta / 60)} 分で修理を終えて母港に復帰）` : esc(r.why)); if (r.ok) voy.sel.units = voy.sel.units.filter(x => x !== d.vrec); voyRenderSide(); return; }
  if (d.vscuttle) { const id = d.vscuttle, u = w.units.get(id); if (voy.scuttleArm === id && performance.now() < (voy.scuttleAt || 0)) { voy.scuttleArm = null; const r = R.orderScuttle(w, id); toast(r.ok ? `${esc(u?.name || '')}：乗員を退艦させて自沈させました` : esc(r.why)); if (r.ok) voy.sel.units = voy.sel.units.filter(x => x !== id); } else { voy.scuttleArm = id; voy.scuttleAt = performance.now() + 4000; toast('もう一度押すと自沈させます'); } voyRenderSide(); return; }
  if (d.vact) {
@@ -14058,6 +14058,8 @@ function voyTapUnit(u) {
  if (cmd?.type === 'attack' && u.side !== 0) { voyApplyAttack(u); voy.cmd = null; voyRenderSide(); return true; }
  if (cmd?.type === 'strike' && u.side !== 0 && voy.sel.wing) { R.orderWing(w, voy.sel.wing, {type: 'strike', target: u.id, approach: voyWeakArc(u)}); voy.cmd = null; voy.tab = 'wings'; toast(`${esc(w.wings.get(voy.sel.wing).name)}：${esc(voyFoeName(u))}を攻撃（進入方向は飛行隊の一覧で変えられます）`); voyRenderSide(); return true; }
  if (cmd?.type === 'guard' && u.side === 0) { const s = voyTacSel(), own = s.kind === 'ship' ? s.units.map(x => x.id) : s.g ? s.g.units : []; if (s.kind === 'ship' && own.length === 1 && own[0] === u.id) { toast('護衛する相手には別の艦を選んでください'); return true; } if (s.kind === 'ship') for (const id of own) if (id !== u.id) R.orderUnit(w, id, {type: 'escort', target: u.id}); if (s.kind === 'tg' && !R.orderGroup(w, s.g.id, {type: 'escort', target: u.id})) { toast('自分の任務群の艦は護衛の相手にできません（艦ごとに命令してください）'); return true; } if (s.kind === 'ctg') R.orderCtg(w, s.c.id, {type: 'escort', target: u.id}); toast(`${esc(u.name)}を護衛`); voy.cmd = null; voyRenderSide(); return true; }
+ // v28 Dock: the selected ships enter this ship's hangar (R.orderDock says why not: no mouth they pass, no room, another system).
+ if (cmd?.type === 'dock' && u.side === 0) { const s = voyTacSel(), own = s.kind === 'ship' ? s.units.filter(x => x.id !== u.id) : []; if (!own.length) { toast('入渠させる艦を選んでから、入渠先の艦をタップしてください'); return true; } let n = 0, why = ''; for (const x of own) { const r = R.orderDock(w, x.id, u.id); if (r.ok) n++; else why = r.why; } toast(n ? `${n} 隻が${esc(u.name)}へ入渠します${why ? '（入れない艦：' + esc(why) + '）' : ''}` : esc(why || '入渠できません')); voy.cmd = null; voyRenderSide(); return true; }
  if (cmd?.type === 'escort' && u.side === 0 && voy.sel.wing) { R.orderWing(w, voy.sel.wing, {type: 'escort', target: u.id}); voy.cmd = null; voyRenderSide(); return true; }
  if (cmd?.type === 'tow' && u.side === 0 || cmd?.type === 'capture' && u.side !== 0) { voyTractorOrder(cmd.type, u, voySelUnits(voyTacSel()).filter(x => x.p.trac > 0)); voy.cmd = null; voyRenderSide(); return true; }
  if (cmd) return false;
