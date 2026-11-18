@@ -5,11 +5,11 @@ const C=vm.runInContext('Core',cx),plain=v=>JSON.parse(JSON.stringify(v)),near=(
 // A deep structure whose +Z side wall takes the launcher's 50 m compartment.
 function fixture(depth=120){const s=C.newShip({L:600,W:240,H:120,assembly:true},'Ship concussion launcher');s.parts=[];s.fits=[];s.nextId=1;s.armor={hull:0,cit:0};const host=C.placePart(s,'struct',[300,60,0],[500,depth*2-40,120],{form:'box'},false);return {s,host,wall:(depth*2-40)/2};}
 function placed(s,wall,options={},x=300){const r=C.placeFit(s,'shipCmsl',[x,60,wall],[0,0,1],2,false,options);assert.ok(!r.err,r.err);return r.fit;}
-const TYPE=()=>C.SHIP_LAUNCHERS.shipCmsl,VOLUME=50*8.5*8.5/(2.4*.9*.9),TT=1531250;
+const TYPE=()=>C.SHIP_LAUNCHERS.shipCmsl,VOLUME=50*8.5*8.5/(12*2.25*2.25),TT=27.5625;
 
 test('the 7 × 50 m missile, half propellant and half warhead, takes its mass and damage from the craft concussion missile',()=>{
- const t=TYPE(),o=C.ORDNANCE.cmsl,[L,D]=t.round.dims,density=o.mass/(Math.PI/4*o.dims[1]**2*o.dims[0]),mass=density*Math.PI/4*D*D*L,warhead=mass*t.round.warheadFraction,ttPerWarheadT=o.tt/(o.mass*.5);
- assert.deepEqual([L,D],[50,7]);assert.equal(t.round.warheadFraction,.5);near(t.round.mass,mass);near(t.round.warheadMass,warhead);near(t.round.propellantMass,mass-warhead);near(t.tt,warhead*ttPerWarheadT);assert.equal(t.tt,TT);
+ const t=TYPE(),o=C.ORDNANCE.cmsl,[L,D]=t.round.dims,density=o.mass/(Math.PI/4*o.dims[1]**2*o.dims[0]),mass=density*Math.PI/4*D*D*L,warhead=mass*t.round.warheadFraction,ttPerWarheadT=C.ORDNANCE_BASIS.warheadTTPerT;assert.equal(ttPerWarheadT,.02,'matter conversion: 20 Gt TNT per t = 0.02 TT/t');near(o.tt,o.warheadMass*.02);
+ assert.deepEqual([L,D],[50,7]);assert.equal(t.round.warheadFraction,.5);near(t.round.mass,mass);near(t.round.warheadMass,warhead);near(t.round.propellantMass,mass-warhead);near(t.tt,warhead*ttPerWarheadT);near(t.tt,TT);
  assert.equal(t.cell[0],L,'the 50 m interior depth equals the missile length');near(t.bore,1.1*D);assert.ok(t.bore<t.cell[1]);assert.equal(t.ammoPerCell,1,'one ready missile per tube');
 });
 
@@ -19,8 +19,8 @@ test('the ship concussion launcher definition follows the shipMsl per-volume rul
  assert.deepEqual(plain(t.cell),[50,8.5,8.5]);assert.deepEqual(plain(t.frame),[3,5]);near(t.bore,7.7);assert.equal(t.ammoPerCell,1);assert.equal(t.tt,TT);assert.equal(t.range,60000);assert.equal(t.embeddedOnly,true);assert.equal(t.tube,'round');
  assert.equal(t.round.dims[0],t.cell[0],'the compartment depth equals the missile length');assert.ok(t.round.dims[1]<t.bore&&t.bore<t.cell[1],'the round fits its bore and the bore its tube pitch');
  near(one.fm,50);near(one.hm,14.5);near(one.wm,18.5);near(d.mass,C.FITS.shipMsl.mass*VOLUME);near(d.cost,C.FITS.shipMsl.cost*VOLUME);near(d.power,C.FITS.shipMsl.power*VOLUME);
- // shipMsl keeps its own values.
- const old=C.fitSpec({k:'shipMsl',launcherCols:3,launcherRows:2});near(old.fm,2.4);near(old.wm,2.7);near(old.hm,1.8);assert.equal(old.store.slots,36);assert.equal(C.missileLauncherSpec({k:'shipMsl',p:[0,0,0],a:2,launcherCols:3,launcherRows:2}).tt,25);
+ // shipMsl keeps its own cell (12 × 2.25 × 2.25 m since 2026-11-11) and fires the craft missile.
+ const old=C.fitSpec({k:'shipMsl',launcherCols:3,launcherRows:2});near(old.fm,12);near(old.wm,6.75);near(old.hm,4.5);assert.equal(old.store.slots,36);assert.equal(C.missileLauncherSpec({k:'shipMsl',p:[0,0,0],a:2,launcherCols:3,launcherRows:2}).tt,C.ORDNANCE.cmsl.tt);
 });
 
 test('tubes across and rows set the panel, compartment, magazine, mass and cost; limits follow the type',()=>{
@@ -96,8 +96,8 @@ function salvoFound(round,massT,distance){
 }
 
 test('the long torpedo shares the tube and takes its warhead, speed and range from its 5% propellant',()=>{
- const t=TYPE(),m=t.rounds.missile,q=t.rounds.torpedo,o=C.ORDNANCE.cmsl,ttPerWarheadT=o.tt/(o.mass*.5),dv=Math.log(1/(1-.05))/Math.log(1/(1-.5));
- assert.deepEqual(plain(q.dims),plain(m.dims));near(q.mass,m.mass);assert.equal(q.warheadFraction,.95);near(q.warheadMass,q.mass*.95);near(q.propellantMass,q.mass*.05);near(q.tt,q.warheadMass*ttPerWarheadT);assert.equal(q.tt,2909375);
+ const t=TYPE(),m=t.rounds.missile,q=t.rounds.torpedo,o=C.ORDNANCE.cmsl,ttPerWarheadT=C.ORDNANCE_BASIS.warheadTTPerT,dv=Math.log(1/(1-.05))/Math.log(1/(1-.5));
+ assert.deepEqual(plain(q.dims),plain(m.dims));near(q.mass,m.mass);assert.equal(q.warheadFraction,.95);near(q.warheadMass,q.mass*.95);near(q.propellantMass,q.mass*.05);near(q.tt,q.warheadMass*ttPerWarheadT);near(q.tt,52.36875);
  near(q.speed,m.speed*dv,1e-3);near(q.range,m.range*dv,1e-3);assert.equal(m.seeker,'heat');assert.equal(q.seeker,'mass');assert.equal(m.tt,TT);
  const f={k:'shipCmsl',p:[0,0,0],a:2,launcherCols:2,launcherRows:2,launcherRound:'torpedo'},d=C.fitSpec(f),spec=C.missileLauncherSpec(f),st=C.weaponPreviewStats(f);
  assert.equal(d.msl,q.tt*4);assert.equal(spec.tt,q.tt);assert.equal(spec.range,4440);assert.equal(spec.speed,192.4);assert.equal(spec.seeker,'mass');assert.equal(spec.round,'torpedo');assert.equal(spec.ammo,4,'one round per tube');assert.equal(st.outputTT,q.tt);assert.equal(st.rangeM,4440);

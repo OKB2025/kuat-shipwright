@@ -12,7 +12,7 @@ test('ship launcher palette and controls expose real grid dimensions separately 
  const run=setup();assert.equal(run("weaponKeys().filter(k=>k==='shipMsl').length"),1);assert.equal(run("weaponKeys().filter(k=>k==='cmsl').length"),1);assert.equal(run("weaponKeys().includes('msl')"),false);
  run("st.fit='shipMsl';st.launcherCols=3;st.launcherRows=2;st.launchYaw=24;st.launcherEmbedded=false;");
  const html=run('launcherPitchControls()');for(const id of ['newLauncherCols','newLauncherRows','newLaunchYaw','newLaunchPitch'])assert.ok(html.includes('data-sl="'+id+'"'),id);
- assert.match(html,/構造物に埋め込む/);assert.match(html,/横幅 2\.7 m/);assert.match(html,/高さ 1\.8 m/);assert.match(html,/36 発/);assert.match(html,/max="16"/);
+ assert.match(html,/構造物に埋め込む/);assert.match(html,/横幅 6\.75 m/);assert.match(html,/高さ 4\.5 m/);assert.match(html,/36 発/);assert.match(html,/max="16"/);
  assert.deepEqual(plain(run('shipLauncherPlacementOptions()')),{launcherCols:3,launcherRows:2,launchYaw:24,launcherEmbedded:false});
 });
 
