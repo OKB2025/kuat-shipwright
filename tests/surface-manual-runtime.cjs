@@ -8,7 +8,7 @@ const trialCol=(r,i)=>r.slice(i*3,i*3+3),trialAttitude=()=>({f:[1,0,0],u:[0,1,0]
 const SYSTEMS={a:{name:'A'},b:{name:'B'}},trialHyperClass=()=>1,JUMP={spool:10},trialSwPowerK=()=>1,trialSwStrike=o=>hits.push(o.ref.name);
 function fixture(surface=false){
  const modules=[{k:'reactor',part:1,size:100,share:1,at:.3,domain:'main'},{k:'weapon',fit:3,size:1,share:.5,at:.2,domain:'main',powerConnected:true},{k:'weapon',fit:4,size:1,share:.5,at:.8,domain:'main',powerConnected:true},{k:'engine',part:5,size:1,share:1,at:.1,domain:'main',powerConnected:true},{k:'shield',part:6,size:1,share:1,at:.4,domain:'main',powerConnected:true}];
- const p={name:'Manual runtime',hp:100000,len:100,width:40,height:20,armorHull:0,D:0,shieldBuffer:1000,reserve:50,wCap:100,crewNeed:0,maxSpeed:1000,accel:100,turnRate:.1,gunArcs:[10,10,10,10,10,10],ionArcs:[0,0,0,0,0,0],modules,energyModel:{version:1,eta:.75},grid:{P:TT_J*100,fixed:TT_J,De:TT_J*10,Ds:TT_J*10,Dw:TT_J*10,domains:[{id:'main',P:TT_J*100,modules:[0,1,2,3,4]}]}};
+ const p={name:'Manual runtime',hp:100000,len:100,width:40,height:20,armorHull:0,D:0,shieldBuffer:1000,reserve:50,wCap:100,crewNeed:0,maxSpeed:1000,accel:100,turnRate:.1,gunArcs:[10,10,10,10,10,10],ionArcs:[0,0,0,0,0,0],modules,energyModel:{version:1,eta:.95},grid:{P:TT_J*100,fixed:TT_J,De:TT_J*10,Ds:TT_J*10,Dw:TT_J*10,domains:[{id:'main',P:TT_J*100,modules:[0,1,2,3,4]}]}};
  if(surface)p.surface={patches:[{id:'patch',face:'top'}],mounts:[3,4].map((id,i)=>({id,module:i+1,patch:'patch',capacity:50,power:10*TT_J,gun:1,ion:0,arcs:[1,1,1,1,1,1],barrels:1,crewNeed:0,cycle:1,band:'mid',center:[i*10,10,0]}))};
  const u=C.fleetUnit('me','fixture',p);Object.assign(trial,{p,battle:{me:u,modIndex:new Map([[3,1],[4,2]])},systemsUnit:null,swSolo:null,powerMode:'weapons',energy:{E:50,cap:100},engF:1,thrustWant:1,t:0,on:true,jump:null,sysKey:'a',P:[0,2000,0],V:[100,5,20],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:5,rudder:0,level:false,vf:100,dust:{H:1,pos:[]},rec:{top:0},craft:false});notices.length=0;hits.length=0;return u;
 }
@@ -20,9 +20,9 @@ for(const line of app.split('\n'))if(line.startsWith('function trialSwSoloEnergy
 
 test('manual charging uses the same input/output/loss boundary as common combat',()=>{
  const r=run(`(()=>{const u=fixture(),before=trial.energy.E;trialPowerStep(.25,0);return {stored:(trial.energy.E-before)*TT_J,input:u.pw.wpn*.25,heat:u.ht.e.weapon,share:C.HEAT.waste.weapon};})()`);
- // 2026-11-18 (docs/weapon-heat-share.md): of the 25% a gun loses, HEAT.waste.weapon (.05, was .25) stays aboard as heat; the rest
- // leaves the ship and is on no ledger yet (physics review 2026-11-18, open). Before, the case stated input = stored + heat.
- assert.ok(r.stored>0);close(r.stored/r.input,.75);close(r.heat,r.input*r.share);assert.ok(r.share<=.25+1e-12,'heat is never more than the loss');close(r.input,r.stored+r.heat+r.input*(.25-r.share));
+ // 2026-11-18 (docs/weapon-heat-share.md): a gun's efficiency is .95 (was .75) and the whole loss, HEAT.waste.weapon (.05, was .25),
+ // is heat aboard. The fixture's profile carries the yard's efficiency; the boundary input = stored + heat is as before.
+ assert.ok(r.stored>0);close(r.input,r.stored+r.heat);close(r.stored/r.input,.95);close(r.share,1-.95);
 });
 
 test('full manual cell banks draw no fictitious charge power or weapon heat',()=>{

@@ -14,7 +14,7 @@ test('40TT and70TT categories use each physical barrel across single, multiple a
 test('maximum input and local heat match the existing shot-energy ledger at full sustained cadence',()=>{
  for(const k of ['single40','oct40','refVen','quad40Ion','pd','monCalPD','claser','cturret']){
   const d=C.fitSpec({k}),q=C.weaponChargeSpec({k}),rating=C.weaponPreviewStats(k),energy=C.weaponEnergy(d,q.volleyTT),cycle=d.cycle||C.K.cycle;
-  near(rating.maxPowerW,energy.inputJ/cycle);near(rating.maxHeatW,energy.inputJ/cycle*C.HEAT.waste.weapon)/* 2026-11-18: the share of the input left aboard (docs/weapon-heat-share.md); it was the whole loss while that share was 1-eta */;assert.ok(rating.maxHeatW<=energy.lossJ/cycle*(1+1e-9),'heat is never more than the loss');near(rating.traverseDegS,C.weaponTraverseDegS(d));near(rating.rangeM,C.GUN_BANDS[C.fitBand(d)].range);
+  near(rating.maxPowerW,energy.inputJ/cycle);near(rating.maxHeatW,energy.lossJ/cycle);near(rating.traverseDegS,C.weaponTraverseDegS(d));near(rating.rangeM,C.GUN_BANDS[C.fitBand(d)].range);
  }
 });
 

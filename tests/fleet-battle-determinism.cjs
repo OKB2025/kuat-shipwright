@@ -42,10 +42,11 @@
 // Re-recorded on 174ca47 (2026-11-16, user decision「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」): the
 // shield's absorbed share no longer heats the ship. First numeric difference with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0,
 // unit 0 digest[28] (heat store ht.qJ) 0 against 3.49e19 J. Two recordings in a row gave the same file (sha256 b245c89d…).
-// Re-recorded on ea30572 with the regenerated examples (2026-11-18, user decision「今のシステムのまま、射撃の損失を下げよう」: HEAT.waste.weapon .25 → .05,
-// docs/weapon-heat-share.md): weapon charging leaves less heat aboard, so the heat store and the governor's holds differ from
-// the first tick. Two recordings in a row gave the same file (sha256 2ff658c4…). First numeric difference against the previous recording with KS_DETERMINISM_ALLOW_FLOAT=1:
-// tick 1, unit 0 digest[8] (yaw) 0.0028054 against 0.0070510 (with less weapon heat the governor leaves the engines more).
+// Re-recorded on 6aeadbd with the regenerated examples (2026-11-18, user decisions「今のシステムのまま、射撃の損失を下げよう」
+// 「電力の5%損失に直す、そして出力はトン数に合わせる」: ENERGY_MODEL.eta .75 → .95, HEAT.waste.weapon .25 → .05,
+// docs/weapon-heat-share.md). Guns charge with less input and leave less heat aboard. First numeric difference against the
+// 69dc4aa recording with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0, unit 0 digest[12] (u.energy, the charge held) 5.7733 against
+// 6.3306. Two recordings in a row gave the same file (sha256 84ee4a28…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest

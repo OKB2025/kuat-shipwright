@@ -245,11 +245,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "2f844c",
+ "modelSignature": "s8cdju",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "dom9se",
+   "signature": "pncgeq",
    "build": 236723,
    "crew": 3000,
    "total": 239723,
@@ -1301,7 +1301,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0.0005751347039156819,
     "shieldBuffer": 0.0731817485234382,
@@ -10327,7 +10327,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "10gu12q",
+   "signature": "8f1tla",
    "build": 150608,
    "crew": 1000,
    "total": 151608,
@@ -11041,7 +11041,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0.00016229736260107007,
     "shieldBuffer": 0.014246437348554762,
@@ -13150,7 +13150,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "10erka6",
+   "signature": "jua96a",
    "build": 200818,
    "crew": 2000,
    "total": 202818,
@@ -14094,7 +14094,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0.0008159384735754153,
     "shieldBuffer": 0.08471702163444517,
@@ -22404,7 +22404,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "12phofr",
+   "signature": "1qm4be3",
    "build": 159845,
    "crew": 0,
    "total": 159845,
@@ -23320,7 +23320,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
@@ -30352,7 +30352,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "ll8y3p",
+   "signature": "1dgcfxl",
    "build": 100914,
    "crew": 1000,
    "total": 101914,
@@ -30986,7 +30986,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
@@ -33478,7 +33478,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1gmewdj",
+   "signature": "1stdda3",
    "build": 88727,
    "crew": 1000,
    "total": 89727,
@@ -34033,7 +34033,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
@@ -36107,7 +36107,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1nokb03",
+   "signature": "fiplnj",
    "build": 124155,
    "crew": 1000,
    "total": 125155,
@@ -36782,7 +36782,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
@@ -40128,7 +40128,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1ps8gax",
+   "signature": "oj5f6t",
    "build": 133454,
    "crew": 1000,
    "total": 134454,
@@ -40950,7 +40950,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
@@ -46764,7 +46764,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "khz7m",
+   "signature": "6jvjwe",
    "build": 102488,
    "crew": 0,
    "total": 102488,
@@ -47535,7 +47535,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
@@ -50750,7 +50750,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1vsa0pg",
+   "signature": "ge33vc",
    "build": 247128,
    "crew": 1000,
    "total": 248128,
@@ -51658,7 +51658,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0.00018505095649165012,
     "shieldBuffer": 0.02551298707898365,
@@ -61841,7 +61841,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "javcwh",
+   "signature": "12ekc8t",
    "build": 152697,
    "crew": 1000,
    "total": 153697,
@@ -62762,7 +62762,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0.00036219013158247986,
     "shieldBuffer": 0.04654769023882401,
@@ -67511,7 +67511,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1bd5tyu",
+   "signature": "1nh9osq",
    "build": 134698,
    "crew": 1000,
    "total": 135698,
@@ -68227,7 +68227,7 @@ const CRAFT_PRICE_CATALOG={
     ],
     "energyModel": {
      "version": 0,
-     "eta": 0.75
+     "eta": 0.95
     },
     "D": 0,
     "shieldBuffer": 0,
