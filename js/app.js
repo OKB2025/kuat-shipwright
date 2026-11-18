@@ -8204,7 +8204,7 @@ function trialCraftSystemsHTML(){
  return html;
 }
 function trialReset(){
- const flown=trialFlyRestore();if(flown)setTimeout(()=>{if(trial.on)trialHudRemount();},0);
+ const flown=trial.fly?trialFlyRestore():false;if(flown)setTimeout(()=>{if(trial.on)trialHudRemount();},0);
  trial.resetGen=(trial.resetGen||0)+1;trial.planetBlast=null;trial.planetGone=null;
  if(trial.cine)spaceCineEnd();const pose=trialInitialPose(trialSys());Object.assign(trial,{P:pose.P,V:[0,0,0],R:pose.R,w:[0,0,0],tele:1,throttle:0,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,navigation:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
