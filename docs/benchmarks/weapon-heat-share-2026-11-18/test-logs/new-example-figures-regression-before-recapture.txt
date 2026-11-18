@@ -1,0 +1,48 @@
+ok 1 - every buildable example ship has recorded figures
+not ok 2 - acclamator: computeStats figures match the recorded ones
+not ok 3 - arquitens: computeStats figures match the recorded ones
+not ok 4 - cr90: computeStats figures match the recorded ones
+not ok 5 - craft_arc170: computeStats figures match the recorded ones
+not ok 6 - craft_awing: computeStats figures match the recorded ones
+not ok 7 - craft_btlb: computeStats figures match the recorded ones
+not ok 8 - craft_hyena: computeStats figures match the recorded ones
+not ok 9 - craft_tie_in: computeStats figures match the recorded ones
+not ok 10 - craft_tie_ln: computeStats figures match the recorded ones
+not ok 11 - craft_tie_sa: computeStats figures match the recorded ones
+not ok 12 - craft_v19: computeStats figures match the recorded ones
+not ok 13 - craft_vulture: computeStats figures match the recorded ones
+not ok 14 - craft_vwing: computeStats figures match the recorded ones
+not ok 15 - craft_xwing: computeStats figures match the recorded ones
+not ok 16 - craft_z95: computeStats figures match the recorded ones
+not ok 17 - deathstar: computeStats figures match the recorded ones
+not ok 18 - dreadnaught: computeStats figures match the recorded ones
+not ok 19 - executor: computeStats figures match the recorded ones
+not ok 20 - gozanti: computeStats figures match the recorded ones
+not ok 21 - gr75: computeStats figures match the recorded ones
+not ok 22 - hammerhead: computeStats figures match the recorded ones
+ok 23 - heraklon: computeStats figures match the recorded ones
+not ok 24 - imperial: computeStats figures match the recorded ones
+not ok 25 - imperial2: computeStats figures match the recorded ones
+not ok 26 - lh3210: computeStats figures match the recorded ones
+not ok 27 - lucrehulk: computeStats figures match the recorded ones
+not ok 28 - mandator2: computeStats figures match the recorded ones
+not ok 29 - mc30c: computeStats figures match the recorded ones
+not ok 30 - mc75: computeStats figures match the recorded ones
+not ok 31 - mc80home: computeStats figures match the recorded ones
+not ok 32 - mc80liberty: computeStats figures match the recorded ones
+not ok 33 - munificent: computeStats figures match the recorded ones
+not ok 34 - nebulonb: computeStats figures match the recorded ones
+not ok 35 - onager: computeStats figures match the recorded ones
+not ok 36 - providence: computeStats figures match the recorded ones
+not ok 37 - providenceDn: computeStats figures match the recorded ones
+not ok 38 - recusant: computeStats figures match the recorded ones
+not ok 39 - recusantDn: computeStats figures match the recorded ones
+not ok 40 - reptransport: computeStats figures match the recorded ones
+not ok 41 - subjugator: computeStats figures match the recorded ones
+not ok 42 - venator: computeStats figures match the recorded ones
+ok 43 - gozanti: figures after moving the last structure equal a fresh computation
+ok 44 - gozanti: figures after moving the first structure equal a fresh computation
+ok 45 - craft_tie_ln: figures after moving the last structure equal a fresh computation
+# tests 45
+# pass 5
+# fail 40
