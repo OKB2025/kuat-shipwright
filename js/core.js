@@ -75413,6 +75413,44 @@ function surfacePowerStep(u,s,t,raw,dt,chargingW,volley=1){
 function surfaceRayHit(u,from,aim){const shell=surfaceShellBVH(u.p);if(!shell)return null;const a=hullLocal(u,from),b=hullLocal(u,aim||u.pos),d=norm(sub(b,a)),t=surfaceCachedRay(shell,a,d);return t==null?null:surfaceAdd(a,d,t);}
 // One armour load algorithm serves the semantic patches and the legacy derived
 // zones. No thickness means no free buffer; stored load has a physical lifetime.
+// ---------- v30 damage without durability figures (docs/damage-penetration.md) ----------
+// User decisions 2026-11-18「密度により貫通度が変わる。そして破壊されたモジュールで被害を決める。耐久力という数値は無し」「壊した体積の割合で。
+// また内部区画は火災を起こし時間と共に壊れていく」「通る物全部の密度で減衰」「シールドを失った艦がTTレベルの砲撃を喰らうと普通に爆散する
+// くらいに調整して」. Nothing carries a strength figure. A shot that is past the field bores through what lies on its way: the
+// plating of the face it strikes, the section's structure, the modules behind, in turn. Boring a length l of density rho with a
+// hole of cross-section A takes PEN.eps·rho·l·A; what it bores is destroyed. The hole grows with the shot: A = c·(E/(eps·rho0))^(2/3).
+// A module, or a section's structure, is destroyed when PEN.destroyed of its volume is gone. What that takes follows from its
+// mass alone (eps × mass × destroyed): modBreakTT, secBreakTT.
+// eps is the energy that destroys a tonne: 1e10 J (the order of iron's heat of vaporisation). A craft's laser bolt (6e-9 TT)
+// destroys 2.5 t; a 1 TT shot destroys 4e8 t, more than any ship here: a ship without its field does not survive one.
+const PEN=Object.freeze({eps:1e10/4.184e18,c:1,rho0:1,destroyed:.5,armorDens:7.8,structFill:.5,minStructShare:.05,
+ dens:Object.freeze({reactor:1.8,engine:1.1,shield:.5,hyper:.6,fuel:.9,weapon:2.2,launcher:1.2,bridge:.6,capacitor:1.4,magazine:1.2,dissipator:.8,drivetrain:1.5,quarters:.12,hangar:.05,other:.65})});
+function holeArea(E){return E>0?PEN.c*Math.pow(E/(PEN.eps*PEN.rho0),2/3):0;}
+function modDens(m){return m?.dens>0?m.dens:PEN.dens[m?.k]??PEN.dens.other;}
+// A module's volume (m³): an interior part carries it (size); a fitting on the hull is taken from its radius on the ship.
+function modVol(p,m){if(!m||m.k==='hull')return 0;if(m.vol>0)return m.vol;if(m.part!=null&&m.size>0||m.k==='quarters'&&m.size>0)return m.size;const r=(m.r||.01)*Math.max(1,p?.len||100);return Math.max(.5,4.18879*r*r*r);}
+function modBreakTT(p,m){return PEN.eps*modDens(m)*modVol(p,m)*PEN.destroyed;}
+const structCache=new WeakMap();
+// The structure of each section: the ship's mass less its modules', shared by the sections' volume shares (never less than
+// .minStructShare of the mass), in a volume that is .structFill of the section's box.
+function hullStructure(p){
+ let c=structCache.get(p);if(c)return c;const mods=p.modules||[],N=p.sections?.length||HULL_SECTIONS,shares=p.sections?.length?p.sections:new Array(N).fill(1/N),tot=shares.reduce((a,b)=>a+b,0)||1;
+ const L=Math.max(1,p.len||100),W=Math.max(1,p.width||L*.35),H=Math.max(1,p.height||L*.2),box=L*W*H;
+ const massT=p.propulsion?.massKg>0?p.propulsion.massKg/1000:Array.isArray(p.secMass)?0:Math.max(1,(p.hp||1)/K.hpPerT),modT=mods.reduce((n,m)=>n+modDens(m)*modVol(p,m),0),structT=Math.max(massT*PEN.minStructShare,massT-modT);
+ const sec=shares.map((sh,i)=>{const mass=Array.isArray(p.secMass)?p.secMass[i]:structT*sh/tot,vol=Math.max(1e-6,box*PEN.structFill*sh/tot);return {mass,vol,dens:mass/vol,breakTT:PEN.eps*mass*PEN.destroyed};});
+ c={sec,total:sec.reduce((n,x)=>n+x.breakTT,0),massT,dims:[L,H,W]};structCache.set(p,c);return c;
+}
+function hullBreakTT(p){return hullStructure(p).total;}
+// One layer of thickness l (m), density rho and volume vol (m³) left, met by n shots of e each through a hole A: what is absorbed
+// in all and what each shot keeps. A hole wider than the layer bores only the layer.
+function boreLayer(e,n,A,rho,l,vol){if(!(e>0)||!(n>0)||!(vol>0)||!(rho>0)||!(l>0))return {absorbed:0,left:e,volume:0};const need=PEN.eps*rho*Math.min(A*l,vol),each=Math.min(e,need),absorbed=Math.min(n*each,PEN.eps*rho*vol);return {absorbed,left:e-absorbed/n,volume:absorbed/(PEN.eps*rho)};}
+// Plating met by fire E in shots of `shot`: what gets through, and what is left of the plating (its share still whole).
+// A shot meets whole plating with the chance of that share and a hole otherwise.
+function armorBore(state,area,thickness,dens,E,shot){
+ const integrity=clamp(state.integrity??1,0,1);state.load=0;if(!(E>0))return {penetrated:0,load:0,integrity};if(!(area>0)||!(thickness>0)||!(integrity>0))return {penetrated:E,load:0,integrity};
+ const e=shot>0?Math.min(shot,E):E,n=E/e,hit=n*integrity,vol=area*thickness*integrity,r=boreLayer(e,hit,holeArea(e),dens,thickness,vol);
+ state.integrity=Math.max(0,integrity-r.volume/(area*thickness));return {penetrated:(n-hit)*e+hit*r.left,load:0,integrity:state.integrity,absorbed:r.absorbed};
+}
 function armorLayerStep(state,capacity,E,elapsed=0){const integrity=clamp(state.integrity??1,0,1),load=Math.max(0,state.load||0)*Math.exp(-Math.max(0,elapsed)/COMBAT.tau);if(!(capacity>0)){state.load=0;return {penetrated:Math.max(0,E)+load,load:0,integrity};}const cap=capacity*integrity,total=load+Math.max(0,E),penetrated=Math.max(0,total-cap);state.load=Math.min(total,cap);state.integrity=Math.min(integrity,Math.max(COMBAT.minInt,integrity-penetrated/capacity*COMBAT.hole));return {penetrated,load:state.load,integrity:state.integrity};}
 function surfaceEmbeddedContains(d,point){if(!d.embedded||!d.u||!d.v||!d.normal||!d.footprint)return false;const q=sub(point,d.center),n=dot(q,d.normal);return n>=-(d.wallOffset||0)-(d.lip||0)-.03&&n<=.03&&Math.abs(dot(q,d.u))<=d.footprint[0]/2+1e-6&&Math.abs(dot(q,d.v))<=d.footprint[1]/2+1e-6;}
 function surfacePatchAt(u,point){let best=null,distance=Infinity;for(const p of u.p?.surface?.patches||[]){if(!p.exposed||!p.triangles?.length)continue;const tolerance=Math.max(.03,Math.max(u.p.len||1,u.p.width||1)*1e-6),hit=rayTris(p.triangles,surfaceAdd(point,p.normal,tolerance),mul(p.normal,-1),tolerance*2.1);if(!hit)continue;const d=len(sub(hit.p,point));if(d<distance){best=p;distance=d;}}if(best)return best;
@@ -75424,7 +75462,7 @@ function surfaceDomainAt(u,point){return surfacePatchAt(u,point)?.powerDomain||n
 // for every damaged patch made each armour sync O(patches²). Same sum, same order.
 const surfacePatchAreaCache=new WeakMap();
 function surfacePatchAreaTotal(patches){const old=surfacePatchAreaCache.get(patches);if(old&&old.length===patches.length)return old.total;const total=patches.reduce((n,q)=>n+q.area,0);surfacePatchAreaCache.set(patches,{length:patches.length,total});return total;}
-function surfaceArmorCapacity(u,p){return p.armor.thickness*SURFACE_MATERIALS[p.armor.material].resistance*COMBAT.capK*Math.cbrt(Math.max(1e-3,u.p.hp*p.area/Math.max(1,surfacePatchAreaTotal(u.p.surface.patches))));}
+function surfaceArmorCapacity(u,p){return PEN.eps*PEN.armorDens*(SURFACE_MATERIALS[p.armor.material]?.resistance??1)*p.area*p.armor.thickness;}/* v30 what destroys the patch's plating (for the load display) */
 function surfaceArmorStatus(u){const rows=[],faces=Array.from({length:6},()=>({area:0,weight:0,left:0,load:0,thickness:0}));let weight=0,left=0,load=0;for(const p of u.p?.surface?.patches||[]){if(!p.exposed)continue;const s=u.surfaceArmor?.[p.id]||{integrity:1,load:0},w=p.area*p.armor.thickness*SURFACE_MATERIALS[p.armor.material].resistance,n=p.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,f=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3;rows.push({id:p.id,area:p.area,thickness:p.armor.thickness,material:p.armor.material,integrity:s.integrity,load:s.load});weight+=w;left+=w*s.integrity;load+=s.load;faces[f].area+=p.area;faces[f].weight+=w;faces[f].left+=w*s.integrity;faces[f].load+=s.load;faces[f].thickness+=p.area*p.armor.thickness;}return {rows,integrity:weight>0?left/weight:0,load,faces:faces.map(f=>({...f,integrity:f.weight>0?f.left/f.weight:0,thickness:f.area>0?f.thickness/f.area:0}))};}
 // Per-profile geometry of the armour-zone sync: for each exposed patch its
 // whole-patch weight, then (zone, weight, fraction) for every section, in the
@@ -75449,10 +75487,10 @@ function surfaceArmorTick(u,dt,time){if(!u.p?.surface||!(dt>0))return;for(const 
 // afterwards, in a finally; nothing between those hits reads them.
 function surfaceHit(ctx,u,point,E,kind='shot',deferSync=false){
  u.surfaceLastHit=null;if(!u.p?.surface||!Array.isArray(point)||!(E>0))return E;const surface=u.p.surface,patch=surfacePatchAt(u,point);if(!patch)return E;
- const armor=u.surfaceArmor||(u.surfaceArmor={}),a=armor[patch.id]||(armor[patch.id]={integrity:1,load:0,at:ctx.time||0}),Q=Math.max(1,u.p.hp*COMBAT.quantum),near=surface.devices.filter(d=>d.patch===patch.id&&d.module>=0).map(d=>({d,distance:len(sub(d.center,point))})).filter(x=>x.d.embedded?surfaceEmbeddedContains(x.d,point):x.distance<Math.max(.5,Math.hypot(...x.d.footprint)*.55)).sort((a,b)=>a.distance-b.distance),damage=(energy,external)=>{const x=near.find(x=>x.d.external===external&&u.mods?.[x.d.module]>0);if(!x||!(energy>0))return energy;const m=u.p.modules[x.d.module],take=Math.min(energy,Math.max(1,m.hits*modQ(m,Q))*u.mods[x.d.module]);combatModuleDamage(ctx,u,x.d.module,take,Q,kind);return Math.max(0,energy-take);};
- let left=damage(E,true);const cap=surfaceArmorCapacity(u,patch),result=armorLayerStep(a,cap,left,Math.max(0,(ctx.time||0)-(a.at||0)));a.at=ctx.time||0;left=damage(result.penetrated,false);
+ const armor=u.surfaceArmor||(u.surfaceArmor={}),a=armor[patch.id]||(armor[patch.id]={integrity:1,load:0,at:ctx.time||0}),Q=hullBreakTT(u.p)*COMBAT.quantum,near=surface.devices.filter(d=>d.patch===patch.id&&d.module>=0).map(d=>({d,distance:len(sub(d.center,point))})).filter(x=>x.d.embedded?surfaceEmbeddedContains(x.d,point):x.distance<Math.max(.5,Math.hypot(...x.d.footprint)*.55)).sort((a,b)=>a.distance-b.distance),damage=(energy,external)=>{const x=near.find(x=>x.d.external===external&&u.mods?.[x.d.module]>0);if(!x||!(energy>0))return energy;const m=u.p.modules[x.d.module],take=Math.min(energy,modBreakTT(u.p,m)*u.mods[x.d.module]);combatModuleDamage(ctx,u,x.d.module,take,Q,kind);return Math.max(0,energy-take);};
+ let left=damage(E,true);const result=armorBore(a,patch.area,patch.armor.thickness,PEN.armorDens*(SURFACE_MATERIALS[patch.armor.material]?.resistance??1),left,ctx.shot||0);a.at=ctx.time||0;left=damage(result.penetrated,false);
  const at=(point[0]/Math.max(1,u.p.len||1))+.5,cuts=u.p.sectionCuts||[.2,.4,.6,.8];let section=0;while(section<cuts.length&&at>=cuts[section])section++;section=Math.min(section,(u.sec?.length||1)-1);const n=patch.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,face=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3;
- if(u.sec?.[section])u.sec[section].s-=Math.min(E,E-left)*COMBAT.spall;u.surfaceLastHit={handled:true,patch:patch.id,point:point.slice(),energy:E,remaining:left,section,face,thickness:patch.armor.thickness,integrity:a.integrity};if(!deferSync)surfaceArmorSync(u);return left;
+ u.surfaceLastHit={handled:true,patch:patch.id,point:point.slice(),energy:E,remaining:left,section,face,thickness:patch.armor.thickness,integrity:a.integrity};if(!deferSync)surfaceArmorSync(u);return left;
 }
 function surfaceRemoveConfig(ship,ids){if(!Array.isArray(ids))ids=[ids];if(!ship.surfaces)return {ok:true,report:surfaceReport(ship)};ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};}
 function surfaceReassign(ship,oldId,newId){const old=ship.surfaces?.patches.find(q=>q.id===oldId),p=surfacePatches(ship).find(q=>q.id===newId);if(!old||!p?.exposed)return {ok:false,why:'移設する外面を選んでください'};if(ship.surfaces.patches.some(q=>q.id===newId&&q.id!==oldId))return {ok:false,why:'移設先の面には既に設定があります'};old.id=newId;for(const q of [...ship.parts,...ship.fits])if(q.surfacePatch===oldId)q.surfacePatch=newId;surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};}
@@ -83975,7 +84013,7 @@ const ENERGY_MODEL={version:1,eta:.95,superEta:.88,unit:'TT',assumption:true};
 // User decision 2026-11-16「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」: a shield makes heat only by
 // running (HEAT.waste.shield × its load); what it absorbs makes none. The 6% of the absorbed beam that was heat leaves
 // the ship with the rest (beamExternal .82 → .88; beamHeat .06 → 0; the 12% held for a moment is unchanged).
-const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,assumption:true};
+const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,assumption:true};
 const ION_MODEL={version:2,unit:'J',blockedExternal:.95,shieldCost:.05,hullHeat:1,assumption:true};
 function weaponEnergy(spec,outputTT,shots=1){
  if(spec?.energyUnit==='effect')return {outputJ:null,inputJ:null,lossJ:null,eta:null,unit:'effect',outputEffect:Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0),assumption:false};
@@ -84057,7 +84095,7 @@ function shieldPacketEnergyJ(energyJ,ionJ,shieldJ,transientRoomJ,capacityJ){
  const E=Number.isFinite(energyJ)?Math.max(0,energyJ):0,I=Number.isFinite(ionJ)?clamp(ionJ,0,E):0,S=Number.isFinite(shieldJ)?Math.max(0,shieldJ):0,R=Number.isFinite(transientRoomJ)?Math.max(0,transientRoomJ):0,ion=ionShieldEnergyJ(I,S),normalJ=E-I;
  // v24 Deflection and absorption by the field's strength before this hit. Without a stated capacity (older
  // callers) the field counts as full while it has energy.
- const f=Number.isFinite(capacityJ)&&capacityJ>0?clamp(S/capacityJ,0,1):S>0?1:0,deflectedJ=normalJ*SHIELD_MODEL.deflectMax*f,restJ=normalJ-deflectedJ,passJ=restJ*Math.pow(1-f,SHIELD_MODEL.leakK),toAbsorbJ=restJ-passJ;
+ const f=Number.isFinite(capacityJ)&&capacityJ>0?clamp(S/capacityJ,0,1):S>0?1:0,deflectedJ=normalJ*SHIELD_MODEL.deflectMax*f,restJ=normalJ-deflectedJ,passJ=SHIELD_MODEL.holdWhileUp?(f>0?0:restJ):restJ*Math.pow(1-f,SHIELD_MODEL.leakK)/* v30 a standing field lets nothing by: with no durability behind it, the smallest share that bled through destroyed the ship (docs/damage-penetration.md). What the field cannot absorb still gets through. */,toAbsorbJ=restJ-passJ;
  // Ion redirection consumes only five percent of the intercepted energy from
  // defence. The absorbed share of the normal portion then uses the remaining
  // defence and its own finite 12% transient buffer; an ion packet never fills
@@ -84247,6 +84285,7 @@ const COMBAT={
  maxPath:3,         // modules one penetrating hit can pass through
  ionShield:1, ionHull:0, ionDrain:0, ionBank:0, ionReactor:0, ionTau:20,
  bankRate:1,        // power cells feed the field at up to this many times the generator's rating
+ fireShare:.075,     // v30 the measure fire works by: this share of a section's structure (and four times it of one module) a second at full blaze, times fireFrame / fireDmg
  fireGrow:.03, fireDC:.04, fireDmg:.5, fireCrew:.001, fireFrame:.08, fireSpread:.04,
  bandCost:{long:1,mid:.8,close:.55},  // stored energy per TT fired, by range band
  bleedK:1,            // v21.1 shield bleed-through: the share of fire that passes a field at strength f is (1-f)^bleedK
@@ -84899,7 +84938,7 @@ function fleetUnit(id,key,p,team=0){
  p=referenceSpeedProfile(p,key);
  if(!p.propulsion){const propulsion=legacyPropulsionProfile(p,p.mass);if(propulsion)p={...p,propulsion};}
  const shield=Math.max(0,p.shieldBuffer??p.D*K.bufferS),bank=Math.max(0,p.reserve||0),mods=p.modules||[];
- return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:0,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto',autoPointDefense:true},dead:false});
+ return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:0,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto',autoPointDefense:true},dead:false});
 }
 // Ranges belong to the round/launcher, including old profiles without the new metadata.
 function missileRange(value){
@@ -85029,7 +85068,7 @@ const outOfAction=u=>!!u?.out&&(u.out!=='電源喪失'||!!(u.p&&fleetOutReason(u
 // A ship that can act: alive, and not disabled for any reason (power loss included).
 const fleetActs=u=>!u.dead&&!u.out;
 const fleetEffective=u=>!u.dead&&!outOfAction(u);
-function fleetFrame(b,shots=[]){return {time:b.time,missiles:(b.missiles||[]).map(m=>[m.pos[0],m.pos[1],m.pos[2],m.team,m.n])/* v28 salvos in flight, for a replay to draw: x, y, z, team, rounds */,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,autoPointDefense:automaticPointDefenseEnabled(u),mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
+function fleetFrame(b,shots=[]){return {time:b.time,missiles:(b.missiles||[]).map(m=>[m.pos[0],m.pos[1],m.pos[2],m.team,m.n])/* v28 salvos in flight, for a replay to draw: x, y, z, team, rounds */,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hull:fleetIntegrity(u),shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,autoPointDefense:automaticPointDefenseEnabled(u),mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
 function fleetRandom(b){let t=(b.seed=(b.seed+0x6D2B79F5)|0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
 // ---------- combat damage (v14) ----------
 // A ship has no hit-point pool. Fire that gets past the shields loads the
@@ -85052,8 +85091,8 @@ function combatZones(p,N=HULL_SECTIONS){
  // What a zone's plating holds grows with its thickness and, more slowly, with
  // the bulk of the ship behind it (the cube root of its share of structure),
  // so heavy guns can break any armour given time while light guns cannot.
- const faceA=[0,0,0,0,0,0];for(let z=0;z<n;z++)faceA[z%6]+=A[z];const tot=faceA.reduce((a,b)=>a+b,0)||1,hp=Math.max(1,p.hp||1);
- const cap=A.map((a,z)=>a>0?COMBAT.capK*Math.max(0,T[z])*Math.cbrt(Math.max(1e-3,hp*a/tot)):0);
+ const faceA=[0,0,0,0,0,0];for(let z=0;z<n;z++)faceA[z%6]+=A[z];const tot=faceA.reduce((a,b)=>a+b,0)||1,hp=hullBreakTT(p);
+ const cap=A.map((a,z)=>a>0?PEN.eps*PEN.armorDens*a*Math.max(0,T[z]):0);/* v30 what destroys the zone's plating, for displays; the bore model does not use it */
  Z={N,n,A,T,cap,faceA,faceShare:faceA.map(a=>a/tot),area:tot};combatZoneCache.set(p,Z);return Z;
 }
 // Earlier profiles combine ordinary-gun tracking and point defence. Without
@@ -85071,9 +85110,9 @@ function automaticDefenseProfile(p){
 function combatInit(u){
  u.p=automaticDefenseProfile(u.p);u.aim=AIM_MODEL.start;
  const p=u.p,mods=p.modules||[],cuts=p.sectionCuts||[.2,.4,.6,.8],shares=p.sections?.length?p.sections:new Array(HULL_SECTIONS).fill(1/HULL_SECTIONS),tot=shares.reduce((a,b)=>a+b,0)||1;
- u.sec=shares.map(s=>({max:Math.max(1,p.hp*s/tot),s:Math.max(1,p.hp*s/tot)}));u.secLost=[];
+ u.sec=hullStructure(p).sec.map(x=>({max:x.breakTT,s:x.breakTT}));u.secLost=[];/* v30 what it takes to destroy the section's structure, from its mass */
  u.secOf=mods.map(m=>{const at=m.at??.5;let i=0;while(i<cuts.length&&at>=cuts[i])i++;return Math.min(i,u.sec.length-1);});
- const n=u.sec.length*6;u.zl=new Array(n).fill(0);u.zi=new Array(n).fill(1);u.zq=new Array(n).fill(0);u.fire=new Array(u.sec.length).fill(0);u.ionK=0;u.hitLog=[];u.hp=p.hp;u.armor=1;u.armorLoad=0;
+ const n=u.sec.length*6;u.zl=new Array(n).fill(0);u.zi=new Array(n).fill(1);u.zq=new Array(n).fill(0);u.fire=new Array(u.sec.length).fill(0);u.ionK=0;u.hitLog=[];delete u.hp;u.armor=1;u.armorLoad=0;
  // v21 Superweapons start uncharged; no reactor is overloaded or stopped.
  u.sw=(p.sw||[]).map(w=>({c:clamp(w.initialCharge||0,0,1),st:w.initialCharge>=1?'ready':'charge',t:0,mode:w.mode||'beam',tgt:null}));u.over=[];u.down=null;u.gridState={domains:{},local:{},last:null};u.shieldTransient=0;u.shieldLedger=null;u.ionLedger=null;
  return u;
@@ -85085,6 +85124,8 @@ function combatFaces(t,from){
  const w=[Math.max(0,v0)*Z.faceA[0],Math.max(0,-v0)*Z.faceA[1],Math.max(0,v2)*Z.faceA[2],Math.max(0,-v2)*Z.faceA[3],Math.max(0,v1)*Z.faceA[4],Math.max(0,-v1)*Z.faceA[5]],sum=w[0]+w[1]+w[2]+w[3]+w[4]+w[5];
  return sum>0?w.map(x=>x/sum):Z.faceShare;
 }
+// v30 The bulk of a hull for estimates of strength (AI, supply): its mass in the measure the earlier structure figure had.
+function hullBulk(p){const kg=p?.propulsion?.massKg;return kg>0?kg/1000*K.hpPerT:Math.max(1,p?.hp||1);}
 function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[],shotE:0,shotN:0};}
 // TT per shot of what struck this tick (energy-weighted), 0 when unknown: the fire is then judged as a single shot.
 function combatShotTT(o){return o?.shotN>0?o.shotE/o.shotN:0;}
@@ -85156,8 +85197,8 @@ function penCrewSurvive(entering,shots=1){
 }
 function combatModuleDamage(ctx,u,i,dmg,Q,why,entering=0,shots=1){
  const p=u.p,m=p.modules[i],need=p.crewNeed||0;if(!m||m.k==='hull'||!(dmg>0))return {after:u.mods[i]??0};
- const hp=Math.max(1,m.hits*modQ(m,Q)),before=u.mods[i];if(before<=0)return {after:0};
- const frac=dmg/hp,q=Math.min(1,dmg/Q),remaining=Math.max(0,before-frac);u.mods[i]=remaining<=1e-12?0:remaining;const lost=before-u.mods[i];
+ const hp=modBreakTT(p,m),before=u.mods[i];if(before<=0)return {after:0};
+ const frac=dmg/Math.max(1e-30,hp),q=Math.min(1,frac*4)/* a quarter of what destroys it, at once, is a full blow */,remaining=Math.max(0,before-frac);u.mods[i]=remaining<=1e-12?0:remaining;const lost=before-u.mods[i];
  // u.crewIn[i]: the share of this compartment's crew still alive (1 at the start). The loss with the wrecked part is
  // taken from those left, and a penetrating shot kills on top of it by the power it enters with (COMBAT.penCrewTT).
  const crewIn=u.crewIn||(u.crewIn=p.modules.map(()=>1)),alive=crewIn[i]??1,wreck=Math.min(1,lost*.7);let dead=m.crew*alive*wreck,left=alive*(1-wreck),killed=0;
@@ -85181,25 +85222,30 @@ function combatModuleDamage(ctx,u,i,dmg,Q,why,entering=0,shots=1){
 function combatSectionLost(ctx,u,si){
  if(u.secLost.includes(si))return;u.secLost.push(si);u.sec[si].s=0;u.fire[si]=0;const mods=u.p.modules||[],need=u.p.crewNeed||0;
  for(let i=0;i<mods.length;i++)if(u.secOf[i]===si&&mods[i].k!=='hull'&&u.mods[i]>0&&ctx.rand()<.65)u.mods[i]=0;
- u.crew-=need*u.sec[si].max/Math.max(1,u.p.hp)*.7;ctx.ev(u,`${SECTION_NAMES[si]||'区画'} 崩壊`);
+ u.crew-=need*u.sec[si].max/Math.max(1e-30,hullBreakTT(u.p))*.7;ctx.ev(u,`${SECTION_NAMES[si]||'区画'} 崩壊`);
 }
 // One penetrating hit of E TT through face f into section si: the frames take
 // their share, then up to three modules behind the face, each deeper than the
 // last, the shot losing energy as it passes through.
 // shot (TT): the size of one shot in this fire, 0 if unknown (the whole of E is then one shot).
 function combatPenetrate(ctx,u,si,f,E,aim,Q,shot=0){
- const shots=shot>0?E/shot:1,p=u.p,mods=p.modules||[],sec=u.sec[si],frame=E*COMBAT.frame,path=[];sec.s-=frame;let left=E-frame,minDep=-1,fire=false,boom=null;
+ // v30 n shots of e each, past the plating of face f of section si: through the structure to the nearest module on their way,
+ // through it, on to the next, until they are spent or out the far side.
+ const e=shot>0?Math.min(shot,E):E,n=E/e,A=holeArea(e),p=u.p,mods=p.modules||[],sec=u.sec[si],S=hullStructure(p),st=S.sec[si],span=f<2?S.dims[0]/u.sec.length:f<4?S.dims[2]:S.dims[1],path=[];
+ let left=e,at=0,minDep=-1,fire=false,boom=null,frame=0;
+ const structure=to=>{const l=Math.max(0,to-at)*span;at=Math.max(at,to);if(!(l>0)||!(left>0)||!(sec.s>0))return;const r=boreLayer(left,n,A,st.dens,l,st.vol*(1-PEN.destroyed*(1-sec.s/sec.max)));sec.s-=r.absorbed/* s runs out when .destroyed of the structure is gone */;frame+=r.absorbed;left=r.left;};
  const cand=[];for(let i=0;i<mods.length;i++){if(u.secOf[i]!==si||mods[i].k==='hull')continue;cand.push({i,dep:combatDepth(u,i,f,si),w:mods[i].w*(u.mods[i]>0?1:.15)*(aim&&mods[i].k===aim?6:1)});}
- for(let n=0;n<COMBAT.maxPath&&left>Q*.05&&cand.length;n++){
+ for(let k=0;k<8&&left>0&&cand.length;k++){
   let tot=0;for(const c of cand){c.p=c.dep>=minDep?c.w*Math.exp(-(c.dep-Math.max(0,minDep))/.3):0;tot+=c.p;}if(!(tot>0))break;
   let r=ctx.rand()*tot,c=cand[0];for(const x of cand){r-=x.p;if(r<=0){c=x;break;}}
-  const i=c.i,m=mods[i],hp=Math.max(1,m.hits*modQ(m,Q)),before=u.mods[i],take=Math.min(left,before*hp+modQ(m,Q)*.2),crew0=u.crew,res=combatModuleDamage(ctx,u,i,take,Q,'shot',left,shots);
-  path.push({i,name:m.name,k:m.k,dmg:Math.round(take),enter:Math.round(left),crewLost:Math.max(0,Math.round(crew0-u.crew)),before:+before.toFixed(3),after:+(u.mods[i]).toFixed(3),y:m.y??0,z:m.z??0,at:m.at??.5});
-  if(res.fire)fire=true;if(res.boom)boom=res.boom;left=(left-take)*COMBAT.through;minDep=c.dep;cand.splice(cand.indexOf(c),1);
+  structure(c.dep);if(!(left>0))break;
+  const i=c.i,m=mods[i],V=modVol(p,m),before=u.mods[i],enter=left,crew0=u.crew,b=boreLayer(left,n,A,modDens(m),Math.cbrt(V),V*(1-PEN.destroyed*(1-before))),res=combatModuleDamage(ctx,u,i,b.absorbed,Q,'shot',enter,n);
+  path.push({i,name:m.name,k:m.k,dmg:b.absorbed,enter:enter*n,crewLost:Math.max(0,Math.round(crew0-u.crew)),before:+before.toFixed(3),after:+(u.mods[i]).toFixed(3),y:m.y??0,z:m.z??0,at:m.at??.5});
+  if(res.fire)fire=true;if(res.boom)boom=res.boom;left=b.left;minDep=c.dep;cand.splice(cand.indexOf(c),1);
  }
- if(left>0)sec.s-=left*.5;
+ structure(1);
  if(sec.s<=0&&!u.secLost.includes(si))combatSectionLost(ctx,u,si);
- return {sec:si,face:f,E:Math.round(E),frame:Math.round(frame),path,fire,boom};
+ return {sec:si,face:f,E,frame,path,fire,boom,out:left*n};
 }
 // Fires grow on what burns in their section and are fought by the crew; they
 // wreck modules, kill crew, weaken the frames and spread to the next section.
@@ -85207,11 +85253,11 @@ function combatFires(ctx,u,dt,Q){
  const p=u.p,mods=p.modules||[],N=u.sec.length,dc=COMBAT.fireDC*fleetCrewEff(u)*(u.out?.6:1);
  for(let si=0;si<N;si++){
   let f=u.fire[si];if(!(f>0))continue;if(u.secLost.includes(si)){u.fire[si]=0;continue;}
-  let fuel=0,all=0;const idx=[];for(let i=0;i<mods.length;i++){if(u.secOf[i]!==si||mods[i].k==='hull')continue;all+=mods[i].w;if(u.mods[i]>0){idx.push(i);fuel+=mods[i].w*(FLAMMABLE[mods[i].k]||0);}}
+  let fuel=0,all=0;const idx=[];for(let i=0;i<mods.length;i++){if(u.secOf[i]!==si||mods[i].k==='hull')continue;all+=mods[i].w;if(u.mods[i]>0){if(!exposedMod(mods[i]))idx.push(i);/* v30 fire works on what is inside the hull */fuel+=mods[i].w*(FLAMMABLE[mods[i].k]||0);}}
   const share=all>0?fuel/all:0;f=Math.min(1,f+(COMBAT.fireGrow*(.5+share*1.6)*(.4+f)-dc)*dt);
   if(f<=0){u.fire[si]=0;ctx.ev(u,`${SECTION_NAMES[si]||'区画'}の火災を鎮火`);continue;}
-  u.fire[si]=f;u.sec[si].s-=f*COMBAT.fireFrame*Q*dt;u.crew-=(p.crewNeed||0)*COMBAT.fireCrew*f*dt;
-  if(idx.length){let tw=0;for(const i of idx)tw+=mods[i].w;let r=ctx.rand()*tw,i=idx[0];for(const j of idx){r-=mods[j].w;if(r<=0){i=j;break;}}combatModuleDamage(ctx,u,i,f*COMBAT.fireDmg*Q*dt,Q,'fire');}
+  u.fire[si]=f;u.sec[si].s-=f*COMBAT.fireFrame*COMBAT.fireShare*u.sec[si].max*dt;u.crew-=(p.crewNeed||0)*COMBAT.fireCrew*f*dt;
+  if(idx.length){let tw=0;for(const i of idx)tw+=mods[i].w;let r=ctx.rand()*tw,i=idx[0];for(const j of idx){r-=mods[j].w;if(r<=0){i=j;break;}}combatModuleDamage(ctx,u,i,f*COMBAT.fireDmg*COMBAT.fireShare*4*modBreakTT(p,mods[i])*dt,Q,'fire');}
   if(f>.55)for(const j of [si-1,si+1])if(u.sec[j]&&!u.secLost.includes(j)&&!(u.fire[j]>0)&&ctx.rand()<COMBAT.fireSpread*f*dt){u.fire[j]=.2;ctx.ev(u,`火災が${SECTION_NAMES[j]||'隣の区画'}に延焼`);}
   if(u.sec[si].s<=0&&!u.secLost.includes(si))combatSectionLost(ctx,u,si);
  }
@@ -85219,7 +85265,7 @@ function combatFires(ctx,u,dt,Q){
 // The ship breaks up when two sections are gone or a midship section goes;
 // it is out of the fight without power, without a bridge, or short of crew.
 function combatStatus(ctx,u){
- if(u.dead)return;syncPowerLossDisabled(u,ctx);u.crew=Math.max(0,u.crew);let hp=0;for(const x of u.sec)hp+=Math.max(0,x.s);u.hp=hp;
+ if(u.dead)return;syncPowerLossDisabled(u,ctx);u.crew=Math.max(0,u.crew);
  const N=u.sec.length,lost=u.secLost;
  if(lost.length>=2||lost.some(i=>i>0&&i<N-1)){u.dead=true;u.velocity=[0,0,0];u.fate=u.fateHint||'hull';u.fire=u.fire.map(()=>0);ctx.sunk(u,{reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',heat:'ジェネレーター過負荷爆発'}[u.fate]||'船体破断');return;}
  if(!u.out){const why=fleetOutReason(u);if(why){u.out=why;u.order={...u.order,type:'hold'};ctx.out(u,why);}}
@@ -85258,7 +85304,7 @@ function combatHitRecord(ctx,u,o,rec,armor){
  u.hitLog.push(rec);if(u.hitLog.length>24)u.hitLog.shift();ctx.hit?.(u,rec);return rec;
 }
 function combatResolve(ctx,u,o,dt,s){
- const p=u.p,DMG=ctx.damage??1,N=u.sec.length,Z=combatZones(p,N),Q=Math.max(1,p.hp*COMBAT.quantum);
+ const p=u.p,DMG=ctx.damage??1,N=u.sec.length,Z=combatZones(p,N),Q=hullBreakTT(p)*COMBAT.quantum;
  heatTick(ctx,u,dt);
  const {had}=shieldRechargeStep(u,s,dt,{damage:DMG,incomingShieldTT:o.sf});
  // Defence credit, own operating power and received enemy energy have separate
@@ -85271,12 +85317,12 @@ function combatResolve(ctx,u,o,dt,s){
  u.ionK=(u.ionK||0)*Math.exp(-dt/COMBAT.ionTau);if(u.penHot>0)u.penHot=Math.max(0,u.penHot-dt);
  // Armour: the hull hit spreads over the faces by bearing and over the sections
  // by area (more on the sections holding an aimed-at system).
- const shot=combatShotTT(o);let hullHit=beamLeak*(beamIncoming>0?Math.min(beamIncoming,Math.max(0,o.hull||0))/beamIncoming:0)+o.direct;
+ const shot=combatShotTT(o);ctx.shot=shot;let hullHit=beamLeak*(beamIncoming>0?Math.min(beamIncoming,Math.max(0,o.hull||0))/beamIncoming:0)+o.direct;
  const surfaceZones=!!p.surface?.patches?.length;let recs=0;try{
  if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot',surfaceZones),local=u.surfaceLastHit;
-  if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q,shot);if((rec.path.length>0||remaining>=Q*.05)&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
+  if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q,shot);if(rec.path.length>0&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
  if(p.surface?.patches?.length&&hullHit>0){const patches=p.surface.patches.filter(q=>q.exposed&&q.triangles?.length>=9),fw=o.face?.some(v=>v>0)?o.face:Z.faceShare,weighted=patches.map(q=>({q,w:q.area*(Math.max(0,q.normal[0])*fw[0]+Math.max(0,-q.normal[0])*fw[1]+Math.max(0,q.normal[2])*fw[2]+Math.max(0,-q.normal[2])*fw[3]+Math.max(0,q.normal[1])*fw[4]+Math.max(0,-q.normal[1])*fw[5])}));let total=weighted.reduce((a,x)=>a+x.w,0);if(!(total>0)){for(const x of weighted)x.w=x.q.area;total=weighted.reduce((a,x)=>a+x.w,0);}
-   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled){const rec=combatPenetrate(ctx,u,local.section,local.face,left,null,Q,shot);if((rec.path.length>0||left>=Q*.05)&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}u.surfaceFallback=true;}
+   for(const {q,w} of weighted){const budget=hullHit*w/Math.max(1e-30,total);if(!(budget>0))continue;const T=q.triangles,point=[0,1,2].map(i=>(T[i]+T[i+3]+T[i+6])/3),left=surfaceHit(ctx,u,point,budget,'shot',true),local=u.surfaceLastHit;if(left>0&&local?.handled){const rec=combatPenetrate(ctx,u,local.section,local.face,left,null,Q,shot);if(rec.path.length>0&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}u.surfaceFallback=true;}
  // The deferred hits are synced once here, also when a hit throws.
  }finally{if(surfaceZones&&typeof surfaceArmorSync==='function')surfaceArmorSync(u);}
  if(surfaceZones){
@@ -85291,7 +85337,7 @@ function combatResolve(ctx,u,o,dt,s){
     const q=[((m.at??.5)-.5)*2,m.y??0,m.z??0],vis=fw[0]*Math.max(0,q[0])+fw[1]*Math.max(0,-q[0])+fw[2]*Math.max(0,q[2])+fw[3]*Math.max(0,-q[2])+fw[4]*Math.max(0,q[1])+fw[5]*Math.max(0,-q[1]);
     const wv=m.w*(.2+vis/Math.max(1e-9,fw.reduce((a,b)=>a+b,0)));c.push([i,wv]);tot+=wv;}
    if(!(tot>0))break;let r=ctx.rand()*tot,i=c[0][0];for(const [j,wv] of c){r-=wv;if(r<=0){i=j;break;}}
-   const m=mods[i],b0=u.mods[i],take=Math.min(E,b0*Math.max(1,m.hits*modQ(m,Q)));combatModuleDamage(ctx,u,i,take,Q,'shot',E,shot>0?E0/shot:1);E-=take;
+   const m=mods[i],b0=u.mods[i],take=Math.min(E,b0*modBreakTT(p,m));combatModuleDamage(ctx,u,i,take,Q,'shot',E,shot>0?E0/shot:1);E-=take;
    if(b0>0&&u.mods[i]<=0&&m.k==='bridge')ctx.ev(u,`${m.name}に直撃・破壊`);}
   spread+=E;}
  spread=Math.max(0,spread);
@@ -85299,16 +85345,14 @@ function combatResolve(ctx,u,o,dt,s){
  if(spread>0){const ft=o.face.reduce((a,b)=>a+b,0),fw=ft>0?o.face.map(v=>v/ft):Z.faceShare,al=aims.length?aims:[['auto',1]],at=aims.length?aimTot:1;
   for(let f=0;f<6;f++){const hf=spread*fw[f];if(!(hf>0))continue;
    for(const [k,v] of al){const kind=k==='auto'?null:k,ws=[];let W=0;for(let si=0;si<N;si++){const a=Z.A[si*6+f],w=a>0&&!u.secLost.includes(si)?a*(kind?1+4*aimShare(u,si,kind):1):0;ws.push(w);W+=w;}if(!(W>0))continue;for(let si=0;si<N;si++)if(ws[si]>0)load[si*6+f]+=hf*(v/at)*ws[si]/W;}}}
- let aSum=0,iSum=0,worst=0;
+ let aSum=0,iSum=0;
  for(let z=0;z<Z.n;z++){
-  if(!(Z.A[z]>0))continue;const state={load:u.zl[z],integrity:u.zi[z]},result=armorLayerStep(state,Z.cap[z],load[z],dt);let L=result.load;u.zi[z]=result.integrity;u.zq[z]+=result.penetrated;
-  u.zl[z]=L;aSum+=Z.A[z];iSum+=Z.A[z]*u.zi[z];worst=Math.max(worst,L/Math.max(1e-9,Z.cap[z]*u.zi[z]));
-  if(load[z]>0){const si=Math.floor(z/6);u.sec[si].s-=load[z]*COMBAT.spall;if(u.sec[si].s<=0&&!u.secLost.includes(si))combatSectionLost(ctx,u,si);}
-  while(u.zq[z]>=Q&&!u.dead){u.zq[z]-=Q;const si=Math.floor(z/6),f=z%6;if(u.secLost.includes(si))continue;let r=ctx.rand()*(aimTot||1),aim=null;for(const [k,v] of aims){r-=v;if(r<=0){aim=k==='auto'?null:k;break;}}
-   const rec=combatPenetrate(ctx,u,si,f,Q,aim,Q,shot);u.penHot=8;if(recs++<3)combatHitRecord(ctx,u,o,rec,{thickness:Z.T[z],integrity:u.zi[z]});
+  if(!(Z.A[z]>0))continue;const state={load:0,integrity:u.zi[z]},result=armorBore(state,Z.A[z],Z.T[z],PEN.armorDens,load[z],shot);u.zi[z]=result.integrity;u.zl[z]=0;u.zq[z]=0;aSum+=Z.A[z];iSum+=Z.A[z]*u.zi[z];
+  if(result.penetrated>0&&!u.dead){const si=Math.floor(z/6),f=z%6;if(u.secLost.includes(si))continue;let r=ctx.rand()*(aimTot||1),aim=null;for(const [k,v] of aims){r-=v;if(r<=0){aim=k==='auto'?null:k;break;}}
+   const rec=combatPenetrate(ctx,u,si,f,result.penetrated,aim,Q,shot);u.penHot=8;if(rec.path.length>0&&recs++<3)combatHitRecord(ctx,u,o,rec,{thickness:Z.T[z],integrity:u.zi[z]});
    combatStatus(ctx,u);}
  }
- u.armor=aSum>0?iSum/aSum:1;u.armorLoad=worst;u.hot=worst>.003||hullHit>0;
+ u.armor=aSum>0?iSum/aSum:1;u.armorLoad=0;u.hot=hullHit>0;
  if(!u.dead)combatFires(ctx,u,dt,Q);
  combatStatus(ctx,u);
 }
@@ -85510,7 +85554,7 @@ function swMidFace(t,from){
 function swPulse(ctx,u,t,E){
  const C=SW_COMBAT.sbeam,received=shieldReceive(t,{energy:E,ion:0},ctx),stop=received.blocked;
  const e=E>0?(E-stop)/E:0;if(!(e>0)){ctx.ev(t,'超重合成ビームのパルスをシールドで止めた（シールドが大きく減衰）');return;}
- const N=t.sec.length,si=Math.floor(N/2),sec=t.sec[si],Q=Math.max(1,t.p.hp*COMBAT.quantum),f=swMidFace(t,u.pos);
+ const N=t.sec.length,si=Math.floor(N/2),sec=t.sec[si],Q=hullBreakTT(t.p)*COMBAT.quantum,f=swMidFace(t,u.pos);
  const gut=sec.max*Math.min(1,e*C.pulseK/Math.pow(Math.max(1,sec.max/C.secRef),C.pulseFall));
  const n=Math.max(1,Math.round(4*e));for(let i=0;i<n&&!t.dead;i++)combatPenetrate(ctx,t,si,f,Q*3,null,Q);
  if(t.dead)return;const z=si*6+f;t.zi[z]=Math.min(t.zi[z],COMBAT.minInt);t.penHot=8;
@@ -85593,7 +85637,7 @@ function superweaponStep(u,dt,o){
  }
  if(shots.length&&u.pw){u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}return shots;
 }
-const fleetIntegrity=u=>{if(!u.sec?.length)return clamp((u.hp??1)/Math.max(1,u.p?.hp||1),0,1);let s=0,m=0;for(const x of u.sec){s+=Math.max(0,x.s);m+=x.max;}return m>0?s/m:0;};
+const fleetIntegrity=u=>{if(!u.sec?.length)return 1;let s=0,m=0;for(const x of u.sec){s+=Math.max(0,x.s);m+=x.max;}return m>0?s/m:0;};
 // ---------- hulls as boxes (v17) ----------
 // For collisions and lines of fire a hull is a box of its length, height and
 // beam, turned by its yaw. Mass decides who gives way in a collision; a design
@@ -85733,7 +85777,7 @@ function hullCollide(list,opts={}){
 // zone where it was struck): closing speed times the other's share of the
 // mass, so a corvette that rams a star destroyer breaks and barely marks it.
 function hullImpact(inc,u,other,c){
- if(!(c.vn>HULL_HIT.min))return 0;const mu=u===c.a?c.ma:c.mz,mo=u===c.a?c.mz:c.ma,frac=Math.min(HULL_HIT.max,HULL_HIT.k*(c.vn-HULL_HIT.min)*2*mo/(mu+mo)),tt=frac*Math.max(1,u.p.hp||1);if(!(tt>0))return 0;
+ if(!(c.vn>HULL_HIT.min))return 0;const mu=u===c.a?c.ma:c.mz,mo=u===c.a?c.mz:c.ma,frac=Math.min(HULL_HIT.max,HULL_HIT.k*(c.vn-HULL_HIT.min)*2*mo/(mu+mo)),tt=frac*hullBreakTT(u.p);if(!(tt>0))return 0;
  const z=combatZoneAt(u.p,hullLocal(u,c.point),hullHalf(u.p));combatAdd(inc,u,c.point,{direct:tt,shot:tt},null,other.id);
  const n=(u.sec?.length||HULL_SECTIONS)*6;if(!inc.zw)inc.zw=new Array(n).fill(0);if(z<n)inc.zw[z]+=tt;return tt;
 }
@@ -85957,7 +86001,7 @@ function dockState(host,u){
 // How much a ship has lost that a dock would restore (0 to 1): the worst of hull, crew, launcher rounds, modules and stored energy.
 function dockNeed(u){
  if(!u||u.dead)return 0;const p=u.p||{},mods=p.modules||[],frac=(a,b)=>b>0?clamp(1-a/b,0,1):0;let need=0;
- const hpMax=Array.isArray(u.sec)&&u.sec.length?u.sec.reduce((n,x)=>n+Math.max(0,x.max),0):p.hp||0;need=Math.max(need,frac(Array.isArray(u.sec)&&u.sec.length?u.sec.reduce((n,x)=>n+Math.max(0,x.s),0):u.hp||0,hpMax));
+ const hpMax=Array.isArray(u.sec)&&u.sec.length?u.sec.reduce((n,x)=>n+Math.max(0,x.max),0):0;need=Math.max(need,frac(Array.isArray(u.sec)&&u.sec.length?u.sec.reduce((n,x)=>n+Math.max(0,x.s),0):0,hpMax));
  need=Math.max(need,frac(u.crew||0,p.crewMax??p.crewNeed??0));
  let st=0,have=0;for(let i=0;i<mods.length;i++)if(mods[i].k==='launcher'){st+=mods[i].stock||0;have+=u.ammo?.[i]||0;}need=Math.max(need,frac(have,st));
  if(Array.isArray(u.mods)&&mods.length){const hurt=u.mods.reduce((n,v,i)=>n+(mods[i].k==='hull'?0:1-clamp(v,0,1)),0),count=mods.filter(m=>m.k!=='hull').length;need=Math.max(need,count?hurt/count:0);}
@@ -85990,7 +86034,7 @@ function dockResupplyStep(u,dt){
  {const f=shipFuelState(u);if(f?.capacityKnown){f.fuelEnergyJ=Math.max(0,f.fuelEnergyJ*(1-k));f.consumedKg=Math.max(0,(f.consumedKg||0)*(1-k));f.remainingKg=Math.max(0,f.capacityJ-f.fuelEnergyJ)/f.specificEnergyJPerKg;f.overdrawJ=Math.max(0,f.fuelEnergyJ-f.capacityJ);}}
  {const cm=p.crewMax??p.crewNeed??0;if(Number.isFinite(u.crew)&&cm>0)u.crew=Math.min(cm,u.crew+Math.max(0,cm-u.crew)*k);if(Array.isArray(u.crewIn))u.crewIn=u.crewIn.map(v=>v+(1-v)*k);}
  if(Array.isArray(u.mods))for(let i=0;i<mods.length;i++){if(mods[i].k==='hull'||lost.has(u.secOf?.[i]))continue;const v=u.mods[i];if(v>0&&v<1)u.mods[i]=Math.min(1,v+(1-v)*r);else if(v<=0)u.mods[i]=Math.max(.02,r);}
- if(Array.isArray(u.sec)){let hp=0;for(let i=0;i<u.sec.length;i++){const x=u.sec[i];if(!lost.has(i))x.s=Math.min(x.max,Math.max(0,x.s)+(x.max-Math.max(0,x.s))*r);hp+=Math.max(0,x.s);}if(u.sec.length)u.hp=hp;}
+ if(Array.isArray(u.sec)){let hp=0;for(let i=0;i<u.sec.length;i++){const x=u.sec[i];if(!lost.has(i))x.s=Math.min(x.max,Math.max(0,x.s)+(x.max-Math.max(0,x.s))*r);hp+=Math.max(0,x.s);}}
  if(Array.isArray(u.zi)&&u.zi.length){const Z=combatZones(p,u.sec?.length||HULL_SECTIONS);let a=0,w=0;for(let z=0;z<u.zi.length;z++){if(u.zi[z]<1)u.zi[z]=Math.min(1,u.zi[z]+(1-u.zi[z])*r);a+=Z.A?.[z]||0;w+=(Z.A?.[z]||0)*u.zi[z];}if(a>0)u.armor=w/a;}
  shipHeatRepairProgress(u,r);
  // A disabled ship whose power, bridge and crew are restored is back in the fight.
@@ -86018,17 +86062,12 @@ function dockStep(units,b,dt){
 // strategic map's rate), as far as its fire-control channels reach (AA_CHANNELS.salvo rounds launched together by one ship
 // are one target) and its point defence is funded. Nothing is taken at the launch or as a share on arrival any more.
 const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:6000,pdKill:.012});
-// v29 Craft flying as ships are shot down by the craft-scale rules the game already has (a ship's hull strength, floored at 1 TT a
-// section, is 10^7 craft bolts): a bolt that lands on one downs it with CRAFT_HIT.kill (the trial pilot's rule for a bolt on a
-// craft), and a ship's point defence downs craft within its reach at the rate it downs missiles and the fleet's numbered craft
-// (MISSILE_FLIGHT.pdKill per unit of anti-air a second). The anti-air is spread over the ship's fire-control channels, one for each
-// AA_CHANNELS.flight craft in reach: a lone craft meets one channel's share, not the whole ship's.
-const CRAFT_HIT=Object.freeze({kill:.5});
-function fleetCraftCasualties(b,alive,hits,bolts,dt,pdStep,sys){
+// v29/v30 A ship's point defence downs craft flying as ships within its reach at the rate it downs missiles and the fleet's numbered
+// craft (MISSILE_FLIGHT.pdKill per unit of anti-air a second). The anti-air is spread over the ship's fire-control channels, one for
+// each AA_CHANNELS.flight craft in reach: a lone craft meets one channel's share, not the whole ship's. Gun fire that lands on a
+// craft works on it as on any hull (docs/damage-penetration.md): there is no separate chance of a kill.
+function fleetCraftCasualties(b,alive,dt,pdStep,sys){
  const down=(u,why)=>{if(u.dead)return;u.dead=true;u.fate='shot';u.fire=(u.fire||[]).map(()=>0);delete u.docked;b.events.push({time:b.time+dt,text:`${u.name}：撃墜（${why}）`,id:u.id,sunk:true});};
- // hits: the expected number landed (each shot hits with chance p and then downs with .kill, so the craft survives exp(-kill·h));
- // bolts: whole bolts that struck (the trial's flown bolts), each survived with 1-kill.
- for(const u of alive){const h=hits.get(u.id)||0,n=bolts.get(u.id)||0;if(!(h+n>0)||u.dead||u.docked)continue;if(fleetRandom(b)<1-Math.exp(-CRAFT_HIT.kill*h)*Math.pow(1-CRAFT_HIT.kill,n))down(u,'被弾');}
  for(const x of alive){
   if(x.dead||x.out||x.manual||craftUnit(x)||!automaticPointDefenseEnabled(x))continue;const aa=Math.max(0,(x.p.aa||0)-(dualIdle(x)?.aa||0));if(!(aa>0))continue;
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,craft=alive.filter(u=>!u.dead&&!u.docked&&u.team!==x.team&&craftUnit(u)&&len(sub(u.pos,x.pos))<=reach);if(!craft.length)continue;
@@ -86072,7 +86111,6 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
 }
 function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt,b.time);
  const pdStep={abstractPointDefense:true};
- const craftHits=new Map(),craftBolts=new Map(),craftHit=(x,landed,shot)=>{if(landed>0&&shot>0&&craftUnit(x))craftHits.set(x.id,(craftHits.get(x.id)||0)+landed/shot);};/* v29 expected bolts landed on craft units by the common model; whole bolts the trial saw strike */
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
  const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
  for(const u of alive)syncPowerLossDisabled(u,{out:(x,why)=>b.events.push({time:b.time,text:`${x.name}：戦闘不能（${why}）`,id:x.id})});
@@ -86119,7 +86157,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
  }
  };
  const incoming=new Map(alive.map(u=>[u.id,combatIncoming()])),shots=[];b.bumps=[];
- for(const [id,x] of opts.extra||[]){const inc=incoming.get(id),t=alive.find(v=>v.id===id);if(inc&&t)combatMerge(inc,t,x);if(t&&x.bolts>0&&craftUnit(t))craftBolts.set(id,(craftBolts.get(id)||0)+x.bolts);/* v29 the flown ship's bolts that struck a craft */}
+ for(const [id,x] of opts.extra||[]){const inc=incoming.get(id),t=alive.find(v=>v.id===id);if(inc&&t)combatMerge(inc,t,x);}
  // This tactical model abstracts aircraft and missiles at their attacking ship.
  // Choose the shared battery's role from the common pre-step snapshot, before
  // any gun fires or an arriving flight is added to its carrier's aircraft.
@@ -86184,10 +86222,10 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   let mdmg=null;if(boltOnly&&msl+imsl>0){const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0);mdmg={direct:msl*hd,ionDirect:imsl*hd,shot:mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,src:u.id,from:u.pos.slice()};amt.direct=(ord+fd)*hd;amt.ionDirect=iord*hd;if(!(ord+fd>0))delete amt.directShot;}
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
-  if(scr){const k=screenShare(scr,t,aim);craftHit(scr,(gun+ion)*k*dt,fleetShotTT(u));craftHit(t,(gun+ion)*(1-k)*dt,fleetShotTT(u));const part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
-  else{combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);craftHit(t,(gun+ion)*dt,fleetShotTT(u));}
+  if(scr){const k=screenShare(scr,t,aim);const part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
+  else{combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);}
   // What misses may strike a ship of our own close to the target.
-  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;craftHit(x,(g2+i2)*dt,fleetShotTT(u));combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
+  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
   if(bolt)shots.push({from:u.id,to:t.id,team:u.team,ion:bolt.ion>bolt.gun,gun:(bolt.gun+bolt.ion)/Math.max(1e-12,DMG),msl:0,salvo:vk>1,bolt});
   const trenchPackets=boltOnly?null:fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,salvo:vk>1,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
  }
@@ -86195,7 +86233,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
  moveFleet();
  dockStep(alive,b,dt);
  if(b.missiles?.length)fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys);
- fleetCraftCasualties(b,alive,craftHits,craftBolts,dt,pdStep,sys);
+ fleetCraftCasualties(b,alive,dt,pdStep,sys);
  // Outer-surface maps only where the caller asks (the trial, whose ships each have their map before they appear): a fleet
  // battle or a voyage started before its maps arrive keeps the hull box throughout (Opus/high review 2026-11-16).
  const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead&&!u.hyperBurst&&!u.docked&&u.order?.type!=='dock'&&!u.dockCorridor/* v26 docked and docking ships pass through their host's hangar mouth (the player's ship: dockCorridor, set by the trial) */),{radial:!!opts.radial});
@@ -86224,7 +86262,7 @@ function fleetCommit(b){
  b.phase='execute';b.last={frames,units:work.units,events:work.events,winner:work.winner,time:work.time,duration:work.time-b.time,seed:work.seed,ionBolts:work.ionBolts,missiles:work.missiles,missileN:work.missileN,missileLog:work.missileLog};return b.last;
 }
 function fleetFinish(b){if(b.phase!=='execute'||!b.last)return false;b.units=b.last.units;b.time=b.last.time;b.winner=b.last.winner;if(b.last.seed!=null)b.seed=b.last.seed;b.ionBolts=b.last.ionBolts||[];b.missiles=b.last.missiles||[];if(b.last.missileN!=null)b.missileN=b.last.missileN;if(b.last.missileLog)b.missileLog=b.last.missileLog;b.events.push(...b.last.events);b.events=b.events.slice(-80);b.turn++;b.phase=b.winner!==null?'finished':'plan';return true;}
-function fleetSample(result,elapsed){const fs=result.frames,t=fs[0].time+clamp(elapsed,0,result.duration);let i=Math.min(fs.length-2,Math.max(0,Math.floor((t-fs[0].time)/FLEET_RULES.step))),a=fs[i],b=fs[i+1]||a,q=clamp((t-a.time)/Math.max(1e-9,b.time-a.time),0,1),L=(x,y)=>lerp(x??0,y??x??0,q);return {time:t,shots:b.shots,units:a.units.map((u,k)=>{const v=b.units[k],w=q>=1?v:u;return {...u,pos:u.pos.map((x,j)=>lerp(x,v.pos[j],q)),velocity:u.velocity.map((x,j)=>lerp(x,v.velocity[j],q)),yaw:u.yaw+fleetAngle(v.yaw-u.yaw)*q,hp:L(u.hp,v.hp),shield:L(u.shield,v.shield),shieldMax:L(u.shieldMax,v.shieldMax),bank:L(u.bank,v.bank),bankMax:L(u.bankMax,v.bankMax),armor:L(u.armor,v.armor),energy:L(u.energy,v.energy),load:L(u.load,v.load),crew:L(u.crew,v.crew),air:L(u.air,v.air),launched:L(u.launched,v.launched),hatchOpen:L(u.hatchOpen,v.hatchOpen),hatchTarget:q>0?v.hatchTarget:u.hatchTarget,dead:w.dead,out:w.out,fate:w.fate,mode:w.mode,mods:w.mods,ammo:w.ammo,fire:w.fire,sec:w.sec};})};}
+function fleetSample(result,elapsed){const fs=result.frames,t=fs[0].time+clamp(elapsed,0,result.duration);let i=Math.min(fs.length-2,Math.max(0,Math.floor((t-fs[0].time)/FLEET_RULES.step))),a=fs[i],b=fs[i+1]||a,q=clamp((t-a.time)/Math.max(1e-9,b.time-a.time),0,1),L=(x,y)=>lerp(x??0,y??x??0,q);return {time:t,shots:b.shots,units:a.units.map((u,k)=>{const v=b.units[k],w=q>=1?v:u;return {...u,pos:u.pos.map((x,j)=>lerp(x,v.pos[j],q)),velocity:u.velocity.map((x,j)=>lerp(x,v.velocity[j],q)),yaw:u.yaw+fleetAngle(v.yaw-u.yaw)*q,hull:L(u.hull,v.hull),shield:L(u.shield,v.shield),shieldMax:L(u.shieldMax,v.shieldMax),bank:L(u.bank,v.bank),bankMax:L(u.bankMax,v.bankMax),armor:L(u.armor,v.armor),energy:L(u.energy,v.energy),load:L(u.load,v.load),crew:L(u.crew,v.crew),air:L(u.air,v.air),launched:L(u.launched,v.launched),hatchOpen:L(u.hatchOpen,v.hatchOpen),hatchTarget:q>0?v.hatchTarget:u.hatchTarget,dead:w.dead,out:w.out,fate:w.fate,mode:w.mode,mods:w.mods,ammo:w.ammo,fire:w.fire,sec:w.sec};})};}
 
 // A structure's local +Y may follow any contacted face, including the underside.
 // Heading, pitch and roll are applied in that local frame; mirrors stay proper
@@ -91073,7 +91111,7 @@ deriveAntiAir();
 initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceShell,fleetPrepareCollision,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- RETIRED_CRAFT_TYPES,SHIELD_RECHARGE_K,DOCK,dockState,CRAFT_PASS,craftUnit,craftPassSpeed,craftCruiseSpeed,craftWantSpeed,CRAFT_HIT,MISSILE_FLIGHT,dockResupplyStep,dockStep,dockNeed,dockWorldToLocal,dockLocalToWorld,engineDesignLimits,giantShip,nozzleShaftCapacity,nominalProfileSources,aviationConnected,surfaceMountState,surfaceCapacitorFactor,engineWasteFraction,CRUISE_SPEED_TARGET,CRUISE_SIZING_MARGIN,shipSustainedCruise,CRUISE_SPEED_TARGET,ENGINE_HEAT_CURVE,outOfAction,fleetActs,hullRadialMap,hullRadialAt,setHullRadial,hullRadialOf,hullRadialDepth,hullRefine,HULL_RADIAL,fleetBoltTT,fleetShotTT,penCrewSurvive,combatShotTT,combatPenetrate,heatRunThrottle,withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swCoolDone,swShipShotTT,exampleFleetHidden,heatRunMode,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
+ RETIRED_CRAFT_TYPES,SHIELD_RECHARGE_K,DOCK,dockState,CRAFT_PASS,craftUnit,craftPassSpeed,craftCruiseSpeed,craftWantSpeed,PEN,holeArea,modVol,modDens,modBreakTT,hullStructure,hullBreakTT,hullBulk,boreLayer,armorBore,MISSILE_FLIGHT,dockResupplyStep,dockStep,dockNeed,dockWorldToLocal,dockLocalToWorld,engineDesignLimits,giantShip,nozzleShaftCapacity,nominalProfileSources,aviationConnected,surfaceMountState,surfaceCapacitorFactor,engineWasteFraction,CRUISE_SPEED_TARGET,CRUISE_SIZING_MARGIN,shipSustainedCruise,CRUISE_SPEED_TARGET,ENGINE_HEAT_CURVE,outOfAction,fleetActs,hullRadialMap,hullRadialAt,setHullRadial,hullRadialOf,hullRadialDepth,hullRefine,HULL_RADIAL,fleetBoltTT,fleetShotTT,penCrewSurvive,combatShotTT,combatPenetrate,heatRunThrottle,withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swCoolDone,swShipShotTT,exampleFleetHidden,heatRunMode,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT, converterPowerW, wingPowerK, converterShortfall, coolingDemandW, towHeatRelief, wingConverterM3, wingDischargeArea, wingDischargeW,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   loadedShipProfile, motionMassKg, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, EXAMPLE_PROFILE_VERSION, profileModelKey, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
@@ -92180,7 +92218,7 @@ function applyUnitLoad(w,u){const t=unitLoadTonnes(w,u);if(u.loadTonnes===t)retu
 function unitStrength(u) {
  const p = u.p, sx = C.fleetSystems(u), health = unitStruct(u) * (u.out ? .15 : 1);
  const fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0);
- const tough = Math.sqrt(Math.max(1, p.hp) * Math.max(1, (p.shieldBuffer ?? p.D * 10) + 1)) * .02;
+ const tough = Math.sqrt(Math.max(1, C.hullBulk(p)) * Math.max(1, (p.shieldBuffer ?? p.D * 10) + 1)) * .02;
  return Math.sqrt(Math.max(1, fire * sx.weapon) * tough) * health + assignedAircraft(u) * 4 * (sx.hangar ?? 1);
 }
 
@@ -92771,7 +92809,7 @@ function updateBattles(w) {
 const blog = (w, sys, text, u) => { const b = w.battles.get(sys); const e = {n: w.evN = (w.evN || 0) + 1, t: w.time, text, side: u?.side, id: u?.id}; if (b) { b.log.push(e); if (b.log.length > 120) b.log.shift(); } w.events.push({...e, sys, combat: true}); if (w.events.length > 400) w.events.shift(); };
 
 // Firepower (guns, missiles, carried craft) against what is left to destroy.
-function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0) + assignedAircraft(a) * 4 + 1; return fire / (Math.max(1, p.hp || 0) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
+function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0) + assignedAircraft(a) * 4 + 1; return fire / (Math.max(1, C.hullBulk(p)) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
 // Orders inside a battle. Ships follow their task group ('group'): the group's
 // order, or on 自動交戦 the manoeuvre its guide picks. Its default firing target
 // remains independent. A ship may also be given an order of its own.
@@ -94114,7 +94152,7 @@ function supplyNeeds(w, u, ln) {
  // A split hatch cohort reserves the other flight's formation slots until it
  // rejoins. Replenish the whole squadron after that merge, never either half.
  for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || q.followSplit || q.followParent || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; const miss = q.n0 - q.n - (q.rep || 0); if (miss > .001) out.craft += miss * SUPPLY.craft * (CRAFT[q.craft]?.size || 1); }
- const hp = Math.max(1, p.hp);let sec = 0;for (let i = 0; i < u.sec.length; i++) if (!u.secLost.includes(i)) sec += Math.max(0, u.sec[i].max - Math.max(0, u.sec[i].s));out.hull = sec / hp * base * SUPPLY.repair;
+ const hp = C.hullBreakTT(p);let sec = 0;for (let i = 0; i < u.sec.length; i++) if (!u.secLost.includes(i)) sec += Math.max(0, u.sec[i].max - Math.max(0, u.sec[i].s));out.hull = sec / hp * base * SUPPLY.repair;
  const W = modTotal(p);let dm = 0, dd = 0;
  for (let i = 0; i < mods.length; i++) { const m = mods[i]; if (m.k === 'hull' || u.secLost.includes(u.secOf[i])) continue; const v = u.mods[i]; if (v > 0 && v < 1) dm += (1 - v) * (m.w || 0); else if (v <= 0 && yard) dd += m.w || 0; }
  out.thermal=C.shipHeatRepairNeed(u)*base*SUPPLY.repair*.5;
@@ -94133,7 +94171,7 @@ function supplyGive(w, u, nd, t) {
  use(nd.craft, k => { for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || q.followSplit || q.followParent || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; squadSlots(q); q.rep = (q.rep || 0) + Math.max(0, q.n0 - q.n - (q.rep || 0)) * k; const add = Math.min(q.n0 - q.n, Math.floor(q.rep + .002)); if (add > 0) { q.n += add; q.rep = Math.max(0, q.rep - add); squadSlots(q); } if (q.n >= q.n0) q.rep = 0; if (q.state === 'lost' && q.n >= 1) { q.state = 'docked'; q.sys = u.sys; q.pos = [...u.pos]; q.t = RULES.craftRearm; } } });
  use(nd.mods, k => { for (let i = 0; i < mods.length; i++) { const v = u.mods[i]; if (v > 0 && v < 1 && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.min(1, v + (1 - v) * k); } });
  use(nd.thermal,k=>C.shipHeatRepairProgress(u,k));
- use(nd.hull, k => { let hp = 0; for (let i = 0; i < u.sec.length; i++) { const x = u.sec[i]; if (!u.secLost.includes(i)) x.s = Math.min(x.max, Math.max(0, x.s) + (x.max - Math.max(0, x.s)) * k); hp += Math.max(0, x.s); } u.hp = hp; });
+ use(nd.hull, k => { let hp = 0; for (let i = 0; i < u.sec.length; i++) { const x = u.sec[i]; if (!u.secLost.includes(i)) x.s = Math.min(x.max, Math.max(0, x.s) + (x.max - Math.max(0, x.s)) * k); hp += Math.max(0, x.s); } });
  use(nd.plate, k => { const Z = C.combatZones(p, u.sec.length);let a = 0, s = 0; for (let z = 0; z < u.zi.length; z++) { if (u.zi[z] < 1) u.zi[z] = Math.min(1, u.zi[z] + (1 - u.zi[z]) * k); a += Z.A[z] || 0; s += (Z.A[z] || 0) * u.zi[z]; } u.armor = a > 0 ? s / a : 1; });
  use(nd.parts, k => { for (let i = 0; i < mods.length; i++) if (u.mods[i] <= 0 && mods[i].k !== 'hull' && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.max(.02, k); });
  // A disabled ship whose power, bridge and crew are restored is back in the fight.
