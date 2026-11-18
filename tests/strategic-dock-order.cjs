@@ -52,3 +52,24 @@ test('the carrier\'s recall sends its ships to dock instead of taking them aboar
  const {w,h,gs:[g]}=world();g.carrier=h.id;g.pos=[4500,0,0];/* inside the old 5 km */const r=R.orderCarried(w,h.id,'recover');assert.equal(r.ok,true);assert.equal(r.docking,true);
  assert.notEqual(g.status,'carried','not aboard at once');assert.equal(g.order.type,'dock');const t=run(w,900,()=>g.status==='carried');assert.ok(t!=null&&t>1,'it docks after flying in: '+t);
 });
+
+// Reviews of 2026-11-18 (physics FAIL, regression UNVERIFIED on 2fdc1cd).
+test('a ship that docks during a battle stays aboard and is repaired; the carrier\'s own ships still launch',()=>{
+ const {w,h,gs:[g]}=world();g.crew=Math.round((g.p.crewMax||g.crew)*.5);for(const x of g.sec)x.s=x.max*.4;g.hp=g.sec.reduce((n,x)=>n+x.s,0);const hp0=g.hp;
+ w.battles.set(h.sys,{sys:h.sys,t0:w.time,log:[]});/* a battle is on in the carrier's system */R.orderDock(w,g.id,h.id);
+ const t=run(w,600,()=>g.status==='carried');assert.ok(t!=null,'aboard');assert.equal(g.autoLaunch,false);
+ for(let i=0;i<120;i++){if(!w.battles.has(h.sys))w.battles.set(h.sys,{sys:h.sys,t0:w.time,log:[]});R.tick(w,.25);assert.equal(g.status,'carried','still aboard at step '+i);}
+ assert.ok(g.hp>hp0*1.1,'repaired while the battle goes on: '+g.hp+' from '+hp0);
+ assert.equal(R.orderCarried(w,h.id,'launch').n,1,'it leaves on the carrier\'s order');
+});
+
+test('a docking ship that is disabled, taken in tow, or sets out on a jump gives up the lane and the order',()=>{
+ for(const [name,spoil] of [['disabled',g=>{g.out='電源喪失';}],['towed',g=>{g.towedBy='someone';}],['jumping',g=>{g.jump={phase:'spool'};}]]){
+  const {w,h,gs}=world(2);for(const g of gs)R.orderDock(w,g.id,h.id);run(w,3);const holder=gs.find(g=>g.dockLane),other=gs.find(g=>g!==holder);assert.ok(holder&&other,name+': one holds the lane');
+  spoil(holder);R.tick(w,.25);assert.equal(holder.dockLane,undefined,name+': lane given up');assert.equal(holder.order.type,'hold',name);assert.equal(h.dockLanes[0]===holder.id,false,name);
+  holder.out=null;holder.towedBy=null;holder.jump=null;const t=run(w,900,()=>other.status==='carried');assert.ok(t!=null,name+': the other ship gets in');
+ }
+});
+
+test('a disabled host takes no ship',()=>{const {w,h,gs:[g]}=world();h.out='電源喪失';assert.equal(R.dockCheck(w,g.id,h.id).ok,false);});
+

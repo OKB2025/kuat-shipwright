@@ -95049,8 +95049,8 @@ function mergeGroups(w, a, b) {
 // jump with it and are lost with it; launched, they join its task group, and
 // it takes them back aboard when they come within carryRange.
 function carriedOf(w, u, docked = true) { const out = []; for (const x of w.units.values()) if (x.carrier === u.id && !x.dead && (docked ? x.status === 'carried' : x.status !== 'carried')) out.push(x); return out; }
-function launchCarried(w, id) {
- const c = w.units.get(id);if (!c || !alive(c) || c.sys == null || c.jump || c.out) return 0;const g = w.groups.get(c.group), list = carriedOf(w, c);
+function launchCarried(w, id, auto = false) {
+ const c = w.units.get(id);if (!c || !alive(c) || c.sys == null || c.jump || c.out) return 0;const g = w.groups.get(c.group), list = carriedOf(w, c).filter(x => !auto || x.autoLaunch !== false)/* v28 a ship that docked by order stays aboard when a battle starts */;
  list.forEach((x, n) => { const sideK = n % 2 ? 1 : -1, off = (c.p.width || c.p.len * .4) * .5 + (x.p.width || 60) * .5 + 150 + 120 * (n >> 1);
   x.status = 'ready';x.sys = c.sys;x.pos = add(c.pos, frameVec([Math.cos(c.yaw), 0, Math.sin(c.yaw)], [-c.p.len * .15, 0, sideK * off]));x.yaw = c.yaw;x.velocity = [...(c.velocity || [0, 0, 0])];
   // v28 It leaves by a hangar mouth it fits (outside it, clear of the hull, the later ones farther out), where one is known.
@@ -95080,6 +95080,7 @@ function dockCheck(w, id, hostId) {
  if (!u || !alive(u) || u.out) return {ok: false, why: 'この艦は命令を受けられません'};
  if (!h || !alive(h) || h === u || h.side !== u.side) return {ok: false, why: '入渠先には味方の別の艦を選んでください'};
  if (h.sys == null || h.sys !== u.sys || h.warp || h.jump) return {ok: false, why: '同じ星系にいて、ジャンプ中でない艦にだけ入渠できます'};
+ if (h.out) return {ok: false, why: '入渠先が行動不能です'};
  if (!(h.p.mouths || []).some(m => Array.isArray(m.o) && Array.isArray(m.bs) && dockFitsMouth(m, u))) return {ok: false, why: `${h.name}には、${u.name}が通れる格納庫の開口がありません`};
  const need = C.shipStowSize(dockDims(u)), room = stowRoom(w, h, u);
  if (need > room + 1e-9) return {ok: false, why: `${h.name}の格納庫に空きがありません（必要 ${need}、空き ${Math.max(0, Math.round(room * 100) / 100)}）`, need, room};
@@ -95102,15 +95103,21 @@ function dockLane(w, h, u, ds) {
 function dockTick(w, dt) {
  for (const u of w.units.values()) {
   if (u.order?.type !== 'dock') { if (u.dockLane) dockRelease(w, u); continue; }
-  if (!alive(u)) { dockRelease(w, u); continue; }
+  if (!alive(u)) { dockRelease(w, u); if (!u.dead && u.status !== 'carried') { u.order = {...u.order, type: 'hold'}; delete u.order.target; } continue; }/* withdrawn or sent to the rear: the order ends */
   const h = w.units.get(u.order.target), stop = why => { dockRelease(w, u); u.order = {...u.order, type: 'hold'}; delete u.order.target; event(w, `${u.name}：入渠を中止（${why}）`, {side: u.side, sys: u.sys}); };
   if (!h || !alive(h) || h.side !== u.side) { stop('入渠先が失われた'); continue; }
   if (h.sys !== u.sys || h.warp || h.jump) { stop('入渠先がいない'); continue; }
-  if (u.out || u.towedBy) continue;
+  // A ship that can no longer fly in (disabled, under tow) or is leaving (jumping) gives up the lane and the order.
+  if (u.out || u.towedBy) { stop(u.out ? '航行不能' : '牽引されている'); continue; }
+  if (u.jump || u.warp) { stop('ジャンプに入る'); continue; }
+  if (h.out) { stop('入渠先が行動不能'); continue; }
   const ds = C.dockState(h, u);if (!ds) { stop('通れる開口がない'); continue; }
   if (!ds.inside || u.dockLane?.host !== h.id/* only the ship that holds the lane goes aboard */ || len(sub(u.velocity || [0, 0, 0], h.velocity || [0, 0, 0])) > C.DOCK.speed) continue;
   if (C.shipStowSize(dockDims(u)) > stowRoom(w, h, u) + 1e-9) { stop('格納庫に空きがない'); continue; }
   dockRelease(w, u);u.carrier = h.id;u.order = {...u.order, type: 'group'};delete u.order.target;dockCarried(w, u, h);
+  // It stays aboard through a battle (physics review 2026-11-18: carriers launch their ships when a battle starts, and a ship
+  // that had just docked was put out again in the same step); it leaves by the carrier's launch order.
+  u.autoLaunch = false;
   event(w, `${u.name}：${h.name}の格納庫に入渠`, {side: u.side, sys: h.sys});
  }
 }
@@ -95138,7 +95145,7 @@ function carriedTick(w, dt = 0) {
   // v28 A ship aboard is resupplied and repaired as a docked ship is in a fleet battle (C.dockResupplyStep: rounds, crew, hull,
   // modules, armour, heat damage, fuel, stored energy), while its carrier can act.
   if (dt > 0 && alive(c) && !c.out) C.dockResupplyStep(x, dt);
-  if (x.autoLaunch !== false && c.sys != null && w.battles.has(c.sys) && !c.jump && !c.out && alive(c) && !c.holdCarried) launchCarried(w, c.id);
+  if (x.autoLaunch !== false && c.sys != null && w.battles.has(c.sys) && !c.jump && !c.out && alive(c) && !c.holdCarried) launchCarried(w, c.id, true);
  }
 }
 function orderCarried(w, id, what) {

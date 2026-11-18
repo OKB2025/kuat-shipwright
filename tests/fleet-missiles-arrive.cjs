@@ -72,6 +72,14 @@ test('a salvo carries the part its ship aims at and the range it aimed from',()=
  assert.ok(Math.abs(share(far)-C.aimHold(t,'bridge',30000))<1e-12);
 });
 
+test('the arriving salvo uses its launch range: without it the strike gathers on the bridge',()=>{
+ // Physics review 2026-11-18: the two checks above test the salvo and combatAdd apart; this one goes through the arrival.
+ // one volley of twelve rounds at an Imperial I, so the bridge is hurt but not gone
+ const bridge=(tamper)=>{const f=duel(30000,{target:'imperial'});f.a.order={...f.a.order,aim:'bridge'};for(let t=0;t<40;t+=.25){C.fleetTick(f.B,.25,{});if(f.B.missiles.length)f.a.order={...f.a.order,fire:false};if(tamper)for(const m of f.B.missiles)delete m.aimRange;}
+  const idx=f.b.p.modules.map((m,i)=>m.k==='bridge'?i:-1).filter(i=>i>=0);assert.ok(idx.length,'the target has a bridge module');assert.ok(f.B.missileLog.hit>0);return {left:idx.reduce((n,i)=>n+f.b.mods[i],0)/idx.length,hit:f.B.missileLog.hit};};
+ const kept=bridge(false),lost=bridge(true);assert.equal(kept.hit,lost.hit);assert.ok(kept.left>0&&lost.left<kept.left-1e-6,`bridge left ${kept.left} with the launch range, ${lost.left} judged from where the ${kept.hit} rounds came in`);
+});
+
 test('an AI ship that aims at a large target\'s bridge sends its missiles there too',()=>{
  // fleetAim(u,t,true): a target 2.5 times the ship's size or more with its shields down to 92% or less
  const pa=plain(F.designs.arquitens.p);pa.gunArcs=pa.gunArcs.map(()=>0);pa.ionArcs=(pa.ionArcs||[]).map(()=>0);
