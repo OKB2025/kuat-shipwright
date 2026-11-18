@@ -36,7 +36,8 @@ test('the Death Star is in the fleet catalogue but is not offered when a fleet i
  assert.equal(C.exampleFleetHidden('deathstar'),true);assert.equal(C.exampleFleetHidden('deathstar#2'),true);assert.equal(C.exampleFleetHidden('onager'),false);assert.equal(C.exampleFleetHidden('no-such-key'),false);
  // the three lists a fleet is put together from leave hidden examples out (the fleet screen's source list, the campaign's designs, the patrol escorts)
  const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
- assert.ok(app.includes("Object.entries(C.DESIGNS).filter(([k])=>!C.exampleFleetHidden(k))"));assert.ok(app.includes("if (!C.exampleFleetHidden(d.key)) out.push({key: d.key,"));assert.ok(app.includes("Object.values(YardFleetData?.designs || {}).filter(d => !C.exampleFleetHidden(d.key))"));assert.ok(app.includes("if(C.exampleFleetHidden(source)){"));
+ // 2026-11-18 expectation changed (user decision「公試だけ出す」): the source list takes a flag, and only the trial's spawn list asks for hidden examples.
+ assert.ok(app.includes("Object.entries(C.DESIGNS).filter(([k])=>all||!C.exampleFleetHidden(k))"));assert.ok(app.includes("function fleetOptions(all=false)"));assert.equal(app.split("fleetOptions(true)").length-1,1,'only one caller asks for hidden examples');assert.ok(app.includes("<select data-spawn-source aria-label=\"出す艦\">${fleetOptions(true)"),'and it is the trial spawn list');assert.ok(app.includes("if (!C.exampleFleetHidden(d.key)) out.push({key: d.key,"));assert.ok(app.includes("Object.values(YardFleetData?.designs || {}).filter(d => !C.exampleFleetHidden(d.key))"));assert.ok(app.includes("if(C.exampleFleetHidden(source)){"));
 });
 // Physics re-review 2026-11-15: the figures the superlaser's fixes depend on, read from the stored design.
 test('the stored design is strict, its dish gives 53 ZT, and its exhaust port takes the full shot\'s loss',()=>{

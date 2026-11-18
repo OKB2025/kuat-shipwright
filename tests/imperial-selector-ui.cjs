@@ -5,7 +5,7 @@ function setup(){
  for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/lang-en.js','js/i18n.js'])run(fs.readFileSync(path.join(root,file),'utf8'));
  run(`const C=Core,CRAFT_OPEN=false,esc=s=>String(s??''),fLen=n=>n+' m';let fleet={source:'imperial2',saves:[]};`);
  function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
- section('const EXAMPLE_PURPOSE =','const titleState =');section('function titleLoadHTML()', '// Patrol:');section('function fleetOptions()', 'function fleetRoster()');
+ section('const EXAMPLE_PURPOSE =','const titleState =');section('function titleLoadHTML()', '// Patrol:');section('function fleetOptions(', 'function fleetRoster()');/* 2026-11-18: fleetOptions(all=false) since the trial's spawn list also offers hidden examples (the Death Star) */
  return {run,c,section};
 }
 test('Imperial I and II have exactly one distinct native editor example each',()=>{
