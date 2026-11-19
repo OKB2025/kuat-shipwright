@@ -86078,7 +86078,7 @@ function craftGunsBear(u,t){if(!craftUnit(u)||!t?.pos)return true;const d=sub(t.
 //    bow on the space ahead (the only way into the gun's envelope);
 //  - with the heading crossing angle within .match (45 degrees) it matches the opponent's speed; turning, it holds its corner speed.
 // Out-of-plane moves (the yo-yos, the two-second roll out of plane) are not flown: hulls here turn in yaw only.
-const CRAFT_DOGFIGHT=Object.freeze({pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
+const CRAFT_DOGFIGHT=Object.freeze({astern:20,jinkS:1.2,pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
 // Roll and pull toward a point. f is the bow, up the lift vector. It rolls at CRAFT_DOGFIGHT.roll rad/s until the lift vector points
 // at the side the point is on, and pitches up toward it at up to `rate`; a point a little below its bow it reaches by pitching
 // down (at half the rate) instead of rolling over.
@@ -86115,8 +86115,21 @@ function dogfightAim(u,t,st,dt){
  // (within .threat degrees), it rolls out of the line of fire. One full roll (.barrelS), then at least .barrelWait before the next.
  st.barrelWait=Math.max(0,(st.barrelWait||0)-dt);if(st.barrel>0){st.barrel-=dt;if(!(st.barrel>0))st.barrelWait=CRAFT_DOGFIGHT.barrelWait;return [t.pos[0],t.pos[1],t.pos[2]];}
  if(!(st.barrelWait>0)){const mine=Math.abs(fleetAngle(Math.atan2(u.pos[2]-t.pos[2],u.pos[0]-t.pos[0])-(u.yaw||0)))/* how far off my six the opponent is: pi = dead astern */,itsBow=Math.abs(fleetAngle(Math.atan2(u.pos[2]-t.pos[2],u.pos[0]-t.pos[0])-(t.yaw||0)));
-  const closing=g.aspect<Math.PI/2&&g.hca<=CRAFT_DOGFIGHT.match*Math.PI/180&&g.range<CRAFT_DOGFIGHT.hold*1.5&&vu-vt>CRAFT_DOGFIGHT.oopClose,threatened=g.range<CRAFT_DOGFIGHT.gun&&mine>Math.PI*2/3&&itsBow<CRAFT_DOGFIGHT.threat*Math.PI/180;
-  if(closing||threatened){st.barrel=CRAFT_DOGFIGHT.barrelS;st.barrelDir=st.side||1;return [t.pos[0],t.pos[1],t.pos[2]];}}
+  const closing=g.aspect<Math.PI/2&&g.hca<=CRAFT_DOGFIGHT.match*Math.PI/180&&g.range<CRAFT_DOGFIGHT.hold*1.5&&vu-vt>CRAFT_DOGFIGHT.oopClose;
+  if(closing){st.barrel=CRAFT_DOGFIGHT.barrelS;st.barrelDir=st.side||1;return [t.pos[0],t.pos[1],t.pos[2]];}}
+ // Defence against guns (Shaw, Fighter Combat, PDF pp. 44-48; docs/reference/fighter-combat-notes.md table 2-A). With the opponent
+ // astern inside gun range and its bow coming onto it: (A3) it leaves the plane of the turn, rolling about a quarter turn and
+ // pulling at right angles to the opponent's plane; (A4) with the opponent dead astern, where there is no angle to leave by,
+ // it jinks, each time into a plane at least a quarter turn from the last, in no regular order. Otherwise (A2) it turns hard
+ // into the opponent, which the pursuit below already does.
+ {const f=u.att?.f||[Math.cos(u.yaw||0),0,Math.sin(u.yaw||0)],hold=()=>add(u.pos,add(mul(f,400),mul(st.defDir,700)));
+  if(st.def>0){st.def-=dt;return hold();}
+  const back=Math.atan2(u.pos[2]-t.pos[2],u.pos[0]-t.pos[0]),mine=Math.abs(fleetAngle(back-(u.yaw||0)))/* 0: the opponent is dead astern of me */,itsBow=Math.abs(fleetAngle(back-(t.yaw||0)));
+  if(g.range<CRAFT_DOGFIGHT.gun&&mine<Math.PI/3&&itsBow<CRAFT_DOGFIGHT.threat*Math.PI/180){
+   const los=norm(sub(t.pos,u.pos));let e1=cross(f,los);if(len(e1)<.15){e1=cross(f,[0,1,0]);if(len(e1)<.15)e1=cross(f,[0,0,1]);}e1=norm(e1);const e2=norm(cross(f,e1));
+   if(mine<CRAFT_DOGFIGHT.astern*Math.PI/180){st.jn=(st.jn||0)+1;const a=(st.ja||0)+Math.PI/2+((st.jn*2.399963)%Math.PI);st.ja=a;st.defDir=norm(add(mul(e1,Math.cos(a)),mul(e2,Math.sin(a))));st.def=CRAFT_DOGFIGHT.jinkS;}
+   else{st.oopSign=-(st.oopSign||1);st.defDir=mul(e1,st.oopSign);st.def=CRAFT_DOGFIGHT.oopS;}
+   return hold();}}
  // behind it or abeam of it
  if(g.aspect<Math.PI/2){
   if(g.range>CRAFT_DOGFIGHT.gun){const back=Math.min(CRAFT_DOGFIGHT.lagMax,g.range*CRAFT_DOGFIGHT.lag)*(g.range>CRAFT_DOGFIGHT.outside?4:1)/* outside its turn circle: make for where it began its turn */;return [t.pos[0]-th[0]*back,t.pos[1],t.pos[2]-th[2]*back];}
