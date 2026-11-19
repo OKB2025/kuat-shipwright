@@ -9791,6 +9791,7 @@ Object.assign(root.KS_EN.messages,{
 "トラクター・ビーム投射機が損傷しています": "The tractor beam projectors are damaged",
 "戦闘不能の艦は移乗攻撃できません": "A disabled ship cannot board",
 "接舷できるのはシールドが {0}% 以下の敵艦です": "Only an enemy ship with shields at {0}% or less can be boarded",
+"拿捕できるのは、戦闘不能・イオン被弾から再起動中・艦橋を失った敵艦か、シールドを失った敵艦です": "Only an enemy ship that is disabled, restarting after ion fire or without its bridge, or one that has lost its shields, can be captured",
 "移乗させる兵員がいません": "No troops to send across",
 "すでに移乗攻撃中です": "Already boarding",
 "移乗攻撃していません": "Not boarding",
