@@ -9770,6 +9770,10 @@ Object.assign(root.KS_EN.terms,{
 "目標がシールドを回復": "target's shields restored",
 "艦橋を制圧、乗員が降伏": "bridge taken, the crew surrendered",
 "中央制御を掌握、ドロイドを停止": "central control seized, droids shut down",
+"艦橋を制圧、ドロイドが降伏": "bridge taken, the droids surrendered",
+"艦橋喪失：統制射撃と指揮を失う（最後の命令のまま戦闘を続ける）": "bridge lost: directed fire and command are gone (it fights on under its last order)",
+"決戦を挑む：至近距離へ詰める": "pressing for a decision: closing to point-blank range",
+"距離を取って砲撃に戻る": "falling back to fire from its stand-off",
 "守備隊が降伏": "defenders surrendered",
 "回航要員不足": "Short of a Prize Crew"
 });

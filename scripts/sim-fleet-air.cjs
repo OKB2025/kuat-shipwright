@@ -81,7 +81,7 @@ function run(seed){
  let t=0,lastAssign=-Infinity;
  for(;t<LIMIT;t+=STEP){
   // The ships: each attacks the nearest effective enemy ship (fleetAiOrders' rule, for both sides; craft are not ship targets).
-  for(const team of [0,1])for(const s of ships[team]){if(s.dead||s.out)continue;const foes=ships[1-team].filter(up),live=foes.filter(eff),q=C.fleetTargetCandidates(s,live.length?live:foes,Infinity,null,false)[0]?.target;s.order={type:q?'attack':'hold',target:q?.id,fire:true,launch:false,power:'auto',aim:'auto',autoPointDefense:true,...(st.press[team]?{press:true}:{})};}
+  for(const team of [0,1])for(const s of ships[team]){if(s.dead||s.out||C.bridgeLost(s)/* a ship without its bridge keeps its last order */)continue;const foes=ships[1-team].filter(up),live=foes.filter(eff),q=C.fleetTargetCandidates(s,live.length?live:foes,Infinity,null,false)[0]?.target;s.order={type:q?'attack':'hold',target:q?.id,fire:true,launch:false,power:'auto',aim:'auto',autoPointDefense:true,...(st.press[team]?{press:true}:{})};}
   if(t-lastAssign>=REASSIGN-1e-9){lastAssign=t;for(const team of [0,1]){const on=PRESSAI&&C.fleetPressJudge(ships[team],ships[1-team],st.press[team]);if(on!==st.press[team])st.pressLog.push(`${t}s ${NAMES[team]} ${on?'presses for a decision':'falls back to its stand-off'}`);st.press[team]=on;}control();assign(0,t);assign(1,t);}
   for(const team of [0,1]){bomberOrders(team);
    // Fighters fire a concussion missile at a craft before their bow inside AIRSHOT m, then wait AIRWAIT seconds.
