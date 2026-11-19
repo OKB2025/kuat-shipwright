@@ -86294,20 +86294,26 @@ const FLAK=Object.freeze({radius:60,couple:2e-10});/* a burst of an Imperial-cla
 // each a .split-th of the energy, laid in a pattern .barrage times a round's size across: a round is downed by any bolt of the
 // pattern that covers it. Against craft the pattern does not add energy: what lands is still the common hit chance on the craft.
 const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.5/* user decision 2026-11-19「点防御をナーフ。命中率を下げて」: was .85 (★ the figure is ours) */,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
-// v30 Anti-air fire needs the ship's sensors (user decision 2026-11-19「Xウィングなどでセンサー類を破壊して対空能力を落とせないか」): its
-// targeting sensors track the craft and rounds its point defence and its guns' bursts are laid on. With them gone it keeps
-// ANTI_AIR.blind of its fire-control channels (never fewer than one) and of its chance to hit a craft or a round; in between it
-// goes with the share of the sensors still working (fleetSystems().sensor). A ship built without sensor modules is not changed.
-// ★ The share kept is ours.
-const ANTI_AIR=Object.freeze({blind:.25});
-function antiAirTrack(x){const s=clamp(fleetSystems(x).sensor??1,0,1);return ANTI_AIR.blind+(1-ANTI_AIR.blind)*s;}
-function antiAirChannels(x){return Math.max(1,Math.round((x.p.aaCh??AA_CHANNELS.base*4)*antiAirTrack(x)));}
+// v30 Anti-air fire and the ship's sensors (user decisions 2026-11-19「Xウィングなどでセンサー類を破壊して対空能力を落とせないか」
+// 「超近距離の対ミサイル、対魚雷は自動迎撃、対航空機と近中距離にISD72xセンサーが必要という形にしよう」):
+// - against missiles and torpedoes within ANTI_AIR.close m of the hull (plus half its length from its centre), point defence
+//   intercepts on its own: every mount lays itself, with all the ship's channels, sensors or not;
+// - against craft, and against rounds farther out than that, it needs the ship's targeting sensors (the ISD-72x globes of an
+//   Imperial-class ship: its sensor modules): its channels and its chance to hit go with the share of them still working,
+//   and with none left it does not engage at all. The guns' bursts near craft need them the same way.
+// A ship built without sensor modules is not changed (its tracking is taken to be in its bridge). ★ The distance is ours.
+const ANTI_AIR=Object.freeze({close:1500});
+// The tracking sensors are the sensor modules that are not communications gear (the same test computeStats uses for a ship's
+// sensors: a label with 通信 and no word for sensing is a communications mast).
+const trackingSensor=m=>m.k==='sensor'&&!(/通信/.test(m.name||'')&&!/センサー|標的|追跡|走査|索敵/.test(m.name||''));
+function antiAirTrack(x){const mods=x.p?.modules||[];let all=0,up=0;for(let i=0;i<mods.length;i++){if(!trackingSensor(mods[i]))continue;const w=mods[i].share||1;all+=w;up+=w*clamp(x.mods?.[i]??1,0,1)*powerFactor(x,'sensor',i);}return all>0?clamp(up/all,0,1):1;}
+function antiAirChannels(x){const n=x.p.aaCh??AA_CHANNELS.base*4,k=antiAirTrack(x);return k>0?Math.max(1,Math.round(n*k)):0;}
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n/POINT_DEFENSE.split:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
  for(const x of alive){
   if(x.dead||x.out||x.manual||craftUnit(x)||!automaticPointDefenseEnabled(x))continue;const G=pointDefenseGuns(x);if(!(G.rate>0))continue;
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,craft=alive.filter(u=>!u.dead&&!u.docked&&u.team!==x.team&&craftUnit(u)).map(u=>({u,d:len(sub(u.pos,x.pos))})).filter(q=>q.d<=reach).sort((a,z)=>a.d-z.d);if(!craft.length)continue;
-  const channels=antiAirChannels(x),own0=alive.filter(f=>!f.dead&&!f.docked&&f.team===x.team&&f!==x&&craftUnit(f)),masked=q=>{const dir=mul(sub(q.u.pos,x.pos),1/Math.max(1,q.d));return own0.some(f=>{const r=sub(f.pos,x.pos),al=dot(r,dir);return al>=0&&al<=q.d+POINT_DEFENSE.ffBeyond&&len(sub(r,mul(dir,al)))<POINT_DEFENSE.ffHold;});},clear=craft.filter(q=>!masked(q)),engaged=clear.slice(0,channels)/* working with its own craft: a channel whose line is masked by one of them takes the next target instead of holding */;x.pdMasked=craft.length-clear.length;if(!engaged.length)continue;const funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,POINT_DEFENSE.output)/* it pays for the lowered output it fires (physics review 2026-11-19) */;if(!(funded>0))continue;
+  const channels=antiAirChannels(x),own0=alive.filter(f=>!f.dead&&!f.docked&&f.team===x.team&&f!==x&&craftUnit(f)),masked=q=>{const dir=mul(sub(q.u.pos,x.pos),1/Math.max(1,q.d));return own0.some(f=>{const r=sub(f.pos,x.pos),al=dot(r,dir);return al>=0&&al<=q.d+POINT_DEFENSE.ffBeyond&&len(sub(r,mul(dir,al)))<POINT_DEFENSE.ffHold;});},clear=craft.filter(q=>!masked(q)),engaged=clear.slice(0,channels)/* working with its own craft: a channel whose line is masked by one of them takes the next target instead of holding */;x.pdMasked=craft.length-clear.length;if(!engaged.length)continue;/* with no sensors left there are no channels for craft */const funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,POINT_DEFENSE.output)/* it pays for the lowered output it fires (physics review 2026-11-19) */;if(!(funded>0))continue;
   const each=G.rate*POINT_DEFENSE.output*funded*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)/engaged.length,control=fleetSystems(x).fire;
   // Friendly fire (user decision 2026-11-19「点防御のフレンドリーファイアも実装して、艦のAIはそれを避けようとする形に」). Bolts that miss their
   // target go on along the line of fire: a craft of the ship's own side near that line takes a share of them (.stray, falling to
@@ -86346,8 +86352,8 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   if(x.dead||x.out||x.manual||!automaticPointDefenseEnabled(x))continue;const aa=Math.max(0,(x.p.aa||0)-(dualIdle(x)?.aa||0));if(!(aa>0))continue;
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,groups=new Map();
   for(const m of b.missiles){if(!(m.n>0)||m.team===x.team||m.launchClearance>0||len(sub(m.pos,x.pos))>reach)continue;let g=groups.get(m.salvo??m.id);if(!g)groups.set(m.salvo??m.id,g={n:0,list:[]});g.n+=m.n;g.list.push(m);}
-  let left=antiAirChannels(x);const track=antiAirTrack(x);
-  for(const g of groups.values()){if(!(left>0))break;const need=Math.max(1,Math.ceil(g.n/AA_CHANNELS.salvo)),got=Math.min(need,left),funded=fundAutomaticPointDefense(x,g.list[0].pos,dt,pdStep,POINT_DEFENSE.output*got/Math.max(1,x.p.aaCh??AA_CHANNELS.base*4))/* physics review 2026-11-19: it pays for what it fires at this salvo (its channels' share of the lowered output), not its whole output */;if(!(funded>0))continue;left-=got;
+  let leftTracked=antiAirChannels(x),leftAuto=x.p.aaCh??AA_CHANNELS.base*4;const tracking=antiAirTrack(x),closeIn=ANTI_AIR.close+x.p.len*.5;
+  for(const g of groups.values()){const auto=len(sub(g.list[0].pos,x.pos))<=closeIn/* automatic interception at very close range; farther out it needs the sensors */,left=auto?leftAuto:leftTracked,track=auto?1:tracking;if(!(left>0)||!(track>0))continue;const need=Math.max(1,Math.ceil(g.n/AA_CHANNELS.salvo)),got=Math.min(need,left),funded=fundAutomaticPointDefense(x,g.list[0].pos,dt,pdStep,POINT_DEFENSE.output*got/Math.max(1,x.p.aaCh??AA_CHANNELS.base*4))/* physics review 2026-11-19: it pays for what it fires at this salvo (its channels' share of the lowered output), not its whole output */;if(!(funded>0))continue;if(auto)leftAuto-=got;else leftTracked-=got;
    const G=pointDefenseGuns(x),dm=len(sub(g.list[0].pos,x.pos)),bolts=G.shot>0?G.rate*POINT_DEFENSE.output/G.shot:0,kill=bolts>0?Math.min(g.n,track*bolts*(got/Math.max(1,x.p.aaCh??AA_CHANNELS.base*4))*gunHitChance(x,{pos:g.list[0].pos,velocity:g.list[0].vel,p:{len:POINT_DEFENSE.roundLen*POINT_DEFENSE.barrage,width:POINT_DEFENSE.roundLen*POINT_DEFENSE.barrage,height:POINT_DEFENSE.roundLen*POINT_DEFENSE.barrage}},dm,reach,fleetSystems(x).fire)*POINT_DEFENSE.hit*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*funded)/* v30 point defence fires at rounds as it does at craft: its guns' bolts, the common hit chance on a body the round's size, one bolt downs a round */:Math.min(g.n,MISSILE_FLIGHT.pdKill*aa*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*got/need*funded);if(!(kill>0))continue;for(const m of g.list){const part=kill*m.n/g.n;m.n-=part;m.downed=(m.downed||0)+part;log().downed+=part;}}
  }
  for(const {m,t,from} of arrived){
