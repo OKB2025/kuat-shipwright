@@ -86219,7 +86219,7 @@ function dockStep(units,b,dt){
 // .pdRange (plus half its length) for as long as they are there, at .pdKill rounds per second per point of anti-air (the
 // strategic map's rate), as far as its fire-control channels reach (AA_CHANNELS.salvo rounds launched together by one ship
 // are one target) and its point defence is funded. Nothing is taken at the launch or as a share on arrival any more.
-const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:6000,pdKill:.012});
+const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:6000,pdKill:.012,turn:.6,craftFuse:40});
 // v30 Point defence against craft flying as ships (user decision 2026-11-19「点防御レーザーは航空機の固定レーザーと同じ計算にして」): its
 // lasers are guns like a craft's fixed lasers. What they put out is their own power (the point-defence and dual-purpose weapon
 // modules still working, as far as the weapon charge funds them); what lands is the common gun hit chance at that range against
@@ -86254,14 +86254,18 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   const from=m.pos,flightDt=Math.min(dt,m.life);m.s=Math.min(roundSpeed(m.kind),m.s+MISSILE_FLIGHT.accel*flightDt);
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,travel=Math.min(distance,Math.max(0,m.range-m.traveled));if(distance>0)m.pos=add(m.pos,mul(velocity,seconds*travel/distance));m.traveled=Math.min(m.range,m.traveled+travel);};
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=mul(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
-  const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),r=len(aim);m.vel=mul(norm(add(aim,mul(t.velocity||[0,0,0],r/Math.max(300,m.s)))),m.s);advance(m.vel,follow);}m.life-=dt;
+  const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),r=len(aim);let dir=norm(add(aim,mul(t.velocity||[0,0,0],r/Math.max(300,m.s))));
+   // v30 A round turns only so fast (MISSILE_FLIGHT.turn rad/s): a ship cannot get out of its way, a craft that turns hard inside
+   // its circle can (user decision 2026-11-19: concussion missiles may be fired at craft).
+   {const was=len(m.vel)>1?norm(m.vel):dir,ang=Math.acos(clamp(dot(was,dir),-1,1)),max=MISSILE_FLIGHT.turn*follow;if(ang>max&&ang>1e-6)dir=norm(add(mul(was,1-max/ang),mul(dir,max/ang)));}
+   m.vel=mul(dir,m.s);advance(m.vel,follow);}m.life-=dt;
   // Expiry is resolved before the strike, including the final capped step.
   if(m.traveled>=m.range||!(m.life>0)){m.life=0;m.n=0;m.lost='spent';continue;}
   // The strike is judged along the path flown in this step (its closest approach to the target), so a round that would step
   // across the target's reach lands instead of circling it: at 2600 m/s a 0.25 s step is 650 m against a reach of 300 m, and
   // judged at the step's start a third of an MC75's rounds flew past a 600 m ship until their motors ran out (2026-11-18).
   const seg=sub(m.pos,from),sl=dot(seg,seg),k=sl>0?clamp(dot(sub(t.pos,from),seg)/sl,0,1):0,d=len(sub(t.pos,add(from,mul(seg,k))));
-  if(!(m.launchClearance>0)&&d<Math.max(300,t.p.len*.4))arrived.push({m,t,from});
+  if(!(m.launchClearance>0)&&d<Math.max(craftUnit(t)?MISSILE_FLIGHT.craftFuse:300,t.p.len*.4))arrived.push({m,t,from});
  }
  // Point defence, on every salvo within reach this step (those about to strike included).
  for(const x of alive){
