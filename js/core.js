@@ -86280,7 +86280,7 @@ const FLAK=Object.freeze({radius:60,couple:2e-10});/* a burst of an Imperial-cla
 // 「点防御の威力を下げた分さらに連射速度とばら撒きを増やしてミサイルは落とせるようにする」(2026-11-19): the same output in .split times as many bolts,
 // each a .split-th of the energy, laid in a pattern .barrage times a round's size across: a round is downed by any bolt of the
 // pattern that covers it. Against craft the pattern does not add energy: what lands is still the common hit chance on the craft.
-const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.85,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
+const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.5/* user decision 2026-11-19「点防御をナーフ。命中率を下げて」: was .85 (★ the figure is ours) */,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n/POINT_DEFENSE.split:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
  for(const x of alive){
