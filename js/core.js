@@ -86303,13 +86303,16 @@ const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.5/* user decision 202
 //   and with none left it does not engage at all.
 // - a ship that carries no such sensors (user decision 2026-11-19「逆に搭載されてない艦は近距離迎撃と対艦攻撃チャンネルの延長としての対空
 //   攻撃のみで」) has the close-in interception and nothing else of its point defence. What it has against craft is its guns:
-//   fire at craft with the channels it fights ships with (the bursts near craft, FLAK), which does not go through these sensors,
-//   on any ship. ★ The distance is ours.
+//   fire at craft with the channels it fights ships with (the bursts near craft, FLAK). On a ship that does carry tracking
+//   sensors the bursts are laid through them too (antiAirGunTrack), so they stop with the sensors. ★ The distance is ours.
 const ANTI_AIR=Object.freeze({close:1500});
 // The tracking sensors are the sensor modules that are not communications gear (the same test computeStats uses for a ship's
 // sensors: a label with 通信 and no word for sensing is a communications mast).
 const trackingSensor=m=>m.k==='sensor'&&!(/通信/.test(m.name||'')&&!/センサー|標的|追跡|走査|索敵/.test(m.name||''));
 function antiAirTrack(x){const mods=x.p?.modules||[];let all=0,up=0;for(let i=0;i<mods.length;i++){if(!trackingSensor(mods[i]))continue;const w=mods[i].share||1;all+=w;up+=w*clamp(x.mods?.[i]??1,0,1)*powerFactor(x,'sensor',i);}return all>0?clamp(up/all,0,1):0;}
+// The guns' fire at craft (the bursts): a ship that carries tracking sensors lays it through them, so it goes with the share of
+// them still working; a ship that carries none fires at craft with the channels it fights ships with, as it is.
+function antiAirGunTrack(x){return (x.p?.modules||[]).some(trackingSensor)?antiAirTrack(x):1;}
 function antiAirChannels(x){const n=x.p.aaCh??AA_CHANNELS.base*4,k=antiAirTrack(x);return k>0?Math.max(1,Math.round(n*k)):0;}
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n/POINT_DEFENSE.split:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
@@ -86499,7 +86502,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // craft a bolt does not need to strike it. It bursts when it passes within FLAK.radius of it, and every craft inside that
   // radius, of either side, takes FLAK.couple of the bolt's energy. Whether a bolt passes that near is the common hit chance
   // on a body the size of the burst.
-  if(craftUnit(t)&&!craftUnit(u)&&!boltOnly&&gun>0&&gunHit>0){const shot=fleetShotTT(u),firedRate=gun/gunHit,near=quality*gunHitChance(u,{pos:t.pos,velocity:t.velocity,_track:t._track,_trackT:t._trackT,p:{len:FLAK.radius*2,width:FLAK.radius*2,height:FLAK.radius*2}},distance,fleetReach(p),fleetSystems(u).fire),E=firedRate*near*FLAK.couple*dt*DMG;
+  if(craftUnit(t)&&!craftUnit(u)&&!boltOnly&&gun>0&&gunHit>0){const shot=fleetShotTT(u),firedRate=gun/gunHit,near=quality*antiAirGunTrack(u)*gunHitChance(u,{pos:t.pos,velocity:t.velocity,_track:t._track,_trackT:t._trackT,p:{len:FLAK.radius*2,width:FLAK.radius*2,height:FLAK.radius*2}},distance,fleetReach(p),fleetSystems(u).fire),E=firedRate*near*FLAK.couple*dt*DMG;
    if(E>0)for(const c of alive){if(c.dead||c.docked||!craftUnit(c)||len(sub(c.pos,t.pos))>FLAK.radius)continue;const inc=incoming.get(c.id);if(inc)combatAdd(inc,c,u.pos,{sf:E,hull:E,shot:shot*FLAK.couple},null,u.id);if(c.team===u.team)c.ffTaken=(c.ffTaken||0)+E;}
    if(E>0)shots.push({from:u.id,to:t.id,team:u.team,ion:false,gun:E/Math.max(1e-12,DMG),msl:0,flak:true});u.flakBursts=(u.flakBursts||0)+firedRate*near*dt/Math.max(1e-30,shot);gun=0;ion=0;}
   const hd=dt*DMG,inside=!boltOnly&&t.shield>0&&shieldShellInside(t,u.pos)/* v30 firing from inside the target's field (user decision 2026-11-16: the field stands around the ship and what gets inside strikes the ship itself) */,amt=inside?{sf:0,hull:0,direct:(gun+msl+fd)*hd,ion:0,ionDirect:(ion+imsl+iord)*hd}:{sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd};if(dN>0)amt.directShot=(msl+ord+fd)/dN;if(ord>0){const oShot=p.airOrdShot>0?p.airOrdShot:p.airOrd>0?p.airOrd:RULES_MISSILE_TT;combatBlastAdd(incoming.get(t.id),ord*hd/oShot,oShot,u.id);}/* v30 the craft's torpedoes and bombs are warheads */
