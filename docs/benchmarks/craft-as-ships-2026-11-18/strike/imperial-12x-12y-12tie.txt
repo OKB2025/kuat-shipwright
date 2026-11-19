@@ -1,0 +1,5 @@
+strike on imperial: 12 X-wings (escort), 12 Y-wings (BTL-B) with 2 ion torpedoes each (40 TT, released at 4000 m), 12 TIE/ln interceptors; from 30 km; 3 runs
+run 1: ended 62.5s | lost: X-wings 8/12, Y-wings 8/12, TIEs 5/12 | torpedoes: released 24 (first at 32.25s), lost with their bombers 0, shot down 9.2, hit 14.8 | ship: 電源喪失 at 39s | 39s インペリアルI級｜重砲戦艦：戦闘不能（電源喪失） / 39s インペリアルI級｜重砲戦艦：熱限界：全艦の電源を即時遮断・復旧作業を開始 / 62s インペリアルI級｜重砲戦艦とT-65B Xウイングが衝突（相対速度 95 m/s）
+run 2: ended 62.5s | lost: X-wings 7/12, Y-wings 11/12, TIEs 7/12 | torpedoes: released 20 (first at 32.25s), lost with their bombers 4, shot down 9.4, hit 10.6 | ship: 電源喪失 at 39.25s | 40s インペリアルI級｜重砲戦艦：戦闘不能（電源喪失） / 40s インペリアルI級｜重砲戦艦：熱限界：全艦の電源を即時遮断・復旧作業を開始
+run 3: ended 62.5s | lost: X-wings 7/12, Y-wings 8/12, TIEs 5/12 | torpedoes: released 24 (first at 32.25s), lost with their bombers 0, shot down 9.2, hit 14.8 | ship: 電源喪失 at 39s | 39s インペリアルI級｜重砲戦艦：戦闘不能（電源喪失） / 39s インペリアルI級｜重砲戦艦：熱限界：全艦の電源を即時遮断・復旧作業を開始
+done
