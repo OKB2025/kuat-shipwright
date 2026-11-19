@@ -86227,7 +86227,7 @@ const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.3
 // A craft that keeps its distance or its speed up is hit less; there is no rate of kills. Each fire-control channel takes one
 // craft, the nearest first.
 // User decision 2026-11-19「点防御の出力を下げて」: against craft the point-defence guns put out POINT_DEFENSE.output of their modules' power.
-const POINT_DEFENSE=Object.freeze({output:.05});
+const POINT_DEFENSE=Object.freeze({output:.05,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
  for(const x of alive){
@@ -86235,7 +86235,15 @@ function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,craft=alive.filter(u=>!u.dead&&!u.docked&&u.team!==x.team&&craftUnit(u)).map(u=>({u,d:len(sub(u.pos,x.pos))})).filter(q=>q.d<=reach).sort((a,z)=>a.d-z.d);if(!craft.length)continue;
   const channels=Math.max(1,x.p.aaCh??AA_CHANNELS.base*4),engaged=craft.slice(0,channels),funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,1);if(!(funded>0))continue;
   const each=G.rate*POINT_DEFENSE.output*funded*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)/engaged.length,control=fleetSystems(x).fire;
-  for(const {u,d} of engaged){const landed=each*gunHitChance(x,u,d,reach,control)*dt*DMG,inc=incoming.get(u.id);if(inc&&landed>0)combatAdd(inc,u,x.pos,{sf:landed,hull:landed,...(G.shot>0?{shot:G.shot}:{})},null,x.id);}
+  // Friendly fire (user decision 2026-11-19「点防御のフレンドリーファイアも実装して、艦のAIはそれを避けようとする形に」). Bolts that miss their
+  // target go on along the line of fire: a craft of the ship's own side near that line takes a share of them (.stray, falling to
+  // nothing .ffRisk m off the line). The ship holds a channel's fire while one of its own craft is within .ffHold m of the line.
+  const own=alive.filter(f=>!f.dead&&!f.docked&&f.team===x.team&&f!==x&&craftUnit(f));x.pdHeld=0;x.pdStray=0;
+  for(const {u,d} of engaged){const dir=mul(sub(u.pos,x.pos),1/Math.max(1,d)),near=[];let hold=false;
+   for(const f of own){const r=sub(f.pos,x.pos),along=dot(r,dir);if(along<0||along>d+POINT_DEFENSE.ffBeyond)continue;const lat=len(sub(r,mul(dir,along)));if(lat<POINT_DEFENSE.ffHold){hold=true;break;}if(lat<POINT_DEFENSE.ffRisk)near.push({f,lat,along});}
+   if(hold){x.pdHeld++;continue;}
+   const hit=gunHitChance(x,u,d,reach,control),landed=each*hit*dt*DMG,inc=incoming.get(u.id);if(inc&&landed>0)combatAdd(inc,u,x.pos,{sf:landed,hull:landed,...(G.shot>0?{shot:G.shot}:{})},null,x.id);
+   for(const {f,lat} of near){const stray=each*(1-hit)*POINT_DEFENSE.stray*(1-lat/POINT_DEFENSE.ffRisk)*dt*DMG,fi=incoming.get(f.id);if(fi&&stray>0){combatAdd(fi,f,x.pos,{sf:stray,hull:stray,...(G.shot>0?{shot:G.shot}:{})},null,x.id);f.ffTaken=(f.ffTaken||0)+stray;x.pdStray+=stray;}}}
  }
 }
 function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
