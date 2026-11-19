@@ -60,7 +60,11 @@ test('fleet battle craft attack scales with the per-craft laser output and is ze
   e.air=10;const b=C.fleetBattle([u,e],true),hullOf=g=>g.sec.reduce((n,x)=>n+x.s,0)/* 2026-11-19 (PR #119, v30: u.hp is retired): the hull's state is the sum of its sections' structure */,before=hullOf(u)+(u.shield||0);C.fleetTick(b,.25,{collide:false});return before-(hullOf(u)+(u.shield||0));
  };
  assert.equal(damage(0),0,'no laser output, no craft damage');
- const one=damage(1),two=damage(2);assert.ok(one>0,'the craft aloft hit the target');assert.ok(Math.abs(two/one-2)<1e-4,`craft damage is proportional to airGun: ${two/one}`);
+ // 2026-11-19 expectation changed: airGun 1 and 2 TT/s became 2e-8 and 4e-8 TT/s. With v30 sections (u.hp retired,
+ // docs/damage-penetration.md:20,60; docs/handoff-2026-11-19/README.md:45) the ignored hp:1e9 no longer keeps the CR90
+ // alive, so 1 TT/s per craft sank it in the first tick and both values did the same damage. In 1e-8..2e-7 TT/s the
+ // loss is still exactly proportional; below ~1e-9 whole shots quantise it.
+ const one=damage(2e-8),two=damage(4e-8);assert.ok(one>0,'the craft aloft hit the target');assert.ok(Math.abs(two/one-2)<1e-4,`craft damage is proportional to airGun: ${two/one}`);
 });
 
 test('the fixed light laser claserL fires 10 kt/s per barrel like the light turret and is offered with the craft guns',()=>{

@@ -14,9 +14,10 @@ test('a ship launcher fires the air missile to the air missile range; loaded wit
  assert.equal(C.missileRange('shipMsl'),10000);assert.equal(C.missileRange({missileKind:'shipMsl'}),10000);
  near(C.weaponPreviewStats(fit()).outputTT,C.AIR_ROUNDS.missile.tt);near(C.weaponPreviewStats(fit({round:'torp'})).outputTT,C.AIR_ROUNDS.torpedo.tt);assert.equal(C.weaponPreviewStats(fit({round:'torp'})).rangeM,10000);
 });
-test('both loads fly at a craft\'s speed, so point defence meets them alike',()=>{
- assert.equal(C.roundSpeed('shipMsl'),C.ROUND_SPEED.missile);assert.equal(C.ROUND_SPEED.missile,1500);
- const app=fs.readFileSync(path.join(root,'js/core.js'),'utf8');assert.match(app,/kind:packet\.kind,\.\.\.\(packet\.torp\?\{torp:true\}:\{\}\)/,'a torpedo from a ship launcher keeps the launcher\'s kind in flight (the missile speed), marked as a torpedo');
+// User decision 2026-11-19「航空機の魚雷の速度に艦魚雷も合わせて」: the torpedo load flies at the speed of a craft's torpedoes.
+test('missiles fly at a craft\'s speed and the torpedo load at the speed of a craft\'s torpedoes',()=>{
+ assert.equal(C.roundSpeed('shipMsl'),C.ROUND_SPEED.missile);assert.equal(C.roundSpeed({kind:'shipMsl'}),1500);
+ assert.equal(C.roundSpeed({kind:'shipMsl',torp:true}),C.ROUND_SPEED.torpedo);assert.equal(C.ROUND_SPEED.torpedo,600);assert.equal(C.roundSpeed('ptorp'),600);
 });
 test('a design keeps the load through placement and its mirror, and the profile module carries it',()=>{
  const ship=C.newShip({L:300,W:80,H:40},'Torpedo ship'),h=C.rayEnv(ship,[150,100,10],[0,-1,0],{structOnly:true});

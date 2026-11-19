@@ -13150,26 +13150,26 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "jua96a",
-   "build": 200818,
+   "signature": "1vu5wi2",
+   "build": 200840,
    "crew": 2000,
-   "total": 202818,
+   "total": 202840,
    "by": {
     "hull": 127,
     "armor": 21,
     "power": 60923,
-    "drive": 60933,
+    "drive": 60955,
     "defense": 15004,
-    "command": 26509,
+    "command": 26508,
     "weapons": 20300,
-    "systems": 17001,
+    "systems": 17002,
     "crew": 2000
    },
    "detailed": true,
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 42495898800000010,
+    "power": 42620476800000010,
     "crew": 2,
     "suitSeats": 0,
     "lifeSupportCapacity": 2,
@@ -13178,7 +13178,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.6980216089759825,
+    "navDemand": 0.6975236354878467,
     "navReady": true,
     "targetDemand": 5,
     "targetCapacity": 6.097249999999999,
@@ -13191,13 +13191,13 @@ const CRAFT_PRICE_CATALOG={
     "laserGunShare": 1,
     "laserAaShare": 1,
     "laserGasSeconds": 675,
-    "landingSupport": 82.01250000000002,
+    "landingSupport": 119.3859,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
-    "up": 2.103493003034911e-16,
-    "upS": 2.103493003034911e-16,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -13336,7 +13336,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.01,
       "z": 0,
       "r": 0.021,
-      "share": 0.19072849339987974,
+      "share": 0.18594688819306449,
       "domain": "main",
       "port": "p9",
       "powerConnected": true
@@ -13353,7 +13353,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.021,
-      "share": 0.19072847445270696,
+      "share": 0.18594686972090152,
       "domain": "main",
       "port": "p10",
       "powerConnected": true
@@ -13370,7 +13370,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.36,
       "z": 0,
       "r": 0.013,
-      "share": 0.04250118916025591,
+      "share": 0.041435675016239466,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -13523,7 +13523,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0,
       "r": 0.011,
-      "share": 0.013323950109690194,
+      "share": 0.013323900274736502,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -13540,7 +13540,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.12,
       "z": 0,
       "r": 0.012,
-      "share": 0.0337207063196833,
+      "share": 0.032875320808365735,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -13557,7 +13557,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.62,
       "z": 0,
       "r": 0.027,
-      "share": 0.41613467537774995,
+      "share": 0.4057020876974664,
       "domain": "main",
       "port": "p28",
       "powerConnected": true
@@ -13574,7 +13574,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0,
       "r": 0.01,
-      "share": 0.021430732741854183,
+      "share": 0.020893459566579467,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -13591,7 +13591,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.21,
       "z": -0.08,
       "r": 0.006,
-      "share": 0.0050342808514595196,
+      "share": 0.004908070325162119,
       "domain": "main",
       "port": "p30",
       "powerConnected": true
@@ -13608,7 +13608,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.44,
       "z": 0,
       "r": 0.006,
-      "share": 0.0050342808514595196,
+      "share": 0.004908070325162119,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -13625,7 +13625,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.24,
       "z": 0,
       "r": 0.006,
-      "share": 0.003627968356441532,
+      "share": 0.003537014393171078,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -13642,7 +13642,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": -0.06,
       "r": 0.005,
-      "share": 0.002197918016578825,
+      "share": 0.0021428157293175714,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -13659,7 +13659,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0.08,
       "r": 0.006,
-      "share": 0.0050342808514595196,
+      "share": 0.004908070325162119,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -13676,7 +13676,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0,
       "r": 0.006,
-      "share": 0.004062886957205205,
+      "share": 0.003961029489120751,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -13693,7 +13693,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.25,
       "z": 0,
       "r": 0.006,
-      "share": 0.004062886957205205,
+      "share": 0.003961029489120751,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -13710,7 +13710,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": -0.08,
       "r": 0.006,
-      "share": 0.004062886957205205,
+      "share": 0.003961029489120751,
       "domain": "main",
       "port": "p37",
       "powerConnected": true
@@ -13727,7 +13727,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.03,
       "z": 0.08,
       "r": 0.006,
-      "share": 0.004062886957205205,
+      "share": 0.003961029489120751,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -13744,7 +13744,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.28,
       "z": -0.04,
       "r": 0.006,
-      "share": 0.005573233137455699,
+      "share": 0.0054335109590133756,
       "domain": "main",
       "port": "p39",
       "powerConnected": true
@@ -13761,7 +13761,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.28,
       "z": 0.04,
       "r": 0.006,
-      "share": 0.005573233137455699,
+      "share": 0.0054335109590133756,
       "domain": "main",
       "port": "p40",
       "powerConnected": true
@@ -13769,16 +13769,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "着陸脚機構 1",
-      "w": 0.20250000000000004,
+      "w": 0.2601,
       "hits": 1,
       "crew": 0,
-      "size": 0.09112500000000001,
-      "at": 0.893,
+      "size": 0.132651,
+      "at": 0.82,
       "part": 41,
-      "y": -0.21,
-      "z": 0,
-      "r": 0.01,
-      "share": 0.018809661838912986,
+      "y": 0.03,
+      "z": -0.14,
+      "r": 0.011,
+      "share": 0.026694839341632713,
       "domain": "main",
       "port": "p41",
       "powerConnected": true
@@ -13786,16 +13786,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "着陸脚機構 2",
-      "w": 0.20250000000000004,
+      "w": 0.2601,
       "hits": 1,
       "crew": 0,
-      "size": 0.09112500000000001,
-      "at": 0.852,
+      "size": 0.132651,
+      "at": 0.82,
       "part": 42,
-      "y": -0.21,
-      "z": -0.13,
-      "r": 0.01,
-      "share": 0.018809661838912986,
+      "y": 0.03,
+      "z": 0.14,
+      "r": 0.011,
+      "share": 0.026694839341632713,
       "domain": "main",
       "port": "p42",
       "powerConnected": true
@@ -13803,16 +13803,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "着陸脚機構 3",
-      "w": 0.20250000000000004,
+      "w": 0.2601,
       "hits": 1,
       "crew": 0,
-      "size": 0.09112500000000001,
-      "at": 0.852,
+      "size": 0.132651,
+      "at": 0.512,
       "part": 43,
-      "y": -0.21,
-      "z": 0.13,
-      "r": 0.01,
-      "share": 0.018809661838912986,
+      "y": -0.12,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.026694839341632713,
       "domain": "main",
       "port": "p43",
       "powerConnected": true
@@ -13824,12 +13824,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000004000002937282854,
       "size": 0.08000005874565708,
-      "at": 0.83,
+      "at": 0.902,
       "part": 44,
       "y": -0.18,
-      "z": -0.17,
+      "z": 0,
       "r": 0.009,
-      "share": 0.008527334331995356,
+      "share": 0.008527302437601574,
       "domain": "main",
       "port": "p44",
       "powerConnected": true
@@ -13841,12 +13841,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.000004000002937282854,
       "size": 0.08000005874565708,
-      "at": 0.83,
+      "at": 0.842,
       "part": 45,
       "y": -0.18,
-      "z": 0.17,
+      "z": -0.17,
       "r": 0.009,
-      "share": 0.008527334331995356,
+      "share": 0.008527302437601574,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -13856,14 +13856,14 @@ const CRAFT_PRICE_CATALOG={
       "name": "機体内高エネルギー散逸装置 3",
       "w": 0.18566364423556203,
       "hits": 1,
-      "crew": 0.0000040000029372828546,
-      "size": 0.08000005874565709,
-      "at": 0.806,
+      "crew": 0.000004000002937282854,
+      "size": 0.08000005874565708,
+      "at": 0.842,
       "part": 46,
-      "y": 0.03,
-      "z": -0.17,
+      "y": -0.18,
+      "z": 0.17,
       "r": 0.009,
-      "share": 0.008527334331995358,
+      "share": 0.008527302437601574,
       "domain": "main",
       "port": "p46",
       "powerConnected": true
@@ -13871,16 +13871,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 4",
-      "w": 0.18566364423556203,
+      "w": 0.18566360143077287,
       "hits": 1,
-      "crew": 0.0000040000029372828546,
-      "size": 0.08000005874565709,
-      "at": 0.806,
+      "crew": 0.0000040000015539807556,
+      "size": 0.0800000310796151,
+      "at": 0.512,
       "part": 47,
-      "y": 0.03,
-      "z": 0.17,
+      "y": -0.12,
+      "z": -0.11,
       "r": 0.009,
-      "share": 0.008527334331995358,
+      "share": 0.0085272994886449,
       "domain": "main",
       "port": "p47",
       "powerConnected": true
@@ -13888,16 +13888,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 5",
-      "w": 0.18566360999173015,
+      "w": 0.18566360143077287,
       "hits": 1,
-      "crew": 0.0000040000018306411445,
-      "size": 0.0800000366128229,
+      "crew": 0.0000040000015539807556,
+      "size": 0.0800000310796151,
       "at": 0.512,
       "part": 48,
       "y": -0.12,
-      "z": 0,
+      "z": 0.11,
       "r": 0.009,
-      "share": 0.00852733197282113,
+      "share": 0.0085272994886449,
       "domain": "main",
       "port": "p48",
       "powerConnected": true
@@ -13905,16 +13905,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 6",
-      "w": 0.18566360143077287,
+      "w": 0.1856636099917301,
       "hits": 1,
-      "crew": 0.0000040000015539807556,
-      "size": 0.0800000310796151,
+      "crew": 0.000004000001830641142,
+      "size": 0.08000003661282284,
       "at": 0.512,
       "part": 49,
-      "y": -0.12,
-      "z": -0.11,
+      "y": 0.29,
+      "z": 0,
       "r": 0.009,
-      "share": 0.008527331383027652,
+      "share": 0.008527300078436164,
       "domain": "main",
       "port": "p49",
       "powerConnected": true
@@ -13922,16 +13922,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 7",
-      "w": 0.18566360143077287,
+      "w": 0.18566364423556203,
       "hits": 1,
-      "crew": 0.0000040000015539807556,
-      "size": 0.0800000310796151,
-      "at": 0.512,
+      "crew": 0.0000040000029372828546,
+      "size": 0.08000005874565709,
+      "at": 0.536,
       "part": 50,
-      "y": -0.12,
-      "z": 0.11,
+      "y": 0.08,
+      "z": 0,
       "r": 0.009,
-      "share": 0.008527331383027652,
+      "share": 0.008527302437601575,
       "domain": "main",
       "port": "p50",
       "powerConnected": true
@@ -13939,16 +13939,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 8",
-      "w": 0.15845965974031745,
+      "w": 0.15851842069249372,
       "hits": 1,
-      "crew": 0.000003153901189188738,
-      "size": 0.06307802378377475,
+      "crew": 0.0000031556556743725302,
+      "size": 0.0631131134874506,
       "at": 0.888,
       "part": 51,
       "y": -0.16,
       "z": -0.1,
       "r": 0.008,
-      "share": 0.006723587535302929,
+      "share": 0.006727302641079354,
       "domain": "main",
       "port": "p51",
       "powerConnected": true
@@ -14002,7 +14002,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.16,
       "z": 0.51,
       "r": 0.035,
-      "share": 0.46013056514407447,
+      "share": 0.4601288441390259,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -14020,7 +14020,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.16,
       "z": -0.51,
       "r": 0.035,
-      "share": 0.4601305651440746,
+      "share": 0.460128844139026,
       "domain": "main",
       "port": "p4",
       "powerConnected": true
@@ -14036,7 +14036,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.27,
       "z": 0,
       "r": 0.064,
-      "share": 0.1939666816749212,
+      "share": 0.1942465506357652,
       "domain": "main"
      },
      {
@@ -14045,26 +14045,26 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.2784638208103654,
       "hits": 1,
       "crew": 0,
-      "size": 59.20062841515001,
+      "size": 59.200628415150014,
       "at": 0.393,
       "y": -0.22,
       "z": 0,
       "r": 0.083,
-      "share": 0.4235029266096353,
+      "share": 0.42411398683379936,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.8998895985400852,
+      "w": 1.8942262055721508,
       "hits": 1,
       "crew": 0,
-      "size": 45.07706790445507,
-      "at": 0.595,
-      "y": -0.19,
+      "size": 44.87566240697635,
+      "at": 0.596,
+      "y": -0.2,
       "z": 0,
       "r": 0.076,
-      "share": 0.3224673570463755,
+      "share": 0.32148976463161694,
       "domain": "main"
      },
      {
@@ -14074,17 +14074,17 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 8.396091676143962,
-      "at": 0.818,
+      "at": 0.819,
       "y": -0.05,
       "z": 0,
       "r": 0.043,
-      "share": 0.06006303466906798,
+      "share": 0.06014969789881865,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 24.25450552574958,
+      "w": 24.35482274654013,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -14096,7 +14096,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.95
     },
-    "D": 0.0008159384735754153,
+    "D": 0.0008159089703450394,
     "shieldBuffer": 0.08471702163444517,
     "wCap": 0,
     "fuel": {
@@ -14117,14 +14117,14 @@ const CRAFT_PRICE_CATALOG={
     "height": 2.7300000762939454,
     "referencePhysicalRevision": {
      "key": "craft_btlb",
-     "version": 1
+     "version": 2
     },
     "grid": {
      "P": 5500039556300302000,
-     "fixed": 83032486861882980,
-     "cooling": 21234330498578840,
+     "fixed": 83158372647083310,
+     "cooling": 21235638283779172,
      "De": 5500039556300302000,
-     "Ds": 3413886573439537700,
+     "Ds": 3413763131923645000,
      "Dw": 2502080000000000,
      "domains": [
       {
@@ -14210,7 +14210,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "hotel",
-       "cap": 61798156363304136,
+       "cap": 61922734363304136,
        "auto": true,
        "ok": true,
        "routeId": "p16>hotel",
@@ -14246,7 +14246,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p9",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p9",
@@ -14258,7 +14258,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p10",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p10",
@@ -14270,7 +14270,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p11",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p11",
@@ -14282,7 +14282,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p18",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p18",
@@ -14294,7 +14294,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p19",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p19",
@@ -14306,7 +14306,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p21",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p21",
@@ -14318,7 +14318,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p28",
-       "cap": 3891337607407142,
+       "cap": 3899182098003360,
        "auto": true,
        "ok": true,
        "routeId": "p16>p28",
@@ -14330,7 +14330,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p29",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p29",
@@ -14342,7 +14342,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p30",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p30",
@@ -14354,7 +14354,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p31",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p31",
@@ -14366,7 +14366,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p32",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p32",
@@ -14378,7 +14378,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p33",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p33",
@@ -14390,7 +14390,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p34",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p34",
@@ -14402,7 +14402,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p35",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p35",
@@ -14414,7 +14414,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p36",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p36",
@@ -14426,7 +14426,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p37",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p37",
@@ -14438,7 +14438,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p38",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p38",
@@ -14450,7 +14450,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p39",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p39",
@@ -14462,7 +14462,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p40",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p40",
@@ -14474,37 +14474,37 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p41",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p41",
        "model": "source-distance",
-       "lengthM": 9.930665889052959,
-       "efficiency": 0.9999006982718525
+       "lengthM": 8.262338470433173,
+       "efficiency": 0.9999173800285135
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p42",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p42",
        "model": "source-distance",
-       "lengthM": 9.00779384755224,
-       "efficiency": 0.9999099261184201
+       "lengthM": 8.262338470433173,
+       "efficiency": 0.9999173800285135
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p43",
-       "cap": 1930227291863233.2,
+       "cap": 1934118408843359.2,
        "auto": true,
        "ok": true,
        "routeId": "p16>p43",
        "model": "source-distance",
-       "lengthM": 9.00779384755224,
-       "efficiency": 0.9999099261184201
+       "lengthM": 1,
+       "efficiency": 0.9999900000499998
       },
       {
        "kind": "power",
@@ -14743,8 +14743,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p12>p44",
        "model": "source-distance",
-       "lengthM": 16.869015018806785,
-       "efficiency": 0.9998313240771953
+       "lengthM": 18.283161705291263,
+       "efficiency": 0.9998171850956287
       },
       {
        "kind": "power",
@@ -14755,53 +14755,29 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p12>p45",
        "model": "source-distance",
-       "lengthM": 16.465874683257155,
-       "efficiency": 0.9998353548086749
+       "lengthM": 17.137504796067542,
+       "efficiency": 0.9998286396359041
       },
       {
        "kind": "power",
        "from": "p12",
        "to": "p46",
-       "cap": 3142204534403481,
+       "cap": 3142204534403480.5,
        "auto": false,
        "ok": true,
        "routeId": "p12>p46",
        "model": "source-distance",
-       "lengthM": 16.337498242068428,
-       "efficiency": 0.999836638362545
+       "lengthM": 16.740831282085068,
+       "efficiency": 0.9998326056991689
       },
       {
        "kind": "power",
        "from": "p12",
        "to": "p47",
-       "cap": 3142204534403481,
-       "auto": false,
-       "ok": true,
-       "routeId": "p12>p47",
-       "model": "source-distance",
-       "lengthM": 15.920904816925106,
-       "efficiency": 0.9998408036249187
-      },
-      {
-       "kind": "power",
-       "from": "p12",
-       "to": "p48",
-       "cap": 3142203665080470,
-       "auto": false,
-       "ok": true,
-       "routeId": "p12>p48",
-       "model": "source-distance",
-       "lengthM": 9.576757932619994,
-       "efficiency": 0.9999042370062421
-      },
-      {
-       "kind": "power",
-       "from": "p12",
-       "to": "p49",
        "cap": 3142203447749747,
        "auto": false,
        "ok": true,
-       "routeId": "p12>p49",
+       "routeId": "p12>p47",
        "model": "source-distance",
        "lengthM": 9.823828552270697,
        "efficiency": 0.9999017665396996
@@ -14809,11 +14785,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p12",
-       "to": "p50",
+       "to": "p48",
        "cap": 3142203447749747,
        "auto": false,
        "ok": true,
-       "routeId": "p12>p50",
+       "routeId": "p12>p48",
        "model": "source-distance",
        "lengthM": 9.35673662888985,
        "efficiency": 0.9999064370110006
@@ -14821,14 +14797,38 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p12",
+       "to": "p49",
+       "cap": 3142203665080467.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p12>p49",
+       "model": "source-distance",
+       "lengthM": 9.60424292572866,
+       "efficiency": 0.9999039621826692
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p50",
+       "cap": 3142204534403481,
+       "auto": false,
+       "ok": true,
+       "routeId": "p12>p50",
+       "model": "source-distance",
+       "lengthM": 10.09751843505809,
+       "efficiency": 0.9998990299134718
+      },
+      {
+       "kind": "power",
+       "from": "p12",
        "to": "p51",
-       "cap": 2477548835116917,
+       "cap": 2478927071929863.5,
        "auto": false,
        "ok": true,
        "routeId": "p12>p51",
        "model": "source-distance",
-       "lengthM": 18.09071653538571,
-       "efficiency": 0.9998191091973606
+       "lengthM": 18.090833115917768,
+       "efficiency": 0.9998191080317662
       },
       {
        "kind": "power",
@@ -14851,8 +14851,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p13>p44",
        "model": "source-distance",
-       "lengthM": 16.465874683257155,
-       "efficiency": 0.9998353548086749
+       "lengthM": 18.283161705291263,
+       "efficiency": 0.9998171850956287
       },
       {
        "kind": "power",
@@ -14863,53 +14863,29 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p13>p45",
        "model": "source-distance",
-       "lengthM": 16.869015018806785,
-       "efficiency": 0.9998313240771953
+       "lengthM": 16.740831282085068,
+       "efficiency": 0.9998326056991689
       },
       {
        "kind": "power",
        "from": "p13",
        "to": "p46",
-       "cap": 3142204534403481,
+       "cap": 3142204534403480.5,
        "auto": false,
        "ok": true,
        "routeId": "p13>p46",
        "model": "source-distance",
-       "lengthM": 15.920904816925106,
-       "efficiency": 0.9998408036249187
+       "lengthM": 17.137504796067542,
+       "efficiency": 0.9998286396359041
       },
       {
        "kind": "power",
        "from": "p13",
        "to": "p47",
-       "cap": 3142204534403481,
-       "auto": false,
-       "ok": true,
-       "routeId": "p13>p47",
-       "model": "source-distance",
-       "lengthM": 16.337498242068428,
-       "efficiency": 0.999836638362545
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "p48",
-       "cap": 3142203665080470,
-       "auto": false,
-       "ok": true,
-       "routeId": "p13>p48",
-       "model": "source-distance",
-       "lengthM": 9.576757932619994,
-       "efficiency": 0.9999042370062421
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "p49",
        "cap": 3142203447749747,
        "auto": false,
        "ok": true,
-       "routeId": "p13>p49",
+       "routeId": "p13>p47",
        "model": "source-distance",
        "lengthM": 9.35673662888985,
        "efficiency": 0.9999064370110006
@@ -14917,11 +14893,11 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p13",
-       "to": "p50",
+       "to": "p48",
        "cap": 3142203447749747,
        "auto": false,
        "ok": true,
-       "routeId": "p13>p50",
+       "routeId": "p13>p48",
        "model": "source-distance",
        "lengthM": 9.823828552270697,
        "efficiency": 0.9999017665396996
@@ -14929,14 +14905,38 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p13",
+       "to": "p49",
+       "cap": 3142203665080467.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p13>p49",
+       "model": "source-distance",
+       "lengthM": 9.60424292572866,
+       "efficiency": 0.9999039621826692
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "p50",
+       "cap": 3142204534403481,
+       "auto": false,
+       "ok": true,
+       "routeId": "p13>p50",
+       "model": "source-distance",
+       "lengthM": 10.09751843505809,
+       "efficiency": 0.9998990299134718
+      },
+      {
+       "kind": "power",
+       "from": "p13",
        "to": "p51",
-       "cap": 2477548835116917,
+       "cap": 2478927071929863.5,
        "auto": false,
        "ok": true,
        "routeId": "p13>p51",
        "model": "source-distance",
-       "lengthM": 17.860494777851983,
-       "efficiency": 0.9998214110011356
+       "lengthM": 17.86056987752594,
+       "efficiency": 0.999821410250273
       },
       {
        "kind": "power",
@@ -14959,8 +14959,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p16>p44",
        "model": "source-distance",
-       "lengthM": 8.501770829170178,
-       "efficiency": 0.9999149859056112
+       "lengthM": 10.140546177540386,
+       "efficiency": 0.9998985996795846
       },
       {
        "kind": "power",
@@ -14971,50 +14971,50 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p16>p45",
        "model": "source-distance",
-       "lengthM": 8.501770829170178,
-       "efficiency": 0.9999149859056112
+       "lengthM": 8.7805082063761,
+       "efficiency": 0.9999121987726897
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p46",
-       "cap": 3142204534403481,
+       "cap": 3142204534403480.5,
        "auto": false,
        "ok": true,
        "routeId": "p16>p46",
        "model": "source-distance",
-       "lengthM": 7.946693350041197,
-       "efficiency": 0.9999205362239127
+       "lengthM": 8.7805082063761,
+       "efficiency": 0.9999121987726897
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p47",
-       "cap": 3142204534403481,
+       "cap": 3142203447749747,
        "auto": false,
        "ok": true,
        "routeId": "p16>p47",
        "model": "source-distance",
-       "lengthM": 7.946693350041197,
-       "efficiency": 0.9999205362239127
+       "lengthM": 1.1461986666407356,
+       "efficiency": 0.9999885380790219
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p48",
-       "cap": 3142203665080470,
+       "cap": 3142203447749747,
        "auto": false,
        "ok": true,
        "routeId": "p16>p48",
        "model": "source-distance",
-       "lengthM": 1,
-       "efficiency": 0.9999900000499998
+       "lengthM": 1.1461986666407356,
+       "efficiency": 0.9999885380790219
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p49",
-       "cap": 3142203447749747,
+       "cap": 3142203665080467.5,
        "auto": false,
        "ok": true,
        "routeId": "p16>p49",
@@ -15026,25 +15026,25 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p50",
-       "cap": 3142203447749747,
+       "cap": 3142204534403481,
        "auto": false,
        "ok": true,
        "routeId": "p16>p50",
        "model": "source-distance",
-       "lengthM": 1.1461986666407356,
-       "efficiency": 0.9999885380790219
+       "lengthM": 1.5850932178701662,
+       "efficiency": 0.9999841491934467
       },
       {
        "kind": "power",
        "from": "p16",
        "to": "p51",
-       "cap": 2477548835116917,
+       "cap": 2478927071929863.5,
        "auto": false,
        "ok": true,
        "routeId": "p16>p51",
        "model": "source-distance",
-       "lengthM": 9.831295823169905,
-       "efficiency": 0.9999016918743288
+       "lengthM": 9.831397022905087,
+       "efficiency": 0.999901690862431
       },
       {
        "kind": "power",
@@ -15136,7 +15136,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 61798156363304136,
+       "weight": 61922734363304136,
        "domain": "main"
       }
      ],
@@ -15162,37 +15162,37 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p46",
        "port": "p46",
-       "weight": 3142204534403481,
+       "weight": 3142204534403480.5,
        "domain": "main"
       },
       {
        "id": "p47",
        "port": "p47",
-       "weight": 3142204534403481,
+       "weight": 3142203447749747,
        "domain": "main"
       },
       {
        "id": "p48",
        "port": "p48",
-       "weight": 3142203665080470,
+       "weight": 3142203447749747,
        "domain": "main"
       },
       {
        "id": "p49",
        "port": "p49",
-       "weight": 3142203447749747,
+       "weight": 3142203665080467.5,
        "domain": "main"
       },
       {
        "id": "p50",
        "port": "p50",
-       "weight": 3142203447749747,
+       "weight": 3142204534403481,
        "domain": "main"
       },
       {
        "id": "p51",
        "port": "p51",
-       "weight": 2477548835116917,
+       "weight": 2478927071929863.5,
        "domain": "main"
       },
       {
@@ -15220,14 +15220,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.4582915,
-       "shaftWattsPerNewton": 2346919871.9353766,
-       "wattsPerNewton": 3039983226.480286,
+       "profileWattsPerNewton": 2470607871.765821,
+       "shaftWattsPerNewton": 2347077478.17753,
+       "wattsPerNewton": 3040187375.0489116,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32368941464,
+       "conversionMassKg": 76282.72269684766,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15249,7 +15249,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4464526,
+       "ratedThrustN": 904556015.4350381,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15261,8 +15261,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471526394400,
-       "cost": 6947.720576945374,
+       "costBasisInputW": 2244233887605124600,
+       "cost": 6958.249725320904,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -15294,14 +15294,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.4582915,
-       "shaftWattsPerNewton": 2346919871.9353766,
-       "wattsPerNewton": 3039983226.480286,
+       "profileWattsPerNewton": 2470607871.765821,
+       "shaftWattsPerNewton": 2347077478.17753,
+       "wattsPerNewton": 3040187375.0489116,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32368941464,
+       "conversionMassKg": 76282.72269684766,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15323,7 +15323,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4464526,
+       "ratedThrustN": 904556015.4350381,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15335,8 +15335,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471526394400,
-       "cost": 6947.720576945374,
+       "costBasisInputW": 2244233887605124600,
+       "cost": 6958.249725320904,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -15370,14 +15370,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.4582915,
-       "shaftWattsPerNewton": 2346919871.9353766,
-       "wattsPerNewton": 3039983226.480286,
+       "profileWattsPerNewton": 2470607871.765821,
+       "shaftWattsPerNewton": 2347077478.17753,
+       "wattsPerNewton": 3040187375.0489116,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32368941464,
+       "conversionMassKg": 76282.72269684766,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15399,7 +15399,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4464526,
+       "ratedThrustN": 904556015.4350381,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15411,8 +15411,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471526394400,
-       "cost": 6947.720576945374,
+       "costBasisInputW": 2244233887605124600,
+       "cost": 6958.249725320904,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -15445,14 +15445,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 20.790430837719985,
        "efficiency": 0.7720173754552774,
        "wasteFraction": 0.22798262454472262,
-       "profileWattsPerNewton": 2470441970.4582915,
-       "shaftWattsPerNewton": 2346919871.9353766,
-       "wattsPerNewton": 3039983226.480286,
+       "profileWattsPerNewton": 2470607871.765821,
+       "shaftWattsPerNewton": 2347077478.17753,
+       "wattsPerNewton": 3040187375.0489116,
        "ratedShaftPowerW": 2123063051577583900,
        "ratedWasteHeatW": 626956726572567300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 76228.32368941464,
+       "conversionMassKg": 76282.72269684766,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -15474,7 +15474,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2750019778150151000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 904616760.4464526,
+       "ratedThrustN": 904556015.4350381,
        "effectiveMachineryVolumeM3": 0.3890392425381079,
        "machineryVolumeM3": 0.3890392425381079,
        "machineryShape": "frustum",
@@ -15486,8 +15486,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 5500039556300302000,
        "inputDensityWPerM3": 7068746484824795000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 2242633471526394400,
-       "cost": 6947.720576945374,
+       "costBasisInputW": 2244233887605124600,
+       "cost": 6958.249725320904,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 13,
@@ -15515,19 +15515,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 5500039556300302000
       }
      ],
-     "massKg": 76228.32368941464,
-     "ratedThrustN": 1809151847.4353213,
-     "ratedAccelMps2": 23733.328504068195,
-     "structuralAccelerationLimitMps2": 184239.19466012614,
+     "massKg": 76282.72269684766,
+     "ratedThrustN": 1809030362.8968647,
+     "ratedAccelMps2": 23714.811151747494,
+     "structuralAccelerationLimitMps2": 184239.2469129163,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 23733.328504068195,
+     "accelerationLimitMps2": 23714.811151747494,
      "conversionModelVersion": 1,
-     "conversionMassKg": 76228.32368941464,
+     "conversionMassKg": 76282.72269684766,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[5500039556300302000,[[\"main\",5500039556300302000,[[8,2180440255828559000],[9,2180440255828559000],[12,1139159044643183600]]]],[[8,\"reactor\",12,\"p12\",\"main\",0.41635262754496805,0.3964408316538128],[9,\"reactor\",13,\"p13\",\"main\",0.41635262754496805,0.3964408316538128],[12,\"reactor\",16,\"p16\",\"main\",0.21752114517284762,0.20711833669237442]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 1125.7072884594709,
+    "maxSpeed": 1124.7842051751647,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -15654,7 +15654,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.000993166,
+       "sh": 0.000995339,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -15667,7 +15667,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p3",
        "n": "送電損失 p16>p3",
        "g": "high",
-       "sh": 0.00000573713,
+       "sh": 0.00000573815,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -15680,7 +15680,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.00000573713,
+       "sh": 0.00000573815,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -15969,7 +15969,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p16>p43"
@@ -15979,7 +15979,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.371221,
+       "sh": 0.371284,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -15992,7 +15992,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f22",
        "n": "送電損失 p12>f22",
        "g": "high",
-       "sh": 0.0000663254,
+       "sh": 0.0000663368,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16005,7 +16005,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f23",
        "n": "送電損失 p12>f23",
        "g": "high",
-       "sh": 0.0000670634,
+       "sh": 0.0000670749,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16018,7 +16018,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f24",
        "n": "送電損失 p12>f24",
        "g": "high",
-       "sh": 0.0000208541,
+       "sh": 0.0000208577,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16031,7 +16031,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f25",
        "n": "送電損失 p12>f25",
        "g": "high",
-       "sh": 0.000236104,
+       "sh": 0.000236145,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16044,7 +16044,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f26",
        "n": "送電損失 p12>f26",
        "g": "high",
-       "sh": 0.000238428,
+       "sh": 0.000238469,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16057,7 +16057,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p17",
        "n": "送電損失 p13>p17",
        "g": "high",
-       "sh": 0.36221,
+       "sh": 0.362246,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16135,7 +16135,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.00926304,
+       "sh": 0.00926081,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16148,7 +16148,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.0000307957,
+       "sh": 0.000030801,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16161,7 +16161,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.0000307957,
+       "sh": 0.000030801,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16174,7 +16174,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.00000754672,
+       "sh": 0.00000754802,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16187,7 +16187,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.0000805913,
+       "sh": 0.0000806052,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16200,7 +16200,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f26",
        "n": "送電損失 p16>f26",
        "g": "high",
-       "sh": 0.0000805913,
+       "sh": 0.0000806052,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -16213,7 +16213,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p20",
        "n": "送電損失 p12>p20",
        "g": "high",
-       "sh": 0.000901564,
+       "sh": 0.000901723,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16226,7 +16226,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p44",
        "n": "送電損失 p12>p44",
        "g": "high",
-       "sh": 0.000655398,
+       "sh": 0.000710471,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16239,7 +16239,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p45",
        "n": "送電損失 p12>p45",
        "g": "high",
-       "sh": 0.000639734,
+       "sh": 0.000665948,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16252,7 +16252,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p46",
        "n": "送電損失 p12>p46",
        "g": "high",
-       "sh": 0.000634746,
+       "sh": 0.000650532,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16265,10 +16265,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p47",
        "n": "送電損失 p12>p47",
        "g": "high",
-       "sh": 0.000618559,
+       "sh": 0.000381731,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 2,
        "sw": -1,
        "gen": -1,
        "routeId": "p12>p47"
@@ -16278,7 +16278,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p48",
        "n": "送電損失 p12>p48",
        "g": "high",
-       "sh": 0.000372064,
+       "sh": 0.00036358,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16291,7 +16291,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p49",
        "n": "送電損失 p12>p49",
        "g": "high",
-       "sh": 0.000381664,
+       "sh": 0.000373198,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16304,7 +16304,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p50",
        "n": "送電損失 p12>p50",
        "g": "high",
-       "sh": 0.000363516,
+       "sh": 0.000392367,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -16317,7 +16317,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p51",
        "n": "送電損失 p12>p51",
        "g": "high",
-       "sh": 0.000554194,
+       "sh": 0.000554604,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -16385,7 +16385,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 2,
        "sw": -1,
        "gen": -1,
        "routeId": "p13>p47"
@@ -16502,7 +16502,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p16>p47"
@@ -16564,7 +16564,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p14",
        "n": "送電損失 p12>p14",
        "g": "high",
-       "sh": 0.00383665,
+       "sh": 0.00383731,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16577,7 +16577,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p15",
        "n": "送電損失 p12>p15",
        "g": "high",
-       "sh": 0.0557171,
+       "sh": 0.0557266,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16590,7 +16590,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p14",
        "n": "送電損失 p13>p14",
        "g": "high",
-       "sh": 0.0557171,
+       "sh": 0.0557266,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16603,7 +16603,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p15",
        "n": "送電損失 p13>p15",
        "g": "high",
-       "sh": 0.00383665,
+       "sh": 0.00383731,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16616,7 +16616,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p14",
        "n": "送電損失 p16>p14",
        "g": "high",
-       "sh": 0.0656068,
+       "sh": 0.0656105,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16629,7 +16629,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p15",
        "n": "送電損失 p16>p15",
        "g": "high",
-       "sh": 0.0656068,
+       "sh": 0.0656105,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -16677,66 +16677,66 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 3 #46",
        "k": "hdis",
        "g": "all",
-       "cap": 209480302293565400,
+       "cap": 209480302293565380,
        "m": 36,
        "sec": 4,
        "src": -1,
-       "power": 3142204534403481
+       "power": 3142204534403480.5
       },
       {
        "id": "p47",
        "n": "機体内高エネルギー散逸装置 4 #47",
        "k": "hdis",
        "g": "all",
-       "cap": 209480302293565400,
+       "cap": 209480229849983140,
        "m": 37,
-       "sec": 4,
+       "sec": 3,
        "src": -1,
-       "power": 3142204534403481
+       "power": 3142203447749747
       },
       {
        "id": "p48",
        "n": "機体内高エネルギー散逸装置 5 #48",
        "k": "hdis",
        "g": "all",
-       "cap": 209480244338698020,
+       "cap": 209480229849983140,
        "m": 38,
        "sec": 3,
        "src": -1,
-       "power": 3142203665080470
+       "power": 3142203447749747
       },
       {
        "id": "p49",
        "n": "機体内高エネルギー散逸装置 6 #49",
        "k": "hdis",
        "g": "all",
-       "cap": 209480229849983140,
+       "cap": 209480244338697860,
        "m": 39,
        "sec": 3,
        "src": -1,
-       "power": 3142203447749747
+       "power": 3142203665080467.5
       },
       {
        "id": "p50",
        "n": "機体内高エネルギー散逸装置 7 #50",
        "k": "hdis",
        "g": "all",
-       "cap": 209480229849983140,
+       "cap": 209480302293565400,
        "m": 40,
        "sec": 3,
        "src": -1,
-       "power": 3142203447749747
+       "power": 3142204534403481
       },
       {
        "id": "p51",
        "n": "機体内高エネルギー散逸装置 8 #51",
        "k": "hdis",
        "g": "all",
-       "cap": 165169922341127800,
+       "cap": 165261804795324220,
        "m": 41,
        "sec": 4,
        "src": -1,
-       "power": 2477548835116917
+       "power": 2478927071929863.5
       },
       {
        "id": "p3",
@@ -16765,5545 +16765,5545 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 0,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 0,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 2
+      },
+      {
+       "s": 0,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 0,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 0,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 1,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 1,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 2
+      },
+      {
+       "s": 1,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 1,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 2,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 2,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 2,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 2,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 3,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 3,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 3,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 3,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 4,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 4,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 0
+      },
+      {
+       "s": 4,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 4,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 4,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 5,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 5,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 0
+      },
+      {
+       "s": 5,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 5,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 6,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 8,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 9,
-       "cap": 10065592555344237000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 10,
-       "cap": 10065592555344237000,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 5,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 6,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 9,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 10,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 0,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 10066051967615216000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 6,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 7,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 9,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 10,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 8,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 2,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 8,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 8,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 8,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 8,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 8,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 9,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 9,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 9,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 9,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 10,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 10,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 10,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 10,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 10,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 11,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 11,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 12,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 12,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 13,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 13,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 13,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 13,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 13,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 14,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 14,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 14,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 14,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 14,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 15,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 15,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 15,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 15,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 15,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 16,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 16,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 16,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 16,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 16,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 17,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 17,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 17,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 17,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 17,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 18,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 18,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 19,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 19,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 20,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 20,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 21,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 21,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 22,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 22,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 23,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 23,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 24,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 24,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 25,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 25,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 26,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 26,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 27,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 27,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 28,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 28,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 29,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 29,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 30,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 30,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 31,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 31,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 5,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 6,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 8,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 32,
-       "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 32,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 32,
+       "d": 6,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 32,
+       "d": 7,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 32,
+       "d": 8,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 9,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 32,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 33,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 33,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 33,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 33,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 33,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 34,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 34,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 34,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 34,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 35,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 35,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 35,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 35,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 35,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 36,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 36,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 36,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 36,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 36,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 37,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 37,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 37,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 37,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 37,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 38,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 38,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 38,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 38,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 38,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 39,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 39,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 39,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 39,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 39,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 39,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 40,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 40,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 40,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 40,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 40,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 41,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 41,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 41,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 41,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 41,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 42,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 42,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 42,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 42,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 42,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 43,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 43,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 43,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 43,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 43,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 44,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 44,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 44,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 44,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 44,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 45,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 45,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 45,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 45,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 45,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 46,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 46,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 47,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 47,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 48,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 48,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 48,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 48,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 48,
-       "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 48,
+       "d": 8,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 48,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 48,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 49,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 49,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 49,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 49,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 49,
-       "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 49,
+       "d": 8,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 49,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 49,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 50,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 50,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 50,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 50,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 3
-      },
-      {
-       "s": 50,
-       "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 50,
+       "d": 8,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 50,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 50,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 51,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 51,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 51,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 51,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 51,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 52,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 52,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 52,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 52,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 52,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 53,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 53,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 53,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 53,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 53,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 54,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 54,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 54,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 54,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 54,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 0,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 1,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 2,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 3,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 55,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 55,
+       "d": 1,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 55,
+       "d": 2,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 55,
+       "d": 3,
+       "cap": 2013210393523043000,
+       "sec": 4
+      },
+      {
+       "s": 55,
+       "d": 4,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 55,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 55,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 55,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 55,
        "d": 9,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 55,
        "d": 10,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 56,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 56,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 56,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 56,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 56,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 57,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
-      },
-      {
-       "s": 57,
-       "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 57,
+       "d": 5,
+       "cap": 2013210393523043000,
+       "sec": 3
+      },
+      {
+       "s": 57,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 57,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 57,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 57,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 58,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 58,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 58,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 58,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 58,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 59,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 59,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 59,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 59,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 60,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 60,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 60,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 61,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 61,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 61,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 62,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 62,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 62,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 63,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 63,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 63,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 0,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 64,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 64,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 64,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 64,
        "d": 9,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 64,
        "d": 10,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 65,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 65,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 65,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 65,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 65,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 66,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 66,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 66,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 66,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 66,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 67,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 67,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 67,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 67,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 67,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 68,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 68,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 68,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 68,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 69,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 69,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 69,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 69,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 70,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 70,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 70,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 71,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 71,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 71,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 72,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 72,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 72,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 73,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 73,
        "d": 5,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 73,
        "d": 6,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 73,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 73,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 73,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 73,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 74,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 74,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 74,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 75,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 75,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 75,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 4
+       "cap": 2013210393523043000,
+       "sec": 3
       },
       {
        "s": 76,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 76,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 76,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 77,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 77,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 77,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 1
       },
       {
        "s": 78,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 78,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 78,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 1
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 78,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 78,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 78,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 79,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 1
       },
       {
        "s": 79,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 79,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 79,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 1
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 79,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 79,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 79,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 80,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 1
       },
       {
        "s": 80,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 80,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 80,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 1
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 80,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 80,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 80,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 81,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 1,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 2,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 3,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 4,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 1
       },
       {
        "s": 81,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 81,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 1
       },
       {
        "s": 81,
        "d": 7,
-       "cap": 2013118511068847000,
-       "sec": 1
+       "cap": 2013210393523043000,
+       "sec": 2
       },
       {
        "s": 81,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 81,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 81,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 0
       },
       {
        "s": 82,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 1,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 82,
        "d": 2,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 82,
        "d": 3,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 82,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 82,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 82,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 82,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 83,
        "d": 0,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 1,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 83,
        "d": 2,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 83,
        "d": 3,
-       "cap": 2013118511068847000,
-       "sec": 3
+       "cap": 2013210393523043000,
+       "sec": 4
       },
       {
        "s": 83,
        "d": 4,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 5,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 6,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 7,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 3
       },
       {
        "s": 83,
        "d": 8,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 4
       },
       {
        "s": 83,
        "d": 9,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       },
       {
        "s": 83,
        "d": 10,
-       "cap": 2013118511068847000,
+       "cap": 2013210393523043000,
        "sec": 2
       }
      ]
@@ -22318,7 +22318,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 56.285364422973544,
+    "mglt": 56.239210258758234,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -30903,6 +30903,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 3.657860004649165,
       "at": 0.473,
+      "panel": true,
       "part": 1,
       "ext": 1,
       "y": 0,
@@ -30921,6 +30922,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 3.657860004649161,
       "at": 0.473,
+      "panel": true,
       "part": 2,
       "ext": 1,
       "y": 0,
@@ -33964,6 +33966,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 4.03812459791652,
       "at": 0.5,
+      "panel": true,
       "part": 1,
       "ext": 1,
       "y": 0,
@@ -33982,6 +33985,7 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 4.0381245979165215,
       "at": 0.5,
+      "panel": true,
       "part": 2,
       "ext": 1,
       "y": 0,
@@ -36107,15 +36111,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "fiplnj",
-   "build": 124155,
+   "signature": "1gahlev",
+   "build": 141597,
    "crew": 1000,
-   "total": 125155,
+   "total": 142597,
    "by": {
-    "hull": 62,
+    "hull": 63,
     "armor": 26,
-    "power": 44986,
-    "drive": 37726,
+    "power": 44991,
+    "drive": 55162,
     "defense": 1500,
     "command": 14504,
     "weapons": 13350,
@@ -36153,8 +36157,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 9.718544406671735e-17,
+    "upS": 9.718544406671735e-17,
     "down": 0.01,
     "T": 0
    },
@@ -36245,7 +36249,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.37,
       "r": 0.062,
-      "share": 0.4013248860764845,
+      "share": 0.4001144845033644,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -36253,15 +36257,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "太陽イオン化反応炉（操縦席ポッド）",
-      "w": 0.3481573691877559,
+      "w": 0.5581881528627991,
       "hits": 1,
-      "crew": 0.000102714886911493,
-      "size": 0.205429773822986,
+      "crew": 0.00020851673994711384,
+      "size": 0.4170334798942277,
       "at": 0.446,
       "part": 14,
       "y": 0,
       "z": 0.37,
-      "r": 0.037,
+      "r": 0.047,
       "share": 0.5,
       "domain": "main",
       "port": "p14",
@@ -36270,15 +36274,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "太陽イオン化反応炉（兵装ポッド）",
-      "w": 0.3481573691877559,
+      "w": 0.5581881528627991,
       "hits": 1,
-      "crew": 0.000102714886911493,
-      "size": 0.205429773822986,
+      "crew": 0.00020851673994711384,
+      "size": 0.4170334798942277,
       "at": 0.446,
       "part": 15,
       "y": 0,
       "z": -0.37,
-      "r": 0.037,
+      "r": 0.047,
       "share": 0.5,
       "domain": "main",
       "port": "p15",
@@ -36347,7 +36351,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.37,
       "r": 0.033,
-      "share": 0.06396099904186998,
+      "share": 0.0637680917576607,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -36364,7 +36368,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": 0,
       "r": 0.06,
-      "share": 0.36484077472136534,
+      "share": 0.3637404097477939,
       "domain": "main",
       "port": "p23",
       "powerConnected": true
@@ -36381,7 +36385,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.25,
       "z": 0.37,
       "r": 0.018,
-      "share": 0.010592978208720436,
+      "share": 0.010561029635550173,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -36389,16 +36393,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "反応物供給装置",
-      "w": 0.03610000000000001,
+      "w": 0.057600000000000005,
       "hits": 1,
-      "crew": 0.0000013718000000000004,
-      "size": 0.0068590000000000005,
+      "crew": 0.0000027648,
+      "size": 0.013824,
       "at": 0.667,
       "part": 25,
       "y": 0.02,
       "z": 0.37,
-      "r": 0.012,
-      "share": 0.0029790986729104716,
+      "r": 0.015,
+      "share": 0.0059861279134792575,
       "domain": "main",
       "port": "p25",
       "powerConnected": true
@@ -36415,7 +36419,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.37,
       "r": 0.014,
-      "share": 0.004624791174974587,
+      "share": 0.004610842738912553,
       "domain": "main",
       "port": "p26",
       "powerConnected": true
@@ -36432,7 +36436,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.04,
       "z": 0.37,
       "r": 0.015,
-      "share": 0.006004236777127038,
+      "share": 0.0059861279134792575,
       "domain": "main",
       "port": "p27",
       "powerConnected": true
@@ -36449,7 +36453,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.32,
       "r": 0.016,
-      "share": 0.007633858911659783,
+      "share": 0.0076108350844409315,
       "domain": "main",
       "port": "p28",
       "powerConnected": true
@@ -36466,7 +36470,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.41,
       "r": 0.016,
-      "share": 0.007633858911659783,
+      "share": 0.0076108350844409315,
       "domain": "main",
       "port": "p29",
       "powerConnected": true
@@ -36483,7 +36487,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": 0.37,
       "r": 0.016,
-      "share": 0.007633858911659783,
+      "share": 0.0076108350844409315,
       "domain": "main",
       "port": "p30",
       "powerConnected": true
@@ -36500,7 +36504,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.37,
       "r": 0.016,
-      "share": 0.007633858911659783,
+      "share": 0.0076108350844409315,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -36517,7 +36521,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0.32,
       "r": 0.018,
-      "share": 0.009534505622937846,
+      "share": 0.009505749418163824,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -36534,7 +36538,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0.41,
       "r": 0.018,
-      "share": 0.009534505622937846,
+      "share": 0.009505749418163824,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -36551,7 +36555,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.15,
       "z": 0.37,
       "r": 0.03,
-      "share": 0.0480338942170163,
+      "share": 0.04788902330783406,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -36568,7 +36572,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0.37,
       "r": 0.03,
-      "share": 0.0480338942170163,
+      "share": 0.04788902330783406,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -36585,7 +36589,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.24,
       "r": 0.027,
-      "share": 0.01049061769112977,
+      "share": 0.009826725668818355,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -36602,7 +36606,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.49,
       "r": 0.027,
-      "share": 0.010490617691129769,
+      "share": 0.009826725668818353,
       "domain": "main",
       "port": "p37",
       "powerConnected": true
@@ -36619,7 +36623,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.18,
       "z": 0.37,
       "r": 0.027,
-      "share": 0.01049061841671423,
+      "share": 0.009826726348484666,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -36627,18 +36631,137 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 4",
-      "w": 0.1548179601713081,
+      "w": 0.1856635415041138,
       "hits": 1,
-      "crew": 0.0000030458044432943523,
-      "size": 0.06091608886588704,
-      "at": 0.602,
+      "crew": 0.0000039999996173595625,
+      "size": 0.07999999234719125,
+      "at": 0.596,
       "part": 39,
       "y": 0.02,
-      "z": 0.25,
-      "r": 0.025,
-      "share": 0.007988092153284386,
+      "z": 0.24,
+      "r": 0.027,
+      "share": 0.00982672430948629,
       "domain": "main",
       "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 5",
+      "w": 0.1856635415041138,
+      "hits": 1,
+      "crew": 0.0000039999996173595625,
+      "size": 0.07999999234719125,
+      "at": 0.596,
+      "part": 40,
+      "y": 0.02,
+      "z": 0.49,
+      "r": 0.027,
+      "share": 0.00982672430948629,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 6",
+      "w": 0.18566358430888846,
+      "hits": 1,
+      "crew": 0.000004000001000660971,
+      "size": 0.08000002001321942,
+      "at": 0.667,
+      "part": 41,
+      "y": -0.18,
+      "z": 0.24,
+      "r": 0.027,
+      "share": 0.009826727707817009,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 7",
+      "w": 0.1856635843088885,
+      "hits": 1,
+      "crew": 0.000004000001000660972,
+      "size": 0.08000002001321943,
+      "at": 0.667,
+      "part": 42,
+      "y": -0.18,
+      "z": 0.49,
+      "r": 0.027,
+      "share": 0.00982672770781701,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 8",
+      "w": 0.18566355862602144,
+      "hits": 1,
+      "crew": 0.0000040000001706800355,
+      "size": 0.0800000034136007,
+      "at": 0.667,
+      "part": 43,
+      "y": 0.23,
+      "z": 0.24,
+      "r": 0.027,
+      "share": 0.009826725668818353,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 9",
+      "w": 0.18566355862602144,
+      "hits": 1,
+      "crew": 0.0000040000001706800355,
+      "size": 0.0800000034136007,
+      "at": 0.667,
+      "part": 44,
+      "y": 0.23,
+      "z": 0.49,
+      "r": 0.027,
+      "share": 0.009826725668818353,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 10",
+      "w": 0.18566355862602138,
+      "hits": 1,
+      "crew": 0.000004000000170680034,
+      "size": 0.08000000341360067,
+      "at": 0.667,
+      "part": 45,
+      "y": 0.33,
+      "z": 0.37,
+      "r": 0.027,
+      "share": 0.00982672566881835,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機体内高エネルギー散逸装置 11",
+      "w": 0.06380806201286761,
+      "hits": 1,
+      "crew": 8.059040455596104e-7,
+      "size": 0.016118080911192205,
+      "at": 0.688,
+      "part": 46,
+      "y": 0.2,
+      "z": 0.37,
+      "r": 0.016,
+      "share": 0.0019798494082961028,
+      "domain": "main",
+      "port": "p46",
       "powerConnected": true
      },
      {
@@ -36685,12 +36808,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 3.6624729765766553,
       "at": 0.5,
+      "panel": true,
       "part": 11,
       "ext": 1,
       "y": 0,
       "z": 0.99,
       "r": 0.098,
-      "share": 0.48027002702387084,
+      "share": 0.44987644593226034,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -36703,12 +36827,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 3.662472976576657,
       "at": 0.5,
+      "panel": true,
       "part": 12,
       "ext": 1,
       "y": 0,
       "z": -0.99,
       "r": 0.098,
-      "share": 0.48027002702387106,
+      "share": 0.44987644593226056,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -36724,35 +36849,35 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.105,
-      "share": 0.0729559748427673,
+      "share": 0.07412140575079872,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.1416417169037156,
+      "w": 1.1256997102244022,
       "hits": 1,
       "crew": 0,
-      "size": 20.99702940534871,
-      "at": 0.366,
+      "size": 20.558761239392663,
+      "at": 0.364,
       "y": 0,
       "z": 0.01,
-      "r": 0.175,
-      "share": 0.3314465408805032,
+      "r": 0.173,
+      "share": 0.32971246006389776,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 1.4289827769745824,
+      "w": 1.4108531018890986,
       "hits": 1,
       "crew": 0,
-      "size": 29.40380967959648,
+      "size": 28.846013832016062,
       "at": 0.628,
       "y": 0,
-      "z": 0,
-      "r": 0.195,
-      "share": 0.4641509433962264,
+      "z": -0.01,
+      "r": 0.194,
+      "share": 0.4626198083067093,
       "domain": "main"
      },
      {
@@ -36766,13 +36891,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.128,
-      "share": 0.13144654088050314,
+      "share": 0.13354632587859425,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 15.971157911945415,
+      "w": 16.940832860903967,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -36792,8 +36917,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.14313881527918496,
      "massKg": 35.78470381979624,
-     "capacityJ": 1.746360742270688e+22,
-     "specificEnergyJPerKg": 488018777817742970000,
+     "capacityJ": 3.5084633604151663e+22,
+     "specificEnergyJPerKg": 980436607239507300000,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -36805,39 +36930,39 @@ const CRAFT_PRICE_CATALOG={
     "height": 5.458604454994202,
     "referencePhysicalRevision": {
      "key": "craft_tie_sa",
-     "version": 2
+     "version": 3
     },
     "grid": {
-     "P": 2206610117981672200,
-     "fixed": 50103556740274910,
-     "cooling": 3884198079856607,
-     "De": 2206610117981672400,
+     "P": 4422948906190315500,
+     "fixed": 55587338829009620,
+     "cooling": 9367980168591310,
+     "De": 4422948906190315500,
      "Ds": 0,
      "Dw": 1418400000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2206610117981672400,
+       "P": 4422948906190315500,
        "reactors": [
         4,
         5
        ],
        "sources": [
         {
-         "moduleIndex": 29,
+         "moduleIndex": 36,
          "P": 27468570986406840
         },
         {
-         "moduleIndex": 30,
+         "moduleIndex": 37,
          "P": 27468570986406840
         },
         {
          "moduleIndex": 4,
-         "P": 1075836488004429300
+         "P": 2184005882108750800
         },
         {
          "moduleIndex": 5,
-         "P": 1075836488004429300
+         "P": 2184005882108750800
         }
        ],
        "modules": [
@@ -36876,7 +37001,14 @@ const CRAFT_PRICE_CATALOG={
         32,
         33,
         34,
-        35
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42
        ],
        "protection": 1
       }
@@ -36922,7 +37054,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p13",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p13",
@@ -36934,7 +37066,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p18",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p15>p18",
@@ -36946,7 +37078,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p19",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p19",
@@ -36958,7 +37090,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p23",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p23",
@@ -36970,7 +37102,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p24",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p24",
@@ -36982,7 +37114,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p25",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p25",
@@ -36994,7 +37126,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p26",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p26",
@@ -37006,7 +37138,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p27",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p27",
@@ -37018,7 +37150,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p28",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p28",
@@ -37030,7 +37162,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p29",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p29",
@@ -37042,7 +37174,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p30",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p30",
@@ -37054,7 +37186,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p31",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p31",
@@ -37066,7 +37198,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p32",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p32",
@@ -37078,7 +37210,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p33",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p33",
@@ -37090,7 +37222,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p34",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p34",
@@ -37102,7 +37234,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p35",
-       "cap": 2310967933020915,
+       "cap": 1711828098534011.2,
        "auto": true,
        "ok": true,
        "routeId": "p14>p35",
@@ -37222,13 +37354,97 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p39",
-       "cap": 2392633376196197.5,
+       "cap": 3142201926435891,
        "auto": false,
        "ok": true,
        "routeId": "p14>p39",
        "model": "source-distance",
-       "lengthM": 1.3413053195301958,
-       "efficiency": 0.9999865870367592
+       "lengthM": 1.3164753194868486,
+       "efficiency": 0.9999868353334601
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p40",
+       "cap": 3142201926435891,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p40",
+       "model": "source-distance",
+       "lengthM": 1.3164753194868486,
+       "efficiency": 0.9999868353334601
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p41",
+       "cap": 3142203013089082,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p41",
+       "model": "source-distance",
+       "lengthM": 1.9043173072831114,
+       "efficiency": 0.9999809570082472
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p42",
+       "cap": 3142203013089082.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p42",
+       "model": "source-distance",
+       "lengthM": 1.9043173072831114,
+       "efficiency": 0.9999809570082472
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p43",
+       "cap": 3142202361097095.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p43",
+       "model": "source-distance",
+       "lengthM": 1.939293976378517,
+       "efficiency": 0.9999806072482781
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p44",
+       "cap": 3142202361097095.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p44",
+       "model": "source-distance",
+       "lengthM": 1.939293976378517,
+       "efficiency": 0.9999806072482781
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p45",
+       "cap": 3142202361097095,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p45",
+       "model": "source-distance",
+       "lengthM": 1.9679720660873214,
+       "efficiency": 0.9999803204729836
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p46",
+       "cap": 633078371680317.6,
+       "auto": false,
+       "ok": true,
+       "routeId": "p14>p46",
+       "model": "source-distance",
+       "lengthM": 1.992352916400355,
+       "efficiency": 0.9999800766693082
       },
       {
        "kind": "power",
@@ -37270,23 +37486,107 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p39",
-       "cap": 2392633376196197.5,
+       "cap": 3142201926435891,
        "auto": false,
        "ok": true,
        "routeId": "p15>p39",
        "model": "source-distance",
-       "lengthM": 2.96064789534318,
-       "efficiency": 0.9999703939593141
+       "lengthM": 2.896226522014119,
+       "efficiency": 0.9999710381541822
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p40",
+       "cap": 3142201926435891,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p40",
+       "model": "source-distance",
+       "lengthM": 3.944374027246656,
+       "efficiency": 0.9999605570376217
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p41",
+       "cap": 3142203013089082,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p41",
+       "model": "source-distance",
+       "lengthM": 3.2064692742669467,
+       "efficiency": 0.9999679358213241
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p42",
+       "cap": 3142203013089082.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p42",
+       "model": "source-distance",
+       "lengthM": 4.17748771474172,
+       "efficiency": 0.9999582259954106
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p43",
+       "cap": 3142202361097095.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p43",
+       "model": "source-distance",
+       "lengthM": 3.2273645481751823,
+       "efficiency": 0.9999677268753068
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p44",
+       "cap": 3142202361097095.5,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p44",
+       "model": "source-distance",
+       "lengthM": 4.193547463284277,
+       "efficiency": 0.9999580654046469
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p45",
+       "cap": 3142202361097095,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p45",
+       "model": "source-distance",
+       "lengthM": 3.756715860016565,
+       "efficiency": 0.9999624335470367
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p46",
+       "cap": 633078371680317.6,
+       "auto": false,
+       "ok": true,
+       "routeId": "p15>p46",
+       "model": "source-distance",
+       "lengthM": 3.769545084421859,
+       "efficiency": 0.9999623052596204
       },
       {
        "kind": "power",
        "from": "p14",
        "to": "p16",
-       "cap": 1506171083206200800,
+       "cap": 3057608234952251000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p14>p16",
-       "groupCap": 3089254165174341000,
+       "groupCap": 6192128468666442000,
        "routeId": "p14>p16",
        "model": "source-distance",
        "lengthM": 1.6200000000000006,
@@ -37296,11 +37596,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p14",
        "to": "p17",
-       "cap": 1506171083206200800,
+       "cap": 3057608234952251000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p14>p17",
-       "groupCap": 3089254165174341000,
+       "groupCap": 6192128468666442000,
        "routeId": "p14>p17",
        "model": "source-distance",
        "lengthM": 3.5866976454672064,
@@ -37310,11 +37610,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p16",
-       "cap": 1506171083206200800,
+       "cap": 3057608234952251000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p16",
-       "groupCap": 3089254165174341000,
+       "groupCap": 6192128468666442000,
        "routeId": "p15>p16",
        "model": "source-distance",
        "lengthM": 3.5866976454672064,
@@ -37324,11 +37624,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p15",
        "to": "p17",
-       "cap": 1506171083206200800,
+       "cap": 3057608234952251000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p15>p17",
-       "groupCap": 3089254165174341000,
+       "groupCap": 6192128468666442000,
        "routeId": "p15>p17",
        "model": "source-distance",
        "lengthM": 1.6200000000000006,
@@ -37422,7 +37722,49 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p39",
        "port": "p39",
-       "weight": 2392633376196197.5,
+       "weight": 3142201926435891,
+       "domain": "main"
+      },
+      {
+       "id": "p40",
+       "port": "p40",
+       "weight": 3142201926435891,
+       "domain": "main"
+      },
+      {
+       "id": "p41",
+       "port": "p41",
+       "weight": 3142203013089082,
+       "domain": "main"
+      },
+      {
+       "id": "p42",
+       "port": "p42",
+       "weight": 3142203013089082.5,
+       "domain": "main"
+      },
+      {
+       "id": "p43",
+       "port": "p43",
+       "weight": 3142202361097095.5,
+       "domain": "main"
+      },
+      {
+       "id": "p44",
+       "port": "p44",
+       "weight": 3142202361097095.5,
+       "domain": "main"
+      },
+      {
+       "id": "p45",
+       "port": "p45",
+       "weight": 3142202361097095,
+       "domain": "main"
+      },
+      {
+       "id": "p46",
+       "port": "p46",
+       "weight": 633078371680317.6,
        "domain": "main"
       },
       {
@@ -37447,23 +37789,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 35.30398001639513,
-       "efficiency": 0.7029142379026085,
-       "wasteFraction": 0.29708576209739146,
-       "profileWattsPerNewton": 2324753391.5980377,
-       "shaftWattsPerNewton": 2208515722.0181355,
-       "wattsPerNewton": 3141941936.7688694,
-       "ratedShaftPowerW": 775528834714636200,
-       "ratedWasteHeatW": 327776224276200000,
+       "densityFactor": 70.76361090037227,
+       "efficiency": 0.5793944517116651,
+       "wasteFraction": 0.42060554828833485,
+       "profileWattsPerNewton": 2331672489.3953843,
+       "shaftWattsPerNewton": 2215088864.925615,
+       "wattsPerNewton": 3823110246.191917,
+       "ratedShaftPowerW": 1281316028225423400,
+       "ratedWasteHeatW": 930158424869734300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39965.49373103209,
+       "conversionMassKg": 41247.36658189457,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2206610117981672400,
-       "sourceInputLimitW": 2206610117981672400,
+       "availableInputW": 4422948906190315500,
+       "sourceInputLimitW": 4422948906190315500,
        "sourceIds": [
         "p11",
         "p12",
@@ -37477,10 +37819,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1103305058990836200,
+       "ratedInputW": 2211474453095157800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 351153866.3650355,
+       "ratedThrustN": 578449040.3586817,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -37488,12 +37830,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2206610117981672400,
-       "maxRatedInputW": 2206610117981672400,
-       "inputDensityWPerM3": 12003353205574345000,
+       "maxInputW": 4422948906190315500,
+       "maxRatedInputW": 4422948906190315500,
+       "inputDensityWPerM3": 24059627706126570000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 932787709651873700,
-       "cost": 5360.962121196491,
+       "costBasisInputW": 1492599418839341600,
+       "cost": 14079.161738575078,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -37508,11 +37850,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 6,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 34,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2206610117981672400,
+       "pathCapacityW": 4422948906190315500,
        "transmissionRouteIds": [
         "p14>p16",
         "p15>p16",
@@ -37523,23 +37865,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 35.30398001639513,
-       "efficiency": 0.7029142379026085,
-       "wasteFraction": 0.29708576209739146,
-       "profileWattsPerNewton": 2324753391.5980377,
-       "shaftWattsPerNewton": 2208515722.0181355,
-       "wattsPerNewton": 3141941936.7688694,
-       "ratedShaftPowerW": 775528834714636200,
-       "ratedWasteHeatW": 327776224276200000,
+       "densityFactor": 70.76361090037227,
+       "efficiency": 0.5793944517116651,
+       "wasteFraction": 0.42060554828833485,
+       "profileWattsPerNewton": 2331672489.3953843,
+       "shaftWattsPerNewton": 2215088864.925615,
+       "wattsPerNewton": 3823110246.191917,
+       "ratedShaftPowerW": 1281316028225423400,
+       "ratedWasteHeatW": 930158424869734300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39965.49373103209,
+       "conversionMassKg": 41247.36658189457,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2206610117981672400,
-       "sourceInputLimitW": 2206610117981672400,
+       "availableInputW": 4422948906190315500,
+       "sourceInputLimitW": 4422948906190315500,
        "sourceIds": [
         "p11",
         "p12",
@@ -37553,10 +37895,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1103305058990836200,
+       "ratedInputW": 2211474453095157800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 351153866.3650355,
+       "ratedThrustN": 578449040.3586817,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -37564,12 +37906,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2206610117981672400,
-       "maxRatedInputW": 2206610117981672400,
-       "inputDensityWPerM3": 12003353205574345000,
+       "maxInputW": 4422948906190315500,
+       "maxRatedInputW": 4422948906190315500,
+       "inputDensityWPerM3": 24059627706126570000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 932787709651873700,
-       "cost": 5360.962121196491,
+       "costBasisInputW": 1492599418839341600,
+       "cost": 14079.161738575078,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 15,
@@ -37584,11 +37926,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 28,
+       "machineryModuleIndex": 35,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2206610117981672400,
+       "pathCapacityW": 4422948906190315500,
        "transmissionRouteIds": [
         "p14>p17",
         "p15>p17",
@@ -37601,23 +37943,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 35.30398001639513,
-       "efficiency": 0.7029142379026085,
-       "wasteFraction": 0.29708576209739146,
-       "profileWattsPerNewton": 2324753391.5980377,
-       "shaftWattsPerNewton": 2208515722.0181355,
-       "wattsPerNewton": 3141941936.7688694,
-       "ratedShaftPowerW": 775528834714636200,
-       "ratedWasteHeatW": 327776224276200000,
+       "densityFactor": 70.76361090037227,
+       "efficiency": 0.5793944517116651,
+       "wasteFraction": 0.42060554828833485,
+       "profileWattsPerNewton": 2331672489.3953843,
+       "shaftWattsPerNewton": 2215088864.925615,
+       "wattsPerNewton": 3823110246.191917,
+       "ratedShaftPowerW": 1281316028225423400,
+       "ratedWasteHeatW": 930158424869734300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39965.49373103209,
+       "conversionMassKg": 41247.36658189457,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2206610117981672400,
-       "sourceInputLimitW": 2206610117981672400,
+       "availableInputW": 4422948906190315500,
+       "sourceInputLimitW": 4422948906190315500,
        "sourceIds": [
         "p11",
         "p12",
@@ -37631,10 +37973,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1103305058990836200,
+       "ratedInputW": 2211474453095157800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 351153866.3650355,
+       "ratedThrustN": 578449040.3586817,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -37642,12 +37984,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2206610117981672400,
-       "maxRatedInputW": 2206610117981672400,
-       "inputDensityWPerM3": 12003353205574345000,
+       "maxInputW": 4422948906190315500,
+       "maxRatedInputW": 4422948906190315500,
+       "inputDensityWPerM3": 24059627706126570000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 932787709651873700,
-       "cost": 5360.962121196491,
+       "costBasisInputW": 1492599418839341600,
+       "cost": 14079.161738575078,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -37663,7 +38005,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 6,
        "coreModuleIndex": 6,
-       "machineryModuleIndex": 27,
+       "machineryModuleIndex": 34,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 769690200129499200000,
        "shaftCapacityW": 769690200129499200000,
@@ -37672,28 +38014,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2206610117981672400
+       "pathCapacityW": 4422948906190315500
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 31251577257818028,
-       "densityFactor": 35.30398001639513,
-       "efficiency": 0.7029142379026085,
-       "wasteFraction": 0.29708576209739146,
-       "profileWattsPerNewton": 2324753391.5980377,
-       "shaftWattsPerNewton": 2208515722.0181355,
-       "wattsPerNewton": 3141941936.7688694,
-       "ratedShaftPowerW": 775528834714636200,
-       "ratedWasteHeatW": 327776224276200000,
+       "densityFactor": 70.76361090037227,
+       "efficiency": 0.5793944517116651,
+       "wasteFraction": 0.42060554828833485,
+       "profileWattsPerNewton": 2331672489.3953843,
+       "shaftWattsPerNewton": 2215088864.925615,
+       "wattsPerNewton": 3823110246.191917,
+       "ratedShaftPowerW": 1281316028225423400,
+       "ratedWasteHeatW": 930158424869734300,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 39965.49373103209,
+       "conversionMassKg": 41247.36658189457,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2206610117981672400,
-       "sourceInputLimitW": 2206610117981672400,
+       "availableInputW": 4422948906190315500,
+       "sourceInputLimitW": 4422948906190315500,
        "sourceIds": [
         "p11",
         "p12",
@@ -37707,10 +38049,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 1103305058990836200,
+       "ratedInputW": 2211474453095157800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 351153866.3650355,
+       "ratedThrustN": 578449040.3586817,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -37718,12 +38060,12 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.35,
        "machineryDiameterM": 0.7,
        "machineryOffsetM": 0.3,
-       "maxInputW": 2206610117981672400,
-       "maxRatedInputW": 2206610117981672400,
-       "inputDensityWPerM3": 12003353205574345000,
+       "maxInputW": 4422948906190315500,
+       "maxRatedInputW": 4422948906190315500,
+       "inputDensityWPerM3": 24059627706126570000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "costBasisInputW": 932787709651873700,
-       "cost": 5360.962121196491,
+       "costBasisInputW": 1492599418839341600,
+       "cost": 14079.161738575078,
        "powerNode": "p17",
        "heatNode": "p17",
        "reactorId": 15,
@@ -37739,7 +38081,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 7,
        "coreModuleIndex": 7,
-       "machineryModuleIndex": 28,
+       "machineryModuleIndex": 35,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 769690200129499200000,
        "shaftCapacityW": 769690200129499200000,
@@ -37748,22 +38090,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2206610117981672400
+       "pathCapacityW": 4422948906190315500
       }
      ],
-     "massKg": 39965.49373103209,
-     "ratedThrustN": 702293002.8411238,
-     "ratedAccelMps2": 17572.48409259143,
-     "structuralAccelerationLimitMps2": 2389065.0129454434,
+     "massKg": 41247.36658189457,
+     "ratedThrustN": 1156878688.667499,
+     "ratedAccelMps2": 28047.334521843346,
+     "structuralAccelerationLimitMps2": 2307389.6912971614,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 17572.48409259143,
+     "accelerationLimitMps2": 28047.334521843346,
      "conversionModelVersion": 1,
-     "conversionMassKg": 39965.49373103209,
+     "conversionMassKg": 41247.36658189457,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2206610117981672200,[[\"main\",2206610117981672400,[[29,27468570986406840],[30,27468570986406840],[4,1075836488004429300],[5,1075836488004429300]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.205429773822986,0.5],[5,\"reactor\",15,\"p15\",\"main\",0.205429773822986,0.5],[29,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.48027002702387084],[30,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.48027002702387106]]]"
+     "sourceBudgetKey": "[4422948906190315500,[[\"main\",4422948906190315500,[[36,27468570986406840],[37,27468570986406840],[4,2184005882108750800],[5,2184005882108750800]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.4170334798942277,0.5],[5,\"reactor\",15,\"p15\",\"main\",0.4170334798942277,0.5],[36,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.44987644593226034],[37,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.44987644593226056]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 842.5579459211037,
+    "maxSpeed": 1357.3781292168676,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -37805,7 +38147,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         6,
-        27
+        34
        ],
        "pc": [],
        "sec": 0,
@@ -37820,7 +38162,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.5,
        "m": [
         7,
-        28
+        35
        ],
        "pc": [],
        "sec": 0,
@@ -37860,7 +38202,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.0186504,
+       "sh": 0.0094032,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38081,7 +38423,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f20",
        "n": "送電損失 p14>f20",
        "g": "high",
-       "sh": 0.000120411,
+       "sh": 0.0000607094,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38094,7 +38436,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f21",
        "n": "送電損失 p14>f21",
        "g": "high",
-       "sh": 0.000120329,
+       "sh": 0.0000606678,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38107,7 +38449,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f22",
        "n": "送電損失 p14>f22",
        "g": "high",
-       "sh": 0.000883118,
+       "sh": 0.000445253,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38159,7 +38501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p36",
        "n": "送電損失 p14>p36",
        "g": "high",
-       "sh": 0.000940134,
+       "sh": 0.000474023,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38172,7 +38514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p37",
        "n": "送電損失 p14>p37",
        "g": "high",
-       "sh": 0.000940134,
+       "sh": 0.000474023,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -38185,7 +38527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p38",
        "n": "送電損失 p14>p38",
        "g": "high",
-       "sh": 0.000660027,
+       "sh": 0.000332791,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -38198,13 +38540,104 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p39",
        "n": "送電損失 p14>p39",
        "g": "high",
-       "sh": 0.000522286,
+       "sh": 0.000339438,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 1,
        "sw": -1,
        "gen": -1,
        "routeId": "p14>p39"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p40",
+       "n": "送電損失 p14>p40",
+       "g": "high",
+       "sh": 0.000339438,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p40"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p41",
+       "n": "送電損失 p14>p41",
+       "g": "high",
+       "sh": 0.000491008,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p41"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p42",
+       "n": "送電損失 p14>p42",
+       "g": "high",
+       "sh": 0.000491008,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p42"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p43",
+       "n": "送電損失 p14>p43",
+       "g": "high",
+       "sh": 0.000500026,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p43"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p44",
+       "n": "送電損失 p14>p44",
+       "g": "high",
+       "sh": 0.000500026,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p44"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p45",
+       "n": "送電損失 p14>p45",
+       "g": "high",
+       "sh": 0.000507421,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p45"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p14>p46",
+       "n": "送電損失 p14>p46",
+       "g": "high",
+       "sh": 0.0001035,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p14>p46"
       },
       {
        "k": "feed",
@@ -38253,17 +38686,108 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0,
        "m": [],
        "pc": [],
-       "sec": 2,
+       "sec": 1,
        "sw": -1,
        "gen": -1,
        "routeId": "p15>p39"
       },
       {
        "k": "feed",
+       "id": "feed:p15>p40",
+       "n": "送電損失 p15>p40",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p40"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p15>p41",
+       "n": "送電損失 p15>p41",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p41"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p15>p42",
+       "n": "送電損失 p15>p42",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p42"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p15>p43",
+       "n": "送電損失 p15>p43",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p43"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p15>p44",
+       "n": "送電損失 p15>p44",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p44"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p15>p45",
+       "n": "送電損失 p15>p45",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p45"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p15>p46",
+       "n": "送電損失 p15>p46",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p15>p46"
+      },
+      {
+       "k": "feed",
        "id": "feed:p14>p16",
        "n": "送電損失 p14>p16",
        "g": "high",
-       "sh": 0.140961,
+       "sh": 0.147063,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38276,7 +38800,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p17",
        "n": "送電損失 p14>p17",
        "g": "high",
-       "sh": 0.312092,
+       "sh": 0.325601,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38289,7 +38813,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p16",
        "n": "送電損失 p15>p16",
        "g": "high",
-       "sh": 0.329706,
+       "sh": 0.33746,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38302,7 +38826,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p17",
        "n": "送電損失 p15>p17",
        "g": "high",
-       "sh": 0.148916,
+       "sh": 0.152419,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38315,7 +38839,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>p16",
        "n": "送電損失 p11>p16",
        "g": "high",
-       "sh": 0.00801898,
+       "sh": 0.00404303,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38328,7 +38852,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p16",
        "n": "送電損失 p12>p16",
        "g": "high",
-       "sh": 0.0147254,
+       "sh": 0.0074243,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38341,7 +38865,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>p17",
        "n": "送電損失 p11>p17",
        "g": "high",
-       "sh": 0.0147254,
+       "sh": 0.0074243,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38354,7 +38878,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.00801898,
+       "sh": 0.00404303,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38402,11 +38926,88 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 4 #39",
        "k": "hdis",
        "g": "all",
-       "cap": 159508891746413200,
+       "cap": 209480128429059400,
        "m": 26,
        "sec": 4,
        "src": -1,
-       "power": 2392633376196197.5
+       "power": 3142201926435891
+      },
+      {
+       "id": "p40",
+       "n": "機体内高エネルギー散逸装置 5 #40",
+       "k": "hdis",
+       "g": "all",
+       "cap": 209480128429059400,
+       "m": 27,
+       "sec": 4,
+       "src": -1,
+       "power": 3142201926435891
+      },
+      {
+       "id": "p41",
+       "n": "機体内高エネルギー散逸装置 6 #41",
+       "k": "hdis",
+       "g": "all",
+       "cap": 209480200872605470,
+       "m": 28,
+       "sec": 4,
+       "src": -1,
+       "power": 3142203013089082
+      },
+      {
+       "id": "p42",
+       "n": "機体内高エネルギー散逸装置 7 #42",
+       "k": "hdis",
+       "g": "all",
+       "cap": 209480200872605500,
+       "m": 29,
+       "sec": 4,
+       "src": -1,
+       "power": 3142203013089082.5
+      },
+      {
+       "id": "p43",
+       "n": "機体内高エネルギー散逸装置 8 #43",
+       "k": "hdis",
+       "g": "all",
+       "cap": 209480157406473060,
+       "m": 30,
+       "sec": 4,
+       "src": -1,
+       "power": 3142202361097095.5
+      },
+      {
+       "id": "p44",
+       "n": "機体内高エネルギー散逸装置 9 #44",
+       "k": "hdis",
+       "g": "all",
+       "cap": 209480157406473060,
+       "m": 31,
+       "sec": 4,
+       "src": -1,
+       "power": 3142202361097095.5
+      },
+      {
+       "id": "p45",
+       "n": "機体内高エネルギー散逸装置 10 #45",
+       "k": "hdis",
+       "g": "all",
+       "cap": 209480157406473000,
+       "m": 32,
+       "sec": 4,
+       "src": -1,
+       "power": 3142202361097095
+      },
+      {
+       "id": "p46",
+       "n": "機体内高エネルギー散逸装置 11 #46",
+       "k": "hdis",
+       "g": "all",
+       "cap": 42205224778687840,
+       "m": 33,
+       "sec": 4,
+       "src": -1,
+       "power": 633078371680317.6
       },
       {
        "id": "p11",
@@ -38414,7 +39015,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "all",
        "cap": 8927285570582224,
-       "m": 29,
+       "m": 36,
        "sec": 0,
        "src": -1,
        "power": 44636427852911.12
@@ -38425,7 +39026,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "solar",
        "g": "all",
        "cap": 8927285570582224,
-       "m": 30,
+       "m": 37,
        "sec": 0,
        "src": -1,
        "power": 44636427852911.12
@@ -38435,1621 +39036,4603 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 1
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 1
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 1
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 1
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 0
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 2417411848787129300,
+       "cap": 6464584240352199000,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 2417411848787129300,
+       "cap": 6464584240352199000,
        "sec": 4
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 2417411848787129300,
+       "cap": 6464584240352199000,
        "sec": 4
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 2417411848787129300,
+       "cap": 6464584240352199000,
        "sec": 4
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 2417411848787129300,
+       "cap": 6464584240352199000,
        "sec": 4
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 2417411848787129300,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 6,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 8,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 10,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 12,
+       "cap": 6464584240352199000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 5,
-       "d": 4,
-       "cap": 805803949595709800,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 5,
-       "d": 5,
-       "cap": 805803949595709800,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 9,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 10,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 11,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 11,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 11,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 12,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 12,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 12,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 12,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 12,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 12,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 12,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 12,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 13,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 13,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 13,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 13,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 13,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 13,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 13,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 14,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 14,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 14,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 14,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 14,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 14,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 14,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 15,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 16,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 18,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 19,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 19,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 19,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 19,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 19,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 19,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 19,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 20,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 22,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 22,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 23,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 23,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 24,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 25,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 26,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 27,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 3
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 28,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 29,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 30,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 2
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 31,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 31,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 1
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 33,
-       "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
-      },
-      {
-       "s": 33,
-       "d": 5,
-       "cap": 805803949595709800,
-       "sec": 2
-      },
-      {
-       "s": 34,
-       "d": 0,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 1,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 2,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 34,
-       "d": 4,
-       "cap": 805803949595709800,
-       "sec": 2
-      },
-      {
-       "s": 34,
-       "d": 5,
-       "cap": 805803949595709800,
-       "sec": 2
-      },
-      {
-       "s": 35,
-       "d": 0,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 35,
-       "d": 1,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 35,
-       "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
-       "s": 35,
+       "s": 33,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 35,
-       "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
-      },
-      {
-       "s": 35,
-       "d": 5,
-       "cap": 805803949595709800,
-       "sec": 1
-      },
-      {
-       "s": 36,
-       "d": 0,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 36,
-       "d": 1,
-       "cap": 805803949595709800,
-       "sec": 4
-      },
-      {
-       "s": 36,
-       "d": 2,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 3
       },
       {
+       "s": 33,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 3
+      },
+      {
+       "s": 33,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 34,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 35,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 35,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 36,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
        "s": 36,
        "d": 3,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
        "sec": 4
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 36,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 37,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 38,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 39,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 40,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 41,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 42,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 1
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 43,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 43,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 1
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 805803949595709800,
-       "sec": 1
+       "cap": 2154861413450732800,
+       "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 805803949595709800,
-       "sec": 0
+       "cap": 2154861413450732800,
+       "sec": 3
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 805803949595709800,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 44,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 44,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 44,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 44,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 44,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 44,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 44,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 45,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 45,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 45,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 46,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 46,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 46,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 47,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 47,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 48,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 48,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 49,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 49,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 50,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 50,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 51,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 51,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 51,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 51,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 51,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 51,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 52,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 53,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 54,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 55,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 55,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 56,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 56,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 56,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 56,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 56,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 56,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 56,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 57,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 57,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 57,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 57,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 57,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 57,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 57,
+       "d": 12,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 58,
+       "d": 0,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 1,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 2,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 58,
+       "d": 3,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 58,
+       "d": 4,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 58,
+       "d": 5,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 6,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 7,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 8,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 9,
+       "cap": 2154861413450732800,
+       "sec": 1
+      },
+      {
+       "s": 58,
+       "d": 10,
+       "cap": 2154861413450732800,
+       "sec": 2
+      },
+      {
+       "s": 58,
+       "d": 11,
+       "cap": 2154861413450732800,
+       "sec": 0
+      },
+      {
+       "s": 58,
+       "d": 12,
+       "cap": 2154861413450732800,
        "sec": 0
       }
      ]
@@ -40064,7 +43647,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 42.12789729605519,
+    "mglt": 67.86890646084338,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -61841,17 +65424,17 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "12ekc8t",
-   "build": 152697,
+   "signature": "1z05xv8",
+   "build": 152699,
    "crew": 1000,
-   "total": 153697,
+   "total": 153699,
    "by": {
     "hull": 35,
     "armor": 13,
     "power": 16748,
-    "drive": 62196,
+    "drive": 62197,
     "defense": 13502,
-    "command": 20502,
+    "command": 20503,
     "weapons": 22700,
     "systems": 17001,
     "crew": 1000
@@ -61860,7 +65443,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 19309958900000004,
+    "power": 19389611900000004,
     "crew": 1,
     "suitSeats": 0,
     "lifeSupportCapacity": 1,
@@ -61869,7 +65452,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.7767209368297943,
+    "navDemand": 0.7755516648787791,
     "navReady": true,
     "targetDemand": 6,
     "targetCapacity": 7.44775,
@@ -61882,13 +65465,13 @@ const CRAFT_PRICE_CATALOG={
     "laserGunShare": 1,
     "laserAaShare": 1,
     "laserGasSeconds": 643.1249999999999,
-    "landingSupport": 29.491200000000006,
+    "landingSupport": 53.387100000000004,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
     "up": 0,
-    "upS": 2.6772468062942456e-16,
+    "upS": 0,
     "down": 0.01,
     "T": 1
    },
@@ -62136,7 +65719,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.036,
-      "share": 0.6270368167256531,
+      "share": 0.5948814332687957,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -62153,7 +65736,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.5,
       "z": 0,
       "r": 0.018,
-      "share": 0.07328476855293369,
+      "share": 0.06952661628577955,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -62187,7 +65770,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.11,
       "z": 0,
       "r": 0.017,
-      "share": 0.06926609833555826,
+      "share": 0.06571402947272661,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -62238,7 +65821,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.01,
-      "share": 0.005839571353987838,
+      "share": 0.005839536321448675,
       "domain": "main",
       "port": "p41",
       "powerConnected": true
@@ -62255,7 +65838,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": 0,
       "r": 0.014,
-      "share": 0.03437370245156677,
+      "share": 0.03261096770668551,
       "domain": "main",
       "port": "p68",
       "powerConnected": true
@@ -62272,7 +65855,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": 0,
       "r": 0.011,
-      "share": 0.016550653052953664,
+      "share": 0.015701910871979016,
       "domain": "main",
       "port": "p69",
       "powerConnected": true
@@ -62289,7 +65872,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": 0,
       "r": 0.007,
-      "share": 0.005428891074813619,
+      "share": 0.005150489440970608,
       "domain": "main",
       "port": "p70",
       "powerConnected": true
@@ -62306,7 +65889,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.08,
       "z": 0,
       "r": 0.008,
-      "share": 0.007225854020576925,
+      "share": 0.006855301445931878,
       "domain": "main",
       "port": "p71",
       "powerConnected": true
@@ -62323,7 +65906,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": -0.07,
       "r": 0.012,
-      "share": 0.02021651175122156,
+      "share": 0.01917977886699442,
       "domain": "main",
       "port": "p72",
       "powerConnected": true
@@ -62340,7 +65923,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": 0.05,
       "r": 0.007,
-      "share": 0.005428891074813619,
+      "share": 0.005150489440970608,
       "domain": "main",
       "port": "p73",
       "powerConnected": true
@@ -62357,7 +65940,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.24,
       "z": 0,
       "r": 0.007,
-      "share": 0.005428891074813619,
+      "share": 0.005150489440970608,
       "domain": "main",
       "port": "p74",
       "powerConnected": true
@@ -62374,7 +65957,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0,
       "r": 0.007,
-      "share": 0.005428891074813619,
+      "share": 0.005150489440970608,
       "domain": "main",
       "port": "p75",
       "powerConnected": true
@@ -62391,7 +65974,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": -0.02,
       "r": 0.007,
-      "share": 0.005428891074813619,
+      "share": 0.005150489440970608,
       "domain": "main",
       "port": "p76",
       "powerConnected": true
@@ -62408,7 +65991,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": 0,
       "r": 0.013,
-      "share": 0.029095463104079226,
+      "share": 0.027603404347701838,
       "domain": "main",
       "port": "p77",
       "powerConnected": true
@@ -62425,7 +66008,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.36,
       "z": 0,
       "r": 0.013,
-      "share": 0.029095463104079226,
+      "share": 0.027603404347701838,
       "domain": "main",
       "port": "p78",
       "powerConnected": true
@@ -62433,16 +66016,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "着陸脚機構 1",
-      "w": 0.10240000000000002,
+      "w": 0.1521,
       "hits": 1,
       "crew": 0,
-      "size": 0.032768000000000005,
-      "at": 0.544,
+      "size": 0.059319000000000004,
+      "at": 0.503,
       "part": 79,
       "y": 0.09,
-      "z": 0.08,
-      "r": 0.012,
-      "share": 0.022236737842436582,
+      "z": -0.05,
+      "r": 0.015,
+      "share": 0.038190235393616934,
       "domain": "main",
       "port": "p79",
       "powerConnected": true
@@ -62450,16 +66033,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "着陸脚機構 2",
-      "w": 0.10240000000000002,
+      "w": 0.1521,
       "hits": 1,
       "crew": 0,
-      "size": 0.032768000000000005,
-      "at": 0.544,
+      "size": 0.059319000000000004,
+      "at": 0.503,
       "part": 80,
-      "y": 0.33,
-      "z": 0,
-      "r": 0.012,
-      "share": 0.022236737842436582,
+      "y": 0.09,
+      "z": 0.05,
+      "r": 0.015,
+      "share": 0.038190235393616934,
       "domain": "main",
       "port": "p80",
       "powerConnected": true
@@ -62467,16 +66050,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "other",
       "name": "着陸脚機構 3",
-      "w": 0.10240000000000002,
+      "w": 0.1521,
       "hits": 1,
       "crew": 0,
-      "size": 0.032768000000000005,
-      "at": 0.527,
+      "size": 0.059319000000000004,
+      "at": 0.503,
       "part": 81,
-      "y": -0.15,
+      "y": 0.39,
       "z": 0,
-      "r": 0.012,
-      "share": 0.022236737842436582,
+      "r": 0.015,
+      "share": 0.038190235393616934,
       "domain": "main",
       "port": "p81",
       "powerConnected": true
@@ -62484,16 +66067,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 1",
-      "w": 0.185663438772675,
+      "w": 0.18566360999173015,
       "hits": 1,
-      "crew": 0.000003999996297437496,
-      "size": 0.07999992594874993,
-      "at": 0.481,
+      "crew": 0.0000040000018306411445,
+      "size": 0.0800000366128229,
+      "at": 0.649,
       "part": 82,
-      "y": 0.39,
+      "y": 0.09,
       "z": 0,
       "r": 0.016,
-      "share": 0.02137268343788732,
+      "share": 0.021372584784382663,
       "domain": "main",
       "port": "p82",
       "powerConnected": true
@@ -62505,12 +66088,12 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0000040000018306411445,
       "size": 0.0800000366128229,
-      "at": 0.649,
+      "at": 0.472,
       "part": 83,
-      "y": 0.09,
+      "y": 0.19,
       "z": 0,
       "r": 0.016,
-      "share": 0.02137271300276718,
+      "share": 0.021372584784382663,
       "domain": "main",
       "port": "p83",
       "powerConnected": true
@@ -62527,7 +66110,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.19,
       "z": 0,
       "r": 0.016,
-      "share": 0.02137271300276718,
+      "share": 0.021372584784382663,
       "domain": "main",
       "port": "p84",
       "powerConnected": true
@@ -62535,16 +66118,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "機体内高エネルギー散逸装置 4",
-      "w": 0.11790377591728272,
+      "w": 0.11794715528037573,
       "hits": 1,
-      "crew": 0.0000020242380075216062,
-      "size": 0.04048476015043213,
-      "at": 0.511,
+      "crew": 0.000002025355252043501,
+      "size": 0.04050710504087002,
+      "at": 0.494,
       "part": 85,
-      "y": 0.09,
+      "y": -0.15,
       "z": -0.08,
       "r": 0.013,
-      "share": 0.010815859546023767,
+      "share": 0.01082176425800688,
       "domain": "main",
       "port": "p85",
       "powerConnected": true
@@ -62634,7 +66217,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.2298066257914624,
+      "share": 0.22980524714410458,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -62652,7 +66235,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.29,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.22980663061631337,
+      "share": 0.2298052519689266,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -62670,7 +66253,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.22980659870472847,
+      "share": 0.22980522005753312,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -62688,7 +66271,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.29,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.22980660454406251,
+      "share": 0.22980522589683214,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -62704,55 +66287,55 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": 0,
       "r": 0.104,
-      "share": 0.5180305131761442,
+      "share": 0.5176715176715176,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.9042408823921146,
+      "w": 0.9018937272516653,
       "hits": 1,
       "crew": 0,
-      "size": 14.800940712954349,
-      "at": 0.325,
+      "size": 14.743349503954526,
+      "at": 0.324,
       "y": 0,
       "z": 0,
       "r": 0.092,
-      "share": 0.3564493758668516,
+      "share": 0.3548163548163548,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3504207777328366,
+      "w": 0.35605017729913524,
       "hits": 1,
       "crew": 0,
-      "size": 3.570654957988987,
+      "size": 3.6570417714887204,
       "at": 0.603,
-      "y": 0.07,
+      "y": 0.06,
       "z": 0,
-      "r": 0.057,
-      "share": 0.08599167822468794,
+      "r": 0.058,
+      "share": 0.088011088011088,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.20871738722005342,
+      "w": 0.2087173872200534,
       "hits": 1,
       "crew": 0,
-      "size": 1.6413494564949378,
+      "size": 1.6413494564949376,
       "at": 0.842,
       "y": 0.06,
       "z": 0,
       "r": 0.044,
-      "share": 0.03952843273231624,
+      "share": 0.0395010395010395,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 16.4934872563306,
+      "w": 16.5849427333354,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -62764,7 +66347,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.95
     },
-    "D": 0.00036219013158247986,
+    "D": 0.00036217126601943803,
     "shieldBuffer": 0.04654769023882401,
     "wCap": 0,
     "fuel": {
@@ -62815,14 +66398,14 @@ const CRAFT_PRICE_CATALOG={
     ],
     "referencePhysicalRevision": {
      "key": "craft_xwing",
-     "version": 1
+     "version": 2
     },
     "grid": {
      "P": 2437891546520883700,
-     "fixed": 34788155844041780,
-     "cooling": 8857343753741192,
+     "fixed": 34868633395577240,
+     "cooling": 8858168305276650,
      "De": 2437891546520883700,
-     "Ds": 1515403510541095700,
+     "Ds": 1515324577025328600,
      "Dw": 2836800000000000,
      "domains": [
       {
@@ -62896,7 +66479,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "hotel",
-       "cap": 25930812090300588,
+       "cap": 26010465090300590,
        "auto": true,
        "ok": true,
        "routeId": "p30>hotel",
@@ -62956,7 +66539,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p35",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p35",
@@ -62968,7 +66551,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p36",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p36",
@@ -62980,7 +66563,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p37",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p37",
@@ -62992,7 +66575,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p38",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p38",
@@ -63004,7 +66587,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p40",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p40",
@@ -63016,7 +66599,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p68",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p68",
@@ -63028,7 +66611,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p69",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p69",
@@ -63040,7 +66623,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p70",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p70",
@@ -63052,7 +66635,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p71",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p71",
@@ -63064,7 +66647,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p72",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p72",
@@ -63076,7 +66659,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p73",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p73",
@@ -63088,7 +66671,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p74",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p74",
@@ -63100,7 +66683,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p75",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p75",
@@ -63112,7 +66695,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p76",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p76",
@@ -63124,7 +66707,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p77",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p77",
@@ -63136,7 +66719,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p78",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p78",
@@ -63148,37 +66731,37 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p79",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p79",
        "model": "source-distance",
-       "lengthM": 4.781140449725358,
-       "efficiency": 0.9999521897384497
+       "lengthM": 4.224244902938275,
+       "efficiency": 0.9999577584431703
       },
       {
        "kind": "power",
        "from": "p30",
        "to": "p80",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p80",
        "model": "source-distance",
-       "lengthM": 4.8101002068564025,
-       "efficiency": 0.9999519001547661
+       "lengthM": 4.224244902938275,
+       "efficiency": 0.9999577584431703
       },
       {
        "kind": "power",
        "from": "p30",
        "to": "p81",
-       "cap": 1080450503762524.5,
+       "cap": 1083769378762524.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p81",
        "model": "source-distance",
-       "lengthM": 4.528103355710866,
-       "efficiency": 0.9999547199916134
+       "lengthM": 4.290262462833713,
+       "efficiency": 0.9999570982956761
       },
       {
        "kind": "power",
@@ -63280,13 +66863,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p82",
-       "cap": 3142199318469263,
+       "cap": 3142203665080470,
        "auto": false,
        "ok": true,
        "routeId": "p30>p82",
        "model": "source-distance",
-       "lengthM": 4.005429776729209,
-       "efficiency": 0.9999599465043953
+       "lengthM": 6.158190565960832,
+       "efficiency": 0.9999384199904671
       },
       {
        "kind": "power",
@@ -63297,8 +66880,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p30>p83",
        "model": "source-distance",
-       "lengthM": 6.158190565960832,
-       "efficiency": 0.9999384199904671
+       "lengthM": 3.8217821652769537,
+       "efficiency": 0.9999617829086389
       },
       {
        "kind": "power",
@@ -63316,13 +66899,13 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p85",
-       "cap": 1590141293812875,
+       "cap": 1591018945869080.5,
        "auto": false,
        "ok": true,
        "routeId": "p30>p85",
        "model": "source-distance",
-       "lengthM": 4.337796337471136,
-       "efficiency": 0.9999566229774355
+       "lengthM": 4.106924185355629,
+       "efficiency": 0.9999589316014762
       },
       {
        "kind": "power",
@@ -63386,7 +66969,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 25930812090300588,
+       "weight": 26010465090300588,
        "domain": "main"
       }
      ],
@@ -63400,7 +66983,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p82",
        "port": "p82",
-       "weight": 3142199318469263,
+       "weight": 3142203665080470,
        "domain": "main"
       },
       {
@@ -63418,7 +67001,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p85",
        "port": "p85",
-       "weight": 1590141293812875,
+       "weight": 1591018945869080.5,
        "domain": "main"
       },
       {
@@ -63458,14 +67041,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63485,7 +67068,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63497,8 +67080,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 30,
@@ -63528,14 +67111,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63555,7 +67138,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63567,8 +67150,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p32",
        "heatNode": "p32",
        "reactorId": 30,
@@ -63598,14 +67181,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63625,7 +67208,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63637,8 +67220,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 30,
@@ -63668,14 +67251,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63695,7 +67278,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63707,8 +67290,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 30,
@@ -63740,14 +67323,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63767,7 +67350,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63779,8 +67362,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 30,
@@ -63813,14 +67396,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63840,7 +67423,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63852,8 +67435,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p32",
        "heatNode": "p32",
        "reactorId": 30,
@@ -63886,14 +67469,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63913,7 +67496,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63925,8 +67508,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 30,
@@ -63959,14 +67542,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.654459040801948,
        "efficiency": 0.9185374466272701,
        "wasteFraction": 0.0814625533727299,
-       "profileWattsPerNewton": 2262443325.478451,
-       "shaftWattsPerNewton": 2149321159.2045283,
-       "wattsPerNewton": 2339938526.291453,
+       "profileWattsPerNewton": 2262763765.70844,
+       "shaftWattsPerNewton": 2149625577.4230175,
+       "wattsPerNewton": 2340269942.522339,
        "ratedShaftPowerW": 559823669073874800,
        "ratedWasteHeatW": 49649217556346130,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 29946.014901724582,
+       "conversionMassKg": 29991.10316118995,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -63986,7 +67569,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 609472886630220900,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 260465341.19687703,
+       "ratedThrustN": 260428455.51967913,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -63998,8 +67581,8 @@ const CRAFT_PRICE_CATALOG={
        "maxRatedInputW": 2437891546520883700,
        "inputDensityWPerM3": 902516073872662300,
        "allowedInputDensityWPerM3": 3400000000000000000,
-       "costBasisInputW": 543289661016595140,
-       "cost": 47.33288131057443,
+       "costBasisInputW": 544107665859014300,
+       "cost": 47.57279562428397,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 30,
@@ -64027,19 +67610,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 2437891546520883700
       }
      ],
-     "massKg": 29946.014901724582,
-     "ratedThrustN": 1041843886.2872858,
-     "ratedAccelMps2": 34790.735585564886,
-     "structuralAccelerationLimitMps2": 355460.72693078296,
+     "massKg": 29991.10316118995,
+     "ratedThrustN": 1041696346.0537035,
+     "ratedAccelMps2": 34733.51215042043,
+     "structuralAccelerationLimitMps2": 355461.4415394629,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34790.735585564886,
+     "accelerationLimitMps2": 34733.51215042043,
      "conversionModelVersion": 1,
-     "conversionMassKg": 29946.014901724582,
+     "conversionMassKg": 29991.10316118995,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2437891546520883700,[[\"main\",2437891546520883700,[[6,2437891546520883700]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.4655126634863613,1]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 1692.8216028856268,
+    "maxSpeed": 1689.912038293721,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -64169,7 +67752,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>hotel",
        "n": "送電損失 p30>hotel",
        "g": "high",
-       "sh": 0.00793009,
+       "sh": 0.00795509,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64182,7 +67765,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p2",
        "n": "送電損失 p30>p2",
        "g": "high",
-       "sh": 0.0000251532,
+       "sh": 0.0000251549,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64195,7 +67778,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p3",
        "n": "送電損失 p30>p3",
        "g": "high",
-       "sh": 0.0000257667,
+       "sh": 0.0000257685,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64208,7 +67791,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p16",
        "n": "送電損失 p30>p16",
        "g": "high",
-       "sh": 0.0000253645,
+       "sh": 0.0000253663,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64221,7 +67804,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p17",
        "n": "送電損失 p30>p17",
        "g": "high",
-       "sh": 0.0000247606,
+       "sh": 0.0000247624,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64481,7 +68064,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p39",
        "n": "送電損失 p30>p39",
        "g": "high",
-       "sh": 0.846733,
+       "sh": 0.846758,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64494,7 +68077,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f42",
        "n": "送電損失 p30>f42",
        "g": "high",
-       "sh": 0.000137571,
+       "sh": 0.000137583,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64507,7 +68090,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f43",
        "n": "送電損失 p30>f43",
        "g": "high",
-       "sh": 0.000137571,
+       "sh": 0.000137583,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64520,7 +68103,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f44",
        "n": "送電損失 p30>f44",
        "g": "high",
-       "sh": 0.000136551,
+       "sh": 0.000136562,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64533,7 +68116,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f45",
        "n": "送電損失 p30>f45",
        "g": "high",
-       "sh": 0.000136551,
+       "sh": 0.000136562,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64546,7 +68129,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f46",
        "n": "送電損失 p30>f46",
        "g": "high",
-       "sh": 0.000552741,
+       "sh": 0.000552786,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -64559,7 +68142,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f47",
        "n": "送電損失 p30>f47",
        "g": "high",
-       "sh": 0.000552741,
+       "sh": 0.000552786,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -64572,7 +68155,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p41",
        "n": "送電損失 p30>p41",
        "g": "high",
-       "sh": 0.00045943,
+       "sh": 0.000459462,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -64585,10 +68168,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p82",
        "n": "送電損失 p30>p82",
        "g": "high",
-       "sh": 0.000820827,
+       "sh": 0.00126209,
        "m": [],
        "pc": [],
-       "sec": 3,
+       "sec": 4,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p82"
@@ -64598,10 +68181,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p83",
        "n": "送電損失 p30>p83",
        "g": "high",
-       "sh": 0.00126201,
+       "sh": 0.000783248,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>p83"
@@ -64611,7 +68194,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p84",
        "n": "送電損失 p30>p84",
        "g": "high",
-       "sh": 0.00038817,
+       "sh": 0.000388197,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64624,7 +68207,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p85",
        "n": "送電損失 p30>p85",
        "g": "high",
-       "sh": 0.000449857,
+       "sh": 0.000426179,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -64637,7 +68220,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p31",
        "n": "送電損失 p30>p31",
        "g": "high",
-       "sh": 0.0366664,
+       "sh": 0.0366694,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64650,7 +68233,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p32",
        "n": "送電損失 p30>p32",
        "g": "high",
-       "sh": 0.0366664,
+       "sh": 0.0366694,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64663,7 +68246,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p33",
        "n": "送電損失 p30>p33",
        "g": "high",
-       "sh": 0.0334344,
+       "sh": 0.0334371,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64676,7 +68259,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p34",
        "n": "送電損失 p30>p34",
        "g": "high",
-       "sh": 0.0334344,
+       "sh": 0.0334371,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -64702,11 +68285,11 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 1 #82",
        "k": "hdis",
        "g": "all",
-       "cap": 209479954564617540,
+       "cap": 209480244338698020,
        "m": 32,
        "sec": 4,
        "src": -1,
-       "power": 3142199318469263
+       "power": 3142203665080470
       },
       {
        "id": "p83",
@@ -64735,11 +68318,11 @@ const CRAFT_PRICE_CATALOG={
        "n": "機体内高エネルギー散逸装置 4 #85",
        "k": "hdis",
        "g": "all",
-       "cap": 106009419587525010,
+       "cap": 106067929724605380,
        "m": 35,
        "sec": 4,
        "src": -1,
-       "power": 1590141293812875
+       "power": 1591018945869080.5
       },
       {
        "id": "p2",
@@ -64802,2593 +68385,2593 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 0,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 0,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 0,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 4,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 5,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 5,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 5,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 3
       },
       {
        "s": 6,
        "d": 6,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 3
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 3
       },
       {
        "s": 6,
        "d": 8,
-       "cap": 5342714334768944000,
+       "cap": 5343067134235909000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 7,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 7,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 7,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 8,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 8,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 8,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 8,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 8,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 8,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 9,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 9,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 9,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 9,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 9,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 10,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 10,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 10,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 10,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 10,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 10,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 11,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 11,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 11,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 11,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 11,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 12,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 12,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 12,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 12,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 12,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 12,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 13,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 13,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 13,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 13,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 13,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 13,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 14,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 14,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 14,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 14,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 14,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 14,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 15,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 15,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 15,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 15,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 15,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 15,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 16,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 16,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 16,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 890452389128157300,
-       "sec": 4
+       "cap": 890511189039318300,
+       "sec": 3
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 16,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 16,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 16,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 17,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 17,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 17,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 18,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 18,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 18,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 19,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 19,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 19,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 19,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 19,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 19,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 20,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 20,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 20,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 20,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 20,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 20,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 21,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 21,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 21,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 22,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 22,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 22,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 23,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 23,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 23,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 24,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 24,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 24,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 25,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 25,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 25,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 25,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 25,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 25,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 26,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 26,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 26,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 26,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 26,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 26,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 27,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 27,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 27,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 27,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 27,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 27,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 28,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 28,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 28,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 28,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 28,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 28,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 29,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 29,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 29,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 29,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 29,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 29,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 30,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 30,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 30,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 30,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 30,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 30,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
-      },
-      {
-       "s": 31,
-       "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 31,
+       "d": 3,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 31,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 31,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 31,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 31,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 32,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 32,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 32,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 33,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 33,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 33,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 34,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 34,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 34,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 35,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 35,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 35,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 36,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 36,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 36,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 37,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 37,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 37,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 38,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 38,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 38,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 39,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 39,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 39,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
+       "cap": 890511189039318300,
+       "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 40,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 40,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 40,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 890452389128157300,
-       "sec": 4
+       "cap": 890511189039318300,
+       "sec": 3
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 890452389128157300,
-       "sec": 4
+       "cap": 890511189039318300,
+       "sec": 3
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 41,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 41,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 41,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 42,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 42,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 42,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 42,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 42,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 42,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 1
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 43,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 43,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 43,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 43,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 43,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 43,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 44,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 44,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 44,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 44,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 44,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 44,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 45,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 45,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 45,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 45,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 45,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 45,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 46,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 46,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 46,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 46,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 46,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 46,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 47,
        "d": 0,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 47,
        "d": 1,
-       "cap": 890452389128157300,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 2,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 4
       },
       {
        "s": 47,
+       "d": 2,
+       "cap": 890511189039318300,
+       "sec": 3
+      },
+      {
+       "s": 47,
        "d": 3,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 47,
        "d": 4,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 3
       },
       {
        "s": 47,
        "d": 5,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 47,
        "d": 6,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 47,
        "d": 7,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       },
       {
        "s": 47,
        "d": 8,
-       "cap": 890452389128157300,
+       "cap": 890511189039318300,
        "sec": 0
       }
      ]
@@ -67403,7 +70986,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 84.64108014428135,
+    "mglt": 84.49560191468605,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -72590,8 +76173,8 @@ function isSurfaceVLS(f){return !isShipLauncher(f)&&isConcussionLauncher(f)&&isS
 // User decision 2026-11-19「ミサイルはそれにして対空対艦両方できるように(射程も航空も合わせる)」「魚雷はミサイルのと載せ替えるようにする。航空機と
 // 同じ速度で直線的に突入してくるので普通に点防御で撃破できる形に」: a ship's launcher fires the air missile (1 m by 4 m, 0.0471 TT)
 // to the air missile's range (10 km; it was 60 km) at ships and at craft. Its cells can be loaded with torpedoes instead
-// (f.round==='torp': the air torpedo, 0.0895 TT), which fly as the missiles do (a craft's speed, straight at the target, so
-// point defence shoots them down as it does missiles) and are fired at ships only.
+// (f.round==='torp': the air torpedo, 0.0895 TT), which fly straight at the target at the speed of a craft's torpedoes (600 m/s,
+//「航空機の魚雷の速度に艦魚雷も合わせて」), so point defence has longer to shoot them down, and are fired at ships only.
 function launcherTorpedo(f){return (f?.round||f?.missileRound)==='torp'||f?.torp===true;}
 function launcherRound(f){return launcherTorpedo(f)?AIR_ROUNDS.torpedo:AIR_ROUNDS.missile;}
 function shipLauncherConfig(f={}){
@@ -84994,7 +88577,7 @@ function missileFireAt(p,distance){
 // example fighters make 840 to 1970). They were 2600 m/s. Slower rounds are longer inside point defence's reach.
 const ROUND_SPEED=Object.freeze({torpedo:600,missile:1500});
 function isTorpedoRound(kind){return /torp/i.test(String(kind||''));}
-function roundSpeed(kind){return isTorpedoRound(kind)?ROUND_SPEED.torpedo:ROUND_SPEED.missile;}
+function roundSpeed(kind){return (kind&&typeof kind==='object'?kind.torp||isTorpedoRound(kind.kind):isTorpedoRound(kind))?ROUND_SPEED.torpedo:ROUND_SPEED.missile;}/* a round in flight or a launch packet may be given: a ship launcher's torpedo load keeps the launcher's kind and is marked .torp (user decision 2026-11-19「航空機の魚雷の速度に艦魚雷も合わせて」: 600 m/s, as the craft's torpedoes) */
 function missileFlightLife(range,speed=2600,launch=220,accel=650){
  const r=missileRange(range),v=Math.max(1,speed),s=clamp(launch,0,v),a=Math.max(0,accel),t=a>0?(v-s)/a:0,d=(s+v)*t/2;
  return a>0&&r<d?(Math.sqrt(s*s+2*a*r)-s)/a:t+(r-d)/v;
@@ -86410,7 +89993,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   if(m.ballistic){const from=m.pos,g=b.planetNow?planetGravity(b.planetNow,m.pos):[0,0,0];m.vel=add(m.vel,mul(g,dt));m.pos=add(m.pos,mul(m.vel,dt));m.s=len(m.vel);m.traveled+=m.s*dt;m.life-=dt;
    if(m.traveled>=m.range||!(m.life>0)){const seg0=sub(m.pos,from),sl0=dot(seg0,seg0),k0=sl0>0?clamp(dot(sub(t.pos,from),seg0)/sl0,0,1):0;if(!(len(sub(t.pos,add(from,mul(seg0,k0))))<Math.max(300,t.p.len*.4))){m.life=0;m.n=0;m.lost='spent';continue;}}
    const seg=sub(m.pos,from),sl=dot(seg,seg),k=sl>0?clamp(dot(sub(t.pos,from),seg)/sl,0,1):0;if(len(sub(t.pos,add(from,mul(seg,k))))<Math.max(craftUnit(t)?MISSILE_FLIGHT.craftFuse:300,t.p.len*.4))arrived.push({m,t,from});continue;}
-  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=Math.min(roundSpeed(m.kind),m.s+MISSILE_FLIGHT.accel*flightDt);
+  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=Math.min(roundSpeed(m),m.s+MISSILE_FLIGHT.accel*flightDt);
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,travel=Math.min(distance,Math.max(0,m.range-m.traveled));if(distance>0)m.pos=add(m.pos,mul(velocity,seconds*travel/distance));m.traveled=Math.min(m.range,m.traveled+travel);};
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=mul(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
   const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),r=len(aim);let dir=norm(add(aim,mul(t.velocity||[0,0,0],r/Math.max(300,m.s))));
@@ -86667,7 +90250,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    else for(const packet of missilePackets){const k=isConcussionLauncher(packet.kind)?1:crewEff;if(boltOnly){const damage=packet.n*packet.tt/Math.max(1e-9,dt)*k;if(packet.ion)imsl+=damage;else msl+=damage;}else flown.push({...packet,n:packet.n*k});}
    if(boltOnly){const fundedAA=msl+imsl>0?defenseAA*fundAutomaticPointDefense(t,u.pos,dt,pdStep):0,icpt=1-.7*fundedAA/(fundedAA+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
    else for(const packet of flown){if(!(packet.n>0))continue;const launch=missileLaunchWorld(u,packet,mT),native=isConcussionLauncher(packet.kind),range=missileRange(packet);
-    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:mT.id,n:packet.n,tt:packet.tt,kind:packet.kind,...(packet.torp?{torp:true}:{}),ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range,roundSpeed(packet.kind)):Math.max(MISSILE_FLIGHT.legacyLife,missileFlightLife(range,roundSpeed(packet.kind))),...(aim&&mT===t?{aim,aimRange:distance}:{})/* the part the ship aims at and the range it aimed from, as the launch-time damage carried them */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
+    (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:mT.id,n:packet.n,tt:packet.tt,kind:packet.kind,...(packet.torp?{torp:true}:{}),ion:!!packet.ion,range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,MISSILE_FLIGHT.launch),s:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range,roundSpeed(packet)):Math.max(MISSILE_FLIGHT.legacyLife,missileFlightLife(range,roundSpeed(packet))),...(aim&&mT===t?{aim,aimRange:distance}:{})/* the part the ship aims at and the range it aimed from, as the launch-time damage carried them */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})});
     if(packet.ion)imslL+=packet.n*packet.tt/dt;else mslL+=packet.n*packet.tt/dt;}}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*fleetAirGun(p)*(1-.5*airEnemy/(u.air+airEnemy+1));
@@ -94059,13 +97642,13 @@ function battleTick(w, sys, dt) {
   if(!t)continue;
   if(!total&&!(u.p.profileVersion>=5)&&(u.pw?.P||0)>0&&C.powerFactor(u,'reactor')>0){u.mslT=(u.mslT||0)-dt;if(u.mslT<=0){u.mslT=20;const n=Math.round((u.p.msl||0)/10),ni=Math.round((u.p.imsl||0)/10);if(n>0)packets.push({n,tt:10,ion:false,kind:'legacy'});if(ni>0)packets.push({n:ni,tt:10,ion:true,kind:'itorp'});}}
   for(const packet of packets){const launch=C.missileLaunchWorld(u,packet,t),native=C.isConcussionLauncher(packet.kind),range=C.missileRange(packet);
-   w.missiles.push({id:'m'+(w.nextId++),side:u.side,sys,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:packet.ion,launcher:packet.module,cell:packet.cell,range,traveled:0,pos:launch.origin.slice(),vel:scale(launch.axis,220),s:220,life:native?C.missileFlightLife(range,C.roundSpeed(packet.kind))/* physics review 2026-11-19: the life is that of the round's own speed, as in the fleet battle */:45,...(native?{launchOrigin:launch.origin.slice(),launchDir:launch.axis.slice(),launchClearance:.35}:{})});}
+   w.missiles.push({id:'m'+(w.nextId++),side:u.side,sys,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:packet.ion,launcher:packet.module,cell:packet.cell,range,traveled:0,pos:launch.origin.slice(),vel:scale(launch.axis,220),s:220,life:native?C.missileFlightLife(range,C.roundSpeed(packet))/* physics review 2026-11-19: the life is that of the round's own speed, as in the fleet battle */:45,...(native?{launchOrigin:launch.origin.slice(),launchDir:launch.axis.slice(),launchClearance:.35}:{})});}
  }
  for (const m of w.missiles) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
   m.range=Number.isFinite(m.range)&&m.range>0?m.range:C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);
   if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;continue;}
-  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(C.roundSpeed(m.kind),m.s+650*flightDt);
+  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(C.roundSpeed(m),m.s+650*flightDt);
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,remaining=Math.max(0,m.range-m.traveled),travel=Math.min(distance,remaining);if(distance>0)m.pos=add(m.pos,velocity,seconds*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);};
   // A physical tube/VLS clears its mount along the actual barrel axis before homing.
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}

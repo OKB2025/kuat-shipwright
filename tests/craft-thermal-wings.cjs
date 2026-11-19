@@ -32,7 +32,9 @@ for(const [key,exp] of Object.entries(expected))test(`${key} uses its original m
 });
 
 test('TIE collector panels keep one direct solar-and-heat device without a second thermal layer',()=>{
- for(const [key,count] of [['craft_tie_ln',2],['craft_tie_in',6],['craft_tie_sa',6]]){
+ // 2026-11-19 expectation changed: TIE/in and TIE/sa 6 -> 2 panels. Each wing is now one solarPanel part
+ // (docs/tie-in-sa-solar-wings.md:3; the comment above tieSolarWing in js/core.js).
+ for(const [key,count] of [['craft_tie_ln',2],['craft_tie_in',2],['craft_tie_sa',2]]){
   const {ship,stats}=fixture(key),panels=ship.parts.filter(p=>p.wing?.solar);assert.equal(panels.length,count);
   for(const p of panels){assert.equal(p.k,'solarPanel');assert.equal(p.wing.thermal,'high');const ds=stats.heat.net.dis.filter(d=>d.part===p.id);assert.equal(ds.length,1);assert.equal(ds[0].k,'solar');assert.ok(ds[0].cap>0);}
  }

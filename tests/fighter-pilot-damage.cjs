@@ -7,6 +7,9 @@ function setup(){
  const C=Core,G=Gfx,TT_J=C.TT,trial={};let downs=0,randomValue=.5;
  Math.random=()=>randomValue;
  const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10},TRIAL_PILOT_HIT={radius:{craft:22,missile:12},pKill:{craft:.5,missile:.7},lock:40,range:10000};
+ // 2026-11-19 fixture changed: trialGunnery now resolves the live unit with trialSystemsUnit() (js/app.js), which lies
+ // outside the extracted sections; this stub resolves it as tests/dual-purpose-weapons.cjs does. No expectation changed.
+ const trialSystemsUnit=()=>trial.battle?.me||trial.systemsUnit||null;
  const toast=()=>{},trialAim=()=>({point:[10000,0,0],lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialThreats=()=>[],trialPowerStep=()=>{},trialSalvoPlan=()=>null,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],sndAt=()=>{},sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'';
  const trialThreatDown=q=>{q.alive=false;downs++;};
  function reset(key='claser',cycle=null){

@@ -32,7 +32,10 @@ test('periodic automatic planning preserves explicit standby, CAP, escort and st
 
 test('a carrier jump recalls automatic wings before launch and cancellation lets automatic sorties resume',()=>{
  const f=fixture(),g=f.w.groups.get(f.home.group),edge=f.w.sector.edges[f.w.sector.systems[f.home.sys].links[0]],to=edge.a===f.home.sys?edge.b:edge.a;
- assert.equal(R.orderJump(f.w,g.id,to).ok,true);advance(f,3);
+ // 2026-11-19 fixture changed: the carrier is released from manual control before the jump order. A group with a
+ // ship under manual control refuses a jump (js/core.js orderJump: '操艦中の艦があります…'); the fixture's u.manual=true
+ // made orderJump return ok:false.
+ f.home.manual=false;assert.equal(R.orderJump(f.w,g.id,to).ok,true);advance(f,3);
  assert.equal(f.s.state,'docked');assert.equal(f.s.sys,f.home.sys);assert.equal(f.s.n,4);assert.equal(f.wing.recall,true);assert.ok(g.spool);
  assert.equal(R.cancelJump(f.w,g.id),true);advance(f,3);
  assert.equal(g.spool,null);assert.equal(f.wing.recall,false);assert.equal(f.s.state,'out');assert.ok(f.s.ops?.k==='launch'||C.len(f.s.vel)>0,'the squad should resume a real launch after cancellation');

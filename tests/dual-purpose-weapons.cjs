@@ -109,6 +109,11 @@ test('real RTS missile interception: the battery is reserved while ON and return
  const p=fleetProfile(),w=R.createWorld({region:'kuat',seed:13,sensors:false,designs:[{key:'own',name:'Own',p,info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:plain(p),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]}),[u,e]=[...w.units.values()],sys=u.sys;
  for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}
  for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[12000,0,0],yaw:x===u?0:Math.PI,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;
+ // 2026-11-19 fixture changed: the target's sections are made a million times sturdier. With v30 sections (u.hp
+ // retired, docs/damage-penetration.md:20,60) the profile's hp:1e9 no longer applies, so the 30 TT/s battery sank the
+ // enemy in the first tick, the battle closed and the OFF step recorded no new shot. Same pattern as
+ // tests/fleet-missiles-arrive.cjs and tests/power-loss-stays-in-battle.cjs.
+ for(const x of e.sec){x.max*=1e6;x.s=x.max;}
  w.missiles.push({id:'incoming',sys,side:1,from:e.id,target:u.id,n:8,pos:[4500,0,0],vel:[-220,0,0],s:220,life:45});
  R.tick(w,.25);assert.equal(u.dualDefense,true);assert.ok(w.missiles[0].n<8,'aggregate AA still intercepts the missile');assert.ok(u.lastShot?.gun>0,'the independent ship battery remains active');const defended=u.lastShot.gun;
  // (ON with no threat is checked on the tactical clock below: in this RTS fixture the local battle closes once nobody
