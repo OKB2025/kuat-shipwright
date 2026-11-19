@@ -89421,8 +89421,12 @@ function fireBlocker(list,u,t,k=.82){
 function fireStray(list,u,t,dist){
  const out=[],R=Math.max(500,dist*.02+t.p.len*.7);let tot=0;if(list&&list.g)list=hullAround(list,t.pos,R);/* v24 a grid: only ships near the target */
  for(const x of list){if(x===u||x===t||x.team!==u.team||x.dead||x.absent)continue;const h=hullHalf(x.p),gap=len(sub(x.pos,t.pos))-Math.max(h[0],h[2])*.5;if(gap>R)continue;
+  // 2026-11-19 A craft near the target takes the share its own small outline has of the ground the missed fire falls on (its
+  // half-size against the target's, squared), with no floor. It took a quarter of a ship's share whatever its size (the .25
+  // below), 5.5% of a capital ship's missed fire: in a fleet action 14 of 16 craft lost were lost to their own ships' guns.
+  if(craftUnit(x)){const s=Math.max(h[0],h[2])/Math.max(1,t.p.len*.5),k=.22*clamp(1-gap/R,0,1)*s*s;if(k>0)out.push({x,k,craft:true});continue;}
   const k=.22*clamp(1-gap/R,0,1)*clamp(Math.max(h[0],h[2])/Math.max(1,t.p.len*.5),.25,1.4);if(k>.004){out.push({x,k});tot+=k;}}
- if(tot>.4)for(const e of out)e.k*=.4/tot;
+ if(tot>.4)for(const e of out)if(!e.craft)e.k*=.4/tot;
  return out;
 }
 // Hulls that touch are pushed apart along the shallowest way, the lighter
@@ -90393,7 +90397,8 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   if(scr){const k=screenShare(scr,t,aim);const part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
   else{combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);}
   // What misses may strike a ship of our own close to the target.
-  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
+  const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k,craft:small} of fireStray(alive,u,t,distance)){let g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;
+   if(small){/* a craft is struck by a whole shot or by none: the chance is its share of the missed fire over one shot's energy */const one=fleetShotTT(u),E=(g2+i2)*hd;if(!(one>0)||!(E>0)||fleetRandom(b)>=Math.min(1,E/one))continue;const f=Math.max(1,one/E);g2*=f;i2*=f;}combatAddWeapons(incoming.get(x.id),x,u,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},g2,i2,hd,null);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
   if(bolt)shots.push({from:u.id,to:t.id,team:u.team,ion:bolt.ion>bolt.gun,gun:(bolt.gun+bolt.ion)/Math.max(1e-12,DMG),msl:0,salvo:vk>1,bolt});
   const trenchPackets=boltOnly?null:fleetWeaponPackets(u,gun,ion,t);if(trenchPackets?.length){for(const q of trenchPackets)shots.push({...q,from:u.id,to:t.id,team:u.team,ion:q.ion>q.gun,gun:(q.gun+q.ion)*dt,msl:0,salvo:vk>1});if(msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,gun:0,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});}else if(gun+ion+msl+imsl+mslL+imslL+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:(msl+mslL)*dt,imsl:(imsl+imslL)*dt,ord:(ord+iord)*dt,salvo:vk>1,...(mdmg?{mdmg}:{}),...(missilePackets.length?{launches:missilePackets.map(packet=>({...packet,...missileLaunchWorld(u,packet,t)}))}:{})});
  }
