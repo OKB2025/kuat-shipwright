@@ -88205,7 +88205,7 @@ function shipCombatPowerDemand(u,want={},dt=0){
  if(Number.isFinite(u.shieldMax)&&Number.isFinite(u.shield)){
   const missing=Math.max(0,u.shieldMax-u.shield)+Math.max(0,(u.bankMax||0)-(u.bank||0)),tolerance=Math.max(1e-12,Math.max(u.shieldMax,u.bankMax||0)*1e-12);
   if(!(missing>tolerance)&&!u.underFire)shields=0;
-  else if(step>0&&!u.underFire&&p.D>0&&g.Ds>0)shields=Math.min(shields,missing*g.Ds/(p.D*step));
+  else if(step>0&&!u.underFire&&p.D>0&&g.Ds>0)shields=Math.min(shields,missing*g.Ds/(p.D*fieldScale(p)*(craftUnit(u)?1:SHIELD_MODEL.returnK)*step))/* test classification 2026-11-19: the cap on what the shield asks for was worked out with p.D alone while the recharge uses D·fieldScale·returnK (shieldRechargeStep), so a ship of 1 km and more paid 6.5 times for its last top-up and a small ship never filled */;
  }
  // The heat governor's share of the recharge (2026-11-17). It is applied after the intent, like the storage-headroom trim, so a
  // governed field recharges more slowly without being read as a failing generator (no decay).
@@ -89562,7 +89562,7 @@ const hullMassKg=u=>u?.p?.propulsion?.massKg||u?.propulsion?.massKg||(u?.p?.mass
 // 「位置エネルギーで急降下爆撃の動きを追加すれば結構反乱軍側は当てれるのでは」). ★ The two figures are ours.
 const CRAFT_ENERGY=Object.freeze({keep:30,span:.4});
 function craftEnergyStep(u,from,P,dt=0){if(!P?.center||!craftUnit(u)||u.dead||u.docked||u.out||u.fall||(u.lift??1)<1/* physics review 2026-11-19: a craft that is falling already has gravity on it (planetFall) */)return 0;if(dt>0&&u.eV)u.eV*=Math.exp(-dt/CRAFT_ENERGY.keep);const v=len(u.velocity||[0,0,0]);if(!(v>1))return 0;const up=norm(sub(u.pos,P.center)),dh=dot(sub(u.pos,from),up);if(!dh)return 0;const g=len(planetGravity(P,u.pos)),v2=Math.sqrt(Math.max(v*v*.01,v*v-2*g*dh));u.velocity=mul(u.velocity,v2/v);const lim=(u.p?.maxSpeed||v)*CRAFT_ENERGY.span;u.eV=clamp((u.eV||0)+v2-v,-lim,lim);return v2-v;}
-function liftPowerless(u){return !!u.dead||!!u.powerLossDisabled||u.out==='電源喪失';}
+function liftPowerless(u){if(u.dead||u.powerLossDisabled||u.out==='電源喪失')return true;if(!u.out||typeof shipElectricalAvailableW!=='function')return false;const w=shipElectricalAvailableW(u);return w!=null&&!(w>0);/* test classification 2026-11-19: a ship put out for another reason first kept its lift with no power at all */}
 function liftStep(u,dt){u.lift=clamp((u.lift??1)+(liftPowerless(u)?-1:1)*dt/GRAVITY.liftFade,0,1);return u.lift;}
 // One step of a hull under the planet's gravity with what lift it has left. Returns true when it strikes the surface.
 function planetFall(u,dt,P,rand=Math.random){

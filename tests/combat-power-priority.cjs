@@ -53,8 +53,11 @@ test('shield depletion and actual firing reduce navigation acceleration and equi
  near(u.p.maxSpeed,reference);near(C.massDragRate(u),drag);const recovered=allocate(u);near(recovered.got.engines,idle.got.engines);assert.equal(u.pw.activeCombatPower,false);ledger(shield);ledger(firing);
 });
 test('only the missing shield and capacitor joules are requested near full, including a depleted shield reserve',()=>{
- const u=unit();u.shield-=3*C.K.deflect;u.energy-=2;let r=allocate(u);near(r.got.shields/TT,3);near(r.got.weapons/TT,2);near(r.got.engines/TT,80);
- u.shield=u.shieldMax;u.energy=1000;u.bank-=2*C.K.deflect;r=allocate(u);near(r.got.shields/TT,2);near(r.got.engines/TT,83);ledger(r);
+ // 2026-11-19 expectation changed: the shield asks for what its recharge can use of the missing part. The recharge works with
+ // D·fieldScale·returnK (shieldRechargeStep), and the request's cap now divides by the same (it divided by D alone, so the
+ // request was too large for a big ship and too small for a small one). The missing 3 and 2 units therefore ask for 3/Q and 2/Q, no more than the generators' rated draw SH (on this 100 m hull Q is small, so the rated draw is what binds).
+ const Q=C.fieldScale({len:100})*C.SHIELD_MODEL.returnK,u=unit();u.shield-=3*C.K.deflect;u.energy-=2;let r=allocate(u);near(r.got.shields/TT,Math.min(SH,3/Q));near(r.got.weapons/TT,2);near(r.got.engines/TT,83-Math.min(SH,3/Q));
+ u.shield=u.shieldMax;u.energy=1000;u.bank-=2*C.K.deflect;r=allocate(u);near(r.got.shields/TT,Math.min(SH,2/Q));near(r.got.engines/TT,85-Math.min(SH,2/Q));ledger(r);
 });
 test('throttle cannot displace combat consumers and disabling thrust leaves their finite grants unchanged',()=>{
  for(const throttle of [0,.25,1]){const u=unit();u.shield=0;u.energy=0;const r=allocate(u,{throttle});near(r.got.shields/TT,SH);near(r.got.weapons/TT,40);near(r.got.engines/TT,throttle===0?0:Math.min(NAV,throttle*100))/* the throttle is the share of the plant the engines may take */;ledger(r);}
