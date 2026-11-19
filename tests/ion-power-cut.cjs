@@ -22,6 +22,8 @@ test('an ion cut takes a third of what the guns and the shield were delivered, a
  const lostJ=(sum(free.pw)-sum(hit.pw))*.25;assert.ok(Math.abs(hit.a.ionPowerLossJ/lostJ-1)<1e-9,'the heat is what the systems did not get: '+hit.a.ionPowerLossJ+' / '+lostJ);
  assert.ok(hit.a.shield>hit.shield0*.95,'the shield keeps its store: '+hit.shield0+' → '+hit.a.shield);
  assert.equal(hit.a.ionCut,0,'the cut is used up in the step');
+ // Physics review 2026-11-19: the plant made the whole of it, so the electricity made (which the fuel is taken by) is the same.
+ const made=x=>x.a.ht?.actualGeneratedElectricalJ??x.a.heat?.actualGeneratedElectricalJ;if(made(free)>0)assert.ok(made(hit)/made(free)>1-1e-6&&made(hit)/made(free)<1.01,'electricity made is not less for the cut (the cooling plant draws a little more for the heat): '+made(hit)/made(free));
 });
 test('a cut shorter than the step takes its share of the step; no cut takes nothing',()=>{
  const free=duel(0),hit=duel(.1);assert.ok(Math.abs(hit.pw.wpn/free.pw.wpn-(1-.4/3))<1e-9,'0.1 s of a 0.25 s step: '+hit.pw.wpn/free.pw.wpn);

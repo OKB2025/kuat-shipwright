@@ -84820,7 +84820,7 @@ function fleetProfile(S,name,ship){
  out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),cooling:S.dissipatorPower||0,...(Number.isFinite(S.jumpSpareW)?{Jspare:S.jumpSpareW}:{}),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0,Dj:dr.jump||0,Pgen:S.reactorSplit?.gen??S.power??0,Paux:S.reactorSplit?.aux??0};
  // v22 The embarked combat craft's stores at their canon load (C.CRAFT_LOADOUT): the TT one craft brings to the
  // fight in torpedoes, missiles and bombs, and the share of it that is ion. The fleet model spends it as they attack.
- {let n=0,T=0,I=0,R=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0)||!r.type)continue;const o=craftOrdnance(r.type),t=o.reduce((a,x)=>a+x.n*x.tt,0);n+=r.deployable;T+=r.deployable*t;I+=r.deployable*o.filter(x=>x.ion).reduce((a,x)=>a+x.n*x.tt,0);R+=r.deployable*o.filter(x=>!x.ion).reduce((a,x)=>a+x.n,0);}if(n>0&&T>0){out.airOrd=Math.round(T/n*10)/10;out.airIon=Math.round(I/T*1000)/1000;/* TT per round of the hull-striking stores, for the per-shot casualty rule */if(R>0&&T>I)out.airOrdShot=+((T-I)/R).toPrecision(4);}}
+ {let n=0,T=0,I=0,R=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0)||!r.type)continue;const o=craftOrdnance(r.type),t=o.reduce((a,x)=>a+x.n*x.tt,0);n+=r.deployable;T+=r.deployable*t;I+=r.deployable*o.filter(x=>x.ion).reduce((a,x)=>a+x.n*x.tt,0);R+=r.deployable*o.filter(x=>!x.ion).reduce((a,x)=>a+x.n,0);}if(n>0&&T>0){out.airOrd=+(T/n).toPrecision(4);/* physics review 2026-11-19: tenths of a TT rounded the air rounds (0.05 to 0.2 TT) to nothing or by 7% */out.airIon=Math.round(I/T*1000)/1000;/* TT per round of the hull-striking stores, for the per-shot casualty rule */if(R>0&&T>I)out.airOrdShot=+((T-I)/R).toPrecision(4);}}
  // The laser output one combat craft brings (TT/s, averaged over the deployable combat craft): every laser barrel of its
  // type or design (airWingGunRate). The fleet model's craft attack (fleetTick) multiplies it by the craft aloft. It is an upper
  // bound: every barrel firing all the time and hitting, with no laser-gas limit (docs/ship-example-refit.md).
@@ -85200,7 +85200,7 @@ function blastOpenTT(p,m){const V=modVol(p,m),L=Math.cbrt(Math.max(1e-9,V));retu
 // is 17 to 28% of an example ship's heat store, so about five rounds bring it to its limit.
 const ION_ROUND=Object.freeze({share:1/3,seconds:.1});
 function ionPowerLoss(ctx,u,rounds){
- if(!(rounds>0)||u.dead||craftUnit(u))return 0;const P=Math.max(0,u.pw?.draw||0);if(!(P>0))return 0;
+ if(!(rounds>0)||u.dead||craftUnit(u))return 0;if(!(u.pw?.draw>0))return 0;const P=Math.max(0,(u.pw.wpn||0)+(u.pw.sh||0)+(u.pw.eng||0));/* what the cut works on: the guns', the shield's and the engines' power. ★ The fixed loads (fire control, sensors, launchers, hangars, life support) and the cooling plant are not cut (ours) */
  const J=P*ION_ROUND.share*ION_ROUND.seconds*rounds;u.ionCut=(u.ionCut||0)+ION_ROUND.seconds*rounds;
  ctx.ev?.(u,`イオン弾頭 ${Math.round(rounds*10)/10} 発：給電の ${Math.round(ION_ROUND.share*100)}% が熱に（${(J/TT).toFixed(1)} TT 相当）`);return J;
 }
@@ -85212,7 +85212,7 @@ function ionPowerLoss(ctx,u,rounds){
 function ionPowerCut(u,got,dt){
  const c=Math.min(Math.max(0,u.ionCut||0),Math.max(0,dt));u.ionCut=Math.max(0,(u.ionCut||0)-c);u.ionCutNow=dt>0?c/dt:0;if(!(u.ionCutNow>0)||craftUnit(u)){u.ionKeep=1;return 1;}
  const keep=1-ION_ROUND.share*u.ionCutNow,lostW=(1-keep)*(Math.max(0,got.weapons||0)+Math.max(0,got.shields||0)+Math.max(0,got.engines||0));
- got.weapons=(got.weapons||0)*keep;got.shields=(got.shields||0)*keep;got.engines=(got.engines||0)*keep;u.ionKeep=keep;
+ got.weapons=(got.weapons||0)*keep;got.shields=(got.shields||0)*keep;got.engines=(got.engines||0)*keep;u.ionKeep=keep;got.ionKeep=keep;/* the plant made the whole of it: the heat ledger reads the fuel and the reactors' own waste from what was made (heatAccrueInner) */if(u.shF>0)u.shF*=keep;/* physics review 2026-11-19: the flown ship's shield charge is read from u.shF, which the app does not work out again */
  if(lostW>0&&dt>0){shipHeatAdd(u,lostW*dt,null,'ion-hit');u.ionPowerLossJ=(u.ionPowerLossJ||0)+lostW*dt;}
  if(u.pw){u.pw.wpn=got.weapons;u.pw.sh=got.shields;u.pw.eng=got.engines;u.pw.ionLostW=lostW;}return keep;
 }
@@ -90895,8 +90895,8 @@ function heatAccrueInner(u,got,fixed,dt,h,H){
  const W=HEAT.waste,e=h.e,power=got.propulsion?.power,acceptedRatios=Object.create(null);
  if(power?.funding&&power.consumers){const sources=new Map(power.sources.map(s=>[s.id,s])),funding=power.sourceFunding||power.funding;
   for(const load of power.consumers){if(load.kind==='cooling'||!(load.grantedInputW>0))continue;let ratio=1;
-   if(load.kind==='weapons'){if(u.p.surface?.mounts&&u.pw?.weaponInputRemainingJ){const mi=load.id.slice('weapons:'.length),accepted=(u.pw.weaponInputs?.[mi]||0)-(u.pw.weaponInputRemainingJ[mi]||0)/dt;ratio=clamp(accepted/load.grantedInputW,0,1);}else ratio=power.weapons>0?clamp((got.weapons||0)/power.weapons,0,1):0;}
-   else if(load.kind==='shields')ratio=power.shields>0?clamp((got.shields||0)/power.shields,0,1):0;else if(load.kind==='fixed')ratio=power.fixed>0?clamp((fixed||0)/power.fixed,0,1):0;
+   if(load.kind==='weapons'){if(u.p.surface?.mounts&&u.pw?.weaponInputRemainingJ){const mi=load.id.slice('weapons:'.length),accepted=(u.pw.weaponInputs?.[mi]||0)-(u.pw.weaponInputRemainingJ[mi]||0)/dt;ratio=clamp(accepted/(got.ionKeep||1)/load.grantedInputW,0,1);}else ratio=power.weapons>0?clamp((got.weapons||0)/(got.ionKeep||1)/power.weapons,0,1):0;}
+   else if(load.kind==='shields')ratio=power.shields>0?clamp((got.shields||0)/(got.ionKeep||1)/power.shields,0,1):0;else if(load.kind==='fixed')ratio=power.fixed>0?clamp((fixed||0)/power.fixed,0,1):0;
    acceptedRatios[load.id]=ratio;for(const [id,watts]of Object.entries(funding[load.id]||{}))reactorInputHeat(h,H,sources.get(id),watts*ratio*dt);
   }
  }else reactorInputHeat(h,H,null,Math.max(0,got.draw||0)*dt);
