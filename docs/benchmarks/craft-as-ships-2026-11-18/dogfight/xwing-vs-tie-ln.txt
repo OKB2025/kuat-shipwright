@@ -1,15 +1,17 @@
-== head-on: craft_xwing (A) vs craft_tie_ln (B), 10 runs: A wins 10, B wins 0, both lost 0, undecided in 300 s 0; mean time to decision 57.4 s; nearest 49.5 m; seconds on the other's tail A 2.1 B 0.0; seconds guns bearing A 31.2 B 12.6; greatest height off the start plane 53.3 m; first shot at 0.0 s
+== head-on: craft_xwing (A) vs craft_tie_ln (B), 10 runs: A wins 10, B wins 0, both lost 0, undecided in 300 s 0; mean time to decision 60.9 s; nearest 51.5 m; seconds on the other's tail A 7.6 B 0.0; seconds guns bearing A 40.4 B 3.5; greatest height off the start plane 100.8 m; first shot at 0.0 s
 0s d=7440 A(296,0,0 hdg 0° 1185m/s) B(7736,0,0 hdg 180° 1056m/s)
-5s d=2773 A(5692,0,5 hdg 1° 929m/s) B(2919,0,17 hdg 177° 813m/s)
-10s d=10397 A(9723,0,128 hdg 4° 696m/s) B(-668,0,463 hdg 166° 642m/s)
-15s d=16057 A(12684,0,456 hdg 14° 506m/s) B(-3345,0,1401 hdg 152° 501m/s)
-20s d=18970 A(13802,0,1672 hdg 155° 352m/s) B(-5142,0,2663 hdg 134° 386m/s)
-25s d=18594 A(12399,12,2046 hdg 177° 272m/s) B(-6088,0,4040 hdg 110° 291m/s)
-30s d=17040 A(10511,14,2191 hdg 174° 503m/s) B(-6246,1,5282 hdg 79° 230m/s)
-35s d=13928 A(7701,14,2765 hdg 166° 676m/s) B(-5778,5,6276 hdg 47° 220m/s)
-40s d=9406 A(4028,14,3832 hdg 161° 848m/s) B(-4876,8,6860 hdg 16° 217m/s)
-45s d=3839 A(-259,13,5417 hdg 158° 943m/s) B(-3803,9,6892 hdg -16° 219m/s)
-   run 1: A 49 s TIE/ln 制宙戦闘機：艦首区画 崩壊 | TIE/ln 制宙戦闘機：撃沈（船体破断）
+5s d=2742 A(5670,0,0 hdg -2° 882m/s) B(2928,0,-10 hdg 180° 791m/s)
+10s d=9563 A(9201,0,69 hdg 7° 596m/s) B(-362,-1,-7 hdg -179° 534m/s)
+15s d=14146 A(11654,0,638 hdg 27° 424m/s) B(-2477,-2,-10 hdg 179° 320m/s)
+20s d=16188 A(12279,0,1904 hdg 156° 285m/s) B(-3796,-12,-12 hdg -179° 251m/s)
+25s d=16176 A(10989,41,2091 hdg -172° 279m/s) B(-5051,-28,-4 hdg 180° 252m/s)
+30s d=15367 A(8952,40,1817 hdg -173° 534m/s) B(-6305,-43,-11 hdg 179° 250m/s)
+35s d=13415 A(5778,37,1417 hdg -173° 738m/s) B(-7561,-53,-4 hdg -179° 252m/s)
+40s d=10561 A(1701,32,961 hdg -174° 897m/s) B(-8815,-72,-5 hdg 178° 252m/s)
+45s d=7022 A(-3067,20,486 hdg -176° 1007m/s) B(-10071,-81,-7 hdg -178° 251m/s)
+50s d=3155 A(-8173,-20,102 hdg -178° 934m/s) B(-11325,-98,0 hdg 179° 252m/s)
+55s d=952 A(-11594,-58,2 hdg -180° 452m/s) B(-12545,-109,5 hdg 179° 227m/s)
+   run 1: A 59 s TIE/ln 制宙戦闘機：艦尾区画 崩壊 | TIE/ln 制宙戦闘機：撃沈（船体破断）
 == parallel: craft_xwing (A) vs craft_tie_ln (B), 10 runs: A wins 0, B wins 0, both lost 0, undecided in 300 s 10; mean time to decision - s; nearest 574.3 m; seconds on the other's tail A 0.0 B 59.0; seconds guns bearing A 0.0 B 6.0; greatest height off the start plane 759.7 m; first shot at 6.3 s
 0s d=2000 A(292,0,0 hdg 0° 1156m/s) B(261,0,2000 hdg 0° 1031m/s)
 5s d=935 A(5254,0,616 hdg 19° 874m/s) B(4776,1,1420 hdg -19° 800m/s)
