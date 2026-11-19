@@ -86078,7 +86078,7 @@ function craftGunsBear(u,t){if(!craftUnit(u)||!t?.pos)return true;const d=sub(t.
 //    bow on the space ahead (the only way into the gun's envelope);
 //  - with the heading crossing angle within .match (45 degrees) it matches the opponent's speed; turning, it holds its corner speed.
 // Out-of-plane moves (the yo-yos, the two-second roll out of plane) are not flown: hulls here turn in yaw only.
-const CRAFT_DOGFIGHT=Object.freeze({astern:20,jinkS:1.2,pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
+const CRAFT_DOGFIGHT=Object.freeze({roleMargin:.17,bracket:1500,outsideOff:600,astern:20,jinkS:1.2,pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
 // Roll and pull toward a point. f is the bow, up the lift vector. It rolls at CRAFT_DOGFIGHT.roll rad/s until the lift vector points
 // at the side the point is on, and pitches up toward it at up to `rate`; a point a little below its bow it reaches by pitching
 // down (at half the rate) instead of rolling over.
@@ -86100,12 +86100,20 @@ function craftBarrelStep(old,rate,dir,dt){
  return {f,up,angle:Math.abs(yaw),need:1};
 }
 function dogfightGeometry(u,t){const d=sub(t.pos,u.pos),range=Math.hypot(d[0],d[2]),bearing=Math.atan2(d[2],d[0]),ata=fleetAngle(bearing-(u.yaw||0)),aspect=Math.abs(fleetAngle(bearing-(t.yaw||0)))/* 0: on its six, pi: head-on to it */,hca=Math.abs(fleetAngle((u.yaw||0)-(t.yaw||0)));return {range,bearing,ata,aspect,hca};}
-function dogfightAim(u,t,st,dt){
+function dogfightAim(u,t,st,dt,mates=null){
  const g=dogfightGeometry(u,t),th=[Math.cos(t.yaw||0),0,Math.sin(t.yaw||0)],vu=len(u.velocity||[0,0,0]),vt=len(t.velocity||[0,0,0]),los=st.bearing!=null&&dt>0?fleetAngle(g.bearing-st.bearing)/dt:0;st.bearing=g.bearing;st.geo=g;
+ // Two against one: loose deuce (Shaw, PDF pp. 223, 233-239; notes 1.3-1.4). The one with the better angle on the opponent is
+ // engaged: it does not hurry its shot but sits deep in lag and keeps the opponent turning the same way. The other is free: it
+ // comes in from outside the opponent's turn and shoots. They change over as the angles change. Meeting it head-on they open to
+ // either side first (the bracket), so that it can turn into only one of them.
+ const mate=mates&&mates.length?mates.slice().sort((a,z)=>String(a.id).localeCompare(String(z.id)))[0]:null,first=mate?String(u.id)<String(mate.id):true;let role=null;
+ if(mate){const gm=dogfightGeometry(mate,t);role=g.aspect<gm.aspect-CRAFT_DOGFIGHT.roleMargin||Math.abs(g.aspect-gm.aspect)<=CRAFT_DOGFIGHT.roleMargin&&first?'engaged':'free';st.role=role;}
+ st.turn=st.tyaw!=null?Math.sign(fleetAngle((t.yaw||0)-st.tyaw))||st.turn||0:0;st.tyaw=t.yaw||0;
  st.side=Math.sign(g.ata)||st.side||1;const point=(yaw,r=2000)=>[u.pos[0]+Math.cos(yaw)*r,t.pos[1],u.pos[2]+Math.sin(yaw)*r];
  // the merge: the opponent goes by the 3/9 line coming the other way
  const abeam=Math.abs(g.ata)>Math.PI/2;if(abeam&&!st.abeam&&g.hca>Math.PI*2/3)st.circle={one:vu<vt*CRAFT_DOGFIGHT.oneCircle,dir:vu<vt*CRAFT_DOGFIGHT.oneCircle?-st.side:st.side};st.abeam=abeam;
  if(st.circle){if(!abeam&&Math.abs(g.ata)<Math.PI/3)st.circle=null;else if(st.circle.one)return point((u.yaw||0)+st.circle.dir*Math.PI/2);}
+ if(mate&&g.aspect>Math.PI*2/3&&!(Math.abs(g.ata)>Math.PI/2)&&g.range>CRAFT_DOGFIGHT.gun*2){const sg=first?1:-1,n=[-Math.sin(g.bearing)*sg,0,Math.cos(g.bearing)*sg];return add(t.pos,mul(n,CRAFT_DOGFIGHT.bracket));}/* the bracket */
  // head-on and closing: the lead turn, ahead of the swinging line of sight
  if(g.aspect>Math.PI*2/3&&!abeam&&Math.abs(los)>CRAFT_DOGFIGHT.losRate)return point(g.bearing+los*CRAFT_DOGFIGHT.leadS);
  // behind it, closing too fast to match its speed: out of its plane for .oopS seconds, then back onto it (the reference's
@@ -86131,6 +86139,8 @@ function dogfightAim(u,t,st,dt){
    else{st.oopSign=-(st.oopSign||1);st.defDir=mul(e1,st.oopSign);st.def=CRAFT_DOGFIGHT.oopS;}
    return hold();}}
  // behind it or abeam of it
+ if(g.aspect<Math.PI/2&&role==='engaged'&&!(g.range<CRAFT_DOGFIGHT.gun&&Math.abs(g.ata)<CRAFT_DOGFIGHT.cone*2*Math.PI/180))return [t.pos[0]-th[0]*CRAFT_DOGFIGHT.lagMax,t.pos[1],t.pos[2]-th[2]*CRAFT_DOGFIGHT.lagMax];/* engaged: deep in lag, a shot only when it offers */
+ if(role==='free'&&g.range>CRAFT_DOGFIGHT.gun*1.5&&st.turn){const out=[Math.sin(t.yaw||0)*st.turn,0,-Math.cos(t.yaw||0)*st.turn];return add(add(t.pos,mul(th,-CRAFT_DOGFIGHT.lagMax)),mul(out,CRAFT_DOGFIGHT.outsideOff));}/* free: round the outside of its turn */
  if(g.aspect<Math.PI/2){
   if(g.range>CRAFT_DOGFIGHT.gun){const back=Math.min(CRAFT_DOGFIGHT.lagMax,g.range*CRAFT_DOGFIGHT.lag)*(g.range>CRAFT_DOGFIGHT.outside?4:1)/* outside its turn circle: make for where it began its turn */;return [t.pos[0]-th[0]*back,t.pos[1],t.pos[2]-th[2]*back];}
   const lead=g.range/CRAFT_DOGFIGHT.boltSpeed;return add(t.pos,mul(t.velocity||[0,0,0],lead));}
@@ -86276,7 +86286,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // v30 Craft against craft: a turning fight (user decision 2026-11-18「航空機は実際にAI同士で空中戦をさせてみて」「旋回の左右方向は、水平面上で
   // 対抗機が存在する側へ行う」). It turns toward the side its opponent is on in the horizontal plane and keeps turning onto it; there is
   // no run past and out. Its fixed guns fire only while the opponent is before its bow (craftGunsBear).
-  if(o.type==='attack'&&t&&!t.dead&&craftUnit(u)&&craftUnit(t)){pass=u.pass&&u.pass.target===t.id&&u.pass.phase==='dogfight'?u.pass:(u.pass={target:t.id,phase:'dogfight',side:0});dest=dogfightAim(old,t,pass,dt);}
+  if(o.type==='attack'&&t&&!t.dead&&craftUnit(u)&&craftUnit(t)){pass=u.pass&&u.pass.target===t.id&&u.pass.phase==='dogfight'?u.pass:(u.pass={target:t.id,phase:'dogfight',side:0});dest=dogfightAim(old,t,pass,dt,before.filter(x=>x.id!==u.id&&x.team===u.team&&!x.dead&&craftUnit(x)&&x.order?.type==='attack'&&x.order.target===t.id));}
   else if(o.type==='attack'&&t&&!t.dead&&passFighter(u,t)){const hu=hullHalf(u.p),ht=hullHalf(t.p),big=Math.max(ht[0],ht[2]),R=craftWantSpeed({...old,pos:t.pos},t)/Math.max(1e-6,nominalTurn||1)/* the turn at the speed it fights at */,d=len(sub(t.pos,old.pos));let run=0;
    pass=u.pass&&u.pass.target===t.id?u.pass:(u.pass={target:t.id,phase:'in',side:old.pos[1]-t.pos[1]>1?1:old.pos[1]-t.pos[1]<-1?-1:String(u.id)<String(t.id)?1:-1/* level with each other, one goes over and the other under */});
    run=len(sub(add(t.pos,[0,(ht[1]+hu[1]+passClear(u))*pass.side,0]),old.pos));/* to the point over the hull it runs in on: a tall target's centre is never that near */
