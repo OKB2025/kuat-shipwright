@@ -34,3 +34,14 @@ test('the old ordnance table carries the air rounds; stations hold as many as be
  const n=k=>C.craftOrdnance(k).map(o=>o.kind+'x'+o.n).join(',');
  assert.equal(n('xwing'),'ptorpx6');assert.equal(n('ywing'),'ptorpx8');assert.equal(n('tie_sa'),'bombx8,ptorpx3');assert.equal(n('awing'),'cmslx12');
 });
+// Regression review 2026-11-19 (FAIL): the ship being flown gets its power in js/app.js (trialPowerStep), not in fleetPowerStep, so
+// the cut and its heat never reached it and u.ionCut only grew. The app now calls C.ionPowerCut on what it was delivered.
+test('the cut works on any delivery it is given (the flown ship calls it from the app) and uses the time up',()=>{
+ const u=C.fleetUnit('me','mc80liberty',JSON.parse(JSON.stringify(F.designs.mc80liberty.p)),0);u.manual=true;u.ionCut=.3;u.pw={};
+ const got={weapons:900,shields:300,engines:300,draw:1600},keep=C.ionPowerCut(u,got,.25);
+ assert.ok(Math.abs(keep-2/3)<1e-12);assert.ok(Math.abs(got.weapons-600)<1e-9&&Math.abs(got.shields-200)<1e-9&&Math.abs(got.engines-200)<1e-9);assert.equal(got.draw,1600);
+ assert.ok(Math.abs(u.ionPowerLossJ-500*.25)<1e-9);assert.ok(Math.abs(u.ionCut-.05)<1e-12,'0.05 s left for the next step');
+ const next={weapons:900,shields:0,engines:0},k2=C.ionPowerCut(u,next,.25);assert.ok(Math.abs(k2-(1-.2/3))<1e-12);assert.equal(u.ionCut,0);
+ assert.equal(C.ionPowerCut(u,{weapons:900},.25),1,'and nothing after');
+ const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');assert.match(app,/C\.allocateShipPower\(me,s,demand,dt,mode\),got=solved\.got,P=solved\.P\|\|0;C\.ionPowerCut\(me,got,dt\)/,'the flown ship takes the cut right after its allocation');
+});

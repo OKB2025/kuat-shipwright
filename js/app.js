@@ -8359,7 +8359,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),lift=unit?C.liftStep(unit,dt):1/* v30 stepped every step, so it comes back with the power (reviews 2026-11-19) */,acceleration=unit?.out?tv.scale(C.planetGravity({center:[0,0,0],radius:trialSys().planet.radius},trial.P),1-lift)/* v30 the planet's gravity, as far as the lift has faded */:tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),falling=!!unit?.out&&lift<1,vFall=falling?tv.add(trial.V,acceleration,dt):null,next=falling?{velocity:vFall,displacement:tv.scale(vFall,dt)}/* extra review 2026-11-19: a hull without power falls freely, as C.planetFall has it (it went through the resistance that bounds a ship under way) */:C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
+ const f=trialCol(trial.R,0),lift=unit?C.liftStep(unit,dt):1/* v30 stepped every step, so it comes back with the power (reviews 2026-11-19) */,acceleration=unit?.out?tv.scale(C.planetGravity({center:[0,0,0],radius:trialSys().planet.radius},trial.P),1-lift)/* v30 the planet's gravity, as far as the lift has faded */:tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=/* 2026-11-19: free fall without the resistance (as C.planetFall has it for other ships) was tried and taken back: tests/throttle-output-trial expects a blacked-out ship to keep its mass resistance. Open: which of the two is the rule for the ship being flown */C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
  // v24 Turning, speeding up and braking throw the batteries' aim off (C.AIM_MODEL), read on the next gunnery step.
  if(C.aimMotion)trial.aimMotion=C.aimMotion(Math.max(...[0,1,2].map(i=>Math.abs(trial.w[i])/Math.max(1e-6,max[i]||0))),motion.acc0>0?tv.len(acceleration)/motion.acc0:0);
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
@@ -8496,7 +8496,7 @@ function trialPowerStep(dt,want){
  me.energy=en.E;me.maneuver=C.clamp(trial.thrustWant||0,0,1);me.order={...me.order,power:mode};
  const gov=C.heatGovernor(me);me.heatGov=gov;
  const demand={throttle:me.maneuver*gov.engine,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*lim('shield')),shieldGovernor:gov.shield,weaponFireW:Math.max(0,want||0)*input*gov.weapon,weapons:Math.max(0,Math.min(g.Dw*s.weapon,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon')*gov.weapon)};
- const solved=C.allocateShipPower(me,s,demand,dt,mode),got=solved.got,P=solved.P||0;
+ const solved=C.allocateShipPower(me,s,demand,dt,mode),got=solved.got,P=solved.P||0;C.ionPowerCut(me,got,dt);/* regression review 2026-11-19: the ship being flown does not go through C.fleetPowerStep, so an ion round's cut and its heat never reached it */
  if(me.p?.surface?.mounts&&typeof C.surfaceManualCharge==='function'){
   const offered=got.weapons,charged=C.surfaceManualCharge(me,offered,dt);got.weapons=dt>0?Math.min(offered,charged*TT_J*input/dt):0;got.draw=Math.max(0,got.draw-offered+got.weapons);en.E=me.energy;
  }else en.E=Math.min(en.cap,en.E+got.weapons*Math.max(0,dt)/TT_J/input);
@@ -10557,7 +10557,7 @@ function spaceStep(dt){
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
   // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
-  if(!B.me.dead&&B.me.out&&B.me.lift<=0&&!B.me.docked){B.me.dead=true;B.me.fate='fall';spaceLog('リパルサーリフト喪失：撃墜',B.me);}/* extra review 2026-11-19: the ship being flown is counted shot down when its lift is gone, like every other (C.fleetTick skips it as manual) */
+  if(!B.me.dead&&B.me.out&&B.me.lift<=0&&!B.me.docked&&!B.me.towedBy&&!B.me.boarding){B.me.dead=true;B.me.fate='fall';spaceLog('リパルサーリフト喪失：撃墜',B.me);}/* extra review 2026-11-19: the ship being flown is counted shot down when its lift is gone, like every other (C.fleetTick skips it as manual) */
   if(B.me.dead||C.outOfAction(B.me)){if(trialFlyLost())break;spaceEnd(B.me.dead?'sunk':'out');break;}
   if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
   if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out','standoff');break;}/* no ship on either side can act: a stand-off */}
@@ -10595,7 +10595,7 @@ function spaceDrawUnits(){
  return out;
 }
 function spaceShowResult(){
- const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
+ const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'リパルサーリフト喪失'};
  const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:r.why==='standoff'?'膠着：双方とも行動できる艦がありません':`旗艦戦闘不能（${r.why||''}）`;
  const foes=B.b.units.filter(u=>u.team===1),allies=B.b.units.filter(u=>u.team===0&&!u.manual);
  const rts=!!B.rts,crew=crewShare(me),sub2=rts&&r.kind==='win'?'この星系の戦闘は終わりました':rts&&r.kind==='withdrew'?'敵はこの星系から退きました':sub;
@@ -10787,7 +10787,7 @@ function fleetFocus(){if(fleet.mode==='tactical'){fleetMapFocus();return;}const 
 function fleetPowerName(){return '固定優先順';}
 function fleetOrderText(u){const o=u.order,pw=' · 出力 '+fleetPowerName(u);if(o.type==='move')return `移動 → ${(o.point[0]/1000).toFixed(1)}, ${(o.point[2]/1000).toFixed(1)} km / 高度 ${(o.point[1]/1000).toFixed(1)} km`+pw;if(o.type==='attack')return '攻撃 → '+(fleetUnits().find(t=>t.id===o.target)?.name||'目標消失')+(o.aim&&o.aim!=='auto'?`（${C.AIM_KINDS[o.aim]}を照準）`:'')+pw;return '停止・位置保持'+pw;}
 // Combat state for the readouts: sunk, out of the fight, or fighting, and why.
-const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
+const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'リパルサーリフト喪失'};
 function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out==='電源喪失'?'電源喪失（航行不能）':u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
 function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)return '';const g={};mods.forEach((m,i)=>{if(m.k==='hull')return;const x=g[m.k]||(g[m.k]={n:0,lost:0,hit:0});x.n++;const v=u.mods[i]??1;if(v<=0)x.lost++;else if(v<1)x.hit++;});
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}

@@ -8469,6 +8469,8 @@ root.KS_EN={
   "誘導式の対艦魚雷。半分はシールドを抜ける。": "Guided antiship torpedo. Half its damage penetrates shields.",
   "エネルギー魚雷": "Energy Torpedo",
   "ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。": "Light torpedo used by Vulture droid fighters.",
+  "ドロイド戦闘機の魚雷（ヴァルチャー級）。": "Torpedo used by Vulture droid fighters.",
+  "リパルサーリフト喪失": "Repulsorlift lost",
   "細く速い誘導ミサイル。弾頭は魚雷より小さい。": "A slender, fast guided missile with a smaller warhead than a torpedo.",
   "プロトン爆弾": "Proton Bomb",
   "誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。": "An unguided bomb released directly over the target, at the closest point of the attack pass.",
