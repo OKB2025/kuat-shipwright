@@ -86056,7 +86056,7 @@ function fleetDockingPair(u,x){const dock=(a,h)=>a.team===h.team&&(a.docked?.hos
 // v29 Small craft flying as ships (profiles of craft designs: cls.craft). On an attack pass the craft breaks off .break of the
 // target's half-length plus .near m from the point it runs in on, skims .clear m off the hull, and turns back once it is .extend m
 // plus .turns turn radii (at its cruise speed and turn rate) beyond the target.
-const CRAFT_PASS=Object.freeze({fightRange:3000,fightRadius:300,fightMin:40,break:.6,near:60,clear:10,extend:300,turns:1.2,slow:.3,chase:.5,chaseRange:GUN_BANDS.close.range});
+const CRAFT_PASS=Object.freeze({jink:400,fightRange:3000,fightRadius:300,fightMin:40,break:.6,near:60,clear:10,extend:300,turns:1.2,slow:.3,chase:.5,chaseRange:GUN_BANDS.close.range});
 function craftUnit(u){return !!u?.p?.cls?.craft;}
 // User remark 2026-11-18「小型艦同士はもっと戦闘機レベルで接近戦を行っても良いのでは？」: a small ship (up to COMBAT.smallShip long) attacking
 // another small ship or a craft fights as craft do, in passes at its cruise speed, instead of standing off where its guns do
@@ -86292,6 +86292,12 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    run=len(sub(add(t.pos,[0,(ht[1]+hu[1]+passClear(u))*pass.side,0]),old.pos));/* to the point over the hull it runs in on: a tall target's centre is never that near */
    if(pass.phase==='in'&&run<big*CRAFT_PASS.break+CRAFT_PASS.near){pass.phase='out';pass.dir=[Math.cos(u.yaw),0,Math.sin(u.yaw)];}else if(pass.phase==='out'&&d>big+CRAFT_PASS.extend+R*CRAFT_PASS.turns)pass.phase='in';
    const over=(ht[1]+hu[1]+passClear(u))*pass.side;dest=pass.phase==='in'?add(t.pos,[0,over,0]):[old.pos[0]+pass.dir[0]*4000,t.pos[1]+over,old.pos[2]+pass.dir[2]*4000];
+   // v30 Evasion on an attack run (user 2026-11-19「回避軌道を対艦攻撃にも取り入れたりして」; Shaw's guns defence, notes table 2-A A4):
+   // inside the reach of the ship's point defence the craft jinks, each .jinkS seconds into a plane at least a quarter turn from
+   // the last, CRAFT_PASS.jink metres off its line. Point defence aims where the craft was heading (gunAimOffset), so a craft
+   // that keeps changing its path is hit less.
+   if(craftUnit(u)&&!craftUnit(t)&&CRAFT_PASS.jink>0&&d<=MISSILE_FLIGHT.pdRange+(t.p.len||0)*.5&&automaticPointDefenseEnabled(t)){pass.jt=(pass.jt||0)-dt;if(!(pass.jt>0)){pass.jt=CRAFT_DOGFIGHT.jinkS;pass.jn=(pass.jn||0)+1;pass.ja=(pass.ja||0)+Math.PI/2+((pass.jn*2.399963)%Math.PI);}
+    const k=clamp((d-big)/1500,0,1)/* straight for the last of the run in, to shoot */,right=[-Math.sin(u.yaw),0,Math.cos(u.yaw)];dest=add(dest,add(mul(right,Math.cos(pass.ja)*CRAFT_PASS.jink*k),[0,Math.sin(pass.ja)*CRAFT_PASS.jink*k,0]));}
   }else if(u.pass)delete u.pass;
   // v21 A ready composite beam takes the helm: the bow turns onto its target.
   const swYaw=b.combat?swHeading(u,before.filter(x=>x.team!==u.team&&!x.dead)):null;
