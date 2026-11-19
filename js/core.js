@@ -90081,7 +90081,7 @@ function fleetAirControl(u){if(!u||u.dead||u.out)return 0;const ms=u.p?.modules|
 // wings: [{home:<ship id>,type:<wing type, a key of FLEET_AIR.roles>,count}], in the order they are to go up.
 // profiles: {<craft key>:{p:<fleet profile>,liftSpare:<t>}}. Types without a role or a profile stay aboard.
 function fleetAirSetup(b,wings,profiles,opts={}){
- const air={n:0,last:-1e9,squadrons:[],profiles:{},tactic:opts.tactic||{},commit:{},log:{released:[0,0],atCraft:[0,0],dives:[0,0],launched:[0,0]}};
+ const air={n:0,last:-1e9,squadrons:[],profiles:{},tactic:opts.tactic||{},arrive:opts.arrive||null,posture:[{},{}],commit:{},log:{released:[0,0],atCraft:[0,0],dives:[0,0],launched:[0,0]}};
  for(const [k,v] of Object.entries(profiles||{}))if(v?.p)air.profiles[k]={p:v.p,liftSpare:Math.max(0,+v.liftSpare||0)};
  for(const w of wings||[]){const r=FLEET_AIR.roles[w.type],home=b.units.find(u=>u.id===w.home);if(!r||!home||!air.profiles[r.key])continue;for(let k=0,n=Math.max(0,Math.round(w.count||0));k<n;k+=FLEET_AIR.squad)air.squadrons.push({home:home.id,team:home.team,type:w.type,key:r.key,bomber:r.job==='bomber',size:Math.min(FLEET_AIR.squad,n-k),members:[],out:false});}
  b.air=air;return air;
@@ -90097,6 +90097,13 @@ function fleetAirCraft(b,q,home,pos,vel,yaw){
  c.pos=pos;c.yaw=yaw;c.velocity=vel;
  c.sortie={home:home.id,type:q.type,bomber:q.bomber,stores:fleetAirLoad(P.liftSpare,q.bomber?FLEET_AIR.kinds:[FLEET_AIR.kinds[1]]),aimAt:FLEET_AIR.aims[(bombers+i)%FLEET_AIR.aims.length],routeN:(bombers+i)%FLEET_AIR.axes,job:null,sead:false};c.sortie.carried=c.sortie.stores.length;
  c.order={...c.order,type:'hold',fire:!q.bomber};b.units.push(c);q.members.push(c.id);air.log.launched[home.team]++;if(typeof fleetPrepareCollision==='function')fleetPrepareCollision([c]);return c;
+}
+// A squadron that arrives already in the air (it was launched before the jump and came through hyperspace with the fleet): its
+// craft are beside their ship in close order when the battle opens.
+function fleetAirArrive(b,q,home){
+ const air=b.air,slots=air.slots||(air.slots={}),f=[Math.cos(home.yaw||0),0,Math.sin(home.yaw||0)],r=[-f[2],0,f[0]];q.out=true;q.pending=0;q.members=[];q.aboard=0;q.arrived=true;
+ for(let i=0;i<q.size;i++){const slot=slots[home.id]||0;slots[home.id]=slot+1;const row=Math.floor(slot/12)%6,col=slot%12,v=craftCruiseSpeed({p:air.profiles[q.key].p});
+  fleetAirCraft(b,q,home,add(home.pos,add(mul(f,300-row*150),add([0,200+(col%3)*120,0],mul(r,(col<6?-1:1)*(home.p.len*.3+250+Math.floor(col%6/3)*150+row*40))))),mul(f,v),home.yaw||0);}
 }
 // One step of a ship's hatches: the craft of its squadrons that are going up leave by the mouths they fit, at each mouth's rate.
 function fleetAirEmerge(b,home,dt){
@@ -90125,10 +90132,23 @@ function fleetAirStep(b,dt,opts={}){
  // come within FLEET_AIR.intercept of an own ship, interceptPer fighters for each craft that comes, into the control kept for them.
  if(reassign)for(const team of [0,1]){const flag=ships[team][0],live=q=>q.out&&(q.pending>0||q.members.some(id=>up(byId.get(id)))),used=u=>air.squadrons.filter(q=>q.home===u.id&&live(q)).length,mine=air.squadrons.filter(q=>q.team===team);
   const control=ships[team].reduce((n,u)=>n+fleetAirControl(u),0),aboardF=mine.filter(q=>!q.out&&!q.bomber&&q.size>0).length,reserve=aboardF?Math.max(1,Math.min(aboardF,Math.round(control*FLEET_AIR.reserveShare))):0;
-  const threat=craft[1-team].filter(e=>ships[team].some(sh=>dist(e,sh)<=FLEET_AIR.intercept)).length,needF=Math.ceil(threat*FLEET_AIR.interceptPer/FLEET_AIR.squad);
+  // User decision 2026-11-19「単に始まったら爆撃機で対艦攻撃ではなく、敵が爆撃機を出してきたら対抗で制空機を上げて広域防空、爆撃機の攻撃を阻止
+  // したらこっちも反撃を出して、とかそういう流れになるように」: a fleet does not open with a strike as a matter of course.
+  //  - When the enemy puts armed bombers up, it sends fighters up to meet them wherever they are (wide-area air defence).
+  //  - When that strike is over (no armed enemy bomber is left in the air), it sends its own strike: the counter-strike.
+  //  - ★ Ours: it strikes first only when it judges it can win and presses for a decision (fleetPressJudge), or when it arrived
+  //    with its craft already in the air (below). If neither fleet does, no strike is flown.
+  // 「跳躍前から偵察で敵艦隊がいることを認識してるなら…前の星系から発艦させておいて艦隊と一緒に跳躍させてついた瞬間に攻撃開始」: with
+  // opts.arrive[team] the squadrons whose craft carry a hyperdrive are in the air beside their ships when the battle opens, and
+  // the fleet strikes at once. (The battle is told so by whoever sets it up; the strategic map's scouting is not wired to it yet.)
+  const st=air.posture[team],foeT=1-team,foeBombers=craft[foeT].filter(e=>e.sortie.bomber&&e.sortie.stores.length>0).length+air.squadrons.filter(q=>q.team===foeT&&q.bomber&&q.out&&q.pending>0).reduce((n,q)=>n+q.pending,0);
+  if(!st.started){st.started=true;if(air.arrive?.[team]){st.strike=true;st.why='arrived';for(const q of mine){const home=byId.get(q.home);if(up(home)&&(air.profiles[q.key].p.modules||[]).some(m=>m.k==='hyper'))fleetAirArrive(b,q,home);}for(const q of mine)for(const id of q.members){const k=b.units.find(x=>x.id===id);if(k&&!byId.has(id)){byId.set(id,k);craft[team].push(k);(k.sortie.bomber?bombers:fighters)[team].push(k);}}}}
+  if(foeBombers>0)st.seen=true;st.press=fleetPressJudge(ships[team].filter(eff),ships[foeT].filter(up),!!st.press);
+  if(!st.strike&&(st.press||st.seen&&foeBombers===0)){st.strike=true;st.why=st.press?'press':'counter';st.at=t;}
+  const foeUp=craft[foeT].filter(up).length,threat=foeBombers>0?foeUp/* wide-area: every enemy craft in the air while their strike is on */:craft[foeT].filter(e=>ships[team].some(sh=>dist(e,sh)<=FLEET_AIR.intercept)).length,needF=Math.ceil(threat*FLEET_AIR.interceptPer/FLEET_AIR.squad);
   const count=f=>mine.filter(q=>live(q)&&f(q)).length;
   for(const u of ships[team])for(const q of air.squadrons){if(q.home!==u.id||q.out||!(q.size>0)||(q.readyAt||0)>t||!fleetAirCanLaunch(b,q,u))continue;const own=fleetAirControl(u)-used(u),lent=ships[team].filter(x=>x!==flag).reduce((m,x)=>m+Math.max(0,used(x)-fleetAirControl(x)),0),spare=flag&&u!==flag?fleetAirControl(flag)-used(flag)-lent:0;if(own<1&&spare<1)break;
-   const up0=count(()=>true),bombersUp=count(x=>x.bomber&&(x.pending>0||x.members.some(id=>byId.get(id)?.sortie?.stores?.length>0))/* bombers that still have a strike to fly: spent ones on their way home draw no escort up */),fightersUp=count(x=>!x.bomber),defend=!q.bomber&&fightersUp<needF/* they come: the fighters go up into the control kept for them */,strike=up0<control-reserve&&(q.bomber||fightersUp<Math.ceil(bombersUp*FLEET_AIR.escortShare))/* the strike and its escort, within what is not kept back */;
+   const up0=count(()=>true),bombersUp=count(x=>x.bomber&&(x.pending>0||x.members.some(id=>byId.get(id)?.sortie?.stores?.length>0))/* bombers that still have a strike to fly: spent ones on their way home draw no escort up */),fightersUp=count(x=>!x.bomber),defend=!q.bomber&&fightersUp<needF/* they come: the fighters go up into the control kept for them */,strike=!!st.strike&&up0<control-reserve&&(q.bomber||fightersUp<Math.ceil(bombersUp*FLEET_AIR.escortShare))/* the strike and its escort, within what is not kept back */;
    if(!defend&&!strike)continue;if(defend)q.scramble=t;
    fleetAirLaunch(b,q,u);}}
  // The hatches: every step, the craft of the squadrons going up come out.
@@ -90146,7 +90166,7 @@ function fleetAirStep(b,dt,opts={}){
   // Fighters.
   if(reassign){const free=new Set(F.filter(u=>!(u.sortie.sead&&C0&&T)));const onRun=u=>own.some(s=>dist(u,s)<=FLEET_AIR.intercept&&dot(sub(s.pos,u.pos),u.velocity||[0,0,0])>0);
    const take=(obj,k,job)=>{const picks=[...free].sort((a,z)=>((z.sortie.job===job&&z.sortie.jobId===obj.id)-(a.sortie.job===job&&a.sortie.jobId===obj.id))||dist(a,obj)-dist(z,obj)).slice(0,k);for(const f of picks){free.delete(f);f.sortie.job=job;f.sortie.jobId=obj.id;}return picks;};
-   for(const q of EB.filter(u=>onRun(u)&&!(tac.zone&&own.some(s=>dist(u,s)<=FLEET_AIR.handoff+s.p.len/2))/* tactic.zone (user decision 2026-11-19「このTIEの動きは2つとも選べる形に」): craft that near an own ship are left to its point defence */).sort((a,z)=>Math.min(...own.map(s=>dist(a,s)))-Math.min(...own.map(s=>dist(z,s))))){if(!free.size)break;for(const f of take(q,FLEET_AIR.interceptPer,'intercept'))f.order={...f.order,type:'attack',target:q.id,fire:true,aim:'auto'};}
+   for(const q of EB.filter(u=>/* wide-area air defence: met wherever they are, not only on their run in */!(tac.zone&&own.some(s=>dist(u,s)<=FLEET_AIR.handoff+s.p.len/2))/* tactic.zone (user decision 2026-11-19「このTIEの動きは2つとも選べる形に」): craft that near an own ship are left to its point defence */).sort((a,z)=>Math.min(...own.map(s=>dist(a,s)))-Math.min(...own.map(s=>dist(z,s))))){if(!free.size)break;for(const f of take(q,FLEET_AIR.interceptPer,'intercept'))f.order={...f.order,type:'attack',target:q.id,fire:true,aim:'auto'};}
    let quota=Math.floor(free.size*FLEET_AIR.escortShare);for(const w of OB){if(!(quota>0)||!free.size)break;quota--;take(w,1,'escort');}
    for(const f of free){const q=nearest(f,EF)||nearest(f,EB)||nearest(f,bombers[foe]);f.sortie.job='sweep';f.sortie.jobId=q?.id??null;}}
   for(const f of F){const w=f.sortie,home=byId.get(w.home);
@@ -90178,7 +90198,7 @@ function fleetAirStep(b,dt,opts={}){
   // resupply's time, DOCK.refillS) and can go up again as a squadron of its survivors, bombers as well as fighters.
   {const near=craft[foe].some(e=>up(e)&&own.some(sh=>dist(e,sh)<=FLEET_AIR.intercept)),strikeOn=OB.length>0;
    for(const u of craft[team]){if(!up(u))continue;const w=u.sortie,home=byId.get(w.home);if(!up(home)||home.out){w.rtb=false;continue;}
-    const foeNow=u.order.type==='attack'?byId.get(u.order.target):null,needed=w.bomber?w.stores.length>0&&pool.length>0:near||strikeOn/* every fighter up while the strike is on: only its escort was sent */||up(foeNow)&&craftUnit(foeNow)&&dist(u,foeNow)<=FLEET_AIR.engage*2;
+    const foeNow=u.order.type==='attack'?byId.get(u.order.target):null,needed=w.bomber?w.stores.length>0&&pool.length>0:near||EB.length>0/* their strike is on */||strikeOn/* every fighter up while the strike is on: only its escort was sent */||up(foeNow)&&craftUnit(foeNow)&&dist(u,foeNow)<=FLEET_AIR.engage*2;
     if(needed){w.rtb=false;continue;}
     w.rtb=true;u.order={...u.order,type:'escort',target:home.id,fire:!w.bomber,dash:false};
     if(dist(u,home)>home.p.len/2+FLEET_AIR.land)continue;
