@@ -22,7 +22,7 @@ const profiles={};for(const r of Object.values(C.FLEET_AIR.roles)){const xs=C.bu
 function run(seed){
  const ships=[[],[]],all=[],wings=[];
  FLEETS.forEach((keys,team)=>keys.forEach((key,i)=>{const u=C.fleetUnit('s'+team+'_'+i,key,plain(F.designs[key].p),team);u.pos=[(team?1:-1)*START/2,0,(i-(keys.length-1)/2)*2500];u.yaw=team?Math.PI:0;ships[team].push(u);all.push(u);for(const w of F.designs[key].air||[])if(C.FLEET_AIR.roles[w.type])wings.push({home:u.id,type:w.type,count:Math.round(w.count*WING)});}));
- const B=C.fleetBattle(all,true);B.seed=seed;C.fleetAirSetup(B,wings,profiles,{tactic:[TACTIC,TACTIC]});
+ const B=C.fleetBattle(all,true);B.seed=seed;C.fleetAirSetup(B,wings,profiles,{tactic:[TACTIC,TACTIC],first:C.fleetAirFirst('rebel','empire')/* 2026-11-19 the Rebels hold they can win with their craft: they strike first */});
  const st={press:[false,false],pressLog:[],shipOut:{},firstGun:null,firstRelease:[null,null],rounds:new Set()},eff=u=>!u.dead&&!u.out&&C.fleetEffective(u),up=u=>!u.dead;let t=0,lastJudge=-1e9;
  for(;t<LIMIT;t+=STEP){
   if(t-lastJudge>=C.FLEET_AIR.every-1e-9){lastJudge=t;for(const team of [0,1]){const on=PRESSAI&&C.fleetPressJudge(ships[team],ships[1-team],st.press[team]);if(on!==st.press[team])st.pressLog.push(`${t}s ${NAMES[team]} ${on?'presses for a decision':'falls back to its stand-off'}`);st.press[team]=on;}}

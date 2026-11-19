@@ -68,13 +68,13 @@ test('a squadron that has landed is re-armed and can go up again, bombers too',(
 // User decision 2026-11-19「単に始まったら爆撃機で対艦攻撃ではなく、敵が爆撃機を出してきたら対抗で制空機を上げて広域防空、爆撃機の攻撃を阻止したら
 // こっちも反撃を出して」: no strike as a matter of course; fighters go up against an enemy strike wherever it is; the counter-strike
 // follows when that strike is over.
-function even(arrive){
+function even(arrive,first=[false,false]){
  const a=C.fleetUnit('a','imperial',plain(F.designs.imperial.p),0),z=C.fleetUnit('z','imperial',plain(F.designs.imperial.p),1);a.pos=[-45000,0,0];z.pos=[45000,0,0];z.yaw=Math.PI;
  for(const u of [a,z])u.order={...u.order,type:'hold',fire:false};const B=C.fleetBattle([a,z],true);B.seed=9;
- C.fleetAirSetup(B,[{home:'a',type:'ywing',count:12},{home:'a',type:'xwing',count:24},{home:'z',type:'tie_sa',count:12},{home:'z',type:'tie_ln',count:36}],profiles,arrive?{arrive}:{});return {B,a,z};
+ C.fleetAirSetup(B,[{home:'a',type:'ywing',count:12},{home:'a',type:'xwing',count:24},{home:'z',type:'tie_sa',count:12},{home:'z',type:'tie_ln',count:36}],profiles,{...(arrive?{arrive}:{}),...(first?{first}:{})});return {B,a,z};
 }
-test('two fleets of which neither presses fly no strike',()=>{
- const {B,a,z}=even();assert.equal(C.fleetPressJudge([a],[z],false),false,'even fleets: neither judges it can win');run(B,12);
+test('two fleets of which neither holds it can win with its craft fly no strike',()=>{
+ const {B,a,z}=even();run(B,12);
  assert.equal(B.units.filter(u=>u.sortie).length,0,'nobody is in the air');assert.equal(out(B,0)+out(B,1),0);assert.ok(!B.air.posture[0].strike&&!B.air.posture[1].strike);
 });
 test('an enemy strike brings the fighters up to meet it far out; when it is over the counter-strike goes',()=>{
@@ -95,4 +95,15 @@ test('a fleet that arrives with its craft in the air: the hyperdrive craft are o
  assert.equal(up0.length,36,'X-wings and Y-wings carry hyperdrives: all 36 are in the air on arrival');assert.equal(B.air.posture[0].why,'arrived');assert.ok(up0.every(u=>!u.dockCorridor),'they did not come out of the hatches');
  assert.ok(up1.length<=2,'TIEs carry none: they come out of the hatches as usual ('+up1.length+' so far)');
  run(B,C.FLEET_AIR.every+1);assert.ok(up0.filter(u=>u.sortie.bomber).every(u=>u.order.type!=='hold'),'the bombers are on their way');
+});
+// User decision 2026-11-19「爆撃機を先に出すのはむしろ『航空機なら勝てる』と考えている側。なので分離主義対共和国であれば共和国が先に仕掛けるし
+// 反乱軍対帝国であれば反乱軍が先に仕掛ける」
+test('the side that holds it can win with its craft strikes first: by faction, as given, or by what the craft carry',()=>{
+ assert.deepEqual([...C.fleetAirFirst('rebel','empire')],[true,false]);assert.deepEqual([...C.fleetAirFirst('empire','rebel')],[false,true]);
+ assert.deepEqual([...C.fleetAirFirst('republic','cis')],[true,false]);assert.deepEqual([...C.fleetAirFirst('cis','republic')],[false,true]);assert.equal(C.fleetAirFirst('empire','cis'),null);
+ let f=even(null,C.fleetAirFirst('rebel','empire'));run(f.B,C.FLEET_AIR.every+1);
+ assert.equal(f.B.air.posture[0].why,'first');assert.ok(out(f.B,0,q=>q.bomber)>=1,'the Rebel side sends its strike');assert.ok(!f.B.air.posture[1].strike,'the Imperial side does not open with one');
+ f=even(null,null);run(f.B,C.FLEET_AIR.every+1);/* not given: the craft's loads decide */
+ const w0=C.fleetAirStrikeWeight(f.B.air,0),w1=C.fleetAirStrikeWeight(f.B.air,1);assert.ok(w0>w1&&w1>=0,`X-wings and Y-wings carry more each than TIEs: ${w0.toFixed(3)} against ${w1.toFixed(3)} TT a craft`);
+ assert.equal(f.B.air.posture[0].first,true);assert.equal(f.B.air.posture[1].first,false);
 });
