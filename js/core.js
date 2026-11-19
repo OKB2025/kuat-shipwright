@@ -79360,7 +79360,7 @@ const btlKit=s=>{
  const mountAll=()=>{remount(s);remount(s);const bad=s.fits.filter(f=>f.float);if(bad.length)throw new Error('作例の装備が取り付け面を失いました: '+bad.map(f=>f.k+'#'+f.id).join(','));};
  return {put,loft,slab,part,twin,fit,pair,mountAll};
 };
-registerShipExample({key:'craft_btlb',physicalRevision:1,name:'BTL-B Yウイング・スターファイター',side:'銀河共和国',role:'爆撃機',length:23.4,craft:true,craftType:'btlb',
+registerShipExample({key:'craft_btlb',physicalRevision:2,name:'BTL-B Yウイング・スターファイター',side:'銀河共和国',role:'爆撃機',length:23.4,craft:true,craftType:'btlb',
  title:'BTL-B Y-Wing',credit:'"BTL-B Y-Wing" by A308 Digital (https://sketchfab.com/A308), CC BY 4.0',author:'A308 Digital',source:'https://sketchfab.com/3d-models/btl-b-y-wing-102aab8967174476b264d69e979f9d70',license:'CC BY 4.0',
  note:'A308 Digital 氏のモデルを計測（公式の全長 23.4 m に合わせて 0.776 倍。全幅 10.0 m・全高 2.6 m）。胴体と操縦モジュールを装甲楔形断面のコア船体、エンジン・ナセルを円形断面のロフト（エンジンを包む軽構造のカウル）、ナセルを支える主翼を平面形どおりの板、キャノピー・腹部キール・機首の砲身基部を構造物で再現。ナセル外面の細いL形レール（各4本）は省略。各ナセルにイオン・ジェット・エンジン（直径はモデルの排気口に合わせて 1.6 m）と専用の反応炉、胴体に主反応炉・チェンパット偏向シールド発生器・ハイパードライブ（クラス 1.0）・燃料・パワーセル・慣性補償装置。操縦席に操縦士と後部銃手の2席、旋回砲塔のすぐ後ろにアストロメク・ソケット。武装は公式どおりレーザー砲2門（機首）、プロトン魚雷発射管2基（腹部キール下。お任せの搭載は初期型の6発弾倉で計12発）、プロトン爆弾倉（胴体下面。お任せはプロトン爆弾8発、数は正史に記載なし）。銃手のSW-4 イオン砲塔は、小型艇用のイオン砲塔がないため連装旋回砲塔（レーザー）で代用しています。シールドは機体の大きさに対して最小の目標強度 10%（主反応炉の大半を使います）。最高速度は公表値の 100 MGLT。加速度は搭載機関と完成質量から計算する。',
  build(){
@@ -79692,7 +79692,7 @@ function tieSaBuild(){
  s.parts.push({id:s.nextId++,k:'bombBay',c:[1.03,.36,0],d:Math.cbrt(2*.6*.7),room:[2,.6,.7],corner:0,label:'爆弾倉'});
  delete s._building;syncCompartments(s);remount(s);return s;
 }
-registerShipExample({key:'craft_tie_sa',physicalRevision:2,name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
+registerShipExample({key:'craft_tie_sa',physicalRevision:3,name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
  title:'Star Wars: TIE/sa Bomber',credit:'"Star Wars: TIE/sa Bomber" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tiesa-bomber-03c30934651e4f5798b67e74049ec6bc',license:'CC BY 4.0',
  note:'7.9 m（正史：全長 7.9 m・全幅 10.6 m・全高 5.4 m）。Daniel 氏のモデル「Star Wars: TIE/sa Bomber」（CC BY 4.0）の実測形状を、正史の全長（翼の前後長）に等倍で合わせた（全高は翼板の厚みを含めて 5.6 m でほぼ正史どおり、全幅はモデルに従い 9.5 m で正史より約 1 m 狭い）。船体は中心線上にしか置けないため、2つのポッドをつなぐ中央部を船体とし、右舷の操縦席ポッドと左舷の兵装ポッド（実測した半径のロフト）、操縦席ポッドの背部・腹部の隆起とドーム状の窓、兵装ポッドのミサイル発射口、両ポッド後端の機関部外殻、ガセット付きの翼支持腕、折れ曲がった翼（垂直の中央部と内側へ 39.2° 傾けた上下の翼板、外枠と縦梁）を構造物として組み直した。ポッドは通常の構造物、翼と支持腕は軽構造。操縦席ポッドの前部に操縦席1席（乗員1名）、両ポッドの後部に反応炉とイオン・エンジンを1組ずつ、燃料タンクと慣性補償器を収めた。兵装は正史の搭載に合わせ、操縦席ポッド機首下のレーザー砲 2門、兵装ポッド機首下の魚雷発射管1基（前部兵装庫からミサイル発射口を通して前方へ撃つ。正史は震盪ミサイル8発かプロトン魚雷4発で、弾倉は6発分）、兵装ポッド下の爆弾倉（主兵装庫と爆弾シュート）。搭載する弾は編成画面で選び、お任せでは正史の一例どおりプロトン魚雷4発とプロトン爆弾8発（TIE Fighter Deluxe Book and Model Set）。発射機は弾を抱える外置き。主兵装庫の積み替え（プロトン爆弾・熱爆弾・機雷・兵員6名）は爆弾倉1基で代表させた。シールド発生器とハイパードライブは持たない。外殻装甲は 2.8 mm（戦闘機より厚い）。実給電モデルでは機関と配電を組み直し、最大加速度の設計目標は正史に合わせた 2,380 G。搭載弾の質量は実際の選択から加算し、加速度と速度へ反映する。',
  build(){return tieSaBuild();}});
@@ -80071,7 +80071,7 @@ function xwingBuild(opt={}){
  const t=deserialize(serialize(s));syncCompartments(t);remount(t);syncCompartments(t);
  return t;
 }
-registerShipExample({key:'craft_xwing',physicalRevision:1,name:'T-65B Xウイング',side:'反乱同盟',role:'多用途戦闘機',length:13.4,craft:true,craftType:'xwing',
+registerShipExample({key:'craft_xwing',physicalRevision:2,name:'T-65B Xウイング',side:'反乱同盟',role:'多用途戦闘機',length:13.4,craft:true,craftType:'xwing',
  title:'Star Wars: X-Wing',credit:'This work is based on "Star Wars: X-Wing" (https://sketchfab.com/3d-models/star-wars-x-wing-a93f607a94d747568371b8910a81fb12) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-x-wing-a93f607a94d747568371b8910a81fb12',license:'CC-BY-4.0',
  note:'13.4 m（正史）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状を正史の全長に等倍で合わせた。モデルは S フォイルを閉じた状態（左右とも上下の翼板が重なる）なので、各 S フォイル（翼板・機関ナセル・レーザー砲）を胴体側面のヒンジ線のまわりに 13° ずつ開いた攻撃位置で組んだ（全幅 11.8 m、正史 11.76 m）。胴体を船体として 23 断面で実測に合わせ、着色キャノピー、翼板 4 枚、機関ナセル、S フォイル駆動部のフェアリング、翼端のレーザー砲基部と砲身を構造物で組んだ。機関は各ナセルの全長にわたる Incom 4L4 核融合推進機関 4 基（噴射口径 0.6 m、モデルの排気管どおり）で、後部胴体の核融合炉から給電する。R2 ユニットの位置にアストロメク・ソケット、操縦席 1 名、偏向シールド発生器、ハイパードライブ（クラス 1.0、正史どおり）、慣性補償装置、反応物タンク（約 1 週間分）、機首にパワーセル。兵装は正史どおりレーザー砲 4 門（翼端の砲身の外側）とプロトン魚雷発射管 2 基（お任せの搭載は正史どおり各3発・計6発。機首下部の両側面。艦載機の発射管は外付けの箱型）。実給電モデルでは反応炉・機関・配電を再構築し、推進管内の縦通支持材で翼の付け根へ荷重を伝える。最大加速度の設計目標は正史に合わせた 3,700 G（正史の速度は 100 MGLT）。シールドは目標強度 10%（設定の下限）、外殻装甲 1.5 mm。塗装はモデルに従い、灰色の機体に暗灰色のナセル、翼端寄りの赤い部隊識別帯と砲身の黄帯（薄い外板と帯の構造物）、黄色の機関光。',
  build:xwingBuild});
@@ -84793,7 +84793,7 @@ const FLEET_PROFILE_VERSION=25;/* 25 (2026-11-18, PR #117): weapon efficiency .7
 // statistics read, and the tables they use. Then regenerate the stored rows
 // (scripts/refresh-examples.cjs). tests/example-profile-version.cjs recomputes small
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
-const EXAMPLE_PROFILE_VERSION=3;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
+const EXAMPLE_PROFILE_VERSION=4/* 2026-11-19: v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
