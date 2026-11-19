@@ -8,11 +8,17 @@ function unit({efficiency=1,cap=100*TT,surface=false}={}){
  const modules=[module('reactor',1),module('engine',2),module('shield',3),module('weapon',4),module('other',5),module('dissipator',6)];
  const powerPaths=[{from:'p1',to:'bus',cap,efficiency,ok:true},...modules.slice(1).map(m=>({from:'bus',to:m.port,cap:100*TT,ok:true}))];
  const engine={id:2,machineryId:2,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:100*TT,wattsPerNewton:2e9,ratedThrustN:100*TT/2e9,driveProfileId:'standard',effectiveMachineryVolumeM3:1,machineryVolumeM3:1,direction:[1,0,0],pathCapacityW:200*TT,valid:true,available:true,connected:true,outletAvailable:true,integrated:true};
+ // 2026-11-19 fixture changed: the stored field and reserve are divided by C.fieldScale for this 100 m hull, so the unit
+ // still holds the 300/100 field this priority fixture was written around. User decision 2026-11-18 (7th,
+ // docs/damage-penetration.md「シールドは大きさの曲線 1 本」, fieldScale): a hull under 1,000 m keeps only a fraction of the
+ // profile's field in battle (1e-6 at 20 m, about 3e-4 at 100 m), and the recharge request is capped by that missing field,
+ // so without this the depleted fixture asks 0.088 TT instead of its 30 TT design recharge. No allocation check is changed.
+ const FIELD=C.fieldScale({len:100});
  const src=(k,id,m)=>({k,id,n:id,g:'high',sh:1,st:1e30,m,pc:[],sec:-1,sw:-1,gen:-1});
  // 2026-11-12: converter power is reserved for the heat that can reach it (disPowerK × heat). This
  // priority fixture keeps a fixed 5 TT reservation by giving the cooler a 1 TT rating at 5 TT input, so any
  // step with at least 1 TT of heat (the 10 TT services alone) reserves its full 5 TT as before.
- const p={name:'Fixed combat electrical priority',hp:1e9,len:100,width:40,height:20,D:30*C.K.deflect,shieldBuffer:300*C.K.deflect,reserve:100*C.K.deflect,wCap:1000,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,energyModel:{version:0},propulsion:{version:1,engines:[engine],massKg:1e9,ratedThrustN:engine.ratedThrustN,ratedAccelMps2:engine.ratedThrustN/1e9,accelerationLimitMps2:1e20},grid:{P:100*TT,fixed:15*TT,cooling:5*TT,De:100*TT,Ds:30*TT,Dw:40*TT,domains:[{id:'main',P:100*TT,sources:[{moduleIndex:0,P:100*TT}],modules:modules.map((_,i)=>i)}],trunks:[],fixedLoads:[{id:'p5',port:'p5',domain:'main',weight:10*TT}],coolingLoads:[{id:'p6',port:'p6',domain:'main',weight:5*TT}],powerPaths},heat:{v:1,src:[src('engine','p2',[1]),src('shield','p3',[2]),src('weapon','p4',[3]),src('reactor','p1',[0]),src('hotel','p5',[4])],dis:[{id:'p6',n:'powered cooler',k:'hdis',g:'high',cap:1*TT,power:5*TT,m:5,sec:-1}],ln:[]}};
+ const p={name:'Fixed combat electrical priority',hp:1e9,len:100,width:40,height:20,D:30*C.K.deflect,shieldBuffer:300*C.K.deflect/FIELD,reserve:100*C.K.deflect/FIELD,wCap:1000,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,energyModel:{version:0},propulsion:{version:1,engines:[engine],massKg:1e9,ratedThrustN:engine.ratedThrustN,ratedAccelMps2:engine.ratedThrustN/1e9,accelerationLimitMps2:1e20},grid:{P:100*TT,fixed:15*TT,cooling:5*TT,De:100*TT,Ds:30*TT,Dw:40*TT,domains:[{id:'main',P:100*TT,sources:[{moduleIndex:0,P:100*TT}],modules:modules.map((_,i)=>i)}],trunks:[],fixedLoads:[{id:'p5',port:'p5',domain:'main',weight:10*TT}],coolingLoads:[{id:'p6',port:'p6',domain:'main',weight:5*TT}],powerPaths},heat:{v:1,src:[src('engine','p2',[1]),src('shield','p3',[2]),src('weapon','p4',[3]),src('reactor','p1',[0]),src('hotel','p5',[4])],dis:[{id:'p6',n:'powered cooler',k:'hdis',g:'high',cap:1*TT,power:5*TT,m:5,sec:-1}],ln:[]}};
  if(surface)p.surface={mounts:[{id:4,module:3,power:40*TT,capacity:1000,gun:10,ion:0,boltTT:1,band:'mid',arcs:Array(6).fill(1),muzzle:[0,0,0]}],patches:[],devices:[]};
  const u=C.fleetUnit('priority-test','priority-test',p);u.maneuver=1;u.energy=1000;u.shield=u.shieldMax;u.bank=u.bankMax;C.heatInit(u);if(surface)u.surfaceBanks={4:1000};return u;
 }
@@ -24,6 +30,8 @@ function ledger(result){const p=result.propulsion.power;near(p.draw,p.delivered+
 // 2026-11-16 (PR #112, user decision「もう少しシールドの回復速度を落としていい」, answered x0.5): shields recharge at
 // C.SHIELD_RECHARGE_K of their design rate and draw that share of their power, so a depleted field takes 30*KS of the
 // fixture's 100 and navigation the rest. Expected values below follow KS instead of the former 30 / 15.
+// (2026-11-19 note: the 2026-11-18 decision「艦艇類はシールドの戻りをもっと増やして」set KS back to 1, docs/damage-penetration.md
+// 2nd section of 2026-11-18; the expectations already follow KS, so they are unchanged.)
 const KS=C.SHIELD_RECHARGE_K,SH=30*KS,NAV=15+30*(1-KS);
 test('all live stored modes use services, real shield recharge, weapons, then navigation at finite reactor output',()=>{
  for(const mode of Object.keys(C.POWER_MODES)){

@@ -1,3 +1,7 @@
+// 2026-11-19 expectation changed (tests 1 and 6): a shipMsl cell fires the 1 m by 4 m air missile, C.AIR_ROUNDS.missile.tt
+// (0.0471 TT), to the air missile's 10 km, instead of 25 TT to 60 km; d.msl and volleyTT are that yield times the 6 cells.
+// User decision 2026-11-19「ミサイルはそれにして対空対艦両方できるように(射程も航空も合わせる)」, recorded in commit 85d4184 and at the
+// head of tests/ship-launcher-rounds.cjs. Cell count, magazine, cycle, mass, power and geometry checks are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -7,7 +11,7 @@ function placed(s,options={},z=0){const r=C.placeFit(s,'shipMsl',[50,s.hull.H,z]
 
 test('grid dimensions, volley, physical mass/cost and magazine grow with real cell count',()=>{
  const air=C.FITS.cmsl,one=C.fitSpec({k:'shipMsl'}),f={k:'shipMsl',p:[0,0,0],a:2,launcherCols:3,launcherRows:2},d=C.fitSpec(f),g=C.launcherGeometry(f),m=C.missileLauncherSpec(f);
- assert.deepEqual([one.fm,one.hm,one.wm],[air.fm*2,air.hm*2,air.wm*2]);near(d.fm,2.4);near(d.wm,2.7);near(d.hm,1.8);near(d.mass,one.mass*6);near(d.cost,one.cost*6);near(d.power,one.power*6);assert.equal(d.msl,150);assert.equal(d.store.slots,36);assert.equal(m.tt,25);assert.equal(m.volleyTT,150);assert.equal(m.salvo,6);assert.equal(m.ammo,36);assert.equal(m.ammoPerCell,6);assert.equal(m.cycle,1.2);assert.equal(g.muzzles.length,6);assert.equal(new Set(g.muzzles.map(p=>p.join(','))).size,6);assert.equal(m.range,60000);
+ assert.deepEqual([one.fm,one.hm,one.wm],[air.fm*2,air.hm*2,air.wm*2]);near(d.fm,2.4);near(d.wm,2.7);near(d.hm,1.8);near(d.mass,one.mass*6);near(d.cost,one.cost*6);near(d.power,one.power*6);near(d.msl,6*C.AIR_ROUNDS.missile.tt);assert.equal(d.store.slots,36);near(m.tt,C.AIR_ROUNDS.missile.tt);near(m.volleyTT,6*C.AIR_ROUNDS.missile.tt);assert.equal(m.salvo,6);assert.equal(m.ammo,36);assert.equal(m.ammoPerCell,6);assert.equal(m.cycle,1.2);assert.equal(g.muzzles.length,6);assert.equal(new Set(g.muzzles.map(p=>p.join(','))).size,6);assert.equal(m.range,10000);
  assert.equal(C.canonicalWeaponKind('shipMsl'),'shipMsl');assert.equal(C.canonicalWeaponKind('msl'),'cmsl');assert.equal(C.FITS.msl,C.FITS.cmsl);assert.equal(C.missileLauncherSpec({k:'cmsl',p:[0,0,0],a:2}).range,10000);
 });
 
@@ -36,7 +40,7 @@ test('a launcher cannot embed a full-depth magazine through a thin wall or fire 
 
 test('full module metadata and electronic fixed load follow every physical cell',()=>{
  const {s}=fixture(),f=placed(s,{launcherCols:3,launcherRows:2,launcherEmbedded:true}),S=C.computeStats(s),p=C.fleetProfile(S,s.name,s),m=p.modules.find(m=>m.fit===f.id),spec=C.missileLauncherSpec(f);
- assert.equal(m.missileKind,'shipMsl');assert.equal(m.launcherCells,6);assert.equal(m.stock,36);assert.equal(m.salvo,6);assert.equal(m.tt,25);assert.equal(m.missileRange,60000);assert.equal(m.launchMuzzles.length,6);assert.equal(m.launchBlocked,false);near(m.launchPowerW,6e15);near(p.grid.fixedLoads.find(l=>l.port===m.port).weight,6e15);
+ assert.equal(m.missileKind,'shipMsl');assert.equal(m.launcherCells,6);assert.equal(m.stock,36);assert.equal(m.salvo,6);near(m.tt,C.AIR_ROUNDS.missile.tt);assert.equal(m.missileRange,10000);assert.equal(m.launchMuzzles.length,6);assert.equal(m.launchBlocked,false);near(m.launchPowerW,6e15);near(p.grid.fixedLoads.find(l=>l.port===m.port).weight,6e15);
  const center=C.sub(spec.origin,m.muzzle);m.launchMuzzles.forEach((q,i)=>q.forEach((v,k)=>near(v+center[k],spec.muzzles[i][k])));
 });
 
