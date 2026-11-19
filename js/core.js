@@ -87643,7 +87643,7 @@ const ENERGY_MODEL={version:1,eta:.95,superEta:.88,unit:'TT',assumption:true};
 // User decision 2026-11-16「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」: a shield makes heat only by
 // running (HEAT.waste.shield × its load); what it absorbs makes none. The 6% of the absorbed beam that was heat leaves
 // the ship with the rest (beamExternal .82 → .88; beamHeat .06 → 0; the 12% held for a moment is unchanged).
-const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,returnK:6.5,wear:.0126,wearRecoverS:600,assumption:true};
+const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,returnK:6.5,wear:.0063/* user instruction 2026-11-19「シールドの削り値を減らして」: the part of what a shield takes that wears its ceiling down. It was .0126; ★ half is ours (no figure was given) */,wearRecoverS:600,assumption:true};
 const ION_MODEL={version:2,unit:'J',blockedExternal:.95,shieldCost:.05,hullHeat:1,assumption:true};
 function weaponEnergy(spec,outputTT,shots=1){
  if(spec?.energyUnit==='effect')return {outputJ:null,inputJ:null,lossJ:null,eta:null,unit:'effect',outputEffect:Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0),assumption:false};
