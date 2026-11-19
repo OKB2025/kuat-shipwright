@@ -84293,7 +84293,7 @@ const COMBAT={
  // that gets past the field strikes them directly, as much of it as the aim can hold on so small a mark at that
  // range (the mark's size over spread×distance). Being standard parts, they are as tough on any hull: a hit's
  // worth (the quantum) on them is capped at fitQ, an Imperial's, so a giant's bridge is no harder than an ISD's.
- fitQ:2200,spread:.008,snipe:1,exposed:{weapon:1,launcher:1,bridge:1},
+ fitQ:2200,spread:.008,snipe:1,exposed:{weapon:1,launcher:1,bridge:1,sensor:1,fire:1}/* v30 sensor domes and fire-control gear stand on the hull too (the targeting pods) */,
  // AI-led ships aim at the bridge of a ship this many times their length once its field is worn (below bigField).
  bigAim:2.5,bigField:.92,smallShip:500,   // v21.2 only ships up to this length close to point-blank (corvettes, frigates; craft make attack runs)
  fireGen:.7           // v21.1 share of the shield generators' output that recharges the field while it is under fire
@@ -85153,11 +85153,14 @@ function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},
 // lands with that chance.
 const BLAST=Object.freeze({torpedo:Object.freeze({d:7,l:50,tt:36.56}),couple:4.7e-4,fire:.85,fireAt:.1,crew:.04});
 function blastMassT(p,si,tt){const st=hullStructure(p).sec[si];return st?Math.min(1,BLAST.couple*st.dens)*Math.max(0,tt)/PEN.eps:0;}
-function combatBlastAdd(inc,rounds,tt,src){if(inc&&rounds>0&&tt>0)inc.blasts.push({n:rounds,tt,src});}
+function combatBlastAdd(inc,rounds,tt,src,aim=null){if(inc&&rounds>0&&tt>0)inc.blasts.push({n:rounds,tt,src,...(aim&&aim!=='auto'?{aim}:{})});}
 function combatBlast(ctx,u,o){
  let hit=false;for(const bl of o.blasts||[]){let n=Math.floor(bl.n);if(ctx.rand()<bl.n-n)n++;
-  for(let i=0;i<n&&!u.dead;i++){const live=u.sec.map((x,si)=>u.secLost.includes(si)?0:x.max);let tot=live.reduce((a,b)=>a+b,0);if(!(tot>0))break;let r=ctx.rand()*tot,si=0;for(let j=0;j<live.length;j++){r-=live[j];if(r<=0){si=j;break;}}
-   const sec=u.sec[si],mass=blastMassT(u.p,si,bl.tt??BLAST.torpedo.tt),share=Math.min(1,PEN.eps*mass/Math.max(1e-30,sec.max));sec.s-=PEN.eps*mass;u.fire[si]=Math.max(u.fire[si]||0,BLAST.fire*Math.min(1,share/BLAST.fireAt));u.crew-=(u.p.crewNeed||0)*BLAST.crew*share/u.sec.length;hit=true;
+  for(let i=0;i<n&&!u.dead;i++){const live=u.sec.map((x,si)=>u.secLost.includes(si)?0:x.max);let tot=live.reduce((a,b)=>a+b,0);if(!(tot>0))break;let r=ctx.rand()*tot,si=0,mod=-1;for(let j=0;j<live.length;j++){r-=live[j];if(r<=0){si=j;break;}}
+   // an aimed round (user decision 2026-11-19「エンジン、艦橋、主兵装、ターゲティングポットを狙う」) bursts on a part of that kind still
+   // working: the section is the part's, and the part takes the burst too
+   if(bl.aim){const mods=u.p.modules||[],c=[];let w=0;for(let k=0;k<mods.length;k++)if(mods[k].k===bl.aim&&u.mods[k]>0&&!u.secLost.includes(u.secOf[k])&&!mods[k].pd){c.push(k);w+=mods[k].w||1;}if(c.length){let q=ctx.rand()*w;mod=c[0];for(const k of c){q-=mods[k].w||1;if(q<=0){mod=k;break;}}si=u.secOf[mod];}}
+   const sec=u.sec[si],mass=blastMassT(u.p,si,bl.tt??BLAST.torpedo.tt),share=Math.min(1,PEN.eps*mass/Math.max(1e-30,sec.max));sec.s-=PEN.eps*mass;u.fire[si]=Math.max(u.fire[si]||0,BLAST.fire*Math.min(1,share/BLAST.fireAt));u.crew-=(u.p.crewNeed||0)*BLAST.crew*share/u.sec.length;hit=true;if(mod>=0)combatModuleDamage(ctx,u,mod,PEN.eps*mass,hullBreakTT(u.p)*COMBAT.quantum,'shot');
    ctx.ev(u,`${SECTION_NAMES[si]||'区画'}に被雷・大火災`);if(sec.s<=0)combatSectionLost(ctx,u,si);combatStatus(ctx,u);}}
  return hit;
 }
@@ -86263,7 +86266,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
  }
  for(const {m,t,from} of arrived){
   if(!(m.n>1e-9)){m.n=0;continue;}const tt=m.n*m.tt*DMG,inc=incoming.get(t.id);
-  if(inc){if(m.ion)combatAdd(inc,t,from,{ionDirect:tt},m.aim||null,m.from);else combatBlastAdd(inc,m.n,m.tt,m.from);}
+  if(inc){if(m.ion)combatAdd(inc,t,from,{ionDirect:tt},m.aim||null,m.from);else combatBlastAdd(inc,m.n,m.tt,m.from,typeof m.aim==='string'?m.aim:null);}
   log().hit+=m.n;m.hit=m.n;m.n=0;
  }
  b.missiles=b.missiles.filter(m=>m.n>1e-9&&m.life>0);
@@ -88189,11 +88192,11 @@ function craftSystemsStats(ship,S){
 // v30 The size and yield of rounds (ordnance specification, and user decisions 2026-11-18/19「対艦魚雷は7×50をベースに」「航空魚雷は1×2
 // サイズで、95%が弾頭。ミサイル、爆弾も同じサイズ」). A round's mass is its body's volume at ORDNANCE_BASIS.density; its yield is its
 // warhead's mass at .warheadTTPerT. The anti-ship torpedo (7 m by 50 m, 95% warhead) is 1,924 t and 36.56 TT; the air round (1 m by
-// 2 m, 95% warhead: torpedo, missile and bomb alike) is 1.571 t and 0.0298 TT. The table below still carries the earlier figures
+// 4 m, 95% warhead: torpedo, missile and bomb alike) is 3.142 t and 0.0597 TT. The table below still carries the earlier figures
 // (0.3 m rounds of 25 to 70 TT, sized to the examples' launch tubes): changing it changes what the examples' tubes hold.
 const ORDNANCE_BASIS=Object.freeze({density:1,warheadTTPerT:.02});
 function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Math.PI/4*D*D*L,warheadMass=mass*warheadFraction;return {dims:[L,D],mass,warheadFraction,warheadMass,tt:warheadMass*ORDNANCE_BASIS.warheadTTPerT};}
-const SHIP_TORPEDO=Object.freeze(ordnanceBody(7,50,.95)),AIR_ROUND=Object.freeze(ordnanceBody(1,2,.95));
+const SHIP_TORPEDO=Object.freeze(ordnanceBody(7,50,.95)),AIR_ROUND=Object.freeze(ordnanceBody(1,4,.95));/* 「1×4に変更」(2026-11-19): 1 m by 4 m, 3.14 t, 0.0597 TT */
 const ORDNANCE=Object.freeze({
  ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',dims:[1.3,.3],mass:.12,tt:70,guided:true,speed:1600,desc:'誘導式の対艦魚雷。半分はシールドを抜ける。'},
  itorp:{name:'イオン魚雷',short:'イオン魚雷',dims:[1.3,.3],mass:.12,tt:40,ion:true,guided:true,speed:1600,desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
