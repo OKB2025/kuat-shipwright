@@ -279,3 +279,10 @@ b4a7ac4 に対する判定は physics-reviewer・regression-reviewer とも **FA
   - 説明文「1発25 TT」（`FITS.cmsl`・`FITS.shipMsl`）、`ORDNANCE_EVIDENCE`、`FITS.itl`（旧経路で 1 発 10 TT のイオン魚雷）、`RULES_MISSILE_TT=10` は旧スケールのまま。
   - `docs/damage-penetration.md` の 6 回目の節にあるイオンの記述（「`fleetSystems` の各系統が同じ割合で減る」）は 7 回目の節で置き換わっている。
 - 未実施：ブラウザでの確認、作例の再生成、全テスト、regression-reviewer が求めた高い推論量での追加確認（イオン状態の受け渡しと撃墜判定の順序）。
+
+### ユーザー決定 2 件の反映（2026-11-19 夜）
+
+- 「固定負荷も切る」：イオンの給電減は、砲・シールド・機関に加えて固定負荷（射撃管制・センサー・発射管・格納庫・自動化・ハイパードライブ・蓄電）にも掛かる。固定負荷の電力（`u.pw.fixed − u.pw.cooling`）の 1/3 も熱になり、その系統の働きは切れている間 1/3 落ちる（`fleetSystems`）。シールド・砲・機関の働きの割合には掛けない（給電の段で切る。掛けるとシールドの貯蔵量が削れる）。冷却への給電だけは切らない（★）。
+- 「他の艦に合わせる」：操縦中の艦も、電源を失ってリフトが薄れると抵抗なしで自由落下する（`js/app.js`、`C.planetFall` と同じ式）。`tests/throttle-output-trial.cjs` の 2 件の期待値を変更（機能停止中の質量抵抗 → 自由落下。理由はファイルに記録）。
+- テスト：`tests/ion-power-cut.cjs` 5/5、`tests/throttle-output-trial.cjs` 19/19。73 本を 5f73bde と比べ、新しく落ちたものなし。
+- この 2 件の変更はレビュー担当の判定をまだ受けていない（UNVERIFIED）。ブラウザでの確認も未実施。

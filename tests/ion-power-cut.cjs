@@ -19,7 +19,7 @@ test('an ion cut takes a third of what the guns and the shield were delivered, a
  assert.ok(sum(free.pw)>0,'the ship is drawing power for its guns and shield');
  assert.ok(Math.abs(hit.pw.wpn/free.pw.wpn-2/3)<1e-9,'guns: '+hit.pw.wpn/free.pw.wpn);assert.ok(Math.abs(hit.pw.sh/free.pw.sh-2/3)<1e-9,'shield: '+hit.pw.sh/free.pw.sh);
  assert.ok(Math.abs(hit.pw.draw/free.pw.draw-1)<1e-9,'the plant still made the power');
- const lostJ=(sum(free.pw)-sum(hit.pw))*.25;assert.ok(Math.abs(hit.a.ionPowerLossJ/lostJ-1)<1e-9,'the heat is what the systems did not get: '+hit.a.ionPowerLossJ+' / '+lostJ);
+ const fixedW=Math.max(0,(hit.pw.fixed||0)-(hit.pw.cooling||0));assert.ok(fixedW>0,'the ship has fixed loads');const lostJ=(sum(free.pw)-sum(hit.pw)+fixedW/3)*.25;/* user decision 2026-11-19「固定負荷も切る」: a third of the fixed loads' power is heat as well */assert.ok(Math.abs(hit.a.ionPowerLossJ/lostJ-1)<1e-9,'the heat is what the systems did not get: '+hit.a.ionPowerLossJ+' / '+lostJ);
  assert.ok(hit.a.shield>hit.shield0*.95,'the shield keeps its store: '+hit.shield0+' → '+hit.a.shield);
  assert.equal(hit.a.ionCut,0,'the cut is used up in the step');
  // Physics review 2026-11-19: the plant made the whole of it, so the electricity made (which the fuel is taken by) is the same.
@@ -46,4 +46,11 @@ test('the cut works on any delivery it is given (the flown ship calls it from th
  const next={weapons:900,shields:0,engines:0},k2=C.ionPowerCut(u,next,.25);assert.ok(Math.abs(k2-(1-.2/3))<1e-12);assert.equal(u.ionCut,0);
  assert.equal(C.ionPowerCut(u,{weapons:900},.25),1,'and nothing after');
  const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');assert.match(app,/C\.allocateShipPower\(me,s,demand,dt,mode\),got=solved\.got,P=solved\.P\|\|0;C\.ionPowerCut\(me,got,dt\)/,'the flown ship takes the cut right after its allocation');
+});
+// User decision 2026-11-19「固定負荷も切る」: the systems on fixed loads work a third less while the cut lasts; the guns', the
+// shield's and the engines' working shares are not touched (their power is cut where it is delivered).
+test('fire control, sensors and launchers work a third less during the cut; shield, guns and engines keep their shares',()=>{
+ const u=C.fleetUnit('a','mc80liberty',JSON.parse(JSON.stringify(F.designs.mc80liberty.p)),0),before=C.fleetSystems(u);u.ionCutNow=1;const during=C.fleetSystems(u);
+ for(const k of ['shield','engine','weapon','reactor'])assert.equal(during[k],before[k],k);
+ for(const k of ['fire','sensor','launcher','hangar','automation','hyper','battery'])assert.ok(Math.abs(during[k]-before[k]*2/3)<1e-12,k+': '+during[k]+' / '+before[k]);
 });

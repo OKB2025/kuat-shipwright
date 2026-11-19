@@ -85075,7 +85075,7 @@ function fleetSystems(u,opts){
  const mods=u.p.modules||[],um=u.mods||[],X=fleetSysIdx(mods),out={};
  for(const {k,idx,sh} of X.kinds){if(!idx.length){out[k]=1;continue;}let s=0;for(let j=0;j<idx.length;j++){const v=um[idx[j]];if(v>0)s+=sh[j]*v;}out[k]=clamp(s,0,1);}
  let br=!X.bridge.length;for(let j=0;j<X.bridge.length&&!br;j++)if(um[X.bridge[j]]>0)br=true;
- /* opts.skipPower: what stands, as if the plant were running (for a disabling reason other than power loss) */if(!opts?.skipPower)for(const k of FLEET_SYS_KINDS)if(k!=='reactor')out[k]*=powerFactor(u,k);/* v30 ion warheads: the power lost is taken where it is delivered (fleetPowerStep, ionPowerCut) */
+ /* opts.skipPower: what stands, as if the plant were running (for a disabling reason other than power loss) */if(!opts?.skipPower)for(const k of FLEET_SYS_KINDS)if(k!=='reactor')out[k]*=powerFactor(u,k)*(u.ionCutNow>0&&k!=='shield'&&k!=='engine'&&k!=='weapon'?1-ION_ROUND.share*u.ionCutNow:1);/* v30 ion warheads: the guns', the shield's and the engines' power is cut where it is delivered (ionPowerCut); the systems on fixed loads (launchers, hangars, batteries, fire control, automation, sensors, hyperdrive) work that share less while the cut lasts (user decision 2026-11-19「固定負荷も切る」) */
  if(!opts?.skipPower&&u.p.grid?.domains?.length){const domains=u.p.grid.domains,total=domains.reduce((a,d)=>a+(d.P||0),0);out.reactor=total>0?clamp(domains.reduce((a,d)=>a+powerDomainWatts(u,d.id,true),0)/total,0,1):0;}
  out.bridge=br;out.hasReactor=X.kinds[0].idx.length>0;out.hasBridge=X.bridge.length>0;if(out.hasBridge&&!br)out.fire=0;/* v30 no directed fire without a bridge */return out;
 }
@@ -85200,7 +85200,7 @@ function blastOpenTT(p,m){const V=modVol(p,m),L=Math.cbrt(Math.max(1e-9,V));retu
 // is 17 to 28% of an example ship's heat store, so about five rounds bring it to its limit.
 const ION_ROUND=Object.freeze({share:1/3,seconds:.1});
 function ionPowerLoss(ctx,u,rounds){
- if(!(rounds>0)||u.dead||craftUnit(u))return 0;if(!(u.pw?.draw>0))return 0;const P=Math.max(0,(u.pw.wpn||0)+(u.pw.sh||0)+(u.pw.eng||0));/* what the cut works on: the guns', the shield's and the engines' power. ★ The fixed loads (fire control, sensors, launchers, hangars, life support) and the cooling plant are not cut (ours) */
+ if(!(rounds>0)||u.dead||craftUnit(u))return 0;if(!(u.pw?.draw>0))return 0;const P=Math.max(0,(u.pw.wpn||0)+(u.pw.sh||0)+(u.pw.eng||0)+Math.max(0,(u.pw.fixed||0)-(u.pw.cooling||0)));/* what the cut works on: the guns', the shield's and the engines' power and the fixed loads. ★ The cooling plant is not cut (ours) */
  const J=P*ION_ROUND.share*ION_ROUND.seconds*rounds;u.ionCut=(u.ionCut||0)+ION_ROUND.seconds*rounds;
  ctx.ev?.(u,`イオン弾頭 ${Math.round(rounds*10)/10} 発：給電の ${Math.round(ION_ROUND.share*100)}% が熱に（${(J/TT).toFixed(1)} TT 相当）`);return J;
 }
@@ -85208,10 +85208,11 @@ function ionPowerLoss(ctx,u,rounds){
 // delivered to the guns, the shield and the engines in this step, and exactly that much is the heat (the plant's draw stays: it
 // made the power). Before, the share was put on the systems' working shares: it never reached the guns' power, it cut a third
 // of the shield's store instead of its charging, and the heat was added besides (measured 2026-11-19 on an MC80 and an ISD).
-// ★ The power to the cooling plant is not cut (ours). Returns the share the systems keep in this step.
+// The fixed loads are cut as well (user decision 2026-11-19「固定負荷も切る」). ★ The power to the cooling plant is not cut (ours).
+// Returns the share the systems keep in this step.
 function ionPowerCut(u,got,dt){
  const c=Math.min(Math.max(0,u.ionCut||0),Math.max(0,dt));u.ionCut=Math.max(0,(u.ionCut||0)-c);u.ionCutNow=dt>0?c/dt:0;if(!(u.ionCutNow>0)||craftUnit(u)){u.ionKeep=1;return 1;}
- const keep=1-ION_ROUND.share*u.ionCutNow,lostW=(1-keep)*(Math.max(0,got.weapons||0)+Math.max(0,got.shields||0)+Math.max(0,got.engines||0));
+ const keep=1-ION_ROUND.share*u.ionCutNow,fixedW=Math.max(0,(u.pw?.fixed||0)-(u.pw?.cooling||0))/* user decision 2026-11-19「固定負荷も切る」: fire control, sensors, launchers, hangars and the rest lose the same share (their working shares in fleetSystems), and it is heat. ★ The cooling plant alone is not cut (ours) */,lostW=(1-keep)*(Math.max(0,got.weapons||0)+Math.max(0,got.shields||0)+Math.max(0,got.engines||0)+fixedW);
  got.weapons=(got.weapons||0)*keep;got.shields=(got.shields||0)*keep;got.engines=(got.engines||0)*keep;u.ionKeep=keep;got.ionKeep=keep;/* the plant made the whole of it: the heat ledger reads the fuel and the reactors' own waste from what was made (heatAccrueInner) */if(u.shF>0)u.shF*=keep;/* physics review 2026-11-19: the flown ship's shield charge is read from u.shF, which the app does not work out again */
  if(lostW>0&&dt>0){shipHeatAdd(u,lostW*dt,null,'ion-hit');u.ionPowerLossJ=(u.ionPowerLossJ||0)+lostW*dt;}
  if(u.pw){u.pw.wpn=got.weapons;u.pw.sh=got.shields;u.pw.eng=got.engines;u.pw.ionLostW=lostW;}return keep;
