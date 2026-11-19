@@ -19,7 +19,7 @@ test('heavy cells hold one 7 m by 50 m round each: the anti-ship torpedo, or the
  near(C.SHIP_TORPEDO.tt,Math.PI/4*49*50*.95*.03);near(C.SHIP_MISSILE.tt,Math.PI/4*49*50*.5*.03);assert.deepEqual([...C.SHIP_MISSILE.dims],[...C.SHIP_TORPEDO.dims],'the same size');
  near(torp.tt,C.SHIP_TORPEDO.tt);assert.equal(torp.torp,true);assert.equal(torp.heavy,true);assert.equal(torp.ammoPerCell,1);assert.equal(torp.ammo,4,'one round a cell');assert.equal(torp.range,C.HEAVY_LAUNCHER.range);
  near(msl.tt,C.SHIP_MISSILE.tt);assert.equal(msl.torp,undefined);assert.equal(msl.heavy,true);assert.equal(msl.ammo,4);
- assert.ok(d.fm>=50&&d.wm>=2*7&&d.hm>=2*7,'the cells take the round: '+[d.fm,d.wm,d.hm]);assert.ok(d.mass>=4*C.SHIP_TORPEDO.mass,'and carry its mass');assert.ok(d.mass>small.mass*100);
+ assert.equal(d.fm,12,'the box behind the mouths is 12 m deep (user instruction 2026-11-19)');near(d.wm,2*12.1);near(d.hm,2*12.1);assert.ok(d.wm/2>=7,'a cell is wider than the 7 m round');assert.ok(d.mass>=4*C.SHIP_TORPEDO.mass,'and carry its mass');assert.ok(d.mass>small.mass*100);
  near(C.weaponPreviewStats(fit({launcherHeavy:true})).outputTT,C.SHIP_TORPEDO.tt);assert.equal(C.weaponPreviewStats(fit({launcherHeavy:true})).rangeM,C.HEAVY_LAUNCHER.range);
 });
 test('the torpedo flies at the speed of a craft\'s torpedoes, the missiles at a craft\'s speed',()=>{

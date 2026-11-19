@@ -76178,10 +76178,10 @@ function isSurfaceVLS(f){return !isShipLauncher(f)&&isConcussionLauncher(f)&&isS
 //   95% warhead, 54.84 TT), which flies at the speed of a craft's torpedoes (600 m/s) straight at a ship, so point defence can shoot
 //   it down; its cells can be loaded with large missiles of the same size instead (f.round==='msl': 50% warhead, 28.86 TT, a
 //   missile's speed, at ships and at craft).
-// A heavy cell is HEAVY_LAUNCHER.cell square (measured, see there). ★ Ours: it is .depth long and holds .perCell round (a 0.9 m cell holds six air missiles);
+// A heavy cell is HEAVY_LAUNCHER.cell square (measured, see there). ★ Ours: it holds .perCell round (a 0.9 m cell holds six air missiles);
 // its range is the launchers' former 60 km; its mass is the round's and the cell's (.massK of the round); cost and power are the
 // small cell's times .costK.
-const HEAVY_LAUNCHER=Object.freeze({cell:12.1/* user instruction 2026-11-19「マンデイターIIのこのミサイル発射装備に合わせて大型化して」: the pitch of the launch tubes measured on the Mandator II source model (96 tubes in racks of 6 by 2: 12.1 m along the hull, 12.2 m between rows; docs/benchmarks/mandator2-launch-tubes-2026-11-19) */,depth:52,perCell:1,range:60000,massK:1.25,costK:100});
+const HEAVY_LAUNCHER=Object.freeze({cell:12.1/* user instruction 2026-11-19「マンデイターIIのこのミサイル発射装備に合わせて大型化して」: the pitch of the launch tubes measured on the Mandator II source model (96 tubes in racks of 6 by 2: 12.1 m along the hull, 12.2 m between rows; docs/benchmarks/mandator2-launch-tubes-2026-11-19) */,depth:12/* user instruction 2026-11-19「ミサイルは発射機から12メートルの深さの箱を付け足し内部区画として固定でき、そして発射点を外に出せば埋め込めれる形に」: the launcher's body is a box 12 m deep behind the launch mouths, which can stand inside the hull as an interior compartment when set in (the embedded mount keeps the mouths at the surface). It was 52 m. NOTE: the 50 m round is longer than this box; where the rest of a round's length lies is not modelled */,perCell:1,range:60000,massK:1.25,costK:100});
 function launcherHeavy(f){return f?.launcherHeavy===true||f?.heavy===true;}
 function launcherTorpedo(f){return launcherHeavy(f)&&(f?.round||f?.missileRound)!=='msl'||f?.torp===true;}
 function launcherRound(f){return launcherHeavy(f)?(launcherTorpedo(f)?SHIP_TORPEDO:SHIP_MISSILE):AIR_ROUNDS.missile;}
