@@ -837,3 +837,99 @@ physics / regression レビュー（2026-11-19、どちらも FAIL）を受け�
 - [ ] 7. テストの更新、作例の再生成、決定性の基準の取り直し、レビュー（physics、regression）。
 
 退避してある途中の作業：`git stash` の「wip: durability scale and per-section hull」（一律の倍率と区画ごとの耐久。決定 4〜7 で不要になった）。
+
+## イオン弾頭の給電減と古い兵装表（2026-11-19、7 回目）
+
+基準：6 回目の節より後、5f73bde → b4a7ac4（ブランチ `claude/jolly-cannon-psv61o`）。★はユーザーの確認なしにこちらで置いた値。
+
+### A. ユーザーの決定（原文）
+
+1. 「古い表も揃えて」
+   - 答えた質問：ゲーム本体の古い兵装表（陽子魚雷 70 TT など）は変わっていない。数値の艦載機と艦のミサイル発射機は古い値のまま。古い表も新しい弾に合わせるかどうか。
+2. 「系統に届く分は熱に変わる分減らして」
+   - 答えた質問：イオン弾頭で、失った 1/3 が「熱になった分」と「系統に届いた分」の両方に数えられている。簡略化として残すか、給電側も減らすか。
+- 前提になっている以前の決定（6 回目の節）：「イオン爆弾/魚雷はその瞬間反応炉が渡してる電力そのものも1/3損失し熱量に変わる」。`ION_ROUND={share:1/3,seconds:0.1}`（秒数は★）。
+
+### B. イオン弾頭の給電減（`js/core.js`）
+
+変更前の挙動（5f73bde、MC80 リバティ対 MC75、4 km。20 秒後に `a.ionCut=0.25` を入れて 1 刻み 0.25 s 進めた測定）：
+
+- 兵装への給電 `wpn` は次の刻みで変わらない（2.0912e24 W → 2.0912e24 W）。
+- シールドへの給電 `sh` だけが 2/3 になり、`a.shield` は 14420 → 9568（貯蔵量そのものが 1/3 減）。
+- つまり失った 1/3 が、熱（`ionPowerLoss`）と、系統に届く量（`fleetSystems` の係数）の両方に数えられていた。
+
+変更後の規則：
+
+- `ionPowerCut(u,got,dt)` を新設し、`fleetPowerStep` の `allocateShipPower` の直後に呼ぶ。
+- `u.ionCut`（秒）をその刻みぶん使い、`keep = 1 − share × (使った秒 / dt)` を出す。
+- 引く系統：`got.weapons`・`got.shields`・`got.engines` に `keep` を掛ける。
+- 熱との関係：減った分 × `dt` を `shipHeatAdd(u,…,'ion-hit')` で熱にし、`u.ionPowerLossJ` に積む。熱になった分と系統に届く分を二重に数えない。
+- 発電側は変えない：`u.pw.draw` はそのまま。`u.pw.wpn`・`sh`・`eng` だけを書き直す。
+- `u.ionKeep` を残し、`propulsionMotion` の加速度に掛ける。
+- 小型機は対象外（6 回目の節と同じ）。
+- ★冷却への給電は切らない。
+- 付随する変更：`fleetSystems` から (1 − share × ionCutNow) の係数を外した。`combatResolve` にあった `ionCut` の消費は `fleetPowerStep` 側へ移した。`ionPowerLoss` は `u.ionCut` に秒数を積むだけにし、熱はここでは足さない（イベント文の TT は見積もり値のまま）。
+
+変更後の測定（同じ条件、同じ刻み。記録は `review3/probe-after.txt`、単位は W を 1e15 で割った値）：
+
+| 項目 | 変更前 | 変更後 |
+| --- | --- | --- |
+| `wpn` | 2.0912e24 W のまま | 2.0947e24 → 1.3964e24 W（2/3） |
+| `sh` | 2/3 | 1.5786e23 → 1.0524e23 W（2/3） |
+| `draw`（発電側） | － | 2.2698e24 W のまま |
+| `ionPowerLossJ` | － | 1.8771e23 J（＝減った電力 × 0.25 s） |
+| `a.shield`（貯蔵量） | 14420 → 9568 | 14420 のまま |
+
+- その次の刻みは熱の制御（`heatGovernor`）で `draw` が 0.35 倍に落ちる。
+
+### C. 古い兵装表 `ORDNANCE`（`js/core.js`）
+
+- 威力だけを航空弾（`AIR_ROUNDS`）に合わせた。各行の `tt` を `airRound(kind).tt` にした。`etorp` は魚雷扱い（★）。
+
+| 種類 | 新（`AIR_ROUNDS` と同じ） |
+| --- | --- |
+| 魚雷 | 0.0895 TT |
+| ミサイル | 0.0471 TT |
+| 爆弾 | 0.1885 TT |
+
+- 旧値：陽子魚雷 70 TT、イオン魚雷 40 TT、エネルギー魚雷 25 TT、震盪ミサイル 25 TT、プロトン爆弾 60 TT。新しい値は、魚雷 3 種が 0.0895 TT、震盪ミサイルが 0.0471 TT、プロトン爆弾が 0.1885 TT。
+- `body:{dims,mass,warheadMass}` を各行に足した（新しい弾の寸法・質量の記録）。
+- 寸法（`dims`）・質量（`mass`）・搭載数は据え置いた。`dims`・`mass` は発射管に入る数と機体の搭載質量の計算に使う値で、元のまま。理由：
+  - 4 m・3.14 t の弾は、作例の発射管（1.4 m の管）に入らない。
+  - X ウィングに 6 発積むと、機体の倍の重さになる。
+  - 発射管の寸法を変えるのは作例形状の変更になる（`reference-fidelity-rules.md` の対象）。
+- 残る不一致：表の機体（搭載数は古い表のまま、X ウィング 6 発など）と、揚力の余りで積む実体の小型機（`fleetAirLoad`）とでは、発数が異なる。
+
+### D. 追加レビューの修正
+
+追加レビューで FAIL が出た 2 件を直した。
+
+1. `combatClone` が `u._track` を複製していなかった（`js/core.js`）。複製するようにした。`tests/fleet-commit-twice.cjs` は、この修正なしでは「and so is its track history」で失敗することを確認した。
+2. 操縦中の艦の自由落下と撃墜（`js/app.js`）：
+   - 電源喪失かつ `lift<1` のときは、抵抗付きの積分器を通さず自由落下にする（`V += g(1−lift)dt`、`P += V dt`）。
+   - `out` かつ `lift<=0` で `dead=true`、`fate='fall'`。ログは「リパルサーリフト喪失：撃墜」（`lang-en.js` に訳を追加）。
+
+### E. テスト（主担当が実行）
+
+- 新規：
+  - `tests/ion-power-cut.cjs` 3/3。
+  - `tests/fleet-commit-twice.cjs` 1/1。
+- 期待値を変えたもの（理由は各ファイルの先頭に記録）：
+  - `missile-launcher-geometry`：`cmsl.tt` 25 → 表の値。
+  - `missile-launcher-runtime`：3 か所と `mslSalvo` の 25*20/1.2 → 表の値*20/1.2。
+  - `missile-launcher-range`：2 か所。
+  - `weapon-preview-stats`：2 か所。
+  - 理由はいずれも、表の `tt` が 25 から新しい弾の値（0.0471 TT）に変わったこと。手書きの `tt:25` を持つ単位はそのまま。
+- 63 本を 5f73bde と b4a7ac4 で比較：新しく落ちたものはない。
+- 変更前から落ちているもの（件数）：`craft-cost-parity` 4、`craft-laser-output` 1、`craft-thermal-wings` 1、`dual-purpose-weapons` 1、`editor-preview-incremental` 1、`fighter-attack-runs` 1、`fighter-auto-integration` 1、`fighter-follow-integration` 4、`fighter-hyper-retreat` 1、`fighter-pilot-damage` 3、`fighter-pilot-guns` 9、`fighter-weapon-funding` 1、`fleet-localization` 2、`fleet-missiles-arrive` 4、`missile-launcher-range` 1（#15）、`penetration-casualties` 4、`power-loss-stays-in-battle` 1、`shield-deflection` 2、`surface-energy-ion` 1、`surface-energy-review` 1、`surface-manual-runtime` 1、`surface-query-performance` 1。
+- `fighter-pilot-guns`・`fighter-auto-integration`・`fighter-pilot-damage` は、このブランチの出発点 9bcbd02 でも同じ数だけ落ちる。
+- `node scripts/update-asset-manifest.cjs --check`：通過。
+
+### F. 未実行・残り
+
+- ブラウザでの確認（操縦中の艦の落下・撃墜、英語表示）は未実施。
+- 作例の再生成は未実施。`data/fleet.js` の保存済み性能表は、艦のミサイル 1 発 25 TT を持ったまま。
+  - この表のままだと、MC75 が ISD-I を 4 km で 4 秒、20 km で約 14 秒で沈める（9bcbd02 でも 6.5 秒）。
+  - 再生成後は 1 発 0.0471 TT になり、艦のミサイル発射機の対艦の効きが大きく下がる。
+- 発射管の寸法と弾・搭載数は古い表のまま（C の「残る不一致」）。
+- 全航空隊を実体で動かす艦隊戦（193 単位）は、1 刻み 0.25 s の計算に約 0.26〜0.34 s かかる（node）。重い箇所は 1 か所でなく、各機が艦と同じ計算（給電・熱・射撃）を通るため。画面への接続は未着手。
