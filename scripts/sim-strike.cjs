@@ -1,11 +1,11 @@
 // A strike on a capital ship, AI against AI: escorts and torpedo bombers against the ship, its point defence and its interceptors.
 // usage: node scripts/sim-strike.cjs [runs=3] [target=imperial] [escorts=12] [bombers=12] [interceptors=12]
-// Bombers (craft_btlb) carry ion torpedoes (ORD.itorp, two each: the Scarif load) and release them at RELEASE m with their bow on the ship.
+// Bombers (craft_btlb) carry ion torpedoes (the air round, C.AIR_ROUND; two each: the Scarif load; KS_TORP_TT and KS_TORP_N override) and release them at RELEASE m with their bow on the ship.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx),plain=x=>JSON.parse(JSON.stringify(x)),pc={},prof=k=>plain(pc[k]||(pc[k]=k.startsWith('craft_')?(()=>{const xs=C.buildDesign(k),S=C.computeStats(xs);return C.fleetProfile(S,xs.name,xs);})():F.designs[k].p));
-const RUNS=+(process.argv[2]||3),TGT=process.argv[3]||'imperial',NX=+(process.argv[4]??12),NY=+(process.argv[5]??12),NT=+(process.argv[6]??12),RELEASE=4000,TORP={tt:40,n:2,range:8000},START=30000,LIMIT=600;
+const RUNS=+(process.argv[2]||3),TGT=process.argv[3]||'imperial',NX=+(process.argv[4]??12),NY=+(process.argv[5]??12),NT=+(process.argv[6]??12),RELEASE=4000,TORP={tt:+(process.env.KS_TORP_TT||C.AIR_ROUND.tt)/* the air round: 1 m by 2 m, 95% warhead */,n:+(process.env.KS_TORP_N||2),range:8000},START=30000,LIMIT=600;
 const dist=(a,b)=>C.len(C.sub(a.pos,b.pos)),near=(u,list)=>list.filter(w=>!w.dead).sort((x,y)=>dist(x,u)-dist(y,u))[0]||null;
 function run(seed){
  const ship=C.fleetUnit('s',TGT,prof(TGT),1);ship.order={...ship.order,type:'hold',fire:true,launch:false,autoPointDefense:true};
@@ -23,5 +23,5 @@ function run(seed){
   if(ship.dead||(!ys.some(y=>!y.dead&&y.torps>0)&&!(B.missiles||[]).length&&t>(st.firstRelease??LIMIT)+30))break;}
  for(const y of ys)if(y.dead&&y.torps>0)st.carriedLost+=y.torps;const log=B.missileLog||{hit:0,downed:0};
  return {t,x:xs.filter(u=>u.dead).length,y:ys.filter(u=>u.dead).length,tie:ts.filter(u=>u.dead).length,released:st.released,carriedLost:st.carriedLost,hit:log.hit,downed:log.downed,firstRelease:st.firstRelease,ship:ship.dead?'lost':ship.out||'in action',shipOut:st.shipOut,field:ship.shieldMax>0?ship.shield/ship.shieldMax:0,events:B.events.filter(e=>e.id==='s').slice(-4).map(e=>Math.round(e.time)+'s '+e.text)};}
-console.log(`strike on ${TGT}: ${NX} X-wings (escort), ${NY} Y-wings (BTL-B) with ${TORP.n} ion torpedoes each (${TORP.tt} TT, released at ${RELEASE} m), ${NT} TIE/ln interceptors; from ${START/1000} km; ${RUNS} runs`);
+console.log(`strike on ${TGT}: ${NX} X-wings (escort), ${NY} Y-wings (BTL-B) with ${TORP.n} ion torpedoes each (${TORP.tt.toFixed(4)} TT, released at ${RELEASE} m), ${NT} TIE/ln interceptors; from ${START/1000} km; ${RUNS} runs`);
 for(let s=1;s<=RUNS;s++){const r=run(s*7919);console.log(`run ${s}: ended ${r.t}s | lost: X-wings ${r.x}/${NX}, Y-wings ${r.y}/${NY}, TIEs ${r.tie}/${NT} | torpedoes: released ${r.released} (first at ${r.firstRelease}s), lost with their bombers ${r.carriedLost}, shot down ${(+r.downed).toFixed(1)}, hit ${(+r.hit).toFixed(1)} | ship: ${r.ship}${r.shipOut?` at ${r.shipOut.t}s`:''} | ${r.events.join(' / ')}`);}
