@@ -42,21 +42,16 @@ test('a craft lands in an unmodified Venator through a hangar mouth by the dock 
  tick(B,120);assert.ok(x.energy>=x.p.wCap*.8,'weapon energy refilled aboard');assert.ok(B.events.some(e=>/格納庫に入渠/.test(e.text)));
 });
 
-test('a ship\'s point defence downs craft in reach at a channel\'s share for each flight; craft out of reach or docked are safe',()=>{
- const P=plain(F.designs.dreadnaught.p),rate=C.MISSILE_FLIGHT.pdKill*P.aa/P.aaCh,T=10,expected=1-Math.exp(-rate*T);
- const run=(seed,place)=>{const s=C.fleetUnit('s','dreadnaught',plain(P),1),x=craft('x','craft_xwing',0);s.order={...s.order,type:'hold',fire:false,autoPointDefense:true};x.order={...x.order,type:'hold',fire:false};place(x,s);const B=C.fleetBattle([s,x],true);B.seed=seed;tick(B,T,{},()=>!x.dead);return x.dead;};
- let down=0;const N=200;for(let i=1;i<=N;i++)if(run(i*104729,x=>{x.pos=[3000,0,0];}))down++;
- assert.ok(Math.abs(down/N-expected)<.12,`downed ${down}/${N} in ${T} s, expected ${expected.toFixed(3)} (rate ${rate.toFixed(4)}/s)`);
- let far=0;for(let i=1;i<=40;i++)if(run(i*104729,x=>{x.pos=[C.MISSILE_FLIGHT.pdRange+P.len/2+500,0,0];}))far++;assert.equal(far,0,'out of reach');
- // four craft in reach share one channel
- const four=seed=>{const s=C.fleetUnit('s','dreadnaught',plain(P),1),xs=[0,1,2,3].map(i=>{const x=craft('x'+i,'craft_xwing',0);x.pos=[3000,0,i*200];x.order={...x.order,type:'hold',fire:false};return x;});s.order={...s.order,type:'hold',fire:false,autoPointDefense:true};const B=C.fleetBattle([s,...xs],true);B.seed=seed;tick(B,T);return xs.filter(x=>x.dead).length;};
- let lost=0;for(let i=1;i<=N;i++)lost+=four(i*15485863);// (the one channel keeps downing at its rate while any of the four is left: the losses are Poisson(rate·T), capped at four)
- let want=0,pk=Math.exp(-rate*T);for(let k=0;k<60;k++){want+=Math.min(4,k)*pk;pk*=rate*T/(k+1);}
- const mean=lost/N;assert.ok(Math.abs(mean-want)<.25,`four craft lose ${mean.toFixed(2)} in ${T} s, expected about ${want.toFixed(2)}`);assert.ok(mean<4*expected*.75,'far fewer than four lone craft would lose: '+mean);
- const off=(seed)=>{const s=C.fleetUnit('s','dreadnaught',plain(P),1),x=craft('x','craft_xwing',0);s.order={...s.order,type:'hold',fire:false,autoPointDefense:false};x.pos=[3000,0,0];x.order={...x.order,type:'hold',fire:false};const B=C.fleetBattle([s,x],true);B.seed=seed;tick(B,T);return x.dead;};
- let offDown=0;for(let i=1;i<=40;i++)if(off(i*104729))offDown++;assert.equal(offDown,0,'point defence switched off downs nothing');
+// User decision 2026-11-19「点防御レーザーは航空機の固定レーザーと同じ計算にして」: point defence fires as guns do. What it puts out is the
+// power of its point-defence weapon modules; what lands follows the common gun hit chance; what lands works on the craft's field
+// and hull. There is no rate of kills.
+test('point defence fires at craft as guns do: nearer craft are hit more, craft out of reach or with point defence off are not hit',()=>{
+ const P=plain(F.designs.imperial.p),G=C.pointDefenseGuns({p:P});assert.ok(G.rate>0&&G.shot>0,'its point-defence modules give an output and a bolt: '+JSON.stringify(G));
+ const run=(seed,d,pd=true)=>{const s=C.fleetUnit('s','imperial',plain(P),1),x=craft('x','craft_xwing',0);s.order={...s.order,type:'hold',fire:false,autoPointDefense:pd};x.pos=[d,400,0];x.order={...x.order,type:'hold',fire:false};const B=C.fleetBattle([s,x],true);B.seed=seed;let t=0;for(;t<60&&!x.dead;t+=.25)C.fleetTick(B,.25);return x.dead?t:null;};
+ const time=d=>{let n=0;for(let i=1;i<=40;i++)n+=run(i*104729,d)??60;return n/40;},near=time(1500),far=time(6000);
+ assert.ok(near<far*.8,'a craft at 1.5 km is lost sooner than one at 6 km: '+near.toFixed(1)+' s against '+far.toFixed(1)+' s');assert.ok(near<30,'within half a minute at 1.5 km: '+near);
+ let out=0,off=0;for(let i=1;i<=20;i++){if(run(i*104729,C.MISSILE_FLIGHT.pdRange+P.len/2+800)!=null)out++;if(run(i*104729,1500,false)!=null)off++;}assert.equal(out,0,'out of reach');assert.equal(off,0,'point defence off');
 });
-
 test('a battle with no craft units draws nothing from the battle\'s random sequence for these rules',()=>{
  const run=()=>{const a=ship('a','cr90',0),f=ship('f','nebulonb',1);f.pos=[8000,0,0];f.yaw=Math.PI;a.order={...a.order,type:'attack',target:'f',fire:true};f.order={...f.order,type:'attack',target:'a',fire:true};const B=C.fleetBattle([a,f],true);B.seed=11;tick(B,60);return B;};
  const B=run();assert.ok(!B.events.some(e=>/撃墜/.test(e.text)));
