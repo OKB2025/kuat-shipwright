@@ -86227,7 +86227,7 @@ const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.3
 // A craft that keeps its distance or its speed up is hit less; there is no rate of kills. Each fire-control channel takes one
 // craft, the nearest first.
 // User decision 2026-11-19「点防御の出力を下げて」: against craft the point-defence guns put out POINT_DEFENSE.output of their modules' power.
-const FLAK=Object.freeze({radius:60,couple:2e-9});
+const FLAK=Object.freeze({radius:60,couple:2e-11});/* a burst of an Imperial-class bolt (15 TT) gives a craft 3e-10 TT, a twentieth of a craft's laser bolt: with 60 m nearly every bolt bursts near its target inside 10 km (7% at 39 km), so the fire wears craft down over the run in instead of downing them at a stroke (measured 2026-11-19; with 2e-9 a hundred bursts a second each broke a field) */
 const POINT_DEFENSE=Object.freeze({hit:.85,output:.08/* 「点防御の能力はもう少し強くしていい」(2026-11-19): were .7 and .05 */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
