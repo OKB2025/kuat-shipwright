@@ -1,0 +1,15 @@
+fleet action with craft: Rebel mc75, mc80liberty, nebulonb, nebulonb, cr90 against Imperial imperial, imperial; 80 km apart at the start; the ships attack the nearest effective enemy ship and a fleet that judges it can win presses to 3000 m; 160 km above a planet of 6,120 km
+craft (the ships' stored wings x 1, commanded by Core.fleetAirStep; in the air beside their ship as its air control allows; the launch is not flown; nobody re-arms): Rebel 24 xwing (fighter, 7 rounds each), 18 ywing (bomber, 10 rounds each), 12 awing (fighter, 1 rounds each); Imperial 96 tie_ln (fighter, 0 rounds each), 24 tie_in (fighter, 2 rounds each), 24 tie_sa (bomber, 6 rounds each)
+rounds: itorp 0.0895 TT (3.14 t), cmsl 0.0471 TT (3.14 t), bomb 0.1885 TT (6.28 t); tactic {} (suppression and dive bombing are used when they apply unless switched off); 1 runs, limit 60 s
+
+run 1: ended 60s (193 units, 62 s to compute) | undecided at the limit; effective ships left: Rebel 4/5, Imperial 2/2 | ships' guns first fired on a ship at 39s, 39.5 km
+ Rebel craft lost: xwing 13/24 (6 of them struck by own point defence), ywing 0/18 | squadrons sent up 4/5 | rounds: carried 348, released at ships 0 (hit 0.0), of them bombs let go in a dive 0 by 0 bombers, fired at craft 72 (hit 12.0), shot down 0.0, lost with their craft 91 | went in after the sensors at 47.75s
+   mc75 in action; lift 100%; sections lost 0; out of action: engines 0/14, bridge 0/2, guns 0/34, sensors 0/0
+   mc80liberty in action; lift 100%; sections lost 0; out of action: engines 0/11, bridge 0/2, guns 0/18, sensors 0/0
+   nebulonb in action; lift 100%; sections lost 0; out of action: engines 0/14, bridge 0/1, guns 0/5, sensors 0/0
+   nebulonb in action; lift 100%; sections lost 0; out of action: engines 0/14, bridge 0/1, guns 0/5, sensors 0/0
+   cr90 LOST at 39.25s; lift 89%; sections lost 2; out of action: engines 15/22, bridge 0/1, guns 3/6, sensors 0/0
+ Imperial craft lost: tie_ln 7/96, tie_in 0/24, tie_sa 0/24 | squadrons sent up 12/12 | rounds: carried 192, released at ships 0 (hit 0.0), of them bombs let go in a dive 0 by 24 bombers, fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/1, guns 0/29, sensors 0/3
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/1, guns 0/29, sensors 0/3
+ pressing for a decision: 0s Imperial presses for a decision

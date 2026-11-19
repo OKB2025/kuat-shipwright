@@ -84,10 +84,15 @@ test('idle does not command a powered brake or a main-engine plume',()=>{
  const u=setup({tele:1,velocity:[100,20,-5]});run('trialStep(.1)');near(u.propulsion.actualInputW,0);near(u.propulsion.actualThrustN,0);near(run('trialMainOutput()'),0);near(run('trial.thrust'),0);assert.ok(run('trial.V[0]')<100&&run('trial.V[0]')>0,'the small mass has only its passive resistance, not full reverse thrust');assert.ok(run('trial.P[0]')>10000);
 });
 
-test('known large and small unpowered vessels both follow the same calibrated mass resistance',()=>{
- const start=[100,20,-5];setup({supply:0,massKg:1e11,referenceMassKg:1e6,maxSpeed:1e6,tele:1,velocity:start});run('trial.P=[1e14,0,0];trialStep(10)');const heavy=plain(run('trial.V')),position=plain(run('trial.P'));
- for(let i=0;i<3;i++){assert.ok(Math.abs(heavy[i])<Math.abs(start[i])*.95);assert.equal(Math.sign(heavy[i]),Math.sign(start[i]),'resistance cannot reverse velocity');}assert.ok(position[0]>1e14&&position[1]>0&&position[2]<0);
- setup({supply:0,massKg:1e4,referenceMassKg:1e6,maxSpeed:1e6,tele:1,velocity:start});run('trial.P=[1e14,0,0];trialStep(10)');for(let i=0;i<3;i++){const k=rate(1e4),e=Math.exp(-k*10),fall=i===0?-C.HULL_FALL.g*(1-e)/k:0;near(run(`trial.V[${i}]`),start[i]*e+fall,'small-craft disabled drift');assert.ok(Math.abs(run(`trial.V[${i}]`))>Math.abs(heavy[i]));}
+// 2026-11-19 expectation changed with the user decision「他の艦に合わせる」(asked: the ship being flown kept its mass resistance
+// without power while every other ship falls freely): a hull without power falls freely as its repulsorlift fades (C.liftStep,
+// GRAVITY.liftFade), under the planet's gravity alone, whatever its mass. Before, this case expected the mass resistance and
+// HULL_FALL.g on a disabled hull. The resistance on ships under way is still covered by the cases around this one.
+const freeFall=(start,P,dt)=>{const lift=1-dt/C.GRAVITY.liftFade,g=C.planetGravity({center:[0,0,0],radius:0},P);return start.map((v,i)=>v+g[i]*(1-lift)*dt);};
+test('large and small vessels without power fall freely alike, without the resistance of a ship under way',()=>{
+ const start=[100,20,-5],P=[1e14,0,0],want=freeFall(start,P,10);
+ for(const massKg of [1e11,1e4]){setup({supply:0,massKg,referenceMassKg:1e6,maxSpeed:1e6,tele:1,velocity:start});run('trial.P=[1e14,0,0];trialStep(10)');const v=plain(run('trial.V')),position=plain(run('trial.P'));
+  for(let i=0;i<3;i++)near(v[i],want[i],'free fall, mass '+massKg);assert.ok(position[0]>1e14&&position[1]>0&&position[2]<0);}
 });
 
 test('weapon priority cannot preserve a heavy vessel speed using an unfunded throttle command',()=>{
@@ -100,8 +105,8 @@ test('power mode commands cannot override the fixed systems, weapons, navigation
  for(const mode of['weapons','shields','overload']){run("trialCommand('pmode:"+mode+"');trialSetThrottle(.373);trialStep(.1)");near(run('trialThrottleCommand()'),.373);near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);}
 });
 
-test('thermal blackout suppresses engine output and steering while mass resistance remains active',()=>{
- const u=setup({massKg:1e11,velocity:[100,10,0],thermal:false});run('trial.stickX=1;trialStep(.5)');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.deepEqual(plain(run('trial.w')),[0,0,0]);assert.ok(run('trial.V[0]')<100&&run('trial.V[1]')<10);
+test('thermal blackout suppresses engine output and steering; the hull falls freely',()=>{
+ const u=setup({massKg:1e11,velocity:[100,10,0],thermal:false});run('trial.stickX=1;trialStep(.5)');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.deepEqual(plain(run('trial.w')),[0,0,0]);{const want=freeFall([100,10,0],plain(run('trial.P')).map((x,i)=>x-run('trial.V')[i]*.5),.5);for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),want[i],'2026-11-19: a blacked-out hull falls freely (it kept its mass resistance before the decision above)');}
 });
 
 test('steering-only power is not rendered as forward main-engine thrust',()=>{

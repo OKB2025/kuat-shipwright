@@ -54,7 +54,14 @@ test('legacy fleet troops become visible editable ground rows and cannot reappea
 test('combat strength counts only currently assigned friendly squadrons rather than a design capacity',()=>{
  const d=plain(D.venator),profile=plain(d.p),core=C.fleetUnit('plain','venator',profile,0),body=C.fleetUnit('body','venator',{...profile,slots:0,embarkedSlots:0,aviationSize:0},0);assert.equal(R.unitStrength(core),R.unitStrength(body));
  const make=n=>R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[d],sides:[{faction:'republic',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'venator',air:n?[{craft:'xwing',n}]:[]}],[]]}),emptyWorld=make(0),loaded=make(4),u=[...loaded.units.values()][0],emptyUnit=[...emptyWorld.units.values()][0],s=[...loaded.squads.values()][0],base=R.unitStrength(emptyUnit);
- const per=4*(C.fleetSystems(u).hangar??1);assert.ok(Math.abs(R.unitStrength(u)-base-4*per)<1e-8);s.n=2;assert.ok(Math.abs(R.unitStrength(u)-base-2*per)<1e-8);s.side=1;assert.ok(Math.abs(R.unitStrength(u)-base)<1e-8,'captured ships must not count the old side aircraft');s.side=0;s.state='lost';assert.ok(Math.abs(R.unitStrength(u)-base)<1e-8);assert.equal(R.unitStrength(emptyUnit),base,'separate worlds must not share the unit-to-world association');
+ // 2026-11-19 fixture changed: the loaded ship's own strength without craft (hull) is read from a plain unit of the loaded
+ // profile instead of from the empty world's ship. With the v30 damage model the ship-wide hp is retired and Rts.unitStrength
+ // measures the hull by C.hullBulk(p), i.e. by p.propulsion.massKg (js/core.js hullBulk, "v30 The bulk of a hull for estimates of
+ // strength"; docs/damage-penetration.md), and the loaded ship's mass includes the four embarked X-wings (measured: +92 t,
+ // +0.0024 in strength). The craft term is still checked exactly against assigned squadrons, and the empty world against
+ // its own base.
+ const hull=R.unitStrength(C.fleetUnit('hull','venator',plain(u.p),0));
+ const per=4*(C.fleetSystems(u).hangar??1);assert.ok(Math.abs(R.unitStrength(u)-hull-4*per)<1e-8);s.n=2;assert.ok(Math.abs(R.unitStrength(u)-hull-2*per)<1e-8);s.side=1;assert.ok(Math.abs(R.unitStrength(u)-hull)<1e-8,'captured ships must not count the old side aircraft');s.side=0;s.state='lost';assert.ok(Math.abs(R.unitStrength(u)-hull)<1e-8);assert.equal(R.unitStrength(emptyUnit),base,'separate worlds must not share the unit-to-world association');
 });
 
 test('fleet stow calculations still accept explicit manifests without storing them in a hull',()=>{

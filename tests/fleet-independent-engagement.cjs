@@ -8,6 +8,11 @@ function fixture(n=2,sensors=false){const p=profile(),designs=[{key:'own',name:'
  for(const group of w.groups.values()){group.sys=sys;group.inbound=null;group.order={type:'hold'};}
  for(const [i,u]of own.entries()){u.sys=sys;u.pos=[0,0,i?6000:-6000];u.yaw=0;u.velocity=[0,0,0];u.warp=null;u.jump=null;u.order={type:'group',fire:true,power:'balanced',aim:'auto',volley:'stream'};}
  for(const [i,u]of foe.entries()){u.sys=sys;u.pos=[12000,0,i?6000:-6000];u.yaw=Math.PI;u.velocity=[0,0,0];u.warp=null;u.jump=null;u.manual=true;u.order={type:'hold',fire:false,power:'balanced',aim:'auto'};}
+ // 2026-11-19 fixture changed: the targets' sections are made a million times sturdier, as in tests/dual-purpose-weapons.cjs.
+ // The profile's hp:1e9 no longer keeps them afloat: with the v30 section damage (u.hp retired; docs/damage-penetration.md,
+ // docs/handoff-2026-11-19/README.md) the 100 TT/s fixture guns sink a target in the first 0.25 s tick (measured), after
+ // which the ships retarget and the order-precedence checks below read a different target. The targeting rules are unchanged.
+ for(const u of foe)for(const x of u.sec){x.max*=1e6;x.s=x.max;}
  return {w,own,foe,g,sys};
 }
 const tick=(f,n=1)=>{for(let i=0;i<n;i++)R.tick(f.w,.25);};

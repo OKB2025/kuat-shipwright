@@ -638,6 +638,8 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
  for(let i=1;i<cols;i++)box(g,M,o,0,0,-W/2+i*cw,L,H-t*2,t,FC.ring);
  for(let r=0;r<=rows;r++)box(g,M,o,L/2+.005,C.clamp(-H/2+r*ch,-(H-t)/2,(H-t)/2),0,.02,t,W,FC.ring);
  for(let c=0;c<=cols;c++)box(g,M,o,L/2+.005,0,C.clamp(-W/2+c*cw,-(W-t)/2,(W-t)/2),.02,H-t*2,t,FC.ring);
+ // User instruction 2026-11-19「VLSの蓋はSTLどおり円形」: a heavy cell's launch mouth has a round cover, as the source model's tubes have.
+ if(p.heavy){const r=Math.min(ch,cw)*.42,fwd=p.bodyFrame.fw;for(const m of p.muzzles)axisFrustum(g,C.add(m,C.mul(fwd,-.25)),C.add(m,C.mul(fwd,.05)),r,r,FC.dark,true,false,16);}
  if(!p.embedded&&p.supportHeight>0&&p.baseThickness>0){
   const rt=p.bodyFrame.rt,fw=C.norm(C.cross(p.baseFrame.up,rt)),B=[...fw,...p.baseFrame.up,...rt],base=p.baseOrigin,th=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,base),p.baseFrame.up),height=Math.max(0,pivotY-th);
   box(g,B,base,0,th/2,0,L*.5,th,W*1.35,FC.ped);

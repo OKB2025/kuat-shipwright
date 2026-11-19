@@ -1,3 +1,6 @@
+// 2026-11-19 expectation changed: module.tt 25 -> C.ORDNANCE.cmsl.tt. User decision「古い表も揃えて」(docs/damage-penetration.md,
+// 7th section C): the concussion missile's yield is the air missile's (1 m by 4 m, half warhead, 0.03 TT a tonne: 0.0471 TT),
+// as already changed in tests/missile-launcher-geometry.cjs and missile-launcher-runtime.cjs. The orphan/seating checks are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -21,7 +24,7 @@ test('a full unrelated armor ledger cannot disable a manually seated legacy pod'
   assert.equal(f.float,false,'the actual deck, rather than unrelated face-ledger capacity, determines whether this ordinary pod is seated');
   assert.equal(f.surfacePatch,undefined);assert.equal(C.isSurfaceVLS(f),false);assert.equal(C.missileCells(ship).length,0,'external pod ammunition does not require an automatic below-deck VLS cell');assert.equal(C.missileLauncherSpec(f).ammo,6);
   const stats=C.computeStats(ship),modules=C.fleetModules(ship,stats);
-  assert.ok(stats.mslSalvo>0);const module=modules.find(m=>m.fit===10&&m.k==='launcher');assert.ok(module);assert.equal(module.stock,6);assert.equal(module.missileKind,'cmsl');assert.equal(module.tt,25);assert.ok(module.muzzle.every(Number.isFinite));for(const value of [stats.mass,stats.cost])assert.ok(Number.isFinite(value)&&value>0);
+  assert.ok(stats.mslSalvo>0);const module=modules.find(m=>m.fit===10&&m.k==='launcher');assert.ok(module);assert.equal(module.stock,6);assert.equal(module.missileKind,'cmsl');assert.equal(module.tt,C.ORDNANCE.cmsl.tt);assert.ok(module.muzzle.every(Number.isFinite));for(const value of [stats.mass,stats.cost])assert.ok(Number.isFinite(value)&&value>0);
   const saved=plain(C.serialize(ship)),row=saved.fits.find(f=>f.id===10);assert.ok(row,'saving must retain the launcher');
   assert.equal(row.k,'cmsl');assert.equal(row.surfacePatch,undefined);assert.equal(C.fitSpec(row).mass,C.FITS.cmsl.mass);
   ship=C.deserialize(saved);C.remount(ship);assert.deepEqual(plain(C.serialize(ship)),saved,'an ordinary reload and remount does not duplicate or move the pod or armor ledger');

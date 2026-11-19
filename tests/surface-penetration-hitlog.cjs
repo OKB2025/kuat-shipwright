@@ -7,13 +7,20 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});const C=vm.runInContext('Core',cx);
 function fixture(thickness){const s=C.newShip({L:240,W:120,H:60,plan:'rect',sec:'rect'},'Penetration record');s.parts=[{id:1,k:'gen',c:[100,20,0],d:10}];s.fits=[];s.nextId=2;C.enableSurfaceMode(s,true);for(const p of C.surfacePatches(s))C.setSurfaceConfig(s,p.id,{armor:{thickness}});return s;}
 function unit(s){const S=C.computeStats(s),p=C.fleetProfile(S,s.name,s),u=C.fleetUnit('target','target',p,0);u.pos=[0,0,0];u.yaw=0;return u;}
+// 2026-11-19 fixture changed: the shot quantum is the one combatResolve itself uses, C.hullBreakTT(p)*C.COMBAT.quantum
+// (js/core.js combatResolve), instead of max(1, p.hp*quantum). With the v30 damage model the ship-wide hp is retired and what
+// it takes to break the hull comes from its sections' volume and density (docs/damage-penetration.md, docs/handoff-2026-11-19/
+// README.md); profile.hp is a stale figure that combat no longer reads, and its quantum (16.7 TT here) was 1.6e7 times the
+// real one. The stopped shot in the second test was 1 TT, which an 8 m plate no longer stops (it absorbs about 4.5e-4 TT
+// under the same model); one quantum (about 4e-5 TT for that hull) is still stopped. The record rules being tested are unchanged.
+function quantum(u){return C.hullBreakTT(u.p)*C.COMBAT.quantum;}
 function topPoints(u,n,any=false){return u.p.surface.patches.filter(q=>q.exposed&&(any||q.normal[1]>.9)).slice(0,n).map(q=>q.center.slice());}
 function shoot(u,points,E){const o=C.combatIncoming();o.direct=E*points.length;o.by.shooter=E*points.length;o.face[4]=1;o.hits=points.map(point=>({point,direct:E}));const calls=[];
  const ctx={time:12.34,damage:1,rand:()=>.5,ev(){},out(){},sunk(){},hit:(v,rec)=>calls.push([v,rec])};C.combatResolve(ctx,u,o,.25,C.fleetSystems(u));return calls;}
 
 test('a shot through surface armour leaves a replay record and calls ctx.hit',()=>{
  const u=unit(fixture(0)),[point]=topPoints(u,1);assert.ok(point,'an exposed top patch');assert.ok(u.p.surface.patches.length>0);assert.equal(u.hitLog.length,0);
- const Q=Math.max(1,u.p.hp*C.COMBAT.quantum),calls=shoot(u,[point],Q*4);
+ const Q=quantum(u),calls=shoot(u,[point],Q*4);
  assert.equal(u.hitLog.length,1,'one penetration recorded');assert.equal(calls.length,1,'ctx.hit called once');
  const rec=u.hitLog[0];assert.equal(calls[0][0],u);assert.equal(calls[0][1],rec);
  // What hitcamDraw / voyHitText / voyClock read.
@@ -23,12 +30,12 @@ test('a shot through surface armour leaves a replay record and calls ctx.hit',()
 });
 
 test('a shot stopped by surface armour leaves no record',()=>{
- const u=unit(fixture(8)),[point]=topPoints(u,1),calls=shoot(u,[point],1);
+ const u=unit(fixture(8)),[point]=topPoints(u,1),calls=shoot(u,[point],quantum(u))/* 2026-11-19 expectation changed: was 1 TT, see quantum() */;
  assert.equal(u.surfaceLastHit?.handled,true);assert.equal(u.surfaceLastHit.remaining,0,'absorbed');assert.equal(u.hitLog.length,0);assert.equal(calls.length,0);
 });
 
 test('at most three penetrations are recorded per resolve and the log keeps the last 24',()=>{
- const u=unit(fixture(0)),pts=topPoints(u,5,true),Q=Math.max(1,u.p.hp*C.COMBAT.quantum);assert.equal(pts.length,5);
+ const u=unit(fixture(0)),pts=topPoints(u,5,true),Q=quantum(u);assert.equal(pts.length,5);
  assert.equal(shoot(u,pts,Q).length,3);assert.equal(u.hitLog.length,3);
  for(let i=0;i<10;i++)shoot(u,pts,Q);assert.equal(u.hitLog.length,24);
 });
@@ -37,7 +44,12 @@ test('at most three penetrations are recorded per resolve and the log keeps the 
 function boxUnit(){const s=C.newShip({L:240,W:120,H:60,plan:'rect',sec:'rect'},'Box armour');s.parts=[{id:1,k:'gen',c:[100,20,0],d:10},{id:2,k:'gen',c:[120,20,0],d:10},{id:3,k:'gen',c:[140,20,0],d:10}];s.fits=[];s.nextId=4;return unit(s);}
 test('a box-armour penetration records thick from the zone, at most three per resolve, one ctx.hit each',()=>{
  const u=boxUnit();assert.ok(!(u.p.surface?.patches?.length),'fixture has no surface patches');
- const Q=Math.max(1,u.p.hp*C.COMBAT.quantum),o=C.combatIncoming();o.direct=Q*200;o.by.shooter=Q*200;o.face[4]=1;o.aim={auto:1};
+ // 2026-11-19 fixture changed: the target's sections are made a million times sturdier, as in tests/dual-purpose-weapons.cjs.
+ // Under the v30 section damage (u.hp retired, docs/damage-penetration.md) the first penetration of this unarmoured 240 m box
+ // breaks a section and sinks it (measured: dead after one record), and a dead ship takes no further penetrations, so the
+ // three-record cap could never be reached. The cap and the record contents are what this test checks; they are unchanged.
+ for(const x of u.sec){x.max*=1e6;x.s=x.max;}
+ const Q=quantum(u),o=C.combatIncoming();o.direct=Q*200;o.by.shooter=Q*200;o.face[4]=1;o.aim={auto:1};
  const calls=[],ctx={time:3.21,damage:1,rand:()=>.5,ev(){},out(){},sunk(){},hit:(v,rec)=>calls.push([v,rec])};
  C.combatResolve(ctx,u,o,.25,C.fleetSystems(u));
  assert.equal(u.hitLog.length,3,'capped at three records per resolve');assert.equal(calls.length,3,'ctx.hit once per record');
@@ -47,6 +59,6 @@ test('a box-armour penetration records thick from the zone, at most three per re
 });
 
 test('a surface remnant too small to reach a module is not recorded',()=>{
- const u=unit(fixture(0)),[point]=topPoints(u,1),Q=Math.max(1,u.p.hp*C.COMBAT.quantum),calls=shoot(u,[point],Q*.01);
+ const u=unit(fixture(0)),[point]=topPoints(u,1),Q=quantum(u),calls=shoot(u,[point],Q*.01);
  assert.equal(u.surfaceLastHit?.handled,true);assert.ok(u.surfaceLastHit.remaining>0,'it did get through');assert.equal(u.hitLog.length,0);assert.equal(calls.length,0);
 });

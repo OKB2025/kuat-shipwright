@@ -87,5 +87,8 @@ test('the RTS result clock finishes the physical laser without moving ships, cha
 
 test('an RTS beam continues after its local battle closes and still hits the nearest physical hull',()=>{
  const {R,w,u}=worldBeam(),t=R.makeUnit(w,0,{key:'friendly-test',p:target('friendly',[0,0,0],0).p,info:{mass:100,crew:0}},'Friendly obstruction',null);t.sys=0;t.pos=[10000,0,0];t.order={type:'hold',fire:false};t.maneuver=0;
- const initial=t.hp;assert.equal(R.step(w,9),36);assert.equal(w.result,null);assert.equal(w.battles.size,0);assert.equal(u.sw[0].st,'cool');assert.equal(u.sw[1].st,'ready');near(u.weaponLedger.emittedJ,125000*C.TT);assert.equal(w.swShots.length,36);assert.ok(w.swShots.every(sh=>sh.to.length===1&&sh.to[0]===t.id));assert.ok(t.hp<initial,'quiet-system hull receives the continuing laser');conserved(u);
+ // 2026-11-19 expectation changed: the hull's state is read as the sum of its sections' structure (sec.s) instead of t.hp, as
+ // in tests/fleet-missiles-arrive.cjs. With the v30 damage model the ship-wide u.hp is retired (docs/damage-penetration.md,
+ // docs/handoff-2026-11-19/README.md); damage now lands on the sections, and t.hp no longer changes when the laser hits.
+ const hullOf=x=>x.sec.reduce((n,q)=>n+q.s,0),initial=hullOf(t);assert.equal(R.step(w,9),36);assert.equal(w.result,null);assert.equal(w.battles.size,0);assert.equal(u.sw[0].st,'cool');assert.equal(u.sw[1].st,'ready');near(u.weaponLedger.emittedJ,125000*C.TT);assert.equal(w.swShots.length,36);assert.ok(w.swShots.every(sh=>sh.to.length===1&&sh.to[0]===t.id));assert.ok(hullOf(t)<initial,'quiet-system hull receives the continuing laser');conserved(u);
 });

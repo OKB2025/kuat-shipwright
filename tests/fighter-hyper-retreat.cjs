@@ -52,8 +52,12 @@ test('custom aircraft use their own measured drive while drive-less blueprints c
  assert.equal(r.yes,1.75);assert.equal(r.no,'lost');assert.equal(r.live,4);
 });
 test('the battle continues and point defence can hit fighters while they spool after the last carrier departs',()=>{
+ // 2026-11-19 expectation changed: one more 0.25 s tick after leave() before reading the craft's damage. Measured only
+ // (the cause was not traced in the code): in this fixture the first anti-air damage lands at t=1.75 s, while leave()
+ // returns at t=1.5 s with hurt=0, on main e8d3dfe as well as on this branch, and the squadron is still spooling then.
+ // The checks themselves (battle continues, carrier away, phase 'spool', hurt > 0, no dogfight) are unchanged.
  const r=run(`(()=>{const designs=['mc80home','imperial'].map(k=>JSON.parse(JSON.stringify(YardFleetData.designs[k]))),w=Rts.createWorld({mode:'test',region:'kuat',seed:17,designs,sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mc80home',air:[{craft:'xwing',n:6}]}],[{design:'imperial'}]]}),home=[...w.units.values()].find(u=>u.side===0),enemy=[...w.units.values()].find(u=>u.side===1),g=w.groups.get(home.group),s=[...w.squads.values()][0],from=home.sys,edge=w.sector.edges[w.sector.systems[from].links[0]],to=edge.a===from?edge.b:edge.a;
- home.warp=null;home.velocity=[0,0,0];Rts.orderUnit(w,home.id,{type:'hold'});s.state='out';s.pos=[home.pos[0]+1000000,5000,home.pos[2]];s.h=[1,0,0];s.ops=null;enemy.sys=from;w.groups.get(enemy.group).sys=from;enemy.pos=[s.pos[0],s.pos[1],s.pos[2]+4000];enemy.warp=null;enemy.p={...enemy.p,aa:50,aaArcs:[50,50,50,50,50,50],aaCh:50};Rts.orderUnit(w,enemy.id,{type:'hold'});leave({w,home,g,from,to});return {battle:w.battles.has(from),motherAway:home.sys===null,phase:s.follow?.phase,hurt:s.hurt+(s.lostN||0),fire:s.dogfight===w.time};})()`);
+ home.warp=null;home.velocity=[0,0,0];Rts.orderUnit(w,home.id,{type:'hold'});s.state='out';s.pos=[home.pos[0]+1000000,5000,home.pos[2]];s.h=[1,0,0];s.ops=null;enemy.sys=from;w.groups.get(enemy.group).sys=from;enemy.pos=[s.pos[0],s.pos[1],s.pos[2]+4000];enemy.warp=null;enemy.p={...enemy.p,aa:50,aaArcs:[50,50,50,50,50,50],aaCh:50};Rts.orderUnit(w,enemy.id,{type:'hold'});leave({w,home,g,from,to});Rts.tick(w,.25);return {battle:w.battles.has(from),motherAway:home.sys===null,phase:s.follow?.phase,hurt:s.hurt+(s.lostN||0),fire:s.dogfight===w.time};})()`);
  assert.equal(r.battle,true);assert.equal(r.motherAway,true);assert.equal(r.phase,'spool');assert.ok(r.hurt>0);assert.equal(r.fire,false);
 });
 test('resupply waits for split cohorts to rejoin and then replaces casualties without reusing reserved aircraft IDs',()=>{

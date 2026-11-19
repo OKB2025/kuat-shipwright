@@ -1,0 +1,53 @@
+// A fleet action with craft, AI against AI (user decision 2026-11-19「ISD×2 vs MC-75、MC-80、ネピュロンB×2、CR-90 あたりで航空機も含めた
+// 艦隊戦を行ってみて」「制空、迎撃、直掩を各艦隊が判断して編隊を送り込む形」).
+// usage: node scripts/sim-fleet-air.cjs [runs=3]
+//   KS_WING=1      share of each ship's stored air wing that flies (0 = no craft: the ships alone, for a comparison)
+//   KS_START=80000 distance between the fleets at the start, m
+//   KS_PRESS=0     the fleets never press for a decision (they fight from their stand-off)
+//   KS_SUPPRESS=0  no fighters sent at the target's sensors first;  KS_DIVE=0  no dive bombing;  TIE=zone  interceptors leave
+//                  bombers near an own ship to its point defence
+//   KS_PLANET=0    no planet (no gravity, no dive bombing);  KS_LIMIT=900  seconds
+// Since 2026-11-19 the wings are commanded by the game's own code (Core.fleetAirSetup / fleetAirStep, run inside fleetTick):
+// air control, the fighters' tasks, the bombers' routes, suppression, dive bombing, loads and releases. This script only sets
+// the action up, gives the ships their orders as the fleet battle's AI does (each attacks the nearest effective enemy ship; a
+// fleet that judges it can win presses), and reports. The craft start beside their ship: the launch is not flown. Nobody re-arms.
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
+for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx),plain=x=>JSON.parse(JSON.stringify(x));
+const RUNS=+(process.argv[2]||3),WING=+(process.env.KS_WING??1),START=+(process.env.KS_START||80000),LIMIT=+(process.env.KS_LIMIT||900),STEP=.25,PRESSAI=process.env.KS_PRESS!=='0';
+const PLANET=process.env.KS_PLANET==='0'?null:{center:[0,-(6.12e6+160000),0],radius:6.12e6},TACTIC={...(process.env.KS_SUPPRESS==='0'?{suppress:false}:{}),...(process.env.KS_DIVE==='0'?{dive:false}:{}),...(process.env.TIE==='zone'?{zone:true}:{})};
+const FLEETS=[['mc75','mc80liberty','nebulonb','nebulonb','cr90'],['imperial','imperial']],NAMES=['Rebel','Imperial'];
+const profiles={};for(const r of Object.values(C.FLEET_AIR.roles)){const xs=C.buildDesign(r.key),S=C.computeStats(xs);profiles[r.key]={p:C.fleetProfile(S,xs.name,xs),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
+function run(seed){
+ const ships=[[],[]],all=[],wings=[];
+ FLEETS.forEach((keys,team)=>keys.forEach((key,i)=>{const u=C.fleetUnit('s'+team+'_'+i,key,plain(F.designs[key].p),team);u.pos=[(team?1:-1)*START/2,0,(i-(keys.length-1)/2)*2500];u.yaw=team?Math.PI:0;ships[team].push(u);all.push(u);for(const w of F.designs[key].air||[])if(C.FLEET_AIR.roles[w.type])wings.push({home:u.id,type:w.type,count:Math.round(w.count*WING)});}));
+ const B=C.fleetBattle(all,true);B.seed=seed;C.fleetAirSetup(B,wings,profiles,{tactic:[TACTIC,TACTIC]});
+ const st={press:[false,false],pressLog:[],shipOut:{},firstGun:null,firstRelease:[null,null],rounds:new Set()},eff=u=>!u.dead&&!u.out&&C.fleetEffective(u),up=u=>!u.dead;let t=0,lastJudge=-1e9;
+ for(;t<LIMIT;t+=STEP){
+  if(t-lastJudge>=C.FLEET_AIR.every-1e-9){lastJudge=t;for(const team of [0,1]){const on=PRESSAI&&C.fleetPressJudge(ships[team],ships[1-team],st.press[team]);if(on!==st.press[team])st.pressLog.push(`${t}s ${NAMES[team]} ${on?'presses for a decision':'falls back to its stand-off'}`);st.press[team]=on;}}
+  for(const team of [0,1])for(const s of ships[team]){if(s.dead||s.out||C.bridgeLost(s))continue;const foes=ships[1-team].filter(up),live=foes.filter(eff),q=C.fleetTargetCandidates(s,live.length?live:foes,Infinity,null,false)[0]?.target;s.order={type:q?'attack':'hold',target:q?.id,fire:true,launch:false,power:'auto',aim:'auto',autoPointDefense:true,...(st.press[team]?{press:true}:{})};}
+  const shots=C.fleetTick(B,STEP,PLANET?{planet:PLANET}:{});
+  for(const m of B.missiles||[])if(!st.rounds.has(m)){st.rounds.add(m);m.sent=m.n;const tgt=B.units.find(u=>u.id===m.target);if(tgt&&!C.craftUnit(tgt))st.firstRelease[m.team]??=t;}
+  if(!st.firstGun)for(const q of shots){const a=B.units.find(u=>u.id===q.from),z=B.units.find(u=>u.id===q.to);if(a&&z&&!C.craftUnit(a)&&!C.craftUnit(z)&&q.gun>0){st.firstGun={t,d:C.len(C.sub(a.pos,z.pos))};break;}}
+  for(const team of [0,1])for(const s of ships[team])if(!st.shipOut[s.id]&&(s.dead||s.out))st.shipOut[s.id]={t,why:s.dead?(s.fate==='fall'?'fell':'lost'):s.out};
+  const left=[0,1].map(k=>ships[k].some(eff));if(!left[0]||!left[1])break;
+ }
+ const craft=B.units.filter(u=>u.sortie),byId=new Map(B.units.map(u=>[u.id,u]));
+ const tally=team=>{const by={};for(const u of craft)if(u.team===team){const r=by[u.sortie.type]||(by[u.sortie.type]={n:0,lost:0,ff:0});r.n++;if(u.dead)r.lost++;if(u.dead&&u.ffTaken>0)r.ff++;}return by;};
+ const rd=team=>{const mine=[...st.rounds].filter(m=>m.team===team),atShip=m=>{const x=byId.get(m.target);return x&&!C.craftUnit(x);},sum=f=>mine.reduce((s,m)=>s+(f(m)||0),0);return {carried:craft.filter(u=>u.team===team).reduce((s,u)=>s+(u.sortie.carried||0),0),atShips:sum(m=>atShip(m)?m.sent:0),atCraft:sum(m=>atShip(m)?0:m.sent),hitShips:sum(m=>atShip(m)?m.hit:0),hitCraft:sum(m=>atShip(m)?0:m.hit),downed:sum(m=>m.downed),lostWithCraft:craft.filter(u=>u.team===team&&u.dead).reduce((s,u)=>s+u.sortie.stores.length,0),dives:B.air.log.dives[team],bombs:sum(m=>m.ballistic?m.sent:0)};};
+ const shipLine=s=>{const off=new Set((s.ionOff||[]).map(x=>x.i)),gone=k=>{const ms=s.p.modules.map((m,i)=>({m,i})).filter(q=>q.m.k===k&&!q.m.pd);return ms.filter(q=>!(s.mods[q.i]>0)).length+(ms.some(q=>off.has(q.i))?'(+'+ms.filter(q=>off.has(q.i)&&s.mods[q.i]>0).length+' shut down)':'')+'/'+ms.length;},o=st.shipOut[s.id];
+  return `${s.key} ${s.dead?(s.fate==='fall'?'FELL (lift gone)':'LOST'):s.out?'OUT ('+s.out+')':C.bridgeLost(s)?'in action without its bridge':'in action'}${o?' at '+o.t+'s':''}; lift ${Math.round((s.lift??1)*100)}%; sections lost ${s.secLost?.length||0}; out of action: engines ${gone('engine')}, bridge ${gone('bridge')}, guns ${gone('weapon')}, sensors ${gone('sensor')}`;};
+ const left=[0,1].map(k=>ships[k].filter(eff).length),sq=team=>{const q=B.air.squadrons.filter(x=>x.team===team);return `${q.filter(x=>x.out).length}/${q.length}`;};
+ return {t,winner:left[0]&&left[1]?'undecided at the limit':left[0]?'Rebel fleet':left[1]?'Imperial fleet':'neither',left,firstGun:st.firstGun,craft:[tally(0),tally(1)],rounds:[rd(0),rd(1)],pressLog:st.pressLog,firstRelease:st.firstRelease,ships:[ships[0].map(shipLine),ships[1].map(shipLine)],units:B.units.length,sq:[sq(0),sq(1)],commit:[0,1].map(k=>B.air.commit[k])};
+}
+const wingOf=team=>{const by={};for(const key of FLEETS[team])for(const w of F.designs[key].air||[])if(C.FLEET_AIR.roles[w.type])by[w.type]=(by[w.type]||0)+Math.round(w.count*WING);return Object.entries(by).map(([k,v])=>{const r=C.FLEET_AIR.roles[k];return `${v} ${k} (${r.job}, ${C.fleetAirLoad(profiles[r.key].liftSpare,r.job==='bomber'?C.FLEET_AIR.kinds:[C.FLEET_AIR.kinds[1]]).length} rounds each)`;}).join(', ')||'no craft';};
+console.log(`fleet action with craft: Rebel ${FLEETS[0].join(', ')} against Imperial ${FLEETS[1].join(', ')}; ${START/1000} km apart at the start; the ships attack the nearest effective enemy ship${PRESSAI?' and a fleet that judges it can win presses to '+C.PRESS.range+' m':''}; ${PLANET?'160 km above a planet of 6,120 km':'no planet'}`);
+console.log(`craft (the ships' stored wings x ${WING}, commanded by Core.fleetAirStep; in the air beside their ship as its air control allows; the launch is not flown; nobody re-arms): Rebel ${wingOf(0)}; Imperial ${wingOf(1)}`);
+console.log(`rounds: ${['itorp','cmsl','bomb'].map(k=>k+' '+C.airRound(k).tt.toFixed(4)+' TT ('+C.airRound(k).mass.toFixed(2)+' t)').join(', ')}; tactic ${JSON.stringify(TACTIC)} (suppression and dive bombing are used when they apply unless switched off); ${RUNS} runs, limit ${LIMIT} s`);
+for(let s=1;s<=RUNS;s++){const t0=Date.now(),r=run(s*7919);
+ console.log(`\nrun ${s}: ended ${r.t}s (${r.units} units, ${Math.round((Date.now()-t0)/1000)} s to compute) | ${r.winner}; effective ships left: Rebel ${r.left[0]}/${FLEETS[0].length}, Imperial ${r.left[1]}/${FLEETS[1].length} | ships' guns first fired on a ship at ${r.firstGun?r.firstGun.t+'s, '+(r.firstGun.d/1000).toFixed(1)+' km':'never'}`);
+ for(const team of [0,1]){const c=r.craft[team],q=r.rounds[team];
+  console.log(` ${NAMES[team]} craft lost: ${Object.entries(c).map(([k,v])=>`${k} ${v.lost}/${v.n}${v.ff?' ('+v.ff+' of them struck by own point defence)':''}`).join(', ')||'none flown'} | squadrons sent up ${r.sq[team]} | rounds: carried ${q.carried}, released at ships ${q.atShips}${r.firstRelease[team]!=null?' (first at '+r.firstRelease[team]+'s)':''} (hit ${q.hitShips.toFixed(1)}), of them bombs let go in a dive ${q.bombs} by ${q.dives} bombers, fired at craft ${q.atCraft} (hit ${q.hitCraft.toFixed(1)}), shot down ${q.downed.toFixed(1)}, lost with their craft ${q.lostWithCraft}${r.commit[team]?.at!=null?' | went in after the sensors at '+r.commit[team].at+'s':''}`);
+  for(const line of r.ships[team])console.log('   '+line);}
+ console.log(' pressing for a decision: '+(r.pressLog.join(' | ')||'neither fleet'));}

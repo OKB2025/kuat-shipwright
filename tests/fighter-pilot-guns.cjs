@@ -8,6 +8,9 @@ const C=Core,G=Gfx,TT_J=C.TT,trial={},notices=[],sounds=[];
 Math.random=()=>.5;
 let aimPoint=[10000,0,0],salvo=null;
 const TRIAL_GUN={boltSpeed:4500,range:40000,maxBolts:2400,hitsToKill:10};
+// 2026-11-19 fixture changed: trialGunnery now resolves the live unit with trialSystemsUnit() (js/app.js), which lies
+// outside the extracted sections; this stub resolves it as tests/dual-purpose-weapons.cjs does.
+const trialSystemsUnit=()=>trial.battle?.me||trial.systemsUnit||null;
 const toast=s=>notices.push(s),trialAim=()=>({point:aimPoint,lock:null}),trialDronesStep=()=>{},trialGunTarget=()=>null,trialPowerStep=()=>{},trialSalvoPlan=()=>salvo,trialMissiles=()=>{},escortsFire=()=>{},trialPilotThreats=()=>[],sndAt=(...a)=>sounds.push(a),sndGun=()=>'',sndFac=()=>'',sndPilotGun=()=>'';
 function makeFit(k='claser',extra={}){return {id:1,k,p:[0,0,0],a:2,ped:0,base:0,low:0,float:false,...extra};}
 function stateFromFit(f){
@@ -52,7 +55,11 @@ test('each pilot pulse retains its catalogue shot energy and gas cost when the f
  const fast=plain(run('fast')),bolt=Number(run('C.FITS[trial.turrets[0].k].boltTT'));assert.ok(fast.cycle>=.08&&fast.cycle<=.18);assert.ok(fast.shots>=40,'rapid stream needs at least forty pulses in six seconds');
  near(fast.energy,fast.shots*bolt*fast.costK,fast.energy*1e-9);near(fast.boltEnergy,fast.shots*bolt,fast.boltEnergy*1e-10);assert.ok(fast.hitScales.every(k=>k===1),'physical shots are not diluted by a former reference cycle');near(fast.gas,fast.shots*Number(run('C.FITS.claser.cycle')),1e-8);
  run('reset();trial.energy.E=1e-5;trial.turrets[0].cycle=.6;const slowEnergy0=trial.energy.E;advance(6);const slow={shots:trial.gun.shots,energy:slowEnergy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0)}');
- const slow=plain(run('slow'));assert.ok(fast.shots>=slow.shots*4);near(slow.energy,slow.shots*bolt*fast.costK,slow.energy*1e-9);near(slow.boltEnergy,slow.shots*bolt,slow.boltEnergy*1e-10);near(slow.gas,slow.shots*Number(run('C.FITS.claser.cycle')),1e-8);near(fast.energy/slow.energy,fast.shots/slow.shots,1e-7);near(fast.gas/slow.gas,fast.shots/slow.shots,1e-7);
+ // 2026-11-19 expectation changed for the slow cadence: a shot is the per-second output over the actual firing period,
+ // not a fixed catalogue pulse (user decision 2026-11-11, docs/dev-status-2026-11.md:19, docs/ship-example-refit.md:53;
+ // C.craftShotTT, tests/craft-laser-output.cjs). At 0.6 s a pulse carries 0.6 s of output and 0.6 s of gas, so energy and
+ // gas per second are the same at both cadences (was: catalogue energy and gas per pulse at any cadence).
+ const slow=plain(run('slow'));assert.ok(fast.shots>=slow.shots*4);const slowBolt=Number(run('C.craftShotTT(C.FITS.claser,.6)'));near(slowBolt,bolt*.6/fast.cycle,slowBolt*1e-12);near(slow.energy,slow.shots*slowBolt*fast.costK,slow.energy*1e-9);near(slow.boltEnergy,slow.shots*slowBolt,slow.boltEnergy*1e-10);near(slow.gas,slow.shots*.6,1e-8);near(fast.energy/slow.energy,fast.shots*fast.cycle/(slow.shots*.6),1e-7);near(fast.gas/slow.gas,fast.shots*fast.cycle/(slow.shots*.6),1e-7);
 });
 
 test('normal and coarse frame steps keep the pulse stream steady without saving up idle shots',()=>{
@@ -78,7 +85,11 @@ test('actual aircraft model barrels and tiny affordability limits preserve compl
  for(const [k,n]of [['claser',1],['claserH',1],['cturret',2]]){context.key=k;run('reset(key)');assert.equal(run('trial.turrets[0].barrels'),n);near(run('trialShotEnergyTT(trial.turrets[0])'),n*Number(run('C.FITS[key].boltTT')),1e-20);}
  run('reset();trial.turrets[0].reload=0;trial.energy.E=C.FITS[trial.turrets[0].k].boltTT*trial.turrets[0].costK*.99;const insufficient=trial.energy.E;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.energy.E'),run('insufficient'));
  run('reset();trial.turrets[0].reload=0;trial.energy.E=C.FITS[trial.turrets[0].k].boltTT*trial.turrets[0].costK;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),1);near(run('trial.bolts[0].tt'),Number(run('C.FITS[trial.turrets[0].k].boltTT')),1e-20);assert.equal(run('trial.bolts[0].hitScale'),1);near(run('trial.energy.E'),0,1e-20);
- run('reset("cturret");trial.energy.E=1e-5;trial.turrets[0].reload=0;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),2);assert.equal(run('trial.bolts.length'),2);for(const bolt of plain(run('trial.bolts')))near(bolt.tt,Number(run('C.FITS.cturret.boltTT')),1e-20);near(run('tv.len(tv.sub(trial.bolts[0].pos,trial.bolts[1].pos))'),Number(run('C.FITS.cturret.wm'))*.28,1e-6);
+ // 2026-11-19 expectation changed: rapid fire is one shot at a time from the whole mount, barrel after barrel
+ // (user decision 2026-11-15, docs/handoff-2026-11-15/README.md:122,135; js/app.js trialGunnery comment). The twin
+ // turret's first step fires one barrel and the other follows within a period (was: both barrels in the same step).
+ // Bolts move forward within the step, so the two barrels' spacing is compared across the mount (z), not as a distance.
+ run('reset("cturret");trial.energy.E=1e-5;trial.turrets[0].reload=0;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),1);assert.equal(run('trial.bolts.length'),1);run('trialGunnery(trial.turrets[0].cycle*.6)');assert.equal(run('trial.gun.shots'),2);assert.equal(run('trial.bolts.length'),2);for(const bolt of plain(run('trial.bolts')))near(bolt.tt,Number(run('C.FITS.cturret.boltTT')),1e-20);near(run('Math.abs(trial.bolts[0].pos[2]-trial.bolts[1].pos[2])'),Number(run('C.FITS.cturret.wm'))*.28,1e-6);
 });
 
 test('a physical laser pulse requires its complete gas budget and preserves an insufficient remainder',()=>{

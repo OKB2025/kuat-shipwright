@@ -27,7 +27,10 @@ test('above and below attack runs leave along the hull on their original safe si
 });
 
 test('an attack that misses its firing window still clears the target and returns',()=>{
- const f=fixture();f.R.CRAFT[f.s.craft]={...f.R.CRAFT[f.s.craft],fireArcs:[]};let returned=false,shots=0;
+ // 2026-11-19 fixture changed: resolve the stock craft's power profile before copying it. craftPowerOf resolves it
+ // lazily and gives none to a copy that is not a built-in craft (js/core.js craftPowerOf: BUILTIN_CRAFT.has), so the
+ // copy had no propulsion and the squadron drifted away at its initial speed instead of flying the run.
+ const f=fixture();f.R.craftPowerOf(f.R.CRAFT[f.s.craft]);f.R.CRAFT[f.s.craft]={...f.R.CRAFT[f.s.craft],fireArcs:[]};let returned=false,shots=0;
  advance(f,110,()=>{if(f.s.strafeT>f.w.time)shots++;if(f.s.state==='return'||f.s.state==='docked')returned=true;});
  assert.equal(shots,0,'a craft with no operational barrel cannot fire');assert.equal(f.s.dmg||0,0);assert.ok(returned,'missing a shot must never trap a wing at its target');
 });

@@ -3655,7 +3655,7 @@ function aeroShapeControls(p,selected){
 }
 function fitBtn(k, sel, data) {
   const d = C.FITS[k];
-  const spec = d.tt ? (d.boltTT?`1発・1砲身 ${fTT(d.boltTT)} · 一斉射 ${fTT(d.tt)}`:`一斉射 ${fTT(d.tt)}`) : d.ion ? `イオン斉射 ${fTT(d.ion)}` : C.isConcussionLauncher?.(k) ? `${d.msl}TT／${d.missileCycle}秒・${storeCapText(d.store)}` : d.msl ? `${d.msl}TT${d.ionMsl ? '（イオン）' : ''}／20秒` : d.store ? storeCapText(d.store) : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
+  const spec = d.tt ? (d.boltTT?`1発・1砲身 ${fTT(d.boltTT)} · 一斉射 ${fTT(d.tt)}`:`一斉射 ${fTT(d.tt)}`) : d.ion ? `イオン斉射 ${fTT(d.ion)}` : C.isConcussionLauncher?.(k) ? `${+(+d.msl).toPrecision(2)}TT／${d.missileCycle}秒・${storeCapText(d.store)}` : d.msl ? `${d.msl}TT${d.ionMsl ? '（イオン）' : ''}／20秒` : d.store ? storeCapText(d.store) : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
   return `<button type="button" class="fitb${sel ? ' on' : ''}" title="${esc(d.variant||d.name)}" data-${data}="${k}" aria-pressed="${sel}"><span class="fn">${esc(d.name)}</span><span class="fs">${spec}・${d.pod?`直径 ${Math.round(d.fm)} m・高さ ${d.wm} m`:`${[d.fm,d.wm,d.hm].map(v=>v.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:v<1?2:1})).join('×')} m`}</span><span class="fd">${esc(d.desc)}${d.cycle?' 連射間隔 '+d.cycle+'秒。':''}</span></button>`;
 }
 const fmtM = (v) => v.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3})+' m';
@@ -4557,7 +4557,7 @@ function assignMirror(target, q) {
 // Audit 2026-11-14: a setting change rebuilds the support where the fitting is (keep pose). It used to seat the fitting
 // again along its axis, so a floating weapon dropped onto whatever was below when its pedestal slider was touched.
 function refreshFitSupport(f){const mount=()=>{const sh=editorMountShip(),keep=sh._keepFitPose;sh._keepFitPose=true;try{C.mountFit(sh,f);}finally{if(keep)sh._keepFitPose=keep;else delete sh._keepFitPose;}};if(C.isShipLauncher?.(f))mount();else if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')mount();else C.normalizeFitMount(f);}
-function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;refreshFitSupport(to); }
+function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'launcherHeavy', 'round', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;refreshFitSupport(to); }
 // Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
 // (tw: across the centreline, vt: top/bottom). Edits follow those links unless
 // 「対の武装も同時に編集」 is switched off; the symmetry toggles only decide
@@ -4569,7 +4569,7 @@ function fitLinks(f) {
   const out = []; if (tw) out.push({fit: tw, z: true, y: false}); if (vt) out.push({fit: vt, z: false, y: true}); if (vtw && vtw !== tw && vtw !== vt) out.push({fit: vtw, z: true, y: true});
   return out;
 }
-const FIT_SYNC_KEYS = ['ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns'];
+const FIT_SYNC_KEYS = ['ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'launcherHeavy', 'round', 'batteryCaliber', 'batteryGuns'];
 function syncFitTwin(from, to, link) {
   if (to.k !== from.k) { to.k = from.k; for (const k of ['skinAsset', 'mountOffset', 'mountAxis']) if (from[k] === undefined) delete to[k]; }
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
@@ -4606,9 +4606,9 @@ function fitPedestalControls(f = null) {
 }
 // Switching from 編集 to 設置 keeps what was just being edited ready to place:
 // the same kind, size and settings, apart from where it sits.
-const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded'];
+const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'launcherHeavy', 'round'];
 // v21 'scale' is not carried: the player cannot make a turret larger or smaller than its standard.
-const FIT_TEMPLATE_KEYS = ['width', 'sink', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'batteryCaliber', 'batteryGuns'];
+const FIT_TEMPLATE_KEYS = ['width', 'sink', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launcherEmbedded', 'launcherHeavy', 'round', 'batteryCaliber', 'batteryGuns'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
 function activeTemplate(list, k) { const t = st.template; if (!t || t.list !== list || t.k !== k) return null; if (list === 'parts' && (t.equipmentId || null) !== (activeEquipment()?.id || null)) return null; return t; }
 function carryToPlace() {
@@ -4629,7 +4629,7 @@ function carryToPlace() {
   } else {
     if (C.FITS[it.k].window) st.bridge = it.k; else st.fit = it.k;
     if(C.FITS[it.k].cat==='w')st.weaponMount=it.mountMode||((it.localMount&&!it.tilt)?'trench':it.tilt?'auto':it.a===3?'bottom':it.a===2?'top':'auto');
-    st.ped = fitPedestalAllowed(it) ? it.ped || 0 : 0; st.pedShape = fitPedestalAllowed(it) ? it.pedShape || 'round' : 'round'; st.pedSize = fitPedestalAllowed(it) ? it.pedSize || 1 : 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;st.gunPitch=ballTurretCanPitch(it)?C.ballTurretPitch(it):0;st.launchPitch=launcherCanPitch(it)?C.launcherPitch(it):0;if(C.isShipLauncher?.(it)){const q=C.shipLauncherConfig(it);st.launcherCols=q.cols;st.launcherRows=q.rows;st.launchYaw=q.yaw;st.launcherEmbedded=q.embedded;}
+    st.ped = fitPedestalAllowed(it) ? it.ped || 0 : 0; st.pedShape = fitPedestalAllowed(it) ? it.pedShape || 'round' : 'round'; st.pedSize = fitPedestalAllowed(it) ? it.pedSize || 1 : 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;st.gunPitch=ballTurretCanPitch(it)?C.ballTurretPitch(it):0;st.launchPitch=launcherCanPitch(it)?C.launcherPitch(it):0;if(C.isShipLauncher?.(it)){const q=C.shipLauncherConfig(it);st.launcherCols=q.cols;st.launcherRows=q.rows;st.launchYaw=q.yaw;st.launcherEmbedded=q.embedded;st.launcherHeavy=q.heavy;st.round=it.round==='msl'?'msl':'torp';}
   }
   st.sel = null; toast(`${list === 'parts' ? C.partLabel(it) : C.FITS[it.k].name} を同じ設定で設置できます`);
 }
@@ -6849,6 +6849,8 @@ function bindReference(){
  $('#panel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
   if(d.mslmount&&C.MISSILE_MOUNTS[d.mslmount]){const v=d.mslmount;mutate('ミサイルの搭載方式',()=>editSel(f=>{if(!C.FITS[f.k]?.msl||C.isConcussionLauncher?.(f))return;if(v==='vls')delete f.mount;else f.mount=v;}),'fits');renderPanel();return;}
   if(d.launchermount||d.newlaunchermount||d.multilaunchermount){const mode=d.newlaunchermount?'new':d.multilaunchermount?'multiple':'selected';if(changeShipLauncher('launcherEmbedded',d.launchermount||d.newlaunchermount||d.multilaunchermount,mode))renderPanel();return;}
+  if(d.launcherround||d.newlauncherround||d.multilauncherround){const mode=d.newlauncherround?'new':d.multilauncherround?'multiple':'selected';if(changeShipLauncher('round',d.launcherround||d.newlauncherround||d.multilauncherround,mode))renderPanel();return;}
+  if(d.launchersize||d.newlaunchersize||d.multilaunchersize){const mode=d.newlaunchersize?'new':d.multilaunchersize?'multiple':'selected';if(changeShipLauncher('launcherHeavy',d.launchersize||d.newlaunchersize||d.multilaunchersize,mode))renderPanel();return;}
   if('enginebaseline'in d){const p=engineEditTarget(),spec=p?C.equipmentSpec(p):activeEquipment(),b=C.ENGINE_BASELINES[spec?.engineStyle]?.[+d.enginebaseline];if(b){changeEngineSize(b.d,b.length);if(dragSnap)endDrag();renderPanel();}return;}
   if(d.weaponmount){chooseWeaponMount(d.weaponmount);return;}
   if(d.equipment){selectPaletteDefinition('equipment',d.equipment);return;}
@@ -6965,7 +6967,7 @@ function bridgePanel(){
 }
 
 // Placement direction is shared by the preview and the actual mount.
-st.weaponMount='auto';st.gunYaw=0;st.gunPitch=0;st.launchPitch=0;st.launcherCols=1;st.launcherRows=1;st.launchYaw=0;st.launcherEmbedded=false;
+st.weaponMount='auto';st.gunYaw=0;st.gunPitch=0;st.launchPitch=0;st.launcherCols=1;st.launcherRows=1;st.launchYaw=0;st.launcherEmbedded=false;st.launcherHeavy=false;st.round='torp';
 function weaponYawControls(f=null){
  const k=f?.k||st.fit;if(!C.fitCanRotate(k))return '';
  const id=f?'gunYaw':'newGunYaw',v=f?f.assetYaw||0:st.gunYaw||0,ball=ballTurretCanPitch(f||k),pitch=f?C.ballTurretPitch(f):C.ballTurretPitch({k,assetPitch:st.gunPitch});
@@ -6979,24 +6981,24 @@ function changeBallTurretPitch(value,mode='selected'){
  beginDrag('球形砲塔の上下角');editSel(q=>{q.assetPitch=angle;});touch('fits');scheduleStats(350);return true;
 }
 function launcherCanPitch(f){return !!C.isConcussionLauncher?.(f)&&!C.isSurfaceVLS?.(f);}
-function shipLauncherPlacementOptions(k=st.fit){return C.isShipLauncher?.(k)?{launcherCols:st.launcherCols??1,launcherRows:st.launcherRows??1,launchYaw:st.launchYaw||0,launcherEmbedded:!!st.launcherEmbedded}:{};}
+function shipLauncherPlacementOptions(k=st.fit){return C.isShipLauncher?.(k)?{launcherCols:st.launcherCols??1,launcherRows:st.launcherRows??1,launchYaw:st.launchYaw||0,launcherEmbedded:!!st.launcherEmbedded,...(st.launcherHeavy?{launcherHeavy:true,...(st.round==='msl'?{round:'msl'}:{})}:{})}:{};}
 function shipLauncherTargets(multiple=false){
  const first=multiple?ship.fits.filter(f=>st.multi?.fits?.has(f.id)):st.sel?.list==='fits'?[selItem()]:[],out=new Map();
  for(const f of first)if(C.isShipLauncher?.(f)&&!out.has(f.id)){out.set(f.id,{fit:f,sign:1});for(const link of fitLinks(f))if(C.isShipLauncher?.(link.fit)&&!out.has(link.fit.id))out.set(link.fit.id,{fit:link.fit,sign:(link.z?-1:1)*(link.y?-1:1)});}
  return [...out.values()];
 }
-function shipLauncherSummary(f){const q=C.shipLauncherConfig(f),d=C.fitSpec(f);return `${q.cols} 列 × ${q.rows} 段 · 横幅 ${fmtM(d.wm)} · 高さ ${fmtM(d.hm)} · 奥行 ${fmtM(d.fm)} · ${q.cells*6} 発`;}
+function shipLauncherSummary(f){const q=C.shipLauncherConfig(f),d=C.fitSpec(f);return `${q.cols} 列 × ${q.rows} 段 · 横幅 ${fmtM(d.wm)} · 高さ ${fmtM(d.hm)} · 奥行 ${fmtM(d.fm)} · ${q.cells*(q.perCell||6)} 発`;}
 function shipLauncherControls(f,mode='selected'){
  const q=C.shipLauncherConfig(f),prefix=mode==='new'?'new':mode==='multiple'?'multi':'',id=field=>prefix?prefix+field[0].toUpperCase()+field.slice(1):field,mountKey=mode==='new'?'newlaunchermount':mode==='multiple'?'multilaunchermount':'launchermount';
- return `<div class="pgroup ship-launcher-controls" data-ship-launcher-controls><h4>艦艇用ミサイル発射機</h4>${seg(mountKey,[['external','外付け'],['embedded','構造物に埋め込む']],q.embedded?'embedded':'external')}<div class="sliders">${slider(id('launcherCols'),'横セル数',q.cols,1,16,1,q.cols+' 列',1)}${slider(id('launcherRows'),'縦セル数',q.rows,1,16,1,q.rows+' 段',1)}${slider(id('launchYaw'),'発射方向の左右角',q.yaw,-180,180,.1,deg(q.yaw),.1)}${slider(id('launchPitch'),'発射方向の上下角',q.pitch,-90,90,.1,deg(q.pitch),.1)}</div><p data-ship-launcher-summary>${shipLauncherSummary(f)}</p><p class="note">セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。</p>${mode==='multiple'?'<p class="note">セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。</p>':''}</div>`;
+ return `<div class="pgroup ship-launcher-controls" data-ship-launcher-controls><h4>艦艇用ミサイル発射機</h4>${seg(mountKey,[['external','外付け'],['embedded','構造物に埋め込む']],q.embedded?'embedded':'external')}${seg(mountKey.replace('mount','size'),[['small','小型セル（1×4 m ミサイル）'],['heavy','大型セル（7×50 m）']],q.heavy?'heavy':'small')}${q.heavy?seg(mountKey.replace('mount','round'),[['torp','対艦魚雷（対艦のみ）'],['msl','大型ミサイル（対空・対艦）']],(mode==='new'?st.round:f?.round)==='msl'?'msl':'torp'):''}<div class="sliders">${slider(id('launcherCols'),'横セル数',q.cols,1,16,1,q.cols+' 列',1)}${slider(id('launcherRows'),'縦セル数',q.rows,1,16,1,q.rows+' 段',1)}${slider(id('launchYaw'),'発射方向の左右角',q.yaw,-180,180,.1,deg(q.yaw),.1)}${slider(id('launchPitch'),'発射方向の上下角',q.pitch,-90,90,.1,deg(q.pitch),.1)}</div><p data-ship-launcher-summary>${shipLauncherSummary(f)}</p><p class="note">セル数に合わせて本体の幅・高さ、弾数、質量、費用が変わります。埋込式は構造物の表面を選び、開いた前面から外へ発射します。外付け式は発射方向に合わせて支持台が動きます。</p>${mode==='multiple'?'<p class="note">セル数と搭載方式は選択した艦艇用発射機へ適用します。対の装備の左右角は鏡像になります。</p>':''}</div>`;
 }
 function changeShipLauncher(field,value,mode='selected'){
- if(!['launcherCols','launcherRows','launchYaw','launcherEmbedded'].includes(field))return false;
- let v;if(field==='launcherEmbedded')v=value===true||value==='embedded';else{if(value===''||!Number.isFinite(Number(value)))return false;v=field==='launchYaw'?C.clamp(Number(value),-180,180):Math.round(C.clamp(Number(value),1,16));}
+ if(!['launcherCols','launcherRows','launchYaw','launcherEmbedded','launcherHeavy','round'].includes(field))return false;
+ let v;if(field==='launcherEmbedded')v=value===true||value==='embedded';else if(field==='launcherHeavy')v=value===true||value==='heavy';/* 2026-11-19 cells for the 7 m by 50 m rounds */else if(field==='round')v=value==='msl'?'msl':'torp';/* a heavy cell's load: the anti-ship torpedo, or the large missile instead */else{if(value===''||!Number.isFinite(Number(value)))return false;v=field==='launchYaw'?C.clamp(Number(value),-180,180):Math.round(C.clamp(Number(value),1,16));}
  if(mode==='new'){if(!C.isShipLauncher?.(st.fit))return false;st[field]=v;if(field==='launcherEmbedded'&&v)st.weaponMount='auto';updateHint();requestDraw();return true;}
  const targets=shipLauncherTargets(mode==='multiple');if(!targets.length||targets.every(({fit,sign})=>fit[field]===(field==='launchYaw'?v*sign:v)))return false;
  const apply=()=>{for(const {fit,sign}of targets){fit[field]=field==='launchYaw'?v*sign:v;refreshFitSupport(fit);}queuePreview('fits',targets.map(t=>t.fit));};
- if(field==='launcherEmbedded')mutate('発射機の搭載方式',apply,'fits');else{beginDrag('艦艇用発射機を変更');apply();touch('fits');scheduleStats(350);}return true;
+ if(field==='launcherEmbedded')mutate('発射機の搭載方式',apply,'fits');else if(field==='round')mutate('発射機の弾',apply,'fits');else if(field==='launcherHeavy')mutate('発射機のセルの大きさ',apply,'fits');else{beginDrag('艦艇用発射機を変更');apply();touch('fits');scheduleStats(350);}return true;
 }
 function launcherPitchTargets(multiple=false){
  const first=multiple?ship.fits.filter(f=>st.multi?.fits?.has(f.id)):st.sel?.list==='fits'?[selItem()]:[],targets=new Map();
@@ -8359,7 +8361,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
+ const f=trialCol(trial.R,0),lift=unit?C.liftStep(unit,dt):1/* v30 stepped every step, so it comes back with the power (reviews 2026-11-19) */,acceleration=unit?.out?tv.scale(C.planetGravity({center:[0,0,0],radius:trialSys().planet.radius},trial.P),1-lift)/* v30 the planet's gravity, as far as the lift has faded */:tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),falling=!!unit?.out&&lift<1&&!!C.liftPowerless?.(unit),vFall=falling?tv.add(trial.V,acceleration,dt):null,next=falling?{velocity:vFall,displacement:tv.scale(vFall,dt)}/* user decision 2026-11-19「他の艦に合わせる」: a hull without power falls freely as its lift fades, without the resistance that bounds a ship under way, as C.planetFall has it for every other ship */:C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
  // v24 Turning, speeding up and braking throw the batteries' aim off (C.AIM_MODEL), read on the next gunnery step.
  if(C.aimMotion)trial.aimMotion=C.aimMotion(Math.max(...[0,1,2].map(i=>Math.abs(trial.w[i])/Math.max(1e-6,max[i]||0))),motion.acc0>0?tv.len(acceleration)/motion.acc0:0);
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
@@ -8496,7 +8498,7 @@ function trialPowerStep(dt,want){
  me.energy=en.E;me.maneuver=C.clamp(trial.thrustWant||0,0,1);me.order={...me.order,power:mode};
  const gov=C.heatGovernor(me);me.heatGov=gov;
  const demand={throttle:me.maneuver*gov.engine,deferHeat:true,shields:Math.max(0,g.Ds*s.shield*lim('shield')),shieldGovernor:gov.shield,weaponFireW:Math.max(0,want||0)*input*gov.weapon,weapons:Math.max(0,Math.min(g.Dw*s.weapon,(Math.max(0,want||0)+Math.max(0,en.cap-en.E)*TT_J/Math.max(dt,1e-3))*input)*lim('weapon')*gov.weapon)};
- const solved=C.allocateShipPower(me,s,demand,dt,mode),got=solved.got,P=solved.P||0;
+ const solved=C.allocateShipPower(me,s,demand,dt,mode),got=solved.got,P=solved.P||0;C.ionPowerCut(me,got,dt);/* regression review 2026-11-19: the ship being flown does not go through C.fleetPowerStep, so an ion round's cut and its heat never reached it */
  if(me.p?.surface?.mounts&&typeof C.surfaceManualCharge==='function'){
   const offered=got.weapons,charged=C.surfaceManualCharge(me,offered,dt);got.weapons=dt>0?Math.min(offered,charged*TT_J*input/dt):0;got.draw=Math.max(0,got.draw-offered+got.weapons);en.E=me.energy;
  }else en.E=Math.min(en.cap,en.E+got.weapons*Math.max(0,dt)/TT_J/input);
@@ -10548,7 +10550,7 @@ function spaceStep(dt){
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
-  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,boltGuns:B.me?new Set([B.me.id]):null/* v27 enemy gun fire at the flown ship lands only by the bolts that reach it */,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
+  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,boltGuns:B.me?new Set([B.me.id]):null/* v27 enemy gun fire at the flown ship lands only by the bolts that reach it */,gravity:true,planet:{center:trialApplyT(B.E,tv.scale(B.O,-1)),radius:trialSys().planet.radius}/* v30 the planet in the battle's frame: gravity, lift and the fall of wrecks */,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
   spaceBumps(b.bumps);spaceBump(B.me);spaceDockStep(SPACE_RULES.step);trialWingStep(SPACE_RULES.step);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
@@ -10557,6 +10559,7 @@ function spaceStep(dt){
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
   // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
+  if(!B.me.dead&&B.me.out&&B.me.lift<=0&&!B.me.docked&&!B.me.towedBy&&!B.me.boarding){B.me.dead=true;B.me.fate='fall';spaceLog('リパルサーリフト喪失：撃墜',B.me);}/* extra review 2026-11-19: the ship being flown is counted shot down when its lift is gone, like every other (C.fleetTick skips it as manual) */
   if(B.me.dead||C.outOfAction(B.me)){if(trialFlyLost())break;spaceEnd(B.me.dead?'sunk':'out');break;}
   if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
   if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out','standoff');break;}/* no ship on either side can act: a stand-off */}
@@ -10594,7 +10597,7 @@ function spaceDrawUnits(){
  return out;
 }
 function spaceShowResult(){
- const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
+ const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'リパルサーリフト喪失'};
  const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:r.why==='standoff'?'膠着：双方とも行動できる艦がありません':`旗艦戦闘不能（${r.why||''}）`;
  const foes=B.b.units.filter(u=>u.team===1),allies=B.b.units.filter(u=>u.team===0&&!u.manual);
  const rts=!!B.rts,crew=crewShare(me),sub2=rts&&r.kind==='win'?'この星系の戦闘は終わりました':rts&&r.kind==='withdrew'?'敵はこの星系から退きました':sub;
@@ -10786,7 +10789,7 @@ function fleetFocus(){if(fleet.mode==='tactical'){fleetMapFocus();return;}const 
 function fleetPowerName(){return '固定優先順';}
 function fleetOrderText(u){const o=u.order,pw=' · 出力 '+fleetPowerName(u);if(o.type==='move')return `移動 → ${(o.point[0]/1000).toFixed(1)}, ${(o.point[2]/1000).toFixed(1)} km / 高度 ${(o.point[1]/1000).toFixed(1)} km`+pw;if(o.type==='attack')return '攻撃 → '+(fleetUnits().find(t=>t.id===o.target)?.name||'目標消失')+(o.aim&&o.aim!=='auto'?`（${C.AIM_KINDS[o.aim]}を照準）`:'')+pw;return '停止・位置保持'+pw;}
 // Combat state for the readouts: sunk, out of the fight, or fighting, and why.
-const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断'};
+const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'リパルサーリフト喪失'};
 function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out==='電源喪失'?'電源喪失（航行不能）':u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
 function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)return '';const g={};mods.forEach((m,i)=>{if(m.k==='hull')return;const x=g[m.k]||(g[m.k]={n:0,lost:0,hit:0});x.n++;const v=u.mods[i]??1;if(v<=0)x.lost++;else if(v<1)x.hit++;});
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}

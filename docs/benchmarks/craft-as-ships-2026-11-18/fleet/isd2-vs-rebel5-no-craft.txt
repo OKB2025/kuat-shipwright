@@ -1,0 +1,40 @@
+fleet action with craft: Rebel mc75, mc80liberty, nebulonb, nebulonb, cr90 against Imperial imperial, imperial; 80 km apart at the start; the ships attack the nearest effective enemy ship
+craft (the ships' stored wings x 0, in flight beside their ship at the start; the launch is not simulated; nobody re-arms): Rebel 0 xwing (fighter, 7 rounds each), 0 ywing (bomber, 13 rounds each), 0 awing (fighter, 1 rounds each); Imperial 0 tie_ln (fighter, 0 rounds each), 0 tie_in (fighter, 2 rounds each), 0 tie_sa (bomber, 8 rounds each)
+rounds of 0.0597 TT (3.14 t), loaded to the repulsorlift's spare lift; bombers carry ion torpedoes, concussion missiles and proton bombs in turn and come in on 2 routes spread over 120° against the nearest enemy ship of 1,000 m or more; fighters' concussion missiles are for craft
+fighters, decided by each fleet every 3 s: intercept = 2 to each enemy bomber on an attack run (carrying rounds, within 15 km of an own ship and closing); close escort = one to each own bomber that carries rounds, at most 50% of the fighters left; air superiority = the rest; 3 runs, limit 900 s
+
+run 1: ended 900s (7 units, 25 s to compute) | undecided at the limit; effective ships left: Rebel 1/5, Imperial 1/2 | ships' guns first fired on a ship at 38.75s, 39.4 km
+ Rebel craft lost: none flown | rounds: carried 0, released at ships 0 (hit 0.0), fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   mc75 in action; field 100% of what is left, sections lost 0; out of action: engines 0/14, bridge 0/2, guns 0/34, sensors 0/0
+   mc80liberty LOST at 204.75s; field 0% of what is left, sections lost 2; out of action: engines 10/11, bridge 0/2, guns 1/18, sensors 0/0
+   nebulonb LOST at 163s; field 0% of what is left, sections lost 2; out of action: engines 12/14, bridge 0/1, guns 1/5, sensors 0/0
+   nebulonb LOST at 162.75s; field 0% of what is left, sections lost 2; out of action: engines 10/14, bridge 0/1, guns 2/5, sensors 0/0
+   cr90 LOST at 38.75s; field 0% of what is left, sections lost 2; out of action: engines 13/22, bridge 0/1, guns 0/6, sensors 0/0
+ Imperial craft lost: none flown | rounds: carried 0, released at ships 0 (hit 0.0), fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial LOST at 64.5s; field 100% of what is left, sections lost 2; out of action: engines 3/10, bridge 0/1, guns 16/29, sensors 2/3
+   imperial in action; field 100% of what is left, sections lost 0; out of action: engines 0/10, bridge 0/1, guns 0/29, sensors 0/3
+ fighters by task (intercept/escort/air superiority; own bombers still carrying rounds): 0s R 0/0/0; 0 | 0s I 0/0/0; 0 | 60s R 0/0/0; 0 | 60s I 0/0/0; 0 | 120s R 0/0/0; 0 | 120s I 0/0/0; 0 | 180s R 0/0/0; 0 | 180s I 0/0/0; 0 | 240s R 0/0/0; 0 | 240s I 0/0/0; 0 | 300s R 0/0/0; 0 | 300s I 0/0/0; 0 | 360s R 0/0/0; 0 | 360s I 0/0/0; 0 | 420s R 0/0/0; 0 | 420s I 0/0/0; 0 | 480s R 0/0/0; 0 | 480s I 0/0/0; 0 | 540s R 0/0/0; 0 | 540s I 0/0/0; 0 | 600s R 0/0/0; 0 | 600s I 0/0/0; 0 | 660s R 0/0/0; 0 | 660s I 0/0/0; 0 | 720s R 0/0/0; 0 | 720s I 0/0/0; 0 | 780s R 0/0/0; 0 | 780s I 0/0/0; 0 | 840s R 0/0/0; 0 | 840s I 0/0/0; 0
+
+run 2: ended 900s (7 units, 21 s to compute) | undecided at the limit; effective ships left: Rebel 1/5, Imperial 1/2 | ships' guns first fired on a ship at 38.75s, 39.4 km
+ Rebel craft lost: none flown | rounds: carried 0, released at ships 0 (hit 0.0), fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   mc75 in action; field 100% of what is left, sections lost 0; out of action: engines 0/14, bridge 0/2, guns 0/34, sensors 0/0
+   mc80liberty LOST at 206.25s; field 0% of what is left, sections lost 2; out of action: engines 10/11, bridge 0/2, guns 2/18, sensors 0/0
+   nebulonb LOST at 162.75s; field 0% of what is left, sections lost 2; out of action: engines 10/14, bridge 0/1, guns 2/5, sensors 0/0
+   nebulonb LOST at 162.5s; field 0% of what is left, sections lost 2; out of action: engines 13/14, bridge 0/1, guns 1/5, sensors 0/0
+   cr90 LOST at 38.75s; field 0% of what is left, sections lost 2; out of action: engines 14/22, bridge 0/1, guns 0/6, sensors 0/0
+ Imperial craft lost: none flown | rounds: carried 0, released at ships 0 (hit 0.0), fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial LOST at 64s; field 100% of what is left, sections lost 1; out of action: engines 2/10, bridge 0/1, guns 2/29, sensors 2/3
+   imperial in action; field 100% of what is left, sections lost 0; out of action: engines 0/10, bridge 0/1, guns 0/29, sensors 0/3
+ fighters by task (intercept/escort/air superiority; own bombers still carrying rounds): 0s R 0/0/0; 0 | 0s I 0/0/0; 0 | 60s R 0/0/0; 0 | 60s I 0/0/0; 0 | 120s R 0/0/0; 0 | 120s I 0/0/0; 0 | 180s R 0/0/0; 0 | 180s I 0/0/0; 0 | 240s R 0/0/0; 0 | 240s I 0/0/0; 0 | 300s R 0/0/0; 0 | 300s I 0/0/0; 0 | 360s R 0/0/0; 0 | 360s I 0/0/0; 0 | 420s R 0/0/0; 0 | 420s I 0/0/0; 0 | 480s R 0/0/0; 0 | 480s I 0/0/0; 0 | 540s R 0/0/0; 0 | 540s I 0/0/0; 0 | 600s R 0/0/0; 0 | 600s I 0/0/0; 0 | 660s R 0/0/0; 0 | 660s I 0/0/0; 0 | 720s R 0/0/0; 0 | 720s I 0/0/0; 0 | 780s R 0/0/0; 0 | 780s I 0/0/0; 0 | 840s R 0/0/0; 0 | 840s I 0/0/0; 0
+
+run 3: ended 900s (7 units, 20 s to compute) | undecided at the limit; effective ships left: Rebel 1/5, Imperial 1/2 | ships' guns first fired on a ship at 38.75s, 39.4 km
+ Rebel craft lost: none flown | rounds: carried 0, released at ships 0 (hit 0.0), fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   mc75 in action; field 100% of what is left, sections lost 0; out of action: engines 0/14, bridge 0/2, guns 0/34, sensors 0/0
+   mc80liberty LOST at 205.25s; field 0% of what is left, sections lost 2; out of action: engines 10/11, bridge 0/2, guns 2/18, sensors 0/0
+   nebulonb LOST at 162.75s; field 0% of what is left, sections lost 2; out of action: engines 10/14, bridge 0/1, guns 2/5, sensors 0/0
+   nebulonb LOST at 162.5s; field 0% of what is left, sections lost 2; out of action: engines 11/14, bridge 0/1, guns 2/5, sensors 0/0
+   cr90 LOST at 38.75s; field 0% of what is left, sections lost 2; out of action: engines 15/22, bridge 0/1, guns 0/6, sensors 0/0
+ Imperial craft lost: none flown | rounds: carried 0, released at ships 0 (hit 0.0), fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial LOST at 64s; field 100% of what is left, sections lost 1; out of action: engines 0/10, bridge 1/1, guns 2/29, sensors 0/3
+   imperial in action; field 100% of what is left, sections lost 0; out of action: engines 0/10, bridge 0/1, guns 0/29, sensors 0/3
+ fighters by task (intercept/escort/air superiority; own bombers still carrying rounds): 0s R 0/0/0; 0 | 0s I 0/0/0; 0 | 60s R 0/0/0; 0 | 60s I 0/0/0; 0 | 120s R 0/0/0; 0 | 120s I 0/0/0; 0 | 180s R 0/0/0; 0 | 180s I 0/0/0; 0 | 240s R 0/0/0; 0 | 240s I 0/0/0; 0 | 300s R 0/0/0; 0 | 300s I 0/0/0; 0 | 360s R 0/0/0; 0 | 360s I 0/0/0; 0 | 420s R 0/0/0; 0 | 420s I 0/0/0; 0 | 480s R 0/0/0; 0 | 480s I 0/0/0; 0 | 540s R 0/0/0; 0 | 540s I 0/0/0; 0 | 600s R 0/0/0; 0 | 600s I 0/0/0; 0 | 660s R 0/0/0; 0 | 660s I 0/0/0; 0 | 720s R 0/0/0; 0 | 720s I 0/0/0; 0 | 780s R 0/0/0; 0 | 780s I 0/0/0; 0 | 840s R 0/0/0; 0 | 840s I 0/0/0; 0

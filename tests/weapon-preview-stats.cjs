@@ -1,3 +1,6 @@
+// 2026-11-19 expectation changed with the user decision「古い表も揃えて」: the concussion missile's yield is the air missile's
+// (1 m by 4 m, half warhead, 0.03 TT a tonne: 0.0471 TT), no longer 25 TT. The cases below read it from the table; hand-made
+// units that state tt:25 themselves are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),{C}=require('../scripts/update-ship-examples.cjs').loadRuntime(root),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} != ${b}`),plain=v=>JSON.parse(JSON.stringify(v));
@@ -30,15 +33,15 @@ test('scaled weapons, broadside rows and trench aggregates retain per-barrel out
 
 test('fixed guns report zero traverse and real projectile launchers use per-round output and native ranges',()=>{
  near(C.weaponPreviewStats('recProw').traverseDegS,0);
- const craft=C.weaponPreviewStats('cmsl'),ship=C.weaponPreviewStats({k:'shipMsl',launcherCols:4,launcherRows:2});near(craft.outputTT,C.ORDNANCE.cmsl.tt);near(craft.rangeM,10000);near(ship.rangeM,60000);near(ship.outputTT,craft.outputTT);near(ship.traverseDegS,0);assert.equal(ship.barrels,8);
+ const craft=C.weaponPreviewStats('cmsl'),ship=C.weaponPreviewStats({k:'shipMsl',launcherCols:4,launcherRows:2});near(craft.outputTT,C.ORDNANCE.cmsl.tt);near(craft.rangeM,10000);near(ship.rangeM,10000/* 2026-11-19 expectation changed: a ship's launcher has the air missile's range (user decision「射程も航空も合わせる」); it was 60 km */);near(ship.outputTT,craft.outputTT);near(ship.traverseDegS,0);assert.equal(ship.barrels,8);
  const unknown=C.weaponPreviewStats('ctorp');assert.equal(unknown.outputTT,null);assert.equal(unknown.rangeM,null);assert.equal(unknown.variableReason,'payload');
- const loaded=C.weaponPreviewStats({k:'cpylon',_store:{k:'cmsl',n:2}});near(loaded.outputTT,25);near(loaded.rangeM,10000);
+ const loaded=C.weaponPreviewStats({k:'cpylon',_store:{k:'cmsl',n:2}});near(loaded.outputTT,C.ORDNANCE.cmsl.tt);near(loaded.rangeM,10000);
 });
 
 test('one, eight and sixteen-cell launchers display the actual packet energy of one round, not the complete salvo',()=>{
  for(const [cols,rows]of [[1,1],[4,2],[4,4]]){
   const f={id:99,k:'shipMsl',launcherCols:cols,launcherRows:rows,p:[0,0,0],n:[0,1,0],a:2,ped:0,base:0},packet=C.missileLauncherSpec(f),rating=C.weaponPreviewStats(f);
-  near(rating.outputTT,packet.tt);near(rating.outputTT,25);assert.equal(rating.barrels,packet.cells);near(packet.volleyTT,rating.outputTT*rating.barrels);near(rating.rangeM,packet.range);
+  near(rating.outputTT,packet.tt);near(rating.outputTT,C.ORDNANCE.cmsl.tt);assert.equal(rating.barrels,packet.cells);near(packet.volleyTT,rating.outputTT*rating.barrels);near(rating.rangeM,packet.range);
  }
  const legacy={id:88,k:'itl',p:[0,0,0],n:[0,1,0],a:2,ped:0,base:0},packet=C.missileLauncherSpec(legacy);near(C.weaponPreviewStats(legacy).outputTT,packet.tt);
 });
