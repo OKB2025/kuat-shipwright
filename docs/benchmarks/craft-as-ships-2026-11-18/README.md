@@ -46,3 +46,27 @@
 - `trial-pd-first/` の実行：`js/core.js` に `core.diff` を当てた写しと `data/` を置いた場所を `KS_TEST_ROOT` に指定し、`AXES=1|2|3 node sim-strike.cjs 3` と `node sim-fleet-air.cjs 3`。
 - 計測用の写し（点防御が給電を得た回数と、艦の `energy` を数える行を足したもの）での実行は記録に残していない。数値は [../../damage-penetration.md](../../damage-penetration.md) の同日の節にある。
 - 未実施：既存テスト（ゲーム本体を変えていないため）、ブラウザ確認、レビュー。`node scripts/update-asset-manifest.cjs --check` は通る。
+
+## 2026-11-19 後半の記録（`2026-11-19-later/`）
+
+各記録は、その時点のコードで取ったもの。いまのコードで再現するとは限らない。結果の読み取りは [../../damage-penetration.md](../../damage-penetration.md) の「6 回目」の節にある。
+
+実行コマンド：
+- 対艦攻撃：`[TACTIC=suppress] [DIVE=1] AXES=<1|2> node scripts/sim-strike.cjs 3`
+- 艦隊戦：`[KS_PRESS=0] node scripts/sim-fleet-air.cjs 3`
+- 空戦：`node scripts/sim-dogfight.cjs craft_xwing craft_tie_ln 6 8 4`
+
+| 記録 | 条件 | コマンド |
+| --- | --- | --- |
+| `r8/h0.5/` | 点防御の命中の係数 0.5（出力 6%、射程 5 km、決戦 AI・艦橋の規則あり） | `AXES=1|2 node scripts/sim-strike.cjs 3`、`node scripts/sim-fleet-air.cjs 3` |
+| `r8/h0.35/` | 命中の係数だけ 0.35 に変えた写しで実行した試し | 同上 |
+| `r9/` | 係数 0.5、決戦を挑まない艦隊戦 | `KS_PRESS=0 node scripts/sim-fleet-air.cjs 3` |
+| `r10/` | 弾の変更（魚雷・ミサイル・爆弾の寸法と係数 0.03）のあと、イオンなし | `AXES=1|2 node scripts/sim-strike.cjs 3`、`node scripts/sim-fleet-air.cjs 3` |
+| `r12/` | r10 と同じ条件で、イオン弾頭あり | 同上 |
+| `r14/` | センサー全損で対空が 25% 残る版。戦術なし（`plain-*`）と制圧（`suppress-*`） | `[TACTIC=suppress] AXES=1|2 node scripts/sim-strike.cjs 3` |
+| `r17/` | 砲の対空がセンサー不要の版。主担当の読み違いの版で、採用していない | `[TACTIC=suppress] AXES=1|2 node scripts/sim-strike.cjs 3`、`node scripts/sim-fleet-air.cjs 3` |
+| `r18/` | 対空の最終形（追尾センサーを載せた艦だけ、砲の対空もセンサーを通す） | r17 と同じ |
+| `r22/` | 3 次元の飛行を直したあと。制圧のみ・急降下＋制圧・急降下のみの対艦攻撃（`suppress-1`、`dive-suppress-1|2`、`dive-2`）と、空戦 X ウイング 4 対 TIE/ln 8（`dogfight-4v8`） | `[TACTIC=suppress] [DIVE=1] AXES=1|2 node scripts/sim-strike.cjs 3`、`node scripts/sim-dogfight.cjs craft_xwing craft_tie_ln 6 8 4` |
+
+- `r8/h0.5/` の係数 0.85 の列は、同じ節の `after-decisions-e99aac1/` の数値である。
+- 係数 0.35 の試しの写しはリポジトリに入れていない。
