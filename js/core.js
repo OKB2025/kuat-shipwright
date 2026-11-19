@@ -75421,9 +75421,11 @@ function surfaceRayHit(u,from,aim){const shell=surfaceShellBVH(u.p);if(!shell)re
 // hole of cross-section A takes PEN.eps·rho·l·A; what it bores is destroyed. The hole grows with the shot: A = c·(E/(eps·rho0))^(2/3).
 // A module, or a section's structure, is destroyed when PEN.destroyed of its volume is gone. What that takes follows from its
 // mass alone (eps × mass × destroyed): modBreakTT, secBreakTT.
-// eps is the energy that destroys a tonne: that of a tonne of TNT (4.184e9 J). A craft's laser bolt (6e-9 TT) destroys 6 t;
-// a 1 TT shot destroys 1e9 t, more than any ship here but the largest: a ship without its field does not survive one.
-const PEN=Object.freeze({eps:4.184e9/4.184e18/* a tonne of TNT destroys a tonne (user decision 2026-11-18「TNTトン数分の破壊」) */,c:1,rho0:1,destroyed:.5,armorDens:7.8,structFill:.5,minStructShare:.05,
+// eps is the energy that destroys a tonne: 1e-9 TT, that of a KILOTONNE of TNT (4.184e12 J; TT is 4.184e21 J, 1e12 t of TNT).
+// User decision 2026-11-19「案bで」: the figure stays and the wording is corrected (it was written as a tonne of TNT, a thousand times
+// less; the physics review found the two did not agree). A craft's laser bolt (6e-9 TT) destroys 6 t; a 1 TT shot destroys 1e9 t,
+// more than any ship here but the largest: a ship without its field does not survive one.
+const PEN=Object.freeze({eps:1e-9/* TT per tonne: a kilotonne of TNT destroys a tonne (2026-11-18「TNTトン数分の破壊」, read as kilotonnes by the decision of 2026-11-19) */,c:1,rho0:1,destroyed:.5,armorDens:7.8,structFill:.5,minStructShare:.05,
  dens:Object.freeze({reactor:1.8,engine:1.1,shield:.5,hyper:.6,fuel:.9,weapon:2.2,launcher:1.2,bridge:.6,capacitor:1.4,magazine:1.2,dissipator:.8,drivetrain:1.5,quarters:.12,hangar:.05,other:.65})});
 function holeArea(E){return E>0?PEN.c*Math.pow(E/(PEN.eps*PEN.rho0),2/3):0;}
 function modDens(m){return m?.dens>0?m.dens:PEN.dens[m?.k]??PEN.dens.other;}
@@ -80205,7 +80207,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
  craft_hyena:{g:2250,basis:'game assumption; previous authored bomber target'},
  craft_tie_in:{g:4240,basis:'published acceleration'},
  craft_tie_ln:{g:4100,basis:'published acceleration'},
- craft_tie_sa:{g:2380,basis:'published acceleration'},
+ craft_tie_sa:{g:3690,basis:'game conversion of published 90 MGLT: 90% of the TIE/ln (user decision 2026-11-19「TIE/saの速度を見直し」; was 2380, the published acceleration, which gave 56% of the TIE/ln speed)'},
  craft_v19:{g:4696,basis:'game assumption; previous authored interceptor target'},
  craft_vulture:{g:3600,basis:'game assumption; 108 MGLT on the shared conversion'},
  craft_vwing:{g:5200,basis:'published acceleration'},
@@ -84271,8 +84273,9 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  {const jw=hyperChargeStep(u,P,u.pw.draw,dt);u.pw.hyper=jw;if(P>0)u.load+=jw/P;}
  if(surfaceFire!=null){const spent=Math.max(0,u.surfaceLastFire?.spent||0);if(spent>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spent*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}return surfaceFire;}
   // User decision 2026-11-19「点防御の給電を優先」: the guns leave in the store what the ship's point defence can fire in this step
- // (its working point-defence and dual-purpose modules' output), so a ship that is firing its guns can still shoot rounds and craft down.
- const eta=1/weaponInputFactor(p),avail=u.energy+got.weapons*dt/TT*eta,request=raw*eta*dt,pdKeep=automaticPointDefenseEnabled(u)&&!craftUnit(u)?pointDefenseGuns(u).rate*dt:0,spend=powerFactor(u,'weapon')>0?Math.min(Math.max(0,avail-pdKeep),request):0,fire=request>0?spend/request:0,spill=Math.max(0,avail-spend-cap);u.energy=clamp(avail-spend,0,cap);if(spend>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spend*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}if(spill>0){const h=heatOf(u);if(h)h.e.weapon+=spill*TT;u.capacitorLedger={releasedJ:(u.capacitorLedger?.releasedJ||0)+spill*TT};}return fire;
+ // (POINT_DEFENSE.output of its working point-defence and dual-purpose modules, once against craft and once against rounds), so a ship
+ // that is firing its guns can still shoot rounds and craft down.
+ const eta=1/weaponInputFactor(p),avail=u.energy+got.weapons*dt/TT*eta,request=raw*eta*dt,pdKeep=automaticPointDefenseEnabled(u)&&!craftUnit(u)?2*POINT_DEFENSE.output*pointDefenseGuns(u).rate*dt:0,spend=powerFactor(u,'weapon')>0?Math.min(Math.max(0,avail-pdKeep),request):0,fire=request>0?spend/request:0,spill=Math.max(0,avail-spend-cap);u.energy=clamp(avail-spend,0,cap);if(spend>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spend*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}if(spill>0){const h=heatOf(u);if(h)h.e.weapon+=spill*TT;u.capacitorLedger={releasedJ:(u.capacitorLedger?.releasedJ||0)+spill*TT};}return fire;
 }
 const COMBAT={
  tau:30,            // s: armour sheds its load (heat, stress) with this time constant
@@ -85163,17 +85166,17 @@ function blastOpenTT(p,m){const V=modVol(p,m),L=Math.cbrt(Math.max(1e-9,V));retu
 function combatIonRounds(ctx,u,o){
  const now=ctx.time||0;if(u.ionOff?.length){u.ionOff=u.ionOff.filter(x=>{if(now<x.until)return true;if(!(u.mods[x.i]>0)&&!u.secLost.includes(u.secOf[x.i]))u.mods[x.i]=x.was;ctx.ev(u,`${u.p.modules[x.i].name} 復旧`);return false;});}
  for(const r of o.ionRounds||[]){let n=Math.floor(r.n);if(ctx.rand()<r.n-n)n++;const mods=u.p.modules||[];
-  for(let k=0;k<n&&!u.dead;k++){const c=[];let w=0;for(let i=0;i<mods.length;i++)if(mods[i].k===r.aim&&u.mods[i]>0&&!mods[i].pd&&!u.secLost.includes(u.secOf[i])){c.push(i);w+=mods[i].w||1;}if(!c.length)break;let q=ctx.rand()*w,i=c[0];for(const j of c){q-=mods[j].w||1;if(q<=0){i=j;break;}}
+  for(let k=0;k<n&&!u.dead;k++){if(r.aimRange>0&&aimMark(u.p,r.aim)>0&&!(ctx.rand()<aimHold(u,r.aim,r.aimRange)))continue;/* the aim did not hold from that range: the round's ion energy still lands, no part is shut down */const c=[];let w=0;for(let i=0;i<mods.length;i++)if(mods[i].k===r.aim&&u.mods[i]>0&&!mods[i].pd&&!u.secLost.includes(u.secOf[i])){c.push(i);w+=mods[i].w||1;}if(!c.length)break;let q=ctx.rand()*w,i=c[0];for(const j of c){q-=mods[j].w||1;if(q<=0){i=j;break;}}
    (u.ionOff||(u.ionOff=[])).push({i,until:now+BLAST.ionOff,was:u.mods[i]});u.mods[i]=0;ctx.ev(u,`${mods[i].name} イオン魚雷で停止`);}}
 }
-function combatBlastAdd(inc,rounds,tt,src,aim=null){if(inc&&rounds>0&&tt>0)inc.blasts.push({n:rounds,tt,src,...(aim&&aim!=='auto'?{aim}:{})});}
+function combatBlastAdd(inc,rounds,tt,src,aim=null,aimRange=0){if(inc&&rounds>0&&tt>0)inc.blasts.push({n:rounds,tt,src,...(aim&&aim!=='auto'?{aim,...(aimRange>0?{aimRange}:{})}:{})});}
 function combatBlast(ctx,u,o){
  let hit=false;for(const bl of o.blasts||[]){let n=Math.floor(bl.n);if(ctx.rand()<bl.n-n)n++;
   for(let i=0;i<n&&!u.dead;i++){const live=u.sec.map((x,si)=>u.secLost.includes(si)?0:x.max);let tot=live.reduce((a,b)=>a+b,0);if(!(tot>0))break;let r=ctx.rand()*tot,si=0,mod=-1;for(let j=0;j<live.length;j++){r-=live[j];if(r<=0){si=j;break;}}
    // an aimed round (user decision 2026-11-19「エンジン、艦橋、主兵装、ターゲティングポットを狙う」) bursts on a part of that kind still
    // working: the section is the part's, and the part takes the burst too
-   if(bl.aim){const mods=u.p.modules||[],c=[];let w=0;for(let k=0;k<mods.length;k++)if(mods[k].k===bl.aim&&u.mods[k]>0&&!u.secLost.includes(u.secOf[k])&&!mods[k].pd){c.push(k);w+=mods[k].w||1;}if(c.length){let q=ctx.rand()*w;mod=c[0];for(const k of c){q-=mods[k].w||1;if(q<=0){mod=k;break;}}si=u.secOf[mod];}}
-   const sec=u.sec[si],mass=blastMassT(u.p,si,bl.tt??BLAST.torpedo.tt),share=Math.min(1,PEN.eps*mass/Math.max(1e-30,sec.max));sec.s-=PEN.eps*mass;u.fire[si]=Math.max(u.fire[si]||0,BLAST.fire*Math.min(1,share/BLAST.fireAt));u.crew-=(u.p.crewNeed||0)*BLAST.crew*share/u.sec.length;hit=true;if(mod>=0){const m=u.p.modules[mod],whole=modBreakTT(u.p,m),open=blastOpenTT(u.p,m);combatModuleDamage(ctx,u,mod,PEN.eps*mass*whole/Math.max(1e-30,open),hullBreakTT(u.p)*COMBAT.quantum,'shot');}/* v30 a warhead wrecks what of the part stands open to it (blastOpenTT), not the whole of it */
+   if(bl.aim&&(!(bl.aimRange>0)||!(aimMark(u.p,bl.aim)>0)||ctx.rand()<aimHold(u,bl.aim,bl.aimRange))/* physics review 2026-11-19: the aim holds as far as the launch range lets it (aimHold), as a gun's does; ★ a kind of part with no aim mark (engines, sensors) is held from any range, as before */){const mods=u.p.modules||[],c=[];let w=0;for(let k=0;k<mods.length;k++)if(mods[k].k===bl.aim&&u.mods[k]>0&&!u.secLost.includes(u.secOf[k])&&!mods[k].pd){c.push(k);w+=mods[k].w||1;}if(c.length){let q=ctx.rand()*w;mod=c[0];for(const k of c){q-=mods[k].w||1;if(q<=0){mod=k;break;}}si=u.secOf[mod];}}
+   const sec=u.sec[si],mass=blastMassT(u.p,si,bl.tt??BLAST.torpedo.tt),E=PEN.eps*mass,share=Math.min(1,E/Math.max(1e-30,sec.max)),toPart=mod>=0?Math.min(E,blastOpenTT(u.p,u.p.modules[mod])*clamp(u.mods[mod],0,1)):0/* physics review 2026-11-19: the part takes what its open layer still needs, the section's structure the rest: the two sum to the burst */;sec.s-=E-toPart;u.fire[si]=Math.max(u.fire[si]||0,BLAST.fire*Math.min(1,share/BLAST.fireAt));u.crew-=(u.p.crewNeed||0)*BLAST.crew*share/u.sec.length;hit=true;if(mod>=0){const m=u.p.modules[mod],whole=modBreakTT(u.p,m),open=blastOpenTT(u.p,m);combatModuleDamage(ctx,u,mod,toPart*whole/Math.max(1e-30,open),hullBreakTT(u.p)*COMBAT.quantum,'shot');}/* v30 a warhead wrecks what of the part stands open to it (blastOpenTT), not the whole of it */
    ctx.ev(u,`${SECTION_NAMES[si]||'区画'}に被雷・大火災`);if(sec.s<=0)combatSectionLost(ctx,u,si);combatStatus(ctx,u);}}
  return hit;
 }
@@ -85259,7 +85262,7 @@ function combatModuleDamage(ctx,u,i,dmg,Q,why,entering=0,shots=1){
  let boom=null;
  if(m.k==='reactor'&&ctx.rand()<coreDetonation(u.load)*(1.2-u.mods[i])*q){u.mods[i]=0;blast(.35+.6*m.share*(.6+u.load),`${m.name} 炉心誘爆（炉心負荷 ${Math.round(u.load*100)}%）`,'reactor');boom='reactor';}
  else if(m.k==='fuel'&&ctx.rand()<(.08+.08*u.load)*(1.2-u.mods[i])*q){u.mods[i]=0;blast(.3+.5*m.share,`${m.name} 反応物誘爆`,'fuel');boom='fuel';}
- else if(m.k==='launcher'&&u.ammo[i]>0&&ctx.rand()<.4*u.ammo[i]/MAGAZINE_MISSILES*q){const n=u.ammo[i];u.ammo[i]=0;u.mods[i]=0;blast(clamp(n*250/Math.max(1,u.sec[si].max),.2,.9),`弾薬庫誘爆（ミサイル ${Math.round(n)} 発）`,'magazine');boom='magazine';}
+ else if(m.k==='launcher'&&u.ammo[i]>0&&ctx.rand()<.4*u.ammo[i]/MAGAZINE_MISSILES*q){const n=u.ammo[i];u.ammo[i]=0;u.mods[i]=0;blast(clamp(n*1.9e-5/* TT a round: the old 250 of the retired strength scale (7.5e-8 TT a point, measured on seven examples 2026-11-19) */ /Math.max(1e-30,u.sec[si].max),.2,.9),`弾薬庫誘爆（ミサイル ${Math.round(n)} 発）`,'magazine');boom='magazine';}
  let fire=false;if(why!=='fire'&&!u.secLost.includes(si)&&ctx.rand()<(IGNITE[m.k]??.1)*Math.min(1,q*1.5)){fire=!(u.fire[si]>0);u.fire[si]=Math.max(u.fire[si]||0,.3);if(fire)ev(`${SECTION_NAMES[si]||'区画'}で火災発生（${m.name}）`);}
  if(!boom&&before>0&&u.mods[i]<=0){
   if(m.k==='capacitor'&&m.link!=null&&u.mods[m.link]>0){if(!p.surface)u.mods[m.link]=0;if(typeof surfaceCapacitorSync==='function')surfaceCapacitorSync(u);ev(`${m.name} 破壊（${p.modules[m.link].name} 射撃不能）`);}
@@ -85281,7 +85284,7 @@ function combatSectionLost(ctx,u,si){
 function combatPenetrate(ctx,u,si,f,E,aim,Q,shot=0){
  // v30 n shots of e each, past the plating of face f of section si: through the structure to the nearest module on their way,
  // through it, on to the next, until they are spent or out the far side.
- const e=shot>0?Math.min(shot,E):E,n=E/e,A=holeArea(e),p=u.p,mods=p.modules||[],sec=u.sec[si],S=hullStructure(p),st=S.sec[si],span=f<2?S.dims[0]/u.sec.length:f<4?S.dims[2]:S.dims[1],path=[];
+ const e=shot>0?shot:E/* physics review 2026-11-19: the shot keeps its size when the load is dealt over zones; n is then a fraction of a shot */,n=E/e,A=holeArea(e),p=u.p,mods=p.modules||[],sec=u.sec[si],S=hullStructure(p),st=S.sec[si],span=f<2?S.dims[0]/u.sec.length:f<4?S.dims[2]:S.dims[1],path=[];
  let left=e,at=0,minDep=-1,fire=false,boom=null,frame=0;
  const structure=to=>{const l=Math.max(0,to-at)*span;at=Math.max(at,to);if(!(l>0)||!(left>0)||!(sec.s>0))return;const r=boreLayer(left,n,A,st.dens,l,st.vol*(1-PEN.destroyed*(1-sec.s/sec.max)));sec.s-=r.absorbed/* s runs out when .destroyed of the structure is gone */;frame+=r.absorbed;left=r.left;};
  const cand=[];for(let i=0;i<mods.length;i++){if(u.secOf[i]!==si||mods[i].k==='hull')continue;cand.push({i,dep:combatDepth(u,i,f,si),w:mods[i].w*(u.mods[i]>0?1:.15)*(aim&&mods[i].k===aim?6:1)});}
@@ -85289,7 +85292,7 @@ function combatPenetrate(ctx,u,si,f,E,aim,Q,shot=0){
   let tot=0;for(const c of cand){c.p=c.dep>=minDep?c.w*Math.exp(-(c.dep-Math.max(0,minDep))/.3):0;tot+=c.p;}if(!(tot>0))break;
   let r=ctx.rand()*tot,c=cand[0];for(const x of cand){r-=x.p;if(r<=0){c=x;break;}}
   structure(c.dep);if(!(left>0))break;
-  const i=c.i,m=mods[i],V=modVol(p,m),before=u.mods[i],enter=left,crew0=u.crew,b=boreLayer(left,n,A,modDens(m),Math.cbrt(V),V*(1-PEN.destroyed*(1-before))),res=combatModuleDamage(ctx,u,i,b.absorbed,Q,'shot',enter,n);
+  const i=c.i,m=mods[i],V=modVol(p,m),before=u.mods[i],enter=left,crew0=u.crew,b=boreLayer(left,n,A,modDens(m),Math.cbrt(V),V*(1-PEN.destroyed*(1-before))),res=combatModuleDamage(ctx,u,i,b.absorbed,Q,'shot',enter*n/* the whole of what enters: penCrewSurvive divides by the shots */,n);
   path.push({i,name:m.name,k:m.k,dmg:b.absorbed,enter:enter*n,crewLost:Math.max(0,Math.round(crew0-u.crew)),before:+before.toFixed(3),after:+(u.mods[i]).toFixed(3),y:m.y??0,z:m.z??0,at:m.at??.5});
   if(res.fire)fire=true;if(res.boom)boom=res.boom;left=b.left;minDep=c.dep;cand.splice(cand.indexOf(c),1);
  }
@@ -85437,7 +85440,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:{...u.pass}}:{}),...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -85451,14 +85454,14 @@ function combatClone(u){const physical={};for(const k of ['powerLossDisabled','f
 // connected-grid protection as ordinary ion fire; only their emission geometry
 // and received pulse energy differ. Protective trips preserve physical health.
 const SW_COMBAT={
- sbeam:{name:'超重合成ビーム',E:125000,share:.6,tMin:45,range:200000,cone:0,beamT:10,over:{floor:.3,T:60},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ sbeam:{name:'超重合成ビーム',E:125000,share:.6,tMin:45,range:200000,cone:0,beamT:10,over:{floor:.3,T:60},pulseShield:2.5,secRef:2.2e-3/* TT: about a section of an Imperial-class ship; was 29000 of the retired strength scale */,pulseK:1.5,pulseFall:.3},
  // The superlaser (user request 2026-11-15): 53 ZT (5.3e10 TT) at the Death Star's dish, 54.72 km across (measured
  // from the user's model at 160 km); its shot scales with the cube of its size. A beam like the Onager's, but laid
  // from the lens focus anywhere within `cone` (radians) of the dish's bearing instead of along a fixed axis.
  // The full shot is for a planet; on ships it fires shipShare of it (2 ZT of 53: user decision 2026-11-15) and keeps
  // the rest of its charge. A full charge takes 24 hours (tMin; user decision 2026-11-15), so a ship shot is back
  // in about 54 minutes.
- slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:54720,share:.6,tMin:86400,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
+ slaser:{name:'スーパーレーザー',E:5.3e10,shipShare:2/53,refD:54720,share:.6,tMin:86400,range:2e6,cone:.4,beamT:6,over:{floor:.3,T:120},pulseShield:2.5,secRef:2.2e-3/* TT: about a section of an Imperial-class ship; was 29000 of the retired strength scale */,pulseK:1.5,pulseFall:.3},
  hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // Shot energy is per physical emitter, in TT. Both Onager emitters together deliver 250 PT.
@@ -86241,7 +86244,7 @@ const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.3
 // A craft that keeps its distance or its speed up is hit less; there is no rate of kills. Each fire-control channel takes one
 // craft, the nearest first.
 // User decision 2026-11-19「点防御の出力を下げて」: against craft the point-defence guns put out POINT_DEFENSE.output of their modules' power.
-const FLAK=Object.freeze({radius:60,couple:2e-10});/* a burst of an Imperial-class bolt (15 TT) gives a craft 3e-10 TT, a twentieth of a craft's laser bolt: with 60 m nearly every bolt bursts near its target inside 10 km (7% at 39 km), so the fire wears craft down over the run in instead of downing them at a stroke (measured 2026-11-19; with 2e-9 a hundred bursts a second each broke a field) */
+const FLAK=Object.freeze({radius:60,couple:2e-10});/* a burst of an Imperial-class bolt (15 TT) gives a craft 3e-9 TT, half a craft's laser bolt: with 60 m nearly every bolt bursts near its target inside 10 km (7% at 39 km), so the fire wears craft down over the run in instead of downing them at a stroke (measured 2026-11-19; with 2e-9 a hundred bursts a second each broke a field) */
 // 「点防御の威力を下げた分さらに連射速度とばら撒きを増やしてミサイルは落とせるようにする」(2026-11-19): the same output in .split times as many bolts,
 // each a .split-th of the energy, laid in a pattern .barrage times a round's size across: a round is downed by any bolt of the
 // pattern that covers it. Against craft the pattern does not add energy: what lands is still the common hit chance on the craft.
@@ -86251,7 +86254,7 @@ function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
  for(const x of alive){
   if(x.dead||x.out||x.manual||craftUnit(x)||!automaticPointDefenseEnabled(x))continue;const G=pointDefenseGuns(x);if(!(G.rate>0))continue;
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,craft=alive.filter(u=>!u.dead&&!u.docked&&u.team!==x.team&&craftUnit(u)).map(u=>({u,d:len(sub(u.pos,x.pos))})).filter(q=>q.d<=reach).sort((a,z)=>a.d-z.d);if(!craft.length)continue;
-  const channels=Math.max(1,x.p.aaCh??AA_CHANNELS.base*4),own0=alive.filter(f=>!f.dead&&!f.docked&&f.team===x.team&&f!==x&&craftUnit(f)),masked=q=>{const dir=mul(sub(q.u.pos,x.pos),1/Math.max(1,q.d));return own0.some(f=>{const r=sub(f.pos,x.pos),al=dot(r,dir);return al>=0&&al<=q.d+POINT_DEFENSE.ffBeyond&&len(sub(r,mul(dir,al)))<POINT_DEFENSE.ffHold;});},clear=craft.filter(q=>!masked(q)),engaged=clear.slice(0,channels)/* working with its own craft: a channel whose line is masked by one of them takes the next target instead of holding */;x.pdMasked=craft.length-clear.length;if(!engaged.length)continue;const funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,1);if(!(funded>0))continue;
+  const channels=Math.max(1,x.p.aaCh??AA_CHANNELS.base*4),own0=alive.filter(f=>!f.dead&&!f.docked&&f.team===x.team&&f!==x&&craftUnit(f)),masked=q=>{const dir=mul(sub(q.u.pos,x.pos),1/Math.max(1,q.d));return own0.some(f=>{const r=sub(f.pos,x.pos),al=dot(r,dir);return al>=0&&al<=q.d+POINT_DEFENSE.ffBeyond&&len(sub(r,mul(dir,al)))<POINT_DEFENSE.ffHold;});},clear=craft.filter(q=>!masked(q)),engaged=clear.slice(0,channels)/* working with its own craft: a channel whose line is masked by one of them takes the next target instead of holding */;x.pdMasked=craft.length-clear.length;if(!engaged.length)continue;const funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,POINT_DEFENSE.output)/* it pays for the lowered output it fires (physics review 2026-11-19) */;if(!(funded>0))continue;
   const each=G.rate*POINT_DEFENSE.output*funded*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)/engaged.length,control=fleetSystems(x).fire;
   // Friendly fire (user decision 2026-11-19「点防御のフレンドリーファイアも実装して、艦のAIはそれを避けようとする形に」). Bolts that miss their
   // target go on along the line of fire: a craft of the ship's own side near that line takes a share of them (.stray, falling to
@@ -86291,12 +86294,12 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,groups=new Map();
   for(const m of b.missiles){if(!(m.n>0)||m.team===x.team||m.launchClearance>0||len(sub(m.pos,x.pos))>reach)continue;let g=groups.get(m.salvo??m.id);if(!g)groups.set(m.salvo??m.id,g={n:0,list:[]});g.n+=m.n;g.list.push(m);}
   let left=x.p.aaCh??AA_CHANNELS.base*4;
-  for(const g of groups.values()){if(!(left>0))break;const need=Math.max(1,Math.ceil(g.n/AA_CHANNELS.salvo)),got=Math.min(need,left),funded=fundAutomaticPointDefense(x,g.list[0].pos,dt,pdStep,got/need);if(!(funded>0))continue;left-=got;
+  for(const g of groups.values()){if(!(left>0))break;const need=Math.max(1,Math.ceil(g.n/AA_CHANNELS.salvo)),got=Math.min(need,left),funded=fundAutomaticPointDefense(x,g.list[0].pos,dt,pdStep,POINT_DEFENSE.output*got/Math.max(1,x.p.aaCh??AA_CHANNELS.base*4))/* physics review 2026-11-19: it pays for what it fires at this salvo (its channels' share of the lowered output), not its whole output */;if(!(funded>0))continue;left-=got;
    const G=pointDefenseGuns(x),dm=len(sub(g.list[0].pos,x.pos)),bolts=G.shot>0?G.rate*POINT_DEFENSE.output/G.shot:0,kill=bolts>0?Math.min(g.n,bolts*(got/Math.max(1,x.p.aaCh??AA_CHANNELS.base*4))*gunHitChance(x,{pos:g.list[0].pos,velocity:g.list[0].vel,p:{len:POINT_DEFENSE.roundLen*POINT_DEFENSE.barrage,width:POINT_DEFENSE.roundLen*POINT_DEFENSE.barrage,height:POINT_DEFENSE.roundLen*POINT_DEFENSE.barrage}},dm,reach,fleetSystems(x).fire)*POINT_DEFENSE.hit*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*funded)/* v30 point defence fires at rounds as it does at craft: its guns' bolts, the common hit chance on a body the round's size, one bolt downs a round */:Math.min(g.n,MISSILE_FLIGHT.pdKill*aa*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*got/need*funded);if(!(kill>0))continue;for(const m of g.list){const part=kill*m.n/g.n;m.n-=part;m.downed=(m.downed||0)+part;log().downed+=part;}}
  }
  for(const {m,t,from} of arrived){
   if(!(m.n>1e-9)){m.n=0;continue;}const tt=m.n*m.tt*DMG,inc=incoming.get(t.id);
-  if(inc){if(m.ion){combatAdd(inc,t,from,{ionDirect:tt},m.aim||null,m.from);if(typeof m.aim==='string'&&m.aim!=='auto')(inc.ionRounds||(inc.ionRounds=[])).push({n:m.n,aim:m.aim});}else combatBlastAdd(inc,m.n,m.tt,m.from,typeof m.aim==='string'?m.aim:null);}
+  if(inc){if(m.ion){combatAdd(inc,t,from,{ionDirect:tt},m.aim||null,m.from);if(typeof m.aim==='string'&&m.aim!=='auto')(inc.ionRounds||(inc.ionRounds=[])).push({n:m.n,aim:m.aim,...(m.aimRange>0?{aimRange:m.aimRange}:{})});}else combatBlastAdd(inc,m.n,m.tt,m.from,typeof m.aim==='string'?m.aim:null,m.aimRange);}
   log().hit+=m.n;m.hit=m.n;m.n=0;
  }
  b.missiles=b.missiles.filter(m=>m.n>1e-9&&m.life>0);
@@ -93766,7 +93769,7 @@ function battleTick(w, sys, dt) {
   if(!t)continue;
   if(!total&&!(u.p.profileVersion>=5)&&(u.pw?.P||0)>0&&C.powerFactor(u,'reactor')>0){u.mslT=(u.mslT||0)-dt;if(u.mslT<=0){u.mslT=20;const n=Math.round((u.p.msl||0)/10),ni=Math.round((u.p.imsl||0)/10);if(n>0)packets.push({n,tt:10,ion:false,kind:'legacy'});if(ni>0)packets.push({n:ni,tt:10,ion:true,kind:'itorp'});}}
   for(const packet of packets){const launch=C.missileLaunchWorld(u,packet,t),native=C.isConcussionLauncher(packet.kind),range=C.missileRange(packet);
-   w.missiles.push({id:'m'+(w.nextId++),side:u.side,sys,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:packet.ion,launcher:packet.module,cell:packet.cell,range,traveled:0,pos:launch.origin.slice(),vel:scale(launch.axis,220),s:220,life:native?C.missileFlightLife(range):45,...(native?{launchOrigin:launch.origin.slice(),launchDir:launch.axis.slice(),launchClearance:.35}:{})});}
+   w.missiles.push({id:'m'+(w.nextId++),side:u.side,sys,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,ion:packet.ion,launcher:packet.module,cell:packet.cell,range,traveled:0,pos:launch.origin.slice(),vel:scale(launch.axis,220),s:220,life:native?C.missileFlightLife(range,C.roundSpeed(packet.kind))/* physics review 2026-11-19: the life is that of the round's own speed, as in the fleet battle */:45,...(native?{launchOrigin:launch.origin.slice(),launchDir:launch.axis.slice(),launchClearance:.35}:{})});}
  }
  for (const m of w.missiles) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }

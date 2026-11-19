@@ -57,7 +57,7 @@ test('fleet battle craft attack scales with the per-craft laser output and is ze
   const a={...JSON.parse(JSON.stringify(p)),airGun};if(airGun==null)delete a.airGun;
   const u=C.fleetUnit('a-target','own',p,0),e=C.fleetUnit('z-carrier','enemy',a,1);u.pos=[0,0,0];e.pos=[12000,0,0];u.yaw=0;e.yaw=Math.PI;
   for(const x of [u,e])x.order={type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'};
-  e.air=10;const b=C.fleetBattle([u,e],true),before=u.hp+(u.shield||0);C.fleetTick(b,.25,{collide:false});return before-(u.hp+(u.shield||0));
+  e.air=10;const b=C.fleetBattle([u,e],true),hullOf=g=>g.sec.reduce((n,x)=>n+x.s,0)/* 2026-11-19 (PR #119, v30: u.hp is retired): the hull's state is the sum of its sections' structure */,before=hullOf(u)+(u.shield||0);C.fleetTick(b,.25,{collide:false});return before-(hullOf(u)+(u.shield||0));
  };
  assert.equal(damage(0),0,'no laser output, no craft damage');
  const one=damage(1),two=damage(2);assert.ok(one>0,'the craft aloft hit the target');assert.ok(Math.abs(two/one-2)<1e-4,`craft damage is proportional to airGun: ${two/one}`);

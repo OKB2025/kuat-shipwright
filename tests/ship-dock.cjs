@@ -7,6 +7,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx),plain=v=>JSON.parse(JSON.stringify(v));
+const hullOf=g=>g.sec.reduce((n,x)=>n+x.s,0);/* 2026-11-19 (PR #119, v30: the ship-wide u.hp is retired; regression review): the hull's state is the sum of its sections' structure (sec.s), which is what damage and repair now change. The comparisons and their margins are unchanged. */
 // A hangar 2.5 km deep behind a mouth on the host's bow face, its opening 1.5 km by 0.8 km.
 const MOUTH={hatchId:99,p:[3000,0,0],n:[1,0,0],ax:[0,0,1],o:[1500,800],r:1,in:[1750,0,0],d:1250,sl:0,bs:[2500,1000,1600]};
 function host(mouth=MOUTH){const p=plain(F.designs.venator.p);p.mouths=[plain(mouth)];const h=C.fleetUnit('h','venator',p,0);h.order={...h.order,type:'hold',fire:false};return h;}
@@ -21,16 +22,16 @@ test('a ship docks through a hangar mouth it fits; the mouth and bay turn with t
 });
 test('a ship ordered to dock flies in through the mouth, docks, rides with its host, is resupplied, and leaves on a new order',()=>{
  const h=host(),g=guest();g.pos=[9000,0,1500];g.yaw=Math.PI;
- g.energy=0;g.crew=Math.round((g.p.crewMax||g.crew)*.5);for(const x of g.sec)x.s=x.max*.4;g.hp=g.sec.reduce((n,x)=>n+x.s,0);g.mods=g.mods.map((v,i)=>g.p.modules[i].k==='hull'?v:.5);
+ g.energy=0;g.crew=Math.round((g.p.crewMax||g.crew)*.5);for(const x of g.sec)x.s=x.max*.4;g.mods=g.mods.map((v,i)=>g.p.modules[i].k==='hull'?v:.5);
  const f=C.shipFuelState(g),fuelCap=f.capacityKnown;if(fuelCap){f.fuelEnergyJ=f.capacityJ*.6;f.remainingKg=(f.capacityJ-f.fuelEnergyJ)/f.specificEnergyJPerKg;}
  assert.ok(C.dockNeed(g)>=C.DOCK.want,'a worn ship wants a dock: '+C.dockNeed(g));
  g.order={...g.order,type:'dock',target:'h'};const B=C.fleetBattle([h,g],false);B.seed=3;
  for(let t=0;t<900&&!g.docked;t+=.25)C.fleetTick(B,.25,{});
  assert.ok(g.docked,'docked within fifteen minutes');assert.equal(g.docked.host,'h');assert.equal(g.docked.hatch,99);assert.ok(B.events.some(e=>/格納庫に入渠/.test(e.text)));
  assert.equal(C.dockState(h,g).inside,true,'it is inside the bay');
- const hp0=g.hp,e0=g.energy;g.hyperE=0;for(let t=0;t<240;t+=.25)C.fleetTick(B,.25,{});
+ const hp0=hullOf(g),e0=g.energy;g.hyperE=0;for(let t=0;t<240;t+=.25)C.fleetTick(B,.25,{});
  assert.ok(C.hyperCharged(g)>=1-Math.exp(-240/C.DOCK.refillS)-1e-6,'the host charges the hyperdrive at the dock refill rate at least (「燃料・充電」): '+C.hyperCharged(g));
- assert.ok(g.energy>e0&&g.energy>=g.p.wCap*.8,'weapon energy refilled (its stores grow back with the weapon modules being repaired): '+g.energy/g.p.wCap);assert.ok(g.hp>hp0,'hull repaired');
+ assert.ok(g.energy>e0&&g.energy>=g.p.wCap*.8,'weapon energy refilled (its stores grow back with the weapon modules being repaired): '+g.energy/g.p.wCap);assert.ok(hullOf(g)>hp0,'hull repaired');
  assert.ok(g.mods.every((v,i)=>g.p.modules[i].k==='hull'||v>1-.5*Math.exp(-240/C.DOCK.repairS)-.01),'modules repaired at the dock repair rate');assert.ok(g.crew>=(g.p.crewMax??g.p.crewNeed)*.9,'crew made up');
  if(fuelCap)assert.ok(C.shipFuelState(g).fuelEnergyJ<f.capacityJ*.1,'fuel refilled');
  assert.ok(C.dockNeed(g)<C.DOCK.want,'no longer wants a dock');

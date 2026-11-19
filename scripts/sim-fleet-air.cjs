@@ -64,7 +64,7 @@ function run(seed){
    const W=[T.pos[0]+Math.cos(y.routeA)*RUNIN,y.pos[1],T.pos[2]+Math.sin(y.routeA)*RUNIN];if(y.phase==='approach'&&(C.len(C.sub(W,y.pos))<2500||dist(y,T)<RUNIN*.8))y.phase='run';
    y.order=y.phase==='run'?{...y.order,type:'attack',target:T.id,fire:false}:{...y.order,type:'move',point:W,fire:false};}
  }
- const fire=(u,target,k,nRounds,r,aim)=>{const dir=C.norm(C.sub(target.pos,u.pos)),s=Math.max(220,C.len(u.velocity)),m={id:'m'+(B.missileN=(B.missileN||0)+1),salvo:u.id+k+'@'+B.time,team:u.team,from:u.id,target:target.id,n:nRounds,tt:ROUND.tt,kind:k,ion:r.ion,...(aim?{aim}:{}),range:r.range,traveled:0,pos:u.pos.slice(),vel:C.mul(dir,s),s,life:r.range/C.roundSpeed(k)*1.5+5,sent:nRounds};(B.missiles||(B.missiles=[])).push(m);rounds.push(m);};
+ const fire=(u,target,k,nRounds,r,aim,aimRange)=>{const dir=C.norm(C.sub(target.pos,u.pos)),s=Math.max(220,C.len(u.velocity)),m={id:'m'+(B.missileN=(B.missileN||0)+1),salvo:u.id+k+'@'+B.time,team:u.team,from:u.id,target:target.id,n:nRounds,tt:ROUND.tt,kind:k,ion:r.ion,...(aim?{aim,aimRange}:{}),range:r.range,traveled:0,pos:u.pos.slice(),vel:C.mul(dir,s),s,life:r.range/C.roundSpeed(k)*1.5+5,sent:nRounds};(B.missiles||(B.missiles=[])).push(m);rounds.push(m);};
  let t=0,lastAssign=-Infinity;
  for(;t<LIMIT;t+=STEP){
   // The ships: each attacks the nearest effective enemy ship (fleetAiOrders' rule, for both sides; craft are not ship targets).
@@ -75,7 +75,7 @@ function run(seed){
    for(const x of fighters[team]){if(x.dead||!x.stores.length||x.order.type!=='attack'||(x.mslAt||0)>t)continue;const q=byId.get(x.order.target);if(!q||q.dead||!C.craftUnit(q)||dist(x,q)>AIRSHOT||!C.craftGunsBear(x,q))continue;fire(x,q,'cmsl',1,KINDS[1]);x.stores.pop();x.mslAt=t+AIRWAIT;st.airFired[team]++;}
    // Bombers release each kind they carry at its distance with their bow on the target (bombs over the hull).
    for(const y of bombers[team]){if(y.dead||!y.stores.length||y.phase!=='run')continue;const T=byId.get(y.tgt);if(!T||T.dead)continue;const d=dist(y,T)-T.p.len/2,brg=Math.atan2(T.pos[2]-y.pos[2],T.pos[0]-y.pos[0]),off=Math.abs(Math.atan2(Math.sin(brg-y.yaw),Math.cos(brg-y.yaw)));
-    for(const k of [...new Set(y.stores.map(r=>r.kind))]){const r=y.stores.find(q=>q.kind===k);if(d>r.release||(k!=='bomb'&&off>.35))continue;const cnt=y.stores.filter(q=>q.kind===k).length;fire(y,T,k,cnt,r,y.aimAt);st.released[team]+=cnt;st.firstRelease[team]??=t;y.stores=y.stores.filter(q=>q.kind!==k);}}}
+    for(const k of [...new Set(y.stores.map(r=>r.kind))]){const r=y.stores.find(q=>q.kind===k);if(d>r.release||(k!=='bomb'&&off>.35))continue;const cnt=y.stores.filter(q=>q.kind===k).length;fire(y,T,k,cnt,r,y.aimAt,dist(y,T));st.released[team]+=cnt;st.firstRelease[team]??=t;y.stores=y.stores.filter(q=>q.kind!==k);}}}
   const shots=C.fleetTick(B,STEP);if(!st.firstGun)for(const q of shots){const a=byId.get(q.from),z=byId.get(q.to);if(a&&z&&!C.craftUnit(a)&&!C.craftUnit(z)&&q.gun>0){st.firstGun={t,d:dist(a,z)};break;}}
   for(const team of [0,1])for(const s of ships[team])if(!st.shipOut[s.id]&&(s.dead||s.out))st.shipOut[s.id]={t,why:s.dead?'lost':s.out};
   const left=[0,1].map(k=>ships[k].some(eff));if(!left[0]||!left[1])break;
