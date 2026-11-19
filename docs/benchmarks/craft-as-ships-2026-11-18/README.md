@@ -30,3 +30,19 @@
 - 追加レビューのあとの修正（7eeac66、e946cc7 以降）の再レビュー。
 - スマートフォン幅、英語表示、戦略マップからの操艦・パトロール・観戦でボタンが出ないこと。
 - 作例の再生成はしていない（`fleetProfile`・`computeStats` には触れていない）。
+
+## 航空機を含む艦隊戦と、対艦攻撃の取り直し（2026-11-19、9bcbd02 ＋ `scripts/sim-fleet-air.cjs`）
+
+ゲーム本体（`js/`）は変えていない。割り当て・進路・投下・搭載はスクリプトの中だけにある。発艦は省き、機体は母艦の横を飛んでいる状態から始める。再武装はしない。
+
+| 記録 | コマンド | 内容 |
+| --- | --- | --- |
+| `fleet/isd2-vs-rebel5.txt` | `node scripts/sim-fleet-air.cjs 3` | インペリアル I ×2 対 MC75・MC80 リバティ・ネビュロン B ×2・CR90。艦載機は `data/fleet.js` の搭載どおり全機（205 単位）。80 km から、爆撃機は 2 進路 |
+| `fleet/isd2-vs-rebel5-tie-zone.txt` | `TIE=zone node scripts/sim-fleet-air.cjs 3` | 同じ。迎撃側は艦の近くを点防御に任せる |
+| `fleet/isd2-vs-rebel5-no-craft.txt` | `KS_WING=0 node scripts/sim-fleet-air.cjs 3` | 航空機なし（艦だけ）の比較 |
+| `strike/imperial-routes-1-9bcbd02.txt` | `node scripts/sim-strike.cjs 3` | 進路 1 本を 9bcbd02 で取り直したもの。`imperial-parts-tie-run.txt`（893ea90 の時点）と結果が違う |
+| `trial-pd-first/` | 下記 | **試し**。点防御のエネルギーを砲より先に取っておく 1 行の変更（`core.diff`）をスクラッチの写しに当てて同じコマンドを実行。変更はリポジトリに入れていない |
+
+- `trial-pd-first/` の実行：`js/core.js` に `core.diff` を当てた写しと `data/` を置いた場所を `KS_TEST_ROOT` に指定し、`AXES=1|2|3 node sim-strike.cjs 3` と `node sim-fleet-air.cjs 3`。
+- 計測用の写し（点防御が給電を得た回数と、艦の `energy` を数える行を足したもの）での実行は記録に残していない。数値は [../../damage-penetration.md](../../damage-penetration.md) の同日の節にある。
+- 未実施：既存テスト（ゲーム本体を変えていないため）、ブラウザ確認、レビュー。`node scripts/update-asset-manifest.cjs --check` は通る。
