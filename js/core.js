@@ -90078,7 +90078,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
 //   unguided (m.ballistic).
 // The figures are those of the scripts' runs (docs/damage-penetration.md, 2026-11-19); all are ours (★) except where a decision
 // names them. A craft's own state for this is u.sortie (copied with the unit by combatClone); the battle's is b.air.
-const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,land:600,exit:60,clear:3,rearm:DOCK.refillS*3,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
+const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,land:600,exit:60,clear:3,lane:600,look:15000/* far enough ahead for a craft to climb over the lane at its shallow climb (at 6 km it met the lane before it had risen 100 m) */,rearm:DOCK.refillS*3,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
  kinds:Object.freeze([Object.freeze({kind:'itorp',ion:true,release:4000,range:8000}),Object.freeze({kind:'cmsl',ion:false,release:6000,range:10000}),Object.freeze({kind:'bomb',ion:false,release:700,range:1500})]),aims:Object.freeze(['engine','bridge','weapon','sensor']),
  roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_btlb',job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
 // The rounds a craft of spare lift (t) carries: the kinds in turn while they fit by mass.
@@ -90235,6 +90235,22 @@ function fleetAirStep(b,dt,opts={}){
     const q=air.squadrons.find(x=>x.members.includes(u.id));const at=b.units.indexOf(u);if(at>=0)b.units.splice(at,1);byId.delete(u.id);air.log.landed=air.log.landed||[0,0];air.log.landed[team]++;
     if(q){q.members=q.members.filter(id=>id!==u.id);q.mix.push({type:w.type,key:w.key||u.key,bomber:!!w.bomber});if(!(q.pending>0)&&!q.members.some(id=>up(byId.get(id)))){q.out=false;q.size=q.mix.length;q.bomber=q.mix.some(x=>x.bomber);q.members=[];q.landedAt=t;q.readyAt=t+FLEET_AIR.rearm;/* user decision 2026-11-19「爆撃機の再武装も行えるようにして」: fighters and bombers alike are re-armed aboard and can go up again */}}}}
  }
+ // User decision 2026-11-19「そもそも艦隊戦で砲撃が交わされてる部分は避けるように飛行すればいい」: craft keep out of the lanes ships are firing
+ // along. A lane is the line from a ship to the ship it fired at in the last step, FLEET_AIR.lane wide (★), and the ground round
+ // that target where the fire that misses it falls (fireStray's radius). A craft whose way for the next FLEET_AIR.look metres
+ // crosses a lane, or that is in one, is sent over it (under it, when it is already well below). Not turned aside: a
+ // craft fighting another close by, a bomber on its run or in its dive at the very ship the lane ends on (inside that ship's
+ // ground), and a craft just out of a hangar mouth.
+ {const lanes=[];for(const u of b.units){if(u.dead||u.absent||craftUnit(u)||!u.firingAt)continue;const tg=byId.get(u.firingAt);if(!up(tg)||craftUnit(tg))continue;const d=dist(u,tg);if(d>1)lanes.push({a:u.pos,z:tg.pos,to:tg.id,L:d,dir:mul(sub(tg.pos,u.pos),1/d),end:Math.max(500,d*.02+tg.p.len*.7)});}
+  if(lanes.length)for(const l of craft)for(const u of l){if(!up(u)||u.dockCorridor)continue;const w=u.sortie,o=u.order,tg=o.target!=null?byId.get(o.target):null,goal=o.type==='move'&&o.point?o.point:up(tg)?tg.pos:null;if(!goal)continue;
+   if(o.type==='attack'&&up(tg)&&craftUnit(tg)&&dist(u,tg)<=FLEET_AIR.engage*2)continue;
+   const way=sub(goal,u.pos),far=len(way);if(far<1)continue;const sp=len(u.velocity||[0,0,0]),near=far<FLEET_AIR.look*.5&&sp>50/* a craft keeping station on another (an escort) has its goal beside it: it looks along the way it is flying */,step=near?FLEET_AIR.look*.5:Math.min(far,FLEET_AIR.look),h=near?mul(u.velocity,1/sp):mul(way,1/far);let worst=null;
+   for(const ln of lanes){if(w.bomber&&w.tgt===ln.to&&(w.phase==='run'||w.dive)&&len(sub(u.pos,ln.z))<=ln.end*1.5)continue;
+    // nearest approach of the craft's next stretch to the lane (sampled along the stretch: the lane is long and straight)
+    for(let s=0;s<=step;s+=Math.max(150,step/12)){const p=add(u.pos,mul(h,s)),r=sub(p,ln.a),al=clamp(dot(r,ln.dir),0,ln.L),foot=add(ln.a,mul(ln.dir,al)),off=sub(p,foot),gap=len(off),R=al>ln.L-ln.end&&!(w.bomber&&w.tgt===ln.to)?Math.max(FLEET_AIR.lane,ln.end):FLEET_AIR.lane;
+     if(gap<R&&(!worst||s<worst.s)){worst={s,foot,off,gap,R,ln};break;}}}
+   if(!worst)continue;const out=[0,u.pos[1]-worst.foot[1]<-worst.R*.5?-1:1,0]/* over the lane (under it for a craft already well below): a way round to the side would only hold the craft on the near side of a lane it has to cross */,W=add(worst.foot,mul(out,worst.R*2));
+   u.order={...o,type:'move',point:add(W,mul(norm(sub(W,u.pos)),1500)),dash:true/* flown in three dimensions: a craft on a level course climbs too slowly to clear the lane */};w.avoid=t;}}
  for(const l of craft)for(const u of l)if(u.dockCorridor&&up(u)&&u.sortie.outDir)u.order={...u.order,type:'move',point:add(u.pos,mul(u.sortie.outDir,5000)),fire:false,dash:false};
 }
 function fleetAirRelease(b,u,target,kind,n,r,aim,fall=null){

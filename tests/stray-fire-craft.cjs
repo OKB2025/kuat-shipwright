@@ -23,3 +23,22 @@ test('a craft that keeps close to a ship its own side is firing on is not lost t
   if(tie.dead)lost++;}
  assert.ok(lost<=1,'thirty seconds beside the target in four battles: lost in '+lost+' (it was lost in all of them within seconds)');
 });
+// User decision 2026-11-19「そもそも艦隊戦で砲撃が交わされてる部分は避けるように飛行すればいい」: craft keep out of the lanes ships fire along.
+test('a strike whose way crosses the line of fire between two other ships goes round it',()=>{
+ const profiles={};for(const k of ['craft_xwing','craft_btlb']){const d=C.buildDesign(k),S=C.computeStats(d);profiles[k]={p:C.fleetProfile(S,d.name,d),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
+ // a fires on z1 along the x axis; the carrier is south of that line and the ship its strike goes for (z2) north of it.
+ const a=C.fleetUnit('a','mc80liberty',plain(F.designs.mc80liberty.p),0),z1=C.fleetUnit('z1','imperial',plain(F.designs.imperial.p),1),car=C.fleetUnit('car','mc75',plain(F.designs.mc75.p),0),z2=C.fleetUnit('z2','imperial',plain(F.designs.imperial.p),1);
+ a.pos=[-15000,0,0];z1.pos=[15000,0,0];/* 30 km apart: inside their guns' reach */z1.yaw=Math.PI;car.pos=[0,0,-20000];car.yaw=Math.PI/2;z2.pos=[0,0,3000];z2.yaw=-Math.PI/2;/* the carrier stands 20 km off the line: its craft have room to climb over it */
+ for(const u of [a,z1,car,z2])for(const x of u.sec){x.max*=1e6;x.s=x.max;}
+ a.order={...a.order,type:'hold',target:'z1',fire:true,autoPointDefense:false};z1.order={...z1.order,type:'hold',target:'a',fire:true,autoPointDefense:false};
+ for(const u of [car,z2])u.order={...u.order,type:'hold',fire:false,autoPointDefense:false};
+ const B=C.fleetBattle([a,car,z1,z2],true);B.seed=4;C.fleetAirSetup(B,[{home:'car',group:[{type:'ywing',count:6},{type:'xwing',count:3}]}],profiles,{arrive:[true,false]});
+ // The lanes are read from the battle itself: every ship and the ship it fired at in the step, away from the lane's two ends.
+ let near=Infinity,avoided=0,fired=0,crossed=0;const side=new Map(),ships=[a,car,z1,z2];
+ for(let t=0;t<120;t+=.25){C.fleetTick(B,.25,{});const lanes=ships.filter(u=>u.firingAt&&ships.some(s=>s.id===u.firingAt)).map(u=>{const z=ships.find(s=>s.id===u.firingAt),L=C.len(C.sub(z.pos,u.pos));return {a:u.pos,d:C.mul(C.sub(z.pos,u.pos),1/L),L};});if(lanes.length)fired++;
+  for(const u of B.units.filter(u=>u.sortie&&!u.dead)){if(u.sortie.avoid!=null)avoided++;const s=Math.sign(u.pos[2]);if(side.has(u.id)&&side.get(u.id)<0&&s>0)crossed++;side.set(u.id,s);
+   for(const ln of lanes){const r=C.sub(u.pos,ln.a),al=C.dot(r,ln.d);if(al<3000||al>ln.L-3000)continue;near=Math.min(near,C.len(C.sub(r,C.mul(ln.d,al))));}}}
+ if(process.env.KS_SHOW)console.error('nearest to a line of fire',Math.round(near),'crossed',crossed,'avoided',avoided,'steps with fire',fired);
+ assert.ok(fired>100,'ships were firing at each other while the strike flew: '+fired+' steps');assert.ok(crossed>=6,'the strike went over to the other side: '+crossed+' craft');assert.ok(avoided>0,'it was sent round');
+ assert.ok(near>=C.FLEET_AIR.lane*.9,`no craft came nearer a line of fire than ${Math.round(near)} m (the lane is ${C.FLEET_AIR.lane} m)`);
+});
