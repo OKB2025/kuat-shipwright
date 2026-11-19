@@ -40,3 +40,15 @@ test('a heavy launcher fires one round from each cell and is then empty',()=>{
  assert.equal(C.missileRange(m),60000);
  const row=C.missileCellAmmo?C.missileCellAmmo({p:{modules:[m]},ammo:[2],launcherCellAmmo:[]},0):null;if(row)assert.deepEqual([...row],[1,1],'one round a cell, not six');
 });
+// Regression review 2026-11-19 (FAIL): the loader copied a launcher's grid but not its cell size or load, so heavy cells came
+// back as small cells after Undo, autosave and a reload.
+test('saving and loading keeps heavy cells and their load; small cells keep no load; an old save stays small',()=>{
+ const make=o=>{const ship=C.newShip({L:900,W:300,H:150},'Launcher save'),h=C.rayEnv(ship,[450,400,60],[0,-1,0],{structOnly:true});C.placeFit(ship,'shipMsl',h.p,h.n,0,false,{launcherCols:2,launcherRows:1,launchYaw:0,launcherEmbedded:false,...o});return ship;};
+ const back=ship=>C.deserialize(C.serialize(ship)).fits.find(f=>f.k==='shipMsl');
+ let f=back(make({launcherHeavy:true}));assert.equal(f.launcherHeavy,true);assert.equal(f.round,undefined);assert.equal(C.missileLauncherSpec(f).torp,true);near(C.missileLauncherSpec(f).tt,C.SHIP_TORPEDO.tt);
+ f=back(make({launcherHeavy:true,round:'msl'}));assert.equal(f.launcherHeavy,true);assert.equal(f.round,'msl');near(C.missileLauncherSpec(f).tt,C.SHIP_MISSILE.tt);
+ const small=make({});small.fits.find(q=>q.k==='shipMsl').round='torp';f=back(small);assert.equal(f.launcherHeavy,undefined);assert.equal(f.round,undefined,'a load left on small cells by an earlier version is dropped');near(C.missileLauncherSpec(f).tt,C.AIR_ROUNDS.missile.tt);
+ f=back(make({}));assert.equal(f.launcherHeavy,undefined);assert.equal(C.missileLauncherSpec(f).ammoPerCell,6);
+ const a={id:1,k:'shipMsl',p:[0,0,0],a:2,launcherCols:1,launcherRows:1},b={...a,launcherHeavy:true},c={...b,round:'msl'};
+ if(C.launcherStateKey){assert.notDeepEqual(C.launcherStateKey(a),C.launcherStateKey(b),'the recess cache sees the cell size');assert.notDeepEqual(C.launcherStateKey(b),C.launcherStateKey(c));}
+});
