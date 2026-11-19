@@ -86078,7 +86078,7 @@ function craftGunsBear(u,t){if(!craftUnit(u)||!t?.pos)return true;const d=sub(t.
 //    bow on the space ahead (the only way into the gun's envelope);
 //  - with the heading crossing angle within .match (45 degrees) it matches the opponent's speed; turning, it holds its corner speed.
 // Out-of-plane moves (the yo-yos, the two-second roll out of plane) are not flown: hulls here turn in yaw only.
-const CRAFT_DOGFIGHT=Object.freeze({yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:2,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
+const CRAFT_DOGFIGHT=Object.freeze({pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
 // Roll and pull toward a point. f is the bow, up the lift vector. It rolls at CRAFT_DOGFIGHT.roll rad/s until the lift vector points
 // at the side the point is on, and pitches up toward it at up to `rate`; a point a little below its bow it reaches by pitching
 // down (at half the rate) instead of rolling over.
@@ -86087,7 +86087,7 @@ function craftAttitudeStep(u,old,dest,rate,dt){
  const dir=mul(to,1/dist),along=clamp(dot(f,dir),-1,1),off=Math.acos(along),e=sub(dir,mul(f,along)),el=len(e);if(!(el>1e-6))return {f,up,angle:0,need:0};
  const want=mul(e,1/el),cu=clamp(dot(up,want),-1,1),push=cu<-.5&&off<CRAFT_DOGFIGHT.push;
  if(!push){const ang=Math.acos(cu),step=Math.min(ang,CRAFT_DOGFIGHT.roll*dt);if(ang>1e-6){const side=dot(cross(up,want),f)>=0?1:-1,c=Math.cos(step),sn=Math.sin(step)*side,r=cross(f,up);up=norm(add(mul(up,c),mul(r,sn)));}}
- const lift=dot(up,want),pull=push?-Math.min(off,rate*.5*dt):Math.min(off,rate*dt)*Math.max(0,lift),c=Math.cos(pull),sn=Math.sin(pull),f2=norm(add(mul(f,c),mul(up,sn))),up2=norm(sub(mul(up,c),mul(f,sn)));
+ const lift=dot(up,want),pull=push?-Math.min(off,rate*.5*dt):Math.min(off,rate*dt)*(lift>CRAFT_DOGFIGHT.pullAt?1:Math.max(0,lift))/* it pulls in full once the lift vector is near the point's side */,c=Math.cos(pull),sn=Math.sin(pull),f2=norm(add(mul(f,c),mul(up,sn))),up2=norm(sub(mul(up,c),mul(f,sn)));
  return {f:f2,up:up2,angle:Math.abs(pull),need:rate>0?off/(rate*dt):0};
 }
 // Yaw is the turn a ship makes, about its own up axis, without the stick (user decisions 2026-11-19「ヨーはスティックによらない艦の旋回」
