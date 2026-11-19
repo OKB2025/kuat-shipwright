@@ -22,7 +22,10 @@ for(const key of ['arquitens','cr90','hammerhead','reptransport'])test(`${key} u
  const r=plinked(key);
  assert.equal(r.a.out,null,'no shutdown: '+r.a.out);assert.equal(r.heatEvent,false,'no heat-limit event');
  assert.ok(r.peak<C.HEAT.limitAt,'the store stays under the limiting band: '+r.peak);assert.equal(r.a.ht.damageLimit??1,1,'no thermal damage limit');
- assert.ok(r.governed<1,'the recharge was governed: '+r.governed);
+ // 2026-11-19 expectation changed with the user decision that a full shield buys no power even under fire: a ship whose
+ // field stays full under this light fire never heats enough to be governed, so the governor is required only where the
+ // store reached the governed band.
+ assert.ok(r.governed<1||r.peak<C.HEAT.governStart,'the recharge was governed where the store reached the governed band: '+r.governed+' at peak '+r.peak);
  // A governed recharge is slower, not a failing generator: the field does not decay under this light fire.
  assert.ok(r.a.shield>=.9*r.a.shieldMax,`the field holds (${r.a.shield/r.a.shieldMax})`);
 });

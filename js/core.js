@@ -88205,7 +88205,7 @@ function shipCombatPowerDemand(u,want={},dt=0){
  if(Number.isFinite(u.shieldMax)&&Number.isFinite(u.shield)){
   const missing=Math.max(0,u.shieldMax-u.shield)+Math.max(0,(u.bankMax||0)-(u.bank||0)),tolerance=Math.max(1e-12,Math.max(u.shieldMax,u.bankMax||0)*1e-12);
   if(!(missing>tolerance)&&!u.underFire)shields=0;
-  else if(step>0&&!u.underFire&&p.D>0&&g.Ds>0)shields=Math.min(shields,missing*g.Ds/(p.D*fieldScale(p)*(craftUnit(u)?1:SHIELD_MODEL.returnK)*step))/* test classification 2026-11-19: the cap on what the shield asks for was worked out with p.D alone while the recharge uses D·fieldScale·returnK (shieldRechargeStep), so a ship of 1 km and more paid 6.5 times for its last top-up and a small ship never filled */;
+  else if(step>0/* user decision 2026-11-19 (asked whether a full shield should buy power under fire; おすすめで進めて): the shield asks only for what is missing, under fire as well. Before, any ship under fire asked for its full rated draw whatever it lacked, and the heat of it took a CR90 with a full field past its limit */&&p.D>0&&g.Ds>0)shields=Math.min(shields,missing*g.Ds/(p.D*fieldScale(p)*(craftUnit(u)?1:SHIELD_MODEL.returnK)*step))/* test classification 2026-11-19: the cap on what the shield asks for was worked out with p.D alone while the recharge uses D·fieldScale·returnK (shieldRechargeStep), so a ship of 1 km and more paid 6.5 times for its last top-up and a small ship never filled */;
  }
  // The heat governor's share of the recharge (2026-11-17). It is applied after the intent, like the storage-headroom trim, so a
  // governed field recharges more slowly without being read as a failing generator (no decay).
