@@ -75280,7 +75280,7 @@ const FITS = {
   // are chosen in the order of battle (the default is the craft's canon loadout).
   ctorp: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: .32, len: 1.4}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 0.32 m：プロトン魚雷・イオン魚雷・震盪ミサイル・爆弾を装填できる。'},
   cmsl: {cat: 'w', craft: true, fixed: true, msl:.0471/* ORDNANCE.cmsl.tt (2026-11-19; was 25) */, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .22, len: 1.1}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発0.047 TT。'},
-  shipMsl: {cat:'w',fixed:true,msl:.0471/* ORDNANCE.cmsl.tt (2026-11-19; was 25) */,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:2.4,wm:.9,hm:.9,pw:1e15,mass:6.4,crew:0,cost:8000,store:{mount:'tube',slots:6,bore:.22,len:1.1},desc:'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程10 km。大型セル（7×50 m、1セル1発）は対艦魚雷54.8 TTまたは大型ミサイル28.9 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
+  shipMsl: {cat:'w',fixed:true,msl:.0471/* ORDNANCE.cmsl.tt (2026-11-19; was 25) */,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:2.4,wm:.9,hm:.9,pw:1e15,mass:6.4,crew:0,cost:8000,store:{mount:'tube',slots:6,bore:.22,len:1.1},desc:'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程10 km。大型セル（12.1 m角、7×50 mの弾を1セル1発）は対艦魚雷54.8 TTまたは大型ミサイル28.9 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
   cbomb: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
   cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', thin: 6, heavy: 3, maxMass: .4}, desc: '機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイルなら6発、魚雷なら3発、爆弾なら2発まで（1か所 0.4 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。'},
 };
@@ -76178,10 +76178,10 @@ function isSurfaceVLS(f){return !isShipLauncher(f)&&isConcussionLauncher(f)&&isS
 //   95% warhead, 54.84 TT), which flies at the speed of a craft's torpedoes (600 m/s) straight at a ship, so point defence can shoot
 //   it down; its cells can be loaded with large missiles of the same size instead (f.round==='msl': 50% warhead, 28.86 TT, a
 //   missile's speed, at ships and at craft).
-// ★ Ours: a heavy cell is HEAVY_LAUNCHER.cell square and .depth long and holds .perCell round (a 0.9 m cell holds six air missiles);
+// A heavy cell is HEAVY_LAUNCHER.cell square (measured, see there). ★ Ours: it is .depth long and holds .perCell round (a 0.9 m cell holds six air missiles);
 // its range is the launchers' former 60 km; its mass is the round's and the cell's (.massK of the round); cost and power are the
 // small cell's times .costK.
-const HEAVY_LAUNCHER=Object.freeze({cell:7.5,depth:52,perCell:1,range:60000,massK:1.25,costK:100});
+const HEAVY_LAUNCHER=Object.freeze({cell:12.1/* user instruction 2026-11-19「マンデイターIIのこのミサイル発射装備に合わせて大型化して」: the pitch of the launch tubes measured on the Mandator II source model (96 tubes in racks of 6 by 2: 12.1 m along the hull, 12.2 m between rows; docs/benchmarks/mandator2-launch-tubes-2026-11-19) */,depth:52,perCell:1,range:60000,massK:1.25,costK:100});
 function launcherHeavy(f){return f?.launcherHeavy===true||f?.heavy===true;}
 function launcherTorpedo(f){return launcherHeavy(f)&&(f?.round||f?.missileRound)!=='msl'||f?.torp===true;}
 function launcherRound(f){return launcherHeavy(f)?(launcherTorpedo(f)?SHIP_TORPEDO:SHIP_MISSILE):AIR_ROUNDS.missile;}

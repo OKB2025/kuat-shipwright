@@ -10284,7 +10284,7 @@ Object.assign(root.KS_EN.messages,{
 Object.assign(root.KS_EN.terms,{
 '艦艇用ミサイル発射機':'Ship Missile Launcher',
 '艦艇ミサイル発射機':'Ship Missile Launcher',
-'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程10 km。大型セル（7×50 m、1セル1発）は対艦魚雷54.8 TTまたは大型ミサイル28.9 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell twice the aircraft launcher size. Horizontal and vertical cell counts change physical width, height, ammunition, mass and cost. Six 0.047 TT rounds per cell, with a 10 km range. Heavy cells (7×50 m, one round each) hold a 54.8 TT anti-ship torpedo or a 28.9 TT large missile, with a 60 km range; supports external and structure-embedded mounting.',
+'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程10 km。大型セル（12.1 m角、7×50 mの弾を1セル1発）は対艦魚雷54.8 TTまたは大型ミサイル28.9 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell twice the aircraft launcher size. Horizontal and vertical cell counts change physical width, height, ammunition, mass and cost. Six 0.047 TT rounds per cell, with a 10 km range. Heavy cells (12.1 m square, one 7×50 m round each) hold a 54.8 TT anti-ship torpedo or a 28.9 TT large missile, with a 60 km range; supports external and structure-embedded mounting.',
 '横セル数':'Horizontal Cells',
 '縦セル数':'Vertical Cells',
 '発射方向の左右角':'Launch Heading',
