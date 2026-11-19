@@ -10,6 +10,9 @@
 // be written to u.hitLog (X-ray replay): ticks 4..95 changed hash only through hitLog; with
 // hitLog left out of the hash, and in every digest number, shot, event count and
 // random state, all 96 ticks are identical to the 910ef75 recording.
+// 2026-11-19 re-recorded after the examples were regenerated on the v30 damage model (sections instead of hull points, the
+// shield that holds while up, rounds that fly, planet gravity, the ion power cut, the air rounds' yields): every tick differs
+// from the earlier recording, as intended. The base commit is in the reference file. Run twice after recording: identical.
 // Re-recorded on 2026-11-15 (PR #111, after PR #110's firing-heat work): the heat state gained one field per unit,
 // ht.madeBaseW (the heat a ship makes apart from its superweapons, for the firing-heat hold). Ticks 3..95 changed hash
 // through that field only: with KS_DETERMINISM_ALLOW_FLOAT=1 every digest number, shot, event count and random state
