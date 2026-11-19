@@ -85422,23 +85422,7 @@ try{
  const actualPower=s.parts.filter(isReactor).reduce((n,p)=>n+ratedReactorPower(p),0),actualShield=shields.reduce((n,p)=>n+shieldLoad(p),0);
  if(Math.abs(actualPower/ref.power-1)>1e-7)throw new Error('Mandator II: 反応炉の実区画容積が指定出力に不足しています');
  if(Math.abs(actualShield/ref.shieldLoad-1)>1e-7)throw new Error('Mandator II: シールド発生器の実容積が指定容量に不足しています');
- return mandatorLaunchRacks(s);
-}
-// User instruction 2026-11-19「マンデイターIIのこのミサイル発射装備に合わせて大型化して」, with docs/mandator2-rebuild-plan.md (the rows of launch
-// mouths on the sides are the ships' missile launcher). The source model has 96 launch tubes: on each side two groups, each of two
-// racks of 6 by 2 one above the other (docs/benchmarks/mandator2-launch-tubes-2026-11-19/measure.txt: tube pitch 12.1 m; groups
-// 6,729 m and 2,502 m from the stern end of this frame; the lower rack in the middle of the side band, the upper 33.3 m above it).
-// Each rack is one heavy launcher of 6 by 2 cells set into the side wall, loaded with the large missiles; a rack and its mirror
-// are placed together. ★ Ours: the load (large missiles, as the plan's "missile launcher") and the launch straight out of the side.
-// NOT YET REPRODUCED: the upper racks (33.3 m above, y 383.3). On the source they sit in a housing that stands above the side band;
-// this example has no such housing, so there is no face to set them in (placeFit: 取り付ける面が見つかりません). They are left out rather
-// than moved to where they are not: 48 of the 96 tubes are placed.
-const MANDATOR_LAUNCH_RACKS=Object.freeze({x:[6729.1,2502.1],y:[350],upperY:383.3,cols:6,rows:2});
-function mandatorLaunchRacks(s){
- let made=0;const why=[];for(const x of MANDATOR_LAUNCH_RACKS.x)for(const y of MANDATOR_LAUNCH_RACKS.y){
-  const h=sidePoint(s,x,MANDATOR_LAUNCH_RACKS.y[0],1);if(!h)throw new Error('Mandator II: 発射機ラックを置く舷側が見つかりません（x '+x+'）');
-  const before=s.fits.length,r=placeFit(s,'shipMsl',[x,y,h.p[2]],[0,0,1],0,true,{launcherCols:MANDATOR_LAUNCH_RACKS.cols,launcherRows:MANDATOR_LAUNCH_RACKS.rows,launchYaw:0,launcherEmbedded:true,launcherHeavy:true,round:'msl'});if(r?.err)why.push('x '+x+' y '+y+'：'+r.err);made+=s.fits.length-before;}
- if(made!==4)throw new Error('Mandator II: 発射機ラックを配置できません（'+made+'/4）'+[...new Set(why)].join('／'));return s;
+ return s;
 }
 registerShipExample({
  key:'mandator2',name:MAN_DESIGN.name,side:'銀河共和国',role:'艦隊旗艦・ドレッドノート',length:8000,
