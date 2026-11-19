@@ -11,6 +11,18 @@
 | [../damage-penetration.md](../damage-penetration.md) | 損害の作り直しの仕様と決定の原文。**パネル・対艦攻撃の節より後の決定は未記入**（下の 4 に一覧） |
 | [../reference/fighter-combat-notes.md](../reference/fighter-combat-notes.md)、[../reference/anti-ship-attack-notes.md](../reference/anti-ship-attack-notes.md) | 空中戦（Shaw）と対艦攻撃（珊瑚海の戦記）の要約 |
 
+## 0. 次のセッションの始め方
+
+1. 続きは `main` ではなく、PR #119 のブランチ `claude/relaxed-ritchie-bquetk` にある。新しいセッションに別の作業ブランチが割り当てられていたら、`git fetch origin claude/relaxed-ritchie-bquetk` で取り、その先頭（この文書のコミット以降）から始める。どのブランチへ push するかは、最初にユーザーへ確かめる（#119 に積み足すのがこれまでの決定）。
+2. `git log -1`、`git status`、`node scripts/update-asset-manifest.cjs --check` を確かめる。
+3. 主担当のモデルは Fable 5.2 / medium（CLAUDE.md の運用。作例生成・接続処理・複数の仕組みにまたがる改修にあたる）。
+4. 動作の確認に使うコマンド（出力先は必ず指定する）：
+   - `node --test tests/craft-as-ships.cjs`（第 1 段と損害の規則、9 件）
+   - `node scripts/sim-dogfight.cjs craft_xwing craft_tie_ln 10 1 1`（対向 8 km の空中戦。引数は A、B、回数、B の機数、A の機数）
+   - `node scripts/sim-strike.cjs 3 > <出力先>`（対艦攻撃 3 回。環境変数 `AXES`＝進路の数、`TIE=run|zone`、`KS_EVADE=0`、`KS_START`）
+   - `node scripts/browser-trial-wing.cjs <root> <出力先>`（公試の小型機、ブラウザ）
+5. 進める順：下の 5 の「すぐ続き」1 → 2 → 3、そのあと「#119 をマージできる状態にするために要ること」。#119 のあとの項目（C〜F）は [../handoff-2026-11-18/README.md](../handoff-2026-11-18/README.md) の表の順。
+
 ## 1. いまの状態
 
 - `main` は e8d3dfe（PR #117、#118 までマージ済み）。
