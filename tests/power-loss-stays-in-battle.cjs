@@ -25,12 +25,16 @@ test('a ship whose reactors are gone stops, loses its shield, makes no power and
 });
 // Physics review 2026-11-16 (FAIL): u.out keeps its first reason, so a ship that lost power and then its bridge stayed
 // "in the fight". The other reasons are now judged afresh.
-test('a ship without power that then loses its bridge is out of action',()=>{
+// 2026-11-19 user decision「艦橋で停止するのは統制射撃と判断能力で艦が行動不能になるのは自動化装置でほとんどを賄ってるタイプの艦のみ」:
+// this case expected the CR90 (no automation) to be out of action once its bridge was gone as well. It now fights on without
+// its bridge; the same loss still puts a ship run mostly by automation out of action.
+test('a ship without power that then loses its bridge: out of action only if automation runs most of it',()=>{
  const u=C.fleetUnit('a','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),0),mods=u.p.modules;
  for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor'||mods[i].k==='gen')u.mods[i]=0;C.syncPowerLossDisabled(u);
  assert.equal(u.out,'電源喪失');assert.equal(C.outOfAction(u),false);
  const br=mods.findIndex(m=>m.k==='bridge');assert.ok(br>=0,'the CR90 has a bridge module');u.mods[br]=0;
- assert.equal(u.out,'電源喪失','the recorded reason stays the first one');assert.equal(C.outOfAction(u),true);assert.equal(C.fleetEffective(u),false);
+ assert.equal(u.out,'電源喪失','the recorded reason stays the first one');assert.equal(C.bridgeLost(u),true);assert.equal(C.outOfAction(u),false,'a crewed ship is not out of action for its bridge');
+ u.p.autoCrew=(u.p.crewNeed||1)*3;assert.equal(C.bridgeRuns(u.p),true);assert.equal(C.outOfAction(u),true,'a ship run by automation is');assert.equal(C.fleetEffective(u),false);
 });
 // Physics review 2026-11-16 (FAIL on edd5df3): the automation check reads the reactors, so a ship crewed 95% by automation
 // (recusantDn) was out of action again from power loss alone. Judged as if the plant ran, it stays in the fight.

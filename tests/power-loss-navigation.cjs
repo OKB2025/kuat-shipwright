@@ -26,13 +26,16 @@ test('an unmanned thermal shutdown does not invent recovery workers',()=>{
 });
 test('restored power preserves distinct disabled reasons, bridge or crew loss and death',()=>{
  for(const reason of ['艦橋喪失','乗員不足','回航要員不足']){const u=unit();u.out=reason;u.mods[0]=0;C.syncPowerLossDisabled(u);u.mods[0]=1;C.syncPowerLossDisabled(u);assert.equal(u.out,reason);assert.equal(u.powerLossDisabled,undefined);}
- for(const reason of ['crew','bridge','capture','dead']){const u=unit();u.down={black:true,t:10};C.syncPowerLossDisabled(u);u.down=null;if(reason==='crew')u.crew=0;if(reason==='bridge'){u.p.modules.push({k:'bridge',share:1,size:1});u.mods.push(0);}if(reason==='capture')u.out='回航要員不足';if(reason==='dead')u.dead=true;C.syncPowerLossDisabled(u);assert.equal(u.out,{crew:'乗員不足',bridge:'艦橋喪失',capture:'回航要員不足',dead:'電源喪失'}[reason]);}
+ for(const reason of ['crew','bridge','capture','dead']){const u=unit();u.down={black:true,t:10};C.syncPowerLossDisabled(u);u.down=null;if(reason==='crew')u.crew=0;if(reason==='bridge'){u.p.modules.push({k:'bridge',share:1,size:1});u.mods.push(0);u.p.autoCrew=Math.max(1,(u.p.crewNeed||0)*3);/* 2026-11-19 user decision: the loss of the bridge puts out of action only a ship run mostly by automation */}if(reason==='capture')u.out='回航要員不足';if(reason==='dead')u.dead=true;C.syncPowerLossDisabled(u);assert.equal(u.out,{crew:'乗員不足',bridge:'艦橋喪失',capture:'回航要員不足',dead:'電源喪失'}[reason]);}
 });
 test('fully automated unmanned ships restore electrical navigation without a false crew failure',()=>{
  const u=unit();u.p.crewNeed=0;u.p.crewMax=0;u.p.autoCrew=100;u.crew=0;u.p.modules.push({k:'automation',share:1,size:1,domain:'main'});u.mods.push(1);u.down={black:true,t:10};C.syncPowerLossDisabled(u);assert.equal(u.out,'電源喪失');u.down=null;C.syncPowerLossDisabled(u);assert.equal(u.out,null);assert.equal(u.powerLossDisabled,undefined);
 });
-test('quiet and stirred worlds apply the existing disabled fall exactly once per tick',()=>{
- for(const stirred of [false,true]){const {w,u}=world(stirred);u.mods[0]=0;u.velocity=[10,0,0];const position=plain(u.pos),expected=C.integratePropulsionMotion(u,u.velocity,[0,-C.HULL_FALL.g,0],R.TICK);R.tick(w,R.TICK);assert.equal(u.out,'電源喪失');assert.equal(u.powerLossDisabled,true);for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],position[i]+expected.displacement[i]);}assert.equal(u._fallTime,w.time);assert.equal(R.groupDisabled(w,w.groups.get(u.group)).length,1);assert.equal(R.groupHyper(w,w.groups.get(u.group)),null);}
+// 2026-11-19 user decision「惑星自体に重力を発生させるようにして…電力を失う…とリパルサーリフトの効果が無くなっていくので惑星に墜落する」: the fall was
+// the constant HULL_FALL.g through the flight integrator; it is now the planet's gravity as far as the lift has faded, in free fall
+// (velocity first, then place). Still applied exactly once per tick.
+test('quiet and stirred worlds apply the disabled fall exactly once per tick',()=>{
+ for(const stirred of [false,true]){const {w,u}=world(stirred);u.mods[0]=0;u.velocity=[10,0,0];const position=plain(u.pos),lift=1-R.TICK/C.GRAVITY.liftFade,g=C.planetGravity(R.sysPlanet(w,u.sys),u.pos),velocity=u.velocity.map((v,i)=>v+g[i]*(1-lift)*R.TICK),expected={velocity,displacement:velocity.map(v=>v*R.TICK)};R.tick(w,R.TICK);assert.equal(u.out,'電源喪失');assert.equal(u.powerLossDisabled,true);for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],position[i]+expected.displacement[i]);}assert.equal(u._fallTime,w.time);assert.equal(R.groupDisabled(w,w.groups.get(u.group)).length,1);assert.equal(R.groupHyper(w,w.groups.get(u.group)),null);}
 });
 test('a stopped ship in an otherwise quiet world starts falling after loss of power',()=>{
  const {w,u}=world();u.mods[0]=0;u.velocity=[0,0,0];const y=u.pos[1];R.tick(w,R.TICK);assert.equal(u.out,'電源喪失');assert.ok(u.velocity[1]<0);assert.ok(u.pos[1]<y);

@@ -8359,7 +8359,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(tv.norm(trial.P),-C.HULL_FALL.g):tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
+ const f=trialCol(trial.R,0),acceleration=unit?.out?tv.scale(C.planetGravity({center:[0,0,0],radius:trialSys().planet.radius},trial.P),1-C.liftStep(unit,dt))/* v30 the planet's gravity, as far as the lift has faded */:tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
  // v24 Turning, speeding up and braking throw the batteries' aim off (C.AIM_MODEL), read on the next gunnery step.
  if(C.aimMotion)trial.aimMotion=C.aimMotion(Math.max(...[0,1,2].map(i=>Math.abs(trial.w[i])/Math.max(1e-6,max[i]||0))),motion.acc0>0?tv.len(acceleration)/motion.acc0:0);
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
@@ -10548,7 +10548,7 @@ function spaceStep(dt){
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
-  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,boltGuns:B.me?new Set([B.me.id]):null/* v27 enemy gun fire at the flown ship lands only by the bolts that reach it */,gravity:true,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
+  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,boltGuns:B.me?new Set([B.me.id]):null/* v27 enemy gun fire at the flown ship lands only by the bolts that reach it */,gravity:true,planet:{center:trialApplyT(B.E,tv.scale(B.O,-1)),radius:trialSys().planet.radius}/* v30 the planet in the battle's frame: gravity, lift and the fall of wrecks */,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
   spaceBumps(b.bumps);spaceBump(B.me);spaceDockStep(SPACE_RULES.step);trialWingStep(SPACE_RULES.step);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
