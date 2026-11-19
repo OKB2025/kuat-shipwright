@@ -36,6 +36,7 @@ root.KS_EN={
  "搭載弾薬により変化": "Depends on loaded ordnance",
  "キャノピーの形状・寸法が不正です": "Invalid canopy shape or dimensions",
  "着陸設備": "Landing equipment",
+ "リパルサーリフト（部品）": "Repulsorlift",
  "射撃指揮装置": "Fire control equipment",
  "機能区画": "Functional compartments",
  "指揮設備": "Command equipment",

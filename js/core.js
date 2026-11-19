@@ -77227,7 +77227,7 @@ addComp('pump','反応物供給設備','cube',0.3,[197,155,95],'power','ポン�
 addComp('localShield','局所シールド発生器','sphere',0.5,[82,192,164],'support','船内に設置し、広域発生器とともに防御出力を担います。',{def:20,crit:true});
 addComp('inertial','慣性制御装置','cyl',0.4,[134,158,211],'support','艦の質量に応じた慣性制御能力。足りない場合は警告します。',{def:44});
 addComp('integrity','構造維持装置','cube',0.45,[127,156,177],'support','構造維持フィールドを支える装置。艦体規模との適合を確認できます。',{def:36});
-addComp('repulsor','着陸設備','cyl',0.35,[112,199,202],'support','リパルサーリフトと着陸脚を一体にした設備。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
+addComp('repulsor','リパルサーリフト','cyl',0.35,[112,199,202],'support','艦や機体を重力に抗して支えるリパルサーリフト（着陸脚を含む）。支えられる質量は容積で決まり、艦の質量ぶんを積みます。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
 addComp('service','航空整備・補給区画','cube',0.1,[79,140,162],'air','航空機の整備・補給能力を確保します。格納庫とは別に空間を使います。',{def:60});
 addComp('cargo','貨物・物資庫','cube',0.05,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
 // Provisional game equipment: rooms reserve existing envelope living volume;
@@ -79559,7 +79559,7 @@ function clipCompartmentMesh(ship,p,b){
 function flexibleCompartment(ship,p){
  if(explicitInteriorPlacement(p))return false;
  // v24 Crew seats and bomb bays are never packed or deformed.
- return isInternal(p)&&p.k!=='cockpit'&&p.k!=='bombBay'&&(PARTS[p.k]?.shape==='cube'||(p.k==='aux'||p.k==='inertial')&&p.room)&&p.autoFit!==false&&!p.windowId&&!ship.hatches.some(h=>h.bay===p.id)&&!(p.k==='hangar'&&['flight','dock'].includes(p.airRole));
+ return isInternal(p)&&p.k!=='cockpit'&&p.k!=='bombBay'&&(PARTS[p.k]?.shape==='cube'||(p.k==='aux'||p.k==='inertial'||p.k==='repulsor'/* 2026-11-19 the ships' distributed repulsorlifts are rooms fitted among the others */)&&p.room)&&p.autoFit!==false&&!p.windowId&&!ship.hatches.some(h=>h.bay===p.id)&&!(p.k==='hangar'&&['flight','dock'].includes(p.airRole));
 }
 function hardConflicts(ship,p,ignore=[]){return conflicts(ship,p,ignore).filter(q=>!flexibleCompartment(ship,p)&&!flexibleCompartment(ship,q));}
 function packingBounds(boxes,c=[0,0,0]){return boxes.length?[0,1,2].map(i=>Math.min(...boxes.map(b=>b[i]))).concat([3,4,5].map(i=>Math.max(...boxes.map(b=>b[i])))):c.concat(c);}
@@ -84002,11 +84002,11 @@ function shipRefitFixedPart(ship,k,volume,label,preferred){
 }
 function shipRefitAddVolume(ship,k,volume,label){
  if(!(volume>1e-6))return [];
- if(['aux','pump','integrity','hdis','inertial'].includes(k)){
+ if(['aux','pump','integrity','hdis','inertial','repulsor'].includes(k)){
   const anchors=shipRefitAnchors(ship),b=shipBounds(ship),count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
   const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
   let remaining=volume;for(let pass=0;pass<4&&remaining>Math.max(.1,volume*1e-5);pass++){
-   const n=pass?4:count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true}));
+   const n=pass?4:count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true,...(k==='repulsor'?{landingEquipment:true}:{})}));
    syncCompartments(ship);remaining=Math.max(0,volume-made.reduce((total,p)=>total+partVolume(p),0));
   }
   if(remaining>Math.max(.1,volume*(['pump','integrity','inertial'].includes(k)?.02:1e-4)))throw new Error(ship.name+'：'+label+' の船内容積が不足しています（'+Math.round(remaining)+' m³）');return shipRefitFreezeRooms(ship,made);
@@ -84462,7 +84462,8 @@ function shipRefitMilitaryEngineVolume(ship,key,propulsion,wirePower,thermalOpti
   if((key==='gozanti'?ratedAccelG>=450&&ratedAccelG<=525:Math.abs(ratedAccelG-targetG)<=.08)&&actualAccelG>=(key==='executor'?1900:key==='gozanti'?450:targetG*.95)){propulsion.targetG=targetG;propulsion.basis=key==='gozanti'?'ordinary finite machinery retained inside the two original pods; acceleration follows completed physical mass':key==='venator'?'eight expanded external machines with bounded physical geometry and explicit received-power high-load efficiency, heat and finite cooling':'ordinary engine bodies sized to '+targetG+' G against completed physical mass and finite support';return {measured,trace,targetG};}
   const layout=sizeStockMilitaryEngines(ship,key,propulsion,measured.mass*1000*G0*targetG/K.engN);trace.at(-1).layout=layout;syncCompartments(ship);
   const supported=k=>ship.parts.filter(p=>p.k===k&&!measured.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),inertial=Math.max(0,measured.mass*1.08/(120*field)-supported('inertial')),integrity=Math.max(0,measured.mass*1.08/(180*field)-supported('integrity'));
-  for(const [kind,volume,label]of [['inertial',inertial,'増強機関用慣性補償設備'],['integrity',integrity,'増強機関用構造維持設備']])if(volume>.01){const required=Math.max(0,measured.mass/((kind==='inertial'?120:180)*field)-supported(kind)),added=stockSupportRooms(ship,kind,volume,required,label);(ship._accelSupportParts||(ship._accelSupportParts=[])).push(...added.map(p=>({id:p.id,k:p.k})));}
+  const liftOf=()=>ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!measured.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),liftMore=Math.max(0,measured.mass*1.08/CRAFT_SYSTEMS.landingSupport-liftOf());/* repulsorlifts for the ship's measured mass (user instruction 2026-11-19) */
+  for(const [kind,volume,label]of [['inertial',inertial,'増強機関用慣性補償設備'],['integrity',integrity,'増強機関用構造維持設備'],['repulsor',liftMore,'分散リパルサーリフト（増設）']])if(volume>.01){const required=kind==='repulsor'?Math.max(0,measured.mass/CRAFT_SYSTEMS.landingSupport-liftOf()):Math.max(0,measured.mass/((kind==='inertial'?120:180)*field)-supported(kind)),added=stockSupportRooms(ship,kind,volume,required,label);for(const p of added)if(p.k==='repulsor')p.landingEquipment=true;(ship._accelSupportParts||(ship._accelSupportParts=[])).push(...added.map(p=>({id:p.id,k:p.k})));}
   syncCompartments(ship);wirePower();refitShipThermal(ship,key,{...thermalOptions,stats:measured,E:propulsion.inputW});syncCompartments(ship);wirePower();straightenShipMachineryRooms(ship);syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);
   // v24 A hull measured from a supplied model may be too slender for the target even with full
   // structural-integrity fields (the Recusant's spine). The engines keep their target rating and the
@@ -84520,6 +84521,9 @@ function straightenShipMachineryRoomsImpl(ship){
  }
  delete ship._engineDriveRoutes;const final=engineDriveRoutes(ship);return {moves,unresolved:final.routes.filter(r=>!r.ok||r.limited).map(r=>r.id)};
 }
+// ★ Ours: the repulsorlifts are sized on the mass measured before the refit with this margin, because the refit itself adds
+// mass (machinery, support equipment, cooling: 14% on a CR90). The examples are checked to carry at least their final mass.
+const SHIP_LIFT_MARGIN=1.25;
 function constructShipSystems(ship,key){
  if(!ship||isCraft(ship)||ship._shipSystemRefit)return ship;
  if(SHIP_MILITARY_ACCEL_TARGETS[key])ensurePrimaryHull(ship);
@@ -84533,6 +84537,9 @@ function constructShipSystems(ship,key){
   const supportMass=initial.mass*1.03,field=craftFieldGain(Math.max(.001,initial.dims?.[0]||0));
   const inertial=ship.parts.filter(p=>p.k==='inertial').reduce((n,p)=>n+partVolume(p),0),integrity=ship.parts.filter(p=>p.k==='integrity').reduce((n,p)=>n+partVolume(p),0);
   const addedInertial=shipRefitAddVolume(ship,'inertial',Math.max(0,supportMass/(120*field)-inertial),'分散慣性補償設備'),addedIntegrity=shipRefitAddVolume(ship,'integrity',Math.max(0,supportMass/(180*field)-integrity),'分散構造維持設備');
+  // User instruction 2026-11-19「着陸設備ではなくリパルサーリフトと改めた上で艦の重量分搭載して」: every ship carries repulsorlifts for its own
+  // mass (CRAFT_SYSTEMS.landingSupport tonnes a cubic metre), as distributed equipment inside the hull, so no outline changes.
+  const liftV=ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true).reduce((n,p)=>n+partVolume(p),0),addedLift=shipRefitAddVolume(ship,'repulsor',Math.max(0,initial.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-liftV),'分散リパルサーリフト');for(const p of ship.parts)if(p.k==='repulsor'&&p.room&&/^分散リパルサーリフト/.test(p.label||''))p.landingEquipment=true;/* the rooms the fitting splits them into are repulsorlifts as well */
   const pumpV=ship.parts.filter(p=>p.k==='pump').reduce((n,p)=>n+partVolume(p),0),plantV=ship.parts.filter(isReactor).reduce((n,p)=>n+partVolume(p),0),addedPumps=shipRefitAddVolume(ship,'pump',Math.max(0,plantV/70*1.05-pumpV),'反応物供給設備');
   // The distribution hub is a thermal energy converter (power cells are retired).
   let hub=ship.parts.find(p=>p.k==='hdis'&&partVolume(p)>0);if(!hub)hub=shipRefitFixedPart(ship,'hdis',1,'主配電・熱エネルギー変換装置');if(!hub)hub=shipRefitAddVolume(ship,'hdis',1,'主配電・熱エネルギー変換装置')[0];if(!hub)throw new Error(key+': 主配電区画を配置できません');
