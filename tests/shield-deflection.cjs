@@ -16,7 +16,7 @@ test('the hull share grows slowly at first and takes everything once the field i
  leak.slice(0,6).forEach((x,i)=>near(x,0));near(leak[6],100);
 });
 test('only the absorbed share draws on the field',()=>{
- for(const f of [1,.8,.4]){const r=split(f);near(r.shieldDebitJ,r.absorbedJ);near(r.shieldAfterJ,1000*f-r.absorbedJ);near(r.deflectedJ+r.absorbedJ+r.beamLeakJ,100);}
+ for(const f of [1,.8,.4]){const r=split(f);/* 2026-11-19 expectation changed with the user instruction「シールドの削り値を減らして」(「砲火がシールドを減らす量そのもの」): the field loses SHIELD_MODEL.debit of what it absorbs, no longer all of it */near(r.shieldDebitJ,r.absorbedJ*C.SHIELD_MODEL.debit);near(r.shieldAfterJ,1000*f-r.absorbedJ*C.SHIELD_MODEL.debit);near(r.deflectedJ+r.absorbedJ+r.beamLeakJ,100);}
 });
 test('a field whose transient buffer is full lets the shortfall through',()=>{
  const room=1.2,r=C.shieldPacketEnergyJ(100,0,1000,room,1000);near(r.absorbedJ,room/C.SHIELD_MODEL.beamStore);near(r.beamLeakJ,100-r.deflectedJ-r.absorbedJ);assert.ok(r.beamLeakJ>0);
