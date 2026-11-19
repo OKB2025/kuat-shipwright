@@ -8471,6 +8471,9 @@ root.KS_EN={
   "ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。": "Light torpedo used by Vulture droid fighters.",
   "ドロイド戦闘機の魚雷（ヴァルチャー級）。": "Torpedo used by Vulture droid fighters.",
   "リパルサーリフト喪失": "Repulsorlift lost",
+  "ミサイル（対空・対艦）": "Missiles (anti-air and anti-ship)",
+  "魚雷（対艦のみ）": "Torpedoes (anti-ship only)",
+  "発射機の弾": "Launcher load",
   "細く速い誘導ミサイル。弾頭は魚雷より小さい。": "A slender, fast guided missile with a smaller warhead than a torpedo.",
   "プロトン爆弾": "Proton Bomb",
   "誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。": "An unguided bomb released directly over the target, at the closest point of the attack pass.",
@@ -10278,7 +10281,7 @@ Object.assign(root.KS_EN.messages,{
 Object.assign(root.KS_EN.terms,{
 '艦艇用ミサイル発射機':'Ship Missile Launcher',
 '艦艇ミサイル発射機':'Ship Missile Launcher',
-'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell twice the aircraft launcher size. Horizontal and vertical cell counts change physical width, height, ammunition, mass and cost. Six 0.047 TT rounds per cell, with a 60 km range; supports external and structure-embedded mounting.',
+'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程10 km。魚雷（1発0.090 TT、対艦のみ）に載せ替え可。外付けと構造物への埋め込みに対応します。':'A ship cell twice the aircraft launcher size. Horizontal and vertical cell counts change physical width, height, ammunition, mass and cost. Six 0.047 TT rounds per cell, with a 10 km range, or torpedoes instead (0.090 TT each, against ships only); supports external and structure-embedded mounting.',
 '横セル数':'Horizontal Cells',
 '縦セル数':'Vertical Cells',
 '発射方向の左右角':'Launch Heading',
@@ -10788,4 +10791,64 @@ Object.assign(root.KS_EN.messages,{
   "{0}：{1}へ離脱（準備 {2}）": "{0}: Withdraw to {1} (Preparation {2})",
   "充電待ち": "waiting for charge"
 });
+// <example-equipment-catalog> 2026-11-19 equipment names of the stored examples (data/fleet.js) and example texts
+// (Core.SHIP_EXAMPLES, Core.POWER_AUTO_NOTE) that had no English (tests/fleet-localization.cjs).
+Object.assign(root.KS_EN.terms,{
+  "下部共通格納庫（兵員乗降・全機発着）": "Lower Common Hangar (Troop Boarding / All Craft Launch and Recovery)",
+  "ガンシップ搭乗リフト": "Gunship Boarding Lift",
+  "分散慣性補償設備": "Distributed Inertial Compensator",
+  "追加慣性補償設備": "Additional Inertial Compensator",
+  "分散構造維持設備": "Distributed Structural Integrity Field Generator",
+  "追加構造維持設備": "Additional Structural Integrity Field Generator",
+  "主配電・熱エネルギー変換装置": "Main Power Distribution and Thermal Energy Converter",
+  "艦内高エネルギー散逸区画": "Internal High-energy Dissipation Compartment",
+  "機関動力伝達路": "Machinery Power Transmission",
+  "推進ポッド内機関": "Propulsion Pod Machinery",
+  "上部機関補助炉": "Upper Engine Auxiliary Reactor",
+  "背骨の分散補助炉": "Spine Distributed Auxiliary Reactor",
+  "レーダードラムの補助炉": "Radar Drum Auxiliary Reactor",
+  "前部砲塔区画の補助炉": "Forward Turret Compartment Auxiliary Reactor",
+  "亜光速ノズル": "Sublight Nozzle",
+  "ナセル内独立推進機関": "Independent Nacelle Propulsion Machinery",
+  "単装重レーザー": "Single Heavy Laser",
+  "重レーザー2連装": "Twin Heavy Laser",
+  "軽TL2連装": "Twin Light TL",
+  "主反応炉（ハイパーマター反応炉）": "Main Reactor (Hypermatter Reactor)",
+  "極軸の反応物サイロ（北）": "Polar Reactant Silo (North)",
+  "極軸の反応物サイロ（南）": "Polar Reactant Silo (South)",
+  "司令区画（オーバーブリッジ）": "Command Compartment (Overbridge)",
+  "偏向シールド発生機": "Deflector Shield Generator",
+  "集中排熱口": "Concentrated Heat Exhaust",
+  "環状船体 貨物倉（後部）": "Ring Hull Cargo Hold (Aft)",
+  "分散副反応炉区画（標準出力密度）": "Distributed Secondary Reactor Compartment (Standard Power Density)",
+  "統合推進機関": "Integrated Propulsion Machinery",
+  "補助反応炉（艦尾肩部）": "Auxiliary Reactor (Stern Shoulder)",
+  "超重合成ターボレーザー": "Superheavy Composite Turbolaser",
+  "超兵器発射熱の変換区画": "Superweapon Firing Heat Conversion Compartment",
+  "偏向シールド発生ドーム（ヴェネター相当）": "Deflector Shield Generator Dome (Venator Equivalent)",
+  "艦尾の物資・消耗品庫": "Stern Supply and Consumables Stores",
+  "艦尾ドッキング・ベイ": "Stern Docking Bay",
+  "砲充電区画を避けた甲板": "Deck Clear of the Gun Charging Compartments",
+  "舷側": "Broadside"
+});
+Object.assign(root.KS_EN.messages,{
+  "提供STLの150 m船体。11基のノズルに独立した機関を備え、実体のある配電・動力伝達・排熱設備で運転。500MT連装軽ターボレーザー2基、6MT単装重レーザー4基。": "Supplied STL hull, 150 m. Each of the 11 nozzles has its own engine, run through physical power distribution, power transmission and heat rejection equipment. Two twin 500 MT light turbolasers and four single 6 MT heavy lasers.",
+  "16.74 m（正史。別の資料では 11.8 m）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0。クローン戦争期の共和国仕様）の実測形状を正史の全長に等倍で合わせた（全幅 16.6 m）。胴体を船体として 23 断面で実測に合わせ、背部フェアリング、バブル・キャノピー、側面インテーク、カナード、主翼、2 基のナセル（排気コーン・頸部・本体・吸気口）、翼端のブラスター砲ポッドと砲身を構造物で組んだ。機関はモデルの排気口に合わせて各ナセルに 1 基（正史は「2 対」）で、ナセル前部の核融合炉から給電する。操縦席 1 名、慣性補償装置、反応物タンク、パワーセル。アストロメク・ソケットとハイパードライブは正史どおり持たず（ハイパードライブは後の改装で載せることがある）、シールドも正史に記載がないため積まない。兵装は翼端のレーザー砲 2 門（各1発2 kt）、胴体下面の震盪ミサイル発射管 2 基（基数は正史に記載がなく想定。お任せの搭載は各6発）。正史に加速度の値はないため、Incom 社の X ウイングの先代機として X ウイング（3,700 G）の 9 割、3,330 G を最大加速度のゲーム用設計目標とした。機関の受入定格と反応炉・配電を実給電モデルに合わせて組み直している。外殻装甲 1.5 mm。陣営はクローン戦争期の塗装に合わせて銀河共和国。塗装はモデルに従い、白い機体に共和国の赤（機首の帯・吸気口・砲ポッド・カナード）、紺の側面インテーク、暗色の排気コーン、紫の機関光。": "16.74 m (canon; another source gives 11.8 m). Reconstructed from measurements of A308 Digital's Sketchfab 3D model (CC BY 4.0), a Clone Wars Republic version, scaled uniformly to the canonical length with a 16.6 m span. The fuselage follows 23 measured hull cross sections. Structures reproduce the dorsal fairing, bubble canopy, side intakes, canards, main wings, two nacelles with exhaust cones, necks, bodies and intakes, and wingtip blaster pods and barrels. Each nacelle has one engine matching the model's exhaust, although canon specifies “two pairs,” powered by a fusion reactor in its forward section. Equipment includes one pilot seat, inertial compensation, reactant tanks, and power cells. As in canon, there is no astromech socket or hyperdrive, though later refits may add a hyperdrive. Shields are also omitted because canon does not mention them. Armament comprises two wingtip laser cannons (2 kt a shot each) and two ventral concussion missile launchers. The launcher count is assumed because canon does not specify it; automatic loadout supplies six missiles each. Canon gives no acceleration, so this Incom predecessor uses a game design target of 3,330 G, 90% of the X-wing's 3,700 G. Engine input ratings, reactors and electrical distribution are rebuilt for the actual-power model. Hull armor: 1.5 mm. The faction is the Galactic Republic to match the Clone Wars paint scheme. Colors follow the model: white fuselage, Republic red nose stripe, intakes, gun pods and canards, navy side intakes, dark exhaust cones, and purple engine glow.",
+  "ユーザー提供の STL: 6-HammerheadClassCorvette-2.STL / 7-HammerheadClassCorvette_Turret.STL": "User-supplied STL: 6-HammerheadClassCorvette-2.STL / 7-HammerheadClassCorvette_Turret.STL",
+  "ユーザー提供の船体STLと後部砲塔STLを116.7 mの一様縮尺で使用。作者・ライセンスは添付ファイルに記載されていない。": "The user-supplied hull STL and aft turret STL are used at a uniform scale of 116.7 m. The attached files state no author or license.",
+  "全長116.7 mのスフィルナ級コルベット。新しい添付STLの船殻を通常の選択・移動・寸法変更ができる構造物として取り込み、3基の機関ナセル、主船体、縦長の艦首と各部の形を保持した。船体に含まれる武装は分離し、艦首左右の重レーザー砲を各2門×6 MT、後部上面の軽ターボレーザー砲塔を2門×500 MTとして元の位置に配置する。両側の砲身は左右それぞれの元の三角形を使い、後部砲塔は別添STLの形を使う。出力はユーザー指定で、連射間隔・質量・乗員・費用はゲーム用仮定。主反応炉、ハイパードライブ、燃料、慣性補償・構造維持、貨物倉、シールド、センサー、操縦室は独立した実設備。3基のイオン機関は実機関・配電・動力伝達路と実際の給電から働き、廃熱は有限容量の散逸設備へ接続する。船殻モデルだけで推進力や冷却能力を加算しない。": "A 116.7 m Sphyrna-class corvette. The hull of the newly attached STL is brought in as structures that can be selected, moved and resized as usual, keeping the three engine nacelles, the main hull, the tall bow and the shape of each part. The armament included in the hull is separated: the heavy laser cannons on both sides of the bow (two barrels × 6 MT each) and the light turbolaser turret on the aft upper surface (two barrels × 500 MT) are placed at their original positions. The barrels on each side use their own original triangles, and the aft turret uses the shape of the separate STL. Output is as specified by the user; firing interval, mass, crew and cost are game assumptions. The main reactor, hyperdrive, fuel, inertial compensation and structural integrity, cargo hold, shield, sensors and cockpit are separate physical equipment. The three ion engines work from physical engines, power distribution, power transmission paths and the power actually delivered, and their waste heat goes to dissipators of finite capacity. The hull model alone adds no thrust or cooling capacity.",
+  "基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、地上部隊の補給物資庫、格納甲板床下の予備部品庫、貨物ベイ、大規模弾薬庫。環状船体の左右に C-9979 上陸艇の格納甲板 4 区画（14 段積み、下面に扉）。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った34TT単装球状ターボレーザー28基とCIS向け1TT×4速射砲14基（計42基）、送信プラットフォームの球状3連装点防御砲4基、トラクター・ビーム6基。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。MTT と AAT の大半は上陸艇 1 隻に AAT 114 両・MTT 11 両ずつ積んだまま格納し、1 回の降下で上陸艇 50 隻と MTT がドロイド全軍を降ろせる。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。": "The basic hull is a spherical core ship 640 m in diameter, measured from the model; official sources give approximately 696 m. The C-shaped ring hull, stern block, forward arms and docking claws, and all towers are structures, for an overall length of 3,170 m. The core ship's center contains the droid-control computer core and power-distribution monitoring station; its lower half contains the central spherical reactor and generator complex; landing repulsorlifts sit at the bottom and the control-bridge tower at the top. The aft dorsal signal platform carries a backup control-signal tower, tower antennas, primary/auxiliary sensors, rectennas, high-energy transmission towers, and defensive guns. The forward arms house droid-signal reception stations, forward control towers, backup sensors, rectennas, main tractor-beam generators, and docking tractor-beam recesses. Deflector-generator housings and emitters sit atop the ring. Each arm's inner face has outer, middle, and inner main-hangar openings, droid-starfighter racks, ground-force supply stores, spare-parts stores below the hangar deck, cargo bays, and large magazines. Four C-9979 landing-craft hangar sections occupy both sides of the ring, stacked fourteen levels high with underside doors. The stern block holds port/starboard main reactors and main-engine thrust chambers. Armament: twenty-eight single 34 TT ball turbolasers and fourteen 1 TT × 4 CIS rapid-fire guns along the ring's equator (forty-two mounts in all), four spherical triple point-defense guns on the transmission platform, and six tractor beams. Embarked forces comprise 1,500 Vultures, fifty C-9979 landing craft, 139,000 B1 battle droids, 550 MTTs, and 6,250 AATs. Most vehicles remain aboard the landing craft, each carrying 114 AATs and eleven MTTs; all fifty landing craft and their MTTs can deliver the entire droid force in one wave. Class 2 hyperdrive and approximately 1,300 G acceleration are game assumptions. Measured from Professor E12^2's Sketchfab 3D model (CC BY 4.0).",
+  "ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、球状ターボレーザー、CIS四連装速射砲、防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。": "The unarmed cargo freighter version of the Lucrehulk class. Hull, ring and drive are the Lucrehulk's; the ball turbolasers, CIS quad rapid-fire guns and defence guns are removed and the volume their mounts took is returned to the holds (the tractor beams stay for cargo handling). The ring's landing-ship decks are cargo holds. It carries no small craft or ground forces. In fleet battles it sails as the big transport of supply convoys.",
+  "ユーザーの設計（v20.5 で差し替え）。公式の寸法は無く、ファン設定で多い全長 8 km。ユーザー提供の STL モデル（作者・ライセンス表記なし）の実測形状から組んだ v19.1 の作例が元で、V 字の竜骨と舷側帯をもつ短剣形の主船体、段状の城郭と艦橋塔、腹部の装甲区画と二つの反応炉ドーム、艦尾の11基の亜光速機関をもつ。ユーザーの調整で艦橋塔を前へ 33 m 移し、頂部をエグゼクター級の艦橋本体に替えた。720TT連装163基を上面83基・下面80基へ分散し、舷側には720TT単装ボール砲80基を配置する。175TTターボレーザーは4連装22基へ集約し、上下面各8基、球型の舷側6基とする。イオン砲は175TT四連装ボール砲14基を左右各7基へ配置する。点防御は上下面の100kt連装各80基と、左右の球状三連装計60基。主砲とイオン砲の一斉射317,520TT、PD500門の追加分0.00005TTを維持する。元の砲座は底面と射線を確保できる場所を再利用し、埋没や高すぎる土台を避けて再配置する。重魚雷サイロ2基と艦橋・航空設備は元の配置を維持する。機関は通常定格の実容積を拡大して約2,000Gを目指す。ハイパードライブ（クラス2、予備クラス10）と乗員は公式値が無いため想定で、持ち場の約9割を自動化装置に任せて必要乗員を約8万7,000名に抑えている。": "User-finished design (replaced in v20.5). No official dimensions are published; this example uses the common fan scale of 8 km. It is based on the v19.1 example measured from the user-supplied STL, whose author and licence were not provided. The dagger-shaped hull has a V-shaped keel, side bands, a stepped citadel and bridge tower, two ventral reactor domes and eleven sublight engines. The user moved the bridge tower 33 m forward and replaced its top with an Executor-class bridge. The 163 twin 720 TT turrets are divided between 83 dorsal and 80 ventral stations; 80 single 720 TT ball turrets line the flanks. The 175 TT turbolasers use 22 quadruple mounts: eight dorsal, eight ventral and six spherical flank mounts. Fourteen quadruple 175 TT ball ion turrets occupy seven stations on each flank. Point defence uses 80 twin 100 kt mounts on each deck and 60 triple spherical flank mounts. The main and ion salvo remains 317,520 TT, with another 0.00005 TT from 500 PD barrels. Existing seats are reused where their bases and firing paths are clear; buried mounts and excessively tall foundations are avoided. The two heavy torpedo silos, bridge and aviation fittings retain their original positions. The engines enlarge their actual volume at normal rating, aiming for about 2,000 G. Class 2 primary and Class 10 backup hyperdrives and crew figures are assumptions without official values; roughly 90% automation keeps the required crew near 87,000.",
+  "ユーザー": "User",
+  "ユーザーの設計ファイル（2026-11-16 提供）": "User's design file (supplied 2026-11-16)",
+  "ユーザー提供": "User-supplied",
+  "ユーザーの設計（Executor_1230G_ISD_Bridge.json）": "User's design (Executor_1230G_ISD_Bridge.json)",
+  "ユーザーの設計（v25 で差し替え）。全長 19 km の直線楔形の主船体に、インペリアル級と同じ艦橋一式（艦橋本体・追跡センサー・通信マスト）を載せる。武装はインペリアルII級 200 隻分（ターボレーザー砲座 2,000 基、点防御・四連装・三連装各 14 基、八連装 2 基）。主機は中央主動力炉と分散補助炉 2 基から 13 基のタービン露出型エンジンへ給電し、加速 1,230 G を想定。": "User's design (replaced in v25). A straight 19 km wedge-shaped main hull carries the same bridge set as the Imperial class (bridge body, tracking sensors and communications mast). Armament equals 200 Imperial II-class ships (2,000 turbolaser mounts; 14 each of point-defense, quadruple and triple mounts; 2 octuple mounts). The main drive feeds 13 exposed-turbine engines from a central main power reactor and two distributed auxiliary reactors, for an assumed acceleration of 1,230 G.",
+  "ユーザー提供の STL ファイル（deathstar_1_5_10_5.stl）": "User-supplied STL file (deathstar_1_5_10_5.stl)",
+  "デス・スターの外形（球・皿・赤道トレンチ）は、ユーザーが提供した STL ファイル（deathstar_1_5_10_5.stl、作者・ライセンス表記なし）から実測した。": "The Death Star's outer form (sphere, dish and equatorial trench) was measured from the user-supplied STL file (deathstar_1_5_10_5.stl, no author or license stated).",
+  "直径 160 km。皿は北緯 27°・縁の半径 27.4 km・深さ 11.1 km、赤道トレンチは幅 2.0 km・深さ 3.2 km（いずれも実測）。子午線トレンチ 8 本（幅 120 m）はユーザー指定による追加。": "160 km in diameter. The dish sits at 27° north latitude, with a rim radius of 27.4 km and a depth of 11.1 km; the equatorial trench is 2.0 km wide and 3.2 km deep (all measured). The eight meridian trenches (120 m wide) were added at the user's request.",
+  "シールドの再充電と艦内設備・冷却、兵装の射撃・再充電、航行の順に給電します。満充電で待機中のシールドや兵装は電力を予約しません。": "Power goes first to shield recharge, then to onboard equipment and cooling, then to weapon firing and recharge, then to propulsion. A fully charged shield or weapon on standby reserves no power."
+});
+// </example-equipment-catalog>
 })(typeof window==="undefined"?globalThis:window);

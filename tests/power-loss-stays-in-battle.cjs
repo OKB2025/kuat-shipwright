@@ -14,6 +14,10 @@ test('power loss is not out of action; other disabling reasons still are',()=>{
 test('a ship whose reactors are gone stops, loses its shield, makes no power and sinks, and is still fired on',()=>{
  const a=C.fleetUnit('a','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),0),b=C.fleetUnit('b','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),1);b.pos=[6000,0,0];b.yaw=Math.PI;
  a.order={...a.order,type:'attack',target:'b',fire:true};b.order={...b.order,type:'attack',target:'a',fire:true};
+ // 2026-11-19 expectation changed: a's sections are made 1e6 times stronger. Under the v30 section damage the CR90, its shield
+ // gone with its power, was sunk by the other CR90's fire about 8 s in (docs/damage-penetration.md:64,90). The enemy keeps
+ // firing at it, so it is still fired on; it now stays afloat long enough to check that power loss alone is not out of action.
+ for(const x of a.sec){x.max*=1e6;x.s=x.max;}
  const B=C.fleetBattle([a,b],true);B.seed=3;
  for(let t=0;t<2;t+=.25)C.fleetTick(B,.25,{gravity:true});
  const mods=a.p.modules;for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor'||mods[i].k==='gen')a.mods[i]=0;

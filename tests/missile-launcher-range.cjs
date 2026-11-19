@@ -115,7 +115,9 @@ test('manual ship salvos spend the corresponding cells and retain partial final 
 test('strategic-map rounds land on a small ship from every launch range instead of circling it',()=>{
  // 2026-11-18: the strike was judged at the start of a 0.25 s step (650 m at full speed against a reach of 300 m), and at
  // these launch ranges every round stepped across the 100 m target until its motor ran out (docs/missiles-arrive.md).
- for(const distance of [6014,8617,13138,26153,41086,54101]){const {w,u,t}=world('shipMsl',distance),seen=new Map();
+ // 2026-11-19 expectation changed: the target's sections are made 1e6 times stronger. With u.hp retired (v30 section damage,
+ // docs/damage-penetration.md:60) the 1,000 t fixture was sunk by the first 25 TT round and the cell stopped after four.
+ for(const distance of [6014,8617,13138,26153,41086,54101]){const {w,u,t}=world('shipMsl',distance),seen=new Map();for(const x of t.sec){x.max*=1e6;x.s=x.max;}
   for(let s=0;s<70;s+=.25){R.tick(w,.25);for(const m of w.missiles)seen.set(m.id,m);}
   const launched=[...seen.values()],hit=launched.filter(m=>m.hit>0).length;assert.equal(launched.length,6,distance+' m: the cell fired its six rounds');assert.equal(hit,6,distance+' m: '+hit+' of 6 struck');}
 });

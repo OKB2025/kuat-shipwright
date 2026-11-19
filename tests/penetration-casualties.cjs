@@ -9,7 +9,10 @@ const assert=require('node:assert/strict'),path=require('node:path'),{test}=requ
 const {C}=require('../scripts/update-ship-examples.cjs').loadRuntime(process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'));
 const near=(a,b,eps=1e-9)=>assert.ok(Math.abs(a-b)<=eps*Math.max(1,Math.abs(b)),`${a} != ${b}`);
 const ctx={ev(){},rand:()=>.5,time:0};
-function unit(){const mod={k:'quarters',name:'compartment',crew:1000,share:0,hits:1e9,w:1,at:.5,y:0,z:0};
+// 2026-11-19 expectation changed: what wrecks a module is worked out from its volume and density (modBreakTT,
+// docs/damage-penetration.md:60), not from a stored m.hits. The fixture's hits:1e9 (a compartment the small hits cannot
+// wreck) is now vol:1e30; case 3's hits=1 (one TT wrecks it) is a volume scaled so modBreakTT is 1.
+function unit(){const mod={k:'quarters',name:'compartment',crew:1000,share:0,vol:1e30,w:1,at:.5,y:0,z:0};
  return {p:{crewNeed:1000,modules:[mod,{...mod,name:'other'}],hp:1e6},mods:[1,1],crew:2000,secOf:[0,0],sec:[{s:1e9,max:1e9}],fire:[0],secLost:[]};}
 test('the constant: one teraton entering a compartment kills everyone left in it',()=>{assert.equal(C.COMBAT.penCrewTT,1);});
 test('entering power kills in proportion up to 1 TT; a second hit takes from those left; other compartments are untouched',()=>{
@@ -19,7 +22,7 @@ test('entering power kills in proportion up to 1 TT; a second hit takes from tho
  C.combatModuleDamage(ctx,u,0,1e-6,1,'shot',5);near(u.crew,1000,1e-6);
 });
 test('fire and other damage without an entering shot kill only with the wrecked part, as before',()=>{
- const u=unit();u.p.modules[0].hits=1;C.combatModuleDamage(ctx,u,0,.5,1,'fire');near(u.crew,2000-1000*.5*.7,1e-9);near(u.crewIn[0],1-.35,1e-9);
+ const u=unit();u.p.modules[0].vol/=C.modBreakTT(u.p,u.p.modules[0]);C.combatModuleDamage(ctx,u,0,.5,1,'fire');near(u.crew,2000-1000*.5*.7,1e-9);near(u.crewIn[0],1-.35,1e-9);
 });
 
 test('per shot: each shot kills min(1, its TT) of those left; a fraction of a shot is the chance one arrives',()=>{
@@ -37,11 +40,14 @@ test('fleet fire carries TT per shot: anti-ship energy weights it, point defence
  near(C.combatShotTT(inc),11/(2+100),1e-12);assert.equal(C.combatShotTT(C.combatIncoming()),0);
 });
 test('a penetration judges each compartment by what one shot still carries into it',()=>{
- const mk=()=>{const u=unit();u.p.modules=[{k:'quarters',name:'a',crew:1000,share:0,hits:1e9,w:1,at:.5,y:0,z:0}];u.mods=[1];u.crew=1000;return u;};
+ const mk=()=>{const u=unit();u.p.modules=[{k:'quarters',name:'a',crew:1000,share:0,vol:1e30,w:1,at:.5,y:0,z:0}];u.mods=[1];u.crew=1000;return u;};
  const one=mk(),many=mk(),r=()=>0;const c={ev(){},rand:r,time:0};
- C.combatPenetrate(c,one,0,0,2,null,1,0);C.combatPenetrate(c,many,0,0,2,null,1,.02);
+ C.combatPenetrate(c,one,0,0,2,null,1,0);const pm=C.combatPenetrate(c,many,0,0,2,null,1,.02);
  near(one.crewIn[0],0,1e-9);
- const enter=2*(1-C.COMBAT.frame);near(many.crewIn[0],C.penCrewSurvive(enter,100),1e-9);assert.ok(many.crewIn[0]>.1&&many.crewIn[0]<.4,String(many.crewIn[0]));
+ // 2026-11-19 expectation changed: the rebuilt combatPenetrate bores through the plating, the structure and the modules in
+ // turn (docs/damage-penetration.md:61); the old fixed share the frames took (COMBAT.frame) is gone. What enters the
+ // compartment is read from the penetration's own path (here all 2 TT: the fixture has no structure in front of it).
+ const enter=pm.path[0].enter;near(many.crewIn[0],C.penCrewSurvive(enter,100),1e-9);assert.ok(many.crewIn[0]>.1&&many.crewIn[0]<.4,String(many.crewIn[0]));
 });
 // Physics review 2026-11-15 (5fe1d03): the paths that bring direct hits and merged fire carry their own shot size.
 test('guns and direct hits in one record are counted at their own sizes; merged records keep their shot counts',()=>{
