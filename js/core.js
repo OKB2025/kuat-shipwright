@@ -89579,7 +89579,7 @@ function hullAvoid(u,list,want,skip=null){
  const h=hullHalf(u.p),r0=Math.hypot(h[0],h[2]),f=[Math.cos(u.yaw||0),Math.sin(u.yaw||0)];let up=0,slow=0;
  // v24 list may be a grid (hullGrid with k ≥ 1.12): only the ships sharing a cell are looked at
  if(list&&list.g)list=hullNear(list,u);
- for(const x of list){if(x===u||x.dead||x.absent||x.towedBy===u.id||u.towedBy===x.id||skip&&skip(x)/* v28 a docking ship and its host do not steer clear of each other */)continue;const hx=hullHalf(x.p),r=(r0+Math.hypot(hx[0],hx[2]))*1.12,dx=u.pos[0]-x.pos[0],dz=u.pos[2]-x.pos[2],d2=dx*dx+dz*dz;if(d2>r*r)continue;
+ for(const x of list){if(x===u||x.dead||x.absent||x.towedBy===u.id||u.towedBy===x.id||x.dockCorridor||u.dockCorridor/* 2026-11-19 a craft leaving its ship by a hangar mouth: neither steers clear of the other (an ISD climbed at 137 m/s away from the craft coming out under it) */||skip&&skip(x)/* v28 a docking ship and its host do not steer clear of each other */)continue;const hx=hullHalf(x.p),r=(r0+Math.hypot(hx[0],hx[2]))*1.12,dx=u.pos[0]-x.pos[0],dz=u.pos[2]-x.pos[2],d2=dx*dx+dz*dz;if(d2>r*r)continue;
   const dy=u.pos[1]-x.pos[1],clear=(h[1]+hx[1])*2.2;if(Math.abs(dy)>clear)continue;
   // v20 Ships in close order (side by side, nose to tail) are left alone while their hull boxes keep a margin apart.
   const gap=hullBoxGap(u,h,x,hx),m=Math.max(60,.5*Math.min(h[2],hx[2]));if(gap>m)continue;
@@ -90071,7 +90071,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
 //   unguided (m.ballistic).
 // The figures are those of the scripts' runs (docs/damage-penetration.md, 2026-11-19); all are ours (★) except where a decision
 // names them. A craft's own state for this is u.sortie (copied with the unit by combatClone); the battle's is b.air.
-const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,land:600,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
+const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,land:600,exit:60,clear:3,rearm:DOCK.refillS*3,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
  kinds:Object.freeze([Object.freeze({kind:'itorp',ion:true,release:4000,range:8000}),Object.freeze({kind:'cmsl',ion:false,release:6000,range:10000}),Object.freeze({kind:'bomb',ion:false,release:700,range:1500})]),aims:Object.freeze(['engine','bridge','weapon','sensor']),
  roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_btlb',job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
 // The rounds a craft of spare lift (t) carries: the kinds in turn while they fit by mass.
@@ -90086,14 +90086,32 @@ function fleetAirSetup(b,wings,profiles,opts={}){
  for(const w of wings||[]){const r=FLEET_AIR.roles[w.type],home=b.units.find(u=>u.id===w.home);if(!r||!home||!air.profiles[r.key])continue;for(let k=0,n=Math.max(0,Math.round(w.count||0));k<n;k+=FLEET_AIR.squad)air.squadrons.push({home:home.id,team:home.team,type:w.type,key:r.key,bomber:r.job==='bomber',size:Math.min(FLEET_AIR.squad,n-k),members:[],out:false});}
  b.air=air;return air;
 }
-function fleetAirLaunch(b,q,home){
- const air=b.air,P=air.profiles[q.key],side=home.team?1:-1,slots=air.slots||(air.slots={}),bombers=b.units.filter(u=>u.sortie?.bomber&&u.team===home.team).length;q.out=true;
- for(let i=0;i<q.size;i++){const slot=slots[home.id]||0;slots[home.id]=slot+1;const c=fleetUnit('c'+(air.n++),q.key,JSON.parse(JSON.stringify(P.p)),home.team),v=craftCruiseSpeed(c),row=Math.floor(slot/12)%6,col=slot%12,f=[Math.cos(home.yaw||0),0,Math.sin(home.yaw||0)],r=[-f[2],0,f[0]];
-  c.pos=add(home.pos,add(mul(f,300-row*150),add([0,200+(col%3)*120,0],mul(r,(col<6?-1:1)*(home.p.len*.3+250+Math.floor(col%6/3)*150+row*40)))));c.yaw=home.yaw||0;c.velocity=mul(f,v);
-  c.sortie={home:home.id,type:q.type,bomber:q.bomber,stores:fleetAirLoad(P.liftSpare,q.bomber?FLEET_AIR.kinds:[FLEET_AIR.kinds[1]]),aimAt:FLEET_AIR.aims[(bombers+i)%FLEET_AIR.aims.length],routeN:(bombers+i)%FLEET_AIR.axes,job:null,sead:false};c.sortie.carried=c.sortie.stores.length;
-  c.order={...c.order,type:'hold',fire:!q.bomber};b.units.push(c);q.members.push(c.id);air.log.launched[home.team]++;}
- if(typeof fleetPrepareCollision==='function')fleetPrepareCollision(b.units.filter(u=>q.members.includes(u.id)));
+// User decision 2026-11-19「航空機の発艦はちゃんとハッチから出して。ハッチのサイズで発艦速度が決まる」: a squadron ordered up comes out of its
+// ship's hangar mouths one craft at a time. Each mouth passes craft at its own rate (m.r craft a second, which the design works
+// out from the opening's size; their sum is the ship's p.launch), cut by the share of the hangars that works; a craft appears just
+// outside the mouth it left by, moving out of it with the ship's own speed. A ship without a mouth the craft fits cannot launch.
+// ★ Ours: a sliding hatch is taken as open (its opening time is not waited for here), and the exit speed is FLEET_AIR.exit.
+function fleetAirLaunch(b,q,home){q.out=true;q.pending=q.size;q.members=[];q.aboard=0;}
+function fleetAirCraft(b,q,home,pos,vel,yaw){
+ const air=b.air,P=air.profiles[q.key],bombers=b.units.filter(u=>u.sortie?.bomber&&u.team===home.team).length,i=q.members.length,c=fleetUnit('c'+(air.n++),q.key,JSON.parse(JSON.stringify(P.p)),home.team);
+ c.pos=pos;c.yaw=yaw;c.velocity=vel;
+ c.sortie={home:home.id,type:q.type,bomber:q.bomber,stores:fleetAirLoad(P.liftSpare,q.bomber?FLEET_AIR.kinds:[FLEET_AIR.kinds[1]]),aimAt:FLEET_AIR.aims[(bombers+i)%FLEET_AIR.aims.length],routeN:(bombers+i)%FLEET_AIR.axes,job:null,sead:false};c.sortie.carried=c.sortie.stores.length;
+ c.order={...c.order,type:'hold',fire:!q.bomber};b.units.push(c);q.members.push(c.id);air.log.launched[home.team]++;if(typeof fleetPrepareCollision==='function')fleetPrepareCollision([c]);return c;
 }
+// One step of a ship's hatches: the craft of its squadrons that are going up leave by the mouths they fit, at each mouth's rate.
+function fleetAirEmerge(b,home,dt){
+ const air=b.air,going=air.squadrons.filter(q=>q.home===home.id&&q.out&&q.pending>0);if(!going.length||home.dead||home.out)return [];
+ const mouths=home.p.mouths||[],share=fleetSystems(home).hangar,made=[],acc=air.hatch||(air.hatch={}),cy=Math.cos(home.yaw||0),sy=Math.sin(home.yaw||0);
+ mouths.forEach((m,mi)=>{if(!(m.r>0))return;const key=home.id+':'+mi;acc[key]=Math.min(1.999,(acc[key]||0)+m.r*share*dt);
+  while(acc[key]>=1){const q=going.find(x=>x.pending>0&&fleetAirFits(air.profiles[x.key].p,m));if(!q){acc[key]=Math.min(acc[key],1);break;}acc[key]-=1;q.pending--;
+   const L=air.profiles[q.key].p.len||10,out=[m.n[0]*cy-m.n[2]*sy,m.n[1],m.n[0]*sy+m.n[2]*cy],pos=dockLocalToWorld(home,add(m.p,mul(m.n,L*.5+4)));
+   const k=fleetAirCraft(b,q,home,pos,add(home.velocity||[0,0,0],mul(out,FLEET_AIR.exit)),Math.hypot(out[0],out[2])>.3?Math.atan2(out[2],out[0]):home.yaw||0);k.dockCorridor=true;k.sortie.clearAt=b.time+FLEET_AIR.clear;k.sortie.outDir=out.slice();/* it passes its ship's hull by the hangar mouth: no hull contact until it is clear (without this the craft coming out pushed an ISD 3.7 km off in 40 s) */made.push(k);}});
+ return made;
+}
+// A craft passes a mouth when its two smaller sides go through the opening (m.o: the opening's two sides).
+function fleetAirFits(p,m){const o=(m.o||[]).slice().sort((a,z)=>a-z),s=[p.len||0,p.width||0,p.height||0].sort((a,z)=>a-z);return o.length>=2&&s[0]<=o[0]&&s[1]<=o[1];}
+// Whether a ship can put a squadron's craft out at all.
+function fleetAirCanLaunch(b,q,home){const P=b.air.profiles[q.key]?.p;return !!P&&(home.p.mouths||[]).some(m=>m.r>0&&fleetAirFits(P,m));}
 function fleetAirStep(b,dt,opts={}){
  const air=b.air;if(!air)return;const byId=new Map(b.units.map(u=>[u.id,u])),up=u=>u&&!u.dead&&!u.absent,dist=(a,z)=>len(sub(a.pos,z.pos)),t=b.time;
  const nearest=(u,list)=>{let best=null,bd=Infinity;for(const w of list){if(!up(w))continue;const d=dist(w,u);if(d<bd){bd=d;best=w;}}return best;};
@@ -90105,14 +90123,19 @@ function fleetAirStep(b,dt,opts={}){
  // no more than the fighter squadrons it still has aboard, at least one while it has any): bombers and their escort (one fighter
  // squadron for every 1/escortShare bomber squadrons) go up within the rest. The fighters kept aboard are launched when enemy craft
  // come within FLEET_AIR.intercept of an own ship, interceptPer fighters for each craft that comes, into the control kept for them.
- if(reassign)for(const team of [0,1]){const flag=ships[team][0],live=q=>q.out&&q.members.some(id=>up(byId.get(id))),used=u=>air.squadrons.filter(q=>q.home===u.id&&live(q)).length,mine=air.squadrons.filter(q=>q.team===team);
+ if(reassign)for(const team of [0,1]){const flag=ships[team][0],live=q=>q.out&&(q.pending>0||q.members.some(id=>up(byId.get(id)))),used=u=>air.squadrons.filter(q=>q.home===u.id&&live(q)).length,mine=air.squadrons.filter(q=>q.team===team);
   const control=ships[team].reduce((n,u)=>n+fleetAirControl(u),0),aboardF=mine.filter(q=>!q.out&&!q.bomber&&q.size>0).length,reserve=aboardF?Math.max(1,Math.min(aboardF,Math.round(control*FLEET_AIR.reserveShare))):0;
   const threat=craft[1-team].filter(e=>ships[team].some(sh=>dist(e,sh)<=FLEET_AIR.intercept)).length,needF=Math.ceil(threat*FLEET_AIR.interceptPer/FLEET_AIR.squad);
   const count=f=>mine.filter(q=>live(q)&&f(q)).length;
-  for(const u of ships[team])for(const q of air.squadrons){if(q.home!==u.id||q.out||q.spent||!(q.size>0))continue;const own=fleetAirControl(u)-used(u),lent=ships[team].filter(x=>x!==flag).reduce((m,x)=>m+Math.max(0,used(x)-fleetAirControl(x)),0),spare=flag&&u!==flag?fleetAirControl(flag)-used(flag)-lent:0;if(own<1&&spare<1)break;
-   const up0=count(()=>true),bombersUp=count(x=>x.bomber&&x.members.some(id=>byId.get(id)?.sortie?.stores?.length>0)/* bombers that still have a strike to fly: spent ones on their way home draw no escort up */),fightersUp=count(x=>!x.bomber),defend=!q.bomber&&fightersUp<needF/* they come: the fighters go up into the control kept for them */,strike=up0<control-reserve&&(q.bomber||fightersUp<Math.ceil(bombersUp*FLEET_AIR.escortShare))/* the strike and its escort, within what is not kept back */;
+  for(const u of ships[team])for(const q of air.squadrons){if(q.home!==u.id||q.out||!(q.size>0)||(q.readyAt||0)>t||!fleetAirCanLaunch(b,q,u))continue;const own=fleetAirControl(u)-used(u),lent=ships[team].filter(x=>x!==flag).reduce((m,x)=>m+Math.max(0,used(x)-fleetAirControl(x)),0),spare=flag&&u!==flag?fleetAirControl(flag)-used(flag)-lent:0;if(own<1&&spare<1)break;
+   const up0=count(()=>true),bombersUp=count(x=>x.bomber&&(x.pending>0||x.members.some(id=>byId.get(id)?.sortie?.stores?.length>0))/* bombers that still have a strike to fly: spent ones on their way home draw no escort up */),fightersUp=count(x=>!x.bomber),defend=!q.bomber&&fightersUp<needF/* they come: the fighters go up into the control kept for them */,strike=up0<control-reserve&&(q.bomber||fightersUp<Math.ceil(bombersUp*FLEET_AIR.escortShare))/* the strike and its escort, within what is not kept back */;
    if(!defend&&!strike)continue;if(defend)q.scramble=t;
-   fleetAirLaunch(b,q,u);for(const id of q.members){const c=b.units.find(x=>x.id===id);if(c){byId.set(id,c);craft[team].push(c);(c.sortie.bomber?bombers:fighters)[team].push(c);}}}}
+   fleetAirLaunch(b,q,u);}}
+ // The hatches: every step, the craft of the squadrons going up come out.
+ // A craft that has just come out flies straight on out of the mouth until it is clear of its ship (★ half the ship's length and
+ // 200 m from its centre, or FLEET_AIR.clear seconds for a small ship), and has no hull contact with it meanwhile.
+ for(const l of craft)for(const u of l)if(u.dockCorridor){const home=byId.get(u.sortie.home);if(!up(home)||t>=(u.sortie.clearAt||0)&&dist(u,home)>home.p.len*.5+200||t>=(u.sortie.clearAt||0)+60)u.dockCorridor=false;}
+ for(const team of [0,1])for(const u of ships[team])for(const c of fleetAirEmerge(b,u,dt)){byId.set(c.id,c);craft[team].push(c);(c.sortie.bomber?bombers:fighters)[team].push(c);}
  for(const team of [0,1]){
   const foe=1-team,own=ships[team],F=fighters[team].filter(up),OB=bombers[team].filter(u=>up(u)&&u.sortie.stores.length),EB=bombers[foe].filter(u=>up(u)&&u.sortie.stores.length),EF=fighters[foe].filter(up);
   // The bombers' target, and how the fleet goes at it.
@@ -90151,8 +90174,8 @@ function fleetAirStep(b,dt,opts={}){
   // ship and comes aboard, which frees its squadron's place in the air control. In use: a bomber with stores and a ship to strike;
   // a fighter while enemy craft are within FLEET_AIR.intercept of an own ship, while own bombers that still carry stores are in the
   // air (it escorts them or sweeps ahead), or while it is fighting a craft close by. ★ Ours: it is aboard within FLEET_AIR.land of its ship's hull
-  // (the landing itself is not flown, as the launch is not); a fighter squadron goes up again as a fresh squadron of its survivors
-  // (re-armed); a bomber squadron that has landed does not go up again (nobody re-arms the strike's rounds).
+  // (the landing itself is not flown); a squadron that has landed is re-armed in FLEET_AIR.rearm seconds (the docking
+  // resupply's time, DOCK.refillS) and can go up again as a squadron of its survivors, bombers as well as fighters.
   {const near=craft[foe].some(e=>up(e)&&own.some(sh=>dist(e,sh)<=FLEET_AIR.intercept)),strikeOn=OB.length>0;
    for(const u of craft[team]){if(!up(u))continue;const w=u.sortie,home=byId.get(w.home);if(!up(home)||home.out){w.rtb=false;continue;}
     const foeNow=u.order.type==='attack'?byId.get(u.order.target):null,needed=w.bomber?w.stores.length>0&&pool.length>0:near||strikeOn/* every fighter up while the strike is on: only its escort was sent */||up(foeNow)&&craftUnit(foeNow)&&dist(u,foeNow)<=FLEET_AIR.engage*2;
@@ -90160,8 +90183,9 @@ function fleetAirStep(b,dt,opts={}){
     w.rtb=true;u.order={...u.order,type:'escort',target:home.id,fire:!w.bomber,dash:false};
     if(dist(u,home)>home.p.len/2+FLEET_AIR.land)continue;
     const q=air.squadrons.find(x=>x.members.includes(u.id));const at=b.units.indexOf(u);if(at>=0)b.units.splice(at,1);byId.delete(u.id);air.log.landed=air.log.landed||[0,0];air.log.landed[team]++;
-    if(q){q.members=q.members.filter(id=>id!==u.id);q.aboard=(q.aboard||0)+1;if(!q.members.some(id=>up(byId.get(id)))){q.out=false;q.size=q.aboard;q.aboard=0;q.members=[];q.landedAt=t;if(q.bomber)q.spent=true;}}}}
+    if(q){q.members=q.members.filter(id=>id!==u.id);q.aboard=(q.aboard||0)+1;if(!(q.pending>0)&&!q.members.some(id=>up(byId.get(id)))){q.out=false;q.size=q.aboard;q.aboard=0;q.members=[];q.landedAt=t;q.readyAt=t+FLEET_AIR.rearm;/* user decision 2026-11-19「爆撃機の再武装も行えるようにして」: fighters and bombers alike are re-armed aboard and can go up again */}}}}
  }
+ for(const l of craft)for(const u of l)if(u.dockCorridor&&up(u)&&u.sortie.outDir)u.order={...u.order,type:'move',point:add(u.pos,mul(u.sortie.outDir,5000)),fire:false,dash:false};
 }
 function fleetAirRelease(b,u,target,kind,n,r,aim,fall=null){
  const s=fall?len(fall.vel):Math.max(MISSILE_FLIGHT.launch,len(u.velocity||[0,0,0])),dir=fall?norm(fall.vel):norm(sub(target.pos,u.pos)),d=len(sub(target.pos,u.pos));
