@@ -28,7 +28,8 @@ const FLEETS=[['mc75','mc80liberty','nebulonb','nebulonb','cr90'],['imperial','i
 // Stored wing types that fly here, and what they do. Types without an example design (U-wing, shuttles, landing craft) stay aboard.
 const ROLE={xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_btlb',job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}};
 const KINDS=[{kind:'itorp',ion:true,release:4000,range:8000},{kind:'cmsl',ion:false,release:6000,range:10000},{kind:'bomb',ion:false,release:700,range:1500}],AIMS=['engine','bridge','weapon','sensor'];
-const loadOf=(key,kinds)=>{const n=Math.max(0,Math.floor((spare[key]||0)/ROUND.mass)),out=[];for(let i=0;i<n;i++)out.push({...kinds[i%kinds.length]});return out;};
+// 2026-11-19: the rounds are of three sizes (C.airRound: torpedo and missile 3.14 t, bomb 6.28 t), so the load is filled by mass, the kinds in turn.
+const loadOf=(key,kinds)=>{const lift=spare[key]||0,out=[];let used=0;for(let i=0,miss=0;miss<kinds.length&&out.length<400;i++){const k=kinds[i%kinds.length],m=C.airRound(k.kind).mass;if(used+m<=lift+1e-9){out.push({...k});used+=m;miss=0;}else miss++;}return out;};
 const dist=(a,b)=>C.len(C.sub(a.pos,b.pos)),up=u=>!u.dead,nearest=(u,list)=>{let best=null,bd=Infinity;for(const w of list){if(w.dead)continue;const d=dist(w,u);if(d<bd){bd=d;best=w;}}return best;};
 function run(seed){
  const ships=[[],[]],fighters=[[],[]],bombers=[[],[]],rounds=[],all=[];let n=0;
@@ -77,7 +78,7 @@ function run(seed){
    const W=[T.pos[0]+Math.cos(y.routeA)*RUNIN,y.pos[1],T.pos[2]+Math.sin(y.routeA)*RUNIN];if(y.phase==='approach'&&(C.len(C.sub(W,y.pos))<2500||dist(y,T)<RUNIN*.8))y.phase='run';
    y.order=y.phase==='run'?{...y.order,type:'attack',target:T.id,fire:false}:{...y.order,type:'move',point:W,fire:false};}
  }
- const fire=(u,target,k,nRounds,r,aim,aimRange)=>{const dir=C.norm(C.sub(target.pos,u.pos)),s=Math.max(220,C.len(u.velocity)),m={id:'m'+(B.missileN=(B.missileN||0)+1),salvo:u.id+k+'@'+B.time,team:u.team,from:u.id,target:target.id,n:nRounds,tt:ROUND.tt,kind:k,ion:r.ion,...(aim?{aim,aimRange}:{}),range:r.range,traveled:0,pos:u.pos.slice(),vel:C.mul(dir,s),s,life:r.range/C.roundSpeed(k)*1.5+5,sent:nRounds};(B.missiles||(B.missiles=[])).push(m);rounds.push(m);};
+ const fire=(u,target,k,nRounds,r,aim,aimRange)=>{const dir=C.norm(C.sub(target.pos,u.pos)),s=Math.max(220,C.len(u.velocity)),m={id:'m'+(B.missileN=(B.missileN||0)+1),salvo:u.id+k+'@'+B.time,team:u.team,from:u.id,target:target.id,n:nRounds,tt:C.airRound(k).tt,kind:k,ion:r.ion,...(aim?{aim,aimRange}:{}),range:r.range,traveled:0,pos:u.pos.slice(),vel:C.mul(dir,s),s,life:r.range/C.roundSpeed(k)*1.5+5,sent:nRounds};(B.missiles||(B.missiles=[])).push(m);rounds.push(m);};
  let t=0,lastAssign=-Infinity;
  for(;t<LIMIT;t+=STEP){
   // The ships: each attacks the nearest effective enemy ship (fleetAiOrders' rule, for both sides; craft are not ship targets).
@@ -103,10 +104,10 @@ function run(seed){
  return {t,winner:left[0]&&left[1]?'undecided at the limit':left[0]?'Rebel fleet':left[1]?'Imperial fleet':'neither',left,firstGun:st.firstGun,craft:[craft(0),craft(1)],rounds:[rd(0),rd(1)],roles:st.roles,pressLog:st.pressLog,firstRelease:st.firstRelease,ctl:{flownAtStart,squadsAll,waiting},ships:[ships[0].map(shipLine),ships[1].map(shipLine)],units:all.length};
 }
 Object.values(ROLE).forEach(r=>prof(r.key));
-const NAMES=['Rebel','Imperial'],wingOf=team=>{const by={};for(const key of FLEETS[team])for(const w of F.designs[key].air||[])if(ROLE[w.type])by[w.type]=(by[w.type]||0)+Math.round(w.count*WING);return Object.entries(by).map(([k,v])=>`${v} ${k} (${ROLE[k].job}, ${Math.floor((spare[ROLE[k].key]||0)/ROUND.mass)} rounds each)`).join(', ')||'no craft';};
+const NAMES=['Rebel','Imperial'],wingOf=team=>{const by={};for(const key of FLEETS[team])for(const w of F.designs[key].air||[])if(ROLE[w.type])by[w.type]=(by[w.type]||0)+Math.round(w.count*WING);return Object.entries(by).map(([k,v])=>`${v} ${k} (${ROLE[k].job}, ${loadOf(ROLE[k].key,ROLE[k].job==='bomber'?KINDS:[KINDS[1]]).length} rounds each)`).join(', ')||'no craft';};
 console.log(`fleet action with craft: Rebel ${FLEETS[0].join(', ')} against Imperial ${FLEETS[1].join(', ')}; ${START/1000} km apart at the start; the ships attack the nearest effective enemy ship`);
 console.log(`craft (the ships' stored wings x ${WING}, in flight beside their ship at the start; the launch is not simulated; nobody re-arms): Rebel ${wingOf(0)}; Imperial ${wingOf(1)}`);
-console.log(`rounds of ${ROUND.tt.toFixed(4)} TT (${ROUND.mass.toFixed(2)} t), loaded to the repulsorlift's spare lift; bombers carry ion torpedoes, concussion missiles and proton bombs in turn and come in on ${AXES} route${AXES>1?'s spread over '+Math.round(SPREAD*57.3)+'°':''} against the nearest enemy ship of 1,000 m or more; fighters' concussion missiles are for craft`);
+console.log(`rounds: ${['itorp','cmsl','bomb'].map(k=>k+' '+C.airRound(k).tt.toFixed(4)+' TT ('+C.airRound(k).mass.toFixed(2)+' t)').join(', ')}; loaded to the repulsorlift's spare lift; bombers carry ion torpedoes, concussion missiles and proton bombs in turn and come in on ${AXES} route${AXES>1?'s spread over '+Math.round(SPREAD*57.3)+'°':''} against the nearest enemy ship of 1,000 m or more; fighters' concussion missiles are for craft`);
 console.log(`fighters, decided by each fleet every ${REASSIGN} s: intercept = ${INTERCEPT_PER} to each enemy bomber on an attack run (carrying rounds, within ${INTERCEPT/1000} km of an own ship and closing${TIEMODE==='zone'?'; those within '+HANDOFF+' m of an own ship are left to its point defence':''}); close escort = one to each own bomber that carries rounds, at most ${ESCORT_SHARE*100}% of the fighters left; air superiority = the rest; ${RUNS} runs, limit ${LIMIT} s`);
 for(let s=1;s<=RUNS;s++){const t0=Date.now(),r=run(s*7919);
  console.log(`\nrun ${s}: ended ${r.t}s (${r.units} units, ${Math.round((Date.now()-t0)/1000)} s to compute) | ${r.winner}; effective ships left: Rebel ${r.left[0]}/${FLEETS[0].length}, Imperial ${r.left[1]}/${FLEETS[1].length} | ships' guns first fired on a ship at ${r.firstGun?r.firstGun.t+'s, '+(r.firstGun.d/1000).toFixed(1)+' km':'never'}`);
