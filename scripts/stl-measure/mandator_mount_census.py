@@ -439,6 +439,7 @@ def main():
                           step_offset_ship_m=[round(-off[1] * S, 1), round(off[2] * S, 1), round(off[0] * S, 1)],
                           bbox_m=[round(x, 1) for x in s.d], clear_above_m=clear(s, top, ax)))
     classes['pd'] = items
+    classes = json.loads(json.dumps(classes), object_pairs_hook=collections.OrderedDict)  # plain floats
     for k in classes:
         classes[k].sort(key=lambda it: (it['ship'][0], it['ship'][2]))
 
@@ -480,7 +481,7 @@ def main():
         pts = pts[pts[:, 0] > 0]
         xm = pts[:, 0].max()
         edge = np.unique(np.round(pts[pts[:, 0] > xm - 1e-3][:, 2] * S, 1))
-        band.append(dict(ship_x=round((STL_Y_STERN - y0) * S, 1), half_width_m=round(xm * S, 1), edge_z_levels_m=[float(e) for e in edge],
+        band.append(dict(ship_x=float(round((STL_Y_STERN - y0) * S, 1)), half_width_m=float(round(xm * S, 1)), edge_z_levels_m=[float(e) for e in edge],
                          edge_ship_y=[round(float(e) + Y_OFFSET, 1) for e in edge]))
         say(' side edge at ship x %6.0f half width %7.1f  heights (model z, m) %s' % (band[-1]['ship_x'], band[-1]['half_width_m'], band[-1]['edge_z_levels_m']))
     eng = []
@@ -547,7 +548,6 @@ def main():
         counts={k: len(v) for k, v in classes.items()}, classes=classes,
         extras=dict(side_band=band, engines=eng, centreline_structures=big), example_comparison=comp)
     json.dump(res, open(os.path.join(out, 'mounts.json'), 'w'), indent=1, ensure_ascii=False)
-    reps = {'utl': [(octs[0].id, 160)], 'twin175': [], 'ionBall': [], 'pd': []}
     def pick(group, n, half):
         g = sorted([s for s in group if s.c[0] >= -0.02], key=lambda s: s.c[1])
         return [(g[i].id, half) for i in sorted(set(np.linspace(0, len(g) - 1, n).astype(int)))]
