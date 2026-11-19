@@ -1,0 +1,27 @@
+== head-on: craft_xwing (A) vs craft_tie_ln (B), 10 runs: A wins 10, B wins 0, both lost 0, undecided in 300 s 0; mean time to decision 54.9 s; nearest 116.2 m; seconds on the other's tail A 2.0 B 0.0; seconds guns bearing A 31.8 B 5.5; first shot at 0.0 s
+0s d=7440 A(296,0,0 hdg 0° 1185m/s) B(7736,0,0 hdg 180° 1056m/s)
+5s d=2932 A(5733,0,112 hdg 18° 897m/s) B(2801,0,111 hdg 167° 827m/s)
+10s d=8268 A(8041,0,2165 hdg 86° 435m/s) B(-209,0,1613 hdg 134° 548m/s)
+15s d=8466 A(7148,0,3870 hdg 154° 497m/s) B(-1306,0,3440 hdg 102° 328m/s)
+20s d=5418 A(4184,0,4290 hdg 173° 711m/s) B(-1188,0,4993 hdg 69° 315m/s)
+25s d=1291 A(621,0,5330 hdg 141° 625m/s) B(-324,0,6209 hdg 37° 241m/s)
+30s d=868 A(-326,0,7004 hdg 73° 200m/s) B(503,0,6749 hdg 32° 173m/s)
+35s d=1243 A(-85,0,7298 hdg 5° 71m/s) B(1151,0,7170 hdg 33° 139m/s)
+40s d=1411 A(282,0,7312 hdg 8° 74m/s) B(1678,0,7515 hdg 33° 114m/s)
+45s d=1524 A(643,0,7388 hdg 15° 74m/s) B(2110,0,7798 hdg 33° 93m/s)
+   run 1: A 45.5 s TIE/ln 制宙戦闘機：艦首区画 崩壊 | TIE/ln 制宙戦闘機：撃沈（船体破断）
+== parallel: craft_xwing (A) vs craft_tie_ln (B), 10 runs: A wins 0, B wins 0, both lost 0, undecided in 300 s 10; mean time to decision - s; nearest 19.0 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 0.0 B 14.8; first shot at 3.3 s
+0s d=1994 A(293,0,3 hdg 3° 1156m/s) B(261,0,1997 hdg -3° 1031m/s)
+5s d=1517 A(4118,0,1890 hdg 42° 643m/s) B(3805,0,405 hdg -20° 577m/s)
+10s d=2107 A(5993,0,2590 hdg -26° 215m/s) B(5621,0,516 hdg 47° 204m/s)
+15s d=1436 A(6333,0,2308 hdg -64° 51m/s) B(5844,0,958 hdg 70° 75m/s)
+20s d=827 A(6394,0,2027 hdg -90° 64m/s) B(5995,0,1302 hdg 62° 75m/s)
+25s d=141 A(6317,0,1701 hdg -116° 69m/s) B(6212,0,1608 hdg 44° 75m/s)
+30s d=190 A(6209,0,1592 hdg -175° 22m/s) B(6377,0,1680 hdg -17° 23m/s)
+35s d=329 A(6118,0,1644 hdg 117° 22m/s) B(6444,0,1598 hdg -84° 23m/s)
+40s d=357 A(6131,0,1747 hdg 49° 22m/s) B(6393,0,1504 hdg -152° 23m/s)
+45s d=241 A(6232,0,1774 hdg -19° 22m/s) B(6222,0,1533 hdg 141° 45m/s)
+50s d=134 A(6295,0,1690 hdg -86° 22m/s) B(6161,0,1695 hdg 73° 23m/s)
+55s d=161 A(6242,0,1601 hdg -154° 22m/s) B(6244,0,1762 hdg 6° 23m/s)
+60s d=220 A(6139,0,1616 hdg 138° 22m/s) B(6337,0,1711 hdg -62° 23m/s)
+   run 1: none 300 s 
