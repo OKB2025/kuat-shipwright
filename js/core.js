@@ -84668,7 +84668,7 @@ function fleetModules(ship,S){
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
   // v23 External dissipators stand out of the hull: they present more to fire and are as fragile as a turret.
   const ext=(isWing(p)||DISSIPATORS[p.k]?.ext)&&(S.info?.[p.id]?.exposed||0)>.2;if(ext)w*=1+2*(S.info[p.id].exposed||0);
-  const credited=k==='quarters'?(commonHab.explicitByPart?.[p.id]??0):V;const m={k,name:partLabel(p),w:k==='quarters'?Math.pow(credited,2/3)*QUARTERS_WEIGHT:w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:credited,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};
+  const credited=k==='quarters'?(commonHab.explicitByPart?.[p.id]??0):V;const m={k,name:partLabel(p),w:k==='quarters'?Math.pow(credited,2/3)*QUARTERS_WEIGHT:w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:credited,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};if(p.k==='solarPanel')m.panel=true;/* v30 a panel standing off the hull: a shot on it takes the panel, not the craft */
   if(k==='shield'&&Number.isFinite(p.shieldDissipationW)&&p.shieldDissipationW>=0)m.shieldDissipationW=p.shieldDissipationW;if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(k==='capacitor'&&Array.isArray(p.weaponIds))m.links=p.weaponIds.map(id=>byFit.get(id)).filter(id=>Number.isInteger(id));if(p.id>0||p.k==='machinery'&&p.id<0||p.trenchChargeRow)m.part=p.id;if(p.k==='machinery'&&!p.transmission&&!p.drivetrain)m.machineryOwner=-p.id;if(p.drivetrain){m.k='drivetrain';m.routeId=p.routeId;m.coreId=p.coreId;m.nozzleId=p.nozzleId;m.capacityW=p.capacityW;}if(p.transmission){m.k='conduit';m.routeId=p.routeId;m.capacityW=p.capacityW;}if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
  // v19: the crew and troops live in the free volume; hits through it kill people
  // (living zones by quarter length, weighted lightly against the systems).
@@ -85361,6 +85361,13 @@ function combatResolve(ctx,u,o,dt,s){
  // v30 Fire lands in whole shots. When the step's expected fire on the hull is less than one shot, one shot lands with that chance
  // (user decision 2026-11-18: a hit on a TIE's pod destroys it at once; a fraction of a bolt each step must not do it instead).
  if(shot>0&&hullHit>0&&hullHit<shot)hullHit=ctx.rand()<hullHit/shot?shot:0;
+ // v30 Panels (user decision 2026-11-19「パネルに当たった場合はパネルの耐久で1発は耐えるようにして」): a craft's panels stand off its hull
+ // and make up most of what a shot can strike. A shot that lands on a panel takes that panel and goes no further: the craft lives
+ // through it. Where a panel has already gone there is nothing left to hit. Each shot's place is drawn by the modules' sizes.
+ if(shot>0&&hullHit>0&&craftUnit(u)){const mods=p.modules||[];let all=0,pan=0;for(const m of mods){if(m.k==='hull')continue;all+=m.w||0;if(m.panel)pan+=m.w||0;}
+  if(pan>0&&all>0){const n=Math.max(1,Math.round(hullHit/shot));let through=0;for(let k=0;k<n;k++){let r=ctx.rand()*all;if(r>=pan){through++;continue;}
+    for(let i=0;i<mods.length;i++){if(!mods[i].panel)continue;r-=mods[i].w||0;if(r<0){if(u.mods[i]>0){u.mods[i]=0;ctx.ev(u,`${mods[i].name}に被弾・脱落`);}break;}}}
+   hullHit*=through/n;}}
  const surfaceZones=!!p.surface?.patches?.length;let recs=0;try{
  if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot',surfaceZones),local=u.surfaceLastHit;
   if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q,shot);if(rec.path.length>0&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
