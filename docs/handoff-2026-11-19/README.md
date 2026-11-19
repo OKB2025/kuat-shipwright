@@ -11,6 +11,18 @@
 | [../damage-penetration.md](../damage-penetration.md) | 損害の作り直しの仕様と決定の原文。**パネル・対艦攻撃の節より後の決定は未記入**（下の 4 に一覧） |
 | [../reference/fighter-combat-notes.md](../reference/fighter-combat-notes.md)、[../reference/anti-ship-attack-notes.md](../reference/anti-ship-attack-notes.md) | 空中戦（Shaw）と対艦攻撃（珊瑚海の戦記）の要約 |
 
+## 0. 次のセッションの始め方
+
+1. 続きは `main` ではなく、PR #119 のブランチ `claude/relaxed-ritchie-bquetk` にある。新しいセッションに別の作業ブランチが割り当てられていたら、`git fetch origin claude/relaxed-ritchie-bquetk` で取り、その先頭（この文書のコミット以降）から始める。どのブランチへ push するかは、最初にユーザーへ確かめる（#119 に積み足すのがこれまでの決定）。
+2. `git log -1`、`git status`、`node scripts/update-asset-manifest.cjs --check` を確かめる。
+3. モデルは作業ごとに分ける（5 の「作業の割り当て」）。最初の報告（a-1）は Sonnet 5.5 / low で足りる。
+4. 動作の確認に使うコマンド（出力先は必ず指定する）：
+   - `node --test tests/craft-as-ships.cjs`（第 1 段と損害の規則、9 件）
+   - `node scripts/sim-dogfight.cjs craft_xwing craft_tie_ln 10 1 1`（対向 8 km の空中戦。引数は A、B、回数、B の機数、A の機数）
+   - `node scripts/sim-strike.cjs 3 > <出力先>`（対艦攻撃 3 回。環境変数 `AXES`＝進路の数、`TIE=run|zone`、`KS_EVADE=0`、`KS_START`）
+   - `node scripts/browser-trial-wing.cjs <root> <出力先>`（公試の小型機、ブラウザ）
+5. 進める順：下の 5 の「すぐ続き」1 → 2 → 3、そのあと「#119 をマージできる状態にするために要ること」。#119 のあとの項目（C〜F）は [../handoff-2026-11-18/README.md](../handoff-2026-11-18/README.md) の表の順。
+
 ## 1. いまの状態
 
 - `main` は e8d3dfe（PR #117、#118 までマージ済み）。
@@ -103,6 +115,35 @@
 - 「ISD×2 vs MC-75、MC-80、ネピュロン B×2、CR-90 あたりで航空機も含めた艦隊戦を行ってみて」「制空、迎撃、直掩を各艦隊が判断して編隊を送り込む形」
 
 ## 5. 未了（次のセッションの作業）
+
+### 作業の割り当て
+
+ユーザー指示（2026-11-19）「軽いモデルでできるところは軽いモデルで指定して」。使用量を抑えるため、判断の要らない作業は軽いモデルに回します。CLAUDE.md の運用（主担当は Opus 5.5 か Fable 5.2）より軽い指定を含みますが、この表のほうが新しい指示です。実際のモデルはセッション情報で確かめます（`/model` と `/effort` は別々のメッセージで送る）。
+
+軽いモデルへ回すやり方は 2 通りあります。作業ごとにセッションのモデルを切り替えるか、主担当が Agent に `model` を指定して下請けに出すかです。下請けに出すときは、対象ファイル・コマンド・出力先・報告の形を依頼に書きます（下請けは会話の履歴を知りません）。
+
+| 順 | 内容 | モデル | 呼ぶレビュー担当 | 再生成 |
+| --- | --- | --- | --- | --- |
+| a-1 | 複数進路の結果を報告する（記録は取得済み。読むだけ） | Sonnet 5.5 / low | なし | 不要 |
+| a-2 | 命中が増えた理由の調査、釣り合いの調整（点防御・回避・TIE の数値と `js/core.js`） | Fable 5.2 / medium | physics | 不要 |
+| a-3 | 調整後のシミュレーションを回して表にする（コマンドは決まっている） | Haiku 5.5 / low | なし | 不要 |
+| b-1 | 艦隊戦シミュレーションのスクリプトを書く（`sim-strike.cjs` が土台、割り当ての規則は下に記載） | Opus 5.5 / medium | なし（ゲーム本体を変えない間） | 不要 |
+| b-2 | 回して結果を表にする | Haiku 5.5 / low | なし | 不要 |
+| c | 仕様書の更新（4 の決定を `damage-penetration.md` へ写す、`craft-as-ships.md` の古い節を直す、PR の説明） | Sonnet 5.5 / medium | なし | 不要 |
+| d-1 | `js/core.js` の残り：性能表から `hp` を外す、区画の構造を `computeStats` で作る、ハンマーヘッド級の艦首装甲 | Fable 5.2 / medium（原因調査は high） | physics、reference-fidelity（ハンマーヘッド級、X ウイング、Y ウイング） | 要 |
+| d-2 | 再生成を回す（手順は handoff-2026-11-18。待って結果を確かめるだけ）、`--check` | Haiku 5.5 / low | なし | 全作例、1 回 |
+| e-1 | 全 534 本を回し、`main` の結果と並べて失敗の一覧を作る | Haiku 5.5 / low | なし | 不要 |
+| e-2 | 落ちたテストを「規則が変わったための期待値の古さ」と「不具合」に分け、期待値の変更に根拠を付ける | Opus 5.5 / medium（不具合の原因調査は Fable 5.2 / high） | physics、regression | 不要 |
+| f-1 | ブラウザでの確認（既存の `scripts/browser-*.cjs` を回す） | Sonnet 5.5 / medium | なし | 不要 |
+| f-2 | レビュー担当への依頼文と証拠の用意、指摘の統合と修正 | Fable 5.2 / medium | physics、regression（保存形式・非同期で追加を求められたら Opus / high） | 不要 |
+| g | ゲーム本体への実装（艦隊戦で実体の機体、制空・迎撃・直掩、複数進路、TIE の 2 通り、`u.air` の置き換え、僚機を軽く） | Fable 5.2 / medium。画面の文言・英語の追加・テストの追加は Sonnet 5.5 / medium | physics、regression | 要（見込み） |
+
+- **軽いモデルに回さないもの**：`js/core.js` の計算の変更、作例の形状、期待値を変える判断、レビュー指摘の統合。結果の「読み取り」は軽いモデルでよいが、そこから数値を変える判断は主担当が行う。
+- レビュー担当のモデルは `.claude/agents/` の各定義で固定してあり、ここでは変えない。
+- 軽いモデルの報告は、主担当がログの該当行を 1 か所は自分で確かめてから使う。未実行・失敗を「成功」と書いていないかを見る。
+- PR は、a〜f が #119、g は別の PR にする見込み（分けるかどうかはユーザーに確かめる）。
+- a と b は先にユーザーへ見せる。その答えで d 以降の数値が変わりうるので、再生成（d-2）は a が決まってから。再生成中に `js/core.js` を触ると最初からやり直しになる。
+- #119 のあとの項目 C〜F は handoff-2026-11-18 の表が基準。そこでも、テストを回す・結果を表にする・文書を写す作業は、上と同じ考え方で Haiku 5.5 / Sonnet 5.5 に回す。
 
 ### すぐ続き（ユーザーの最後の指示）
 
