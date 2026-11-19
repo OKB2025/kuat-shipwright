@@ -80216,7 +80216,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
 const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),XW_TUBE_END=1.8;
 // 2026-11-14 re-measured after machinery, wings and panels became denser (user decisions): each plant gives its target
 // acceleration at the craft's new mass.
-const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.523612819560,craft_awing:0.538693990766,craft_btlb:0.686257537145,craft_hyena:0.597986279568,craft_tie_in:0.548659070293,craft_tie_ln:1.110735516139,craft_tie_sa:0.665521724656,craft_v19:0.545982027224,craft_vulture:0.459558911046,craft_vwing:0.467564116530,craft_xwing:0.457887018500,craft_z95:0.692570301184});
+const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.523612819560,craft_awing:0.538693990766,craft_btlb:0.686257537145,craft_hyena:0.597986279568,craft_tie_in:0.548659070293,craft_tie_ln:1.110735516139,craft_tie_sa:0.842684/* user decision 2026-11-19「TIE/saの速度を見直し」: was 0.665521724656 (843 m/s, 56% of the TIE/ln). The published speeds are 90 and 100 MGLT (docs/reference-sublight-speeds.md), so its reactors are sized for 90% of the TIE/ln's speed (1,357 of 1,508 m/s) */,craft_v19:0.545982027224,craft_vulture:0.459558911046,craft_vwing:0.467564116530,craft_xwing:0.457887018500,craft_z95:0.692570301184});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
  dedicateAeroParts(ship);
@@ -84270,7 +84270,9 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
  {const jw=hyperChargeStep(u,P,u.pw.draw,dt);u.pw.hyper=jw;if(P>0)u.load+=jw/P;}
  if(surfaceFire!=null){const spent=Math.max(0,u.surfaceLastFire?.spent||0);if(spent>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spent*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}return surfaceFire;}
- const eta=1/weaponInputFactor(p),avail=u.energy+got.weapons*dt/TT*eta,request=raw*eta*dt,spend=powerFactor(u,'weapon')>0?Math.min(avail,request):0,fire=request>0?spend/request:0,spill=Math.max(0,avail-spend-cap);u.energy=clamp(avail-spend,0,cap);if(spend>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spend*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}if(spill>0){const h=heatOf(u);if(h)h.e.weapon+=spill*TT;u.capacitorLedger={releasedJ:(u.capacitorLedger?.releasedJ||0)+spill*TT};}return fire;
+  // User decision 2026-11-19「点防御の給電を優先」: the guns leave in the store what the ship's point defence can fire in this step
+ // (its working point-defence and dual-purpose modules' output), so a ship that is firing its guns can still shoot rounds and craft down.
+ const eta=1/weaponInputFactor(p),avail=u.energy+got.weapons*dt/TT*eta,request=raw*eta*dt,pdKeep=automaticPointDefenseEnabled(u)&&!craftUnit(u)?pointDefenseGuns(u).rate*dt:0,spend=powerFactor(u,'weapon')>0?Math.min(Math.max(0,avail-pdKeep),request):0,fire=request>0?spend/request:0,spill=Math.max(0,avail-spend-cap);u.energy=clamp(avail-spend,0,cap);if(spend>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spend*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}if(spill>0){const h=heatOf(u);if(h)h.e.weapon+=spill*TT;u.capacitorLedger={releasedJ:(u.capacitorLedger?.releasedJ||0)+spill*TT};}return fire;
 }
 const COMBAT={
  tau:30,            // s: armour sheds its load (heat, stress) with this time constant
