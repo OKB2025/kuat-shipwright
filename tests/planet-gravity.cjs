@@ -17,21 +17,30 @@ test('gravity points at the planet\'s centre and falls with the square of the di
 test('a ship with power is held by its repulsorlift: it keeps its height',()=>{
  const {a,B}=pair();const h0=alt(a);run(B,30);assert.equal(a.lift,1);assert.ok(Math.abs(alt(a)-h0)<1e-6,'height '+alt(a));assert.equal(a.fall??null,null);
 });
-test('a ship that loses power loses its lift over GRAVITY.liftFade seconds, falls freely and strikes the planet; what it lost in potential energy is its speed',()=>{
- const {a,B}=pair();run(B,5);a.p.modules.forEach((m,i)=>{if(m.k==='reactor')a.mods[i]=0;});
- run(B,C.GRAVITY.liftFade/2);assert.equal(a.out,'電源喪失');assert.ok(a.lift>.3&&a.lift<.7,'half way: '+a.lift);assert.ok(alt(a)<160000);
- run(B,C.GRAVITY.liftFade);assert.equal(a.lift,0);const t=run(B,600,()=>!!a.crash);assert.ok(a.crash,'it struck the planet');assert.ok(t>120&&t<260,'after about three minutes: '+t);
- assert.equal(a.dead,true);assert.equal(a.fate,'fall');assert.ok(Math.abs(alt(a))<1,'on the surface');assert.ok(a.crash.speed>1500&&a.crash.speed<1900,'speed '+a.crash.speed);
- // free fall: kinetic energy at the surface = potential energy released, less the little the fading lift still held
- const k=a.crash.energyJ/(a.crash.releasedJ+a.crash.startJ);assert.ok(k>.99&&k<=1+1e-9,'energy kept: '+k);assert.ok(Math.abs(a.crash.energyJ-.5*a.crash.massKg*a.crash.speed**2)<1e-6*a.crash.energyJ);
+test('a ship that loses power loses its lift over GRAVITY.liftFade seconds (minutes), is counted shot down when it is gone, and its wreck strikes the planet with the potential energy it lost',()=>{
+ const {a,B}=pair();run(B,5);a.p.modules.forEach((m,i)=>{if(m.k==='reactor')a.mods[i]=0;});assert.ok(C.GRAVITY.liftFade>=120,'minutes');
+ run(B,C.GRAVITY.liftFade/2);assert.equal(a.out,'電源喪失');assert.ok(a.lift>.4&&a.lift<.6,'half way: '+a.lift);assert.ok(alt(a)<160000,'already sinking');assert.equal(a.dead,false,'not yet shot down');
+ const t=run(B,C.GRAVITY.liftFade,()=>a.dead);assert.equal(a.lift,0);assert.equal(a.dead,true,'shot down when the lift is gone');assert.equal(a.fate,'fall');assert.ok(!a.crash,'still in the air');assert.ok(alt(a)>50000);
+ assert.ok(B.events.some(e=>e.id==='a'&&/リパルサーリフトを失い撃墜/.test(e.text)));
+ run(B,900,()=>!!a.crash);assert.ok(a.crash,'the wreck struck the planet');assert.ok(Math.abs(alt(a))<1,'on the surface');assert.ok(a.crash.speed>1200&&a.crash.speed<1900,'speed '+a.crash.speed);
+ // free fall: kinetic energy at the surface = potential energy released, less what the fading lift still held
+ const k=a.crash.energyJ/(a.crash.releasedJ+a.crash.startJ);assert.ok(k>.6&&k<=1+1e-9,'energy: '+k);assert.ok(Math.abs(a.crash.energyJ-.5*a.crash.massKg*a.crash.speed**2)<1e-6*a.crash.energyJ);
  assert.ok(B.events.some(e=>e.id==='a'&&/惑星に墜落/.test(e.text)));
 });
+test('once the lift is gone the fall is free: potential energy lost is speed gained',()=>{
+ const {a,B}=pair('nebulonb');a.dead=true;a.lift=0;a.velocity=[0,0,0];run(B,900,()=>!!a.crash);const k=a.crash.energyJ/a.crash.releasedJ;assert.ok(Math.abs(k-1)<2e-3,'kept: '+k);
+});
+test('a craft trades height for speed: climbing it slows, diving it gains, ½v² + g·h kept',()=>{
+ const xs=C.buildDesign('craft_xwing'),p=C.fleetProfile(C.computeStats(xs),xs.name,xs),u=C.fleetUnit('x','craft_xwing',p,0);u.pos=[0,0,0];u.velocity=[1000,0,0];
+ const g=C.len(C.planetGravity(P,u.pos)),from=u.pos.slice();u.pos=[250,300,0];const dv=C.craftEnergyStep(u,from,P);assert.ok(dv<0,'slower after a climb');
+ assert.ok(Math.abs(C.len(u.velocity)**2-(1000**2-2*g*300))<1,'v² - 2 g dh');const from2=u.pos.slice();u.pos=[500,0,0];assert.ok(C.craftEnergyStep(u,from2,P)>0,'faster after a dive');assert.ok(Math.abs(C.len(u.velocity)-1000)<.05,'back to its speed at the first height');
+});
 test('the wreck of a destroyed ship falls too, keeping the way it had',()=>{
- const {a,B}=pair('nebulonb');a.dead=true;a.velocity=[100,0,0];const x0=a.pos[0];run(B,600,()=>!!a.crash);assert.ok(a.crash);assert.ok(a.pos[0]-x0>10000,'it carried on sideways while it fell');
- const k=a.crash.energyJ/(a.crash.releasedJ+a.crash.startJ);assert.ok(k>.99&&k<=1+1e-9,'energy kept: '+k);assert.ok(B.events.some(e=>e.id==='a'&&/惑星に墜落/.test(e.text)));
+ const {a,B}=pair('nebulonb');a.dead=true;a.velocity=[100,0,0];const x0=a.pos[0];run(B,1200,()=>!!a.crash);assert.ok(a.crash);assert.ok(a.pos[0]-x0>10000,'it carried on sideways while it fell');
+ assert.ok(B.events.some(e=>e.id==='a'&&/惑星に墜落/.test(e.text)));
 });
 test('lift comes back with the power, and a ship out of action for another reason keeps its lift',()=>{
- {const {a,B}=pair();a.lift=.3;run(B,25);assert.equal(a.lift,1);}
+ {const {a,B}=pair();a.lift=.3;run(B,C.GRAVITY.liftFade*.7+1);assert.equal(a.lift,1);}
  {const {a,B}=pair();a.out='テスト';const h0=alt(a);run(B,60);assert.equal(a.lift,1);assert.ok(Math.abs(alt(a)-h0)<1e-6,'it does not fall: '+alt(a));}
 });
 test('without a planet the earlier rule stands (a disabled ship sinks at HULL_FALL.g)',()=>{
