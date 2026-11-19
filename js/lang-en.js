@@ -8474,7 +8474,7 @@ root.KS_EN={
   "細く速い誘導ミサイル。弾頭は魚雷より小さい。": "A slender, fast guided missile with a smaller warhead than a torpedo.",
   "プロトン爆弾": "Proton Bomb",
   "誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。": "An unguided bomb released directly over the target, at the closest point of the attack pass.",
-  "弾の寸法・質量は正史・レジェンズに数値がないため、作例の発射管（実測）に収まる大きさとしたゲーム用仮定。威力はゲーム用仮定（正史の搭載で1回目の攻撃航過が航行の機種表の対艦値に近くなる値）。": "Canon and Legends provide no ammunition dimensions or mass, so game values fit the measured example launchers. Damage is also a game assumption, tuned so the first pass with canonical loads approximates each craft's antiship rating.",
+  "弾の寸法・質量は正史・レジェンズに数値がないため、作例の発射管（実測）に収まる大きさとしたゲーム用仮定。威力は弾頭の質量から出す（魚雷は弾体の95%、ミサイルは50%、爆弾は100%が弾頭、1 t あたり0.03 TT）。": "Canon and Legends provide no ammunition dimensions or mass, so game values fit the measured example launchers. Yield comes from the warhead's mass (95% of a torpedo's body, 50% of a missile's, all of a bomb; 0.03 TT per tonne).",
   "発射管の弾倉": "Launcher Magazine",
   "弾倉": "Magazine",
   "翼下パイロン": "Underwing Pylon",
@@ -9983,7 +9983,7 @@ Object.assign(root.KS_EN.terms,{
  "残弾なし": "No Ammunition",
  "発射中": "Launching",
  "ミサイル発射装置に給電されていません": "The missile launchers have no power",
- "航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発25 TT。": "A compact concussion missile launch tube and six-round magazine shared by aircraft and ships. Supports follow the selected upward or downward launch angle. On equipment surfaces it becomes a flush VLS hatch. Caliber 0.22 m; 25 TT per round.",
+ "航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発0.047 TT。": "A compact concussion missile launch tube and six-round magazine shared by aircraft and ships. Supports follow the selected upward or downward launch angle. On equipment surfaces it becomes a flush VLS hatch. Caliber 0.22 m; 0.047 TT per round.",
  "旧VLSの装備面を再選択してください": "Reselect the equipment surface for the legacy VLS"
 });
 // </compact-missile-launchers>
@@ -10278,7 +10278,7 @@ Object.assign(root.KS_EN.messages,{
 Object.assign(root.KS_EN.terms,{
 '艦艇用ミサイル発射機':'Ship Missile Launcher',
 '艦艇ミサイル発射機':'Ship Missile Launcher',
-'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発25 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell twice the aircraft launcher size. Horizontal and vertical cell counts change physical width, height, ammunition, mass and cost. Six 25 TT rounds per cell, with a 60 km range; supports external and structure-embedded mounting.',
+'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程60 km。外付けと構造物への埋め込みに対応します。':'A ship cell twice the aircraft launcher size. Horizontal and vertical cell counts change physical width, height, ammunition, mass and cost. Six 0.047 TT rounds per cell, with a 60 km range; supports external and structure-embedded mounting.',
 '横セル数':'Horizontal Cells',
 '縦セル数':'Vertical Cells',
 '発射方向の左右角':'Launch Heading',
