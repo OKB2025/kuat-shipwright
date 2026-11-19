@@ -48,7 +48,7 @@ test('craft in use stay up: bombers with stores and a ship to strike',()=>{
 test('craft come out of the hangar mouths at the rate the mouths give, and appear just outside a mouth',()=>{
  const {B,isd,foe}=setup(),rate=isd.p.mouths.reduce((n,m)=>n+m.r,0);assert.ok(Math.abs(rate-isd.p.launch)<1e-2,'the mouths add up to the ship\'s launch rate');
  C.fleetTick(B,.25,{});assert.equal(B.units.filter(u=>u.sortie&&u.team===1).length,0,'nobody is out after a quarter of a second');
- run(B,10);const n=B.units.filter(u=>u.sortie&&u.team===1).length,T=B.time-.25/* the order is given on the first step */;
+ run(B,2);const n=B.units.filter(u=>u.sortie&&u.team===1).length,T=B.time-.25/* the order is given on the first step */;
  assert.ok(n>=Math.floor(rate*T)-isd.p.mouths.length&&n<=Math.ceil(rate*T)+1,`about ${rate.toFixed(2)} a second: ${n} craft in ${T} s`);
  const slow=B.units.filter(u=>u.sortie&&u.team===0).length,r0=foe.p.mouths.reduce((x,m)=>x+m.r,0);assert.ok(slow<=Math.ceil(r0*T)+1&&slow<n,`the MC75's one mouth passes fewer (${slow} at ${r0.toFixed(2)} a second)`);
  const fresh=C.fleetUnit('isd2','imperial',plain(F.designs.imperial.p),1);fresh.pos=[0,0,0];fresh.yaw=0;const B2=C.fleetBattle([fresh,C.fleetUnit('t','cr90',plain(F.designs.cr90.p),0)],true);B2.units[1].pos=[90000,0,0];
@@ -125,4 +125,10 @@ test('with opts.mixed false the wings fly as squadrons of one type',()=>{
  const isd=C.fleetUnit('isd','imperial',plain(F.designs.imperial.p),1),foe=C.fleetUnit('foe','mc75',plain(F.designs.mc75.p),0);const B=C.fleetBattle([foe,isd],true);
  C.fleetAirSetup(B,[{home:'isd',type:'tie_sa',count:24},{home:'isd',type:'tie_ln',count:12}],profiles,{mixed:false});
  assert.equal(B.air.squadrons.map(q=>[...new Set(q.mix.map(x=>x.type))].join('+')+':'+q.size).join(' '),'tie_sa:12 tie_sa:12 tie_ln:12');
+});
+// User decision 2026-11-19「もう少し発艦速度を上げて。例えば映画だとインペリアル級のTIEは腹部の開口部ハッチからパラパラと落ちて2〜3秒で12機は発艦できてる」
+test('the Imperial class passes twelve craft through its hangar mouths in two to three seconds',()=>{
+ assert.equal(C.K.launchOpen,4e-4);assert.equal(C.K.launchRay,2.4e-4);
+ const mouths=F.designs.imperial.p.mouths,rate=mouths.reduce((n,m)=>n+m.o[0]*m.o[1]*C.K.launchOpen,0),seconds=12/rate;
+ assert.ok(mouths.every(m=>!m.sl),'its mouths are open bays');assert.ok(seconds>=2&&seconds<=3,`twelve craft in ${seconds.toFixed(2)} s at ${rate.toFixed(2)} a second`);
 });

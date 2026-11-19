@@ -175,7 +175,7 @@ const K = {
   hullDens: 0.20, structDens: 0.40,
   genW: REACTOR_POWER_DENSITY, engN: 1.7e8, engWperN: 2.0e9, shieldW: SHIELD_POWER_DENSITY, shieldStd: 4.0e17,
   hotelW: 1.0e14, rayW: 5.0e17, hyperW: HYPER_POWER_DENSITY, hyperK: HYPER_CLASS_COEFFICIENT,
-  slotM3: 15000, launchOpen: 1.0e-4, launchRay: 6.0e-5,
+  slotM3: 15000, launchOpen: 4.0e-4, launchRay: 2.4e-4,/* craft a second through a square metre of hangar mouth, open and behind a ray shield. User decision 2026-11-19「もう少し発艦速度を上げて。例えば映画だとインペリアル級のTIEは腹部の開口部ハッチからパラパラと落ちて2〜3秒で12機は発艦できてる」: four times the former 1.0e-4 and 6.0e-5, so the Imperial class's ventral bay (11,623 m²) passes 4.6 craft a second and twelve TIEs are out in 2.4 s with its second mouth */
   armorDens: 7.8, sigma: 2.5e10, framing: 0.003, framingStiff: 0.0448, framingDens: 0.40, crewM3: 60, hpPerT: 0.004,
   cycle: 2.5, deflect: 1.0, bufferS: SHIELD_BUFFER_SECONDS,
 };
