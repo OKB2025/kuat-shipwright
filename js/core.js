@@ -80184,7 +80184,7 @@ registerShipExample({key:'craft_z95',physicalRevision:1,name:'Z-95 ヘッドハ�
 const CRAFT_SYSTEM_RECIPES=Object.freeze({
  craft_arc170:{mass:37.5/* 2026-11-14: was 34.51; the denser craft needs more maneuver and landing support */,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
  craft_awing:{mass:10.23,anchors:[[4.8,1.3,0],[3.1,1,0],[2.6,1.1,0],[5.6,1,0]],landing:3},
- craft_btlb:{mass:62/* 2026-11-14: was 52.26 */,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
+ craft_btlb:{liftLoad:12*Math.PI/* v30 twelve air rounds (1 m by 4 m, 3.14 t each): user decision 2026-11-19「着陸設備を大きくして」 */,mass:62/* 2026-11-14: was 52.26 */,anchors:[[20.3,1.4,0],[12,1.2,0],[8,1.1,0],[17,1.4,0]],landing:3},
  craft_hyena:{pumpMargin:2.5,mass:29.10,anchors:[[8.4,2.3,1.09],[6.5,2.3,-1.09],[8.5,1.7,-1.09],[4.5,2.4,1.09],[4.5,1.8,-1.09],[7.5,2.6,1.09],[7.5,1.5,-1.09]],landing:4,walking:true},
  craft_tie_in:{mass:17.69,anchors:[[1.7,2.4,.6],[1,2.5,-.6],[1.7,3.2,0],[.5,1.7,0]],landing:2,suit:true,wingStand:true},
  craft_tie_ln:{mass:10.52,anchors:[[1.6,1.7,.5],[1,2,-.5],[1.2,2.6,0],[1.6,1,0]],landing:2,suit:true,wingStand:true},
@@ -80192,7 +80192,7 @@ const CRAFT_SYSTEM_RECIPES=Object.freeze({
  craft_v19:{mass:12.86,anchors:[[3.6,1.1,0],[2,1,0],[4.5,.7,0],[3.3,.6,0]],landing:3},
  craft_vulture:{pumpMargin:2,mass:9.9,anchors:[[1.45,1.45,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
  craft_vwing:{mass:8.93,anchors:[[4.4,1.25,0],[3.8,.7,0],[5.1,1,0],[6.8,.8,0]],landing:3},
- craft_xwing:{mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
+ craft_xwing:{liftLoad:6*Math.PI/* v30 six air rounds */,mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
  craft_z95:{mass:21.6/* 2026-11-14: was 19.16 */,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
 });
 // A new stock craft is built around an actual-power plant, not the old nozzle-volume law.
@@ -80359,7 +80359,7 @@ function installCraftSystems(ship,recipe){
  offer('navComputer','航法コンピューター',.01);if(target>0)offer('targetComputer','照準コンピューター',target*.004*1.15);
  for(let i=0;i<4;i++)offer('maneuver','姿勢制御スラスター '+(i+1),Math.max(.005,mass/1000/4));
  if(laser>0)for(let i=0;i<2;i++)offer('laserGas','レーザーガス供給槽 '+(i+1),laser*(recipe.gasSeconds||600)/30000/2*1.05);
- for(let i=0;i<(recipe.landing||3);i++)offer('landingGear',(recipe.walking?'歩行脚支持機構':recipe.wingStand?'翼端着陸支持機構':'着陸脚機構')+' '+(i+1),Math.max(.003,mass/300/(recipe.landing||3)));
+ for(let i=0;i<(recipe.landing||3);i++)offer('landingGear',(recipe.walking?'歩行脚支持機構':recipe.wingStand?'翼端着陸支持機構':'着陸脚機構')+' '+(i+1),Math.max(.003,(mass+(+recipe.liftLoad||0)*1.1)/300/(recipe.landing||3)));/* the landing equipment also lifts the external load (recipe.liftLoad t, +10%: user decision 2026-11-11, ordnance specification) */
  const offsets=[];for(let x=-4;x<=4;x++)for(let y=-4;y<=4;y++)for(let z=-4;z<=4;z++)offsets.push([x,y,z]);offsets.sort((a,b)=>dot(a,a)-dot(b,b)||a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
  const before=ship.parts.slice(),nextId=ship.nextId,suits=cockpits.map(p=>p.suit),oldVersion=ship.systemsVersion;
  try{
@@ -86227,7 +86227,7 @@ const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.3
 // A craft that keeps its distance or its speed up is hit less; there is no rate of kills. Each fire-control channel takes one
 // craft, the nearest first.
 // User decision 2026-11-19「点防御の出力を下げて」: against craft the point-defence guns put out POINT_DEFENSE.output of their modules' power.
-const POINT_DEFENSE=Object.freeze({output:.05,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
+const POINT_DEFENSE=Object.freeze({hit:.7/* 「点防御の命中率を少し下げること」(2026-11-19): of the common gun hit chance */,output:.05,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
  for(const x of alive){
@@ -86242,7 +86242,7 @@ function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
   for(const {u,d} of engaged){const dir=mul(sub(u.pos,x.pos),1/Math.max(1,d)),near=[];let hold=false;
    for(const f of own){const r=sub(f.pos,x.pos),along=dot(r,dir);if(along<0||along>d+POINT_DEFENSE.ffBeyond)continue;const lat=len(sub(r,mul(dir,along)));if(lat<POINT_DEFENSE.ffHold){hold=true;break;}if(lat<POINT_DEFENSE.ffRisk)near.push({f,lat,along});}
    if(hold){x.pdHeld++;continue;}
-   const hit=gunHitChance(x,u,d,reach,control),landed=each*hit*dt*DMG,inc=incoming.get(u.id);if(inc&&landed>0)combatAdd(inc,u,x.pos,{sf:landed,hull:landed,...(G.shot>0?{shot:G.shot}:{})},null,x.id);
+   const hit=gunHitChance(x,u,d,reach,control)*POINT_DEFENSE.hit,landed=each*hit*dt*DMG,inc=incoming.get(u.id);if(inc&&landed>0)combatAdd(inc,u,x.pos,{sf:landed,hull:landed,...(G.shot>0?{shot:G.shot}:{})},null,x.id);
    for(const {f,lat} of near){const stray=each*(1-hit)*POINT_DEFENSE.stray*(1-lat/POINT_DEFENSE.ffRisk)*dt*DMG,fi=incoming.get(f.id);if(fi&&stray>0){combatAdd(fi,f,x.pos,{sf:stray,hull:stray,...(G.shot>0?{shot:G.shot}:{})},null,x.id);f.ffTaken=(f.ffTaken||0)+stray;x.pdStray+=stray;}}}
  }
 }
