@@ -83,6 +83,14 @@ test('fleet acceleration is bounded by supplied force rather than legacy p.accel
   near(u.propulsion.actualAccelMps2, fundedAcceleration);
 });
 
+// 2026-11-19 expectation changed (this test and the two strategic-map tests 'a disabled peaceful unit ...' and 'the real
+// peaceful registry ...') with the user decisions on the planet's gravity and repulsorlift (docs/damage-penetration.md, 6th
+// section「重力・リフト・位置エネルギー」; docs/handoff-2026-11-19/README.md) and「他の艦に合わせる」: a hull without power loses
+// its lift over GRAVITY.liftFade and falls freely, by the share of lift it has lost, under the system planet's gravity
+// (Rts.sysPlanet, C.planetGravity), with no mass resistance (C.planetFall: velocity first, then place). Before, these cases
+// fell at HULL_FALL.g with the mass resistance of a ship under way (analyticMotion). Written as in
+// tests/throttle-output-trial.cjs. The powered step and the heading, power and registry checks are unchanged.
+function freeFallSteps(w,sys,v0,p0,dt,n,lift0=1){const P=R.sysPlanet(w,sys);let v=v0.slice(),pos=p0.slice(),lift=lift0;for(let k=0;k<n;k++){lift=Math.max(0,lift-dt/C.GRAVITY.liftFade);const g=C.planetGravity(P,pos);v=v.map((x,i)=>x+g[i]*(1-lift)*dt);pos=pos.map((x,i)=>x+v[i]*dt);}return {v,pos};}
 test('peaceful movement shares current power and uses disabled gravity after a blackout', () => {
   const u = unit();u.sys = 0;u.side = 0;u.info = {mass: 1000};
   u.order = {...u.order, type: 'move', point: [10000, 0, 0]};
@@ -94,7 +102,7 @@ test('peaceful movement shares current power and uses disabled gravity after a b
   u.p.grid.P = 0;u.p.grid.Pgen = 0;u.velocity = [40, 2, 3];
   const position = u.pos.slice(), heading = u.yaw;w.time += .25;
   R.peaceTick(w, 0, .25);
-  const expected=analyticMotion(u,[40,2,3],[0,-C.HULL_FALL.g,0],.25);nearVector(u.velocity,expected.v);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));
+  const expected=freeFallSteps(w,0,[40,2,3],position,.25,1);nearVector(u.velocity,expected.v);nearVector(u.pos,expected.pos);
   assert.equal(u.out,'電源喪失');
   assert.equal(u.yaw, heading);
   assert.equal(u.propulsion.actualInputW, 0);
@@ -230,8 +238,8 @@ test('a disabled peaceful unit integrates mass resistance and planetary gravity 
   const u=unit();u.sys=0;u.side=0;u.info={mass:1000};u.out='電源喪失';
   u.velocity=[.001,0,.002];u.yaw=.7;u.mods[0]=0;
   const w={time:10,rand:()=>.5,units:new Map([[u.id,u]]),groups:new Map(),ctgs:new Map(),battles:new Map(),sides:[],sensors:false};
-  for(let i=0;i<4;i++){R.peaceTick(w,0,.25);w.time+=.25;}
-  const expected=analyticMotion(u,[.001,0,.002],[0,-C.HULL_FALL.g,0],1);nearVector(u.pos,expected.dp);nearVector(u.velocity,expected.v);assert.equal(u.yaw,.7);
+  const position=u.pos.slice();for(let i=0;i<4;i++){R.peaceTick(w,0,.25);w.time+=.25;}
+  const expected=freeFallSteps(w,0,[.001,0,.002],position,.25,4);nearVector(u.pos,expected.pos);nearVector(u.velocity,expected.v);assert.equal(u.yaw,.7);
 });
 
 test('the real peaceful registry preserves disabled falling motion after its original start time', () => {
@@ -243,7 +251,7 @@ test('the real peaceful registry preserves disabled falling motion after its ori
   const position=u.pos.slice();w.time=2000;w.stir=new Map([[u.sys,{t0:0,still:0}]]);
   for(let i=0;i<40;i++)R.tick(w,.25);
   assert.ok(w.stir.has(u.sys),'slow inertial flight stays registered');
-  const expected=analyticMotion(u,[.001,0,.002],[0,-C.HULL_FALL.g,0],10);nearVector(u.pos,position.map((v,i)=>v+expected.dp[i]));nearVector(u.velocity,expected.v);
+  const expected=freeFallSteps(w,u.sys,[.001,0,.002],position,.25,40);nearVector(u.pos,expected.pos);nearVector(u.velocity,expected.v);
   assert.equal(u.out,'電源喪失');
   nearVector(u.velocity,expected.v);
 });
