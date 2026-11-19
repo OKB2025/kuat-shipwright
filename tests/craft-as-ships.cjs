@@ -15,7 +15,7 @@ test('a craft design\'s profile is marked as a craft and a ship\'s is not',()=>{
  // user decision 2026-11-18: cruise speed always, top speed only when it must (chasing a target under way beyond its guns' reach, going home hurt)
  const x=craft('x','craft_xwing',0),f=ship('f','cr90',1);assert.ok(Math.abs(C.craftPassSpeed(x)-x.p.maxSpeed*.7)<1e-9,'cruise is 70% of top speed');
  x.order={...x.order,type:'attack',target:'f'};f.pos=[20000,0,0];assert.equal(C.craftWantSpeed(x,f),C.craftCruiseSpeed(x),'a target at rest: cruise');
- f.velocity=[x.p.maxSpeed*.5,0,0];assert.equal(C.craftWantSpeed(x,f),x.p.maxSpeed,'a target making way beyond its guns: top speed');f.pos=[3000,0,0];assert.equal(C.craftWantSpeed(x,f),C.craftCruiseSpeed(x),'within its guns: cruise');
+ f.velocity=[x.p.maxSpeed*.5,0,0];assert.equal(C.craftWantSpeed(x,f),x.p.maxSpeed,'a target making way beyond its guns: top speed');f.pos=[5000,0,0];assert.equal(C.craftWantSpeed(x,f),C.craftCruiseSpeed(x),'within its guns: cruise');f.pos=[2000,0,0];assert.ok(C.craftWantSpeed(x,f)<C.craftCruiseSpeed(x)*.2,'fighting within 3 km: slow');
  x.order={...x.order,type:'dock',target:'h'};assert.equal(C.craftWantSpeed(x,null),C.craftCruiseSpeed(x));for(const q of x.sec)q.s=q.max*.3;assert.equal(C.craftWantSpeed(x,null),x.p.maxSpeed,'going home hurt: top speed');
 });
 
@@ -25,7 +25,7 @@ test('a craft attacks in passes: it runs in, skims the hull, flies on, and comes
  tick(B,240,{},t=>{const d=dist(x,f);nearest=Math.min(nearest,d);if(t>20){slowest=Math.min(slowest,C.len(x.velocity));far=Math.max(far,d);}if(x.pass.phase!==last){last=x.pass.phase;if(last==='out')passes++;}
   const l=C.dockWorldToLocal(f,x.pos),h=[f.p.len/2,(f.p.height||f.p.len*.2)/2,(f.p.width||f.p.len*.35)/2];if(Math.abs(l[0])<h[0]&&Math.abs(l[1])<h[1]&&Math.abs(l[2])<h[2])inside=true;});
  assert.ok(passes>=5,'at least five passes in four minutes: '+passes);assert.ok(nearest<300,'it passes close: '+nearest);assert.equal(inside,false,'it does not fly through the hull box');
- assert.ok(slowest>=vp*C.CRAFT_PASS.slow*.9,'it never stops to shoot (a ship would stand off and hold): '+slowest);const R=vp/x.p.turnRate;assert.ok(far<f.p.len/2+C.CRAFT_PASS.extend+R*(C.CRAFT_PASS.turns+2.2),'it turns back within a few turn radii: '+far);
+ assert.ok(slowest>=C.CRAFT_PASS.fightMin*C.CRAFT_PASS.slow*.9,'it never stops to shoot (a ship would stand off and hold): '+slowest);const R=vp/x.p.turnRate;assert.ok(far<f.p.len/2+C.CRAFT_PASS.extend+R*(C.CRAFT_PASS.turns+2.2),'it turns back within a few turn radii: '+far);
  assert.equal(x.dead,false);assert.equal(f.dead,false);
 });
 
