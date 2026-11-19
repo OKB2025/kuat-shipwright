@@ -85,5 +85,5 @@ test('all native angle-control text and the VLS choice translate to English',()=
 
 test('the compact launcher palette displays its real firing cycle and shared six-round store',()=>{
  const run=setup();run("const fTT=v=>v+' TT',storeCapText=s=>s.slots+' 発';");run(section('function fitBtn(','const fmtM ='));
- const html=run("fitBtn('cmsl',true,'fit')");assert.match(html,/25TT／1\.2秒/);assert.match(html,/6 発/);assert.doesNotMatch(html,/20秒/);
+ const html=run("fitBtn('cmsl',true,'fit')");assert.match(html,/0\.047TT／1\.2秒/);/* 2026-11-19 expectation changed: the launcher fires the air missile (0.0471 TT, user decision「古い表も揃えて」); it was 25 TT */assert.match(html,/6 発/);assert.doesNotMatch(html,/20秒/);
 });

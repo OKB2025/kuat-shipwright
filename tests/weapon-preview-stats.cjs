@@ -33,7 +33,7 @@ test('scaled weapons, broadside rows and trench aggregates retain per-barrel out
 
 test('fixed guns report zero traverse and real projectile launchers use per-round output and native ranges',()=>{
  near(C.weaponPreviewStats('recProw').traverseDegS,0);
- const craft=C.weaponPreviewStats('cmsl'),ship=C.weaponPreviewStats({k:'shipMsl',launcherCols:4,launcherRows:2});near(craft.outputTT,C.ORDNANCE.cmsl.tt);near(craft.rangeM,10000);near(ship.rangeM,60000);near(ship.outputTT,craft.outputTT);near(ship.traverseDegS,0);assert.equal(ship.barrels,8);
+ const craft=C.weaponPreviewStats('cmsl'),ship=C.weaponPreviewStats({k:'shipMsl',launcherCols:4,launcherRows:2});near(craft.outputTT,C.ORDNANCE.cmsl.tt);near(craft.rangeM,10000);near(ship.rangeM,10000/* 2026-11-19 expectation changed: a ship's launcher has the air missile's range (user decision「射程も航空も合わせる」); it was 60 km */);near(ship.outputTT,craft.outputTT);near(ship.traverseDegS,0);assert.equal(ship.barrels,8);
  const unknown=C.weaponPreviewStats('ctorp');assert.equal(unknown.outputTT,null);assert.equal(unknown.rangeM,null);assert.equal(unknown.variableReason,'payload');
  const loaded=C.weaponPreviewStats({k:'cpylon',_store:{k:'cmsl',n:2}});near(loaded.outputTT,C.ORDNANCE.cmsl.tt);near(loaded.rangeM,10000);
 });

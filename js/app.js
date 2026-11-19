@@ -3655,7 +3655,7 @@ function aeroShapeControls(p,selected){
 }
 function fitBtn(k, sel, data) {
   const d = C.FITS[k];
-  const spec = d.tt ? (d.boltTT?`1発・1砲身 ${fTT(d.boltTT)} · 一斉射 ${fTT(d.tt)}`:`一斉射 ${fTT(d.tt)}`) : d.ion ? `イオン斉射 ${fTT(d.ion)}` : C.isConcussionLauncher?.(k) ? `${d.msl}TT／${d.missileCycle}秒・${storeCapText(d.store)}` : d.msl ? `${d.msl}TT${d.ionMsl ? '（イオン）' : ''}／20秒` : d.store ? storeCapText(d.store) : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
+  const spec = d.tt ? (d.boltTT?`1発・1砲身 ${fTT(d.boltTT)} · 一斉射 ${fTT(d.tt)}`:`一斉射 ${fTT(d.tt)}`) : d.ion ? `イオン斉射 ${fTT(d.ion)}` : C.isConcussionLauncher?.(k) ? `${+(+d.msl).toPrecision(2)}TT／${d.missileCycle}秒・${storeCapText(d.store)}` : d.msl ? `${d.msl}TT${d.ionMsl ? '（イオン）' : ''}／20秒` : d.store ? storeCapText(d.store) : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
   return `<button type="button" class="fitb${sel ? ' on' : ''}" title="${esc(d.variant||d.name)}" data-${data}="${k}" aria-pressed="${sel}"><span class="fn">${esc(d.name)}</span><span class="fs">${spec}・${d.pod?`直径 ${Math.round(d.fm)} m・高さ ${d.wm} m`:`${[d.fm,d.wm,d.hm].map(v=>v.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:v<1?2:1})).join('×')} m`}</span><span class="fd">${esc(d.desc)}${d.cycle?' 連射間隔 '+d.cycle+'秒。':''}</span></button>`;
 }
 const fmtM = (v) => v.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3})+' m';

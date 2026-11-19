@@ -84977,7 +84977,7 @@ function missileRange(value){
  if(Number.isFinite(value)&&value>0)return value;
  const explicit=value?.missileRange??value?.range;if(Number.isFinite(explicit)&&explicit>0)return explicit;
  const kind=typeof value==='string'?value:value?.missileKind||value?.kind||value?.k;
- return kind==='cmsl'?10000:60000;
+ return kind==='cmsl'||kind==='shipMsl'?10000/* 2026-11-19 a ship's launcher fires the air missile to its range (was 60 km) */:60000;
 }
 function missileMaxRange(value){
  const p=value?.p||value,mods=p?.modules||[],launchers=mods.filter(m=>m.k==='launcher');
