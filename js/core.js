@@ -86227,13 +86227,13 @@ const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.3
 // A craft that keeps its distance or its speed up is hit less; there is no rate of kills. Each fire-control channel takes one
 // craft, the nearest first.
 // User decision 2026-11-19「点防御の出力を下げて」: against craft the point-defence guns put out POINT_DEFENSE.output of their modules' power.
-const POINT_DEFENSE=Object.freeze({hit:.7/* 「点防御の命中率を少し下げること」(2026-11-19): of the common gun hit chance */,output:.05,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
+const POINT_DEFENSE=Object.freeze({hit:.85,output:.08/* 「点防御の能力はもう少し強くしていい」(2026-11-19): were .7 and .05 */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 function pointDefenseGuns(x){let rate=0,energy=0,n=0;const mods=x.p?.modules||[];for(let i=0;i<mods.length;i++){const m=mods[i];if(m.k!=='weapon'||!(m.pd||m.dualPurpose)||!(m.weaponPowerW>0))continue;const h=clamp(x.mods?.[i]??1,0,1);if(!(h>0))continue;rate+=m.weaponPowerW/TT*h;const b=m.bolt>0?m.bolt:m.shotW>0?m.shotW:0;if(b>0){energy+=b;n++;}}return {rate,shot:n?energy/n:0};}
 function fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys){
  for(const x of alive){
   if(x.dead||x.out||x.manual||craftUnit(x)||!automaticPointDefenseEnabled(x))continue;const G=pointDefenseGuns(x);if(!(G.rate>0))continue;
   const reach=MISSILE_FLIGHT.pdRange+x.p.len*.5,craft=alive.filter(u=>!u.dead&&!u.docked&&u.team!==x.team&&craftUnit(u)).map(u=>({u,d:len(sub(u.pos,x.pos))})).filter(q=>q.d<=reach).sort((a,z)=>a.d-z.d);if(!craft.length)continue;
-  const channels=Math.max(1,x.p.aaCh??AA_CHANNELS.base*4),engaged=craft.slice(0,channels),funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,1);if(!(funded>0))continue;
+  const channels=Math.max(1,x.p.aaCh??AA_CHANNELS.base*4),own0=alive.filter(f=>!f.dead&&!f.docked&&f.team===x.team&&f!==x&&craftUnit(f)),masked=q=>{const dir=mul(sub(q.u.pos,x.pos),1/Math.max(1,q.d));return own0.some(f=>{const r=sub(f.pos,x.pos),al=dot(r,dir);return al>=0&&al<=q.d+POINT_DEFENSE.ffBeyond&&len(sub(r,mul(dir,al)))<POINT_DEFENSE.ffHold;});},clear=craft.filter(q=>!masked(q)),engaged=clear.slice(0,channels)/* working with its own craft: a channel whose line is masked by one of them takes the next target instead of holding */;x.pdMasked=craft.length-clear.length;if(!engaged.length)continue;const funded=fundAutomaticPointDefense(x,engaged[0].u.pos,dt,pdStep,1);if(!(funded>0))continue;
   const each=G.rate*POINT_DEFENSE.output*funded*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)/engaged.length,control=fleetSystems(x).fire;
   // Friendly fire (user decision 2026-11-19「点防御のフレンドリーファイアも実装して、艦のAIはそれを避けようとする形に」). Bolts that miss their
   // target go on along the line of fire: a craft of the ship's own side near that line takes a share of them (.stray, falling to
@@ -86274,7 +86274,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   for(const m of b.missiles){if(!(m.n>0)||m.team===x.team||m.launchClearance>0||len(sub(m.pos,x.pos))>reach)continue;let g=groups.get(m.salvo??m.id);if(!g)groups.set(m.salvo??m.id,g={n:0,list:[]});g.n+=m.n;g.list.push(m);}
   let left=x.p.aaCh??AA_CHANNELS.base*4;
   for(const g of groups.values()){if(!(left>0))break;const need=Math.max(1,Math.ceil(g.n/AA_CHANNELS.salvo)),got=Math.min(need,left),funded=fundAutomaticPointDefense(x,g.list[0].pos,dt,pdStep,got/need);if(!(funded>0))continue;left-=got;
-   const kill=Math.min(g.n,MISSILE_FLIGHT.pdKill*aa*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*got/need*funded);if(!(kill>0))continue;for(const m of g.list){const part=kill*m.n/g.n;m.n-=part;m.downed=(m.downed||0)+part;log().downed+=part;}}
+   const G=pointDefenseGuns(x),dm=len(sub(g.list[0].pos,x.pos)),bolts=G.shot>0?G.rate*POINT_DEFENSE.output/G.shot:0,kill=bolts>0?Math.min(g.n,bolts*(got/Math.max(1,x.p.aaCh??AA_CHANNELS.base*4))*gunHitChance(x,{pos:g.list[0].pos,velocity:g.list[0].vel,p:{len:POINT_DEFENSE.roundLen}},dm,reach,fleetSystems(x).fire)*POINT_DEFENSE.hit*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*funded)/* v30 point defence fires at rounds as it does at craft: its guns' bolts, the common hit chance on a body the round's size, one bolt downs a round */:Math.min(g.n,MISSILE_FLIGHT.pdKill*aa*(sys?.get(x.id)?.weapon??1)*fleetCrewEff(x)*dt*got/need*funded);if(!(kill>0))continue;for(const m of g.list){const part=kill*m.n/g.n;m.n-=part;m.downed=(m.downed||0)+part;log().downed+=part;}}
  }
  for(const {m,t,from} of arrived){
   if(!(m.n>1e-9)){m.n=0;continue;}const tt=m.n*m.tt*DMG,inc=incoming.get(t.id);
