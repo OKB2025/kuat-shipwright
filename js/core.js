@@ -90071,7 +90071,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
 //   unguided (m.ballistic).
 // The figures are those of the scripts' runs (docs/damage-penetration.md, 2026-11-19); all are ours (★) except where a decision
 // names them. A craft's own state for this is u.sortie (copied with the unit by combatClone); the battle's is b.air.
-const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
+const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,land:600,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
  kinds:Object.freeze([Object.freeze({kind:'itorp',ion:true,release:4000,range:8000}),Object.freeze({kind:'cmsl',ion:false,release:6000,range:10000}),Object.freeze({kind:'bomb',ion:false,release:700,range:1500})]),aims:Object.freeze(['engine','bridge','weapon','sensor']),
  roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_btlb',job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
 // The rounds a craft of spare lift (t) carries: the kinds in turn while they fit by mass.
@@ -90106,11 +90106,11 @@ function fleetAirStep(b,dt,opts={}){
  // squadron for every 1/escortShare bomber squadrons) go up within the rest. The fighters kept aboard are launched when enemy craft
  // come within FLEET_AIR.intercept of an own ship, interceptPer fighters for each craft that comes, into the control kept for them.
  if(reassign)for(const team of [0,1]){const flag=ships[team][0],live=q=>q.out&&q.members.some(id=>up(byId.get(id))),used=u=>air.squadrons.filter(q=>q.home===u.id&&live(q)).length,mine=air.squadrons.filter(q=>q.team===team);
-  const control=ships[team].reduce((n,u)=>n+fleetAirControl(u),0),aboardF=mine.filter(q=>!q.out&&!q.bomber).length,reserve=aboardF?Math.max(1,Math.min(aboardF,Math.round(control*FLEET_AIR.reserveShare))):0;
+  const control=ships[team].reduce((n,u)=>n+fleetAirControl(u),0),aboardF=mine.filter(q=>!q.out&&!q.bomber&&q.size>0).length,reserve=aboardF?Math.max(1,Math.min(aboardF,Math.round(control*FLEET_AIR.reserveShare))):0;
   const threat=craft[1-team].filter(e=>ships[team].some(sh=>dist(e,sh)<=FLEET_AIR.intercept)).length,needF=Math.ceil(threat*FLEET_AIR.interceptPer/FLEET_AIR.squad);
   const count=f=>mine.filter(q=>live(q)&&f(q)).length;
-  for(const u of ships[team])for(const q of air.squadrons){if(q.home!==u.id||q.out)continue;const own=fleetAirControl(u)-used(u),lent=ships[team].filter(x=>x!==flag).reduce((m,x)=>m+Math.max(0,used(x)-fleetAirControl(x)),0),spare=flag&&u!==flag?fleetAirControl(flag)-used(flag)-lent:0;if(own<1&&spare<1)break;
-   const up0=count(()=>true),bombersUp=count(x=>x.bomber),fightersUp=count(x=>!x.bomber),defend=!q.bomber&&fightersUp<needF/* they come: the fighters go up into the control kept for them */,strike=up0<control-reserve&&(q.bomber||fightersUp<Math.ceil(bombersUp*FLEET_AIR.escortShare))/* the strike and its escort, within what is not kept back */;
+  for(const u of ships[team])for(const q of air.squadrons){if(q.home!==u.id||q.out||q.spent||!(q.size>0))continue;const own=fleetAirControl(u)-used(u),lent=ships[team].filter(x=>x!==flag).reduce((m,x)=>m+Math.max(0,used(x)-fleetAirControl(x)),0),spare=flag&&u!==flag?fleetAirControl(flag)-used(flag)-lent:0;if(own<1&&spare<1)break;
+   const up0=count(()=>true),bombersUp=count(x=>x.bomber&&x.members.some(id=>byId.get(id)?.sortie?.stores?.length>0)/* bombers that still have a strike to fly: spent ones on their way home draw no escort up */),fightersUp=count(x=>!x.bomber),defend=!q.bomber&&fightersUp<needF/* they come: the fighters go up into the control kept for them */,strike=up0<control-reserve&&(q.bomber||fightersUp<Math.ceil(bombersUp*FLEET_AIR.escortShare))/* the strike and its escort, within what is not kept back */;
    if(!defend&&!strike)continue;if(defend)q.scramble=t;
    fleetAirLaunch(b,q,u);for(const id of q.members){const c=b.units.find(x=>x.id===id);if(c){byId.set(id,c);craft[team].push(c);(c.sortie.bomber?bombers:fighters)[team].push(c);}}}}
  for(const team of [0,1]){
@@ -90147,6 +90147,20 @@ function fleetAirStep(b,dt,opts={}){
    // release each kind at its distance, bow on (bombs over the hull when not dived)
    const d=slant-Ty.p.len/2,brg=Math.atan2(Ty.pos[2]-y.pos[2],Ty.pos[0]-y.pos[0]),off=Math.abs(Math.atan2(Math.sin(brg-(y.yaw||0)),Math.cos(brg-(y.yaw||0))));
    for(const k of [...new Set(w.stores.map(r=>r.kind))]){const r=w.stores.find(q=>q.kind===k);if(d>r.release||(k!=='bomb'&&off>.35))continue;fleetAirRelease(b,y,Ty,k,w.stores.filter(q=>q.kind===k).length,r,w.aimAt);w.stores=w.stores.filter(q=>q.kind!==k);}}
+  // Landing. User decision 2026-11-19「使う時に出す、使わない時は着艦させるを徹底させる」: a craft that has no use in the air goes back to its
+  // ship and comes aboard, which frees its squadron's place in the air control. In use: a bomber with stores and a ship to strike;
+  // a fighter while enemy craft are within FLEET_AIR.intercept of an own ship, while own bombers that still carry stores are in the
+  // air (it escorts them or sweeps ahead), or while it is fighting a craft close by. ★ Ours: it is aboard within FLEET_AIR.land of its ship's hull
+  // (the landing itself is not flown, as the launch is not); a fighter squadron goes up again as a fresh squadron of its survivors
+  // (re-armed); a bomber squadron that has landed does not go up again (nobody re-arms the strike's rounds).
+  {const near=craft[foe].some(e=>up(e)&&own.some(sh=>dist(e,sh)<=FLEET_AIR.intercept)),strikeOn=OB.length>0;
+   for(const u of craft[team]){if(!up(u))continue;const w=u.sortie,home=byId.get(w.home);if(!up(home)||home.out){w.rtb=false;continue;}
+    const foeNow=u.order.type==='attack'?byId.get(u.order.target):null,needed=w.bomber?w.stores.length>0&&pool.length>0:near||strikeOn/* every fighter up while the strike is on: only its escort was sent */||up(foeNow)&&craftUnit(foeNow)&&dist(u,foeNow)<=FLEET_AIR.engage*2;
+    if(needed){w.rtb=false;continue;}
+    w.rtb=true;u.order={...u.order,type:'escort',target:home.id,fire:!w.bomber,dash:false};
+    if(dist(u,home)>home.p.len/2+FLEET_AIR.land)continue;
+    const q=air.squadrons.find(x=>x.members.includes(u.id));const at=b.units.indexOf(u);if(at>=0)b.units.splice(at,1);byId.delete(u.id);air.log.landed=air.log.landed||[0,0];air.log.landed[team]++;
+    if(q){q.members=q.members.filter(id=>id!==u.id);q.aboard=(q.aboard||0)+1;if(!q.members.some(id=>up(byId.get(id)))){q.out=false;q.size=q.aboard;q.aboard=0;q.members=[];q.landedAt=t;if(q.bomber)q.spent=true;}}}}
  }
 }
 function fleetAirRelease(b,u,target,kind,n,r,aim,fall=null){
