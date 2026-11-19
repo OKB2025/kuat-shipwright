@@ -83793,7 +83793,7 @@ function dualBlank(){return {gunBands:Object.fromEntries(Object.keys(GUN_BANDS).
 function dualSum(dp,weights){const out=dualBlank(),ts=dp?.tiers||[];for(let t=0;t<ts.length;t++){const w=weights[t]||0,g=ts[t];if(!(w>0))continue;for(const k in out.gunBands)for(let i=0;i<6;i++)out.gunBands[k][i]+=w*(g.gunBands[k]?.[i]||0);for(let i=0;i<6;i++){out.gunArcs[i]+=w*(g.gunArcs[i]||0);out.aaArcs[i]+=w*(g.aaArcs[i]||0);}out.aa+=w*(g.aa||0);}return out;}
 // What of the dual-purpose battery is still on anti-ship fire (its anti-air is then unavailable).
 function dualIdle(u){const dp=u.p?.dualPurpose;if(!dp)return null;if(!u.dualDefense||!automaticPointDefenseEnabled(u))return dp;if(!dp.tiers)return null;const out=dualSum(dp,dp.tiers.map((_,t)=>1-(u.dualWeights?.[t]||0)));return out.aa>0?out:null;}
-function fleetDefense(u,threats,range=6000){u.p=automaticDefenseProfile(u.p);const d=u.p?.dualPurpose;clearAutomaticPointDefenseReservation(u);if(!d||!automaticPointDefenseEnabled(u))return false;
+function fleetDefense(u,threats,range=MISSILE_FLIGHT.pdRange){u.p=automaticDefenseProfile(u.p);const d=u.p?.dualPurpose;clearAutomaticPointDefenseReservation(u);if(!d||!automaticPointDefenseEnabled(u))return false;
  // User decision 2026-11-15: with automatic interception ON, point defence is kept for craft, missiles and torpedoes
  // and never joins the fire on ships, threat or no threat; OFF, it fires on ships in its reach like any gun.
  {const ts=d.tiers;if(ts){u.dualWeights=ts.map(()=>1);u.dualTiers=ts.length;u.dualDivert=dualSum(d,u.dualWeights);}else{u.dualTiers=1;u.dualDivert=d;}u.dualDefense=true;}
@@ -86236,7 +86236,7 @@ function dockStep(units,b,dt){
 // .pdRange (plus half its length) for as long as they are there, at .pdKill rounds per second per point of anti-air (the
 // strategic map's rate), as far as its fire-control channels reach (AA_CHANNELS.salvo rounds launched together by one ship
 // are one target) and its point defence is funded. Nothing is taken at the launch or as a share on arrival any more.
-const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:6000,pdKill:.012,turn:.6,craftFuse:40});
+const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:5000/* user decision 2026-11-19「点防御の射程を少し下げる」: was 6000 (★ the figure is ours) */,pdKill:.012,turn:.6,craftFuse:40});
 // v30 Point defence against craft flying as ships (user decision 2026-11-19「点防御レーザーは航空機の固定レーザーと同じ計算にして」): its
 // lasers are guns like a craft's fixed lasers. What they put out is their own power (the point-defence and dual-purpose weapon
 // modules still working, as far as the weapon charge funds them); what lands is the common gun hit chance at that range against
@@ -91838,7 +91838,7 @@ const angle = a => Math.atan2(Math.sin(a), Math.cos(a));
 // seconds of one shared game clock.
 const TICK = .25;
 const RULES = {
- range: 40000, engage: 14000, missileRange: 60000, pdRange: 6000, damage: .7,
+ range: 40000, engage: 14000, missileRange: 60000, pdRange: 5000/* 2026-11-19: was 6000, with MISSILE_FLIGHT.pdRange */, damage: .7,
  arrive: 70000,           // a group drops out this far from the system's centre, on its line of approach
  inboundStop: 9000,       // v21.2 left to itself it then heads in along that line and stops this far short of the centre
  inboundDone: 3000,       //   (within this of its point it holds there)
