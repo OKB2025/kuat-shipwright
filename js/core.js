@@ -84287,7 +84287,7 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
   weaponHeatW=hb?Math.max(0,hb.budget-hb.heatAt(throttle)):Infinity;
  const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),shieldGovernor:gov.shield,weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
- const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);if(u.propulsion)u._engineHeatLast={x:want.throttle,wasteW:Math.max(0,u.propulsion.wasteHeatW||0),inputW:Math.max(0,u.propulsion.actualInputW||0)};let surfaceFire=null;
+ const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);ionPowerCut(u,got,dt);if(u.propulsion)u._engineHeatLast={x:want.throttle,wasteW:Math.max(0,u.propulsion.wasteHeatW||0),inputW:Math.max(0,u.propulsion.actualInputW||0)};let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
  {const jw=hyperChargeStep(u,P,u.pw.draw,dt);u.pw.hyper=jw;if(P>0)u.load+=jw/P;}
@@ -85075,7 +85075,7 @@ function fleetSystems(u,opts){
  const mods=u.p.modules||[],um=u.mods||[],X=fleetSysIdx(mods),out={};
  for(const {k,idx,sh} of X.kinds){if(!idx.length){out[k]=1;continue;}let s=0;for(let j=0;j<idx.length;j++){const v=um[idx[j]];if(v>0)s+=sh[j]*v;}out[k]=clamp(s,0,1);}
  let br=!X.bridge.length;for(let j=0;j<X.bridge.length&&!br;j++)if(um[X.bridge[j]]>0)br=true;
- /* opts.skipPower: what stands, as if the plant were running (for a disabling reason other than power loss) */if(!opts?.skipPower)for(const k of FLEET_SYS_KINDS)if(k!=='reactor')out[k]*=powerFactor(u,k)*(u.ionCutNow>0?1-ION_ROUND.share*u.ionCutNow:1)/* v30 ion warheads take a share of the power for a moment */;
+ /* opts.skipPower: what stands, as if the plant were running (for a disabling reason other than power loss) */if(!opts?.skipPower)for(const k of FLEET_SYS_KINDS)if(k!=='reactor')out[k]*=powerFactor(u,k);/* v30 ion warheads: the power lost is taken where it is delivered (fleetPowerStep, ionPowerCut) */
  if(!opts?.skipPower&&u.p.grid?.domains?.length){const domains=u.p.grid.domains,total=domains.reduce((a,d)=>a+(d.P||0),0);out.reactor=total>0?clamp(domains.reduce((a,d)=>a+powerDomainWatts(u,d.id,true),0)/total,0,1):0;}
  out.bridge=br;out.hasReactor=X.kinds[0].idx.length>0;out.hasBridge=X.bridge.length>0;if(out.hasBridge&&!br)out.fire=0;/* v30 no directed fire without a bridge */return out;
 }
@@ -85201,8 +85201,20 @@ function blastOpenTT(p,m){const V=modVol(p,m),L=Math.cbrt(Math.max(1e-9,V));retu
 const ION_ROUND=Object.freeze({share:1/3,seconds:.1});
 function ionPowerLoss(ctx,u,rounds){
  if(!(rounds>0)||u.dead||craftUnit(u))return 0;const P=Math.max(0,u.pw?.draw||0);if(!(P>0))return 0;
- const J=P*ION_ROUND.share*ION_ROUND.seconds*rounds;shipHeatAdd(u,J,ctx,'ion-hit');u.ionCut=(u.ionCut||0)+ION_ROUND.seconds*rounds;u.ionPowerLossJ=(u.ionPowerLossJ||0)+J;
+ const J=P*ION_ROUND.share*ION_ROUND.seconds*rounds;u.ionCut=(u.ionCut||0)+ION_ROUND.seconds*rounds;
  ctx.ev?.(u,`イオン弾頭 ${Math.round(rounds*10)/10} 発：給電の ${Math.round(ION_ROUND.share*100)}% が熱に（${(J/TT).toFixed(1)} TT 相当）`);return J;
+}
+// User decision 2026-11-19「系統に届く分は熱に変わる分減らして」: the power that turns to heat is taken from what the plant has just
+// delivered to the guns, the shield and the engines in this step, and exactly that much is the heat (the plant's draw stays: it
+// made the power). Before, the share was put on the systems' working shares: it never reached the guns' power, it cut a third
+// of the shield's store instead of its charging, and the heat was added besides (measured 2026-11-19 on an MC80 and an ISD).
+// ★ The power to the cooling plant is not cut (ours). Returns the share the systems keep in this step.
+function ionPowerCut(u,got,dt){
+ const c=Math.min(Math.max(0,u.ionCut||0),Math.max(0,dt));u.ionCut=Math.max(0,(u.ionCut||0)-c);u.ionCutNow=dt>0?c/dt:0;if(!(u.ionCutNow>0)||craftUnit(u)){u.ionKeep=1;return 1;}
+ const keep=1-ION_ROUND.share*u.ionCutNow,lostW=(1-keep)*(Math.max(0,got.weapons||0)+Math.max(0,got.shields||0)+Math.max(0,got.engines||0));
+ got.weapons=(got.weapons||0)*keep;got.shields=(got.shields||0)*keep;got.engines=(got.engines||0)*keep;u.ionKeep=keep;
+ if(lostW>0&&dt>0){shipHeatAdd(u,lostW*dt,null,'ion-hit');u.ionPowerLossJ=(u.ionPowerLossJ||0)+lostW*dt;}
+ if(u.pw){u.pw.wpn=got.weapons;u.pw.sh=got.shields;u.pw.eng=got.engines;u.pw.ionLostW=lostW;}return keep;
 }
 // The second way: an ion round aimed at a kind of part shuts one such part down for BLAST.ionOff seconds (it comes back as it was).
 function combatIonRounds(ctx,u,o){
@@ -85419,7 +85431,6 @@ function combatResolve(ctx,u,o,dt,s){
  u.underFire=o.sf>0||o.direct>0||o.ionDirect>0||o.blasts?.length>0;if(had&&u.shield<=0&&u.shieldMax>0)ctx.ev(u,'シールド消失');
  // shieldReceive already deposits all ion penetration into the global heat store.
  if(o.ionHits>0)ionPowerLoss(ctx,u,o.ionHits);
- {const c=Math.min(Math.max(0,u.ionCut||0),dt);u.ionCutNow=dt>0?c/dt:0;u.ionCut=Math.max(0,(u.ionCut||0)-c);}/* the share of the next step its systems are short of power */
  u.ionK=(u.ionK||0)*Math.exp(-dt/COMBAT.ionTau);if(u.penHot>0)u.penHot=Math.max(0,u.penHot-dt);
  // Armour: the hull hit spreads over the faces by bearing and over the sections
  // by area (more on the sections holding an aimed-at system).
@@ -85486,7 +85497,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.sortie?{sortie:JSON.parse(JSON.stringify(u.sortie))}:{}),...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:{...u.pass}}:{}),...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.sortie?{sortie:JSON.parse(JSON.stringify(u.sortie))}:{}),...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:{...u.pass}}:{}),...(u._track?{_track:u._track.map(x=>Array.isArray(x)?x.slice():x&&typeof x==='object'?JSON.parse(JSON.stringify(x)):x)}:{})/* extra review 2026-11-19: the track history was shared with the plan, so a second commit of one plan saw the first one's track */,...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -86101,7 +86112,7 @@ function propulsionMotion(u,load=1){
  const valid=model?.version===PROPULSION_MODEL_VERSION&&Number.isFinite(model.massKg)&&model.massKg>0&&Number.isFinite(model.ratedAccelMps2)&&model.ratedAccelMps2>0,rated=valid?model.ratedAccelMps2:0,limit=Number.isFinite(model?.accelerationLimitMps2)?Math.max(0,model.accelerationLimitMps2):0,loadK=Number.isFinite(load)?Math.max(0,load):0;
  const acc0=Math.min(rated,limit)*scale*loadK,actual=valid&&Number.isFinite(result?.actualAccelMps2)?Math.max(0,result.actualAccelMps2):0;
  const live=!u?.out&&!u?.dead&&powerFactor(u,'engine')>0&&powerFactor(u,'reactor')>0&&heatLim(u,'engine')>0;
- const acc=live?actual*scale*loadK:0;return {acc0,acc,turn:acc0>0?clamp(acc/acc0,0,1):0};
+ const acc=live?actual*scale*loadK*(u.ionKeep>0&&u.ionKeep<1?u.ionKeep:1)/* v30 an ion round's cut of the engines' power */:0;return {acc0,acc,turn:acc0>0?clamp(acc/acc0,0,1):0};
 }
 // No sublight speed gate (user decision 2026-11-17「最高速度70%ルールは無くして自動的に光速の50%まで加速してから突入」).
 // Once powered and fully charged, the hyperdrive itself takes the ship from whatever velocity it has to
@@ -88460,8 +88471,7 @@ function craftSystemsStats(ship,S){
 // v30 The size and yield of rounds (ordnance specification, and user decisions 2026-11-18/19「対艦魚雷は7×50をベースに」「航空魚雷は1×2
 // サイズで、95%が弾頭。ミサイル、爆弾も同じサイズ」). A round's mass is its body's volume at ORDNANCE_BASIS.density; its yield is its
 // warhead's mass at .warheadTTPerT. The figures of that first version (36.56 TT; one air round of 0.0597 TT for torpedo, missile
-// and bomb alike) are replaced by those given with AIR_ROUNDS below. The table below still carries the earlier figures
-// (0.3 m rounds of 25 to 70 TT, sized to the examples' launch tubes): changing it changes what the examples' tubes hold.
+// and bomb alike) are replaced by those given with AIR_ROUNDS below, and the table ORDNANCE below takes them (2026-11-19).
 const ORDNANCE_BASIS=Object.freeze({density:1,warheadTTPerT:.03/* user decision 2026-11-19「係数は0.03」: was .02. The whole of a tonne as energy (E=mc²) is 0.0215 TT, so .03 is 1.4 times that: a figure of the game, not of physics */});
 function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Math.PI/4*D*D*L,warheadMass=mass*warheadFraction;return {dims:[L,D],mass,warheadFraction,warheadMass,tt:warheadMass*ORDNANCE_BASIS.warheadTTPerT};}
 // User decision 2026-11-19「弾頭重量について、魚雷は95%　ミサイルは50%　爆弾は100%　ミサイルと魚雷は1×4、爆弾は2×2で　係数は0.03」:
@@ -88470,13 +88480,24 @@ function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Mat
 const SHIP_TORPEDO=Object.freeze(ordnanceBody(7,50,.95)),AIR_ROUNDS=Object.freeze({torpedo:Object.freeze(ordnanceBody(1,4,.95)),missile:Object.freeze(ordnanceBody(1,4,.5)),bomb:Object.freeze(ordnanceBody(2,2,1))}),AIR_ROUND=AIR_ROUNDS.torpedo;
 // The air round of a kind of ordnance: a name with 'torp' is a torpedo, with 'bomb' a bomb, anything else a missile.
 function airRound(kind){const k=String(kind||'');return /bomb/i.test(k)?AIR_ROUNDS.bomb:isTorpedoRound(k)?AIR_ROUNDS.torpedo:AIR_ROUNDS.missile;}
-const ORDNANCE=Object.freeze({
- ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',dims:[1.3,.3],mass:.12,tt:70,guided:true,speed:1600,desc:'誘導式の対艦魚雷。半分はシールドを抜ける。'},
- itorp:{name:'イオン魚雷',short:'イオン魚雷',dims:[1.3,.3],mass:.12,tt:40,ion:true,guided:true,speed:1600,desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
- etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',dims:[1.3,.3],mass:.1,tt:25,guided:true,speed:1800,desc:'ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。'},
- cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',dims:[1.0,.2],mass:.045,tt:25,guided:true,speed:2000,range:10000,desc:'細く速い誘導ミサイル。弾頭は魚雷より小さい。射程10 km。'},
- bomb:{name:'プロトン爆弾',short:'プロトン爆弾',dims:[1.0,.3],mass:.14,tt:60,bomb:true,speed:600,desc:'誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'}
-});
+// User decision 2026-11-19「古い表も揃えて」: the rounds of this table strike as the air rounds above. Each kind's yield is its
+// AIR_ROUNDS body's (a torpedo 0.0895 TT, a missile 0.0471 TT, a bomb 0.1885 TT; they were 70/40/25, 25 and 60 TT), so the
+// stored wings, the craft's own launchers and the ships' missile launchers (cmsl) strike with the same warheads as the craft
+// that fly as ships. .body is that round's own size and mass.
+// ★ NOT changed here: .dims and .mass, by which a station's count and a loaded craft's mass are worked out. They stay the size
+// the examples' tubes, bays and pylons were measured for (a 1.3 m by 0.3 m round in the X-wing's 1.4 m tube): a 4 m round of
+// 3.14 t fits none of them, six of them on an X-wing are twice the craft, and resizing the launchers is a change to the
+// examples' shapes (reference-fidelity-rules.md). So this table's craft carry more rounds than the craft that load by their
+// lift (fleetAirLoad). The light torpedo of the droid fighters (etorp) is a torpedo like the others (ours: the decision names
+// three kinds).
+const ordnanceRow=(kind,o)=>{const r=airRound(kind);return Object.freeze({...o,body:Object.freeze({dims:r.dims.slice(),mass:r.mass,warheadMass:r.warheadMass}),tt:r.tt});};
+const ORDNANCE=Object.freeze(Object.fromEntries(Object.entries({
+ ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',dims:[1.3,.3],mass:.12,guided:true,speed:1600,desc:'誘導式の対艦魚雷。半分はシールドを抜ける。'},
+ itorp:{name:'イオン魚雷',short:'イオン魚雷',dims:[1.3,.3],mass:.12,ion:true,guided:true,speed:1600,desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
+ etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',dims:[1.3,.3],mass:.1,guided:true,speed:1800,desc:'ドロイド戦闘機の魚雷（ヴァルチャー級）。'},
+ cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',dims:[1.0,.2],mass:.045,guided:true,speed:2000,range:10000,desc:'細く速い誘導ミサイル。弾頭は魚雷より小さい。射程10 km。'},
+ bomb:{name:'プロトン爆弾',short:'プロトン爆弾',dims:[1.0,.3],mass:.14,bomb:true,speed:600,desc:'誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'}
+}).map(([k,o])=>[k,ordnanceRow(k,o)])));
 const ORDNANCE_EVIDENCE='弾の寸法・質量は正史・レジェンズに数値がないため、作例の発射管（実測）に収まる大きさとしたゲーム用仮定。威力はゲーム用仮定（正史の搭載で1回目の攻撃航過が航行の機種表の対艦値に近くなる値）。';
 const STORE_MOUNTS=Object.freeze({tube:{name:'発射管の弾倉',short:'弾倉'},bay:{name:'爆弾倉',short:'爆弾倉'},wing:{name:'翼下パイロン',short:'パイロン'}});
 const STORE_FITS=['ctorp','cmsl','cbomb','cpylon'];

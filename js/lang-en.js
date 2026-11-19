@@ -5488,6 +5488,7 @@ root.KS_EN={
   "{0} 喪失（電源を失い、リパルサーリフトが尽きて落下）": "{0} lost: without power, its repulsorlift gave out and it fell",
   "{0}：惑星に墜落（{1} m/s、{2} TT 相当）": "{0}: crashed on the planet ({1} m/s, {2} TT)",
   "{0}：惑星に墜落（{1} m/s）": "{0}: crashed on the planet ({1} m/s)",
+  "リパルサーリフト喪失：撃墜": "Repulsorlift lost: shot down",
   "{0}：リパルサーリフトを失い撃墜（惑星へ落下）": "{0}: repulsorlift gone, shot down (falling to the planet)",
   "イオン弾頭 {0} 発：給電の {1}% が熱に（{2} TT 相当）": "{0} ion warheads: {1}% of the power delivered turned to heat ({2} TT)",
   "{0}：艦橋喪失：統制射撃と指揮を失う（最後の命令のまま戦闘を続ける）": "{0}: bridge lost: directed fire and command are gone (it fights on under its last order)",

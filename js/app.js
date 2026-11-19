@@ -8359,7 +8359,7 @@ function trialStep(dt){
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
  // The shared integrator applies finite paid thrust and mass-dependent drag.
- const f=trialCol(trial.R,0),lift=unit?C.liftStep(unit,dt):1/* v30 stepped every step, so it comes back with the power (reviews 2026-11-19) */,acceleration=unit?.out?tv.scale(C.planetGravity({center:[0,0,0],radius:trialSys().planet.radius},trial.P),1-lift)/* v30 the planet's gravity, as far as the lift has faded */:tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),next=C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
+ const f=trialCol(trial.R,0),lift=unit?C.liftStep(unit,dt):1/* v30 stepped every step, so it comes back with the power (reviews 2026-11-19) */,acceleration=unit?.out?tv.scale(C.planetGravity({center:[0,0,0],radius:trialSys().planet.radius},trial.P),1-lift)/* v30 the planet's gravity, as far as the lift has faded */:tv.scale(f,Math.sign(command)*Math.max(0,motion.acc)*trial.mainThrustShare),falling=!!unit?.out&&lift<1,vFall=falling?tv.add(trial.V,acceleration,dt):null,next=falling?{velocity:vFall,displacement:tv.scale(vFall,dt)}/* extra review 2026-11-19: a hull without power falls freely, as C.planetFall has it (it went through the resistance that bounds a ship under way) */:C.integratePropulsionMotion(unit,trial.V,acceleration,dt,{forward:f});
  // v24 Turning, speeding up and braking throw the batteries' aim off (C.AIM_MODEL), read on the next gunnery step.
  if(C.aimMotion)trial.aimMotion=C.aimMotion(Math.max(...[0,1,2].map(i=>Math.abs(trial.w[i])/Math.max(1e-6,max[i]||0))),motion.acc0>0?tv.len(acceleration)/motion.acc0:0);
  trial.V=next.velocity;trial.P=tv.add(trial.P,next.displacement);trial.t+=dt;trial.thrust=trialMainOutput(unit);trial.engF=trial.thrust;
@@ -10557,6 +10557,7 @@ function spaceStep(dt){
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
   // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
+  if(!B.me.dead&&B.me.out&&B.me.lift<=0&&!B.me.docked){B.me.dead=true;B.me.fate='fall';spaceLog('リパルサーリフト喪失：撃墜',B.me);}/* extra review 2026-11-19: the ship being flown is counted shot down when its lift is gone, like every other (C.fleetTick skips it as manual) */
   if(B.me.dead||C.outOfAction(B.me)){if(trialFlyLost())break;spaceEnd(B.me.dead?'sunk':'out');break;}
   if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
   if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out','standoff');break;}/* no ship on either side can act: a stand-off */}

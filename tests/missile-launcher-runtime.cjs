@@ -1,3 +1,6 @@
+// 2026-11-19 expectation changed with the user decision「古い表も揃えて」: the concussion missile's yield is the air missile's
+// (1 m by 4 m, half warhead, 0.03 TT a tonne: 0.0471 TT), no longer 25 TT. The cases below read it from the table; hand-made
+// units that state tt:25 themselves are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
@@ -94,7 +97,7 @@ test('aircraft keep their existing six stored missiles without native aggregate 
  const ship=C.newShip({L:15,W:8,H:4},'Missile craft');ship.shipClass='starfighter';
  const h=C.rayEnv(ship,[8,100,0],[0,-1,0],{structOnly:true});C.placeFit(ship,'cmsl',h.p,h.n,0,false);
  const S=C.computeStats(ship),c=C.craftCombat(ship,S);assert.equal(S.mslSalvo,0);
- assert.equal(c.ord.filter(q=>q.kind==='cmsl').reduce((n,q)=>n+q.n,0),6);assert.ok(c.ord.every(q=>q.tt===25));
+ assert.equal(c.ord.filter(q=>q.kind==='cmsl').reduce((n,q)=>n+q.n,0),6);assert.ok(c.ord.every(q=>q.tt===C.ORDNANCE.cmsl.tt));
 });
 
 test('legacy ion launchers retain their aggregate even on a small craft',()=>{
@@ -107,9 +110,9 @@ test('capital fitting profiles own their finite magazine, physical muzzle and on
  const ship=C.newShip({L:100,W:60,H:40},'Capital missile');
  const h=C.rayEnv(ship,[60,100,0],[0,-1,0],{structOnly:true}),f=C.placeFit(ship,'cmsl',h.p,h.n,0,false).fit;f.launchPitch=-30;
  const S=C.computeStats(ship),p=C.craftPowerProfile(ship,S),m=p.modules.find(q=>q.fit===f.id),spec=C.missileLauncherSpec(f),span=C.shipSpan(ship),center=[(span[0]+span[1])/2,(S.ybox[0]+S.ybox[1])/2,0];
- assert.equal(m.k,'launcher');assert.equal(m.stock,6);assert.equal(m.salvo,1);assert.equal(m.cycle,1.2);assert.equal(m.tt,25);
+ assert.equal(m.k,'launcher');assert.equal(m.stock,6);assert.equal(m.salvo,1);assert.equal(m.cycle,1.2);assert.equal(m.tt,C.ORDNANCE.cmsl.tt);
  m.muzzle.forEach((v,i)=>assert.ok(Math.abs(v+center[i]-spec.origin[i])<1e-9));assert.deepEqual(plain(m.launchDir),plain(spec.axis));
- assert.equal(S.mslSalvo,25*20/1.2);assert.equal(S.draw.weapons,0);
+ assert.equal(S.mslSalvo,C.ORDNANCE.cmsl.tt*20/1.2);assert.equal(S.draw.weapons,0);
  const load=p.grid.fixedLoads.find(q=>q.port==='f'+f.id);assert.ok(load&&load.weight>0);assert.equal(load.weight,m.launchPowerW);
  assert.ok(Math.abs(p.grid.fixedLoads.reduce((n,q)=>n+q.weight,0)-(p.grid.fixed-p.grid.cooling))<1e-9*p.grid.fixed);
 });
@@ -122,6 +125,6 @@ test('surface VLS produces the same six-round functional launcher module',()=>{
  Object.assign(f,{surfacePatch:panel.id,surfaceCell:'manual-vls',surfaceRole:'weapons',surfacePoint:f.p.slice(),surfaceFootprint:[1.2,.45],surfaceDepth:1.2,n:[0,1,0],tilt:[0,1,0],localMount:true});
  const loaded=C.deserialize(C.serialize(ship));C.remount(loaded);
  const S=C.computeStats(loaded),p=C.craftPowerProfile(loaded,S),m=p.modules.find(q=>q.missileKind==='cmsl');
- assert.ok(m);assert.equal(m.mount,'vls');assert.equal(m.stock,6);assert.equal(m.tt,25);assert.ok(m.launchDir[1]>.99);assert.ok(p.grid.fixedLoads.some(q=>q.port===m.port&&q.weight>0));
+ assert.ok(m);assert.equal(m.mount,'vls');assert.equal(m.stock,6);assert.equal(m.tt,C.ORDNANCE.cmsl.tt);assert.ok(m.launchDir[1]>.99);assert.ok(p.grid.fixedLoads.some(q=>q.port===m.port&&q.weight>0));
  const partial={...S,vlsInfo:{...S.vlsInfo,[m.fit]:{...S.vlsInfo[m.fit],ratio:.5}}},half=C.fleetModules(loaded,partial).find(q=>q.fit===m.fit);assert.equal(half.stock,3,'a half-retained VLS cannot carry a full six-round magazine');
 });

@@ -1,3 +1,6 @@
+// 2026-11-19 expectation changed with the user decision「古い表も揃えて」: the concussion missile's yield is the air missile's
+// (1 m by 4 m, half warhead, 0.03 TT a tonne: 0.0471 TT), no longer 25 TT. The cases below read it from the table; hand-made
+// units that state tt:25 themselves are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance:{now:()=>0}});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
@@ -10,8 +13,8 @@ function fixture(){const s=C.newShip({L:100,W:60,H:50,assembly:true},'Shared mis
 test('legacy concussion pods retain the canonical compact aircraft fitting',()=>{
  assert.equal(C.canonicalWeaponKind('msl'),'cmsl');assert.equal(C.FITS.msl,C.FITS.cmsl,'the legacy spelling must not retain a separate large weapon');
  assert.ok(!Object.keys(C.FITS).includes('msl'),'the duplicate ship fitting is not a catalogue entry');
- const d=C.FITS.cmsl;vector([d.fm,d.hm,d.wm],[1.2,.45,.45],1e-12);assert.equal(d.store.slots,6);assert.equal(C.ORDNANCE.cmsl.tt,25);
- const f=fit(),spec=C.missileLauncherSpec(f);assert.equal(spec.kind,'cmsl');assert.equal(spec.salvo,1);near(spec.cycle,1.2,1e-12);near(spec.tt,25,1e-12);assert.equal(spec.ammo,6);assert.equal(spec.ammo0,6);
+ const d=C.FITS.cmsl;vector([d.fm,d.hm,d.wm],[1.2,.45,.45],1e-12);assert.equal(d.store.slots,6);assert.equal(C.ORDNANCE.cmsl.tt,C.airRound('cmsl').tt);near(C.ORDNANCE.cmsl.tt,Math.PI/4*4*.5*.03,1e-12);
+ const f=fit(),spec=C.missileLauncherSpec(f);assert.equal(spec.kind,'cmsl');assert.equal(spec.salvo,1);near(spec.cycle,1.2,1e-12);near(spec.tt,C.ORDNANCE.cmsl.tt,1e-12);assert.equal(spec.ammo,6);assert.equal(spec.ammo0,6);
  assert.equal(C.isConcussionLauncher(f),true);assert.equal(C.isConcussionLauncher('msl'),true);assert.equal(C.isConcussionLauncher('itl'),false);
  const b=C.fitAABB(f);assert.ok(Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2])<1.3,'a 12 metre external ship launcher cannot remain behind the shared fitting');
  const old={...f,k:'msl',mount:'ext'},native=G.meshFits({fits:[f]}),legacy=G.meshFits({fits:[old]});assert.equal(legacy.ni,native.ni);assert.deepEqual(Array.from(legacy.pos.subarray(0,legacy.n*3)),Array.from(native.pos.subarray(0,native.n*3)),'a still-live legacy spelling must draw the same compact aircraft model');

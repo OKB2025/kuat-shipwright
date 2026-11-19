@@ -1,3 +1,6 @@
+// 2026-11-19 expectation changed with the user decision「古い表も揃えて」: the concussion missile's yield is the air missile's
+// (1 m by 4 m, half warhead, 0.03 TT a tonne: 0.0471 TT), no longer 25 TT. The cases below read it from the table; hand-made
+// units that state tt:25 themselves are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
@@ -58,7 +61,7 @@ test('missile-only AI chooses a standoff within the ranges of its actual launche
 test('aircraft squadron release checks its own round range before spending stores',()=>{
  const s={id:'range-squad',craft:'awing',n:1,side:0,home:'carrier',pos:[0,0,0]},w={nextId:1,missiles:[]},t={id:'target',pos:[10000.01,0,0]};R.squadStores(s);const before=plain(s.ammo);
  assert.equal(R.squadRelease(w,0,s,t,false,null).length,0);assert.deepEqual(plain(s.ammo),before);assert.equal(w.missiles.length,0);
- t.pos=[10000,0,0];assert.ok(R.squadRelease(w,0,s,t,false,null).length>0);assert.ok(w.missiles.length>0);assert.ok(w.missiles.every(m=>m.kind==='cmsl'&&m.range===10000&&m.traveled===0&&m.tt===25&&m.life<=m.range/m.s+1e-9));
+ t.pos=[10000,0,0];assert.ok(R.squadRelease(w,0,s,t,false,null).length>0);assert.ok(w.missiles.length>0);assert.ok(w.missiles.every(m=>m.kind==='cmsl'&&m.range===10000&&m.traveled===0&&m.tt===C.ORDNANCE.cmsl.tt&&m.life<=m.range/m.s+1e-9));
 });
 
 test('RTS targeting launches ship missiles through 60 km and preserves aircraft ammunition',()=>{
@@ -80,8 +83,8 @@ test('an already spent guided round cannot score an impact inside its final-step
 });
 
 test('aircraft store descriptors propagate the round range without changing their warhead',()=>{
- const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===25));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
- const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==25));
+ const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
+ const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==C.ORDNANCE.cmsl.tt));
 });
 
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
