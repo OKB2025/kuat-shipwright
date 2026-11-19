@@ -47,7 +47,7 @@ test('a penetration judges each compartment by what one shot still carries into 
  // 2026-11-19 expectation changed: the rebuilt combatPenetrate bores through the plating, the structure and the modules in
  // turn (docs/damage-penetration.md:61); the old fixed share the frames took (COMBAT.frame) is gone. What enters the
  // compartment is read from the penetration's own path (here all 2 TT: the fixture has no structure in front of it).
- const enter=pm.path[0].enter;near(many.crewIn[0],C.penCrewSurvive(enter,100),1e-9);assert.ok(many.crewIn[0]>.1&&many.crewIn[0]<.4,String(many.crewIn[0]));
+ const enter=pm.path[0].enter;assert.ok(Math.abs(enter-2)<1e-9,'the shot enters this bare fixture whole: '+enter);near(many.crewIn[0],C.penCrewSurvive(enter,100),1e-9);assert.ok(many.crewIn[0]>.1&&many.crewIn[0]<.4,String(many.crewIn[0]));
 });
 // Physics review 2026-11-15 (5fe1d03): the paths that bring direct hits and merged fire carry their own shot size.
 test('guns and direct hits in one record are counted at their own sizes; merged records keep their shot counts',()=>{

@@ -52,3 +52,20 @@ test('saving and loading keeps heavy cells and their load; small cells keep no l
  const a={id:1,k:'shipMsl',p:[0,0,0],a:2,launcherCols:1,launcherRows:1},b={...a,launcherHeavy:true},c={...b,round:'msl'};
  if(C.launcherStateKey){assert.notDeepEqual(C.launcherStateKey(a),C.launcherStateKey(b),'the recess cache sees the cell size');assert.notDeepEqual(C.launcherStateKey(b),C.launcherStateKey(c));}
 });
+// Physics review 2026-11-19 (FAIL): with no ship target of its own (cease fire, or every target masked) a ship near enemy craft
+// stepped its launchers and spent their rounds while no round was launched. Missiles go to craft only from a ship that is firing
+// at a ship beyond the missiles' reach.
+test('in a fleet battle: no rounds are spent without a launch; missiles go to a craft when the ship fired at is out of their reach',()=>{
+ const F=vm.runInContext('YardFleetData',cx),xs=C.buildDesign('craft_tie_ln'),craftP=C.fleetProfile(C.computeStats(xs),xs.name,xs);
+ const setup=fire=>{const a=C.fleetUnit('a','mc75',JSON.parse(JSON.stringify(F.designs.mc75.p)),0),far=C.fleetUnit('far','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),1),tie=C.fleetUnit('tie','craft_tie_ln',JSON.parse(JSON.stringify(craftP)),1);
+  far.pos=[30000,0,0];far.yaw=Math.PI;tie.pos=[4000,300,0];tie.yaw=Math.PI;for(const x of far.sec){x.max*=1e6;x.s=x.max;}
+  a.order={...a.order,type:'hold',fire,...(fire?{target:'far'}:{})};far.order={...far.order,type:'hold',fire:false};tie.order={...tie.order,type:'hold',fire:false};
+  const B=C.fleetBattle([a,far,tie],true);B.seed=11;return {a,far,tie,B};};
+ const sum=u=>u.ammo.reduce((n,x)=>n+(x||0),0);
+ assert.ok(F.designs.mc75.p.modules.some(m=>m.k==='launcher'&&m.missileKind==='shipMsl'&&m.missileRange===10000),'the stored MC75 carries the small-cell launchers');
+ let s=setup(false);const before=sum(s.a);for(let t=0;t<6;t+=.25)C.fleetTick(s.B,.25,{});
+ assert.equal(sum(s.a),before,'cease fire: no round leaves its cell');assert.equal((s.B.missiles||[]).length,0);
+ s=setup(true);const full=sum(s.a);for(let t=0;t<6;t+=.25)C.fleetTick(s.B,.25,{});const flown=(s.B.missileN||0);
+ assert.ok(flown>0,'rounds were launched');assert.ok(sum(s.a)<full,'and left their cells');
+ const log=JSON.stringify(s.B.missiles||[]);assert.ok(!/"target":"far"/.test(log),'none at the ship 30 km away, beyond the 10 km of the missiles');
+});
