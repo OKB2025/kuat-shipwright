@@ -1,0 +1,12754 @@
+{
+ "source": "3c93187d-MandatorIIClassDreadnaught.STL",
+ "triangles": 103839,
+ "shells": 3712,
+ "scale": 70.9,
+ "map": "ship_x=(57.87188-stl_y)*70.9 (from the stern, bow +x); ship_z=stl_x*70.9 (starboard +z); ship_y=stl_z*70.9+348.0",
+ "y_offset": 348.0,
+ "y_offset_requested": 374.0,
+ "y_offset_note": "ship_y is given with 348 (model bottom at y 0; the model side band centre on the example hull side band centre 346; the present example engines use the same). ship_y_at_374 is the same point with the requested 374.",
+ "counts": {
+  "utl": 47,
+  "twin175": 24,
+  "ionBall": 16,
+  "pd": 130
+ },
+ "classes": {
+  "utl": [
+   {
+    "shell": 1848,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     49.8397,
+     5.4117
+    ],
+    "ship": [
+     569.5,
+     731.7,
+     0.0
+    ],
+    "ship_y_at_374": 757.7,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.2,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.2,
+     31.6
+    ],
+    "pedestal_shells": [
+     1555
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1847,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     44.1792,
+     6.8687
+    ],
+    "ship": [
+     970.8,
+     835.0,
+     0.0
+    ],
+    "ship_y_at_374": 861.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.1,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.1,
+     31.6
+    ],
+    "pedestal_shells": [
+     1554
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 490,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3224,
+    "stl": [
+     -6.6372,
+     43.7456,
+     4.1557
+    ],
+    "ship": [
+     1001.6,
+     642.6,
+     -470.6
+    ],
+    "ship_y_at_374": 668.6,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     129.1,
+     128.2
+    ],
+    "rim_top_across_m": [
+     89.5,
+     88.8
+    ],
+    "recess_inner_m": [
+     57.3,
+     63.5
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 2.5,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     128.2,
+     129.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3224,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 490,
+    "stl": [
+     6.6372,
+     43.7456,
+     4.1557
+    ],
+    "ship": [
+     1001.6,
+     642.6,
+     470.6
+    ],
+    "ship_y_at_374": 668.6,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     129.1,
+     128.2
+    ],
+    "rim_top_across_m": [
+     89.5,
+     88.8
+    ],
+    "recess_inner_m": [
+     57.3,
+     63.5
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 2.5,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     128.2,
+     129.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 291,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3421,
+    "stl": [
+     -10.167,
+     40.2653,
+     3.1795
+    ],
+    "ship": [
+     1248.3,
+     573.4,
+     -720.8
+    ],
+    "ship_y_at_374": 599.4,
+    "normal_stl": [
+     -0.178,
+     -0.032,
+     0.984
+    ],
+    "normal_ship": [
+     0.032,
+     0.984,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.4,
+    "base_across_m": [
+     129.5,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.0
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     51.9
+    ],
+    "pedestal_shells": [
+     285
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3421,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 291,
+    "stl": [
+     10.167,
+     40.2653,
+     3.1795
+    ],
+    "ship": [
+     1248.3,
+     573.4,
+     720.8
+    ],
+    "ship_y_at_374": 599.4,
+    "normal_stl": [
+     0.178,
+     -0.032,
+     0.984
+    ],
+    "normal_ship": [
+     0.032,
+     0.984,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.4,
+    "base_across_m": [
+     129.5,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.0
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     51.9
+    ],
+    "pedestal_shells": [
+     3427
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 256,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3456,
+    "stl": [
+     -11.3106,
+     38.0207,
+     2.7598
+    ],
+    "ship": [
+     1407.4,
+     543.7,
+     -801.9
+    ],
+    "ship_y_at_374": 569.7,
+    "normal_stl": [
+     -0.178,
+     -0.032,
+     0.984
+    ],
+    "normal_ship": [
+     0.032,
+     0.984,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.4,
+    "base_across_m": [
+     129.5,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.0
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     51.9
+    ],
+    "pedestal_shells": [
+     249
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3456,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 256,
+    "stl": [
+     11.3106,
+     38.0207,
+     2.7598
+    ],
+    "ship": [
+     1407.4,
+     543.7,
+     801.9
+    ],
+    "ship_y_at_374": 569.7,
+    "normal_stl": [
+     0.178,
+     -0.032,
+     0.984
+    ],
+    "normal_ship": [
+     0.032,
+     0.984,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.4,
+    "base_across_m": [
+     129.5,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.0
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     51.9
+    ],
+    "pedestal_shells": [
+     3462
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 208,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3503,
+    "stl": [
+     -12.3782,
+     35.922,
+     2.1793
+    ],
+    "ship": [
+     1556.2,
+     502.5,
+     -877.6
+    ],
+    "ship_y_at_374": 528.5,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3503,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 208,
+    "stl": [
+     12.3782,
+     35.922,
+     2.1793
+    ],
+    "ship": [
+     1556.2,
+     502.5,
+     877.6
+    ],
+    "ship_y_at_374": 528.5,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 184,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3527,
+    "stl": [
+     -13.4586,
+     33.8816,
+     1.8281
+    ],
+    "ship": [
+     1700.9,
+     477.6,
+     -954.2
+    ],
+    "ship_y_at_374": 503.6,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3527,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 184,
+    "stl": [
+     13.4586,
+     33.8816,
+     1.8281
+    ],
+    "ship": [
+     1700.9,
+     477.6,
+     954.2
+    ],
+    "ship_y_at_374": 503.6,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 143,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3568,
+    "stl": [
+     -14.5376,
+     31.8517,
+     1.4774
+    ],
+    "ship": [
+     1844.8,
+     452.7,
+     -1030.7
+    ],
+    "ship_y_at_374": 478.7,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3568,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 143,
+    "stl": [
+     14.5376,
+     31.8517,
+     1.4774
+    ],
+    "ship": [
+     1844.8,
+     452.7,
+     1030.7
+    ],
+    "ship_y_at_374": 478.7,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 87,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3624,
+    "stl": [
+     -15.5832,
+     29.8766,
+     1.222
+    ],
+    "ship": [
+     1984.9,
+     434.6,
+     -1104.9
+    ],
+    "ship_y_at_374": 460.6,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3624,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 87,
+    "stl": [
+     15.5832,
+     29.8766,
+     1.222
+    ],
+    "ship": [
+     1984.9,
+     434.6,
+     1104.9
+    ],
+    "ship_y_at_374": 460.6,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 268,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3444,
+    "stl": [
+     -10.9952,
+     27.3493,
+     2.1987
+    ],
+    "ship": [
+     2164.1,
+     503.9,
+     -779.6
+    ],
+    "ship_y_at_374": 529.9,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [
+     255
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3444,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 268,
+    "stl": [
+     10.9952,
+     27.3493,
+     2.1987
+    ],
+    "ship": [
+     2164.1,
+     503.9,
+     779.6
+    ],
+    "ship_y_at_374": 529.9,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [
+     3457
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 185,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3526,
+    "stl": [
+     -13.4552,
+     26.0332,
+     1.3588
+    ],
+    "ship": [
+     2257.4,
+     444.3,
+     -954.0
+    ],
+    "ship_y_at_374": 470.3,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3526,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 185,
+    "stl": [
+     13.4552,
+     26.0332,
+     1.3588
+    ],
+    "ship": [
+     2257.4,
+     444.3,
+     954.0
+    ],
+    "ship_y_at_374": 470.3,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 233,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3478,
+    "stl": [
+     -11.9792,
+     24.5431,
+     1.5672
+    ],
+    "ship": [
+     2363.0,
+     459.1,
+     -849.3
+    ],
+    "ship_y_at_374": 485.1,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3478,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 233,
+    "stl": [
+     11.9792,
+     24.5431,
+     1.5672
+    ],
+    "ship": [
+     2363.0,
+     459.1,
+     849.3
+    ],
+    "ship_y_at_374": 485.1,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 303,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3409,
+    "stl": [
+     -9.81,
+     15.4077,
+     1.8448
+    ],
+    "ship": [
+     3010.7,
+     478.8,
+     -695.5
+    ],
+    "ship_y_at_374": 504.8,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3409,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 303,
+    "stl": [
+     9.81,
+     15.4077,
+     1.8448
+    ],
+    "ship": [
+     3010.7,
+     478.8,
+     695.5
+    ],
+    "ship_y_at_374": 504.8,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 563,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3152,
+    "stl": [
+     -5.5367,
+     15.0104,
+     4.4509
+    ],
+    "ship": [
+     3038.9,
+     663.6,
+     -392.6
+    ],
+    "ship_y_at_374": 689.6,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     129.1,
+     128.2
+    ],
+    "rim_top_across_m": [
+     89.5,
+     88.8
+    ],
+    "recess_inner_m": [
+     57.3,
+     63.5
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 3.5,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     128.2,
+     129.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3152,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 563,
+    "stl": [
+     5.5367,
+     15.0104,
+     4.4509
+    ],
+    "ship": [
+     3038.9,
+     663.6,
+     392.6
+    ],
+    "ship_y_at_374": 689.6,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     129.1,
+     128.2
+    ],
+    "rim_top_across_m": [
+     89.5,
+     88.8
+    ],
+    "recess_inner_m": [
+     57.3,
+     63.5
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 3.5,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     128.2,
+     129.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 318,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3395,
+    "stl": [
+     -9.0175,
+     9.1349,
+     1.751
+    ],
+    "ship": [
+     3455.4,
+     472.1,
+     -639.3
+    ],
+    "ship_y_at_374": 498.1,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3395,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 318,
+    "stl": [
+     9.0175,
+     9.1349,
+     1.751
+    ],
+    "ship": [
+     3455.4,
+     472.1,
+     639.3
+    ],
+    "ship_y_at_374": 498.1,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 314,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3399,
+    "stl": [
+     -9.1583,
+     4.796,
+     1.6712
+    ],
+    "ship": [
+     3763.1,
+     466.5,
+     -649.3
+    ],
+    "ship_y_at_374": 492.5,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [
+     308
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3399,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 314,
+    "stl": [
+     9.1583,
+     4.796,
+     1.6712
+    ],
+    "ship": [
+     3763.1,
+     466.5,
+     649.3
+    ],
+    "ship_y_at_374": 492.5,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [
+     3404
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1846,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     2.8785,
+     6.2982
+    ],
+    "ship": [
+     3899.0,
+     794.5,
+     0.0
+    ],
+    "ship_y_at_374": 820.5,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.1,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 263,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3449,
+    "stl": [
+     -11.2062,
+     2.7312,
+     0.8813
+    ],
+    "ship": [
+     3909.5,
+     410.5,
+     -794.5
+    ],
+    "ship_y_at_374": 436.5,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3449,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 263,
+    "stl": [
+     11.2062,
+     2.7312,
+     0.8813
+    ],
+    "ship": [
+     3909.5,
+     410.5,
+     794.5
+    ],
+    "ship_y_at_374": 436.5,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 281,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3430,
+    "stl": [
+     -10.6441,
+     0.2482,
+     0.8952
+    ],
+    "ship": [
+     4085.5,
+     411.5,
+     -754.7
+    ],
+    "ship_y_at_374": 437.5,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3430,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 281,
+    "stl": [
+     10.6441,
+     0.2482,
+     0.8952
+    ],
+    "ship": [
+     4085.5,
+     411.5,
+     754.7
+    ],
+    "ship_y_at_374": 437.5,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1845,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     -0.0,
+     -5.2363,
+     2.9566
+    ],
+    "ship": [
+     4474.4,
+     557.6,
+     -0.0
+    ],
+    "ship_y_at_374": 583.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.1,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.1,
+     31.6
+    ],
+    "pedestal_shells": [
+     1553
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1844,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     -8.1281,
+     2.5505
+    ],
+    "ship": [
+     4679.4,
+     528.8,
+     0.0
+    ],
+    "ship_y_at_374": 554.8,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.1,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 817,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 2899,
+    "stl": [
+     -4.0621,
+     -10.1208,
+     1.8966
+    ],
+    "ship": [
+     4820.7,
+     482.5,
+     -288.0
+    ],
+    "ship_y_at_374": 508.5,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2899,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 817,
+    "stl": [
+     4.0621,
+     -10.1208,
+     1.8966
+    ],
+    "ship": [
+     4820.7,
+     482.5,
+     288.0
+    ],
+    "ship_y_at_374": 508.5,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 629,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 3086,
+    "stl": [
+     -5.2114,
+     -13.7335,
+     1.2984
+    ],
+    "ship": [
+     5076.8,
+     440.1,
+     -369.5
+    ],
+    "ship_y_at_374": 466.1,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3086,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 629,
+    "stl": [
+     5.2114,
+     -13.7335,
+     1.2984
+    ],
+    "ship": [
+     5076.8,
+     440.1,
+     369.5
+    ],
+    "ship_y_at_374": 466.1,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1843,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     -20.0317,
+     2.0903
+    ],
+    "ship": [
+     5523.4,
+     496.2,
+     0.0
+    ],
+    "ship_y_at_374": 522.2,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.2,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.2,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1084,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 2634,
+    "stl": [
+     -2.7087,
+     -23.0226,
+     1.4733
+    ],
+    "ship": [
+     5735.4,
+     452.5,
+     -192.0
+    ],
+    "ship_y_at_374": 478.5,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2634,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 1084,
+    "stl": [
+     2.7087,
+     -23.0226,
+     1.4733
+    ],
+    "ship": [
+     5735.4,
+     452.5,
+     192.0
+    ],
+    "ship_y_at_374": 478.5,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1191,
+    "triangles": 54,
+    "side": "port",
+    "mirror_shell": 2528,
+    "stl": [
+     -2.392,
+     -27.147,
+     1.3549
+    ],
+    "ship": [
+     6027.8,
+     444.1,
+     -169.6
+    ],
+    "ship_y_at_374": 470.1,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2528,
+    "triangles": 54,
+    "side": "stbd",
+    "mirror_shell": 1191,
+    "stl": [
+     2.392,
+     -27.147,
+     1.3549
+    ],
+    "ship": [
+     6027.8,
+     444.1,
+     169.6
+    ],
+    "ship_y_at_374": 470.1,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "base_across_m": [
+     129.6,
+     128.5
+    ],
+    "rim_top_across_m": [
+     89.8,
+     89.1
+    ],
+    "recess_inner_m": [
+     57.6,
+     63.6
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     126.1,
+     129.5,
+     52.2
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1842,
+    "triangles": 72,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     -28.682,
+     1.58
+    ],
+    "ship": [
+     6136.7,
+     460.0,
+     0.0
+    ],
+    "ship_y_at_374": 486.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 0.0,
+    "base_across_m": [
+     128.1,
+     129.1
+    ],
+    "rim_top_across_m": [
+     88.8,
+     89.5
+    ],
+    "recess_inner_m": [
+     63.5,
+     57.3
+    ],
+    "recess_floor_area_m2": 3201,
+    "recess_depth_m": 9.9,
+    "shell_height_along_normal_m": 31.6,
+    "bbox_m": [
+     129.1,
+     128.1,
+     31.6
+    ],
+    "pedestal_shells": [],
+    "clear_above_m": null
+   }
+  ],
+  "twin175": [
+   {
+    "shell": 860,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2860,
+    "stl": [
+     -4.442,
+     36.4504,
+     5.4612
+    ],
+    "ship": [
+     1518.8,
+     735.2,
+     -314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     -0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     -0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     843
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2860,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 860,
+    "stl": [
+     4.442,
+     36.4504,
+     5.4612
+    ],
+    "ship": [
+     1518.8,
+     735.2,
+     314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2877
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 859,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2859,
+    "stl": [
+     -4.442,
+     34.8328,
+     5.4612
+    ],
+    "ship": [
+     1633.5,
+     735.2,
+     -314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     -0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     -0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     842
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2859,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 859,
+    "stl": [
+     4.442,
+     34.8328,
+     5.4612
+    ],
+    "ship": [
+     1633.5,
+     735.2,
+     314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2876
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 858,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2858,
+    "stl": [
+     -4.442,
+     27.5167,
+     5.4612
+    ],
+    "ship": [
+     2152.2,
+     735.2,
+     -314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     -0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     -0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     841
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2858,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 858,
+    "stl": [
+     4.442,
+     27.5167,
+     5.4612
+    ],
+    "ship": [
+     2152.2,
+     735.2,
+     314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2875
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 857,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2857,
+    "stl": [
+     -4.442,
+     25.8992,
+     5.4612
+    ],
+    "ship": [
+     2266.9,
+     735.2,
+     -314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     -0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     -0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     840
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2857,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 857,
+    "stl": [
+     4.442,
+     25.8992,
+     5.4612
+    ],
+    "ship": [
+     2266.9,
+     735.2,
+     314.9
+    ],
+    "ship_y_at_374": 761.2,
+    "normal_stl": [
+     0.314,
+     0.0,
+     0.95
+    ],
+    "normal_ship": [
+     -0.0,
+     0.95,
+     0.314
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 18.3,
+    "rim_outer_m": [
+     46.1,
+     44.6
+    ],
+    "recess_inner_m": [
+     37.3,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2874
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      80.8,
+      23.1
+     ]
+    ],
+    "bbox_m": [
+     43.8,
+     46.1,
+     19.1
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 994,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2726,
+    "stl": [
+     -3.9732,
+     4.8724,
+     2.6496
+    ],
+    "ship": [
+     3757.7,
+     535.9,
+     -281.7
+    ],
+    "ship_y_at_374": 561.9,
+    "normal_stl": [
+     -0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     -0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     949
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2726,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 994,
+    "stl": [
+     3.9732,
+     4.8724,
+     2.6496
+    ],
+    "ship": [
+     3757.7,
+     535.9,
+     281.7
+    ],
+    "ship_y_at_374": 561.9,
+    "normal_stl": [
+     0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     2768
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 993,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2725,
+    "stl": [
+     -3.9732,
+     3.9521,
+     2.6162
+    ],
+    "ship": [
+     3822.9,
+     533.5,
+     -281.7
+    ],
+    "ship_y_at_374": 559.5,
+    "normal_stl": [
+     -0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     -0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     949
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2725,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 993,
+    "stl": [
+     3.9732,
+     3.9521,
+     2.6162
+    ],
+    "ship": [
+     3822.9,
+     533.5,
+     281.7
+    ],
+    "ship_y_at_374": 559.5,
+    "normal_stl": [
+     0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     2768
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 992,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2724,
+    "stl": [
+     -3.9732,
+     3.096,
+     2.5865
+    ],
+    "ship": [
+     3883.6,
+     531.4,
+     -281.7
+    ],
+    "ship_y_at_374": 557.4,
+    "normal_stl": [
+     -0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     -0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     949
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2724,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 992,
+    "stl": [
+     3.9732,
+     3.096,
+     2.5865
+    ],
+    "ship": [
+     3883.6,
+     531.4,
+     281.7
+    ],
+    "ship_y_at_374": 557.4,
+    "normal_stl": [
+     0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     2768
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 991,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2723,
+    "stl": [
+     -3.9732,
+     2.1792,
+     2.5525
+    ],
+    "ship": [
+     3948.6,
+     529.0,
+     -281.7
+    ],
+    "ship_y_at_374": 555.0,
+    "normal_stl": [
+     -0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     -0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     949
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2723,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 991,
+    "stl": [
+     3.9732,
+     2.1792,
+     2.5525
+    ],
+    "ship": [
+     3948.6,
+     529.0,
+     281.7
+    ],
+    "ship_y_at_374": 555.0,
+    "normal_stl": [
+     0.395,
+     -0.034,
+     0.918
+    ],
+    "normal_ship": [
+     0.034,
+     0.918,
+     0.395
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 23.3,
+    "rim_outer_m": [
+     46.8,
+     46.3
+    ],
+    "recess_inner_m": [
+     37.8,
+     37.3
+    ],
+    "recess_depth_m": 3.8,
+    "frame_shells": [
+     2768
+    ],
+    "frame_bbox_m": [
+     [
+      77.2,
+      268.9,
+      36.2
+     ]
+    ],
+    "bbox_m": [
+     41.6,
+     46.8,
+     20.6
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1768,
+    "triangles": 48,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     0.7246,
+     6.1973
+    ],
+    "ship": [
+     4051.7,
+     787.4,
+     0.0
+    ],
+    "ship_y_at_374": 813.4,
+    "normal_stl": [
+     0.0,
+     -0.09,
+     0.996
+    ],
+    "normal_ship": [
+     0.09,
+     0.996,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 5.2,
+    "rim_outer_m": [
+     44.6,
+     45.0
+    ],
+    "recess_inner_m": [
+     37.9,
+     36.2
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     1738
+    ],
+    "frame_bbox_m": [
+     [
+      80.4,
+      52.7,
+      14.5
+     ]
+    ],
+    "bbox_m": [
+     45.0,
+     43.9,
+     9.3
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1767,
+    "triangles": 48,
+    "side": "centre",
+    "mirror_shell": null,
+    "stl": [
+     0.0,
+     -0.5219,
+     6.0627
+    ],
+    "ship": [
+     4140.1,
+     777.8,
+     0.0
+    ],
+    "ship_y_at_374": 803.8,
+    "normal_stl": [
+     0.0,
+     -0.09,
+     0.996
+    ],
+    "normal_ship": [
+     0.09,
+     0.996,
+     0.0
+    ],
+    "facing": "up",
+    "tilt_deg": 5.2,
+    "rim_outer_m": [
+     44.6,
+     45.0
+    ],
+    "recess_inner_m": [
+     37.9,
+     36.2
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     1737
+    ],
+    "frame_bbox_m": [
+     [
+      80.4,
+      52.7,
+      14.5
+     ]
+    ],
+    "bbox_m": [
+     45.0,
+     43.9,
+     9.3
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 987,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2729,
+    "stl": [
+     -4.0396,
+     -28.7424,
+     1.0351
+    ],
+    "ship": [
+     6140.9,
+     421.4,
+     -286.4
+    ],
+    "ship_y_at_374": 447.4,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "rim_outer_m": [
+     46.4,
+     44.9
+    ],
+    "recess_inner_m": [
+     37.6,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     947
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      81.4,
+      20.9
+     ]
+    ],
+    "bbox_m": [
+     44.2,
+     46.6,
+     14.9
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2729,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 987,
+    "stl": [
+     4.0396,
+     -28.7424,
+     1.0351
+    ],
+    "ship": [
+     6140.9,
+     421.4,
+     286.4
+    ],
+    "ship_y_at_374": 447.4,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "rim_outer_m": [
+     46.4,
+     44.9
+    ],
+    "recess_inner_m": [
+     37.6,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2770
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      81.4,
+      20.9
+     ]
+    ],
+    "bbox_m": [
+     44.2,
+     46.6,
+     14.9
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1166,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2552,
+    "stl": [
+     -3.3694,
+     -30.196,
+     1.1038
+    ],
+    "ship": [
+     6244.0,
+     426.3,
+     -238.9
+    ],
+    "ship_y_at_374": 452.3,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "rim_outer_m": [
+     46.4,
+     44.9
+    ],
+    "recess_inner_m": [
+     37.6,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     1099
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      81.4,
+      20.9
+     ]
+    ],
+    "bbox_m": [
+     44.2,
+     46.6,
+     14.9
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2552,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 1166,
+    "stl": [
+     3.3694,
+     -30.196,
+     1.1038
+    ],
+    "ship": [
+     6244.0,
+     426.3,
+     238.9
+    ],
+    "ship_y_at_374": 452.3,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "rim_outer_m": [
+     46.4,
+     44.9
+    ],
+    "recess_inner_m": [
+     37.6,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2619
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      81.4,
+      20.9
+     ]
+    ],
+    "bbox_m": [
+     44.2,
+     46.6,
+     14.9
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1255,
+    "triangles": 34,
+    "side": "port",
+    "mirror_shell": 2466,
+    "stl": [
+     -2.6977,
+     -31.6528,
+     1.162
+    ],
+    "ship": [
+     6347.3,
+     430.4,
+     -191.3
+    ],
+    "ship_y_at_374": 456.4,
+    "normal_stl": [
+     -0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     -0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "rim_outer_m": [
+     46.4,
+     44.9
+    ],
+    "recess_inner_m": [
+     37.6,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     1232
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      81.4,
+      20.9
+     ]
+    ],
+    "bbox_m": [
+     44.2,
+     46.6,
+     14.9
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2466,
+    "triangles": 34,
+    "side": "stbd",
+    "mirror_shell": 1255,
+    "stl": [
+     2.6977,
+     -31.6528,
+     1.162
+    ],
+    "ship": [
+     6347.3,
+     430.4,
+     191.3
+    ],
+    "ship_y_at_374": 456.4,
+    "normal_stl": [
+     0.178,
+     -0.037,
+     0.983
+    ],
+    "normal_ship": [
+     0.037,
+     0.983,
+     0.178
+    ],
+    "facing": "sloped up",
+    "tilt_deg": 10.5,
+    "rim_outer_m": [
+     46.4,
+     44.9
+    ],
+    "recess_inner_m": [
+     37.6,
+     37.9
+    ],
+    "recess_depth_m": 2.9,
+    "frame_shells": [
+     2488
+    ],
+    "frame_bbox_m": [
+     [
+      53.2,
+      81.4,
+      20.9
+     ]
+    ],
+    "bbox_m": [
+     44.2,
+     46.6,
+     14.9
+    ],
+    "clear_above_m": null
+   }
+  ],
+  "ionBall": [
+   {
+    "shell": 447,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3267,
+    "stl": [
+     -8.1031,
+     48.2193,
+     -0.3569
+    ],
+    "ship": [
+     684.4,
+     322.7,
+     -574.5
+    ],
+    "ship_y_at_374": 348.7,
+    "front_face_stl": [
+     -8.1024,
+     48.3285,
+     -0.3569
+    ],
+    "front_face_ship": [
+     676.6,
+     322.7,
+     -574.5
+    ],
+    "normal_stl": [
+     0.001,
+     1.0,
+     -0.0
+    ],
+    "normal_ship": [
+     -1.0,
+     -0.0,
+     0.001
+    ],
+    "facing": "aft",
+    "ball_diameter_m": [
+     46.4,
+     46.3
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 449,
+    "box_bbox_m": [
+     82.6,
+     26.7,
+     52.2
+    ],
+    "box_centre_ship": [
+     704.5,
+     322.7,
+     -578.0
+    ],
+    "bbox_m": [
+     46.6,
+     15.7,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3267,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 447,
+    "stl": [
+     8.1031,
+     48.2193,
+     -0.3569
+    ],
+    "ship": [
+     684.4,
+     322.7,
+     574.5
+    ],
+    "ship_y_at_374": 348.7,
+    "front_face_stl": [
+     8.1024,
+     48.3285,
+     -0.3569
+    ],
+    "front_face_ship": [
+     676.6,
+     322.7,
+     574.5
+    ],
+    "normal_stl": [
+     -0.001,
+     1.0,
+     -0.0
+    ],
+    "normal_ship": [
+     -1.0,
+     -0.0,
+     -0.001
+    ],
+    "facing": "aft",
+    "ball_diameter_m": [
+     46.4,
+     46.3
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3265,
+    "box_bbox_m": [
+     82.6,
+     26.7,
+     52.2
+    ],
+    "box_centre_ship": [
+     704.5,
+     322.7,
+     578.0
+    ],
+    "bbox_m": [
+     46.6,
+     15.7,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 540,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3175,
+    "stl": [
+     -6.305,
+     45.4189,
+     3.6329
+    ],
+    "ship": [
+     882.9,
+     605.6,
+     -447.0
+    ],
+    "ship_y_at_374": 631.6,
+    "front_face_stl": [
+     -6.3806,
+     45.5253,
+     3.6329
+    ],
+    "front_face_ship": [
+     875.4,
+     605.6,
+     -452.4
+    ],
+    "normal_stl": [
+     -0.506,
+     0.862,
+     -0.0
+    ],
+    "normal_ship": [
+     -0.862,
+     -0.0,
+     -0.506
+    ],
+    "facing": "aft and port, oblique",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 626,
+    "box_bbox_m": [
+     76.0,
+     58.5,
+     52.2
+    ],
+    "box_centre_ship": [
+     904.3,
+     605.6,
+     -437.0
+    ],
+    "bbox_m": [
+     45.0,
+     35.1,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3175,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 540,
+    "stl": [
+     6.305,
+     45.4189,
+     3.6329
+    ],
+    "ship": [
+     882.9,
+     605.6,
+     447.0
+    ],
+    "ship_y_at_374": 631.6,
+    "front_face_stl": [
+     6.3806,
+     45.5253,
+     3.6329
+    ],
+    "front_face_ship": [
+     875.4,
+     605.6,
+     452.4
+    ],
+    "normal_stl": [
+     0.506,
+     0.862,
+     -0.0
+    ],
+    "normal_ship": [
+     -0.862,
+     -0.0,
+     0.506
+    ],
+    "facing": "aft and starboard, oblique",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3089,
+    "box_bbox_m": [
+     76.0,
+     58.5,
+     52.2
+    ],
+    "box_centre_ship": [
+     904.3,
+     605.6,
+     437.0
+    ],
+    "bbox_m": [
+     45.0,
+     35.1,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 134,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3577,
+    "stl": [
+     -15.1562,
+     14.3582,
+     0.0078
+    ],
+    "ship": [
+     3085.1,
+     348.6,
+     -1074.6
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     -15.2679,
+     14.3275,
+     0.0078
+    ],
+    "front_face_ship": [
+     3087.3,
+     348.6,
+     -1082.5
+    ],
+    "normal_stl": [
+     -0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     -0.978
+    ],
+    "facing": "side (port)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 154,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     3083.2,
+     348.6,
+     -1053.2
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3577,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 134,
+    "stl": [
+     15.1562,
+     14.3582,
+     0.0078
+    ],
+    "ship": [
+     3085.1,
+     348.6,
+     1074.6
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     15.2679,
+     14.3275,
+     0.0078
+    ],
+    "front_face_ship": [
+     3087.3,
+     348.6,
+     1082.5
+    ],
+    "normal_stl": [
+     0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     0.978
+    ],
+    "facing": "side (starboard)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3557,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     3083.2,
+     348.6,
+     1053.2
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 458,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3256,
+    "stl": [
+     -7.3177,
+     13.2018,
+     3.2605
+    ],
+    "ship": [
+     3167.1,
+     579.2,
+     -518.8
+    ],
+    "ship_y_at_374": 605.2,
+    "front_face_stl": [
+     -7.3181,
+     13.0926,
+     3.2605
+    ],
+    "front_face_ship": [
+     3174.9,
+     579.2,
+     -518.9
+    ],
+    "normal_stl": [
+     0.001,
+     -1.0,
+     -0.0
+    ],
+    "normal_ship": [
+     1.0,
+     -0.0,
+     0.001
+    ],
+    "facing": "forward",
+    "ball_diameter_m": [
+     46.1,
+     46.5
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 456,
+    "box_bbox_m": [
+     82.6,
+     26.6,
+     52.2
+    ],
+    "box_centre_ship": [
+     3147.0,
+     579.2,
+     -515.4
+    ],
+    "bbox_m": [
+     46.6,
+     15.6,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3256,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 458,
+    "stl": [
+     7.3177,
+     13.2018,
+     3.2605
+    ],
+    "ship": [
+     3167.1,
+     579.2,
+     518.8
+    ],
+    "ship_y_at_374": 605.2,
+    "front_face_stl": [
+     7.3181,
+     13.0926,
+     3.2605
+    ],
+    "front_face_ship": [
+     3174.9,
+     579.2,
+     518.9
+    ],
+    "normal_stl": [
+     -0.001,
+     -1.0,
+     -0.0
+    ],
+    "normal_ship": [
+     1.0,
+     -0.0,
+     -0.001
+    ],
+    "facing": "forward",
+    "ball_diameter_m": [
+     46.1,
+     46.5
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3258,
+    "box_bbox_m": [
+     82.6,
+     26.6,
+     52.2
+    ],
+    "box_centre_ship": [
+     3147.0,
+     579.2,
+     515.4
+    ],
+    "bbox_m": [
+     46.6,
+     15.6,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 189,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3522,
+    "stl": [
+     -13.3923,
+     7.2938,
+     0.0078
+    ],
+    "ship": [
+     3586.0,
+     348.6,
+     -949.5
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     -13.5041,
+     7.2631,
+     0.0078
+    ],
+    "front_face_ship": [
+     3588.2,
+     348.6,
+     -957.4
+    ],
+    "normal_stl": [
+     -0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     -0.978
+    ],
+    "facing": "side (port)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 203,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     3584.1,
+     348.6,
+     -928.2
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3522,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 189,
+    "stl": [
+     13.3923,
+     7.2938,
+     0.0078
+    ],
+    "ship": [
+     3586.0,
+     348.6,
+     949.5
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     13.5041,
+     7.2631,
+     0.0078
+    ],
+    "front_face_ship": [
+     3588.2,
+     348.6,
+     957.4
+    ],
+    "normal_stl": [
+     0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     0.978
+    ],
+    "facing": "side (starboard)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3508,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     3584.1,
+     348.6,
+     928.2
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 252,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3460,
+    "stl": [
+     -11.9111,
+     -1.1818,
+     0.0078
+    ],
+    "ship": [
+     4186.9,
+     348.6,
+     -844.5
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     -12.0228,
+     -1.2125,
+     0.0078
+    ],
+    "front_face_ship": [
+     4189.1,
+     348.6,
+     -852.4
+    ],
+    "normal_stl": [
+     -0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     -0.978
+    ],
+    "facing": "side (port)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 266,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     4185.0,
+     348.6,
+     -823.2
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3460,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 252,
+    "stl": [
+     11.9111,
+     -1.1818,
+     0.0078
+    ],
+    "ship": [
+     4186.9,
+     348.6,
+     844.5
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     12.0228,
+     -1.2125,
+     0.0078
+    ],
+    "front_face_ship": [
+     4189.1,
+     348.6,
+     852.4
+    ],
+    "normal_stl": [
+     0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     0.978
+    ],
+    "facing": "side (starboard)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3446,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     4185.0,
+     348.6,
+     823.2
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 345,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3368,
+    "stl": [
+     -8.2459,
+     -17.1242,
+     0.0078
+    ],
+    "ship": [
+     5317.2,
+     348.6,
+     -584.6
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     -8.3576,
+     -17.1549,
+     0.0078
+    ],
+    "front_face_ship": [
+     5319.4,
+     348.6,
+     -592.6
+    ],
+    "normal_stl": [
+     -0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     -0.978
+    ],
+    "facing": "side (port)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 415,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     5315.3,
+     348.6,
+     -563.3
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3368,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 345,
+    "stl": [
+     8.2459,
+     -17.1242,
+     0.0078
+    ],
+    "ship": [
+     5317.2,
+     348.6,
+     584.6
+    ],
+    "ship_y_at_374": 374.6,
+    "front_face_stl": [
+     8.3576,
+     -17.1549,
+     0.0078
+    ],
+    "front_face_ship": [
+     5319.4,
+     348.6,
+     592.6
+    ],
+    "normal_stl": [
+     0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     0.978
+    ],
+    "facing": "side (starboard)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3299,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     5315.3,
+     348.6,
+     563.3
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 590,
+    "triangles": 88,
+    "side": "port",
+    "mirror_shell": 3125,
+    "stl": [
+     -5.9508,
+     -29.4064,
+     -0.0311
+    ],
+    "ship": [
+     6188.0,
+     345.8,
+     -421.9
+    ],
+    "ship_y_at_374": 371.8,
+    "front_face_stl": [
+     -6.0626,
+     -29.4371,
+     -0.0311
+    ],
+    "front_face_ship": [
+     6190.2,
+     345.8,
+     -429.8
+    ],
+    "normal_stl": [
+     -0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     -0.978
+    ],
+    "facing": "side (port)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 633,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     6186.1,
+     345.8,
+     -400.6
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   },
+   {
+    "shell": 3125,
+    "triangles": 88,
+    "side": "stbd",
+    "mirror_shell": 590,
+    "stl": [
+     5.9508,
+     -29.4064,
+     -0.0311
+    ],
+    "ship": [
+     6188.0,
+     345.8,
+     421.9
+    ],
+    "ship_y_at_374": 371.8,
+    "front_face_stl": [
+     6.0626,
+     -29.4371,
+     -0.0311
+    ],
+    "front_face_ship": [
+     6190.2,
+     345.8,
+     429.8
+    ],
+    "normal_stl": [
+     0.978,
+     -0.206,
+     -0.0
+    ],
+    "normal_ship": [
+     0.206,
+     -0.0,
+     0.978
+    ],
+    "facing": "side (starboard)",
+    "ball_diameter_m": [
+     46.6,
+     45.8
+    ],
+    "ball_flat_front_diameter_m": 39.3,
+    "ball_depth_m": 15.6,
+    "box_shell": 3082,
+    "box_bbox_m": [
+     40.5,
+     82.8,
+     52.2
+    ],
+    "box_centre_ship": [
+     6186.1,
+     345.8,
+     400.6
+    ],
+    "bbox_m": [
+     23.9,
+     47.5,
+     45.8
+    ],
+    "clear_ahead_m": null
+   }
+  ],
+  "pd": [
+   {
+    "shell": 1217,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2503,
+    "stl": [
+     -2.4443,
+     53.9443,
+     1.9264
+    ],
+    "ship": [
+     278.5,
+     484.6,
+     -173.3
+    ],
+    "ship_y_at_374": 510.6,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     -0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2503,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1217,
+    "stl": [
+     2.4443,
+     53.9443,
+     1.9264
+    ],
+    "ship": [
+     278.5,
+     484.6,
+     173.3
+    ],
+    "ship_y_at_374": 510.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1218,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2502,
+    "stl": [
+     -2.4363,
+     53.3079,
+     1.9264
+    ],
+    "ship": [
+     323.6,
+     484.6,
+     -172.7
+    ],
+    "ship_y_at_374": 510.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2502,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1218,
+    "stl": [
+     2.4363,
+     53.3079,
+     1.9264
+    ],
+    "ship": [
+     323.6,
+     484.6,
+     172.7
+    ],
+    "ship_y_at_374": 510.6,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     -0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 585,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3130,
+    "stl": [
+     -6.2848,
+     48.0219,
+     -2.0235
+    ],
+    "ship": [
+     698.4,
+     204.5,
+     -445.6
+    ],
+    "ship_y_at_374": 230.5,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3130,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 585,
+    "stl": [
+     6.2848,
+     48.0219,
+     -2.0235
+    ],
+    "ship": [
+     698.4,
+     204.5,
+     445.6
+    ],
+    "ship_y_at_374": 230.5,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     -0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 517,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3198,
+    "stl": [
+     -6.7946,
+     48.0138,
+     -2.0235
+    ],
+    "ship": [
+     698.9,
+     204.5,
+     -481.7
+    ],
+    "ship_y_at_374": 230.5,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     -0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3198,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 517,
+    "stl": [
+     6.7946,
+     48.0138,
+     -2.0235
+    ],
+    "ship": [
+     698.9,
+     204.5,
+     481.7
+    ],
+    "ship_y_at_374": 230.5,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 643,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3072,
+    "stl": [
+     -5.3533,
+     41.7762,
+     4.9936
+    ],
+    "ship": [
+     1141.2,
+     702.0,
+     -379.5
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3072,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 643,
+    "stl": [
+     5.3533,
+     41.7762,
+     4.9936
+    ],
+    "ship": [
+     1141.2,
+     702.0,
+     379.5
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 533,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3187,
+    "stl": [
+     -6.2357,
+     41.3025,
+     4.5347
+    ],
+    "ship": [
+     1174.8,
+     669.5,
+     -442.1
+    ],
+    "ship_y_at_374": 695.5,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3187,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 533,
+    "stl": [
+     6.2357,
+     41.3025,
+     4.5347
+    ],
+    "ship": [
+     1174.8,
+     669.5,
+     442.1
+    ],
+    "ship_y_at_374": 695.5,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 645,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3070,
+    "stl": [
+     -5.3453,
+     41.1397,
+     4.9936
+    ],
+    "ship": [
+     1186.3,
+     702.0,
+     -379.0
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3070,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 645,
+    "stl": [
+     5.3453,
+     41.1397,
+     4.9936
+    ],
+    "ship": [
+     1186.3,
+     702.0,
+     379.0
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 532,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3186,
+    "stl": [
+     -6.2357,
+     40.4063,
+     4.3252
+    ],
+    "ship": [
+     1238.3,
+     654.7,
+     -442.1
+    ],
+    "ship_y_at_374": 680.7,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3186,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 532,
+    "stl": [
+     6.2357,
+     40.4063,
+     4.3252
+    ],
+    "ship": [
+     1238.3,
+     654.7,
+     442.1
+    ],
+    "ship_y_at_374": 680.7,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1199,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2521,
+    "stl": [
+     -2.9906,
+     39.7462,
+     6.3821
+    ],
+    "ship": [
+     1285.1,
+     800.5,
+     -212.0
+    ],
+    "ship_y_at_374": 826.5,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2521,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1199,
+    "stl": [
+     2.9906,
+     39.7462,
+     6.3821
+    ],
+    "ship": [
+     1285.1,
+     800.5,
+     212.0
+    ],
+    "ship_y_at_374": 826.5,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1056,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2662,
+    "stl": [
+     -3.5004,
+     39.7382,
+     6.3821
+    ],
+    "ship": [
+     1285.7,
+     800.5,
+     -248.2
+    ],
+    "ship_y_at_374": 826.5,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2662,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1056,
+    "stl": [
+     3.5004,
+     39.7382,
+     6.3821
+    ],
+    "ship": [
+     1285.7,
+     800.5,
+     248.2
+    ],
+    "ship_y_at_374": 826.5,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1424,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2300,
+    "stl": [
+     -1.731,
+     38.2973,
+     7.6124
+    ],
+    "ship": [
+     1387.8,
+     887.7,
+     -122.7
+    ],
+    "ship_y_at_374": 913.7,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 11.6
+   },
+   {
+    "shell": 1569,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2165,
+    "stl": [
+     -1.2128,
+     38.2973,
+     7.9752
+    ],
+    "ship": [
+     1387.8,
+     913.4,
+     -86.0
+    ],
+    "ship_y_at_374": 939.4,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2165,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1569,
+    "stl": [
+     1.2128,
+     38.2973,
+     7.9752
+    ],
+    "ship": [
+     1387.8,
+     913.4,
+     86.0
+    ],
+    "ship_y_at_374": 939.4,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2300,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1424,
+    "stl": [
+     1.731,
+     38.2973,
+     7.6124
+    ],
+    "ship": [
+     1387.8,
+     887.7,
+     122.7
+    ],
+    "ship_y_at_374": 913.7,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 11.6
+   },
+   {
+    "shell": 1302,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2420,
+    "stl": [
+     -2.3675,
+     38.2892,
+     7.6124
+    ],
+    "ship": [
+     1388.4,
+     887.7,
+     -167.9
+    ],
+    "ship_y_at_374": 913.7,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 3.5
+   },
+   {
+    "shell": 1408,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2315,
+    "stl": [
+     -1.8493,
+     38.2892,
+     7.9752
+    ],
+    "ship": [
+     1388.4,
+     913.4,
+     -131.1
+    ],
+    "ship_y_at_374": 939.4,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2315,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1408,
+    "stl": [
+     1.8493,
+     38.2892,
+     7.9752
+    ],
+    "ship": [
+     1388.4,
+     913.4,
+     131.1
+    ],
+    "ship_y_at_374": 939.4,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2420,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1302,
+    "stl": [
+     2.3675,
+     38.2892,
+     7.6124
+    ],
+    "ship": [
+     1388.4,
+     887.7,
+     167.9
+    ],
+    "ship_y_at_374": 913.7,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 3.5
+   },
+   {
+    "shell": 531,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3185,
+    "stl": [
+     -6.2357,
+     38.0291,
+     4.5347
+    ],
+    "ship": [
+     1406.9,
+     669.5,
+     -442.1
+    ],
+    "ship_y_at_374": 695.5,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3185,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 531,
+    "stl": [
+     6.2357,
+     38.0291,
+     4.5347
+    ],
+    "ship": [
+     1406.9,
+     669.5,
+     442.1
+    ],
+    "ship_y_at_374": 695.5,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 0,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3711,
+    "stl": [
+     -19.8792,
+     37.9403,
+     -0.1663
+    ],
+    "ship": [
+     1413.2,
+     336.2,
+     -1409.4
+    ],
+    "ship_y_at_374": 362.2,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 35.4
+   },
+   {
+    "shell": 3711,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 0,
+    "stl": [
+     19.8792,
+     37.9403,
+     -0.1663
+    ],
+    "ship": [
+     1413.2,
+     336.2,
+     1409.4
+    ],
+    "ship_y_at_374": 362.2,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 35.4
+   },
+   {
+    "shell": 634,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3081,
+    "stl": [
+     -5.4437,
+     37.7294,
+     4.9936
+    ],
+    "ship": [
+     1428.1,
+     702.0,
+     -386.0
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3081,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 634,
+    "stl": [
+     5.4437,
+     37.7294,
+     4.9936
+    ],
+    "ship": [
+     1428.1,
+     702.0,
+     386.0
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1097,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2621,
+    "stl": [
+     -3.065,
+     37.6568,
+     7.8705
+    ],
+    "ship": [
+     1433.3,
+     906.0,
+     -217.3
+    ],
+    "ship_y_at_374": 932.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2621,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1097,
+    "stl": [
+     3.065,
+     37.6568,
+     7.8705
+    ],
+    "ship": [
+     1433.3,
+     906.0,
+     217.3
+    ],
+    "ship_y_at_374": 932.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3709,
+    "stl": [
+     -19.7654,
+     37.4433,
+     -0.1663
+    ],
+    "ship": [
+     1448.4,
+     336.2,
+     -1401.4
+    ],
+    "ship_y_at_374": 362.2,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 35.5
+   },
+   {
+    "shell": 3709,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 2,
+    "stl": [
+     19.7654,
+     37.4433,
+     -0.1663
+    ],
+    "ship": [
+     1448.4,
+     336.2,
+     1401.4
+    ],
+    "ship_y_at_374": 362.2,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 35.5
+   },
+   {
+    "shell": 1047,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2670,
+    "stl": [
+     -3.2073,
+     37.1917,
+     7.5645
+    ],
+    "ship": [
+     1466.2,
+     884.3,
+     -227.4
+    ],
+    "ship_y_at_374": 910.3,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": 12.3
+   },
+   {
+    "shell": 2670,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1047,
+    "stl": [
+     3.2073,
+     37.1917,
+     7.5645
+    ],
+    "ship": [
+     1466.2,
+     884.3,
+     227.4
+    ],
+    "ship_y_at_374": 910.3,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": 12.3
+   },
+   {
+    "shell": 635,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3080,
+    "stl": [
+     -5.4356,
+     37.093,
+     4.9936
+    ],
+    "ship": [
+     1473.2,
+     702.0,
+     -385.4
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3080,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 635,
+    "stl": [
+     5.4356,
+     37.093,
+     4.9936
+    ],
+    "ship": [
+     1473.2,
+     702.0,
+     385.4
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1098,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2620,
+    "stl": [
+     -3.0569,
+     37.0203,
+     7.8705
+    ],
+    "ship": [
+     1478.4,
+     906.0,
+     -216.7
+    ],
+    "ship_y_at_374": 932.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": 4.3
+   },
+   {
+    "shell": 2620,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1098,
+    "stl": [
+     3.0569,
+     37.0203,
+     7.8705
+    ],
+    "ship": [
+     1478.4,
+     906.0,
+     216.7
+    ],
+    "ship_y_at_374": 932.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": 4.3
+   },
+   {
+    "shell": 1049,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2669,
+    "stl": [
+     -3.1992,
+     36.5552,
+     7.5645
+    ],
+    "ship": [
+     1511.4,
+     884.3,
+     -226.8
+    ],
+    "ship_y_at_374": 910.3,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2669,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1049,
+    "stl": [
+     3.1992,
+     36.5552,
+     7.5645
+    ],
+    "ship": [
+     1511.4,
+     884.3,
+     226.8
+    ],
+    "ship_y_at_374": 910.3,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1510,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2216,
+    "stl": [
+     -1.0863,
+     35.9607,
+     9.0545
+    ],
+    "ship": [
+     1553.5,
+     990.0,
+     -77.0
+    ],
+    "ship_y_at_374": 1016.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2216,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1510,
+    "stl": [
+     1.0863,
+     35.9607,
+     9.0545
+    ],
+    "ship": [
+     1553.5,
+     990.0,
+     77.0
+    ],
+    "ship_y_at_374": 1016.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 530,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3184,
+    "stl": [
+     -6.2357,
+     35.7158,
+     4.5347
+    ],
+    "ship": [
+     1570.9,
+     669.5,
+     -442.1
+    ],
+    "ship_y_at_374": 695.5,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3184,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 530,
+    "stl": [
+     6.2357,
+     35.7158,
+     4.5347
+    ],
+    "ship": [
+     1570.9,
+     669.5,
+     442.1
+    ],
+    "ship_y_at_374": 695.5,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 919,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2799,
+    "stl": [
+     -3.8206,
+     35.4133,
+     6.9904
+    ],
+    "ship": [
+     1592.3,
+     843.6,
+     -270.9
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2799,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 919,
+    "stl": [
+     3.8206,
+     35.4133,
+     6.9904
+    ],
+    "ship": [
+     1592.3,
+     843.6,
+     270.9
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1513,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2214,
+    "stl": [
+     -1.0783,
+     35.3242,
+     9.0545
+    ],
+    "ship": [
+     1598.6,
+     990.0,
+     -76.4
+    ],
+    "ship_y_at_374": 1016.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2214,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1513,
+    "stl": [
+     1.0783,
+     35.3242,
+     9.0545
+    ],
+    "ship": [
+     1598.6,
+     990.0,
+     76.4
+    ],
+    "ship_y_at_374": 1016.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 637,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3078,
+    "stl": [
+     -5.3751,
+     35.1932,
+     4.9936
+    ],
+    "ship": [
+     1607.9,
+     702.0,
+     -381.1
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3078,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 637,
+    "stl": [
+     5.3751,
+     35.1932,
+     4.9936
+    ],
+    "ship": [
+     1607.9,
+     702.0,
+     381.1
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 922,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2796,
+    "stl": [
+     -3.8126,
+     34.7768,
+     6.9904
+    ],
+    "ship": [
+     1637.4,
+     843.6,
+     -270.3
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2796,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 922,
+    "stl": [
+     3.8126,
+     34.7768,
+     6.9904
+    ],
+    "ship": [
+     1637.4,
+     843.6,
+     270.3
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1434,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2290,
+    "stl": [
+     -1.3526,
+     34.5599,
+     8.6526
+    ],
+    "ship": [
+     1652.8,
+     961.5,
+     -95.9
+    ],
+    "ship_y_at_374": 987.5,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2290,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1434,
+    "stl": [
+     1.3526,
+     34.5599,
+     8.6526
+    ],
+    "ship": [
+     1652.8,
+     961.5,
+     95.9
+    ],
+    "ship_y_at_374": 987.5,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 639,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3076,
+    "stl": [
+     -5.367,
+     34.5567,
+     4.9936
+    ],
+    "ship": [
+     1653.0,
+     702.0,
+     -380.5
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3076,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 639,
+    "stl": [
+     5.367,
+     34.5567,
+     4.9936
+    ],
+    "ship": [
+     1653.0,
+     702.0,
+     380.5
+    ],
+    "ship_y_at_374": 728.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1435,
+    "triangles": 60,
+    "side": "port",
+    "mirror_shell": 2289,
+    "stl": [
+     -1.3446,
+     33.9234,
+     8.6526
+    ],
+    "ship": [
+     1697.9,
+     961.5,
+     -95.3
+    ],
+    "ship_y_at_374": 987.5,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2289,
+    "triangles": 60,
+    "side": "stbd",
+    "mirror_shell": 1435,
+    "stl": [
+     1.3446,
+     33.9234,
+     8.6526
+    ],
+    "ship": [
+     1697.9,
+     961.5,
+     95.3
+    ],
+    "ship_y_at_374": 987.5,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 353,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3360,
+    "stl": [
+     -8.0684,
+     33.2356,
+     3.2699
+    ],
+    "ship": [
+     1746.7,
+     579.8,
+     -572.0
+    ],
+    "ship_y_at_374": 605.8,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3360,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 353,
+    "stl": [
+     8.0684,
+     33.2356,
+     3.2699
+    ],
+    "ship": [
+     1746.7,
+     579.8,
+     572.0
+    ],
+    "ship_y_at_374": 605.8,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 529,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3183,
+    "stl": [
+     -6.2357,
+     32.2981,
+     4.5027
+    ],
+    "ship": [
+     1813.2,
+     667.2,
+     -442.1
+    ],
+    "ship_y_at_374": 693.2,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3183,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 529,
+    "stl": [
+     6.2357,
+     32.2981,
+     4.5027
+    ],
+    "ship": [
+     1813.2,
+     667.2,
+     442.1
+    ],
+    "ship_y_at_374": 693.2,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 918,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2798,
+    "stl": [
+     -3.8206,
+     32.1944,
+     6.9904
+    ],
+    "ship": [
+     1820.5,
+     843.6,
+     -270.9
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2798,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 918,
+    "stl": [
+     3.8206,
+     32.1944,
+     6.9904
+    ],
+    "ship": [
+     1820.5,
+     843.6,
+     270.9
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 921,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2795,
+    "stl": [
+     -3.8126,
+     31.558,
+     6.9904
+    ],
+    "ship": [
+     1865.7,
+     843.6,
+     -270.3
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2795,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 921,
+    "stl": [
+     3.8126,
+     31.558,
+     6.9904
+    ],
+    "ship": [
+     1865.7,
+     843.6,
+     270.3
+    ],
+    "ship_y_at_374": 869.6,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 528,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3182,
+    "stl": [
+     -6.2357,
+     30.7779,
+     4.3252
+    ],
+    "ship": [
+     1921.0,
+     654.7,
+     -442.1
+    ],
+    "ship_y_at_374": 680.7,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 3182,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 528,
+    "stl": [
+     6.2357,
+     30.7779,
+     4.3252
+    ],
+    "ship": [
+     1921.0,
+     654.7,
+     442.1
+    ],
+    "ship_y_at_374": 680.7,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1210,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2510,
+    "stl": [
+     -2.5198,
+     27.6577,
+     6.883
+    ],
+    "ship": [
+     2142.2,
+     836.0,
+     -178.7
+    ],
+    "ship_y_at_374": 862.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2510,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1210,
+    "stl": [
+     2.5198,
+     27.6577,
+     6.883
+    ],
+    "ship": [
+     2142.2,
+     836.0,
+     178.7
+    ],
+    "ship_y_at_374": 862.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1211,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2509,
+    "stl": [
+     -2.5118,
+     27.0212,
+     6.883
+    ],
+    "ship": [
+     2187.3,
+     836.0,
+     -178.1
+    ],
+    "ship_y_at_374": 862.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2509,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1211,
+    "stl": [
+     2.5118,
+     27.0212,
+     6.883
+    ],
+    "ship": [
+     2187.3,
+     836.0,
+     178.1
+    ],
+    "ship_y_at_374": 862.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 49,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3662,
+    "stl": [
+     -17.1593,
+     24.9232,
+     0.2013
+    ],
+    "ship": [
+     2336.1,
+     362.3,
+     -1216.6
+    ],
+    "ship_y_at_374": 388.3,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 9.2
+   },
+   {
+    "shell": 3662,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 49,
+    "stl": [
+     17.1593,
+     24.9232,
+     0.2013
+    ],
+    "ship": [
+     2336.1,
+     362.3,
+     1216.6
+    ],
+    "ship_y_at_374": 388.3,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 9.2
+   },
+   {
+    "shell": 1363,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2360,
+    "stl": [
+     -1.6569,
+     24.6204,
+     7.3297
+    ],
+    "ship": [
+     2357.5,
+     867.7,
+     -117.5
+    ],
+    "ship_y_at_374": 893.7,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 1.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -3.8,
+     -0.0,
+     0.1
+    ],
+    "bbox_m": [
+     33.2,
+     42.5,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2360,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1363,
+    "stl": [
+     1.6569,
+     24.6204,
+     7.3297
+    ],
+    "ship": [
+     2357.5,
+     867.7,
+     117.5
+    ],
+    "ship_y_at_374": 893.7,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -3.8,
+     -0.0,
+     -0.1
+    ],
+    "bbox_m": [
+     33.2,
+     42.5,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 55,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3656,
+    "stl": [
+     -17.0455,
+     24.4262,
+     0.2013
+    ],
+    "ship": [
+     2371.3,
+     362.3,
+     -1208.5
+    ],
+    "ship_y_at_374": 388.3,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 9.3
+   },
+   {
+    "shell": 3656,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 55,
+    "stl": [
+     17.0455,
+     24.4262,
+     0.2013
+    ],
+    "ship": [
+     2371.3,
+     362.3,
+     1208.5
+    ],
+    "ship_y_at_374": 388.3,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 9.3
+   },
+   {
+    "shell": 1509,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2217,
+    "stl": [
+     -0.96,
+     24.1872,
+     7.5897
+    ],
+    "ship": [
+     2388.2,
+     886.1,
+     -68.1
+    ],
+    "ship_y_at_374": 912.1,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 1.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -3.8,
+     0.0,
+     0.1
+    ],
+    "bbox_m": [
+     33.2,
+     42.5,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2217,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1509,
+    "stl": [
+     0.96,
+     24.1872,
+     7.5897
+    ],
+    "ship": [
+     2388.2,
+     886.1,
+     68.1
+    ],
+    "ship_y_at_374": 912.1,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -3.8,
+     0.0,
+     -0.1
+    ],
+    "bbox_m": [
+     33.2,
+     42.5,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 833,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2884,
+    "stl": [
+     -4.2285,
+     19.7609,
+     5.018
+    ],
+    "ship": [
+     2702.1,
+     703.8,
+     -299.8
+    ],
+    "ship_y_at_374": 729.8,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2884,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 833,
+    "stl": [
+     4.2285,
+     19.7609,
+     5.018
+    ],
+    "ship": [
+     2702.1,
+     703.8,
+     299.8
+    ],
+    "ship_y_at_374": 729.8,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1520,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2207,
+    "stl": [
+     -1.0451,
+     19.559,
+     7.2228
+    ],
+    "ship": [
+     2716.4,
+     860.1,
+     -74.1
+    ],
+    "ship_y_at_374": 886.1,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2207,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1520,
+    "stl": [
+     1.0451,
+     19.559,
+     7.2228
+    ],
+    "ship": [
+     2716.4,
+     860.1,
+     74.1
+    ],
+    "ship_y_at_374": 886.1,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 834,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2883,
+    "stl": [
+     -4.2205,
+     19.1244,
+     5.018
+    ],
+    "ship": [
+     2747.2,
+     703.8,
+     -299.2
+    ],
+    "ship_y_at_374": 729.8,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2883,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 834,
+    "stl": [
+     4.2205,
+     19.1244,
+     5.018
+    ],
+    "ship": [
+     2747.2,
+     703.8,
+     299.2
+    ],
+    "ship_y_at_374": 729.8,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1524,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2203,
+    "stl": [
+     -1.037,
+     19.0492,
+     7.2228
+    ],
+    "ship": [
+     2752.5,
+     860.1,
+     -73.5
+    ],
+    "ship_y_at_374": 886.1,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2203,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1524,
+    "stl": [
+     1.037,
+     19.0492,
+     7.2228
+    ],
+    "ship": [
+     2752.5,
+     860.1,
+     73.5
+    ],
+    "ship_y_at_374": 886.1,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1606,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2131,
+    "stl": [
+     -0.7353,
+     18.3559,
+     7.22
+    ],
+    "ship": [
+     2801.7,
+     859.9,
+     -52.1
+    ],
+    "ship_y_at_374": 885.9,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 91.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2131,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1606,
+    "stl": [
+     0.7353,
+     18.3559,
+     7.22
+    ],
+    "ship": [
+     2801.7,
+     859.9,
+     52.1
+    ],
+    "ship_y_at_374": 885.9,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.1,
+     -0.0,
+     -3.8
+    ],
+    "bbox_m": [
+     42.5,
+     33.2,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 850,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2867,
+    "stl": [
+     -3.9195,
+     13.5767,
+     3.5304
+    ],
+    "ship": [
+     3140.5,
+     598.3,
+     -277.9
+    ],
+    "ship_y_at_374": 624.3,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 19.7
+   },
+   {
+    "shell": 2867,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 850,
+    "stl": [
+     3.9195,
+     13.5767,
+     3.5304
+    ],
+    "ship": [
+     3140.5,
+     598.3,
+     277.9
+    ],
+    "ship_y_at_374": 624.3,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 19.7
+   },
+   {
+    "shell": 814,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2902,
+    "stl": [
+     -4.4293,
+     13.5687,
+     3.5304
+    ],
+    "ship": [
+     3141.1,
+     598.3,
+     -314.0
+    ],
+    "ship_y_at_374": 624.3,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 19.7
+   },
+   {
+    "shell": 2902,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 814,
+    "stl": [
+     4.4293,
+     13.5687,
+     3.5304
+    ],
+    "ship": [
+     3141.1,
+     598.3,
+     314.0
+    ],
+    "ship_y_at_374": 624.3,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 19.7
+   },
+   {
+    "shell": 1541,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2187,
+    "stl": [
+     -0.9724,
+     11.1276,
+     6.0091
+    ],
+    "ship": [
+     3314.2,
+     774.0,
+     -68.9
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2187,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1541,
+    "stl": [
+     0.9724,
+     11.1276,
+     6.0091
+    ],
+    "ship": [
+     3314.2,
+     774.0,
+     68.9
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1548,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2180,
+    "stl": [
+     -0.9644,
+     10.4911,
+     6.0091
+    ],
+    "ship": [
+     3359.3,
+     774.0,
+     -68.4
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2180,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1548,
+    "stl": [
+     0.9644,
+     10.4911,
+     6.0091
+    ],
+    "ship": [
+     3359.3,
+     774.0,
+     68.4
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1540,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2186,
+    "stl": [
+     -0.9724,
+     9.6078,
+     6.0091
+    ],
+    "ship": [
+     3421.9,
+     774.0,
+     -68.9
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2186,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1540,
+    "stl": [
+     0.9724,
+     9.6078,
+     6.0091
+    ],
+    "ship": [
+     3421.9,
+     774.0,
+     68.9
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 1547,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2179,
+    "stl": [
+     -0.9644,
+     8.9713,
+     6.0091
+    ],
+    "ship": [
+     3467.1,
+     774.0,
+     -68.4
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 90.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 2179,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1547,
+    "stl": [
+     0.9644,
+     8.9713,
+     6.0091
+    ],
+    "ship": [
+     3467.1,
+     774.0,
+     68.4
+    ],
+    "ship_y_at_374": 800.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 89.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     41.0,
+     32.9,
+     9.4
+    ],
+    "clear_above_m": null
+   },
+   {
+    "shell": 242,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3469,
+    "stl": [
+     -12.191,
+     1.5491,
+     0.0979
+    ],
+    "ship": [
+     3993.3,
+     354.9,
+     -864.3
+    ],
+    "ship_y_at_374": 380.9,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     -0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 34.7
+   },
+   {
+    "shell": 3469,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 242,
+    "stl": [
+     12.191,
+     1.5491,
+     0.0979
+    ],
+    "ship": [
+     3993.3,
+     354.9,
+     864.3
+    ],
+    "ship_y_at_374": 380.9,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 34.7
+   },
+   {
+    "shell": 245,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3466,
+    "stl": [
+     -12.0508,
+     0.9282,
+     0.0979
+    ],
+    "ship": [
+     4037.3,
+     354.9,
+     -854.4
+    ],
+    "ship_y_at_374": 380.9,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     -0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 34.8
+   },
+   {
+    "shell": 3466,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 245,
+    "stl": [
+     12.0508,
+     0.9282,
+     0.0979
+    ],
+    "ship": [
+     4037.3,
+     354.9,
+     854.4
+    ],
+    "ship_y_at_374": 380.9,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     -1.0
+    ],
+    "normal_ship": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "facing": "down",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 34.8
+   },
+   {
+    "shell": 1440,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2284,
+    "stl": [
+     -1.1696,
+     -1.3912,
+     4.5105
+    ],
+    "ship": [
+     4201.7,
+     667.8,
+     -82.9
+    ],
+    "ship_y_at_374": 693.8,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 1.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -3.8,
+     -0.0,
+     0.1
+    ],
+    "bbox_m": [
+     33.2,
+     42.5,
+     9.4
+    ],
+    "clear_above_m": 29.2
+   },
+   {
+    "shell": 2284,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1440,
+    "stl": [
+     1.1696,
+     -1.3912,
+     4.5105
+    ],
+    "ship": [
+     4201.7,
+     667.8,
+     82.9
+    ],
+    "ship_y_at_374": 693.8,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -3.8,
+     -0.0,
+     -0.1
+    ],
+    "bbox_m": [
+     33.2,
+     42.5,
+     9.4
+    ],
+    "clear_above_m": 29.2
+   },
+   {
+    "shell": 1321,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2401,
+    "stl": [
+     -1.8342,
+     -1.4143,
+     3.0617
+    ],
+    "ship": [
+     4203.4,
+     565.1,
+     -130.0
+    ],
+    "ship_y_at_374": 591.1,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 24.4
+   },
+   {
+    "shell": 2401,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1321,
+    "stl": [
+     1.8342,
+     -1.4143,
+     3.0617
+    ],
+    "ship": [
+     4203.4,
+     565.1,
+     130.0
+    ],
+    "ship_y_at_374": 591.1,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 24.4
+   },
+   {
+    "shell": 1202,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2518,
+    "stl": [
+     -2.4707,
+     -1.4223,
+     3.0617
+    ],
+    "ship": [
+     4204.0,
+     565.1,
+     -175.2
+    ],
+    "ship_y_at_374": 591.1,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 46.6
+   },
+   {
+    "shell": 2518,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1202,
+    "stl": [
+     2.4707,
+     -1.4223,
+     3.0617
+    ],
+    "ship": [
+     4204.0,
+     565.1,
+     175.2
+    ],
+    "ship_y_at_374": 591.1,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 46.6
+   },
+   {
+    "shell": 1515,
+    "triangles": 56,
+    "side": "port",
+    "mirror_shell": 2212,
+    "stl": [
+     -0.9401,
+     -1.5414,
+     3.9504
+    ],
+    "ship": [
+     4212.4,
+     628.1,
+     -66.7
+    ],
+    "ship_y_at_374": 654.1,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 0.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 119.5
+   },
+   {
+    "shell": 2212,
+    "triangles": 56,
+    "side": "stbd",
+    "mirror_shell": 1515,
+    "stl": [
+     0.9401,
+     -1.5414,
+     3.9504
+    ],
+    "ship": [
+     4212.4,
+     628.1,
+     66.7
+    ],
+    "ship_y_at_374": 654.1,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 179.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.0,
+     -0.0,
+     -0.0
+    ],
+    "bbox_m": [
+     32.9,
+     41.0,
+     9.4
+    ],
+    "clear_above_m": 119.5
+   },
+   {
+    "shell": 462,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3252,
+    "stl": [
+     -7.4516,
+     -21.3901,
+     -0.2258
+    ],
+    "ship": [
+     5619.7,
+     332.0,
+     -528.3
+    ],
+    "ship_y_at_374": 358.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 103.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.1,
+     -0.0,
+     3.0
+    ],
+    "bbox_m": [
+     45.2,
+     38.1,
+     9.4
+    ],
+    "clear_above_m": 20.1
+   },
+   {
+    "shell": 3252,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 462,
+    "stl": [
+     7.4516,
+     -21.3901,
+     -0.2258
+    ],
+    "ship": [
+     5619.7,
+     332.0,
+     528.3
+    ],
+    "ship_y_at_374": 358.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     42.2,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.0,
+    "base_area_m2": 1274,
+    "step_area_m2": 556,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     -0.1,
+     -0.0,
+     -3.0
+    ],
+    "bbox_m": [
+     45.2,
+     38.1,
+     9.4
+    ],
+    "clear_above_m": 20.1
+   },
+   {
+    "shell": 474,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3240,
+    "stl": [
+     -7.2951,
+     -22.238,
+     -0.1557
+    ],
+    "ship": [
+     5679.8,
+     337.0,
+     -517.2
+    ],
+    "ship_y_at_374": 363.0,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 15.2
+   },
+   {
+    "shell": 3240,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 474,
+    "stl": [
+     7.2951,
+     -22.238,
+     -0.1557
+    ],
+    "ship": [
+     5679.8,
+     337.0,
+     517.2
+    ],
+    "ship_y_at_374": 363.0,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 15.2
+   },
+   {
+    "shell": 486,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 3228,
+    "stl": [
+     -7.1549,
+     -22.8589,
+     -0.1557
+    ],
+    "ship": [
+     5723.8,
+     337.0,
+     -507.3
+    ],
+    "ship_y_at_374": 363.0,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 34.4
+   },
+   {
+    "shell": 3228,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 486,
+    "stl": [
+     7.1549,
+     -22.8589,
+     -0.1557
+    ],
+    "ship": [
+     5723.8,
+     337.0,
+     507.3
+    ],
+    "ship_y_at_374": 363.0,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 77.5,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.9,
+     37.7,
+     9.4
+    ],
+    "clear_above_m": 34.4
+   },
+   {
+    "shell": 1583,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2153,
+    "stl": [
+     -0.7414,
+     -53.1423,
+     -0.235
+    ],
+    "ship": [
+     7870.9,
+     331.3,
+     -52.6
+    ],
+    "ship_y_at_374": 357.3,
+    "normal_stl": [
+     -0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.0,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.8,
+     37.5,
+     9.4
+    ],
+    "clear_above_m": 26.6
+   },
+   {
+    "shell": 2153,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1583,
+    "stl": [
+     0.7414,
+     -53.1423,
+     -0.235
+    ],
+    "ship": [
+     7870.9,
+     331.3,
+     52.6
+    ],
+    "ship_y_at_374": 357.3,
+    "normal_stl": [
+     0.0,
+     -0.0,
+     1.0
+    ],
+    "normal_ship": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 78.0,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     -0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.8,
+     37.5,
+     9.4
+    ],
+    "clear_above_m": 26.6
+   },
+   {
+    "shell": 1645,
+    "triangles": 58,
+    "side": "port",
+    "mirror_shell": 2094,
+    "stl": [
+     -0.6066,
+     -53.7644,
+     -0.235
+    ],
+    "ship": [
+     7915.0,
+     331.3,
+     -43.0
+    ],
+    "ship_y_at_374": 357.3,
+    "normal_stl": [
+     -0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     -0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 102.0,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     -0.7
+    ],
+    "bbox_m": [
+     43.8,
+     37.5,
+     9.4
+    ],
+    "clear_above_m": 42.1
+   },
+   {
+    "shell": 2094,
+    "triangles": 58,
+    "side": "stbd",
+    "mirror_shell": 1645,
+    "stl": [
+     0.6066,
+     -53.7644,
+     -0.235
+    ],
+    "ship": [
+     7915.0,
+     331.3,
+     43.0
+    ],
+    "ship_y_at_374": 357.3,
+    "normal_stl": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "normal_ship": [
+     -0.0,
+     1.0,
+     0.0
+    ],
+    "facing": "up",
+    "size_m": [
+     40.9,
+     32.7,
+     9.4
+    ],
+    "long_side_yaw_deg": 78.0,
+    "base_area_m2": 1232,
+    "step_area_m2": 403,
+    "step_height_m": 2.6,
+    "step_offset_ship_m": [
+     0.7,
+     0.0,
+     0.7
+    ],
+    "bbox_m": [
+     43.8,
+     37.5,
+     9.4
+    ],
+    "clear_above_m": 42.1
+   }
+  ]
+ },
+ "extras": {
+  "side_band": [
+   {
+    "ship_x": 983.5,
+    "half_width_m": 853.8,
+    "edge_z_levels_m": [
+     -115.5,
+     -110.8,
+     -108.5,
+     144.4,
+     146.9,
+     151.0
+    ],
+    "edge_ship_y": [
+     232.5,
+     237.2,
+     239.5,
+     492.4,
+     494.9,
+     499.0
+    ]
+   },
+   {
+    "ship_x": 1125.3,
+    "half_width_m": 1100.8,
+    "edge_z_levels_m": [
+     -80.5,
+     -77.8,
+     -73.8,
+     93.1,
+     97.6,
+     99.9
+    ],
+    "edge_ship_y": [
+     267.5,
+     270.2,
+     274.2,
+     441.1,
+     445.6,
+     447.9
+    ]
+   },
+   {
+    "ship_x": 1267.1,
+    "half_width_m": 1347.7,
+    "edge_z_levels_m": [
+     -39.1,
+     41.8,
+     48.2,
+     48.9
+    ],
+    "edge_ship_y": [
+     308.9,
+     389.8,
+     396.2,
+     396.9
+    ]
+   },
+   {
+    "ship_x": 1408.9,
+    "half_width_m": 1431.8,
+    "edge_z_levels_m": [
+     -24.9,
+     20.7,
+     21.2,
+     21.5,
+     27.9
+    ],
+    "edge_ship_y": [
+     323.1,
+     368.7,
+     369.2,
+     369.5,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 1550.7,
+    "half_width_m": 1402.0,
+    "edge_z_levels_m": [
+     -24.9,
+     20.7,
+     22.1,
+     22.9,
+     27.9
+    ],
+    "edge_ship_y": [
+     323.1,
+     368.7,
+     370.1,
+     370.9,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 1692.5,
+    "half_width_m": 1372.2,
+    "edge_z_levels_m": [
+     -24.9,
+     20.7,
+     23.1,
+     24.3,
+     27.9
+    ],
+    "edge_ship_y": [
+     323.1,
+     368.7,
+     371.1,
+     372.3,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 1834.3,
+    "half_width_m": 1342.5,
+    "edge_z_levels_m": [
+     -24.9,
+     20.7,
+     24.0,
+     25.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     323.1,
+     368.7,
+     372.0,
+     373.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 1976.1,
+    "half_width_m": 1312.7,
+    "edge_z_levels_m": [
+     -24.9,
+     20.7,
+     25.0,
+     27.2,
+     27.9
+    ],
+    "edge_ship_y": [
+     323.1,
+     368.7,
+     373.0,
+     375.2,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 2117.9,
+    "half_width_m": 1282.9,
+    "edge_z_levels_m": [
+     -26.6,
+     -24.9,
+     20.7,
+     25.9,
+     27.9
+    ],
+    "edge_ship_y": [
+     321.4,
+     323.1,
+     368.7,
+     373.9,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 2259.7,
+    "half_width_m": 1253.2,
+    "edge_z_levels_m": [
+     -25.8,
+     -24.9,
+     20.7,
+     26.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     322.2,
+     323.1,
+     368.7,
+     374.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 2401.5,
+    "half_width_m": 1223.4,
+    "edge_z_levels_m": [
+     -24.9,
+     20.7,
+     27.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     323.1,
+     368.7,
+     375.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 2543.3,
+    "half_width_m": 1115.4,
+    "edge_z_levels_m": [
+     -41.1,
+     -40.6,
+     -33.2,
+     -29.0,
+     34.3,
+     34.8,
+     42.2
+    ],
+    "edge_ship_y": [
+     306.9,
+     307.4,
+     314.8,
+     319.0,
+     382.3,
+     382.8,
+     390.2
+    ]
+   },
+   {
+    "ship_x": 2685.1,
+    "half_width_m": 1163.9,
+    "edge_z_levels_m": [
+     -32.1,
+     -25.6,
+     -24.9,
+     20.7,
+     21.4,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     322.4,
+     323.1,
+     368.7,
+     369.4,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 2826.9,
+    "half_width_m": 1134.1,
+    "edge_z_levels_m": [
+     -32.1,
+     -27.0,
+     -24.9,
+     20.7,
+     22.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     321.0,
+     323.1,
+     368.7,
+     370.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 2968.7,
+    "half_width_m": 1104.3,
+    "edge_z_levels_m": [
+     -32.1,
+     -28.4,
+     -24.9,
+     20.7,
+     24.2,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     319.6,
+     323.1,
+     368.7,
+     372.2,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 3110.5,
+    "half_width_m": 1074.6,
+    "edge_z_levels_m": [
+     -32.1,
+     -29.8,
+     -24.9,
+     20.7,
+     25.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     318.2,
+     323.1,
+     368.7,
+     373.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 3252.3,
+    "half_width_m": 1044.8,
+    "edge_z_levels_m": [
+     -32.1,
+     -31.2,
+     -24.9,
+     20.7,
+     27.0,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     316.8,
+     323.1,
+     368.7,
+     375.0,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 3394.1,
+    "half_width_m": 936.8,
+    "edge_z_levels_m": [
+     -41.3,
+     -34.0,
+     -33.5,
+     29.7,
+     34.3,
+     41.7,
+     42.3
+    ],
+    "edge_ship_y": [
+     306.7,
+     314.0,
+     314.5,
+     377.7,
+     382.3,
+     389.7,
+     390.3
+    ]
+   },
+   {
+    "ship_x": 3535.9,
+    "half_width_m": 907.2,
+    "edge_z_levels_m": [
+     -41.4,
+     -37.0,
+     -33.5,
+     4.3,
+     34.3,
+     38.7,
+     42.2
+    ],
+    "edge_ship_y": [
+     306.6,
+     311.0,
+     314.5,
+     352.3,
+     382.3,
+     386.7,
+     390.2
+    ]
+   },
+   {
+    "ship_x": 3677.7,
+    "half_width_m": 877.7,
+    "edge_z_levels_m": [
+     -41.5,
+     -40.1,
+     -33.5,
+     -21.2,
+     34.2,
+     35.7,
+     42.2
+    ],
+    "edge_ship_y": [
+     306.5,
+     307.9,
+     314.5,
+     326.8,
+     382.2,
+     383.7,
+     390.2
+    ]
+   },
+   {
+    "ship_x": 3819.5,
+    "half_width_m": 925.7,
+    "edge_z_levels_m": [
+     -32.1,
+     -25.0,
+     -24.9,
+     20.7,
+     27.7,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     323.0,
+     323.1,
+     368.7,
+     375.7,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 3961.3,
+    "half_width_m": 896.0,
+    "edge_z_levels_m": [
+     -32.1,
+     -26.7,
+     -24.9,
+     20.7,
+     26.0,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     321.3,
+     323.1,
+     368.7,
+     374.0,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4103.1,
+    "half_width_m": 866.2,
+    "edge_z_levels_m": [
+     -32.1,
+     -28.4,
+     -24.9,
+     20.7,
+     24.3,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     319.6,
+     323.1,
+     368.7,
+     372.3,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4244.9,
+    "half_width_m": 836.4,
+    "edge_z_levels_m": [
+     -32.1,
+     -30.2,
+     -24.9,
+     20.7,
+     22.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     317.8,
+     323.1,
+     368.7,
+     370.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4386.7,
+    "half_width_m": 806.7,
+    "edge_z_levels_m": [
+     -32.1,
+     -31.9,
+     -24.9,
+     20.7,
+     20.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     316.1,
+     323.1,
+     368.7,
+     368.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4528.5,
+    "half_width_m": 776.9,
+    "edge_z_levels_m": [
+     -32.1,
+     -30.7,
+     -24.9,
+     20.7,
+     22.0,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     317.3,
+     323.1,
+     368.7,
+     370.0,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4670.3,
+    "half_width_m": 747.1,
+    "edge_z_levels_m": [
+     -32.1,
+     -29.2,
+     -24.9,
+     20.7,
+     23.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     318.8,
+     323.1,
+     368.7,
+     371.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4812.1,
+    "half_width_m": 717.4,
+    "edge_z_levels_m": [
+     -32.1,
+     -27.6,
+     -24.9,
+     20.7,
+     25.1,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     320.4,
+     323.1,
+     368.7,
+     373.1,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 4953.9,
+    "half_width_m": 687.6,
+    "edge_z_levels_m": [
+     -32.1,
+     -26.1,
+     -24.9,
+     20.7,
+     26.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     321.9,
+     323.1,
+     368.7,
+     374.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 5095.7,
+    "half_width_m": 593.8,
+    "edge_z_levels_m": [
+     -40.3,
+     -33.8,
+     -32.4,
+     -13.0,
+     31.4,
+     33.2,
+     39.7
+    ],
+    "edge_ship_y": [
+     307.7,
+     314.2,
+     315.6,
+     335.0,
+     379.4,
+     381.2,
+     387.7
+    ]
+   },
+   {
+    "ship_x": 5237.5,
+    "half_width_m": 549.1,
+    "edge_z_levels_m": [
+     -42.3,
+     -38.9,
+     -37.1,
+     -34.2,
+     9.8,
+     34.4,
+     39.6,
+     42.5
+    ],
+    "edge_ship_y": [
+     305.7,
+     309.1,
+     310.9,
+     313.8,
+     357.8,
+     382.4,
+     387.6,
+     390.5
+    ]
+   },
+   {
+    "ship_x": 5379.3,
+    "half_width_m": 519.6,
+    "edge_z_levels_m": [
+     -42.3,
+     -40.2,
+     -34.2,
+     -16.0,
+     34.4,
+     36.5,
+     42.4
+    ],
+    "edge_ship_y": [
+     305.7,
+     307.8,
+     313.8,
+     332.0,
+     382.4,
+     384.5,
+     390.4
+    ]
+   },
+   {
+    "ship_x": 5521.1,
+    "half_width_m": 541.3,
+    "edge_z_levels_m": [
+     -35.6,
+     -29.9,
+     -28.1,
+     24.5,
+     26.3,
+     30.1,
+     32.9
+    ],
+    "edge_ship_y": [
+     312.4,
+     318.1,
+     319.9,
+     372.5,
+     374.3,
+     378.1,
+     380.9
+    ]
+   },
+   {
+    "ship_x": 5662.9,
+    "half_width_m": 538.8,
+    "edge_z_levels_m": [
+     -32.1,
+     -31.3,
+     -24.9,
+     20.7,
+     21.4,
+     22.2,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     316.7,
+     323.1,
+     368.7,
+     369.4,
+     370.2,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 5804.7,
+    "half_width_m": 509.0,
+    "edge_z_levels_m": [
+     -32.1,
+     -30.4,
+     -24.9,
+     20.7,
+     22.4,
+     24.0,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     317.6,
+     323.1,
+     368.7,
+     370.4,
+     372.0,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 5946.5,
+    "half_width_m": 479.2,
+    "edge_z_levels_m": [
+     -32.1,
+     -29.4,
+     -24.9,
+     20.7,
+     23.3,
+     25.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     318.6,
+     323.1,
+     368.7,
+     371.3,
+     373.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 6088.3,
+    "half_width_m": 449.5,
+    "edge_z_levels_m": [
+     -32.1,
+     -28.5,
+     -24.9,
+     20.7,
+     24.2,
+     27.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     319.5,
+     323.1,
+     368.7,
+     372.2,
+     375.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 6230.1,
+    "half_width_m": 419.7,
+    "edge_z_levels_m": [
+     -32.1,
+     -27.6,
+     -24.9,
+     20.7,
+     25.2,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     320.4,
+     323.1,
+     368.7,
+     373.2,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 6371.9,
+    "half_width_m": 389.9,
+    "edge_z_levels_m": [
+     -32.1,
+     -26.6,
+     -24.9,
+     20.7,
+     26.1,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     321.4,
+     323.1,
+     368.7,
+     374.1,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 6513.7,
+    "half_width_m": 360.2,
+    "edge_z_levels_m": [
+     -32.1,
+     -25.7,
+     -24.9,
+     20.7,
+     27.0,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     322.3,
+     323.1,
+     368.7,
+     375.0,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 6655.5,
+    "half_width_m": 295.2,
+    "edge_z_levels_m": [
+     -36.9,
+     -29.2,
+     -29.1,
+     25.7,
+     25.8,
+     34.4
+    ],
+    "edge_ship_y": [
+     311.1,
+     318.8,
+     318.9,
+     373.7,
+     373.8,
+     382.4
+    ]
+   },
+   {
+    "ship_x": 6797.3,
+    "half_width_m": 248.8,
+    "edge_z_levels_m": [
+     -39.2,
+     -34.4,
+     -31.3,
+     2.2,
+     29.0,
+     32.0,
+     37.5
+    ],
+    "edge_ship_y": [
+     308.8,
+     313.6,
+     316.7,
+     350.2,
+     377.0,
+     380.0,
+     385.5
+    ]
+   },
+   {
+    "ship_x": 6939.1,
+    "half_width_m": 270.9,
+    "edge_z_levels_m": [
+     -32.1,
+     -31.4,
+     -24.9,
+     20.7,
+     21.3,
+     22.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     316.6,
+     323.1,
+     368.7,
+     369.3,
+     370.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7080.9,
+    "half_width_m": 241.1,
+    "edge_z_levels_m": [
+     -32.1,
+     -30.6,
+     -24.9,
+     20.7,
+     22.2,
+     25.2,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     317.4,
+     323.1,
+     368.7,
+     370.2,
+     373.2,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7222.7,
+    "half_width_m": 211.3,
+    "edge_z_levels_m": [
+     -32.1,
+     -29.7,
+     -24.9,
+     20.7,
+     23.0,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     318.3,
+     323.1,
+     368.7,
+     371.0,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7364.5,
+    "half_width_m": 181.6,
+    "edge_z_levels_m": [
+     -32.1,
+     -28.8,
+     -24.9,
+     20.7,
+     23.9,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     319.2,
+     323.1,
+     368.7,
+     371.9,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7506.3,
+    "half_width_m": 151.8,
+    "edge_z_levels_m": [
+     -32.1,
+     -27.9,
+     -24.9,
+     20.7,
+     24.8,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     320.1,
+     323.1,
+     368.7,
+     372.8,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7648.1,
+    "half_width_m": 122.0,
+    "edge_z_levels_m": [
+     -32.1,
+     -27.1,
+     -24.9,
+     20.7,
+     25.7,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     320.9,
+     323.1,
+     368.7,
+     373.7,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7789.9,
+    "half_width_m": 92.3,
+    "edge_z_levels_m": [
+     -32.1,
+     -26.2,
+     -24.9,
+     20.7,
+     26.6,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     321.8,
+     323.1,
+     368.7,
+     374.6,
+     375.9
+    ]
+   },
+   {
+    "ship_x": 7931.7,
+    "half_width_m": 62.5,
+    "edge_z_levels_m": [
+     -32.1,
+     -25.3,
+     -24.9,
+     20.7,
+     27.4,
+     27.9
+    ],
+    "edge_ship_y": [
+     315.9,
+     322.7,
+     323.1,
+     368.7,
+     375.4,
+     375.9
+    ]
+   }
+  ],
+  "engines": [
+   {
+    "shell": 211,
+    "triangles": 760,
+    "side": "port",
+    "axis_stl": [
+     -11.0914,
+     0.3048
+    ],
+    "ship_y": 369.6,
+    "ship_z": -786.4,
+    "ship_x_rear": 771.2,
+    "ship_x_front": 1014.3,
+    "length_m": 243.1,
+    "max_diameter_m": [
+     252.4,
+     249.9
+    ],
+    "rear_rim_diameter_m": [
+     213.0,
+     210.9
+    ]
+   },
+   {
+    "shell": 510,
+    "triangles": 760,
+    "side": "port",
+    "axis_stl": [
+     -5.0028,
+     0.1209
+    ],
+    "ship_y": 356.6,
+    "ship_z": -354.7,
+    "ship_x_rear": 469.5,
+    "ship_x_front": 702.8,
+    "length_m": 233.3,
+    "max_diameter_m": [
+     252.4,
+     249.9
+    ],
+    "rear_rim_diameter_m": [
+     213.0,
+     210.9
+    ]
+   },
+   {
+    "shell": 3205,
+    "triangles": 760,
+    "side": "stbd",
+    "axis_stl": [
+     5.0028,
+     0.1209
+    ],
+    "ship_y": 356.6,
+    "ship_z": 354.7,
+    "ship_x_rear": 469.5,
+    "ship_x_front": 702.8,
+    "length_m": 233.3,
+    "max_diameter_m": [
+     252.4,
+     249.9
+    ],
+    "rear_rim_diameter_m": [
+     213.0,
+     210.9
+    ]
+   },
+   {
+    "shell": 3500,
+    "triangles": 760,
+    "side": "stbd",
+    "axis_stl": [
+     11.0914,
+     0.3048
+    ],
+    "ship_y": 369.6,
+    "ship_z": 786.4,
+    "ship_x_rear": 771.2,
+    "ship_x_front": 1014.3,
+    "length_m": 243.1,
+    "max_diameter_m": [
+     252.4,
+     249.9
+    ],
+    "rear_rim_diameter_m": [
+     213.0,
+     210.9
+    ]
+   },
+   {
+    "shell": 805,
+    "triangles": 504,
+    "side": "port",
+    "axis_stl": [
+     -3.7069,
+     -2.9903
+    ],
+    "ship_y": 136.0,
+    "ship_z": -262.8,
+    "ship_x_rear": 975.9,
+    "ship_x_front": 1297.8,
+    "length_m": 321.9,
+    "max_diameter_m": [
+     160.1,
+     157.7
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   },
+   {
+    "shell": 1250,
+    "triangles": 504,
+    "side": "port",
+    "axis_stl": [
+     -1.3434,
+     -3.0429
+    ],
+    "ship_y": 132.3,
+    "ship_z": -95.2,
+    "ship_x_rear": 899.6,
+    "ship_x_front": 1221.5,
+    "length_m": 321.9,
+    "max_diameter_m": [
+     160.1,
+     157.7
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   },
+   {
+    "shell": 1558,
+    "triangles": 560,
+    "side": "centre",
+    "axis_stl": [
+     0.0,
+     -0.6658
+    ],
+    "ship_y": 300.8,
+    "ship_z": 0.0,
+    "ship_x_rear": 271.7,
+    "ship_x_front": 593.5,
+    "length_m": 321.9,
+    "max_diameter_m": [
+     160.1,
+     157.7
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   },
+   {
+    "shell": 2471,
+    "triangles": 504,
+    "side": "stbd",
+    "axis_stl": [
+     1.3434,
+     -3.0429
+    ],
+    "ship_y": 132.3,
+    "ship_z": 95.2,
+    "ship_x_rear": 899.6,
+    "ship_x_front": 1221.5,
+    "length_m": 321.9,
+    "max_diameter_m": [
+     160.1,
+     157.7
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   },
+   {
+    "shell": 2911,
+    "triangles": 504,
+    "side": "stbd",
+    "axis_stl": [
+     3.7069,
+     -2.9903
+    ],
+    "ship_y": 136.0,
+    "ship_z": 262.8,
+    "ship_x_rear": 975.9,
+    "ship_x_front": 1297.8,
+    "length_m": 321.9,
+    "max_diameter_m": [
+     160.1,
+     157.7
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   },
+   {
+    "shell": 159,
+    "triangles": 432,
+    "side": "port",
+    "axis_stl": [
+     -14.1102,
+     0.2773
+    ],
+    "ship_y": 367.7,
+    "ship_z": -1000.4,
+    "ship_x_rear": 844.4,
+    "ship_x_front": 996.3,
+    "length_m": 151.9,
+    "max_diameter_m": [
+     155.9,
+     153.5
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   },
+   {
+    "shell": 3552,
+    "triangles": 432,
+    "side": "stbd",
+    "axis_stl": [
+     14.1102,
+     0.2773
+    ],
+    "ship_y": 367.7,
+    "ship_z": 1000.4,
+    "ship_x_rear": 844.4,
+    "ship_x_front": 996.3,
+    "length_m": 151.9,
+    "max_diameter_m": [
+     155.9,
+     153.5
+    ],
+    "rear_rim_diameter_m": [
+     134.6,
+     132.6
+    ]
+   }
+  ],
+  "centreline_structures": [
+   {
+    "shell": 406,
+    "triangles": 1255,
+    "ship_x": [
+     0.0,
+     3135.2
+    ],
+    "ship_y": [
+     422.7,
+     740.5
+    ],
+    "half_width_m": 609.9,
+    "bbox_m": [
+     1219.8,
+     3135.2,
+     317.8
+    ]
+   },
+   {
+    "shell": 1877,
+    "triangles": 82,
+    "ship_x": [
+     2364.8,
+     4909.7
+    ],
+    "ship_y": [
+     404.7,
+     565.6
+    ],
+    "half_width_m": 789.1,
+    "bbox_m": [
+     1578.1,
+     2544.8,
+     161.0
+    ]
+   },
+   {
+    "shell": 1729,
+    "triangles": 252,
+    "ship_x": [
+     1931.0,
+     4214.4
+    ],
+    "ship_y": [
+     437.5,
+     943.6
+    ],
+    "half_width_m": 256.6,
+    "bbox_m": [
+     513.1,
+     2283.4,
+     506.1
+    ]
+   },
+   {
+    "shell": 1575,
+    "triangles": 482,
+    "ship_x": [
+     2809.2,
+     3774.3
+    ],
+    "ship_y": [
+     0.3,
+     244.1
+    ],
+    "half_width_m": 482.3,
+    "bbox_m": [
+     964.6,
+     965.1,
+     243.9
+    ]
+   },
+   {
+    "shell": 496,
+    "triangles": 94,
+    "ship_x": [
+     695.6,
+     1287.3
+    ],
+    "ship_y": [
+     158.9,
+     497.0
+    ],
+    "half_width_m": 497.1,
+    "bbox_m": [
+     994.3,
+     591.7,
+     338.1
+    ]
+   },
+   {
+    "shell": 1875,
+    "triangles": 142,
+    "ship_x": [
+     2776.9,
+     3806.0
+    ],
+    "ship_y": [
+     189.9,
+     316.8
+    ],
+    "half_width_m": 517.0,
+    "bbox_m": [
+     1034.1,
+     1029.1,
+     126.9
+    ]
+   },
+   {
+    "shell": 1289,
+    "triangles": 50,
+    "ship_x": [
+     1615.2,
+     2808.2
+    ],
+    "ship_y": [
+     129.6,
+     249.5
+    ],
+    "half_width_m": 430.7,
+    "bbox_m": [
+     861.4,
+     1192.9,
+     119.9
+    ]
+   },
+   {
+    "shell": 1411,
+    "triangles": 60,
+    "ship_x": [
+     4449.3,
+     5843.8
+    ],
+    "ship_y": [
+     415.3,
+     535.9
+    ],
+    "half_width_m": 327.3,
+    "bbox_m": [
+     654.5,
+     1394.5,
+     120.6
+    ]
+   },
+   {
+    "shell": 823,
+    "triangles": 84,
+    "ship_x": [
+     1030.6,
+     1655.4
+    ],
+    "ship_y": [
+     44.2,
+     263.9
+    ],
+    "half_width_m": 363.3,
+    "bbox_m": [
+     726.7,
+     624.8,
+     219.7
+    ]
+   },
+   {
+    "shell": 1924,
+    "triangles": 12,
+    "ship_x": [
+     231.0,
+     1109.5
+    ],
+    "ship_y": [
+     388.6,
+     559.4
+    ],
+    "half_width_m": 157.5,
+    "bbox_m": [
+     315.0,
+     878.5,
+     170.8
+    ]
+   },
+   {
+    "shell": 1048,
+    "triangles": 220,
+    "ship_x": [
+     647.5,
+     1463.2
+    ],
+    "ship_y": [
+     712.6,
+     809.2
+    ],
+    "half_width_m": 234.1,
+    "bbox_m": [
+     468.1,
+     815.8,
+     96.6
+    ]
+   },
+   {
+    "shell": 1192,
+    "triangles": 110,
+    "ship_x": [
+     660.7,
+     1433.0
+    ],
+    "ship_y": [
+     674.5,
+     771.4
+    ],
+    "half_width_m": 223.6,
+    "bbox_m": [
+     447.2,
+     772.4,
+     96.9
+    ]
+   },
+   {
+    "shell": 1923,
+    "triangles": 12,
+    "ship_x": [
+     410.6,
+     1235.6
+    ],
+    "ship_y": [
+     220.7,
+     391.5
+    ],
+    "half_width_m": 109.7,
+    "bbox_m": [
+     219.5,
+     825.0,
+     170.8
+    ]
+   },
+   {
+    "shell": 1662,
+    "triangles": 254,
+    "ship_x": [
+     5139.7,
+     5610.2
+    ],
+    "ship_y": [
+     131.2,
+     258.9
+    ],
+    "half_width_m": 232.6,
+    "bbox_m": [
+     465.3,
+     470.5,
+     127.7
+    ]
+   }
+  ]
+ },
+ "example_comparison": {
+  "utl": {
+   "example_count": 61,
+   "source_class": "utl",
+   "source_count": 47,
+   "example_to_nearest_source_plan_m": [
+    0.5,
+    2.4,
+    2.4,
+    2.4,
+    329.7
+   ],
+   "example_to_nearest_source_3d_m": [
+    1.1,
+    13.3,
+    21.0,
+    127.5,
+    442.2
+   ],
+   "example_within_50m_plan": 47,
+   "example_within_150m_plan": 49,
+   "source_to_nearest_example_plan_m": [
+    0.5,
+    2.3,
+    2.4,
+    2.4,
+    2.4
+   ],
+   "source_with_example_within_150m_plan": 47,
+   "source_positions_claimed_by_nearest": 47,
+   "implied_y_offset": [
+    220.4,
+    319.8,
+    331.4,
+    336.3,
+    347.0
+   ]
+  },
+  "quad175": {
+   "example_count": 42,
+   "source_class": "twin175",
+   "source_count": 24,
+   "example_to_nearest_source_plan_m": [
+    7.3,
+    11.6,
+    302.8,
+    526.5,
+    949.9
+   ],
+   "example_to_nearest_source_3d_m": [
+    9.4,
+    11.9,
+    330.5,
+    676.9,
+    1072.1
+   ],
+   "example_within_50m_plan": 18,
+   "example_within_150m_plan": 20,
+   "source_to_nearest_example_plan_m": [
+    7.3,
+    7.3,
+    11.6,
+    41.5,
+    230.5
+   ],
+   "source_with_example_within_150m_plan": 22,
+   "source_positions_claimed_by_nearest": 22,
+   "implied_y_offset": [
+    340.8,
+    342.0,
+    342.0,
+    343.3,
+    347.8
+   ]
+  },
+  "ion": {
+   "example_count": 6,
+   "source_class": "ionBall",
+   "source_count": 16,
+   "example_to_nearest_source_plan_m": [
+    153.5,
+    165.6,
+    201.9,
+    267.5,
+    289.3
+   ],
+   "example_to_nearest_source_3d_m": [
+    167.9,
+    180.6,
+    218.6,
+    278.1,
+    297.9
+   ],
+   "example_within_50m_plan": 0,
+   "example_within_150m_plan": 0,
+   "source_to_nearest_example_plan_m": [
+    153.5,
+    1746.9,
+    2813.6,
+    3684.7,
+    5465.3
+   ],
+   "source_with_example_within_150m_plan": 0,
+   "source_positions_claimed_by_nearest": 2
+  },
+  "pd": {
+   "example_count": 58,
+   "source_class": "pd",
+   "source_count": 130,
+   "example_to_nearest_source_plan_m": [
+    62.3,
+    282.9,
+    465.2,
+    573.6,
+    1026.5
+   ],
+   "example_to_nearest_source_3d_m": [
+    82.5,
+    336.7,
+    485.8,
+    574.4,
+    1027.0
+   ],
+   "example_within_50m_plan": 0,
+   "example_within_150m_plan": 4,
+   "source_to_nearest_example_plan_m": [
+    62.3,
+    341.6,
+    530.0,
+    693.8,
+    1714.6
+   ],
+   "source_with_example_within_150m_plan": 6,
+   "source_positions_claimed_by_nearest": 26
+  },
+  "cross": {
+   "cmsl": {
+    "count": 2,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "twin175": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     }
+    }
+   },
+   "utl": {
+    "count": 61,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 47,
+      "source_positions_with_a_fit_within_50m": 47
+     },
+     "twin175": {
+      "example_fits_within_50m": 2,
+      "source_positions_with_a_fit_within_50m": 4
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     }
+    }
+   },
+   "quad175": {
+    "count": 42,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 2,
+      "source_positions_with_a_fit_within_50m": 2
+     },
+     "twin175": {
+      "example_fits_within_50m": 18,
+      "source_positions_with_a_fit_within_50m": 18
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 2,
+      "source_positions_with_a_fit_within_50m": 2
+     }
+    }
+   },
+   "ion": {
+    "count": 6,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "twin175": {
+      "example_fits_within_50m": 6,
+      "source_positions_with_a_fit_within_50m": 6
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     }
+    }
+   },
+   "pd": {
+    "count": 58,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 2,
+      "source_positions_with_a_fit_within_50m": 2
+     },
+     "twin175": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     }
+    }
+   },
+   "trc": {
+    "count": 6,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "twin175": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     }
+    }
+   },
+   "podAir": {
+    "count": 1,
+    "near": {
+     "utl": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "twin175": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "ionBall": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     },
+     "pd": {
+      "example_fits_within_50m": 0,
+      "source_positions_with_a_fit_within_50m": 0
+     }
+    }
+   }
+  }
+ }
+}

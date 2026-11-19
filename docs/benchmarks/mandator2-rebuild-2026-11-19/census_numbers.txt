@@ -1,0 +1,226 @@
+triangles 103839 shells 3712 bbox [-20.4505 -54.9606  -4.9047] [20.4505 57.8719 10.9099]
+length m 7999.8 scale 70.9 y offset used 348.0 (requested 374.0 )
+octagon-like shells not taken (50-80 triangles, 100-200 m plan): [(255, 67, [181, 174, 68]), (308, 67, [181, 174, 68]), (1553, 52, [148, 181, 85]), (1554, 52, [148, 181, 85]), (1555, 52, [148, 181, 85]), (3404, 67, [181, 174, 68]), (3457, 67, [181, 174, 68])]
+
+utl total 47 {'centre': 7, 'port': 20, 'stbd': 20} without a mirror twin: [] triangles {72: 7, 54: 40} facing {'up': 11, 'sloped up': 36}
+twin175 total 24 {'port': 11, 'stbd': 11, 'centre': 2} without a mirror twin: [] triangles {34: 22, 48: 2} facing {'sloped up': 22, 'up': 2}
+ionBall total 16 {'port': 8, 'stbd': 8} without a mirror twin: [] triangles {88: 16} facing {'aft': 2, 'aft and port, oblique': 1, 'aft and starboard, oblique': 1, 'side (port)': 5, 'side (starboard)': 5, 'forward': 2}
+pd total 130 {'port': 65, 'stbd': 65} without a mirror twin: [] triangles {58: 104, 60: 24, 56: 2} facing {'down': 12, 'up': 118}
+
+== utl
+ shell 1848 centre tris 72 stl [0.0, 49.8397, 5.4117] ship [569.5, 731.7, 0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.2, 129.1] tilt 0.0 ped [1555] clear None
+ shell 1847 centre tris 72 stl [0.0, 44.1792, 6.8687] ship [970.8, 835.0, 0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.1, 129.1] tilt 0.0 ped [1554] clear None
+ shell 3224 stbd   tris 54 stl [6.6372, 43.7456, 4.1557] ship [1001.6, 642.6, 470.6] up depth 2.5 inner [57.3, 63.5] rim [89.5, 88.8] base [129.1, 128.2] tilt 0.0 ped [] clear None
+ shell 3421 stbd   tris 54 stl [10.167, 40.2653, 3.1795] ship [1248.3, 573.4, 720.8] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.0] base [129.5, 128.5] tilt 10.4 ped [3427] clear None
+ shell 3456 stbd   tris 54 stl [11.3106, 38.0207, 2.7598] ship [1407.4, 543.7, 801.9] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.0] base [129.5, 128.5] tilt 10.4 ped [3462] clear None
+ shell 3503 stbd   tris 54 stl [12.3782, 35.922, 2.1793] ship [1556.2, 502.5, 877.6] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3527 stbd   tris 54 stl [13.4586, 33.8816, 1.8281] ship [1700.9, 477.6, 954.2] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3568 stbd   tris 54 stl [14.5376, 31.8517, 1.4774] ship [1844.8, 452.7, 1030.7] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3624 stbd   tris 54 stl [15.5832, 29.8766, 1.222] ship [1984.9, 434.6, 1104.9] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3444 stbd   tris 54 stl [10.9952, 27.3493, 2.1987] ship [2164.1, 503.9, 779.6] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [3457] clear None
+ shell 3526 stbd   tris 54 stl [13.4552, 26.0332, 1.3588] ship [2257.4, 444.3, 954.0] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3478 stbd   tris 54 stl [11.9792, 24.5431, 1.5672] ship [2363.0, 459.1, 849.3] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3409 stbd   tris 54 stl [9.81, 15.4077, 1.8448] ship [3010.7, 478.8, 695.5] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3152 stbd   tris 54 stl [5.5367, 15.0104, 4.4509] ship [3038.9, 663.6, 392.6] up depth 3.5 inner [57.3, 63.5] rim [89.5, 88.8] base [129.1, 128.2] tilt 0.0 ped [] clear None
+ shell 3395 stbd   tris 54 stl [9.0175, 9.1349, 1.751] ship [3455.4, 472.1, 639.3] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3399 stbd   tris 54 stl [9.1583, 4.796, 1.6712] ship [3763.1, 466.5, 649.3] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [3404] clear None
+ shell 1846 centre tris 72 stl [0.0, 2.8785, 6.2982] ship [3899.0, 794.5, 0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.1, 129.1] tilt 0.0 ped [] clear None
+ shell 3449 stbd   tris 54 stl [11.2062, 2.7312, 0.8813] ship [3909.5, 410.5, 794.5] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3430 stbd   tris 54 stl [10.6441, 0.2482, 0.8952] ship [4085.5, 411.5, 754.7] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 1845 centre tris 72 stl [-0.0, -5.2363, 2.9566] ship [4474.4, 557.6, -0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.1, 129.1] tilt 0.0 ped [1553] clear None
+ shell 1844 centre tris 72 stl [0.0, -8.1281, 2.5505] ship [4679.4, 528.8, 0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.1, 129.1] tilt 0.0 ped [] clear None
+ shell 2899 stbd   tris 54 stl [4.0621, -10.1208, 1.8966] ship [4820.7, 482.5, 288.0] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 3086 stbd   tris 54 stl [5.2114, -13.7335, 1.2984] ship [5076.8, 440.1, 369.5] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 1843 centre tris 72 stl [0.0, -20.0317, 2.0903] ship [5523.4, 496.2, 0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.2, 129.1] tilt 0.0 ped [] clear None
+ shell 2634 stbd   tris 54 stl [2.7087, -23.0226, 1.4733] ship [5735.4, 452.5, 192.0] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 2528 stbd   tris 54 stl [2.392, -27.147, 1.3549] ship [6027.8, 444.1, 169.6] sloped up depth 9.9 inner [57.6, 63.6] rim [89.8, 89.1] base [129.6, 128.5] tilt 10.5 ped [] clear None
+ shell 1842 centre tris 72 stl [0.0, -28.682, 1.58] ship [6136.7, 460.0, 0.0] up depth 9.9 inner [63.5, 57.3] rim [88.8, 89.5] base [128.1, 129.1] tilt 0.0 ped [] clear None
+== twin175
+ shell 2860 stbd   tris 34 stl [4.442, 36.4504, 5.4612] ship [1518.8, 735.2, 314.9] sloped up depth 2.9 inner [37.3, 37.9] rim [46.1, 44.6] tilt 18.3 frame [2877] clear None
+ shell 2859 stbd   tris 34 stl [4.442, 34.8328, 5.4612] ship [1633.5, 735.2, 314.9] sloped up depth 2.9 inner [37.3, 37.9] rim [46.1, 44.6] tilt 18.3 frame [2876] clear None
+ shell 2858 stbd   tris 34 stl [4.442, 27.5167, 5.4612] ship [2152.2, 735.2, 314.9] sloped up depth 2.9 inner [37.3, 37.9] rim [46.1, 44.6] tilt 18.3 frame [2875] clear None
+ shell 2857 stbd   tris 34 stl [4.442, 25.8992, 5.4612] ship [2266.9, 735.2, 314.9] sloped up depth 2.9 inner [37.3, 37.9] rim [46.1, 44.6] tilt 18.3 frame [2874] clear None
+ shell 2726 stbd   tris 34 stl [3.9732, 4.8724, 2.6496] ship [3757.7, 535.9, 281.7] sloped up depth 3.8 inner [37.8, 37.3] rim [46.8, 46.3] tilt 23.3 frame [2768] clear None
+ shell 2725 stbd   tris 34 stl [3.9732, 3.9521, 2.6162] ship [3822.9, 533.5, 281.7] sloped up depth 3.8 inner [37.8, 37.3] rim [46.8, 46.3] tilt 23.3 frame [2768] clear None
+ shell 2724 stbd   tris 34 stl [3.9732, 3.096, 2.5865] ship [3883.6, 531.4, 281.7] sloped up depth 3.8 inner [37.8, 37.3] rim [46.8, 46.3] tilt 23.3 frame [2768] clear None
+ shell 2723 stbd   tris 34 stl [3.9732, 2.1792, 2.5525] ship [3948.6, 529.0, 281.7] sloped up depth 3.8 inner [37.8, 37.3] rim [46.8, 46.3] tilt 23.3 frame [2768] clear None
+ shell 1768 centre tris 48 stl [0.0, 0.7246, 6.1973] ship [4051.7, 787.4, 0.0] up depth 2.9 inner [37.9, 36.2] rim [44.6, 45.0] tilt 5.2 frame [1738] clear None
+ shell 1767 centre tris 48 stl [0.0, -0.5219, 6.0627] ship [4140.1, 777.8, 0.0] up depth 2.9 inner [37.9, 36.2] rim [44.6, 45.0] tilt 5.2 frame [1737] clear None
+ shell 2729 stbd   tris 34 stl [4.0396, -28.7424, 1.0351] ship [6140.9, 421.4, 286.4] sloped up depth 2.9 inner [37.6, 37.9] rim [46.4, 44.9] tilt 10.5 frame [2770] clear None
+ shell 2552 stbd   tris 34 stl [3.3694, -30.196, 1.1038] ship [6244.0, 426.3, 238.9] sloped up depth 2.9 inner [37.6, 37.9] rim [46.4, 44.9] tilt 10.5 frame [2619] clear None
+ shell 2466 stbd   tris 34 stl [2.6977, -31.6528, 1.162] ship [6347.3, 430.4, 191.3] sloped up depth 2.9 inner [37.6, 37.9] rim [46.4, 44.9] tilt 10.5 frame [2488] clear None
+== ionBall
+ shell 3267 stbd   tris 88 stl [8.1031, 48.2193, -0.3569] ship [684.4, 322.7, 574.5] aft dia [46.4, 46.3] depth 15.6 normal(ship) [-1.0, -0.0, -0.001] box 3265 clear None
+ shell 3175 stbd   tris 88 stl [6.305, 45.4189, 3.6329] ship [882.9, 605.6, 447.0] aft and starboard, oblique dia [46.6, 45.8] depth 15.6 normal(ship) [-0.862, -0.0, 0.506] box 3089 clear None
+ shell 3577 stbd   tris 88 stl [15.1562, 14.3582, 0.0078] ship [3085.1, 348.6, 1074.6] side (starboard) dia [46.6, 45.8] depth 15.6 normal(ship) [0.206, -0.0, 0.978] box 3557 clear None
+ shell 3256 stbd   tris 88 stl [7.3177, 13.2018, 3.2605] ship [3167.1, 579.2, 518.8] forward dia [46.1, 46.5] depth 15.6 normal(ship) [1.0, -0.0, -0.001] box 3258 clear None
+ shell 3522 stbd   tris 88 stl [13.3923, 7.2938, 0.0078] ship [3586.0, 348.6, 949.5] side (starboard) dia [46.6, 45.8] depth 15.6 normal(ship) [0.206, -0.0, 0.978] box 3508 clear None
+ shell 3460 stbd   tris 88 stl [11.9111, -1.1818, 0.0078] ship [4186.9, 348.6, 844.5] side (starboard) dia [46.6, 45.8] depth 15.6 normal(ship) [0.206, -0.0, 0.978] box 3446 clear None
+ shell 3368 stbd   tris 88 stl [8.2459, -17.1242, 0.0078] ship [5317.2, 348.6, 584.6] side (starboard) dia [46.6, 45.8] depth 15.6 normal(ship) [0.206, -0.0, 0.978] box 3299 clear None
+ shell 3125 stbd   tris 88 stl [5.9508, -29.4064, -0.0311] ship [6188.0, 345.8, 421.9] side (starboard) dia [46.6, 45.8] depth 15.6 normal(ship) [0.206, -0.0, 0.978] box 3082 clear None
+== pd
+ shell 2503 stbd   tris 58 stl [2.4443, 53.9443, 1.9264] ship [278.5, 484.6, 173.3] down size [40.9, 32.7, 9.4] yaw 90.5 normal(ship) [0.0, -1.0, 0.0] clear None
+ shell 2502 stbd   tris 58 stl [2.4363, 53.3079, 1.9264] ship [323.6, 484.6, 172.7] down size [40.9, 32.7, 9.4] yaw 90.5 normal(ship) [0.0, -1.0, -0.0] clear None
+ shell 3130 stbd   tris 58 stl [6.2848, 48.0219, -2.0235] ship [698.4, 204.5, 445.6] down size [40.9, 32.7, 9.4] yaw 0.5 normal(ship) [0.0, -1.0, -0.0] clear None
+ shell 3198 stbd   tris 58 stl [6.7946, 48.0138, -2.0235] ship [698.9, 204.5, 481.7] down size [40.9, 32.7, 9.4] yaw 0.5 normal(ship) [0.0, -1.0, 0.0] clear None
+ shell 3072 stbd   tris 58 stl [5.3533, 41.7762, 4.9936] ship [1141.2, 702.0, 379.5] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 3187 stbd   tris 58 stl [6.2357, 41.3025, 4.5347] ship [1174.8, 669.5, 442.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 3070 stbd   tris 58 stl [5.3453, 41.1397, 4.9936] ship [1186.3, 702.0, 379.0] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 3186 stbd   tris 58 stl [6.2357, 40.4063, 4.3252] ship [1238.3, 654.7, 442.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 2521 stbd   tris 58 stl [2.9906, 39.7462, 6.3821] ship [1285.1, 800.5, 212.0] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2662 stbd   tris 58 stl [3.5004, 39.7382, 6.3821] ship [1285.7, 800.5, 248.2] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2165 stbd   tris 60 stl [1.2128, 38.2973, 7.9752] ship [1387.8, 913.4, 86.0] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2300 stbd   tris 60 stl [1.731, 38.2973, 7.6124] ship [1387.8, 887.7, 122.7] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, 0.0] clear 11.6
+ shell 2315 stbd   tris 60 stl [1.8493, 38.2892, 7.9752] ship [1388.4, 913.4, 131.1] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 2420 stbd   tris 60 stl [2.3675, 38.2892, 7.6124] ship [1388.4, 887.7, 167.9] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [-0.0, 1.0, -0.0] clear 3.5
+ shell 3185 stbd   tris 58 stl [6.2357, 38.0291, 4.5347] ship [1406.9, 669.5, 442.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 3711 stbd   tris 58 stl [19.8792, 37.9403, -0.1663] ship [1413.2, 336.2, 1409.4] up size [40.9, 32.7, 9.4] yaw 77.5 normal(ship) [-0.0, 1.0, 0.0] clear 35.4
+ shell 3081 stbd   tris 58 stl [5.4437, 37.7294, 4.9936] ship [1428.1, 702.0, 386.0] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2621 stbd   tris 60 stl [3.065, 37.6568, 7.8705] ship [1433.3, 906.0, 217.3] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 3709 stbd   tris 58 stl [19.7654, 37.4433, -0.1663] ship [1448.4, 336.2, 1401.4] up size [40.9, 32.7, 9.4] yaw 77.5 normal(ship) [-0.0, 1.0, 0.0] clear 35.5
+ shell 2670 stbd   tris 60 stl [3.2073, 37.1917, 7.5645] ship [1466.2, 884.3, 227.4] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear 12.3
+ shell 3080 stbd   tris 58 stl [5.4356, 37.093, 4.9936] ship [1473.2, 702.0, 385.4] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2620 stbd   tris 60 stl [3.0569, 37.0203, 7.8705] ship [1478.4, 906.0, 216.7] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear 4.3
+ shell 2669 stbd   tris 60 stl [3.1992, 36.5552, 7.5645] ship [1511.4, 884.3, 226.8] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 2216 stbd   tris 60 stl [1.0863, 35.9607, 9.0545] ship [1553.5, 990.0, 77.0] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 3184 stbd   tris 58 stl [6.2357, 35.7158, 4.5347] ship [1570.9, 669.5, 442.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2799 stbd   tris 58 stl [3.8206, 35.4133, 6.9904] ship [1592.3, 843.6, 270.9] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 2214 stbd   tris 60 stl [1.0783, 35.3242, 9.0545] ship [1598.6, 990.0, 76.4] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 3078 stbd   tris 58 stl [5.3751, 35.1932, 4.9936] ship [1607.9, 702.0, 381.1] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2796 stbd   tris 58 stl [3.8126, 34.7768, 6.9904] ship [1637.4, 843.6, 270.3] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 2290 stbd   tris 60 stl [1.3526, 34.5599, 8.6526] ship [1652.8, 961.5, 95.9] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 3076 stbd   tris 58 stl [5.367, 34.5567, 4.9936] ship [1653.0, 702.0, 380.5] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2289 stbd   tris 60 stl [1.3446, 33.9234, 8.6526] ship [1697.9, 961.5, 95.3] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 3360 stbd   tris 58 stl [8.0684, 33.2356, 3.2699] ship [1746.7, 579.8, 572.0] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 3183 stbd   tris 58 stl [6.2357, 32.2981, 4.5027] ship [1813.2, 667.2, 442.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2798 stbd   tris 58 stl [3.8206, 32.1944, 6.9904] ship [1820.5, 843.6, 270.9] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 2795 stbd   tris 58 stl [3.8126, 31.558, 6.9904] ship [1865.7, 843.6, 270.3] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 3182 stbd   tris 58 stl [6.2357, 30.7779, 4.3252] ship [1921.0, 654.7, 442.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2510 stbd   tris 58 stl [2.5198, 27.6577, 6.883] ship [2142.2, 836.0, 178.7] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2509 stbd   tris 58 stl [2.5118, 27.0212, 6.883] ship [2187.3, 836.0, 178.1] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 3662 stbd   tris 58 stl [17.1593, 24.9232, 0.2013] ship [2336.1, 362.3, 1216.6] up size [40.9, 32.7, 9.4] yaw 77.5 normal(ship) [0.0, 1.0, 0.0] clear 9.2
+ shell 2360 stbd   tris 58 stl [1.6569, 24.6204, 7.3297] ship [2357.5, 867.7, 117.5] up size [42.2, 32.7, 9.4] yaw 179.0 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 3656 stbd   tris 58 stl [17.0455, 24.4262, 0.2013] ship [2371.3, 362.3, 1208.5] up size [40.9, 32.7, 9.4] yaw 77.5 normal(ship) [0.0, 1.0, -0.0] clear 9.3
+ shell 2217 stbd   tris 58 stl [0.96, 24.1872, 7.5897] ship [2388.2, 886.1, 68.1] up size [42.2, 32.7, 9.4] yaw 179.0 normal(ship) [0.0, 1.0, 0.0] clear None
+ shell 2884 stbd   tris 58 stl [4.2285, 19.7609, 5.018] ship [2702.1, 703.8, 299.8] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2207 stbd   tris 58 stl [1.0451, 19.559, 7.2228] ship [2716.4, 860.1, 74.1] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 2883 stbd   tris 58 stl [4.2205, 19.1244, 5.018] ship [2747.2, 703.8, 299.2] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2203 stbd   tris 58 stl [1.037, 19.0492, 7.2228] ship [2752.5, 860.1, 73.5] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2131 stbd   tris 58 stl [0.7353, 18.3559, 7.22] ship [2801.7, 859.9, 52.1] up size [42.2, 32.7, 9.4] yaw 89.0 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2867 stbd   tris 58 stl [3.9195, 13.5767, 3.5304] ship [3140.5, 598.3, 277.9] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, 0.0] clear 19.7
+ shell 2902 stbd   tris 58 stl [4.4293, 13.5687, 3.5304] ship [3141.1, 598.3, 314.0] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, -0.0] clear 19.7
+ shell 2187 stbd   tris 58 stl [0.9724, 11.1276, 6.0091] ship [3314.2, 774.0, 68.9] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, -0.0] clear None
+ shell 2180 stbd   tris 58 stl [0.9644, 10.4911, 6.0091] ship [3359.3, 774.0, 68.4] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2186 stbd   tris 58 stl [0.9724, 9.6078, 6.0091] ship [3421.9, 774.0, 68.9] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [-0.0, 1.0, 0.0] clear None
+ shell 2179 stbd   tris 58 stl [0.9644, 8.9713, 6.0091] ship [3467.1, 774.0, 68.4] up size [40.9, 32.7, 9.4] yaw 89.5 normal(ship) [0.0, 1.0, -0.0] clear None
+ shell 3469 stbd   tris 58 stl [12.191, 1.5491, 0.0979] ship [3993.3, 354.9, 864.3] down size [40.9, 32.7, 9.4] yaw 102.5 normal(ship) [0.0, -1.0, 0.0] clear 34.7
+ shell 3466 stbd   tris 58 stl [12.0508, 0.9282, 0.0979] ship [4037.3, 354.9, 854.4] down size [40.9, 32.7, 9.4] yaw 102.5 normal(ship) [0.0, -1.0, 0.0] clear 34.8
+ shell 2284 stbd   tris 58 stl [1.1696, -1.3912, 4.5105] ship [4201.7, 667.8, 82.9] up size [42.2, 32.7, 9.4] yaw 179.0 normal(ship) [-0.0, 1.0, -0.0] clear 29.2
+ shell 2401 stbd   tris 58 stl [1.8342, -1.4143, 3.0617] ship [4203.4, 565.1, 130.0] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, 0.0] clear 24.4
+ shell 2518 stbd   tris 58 stl [2.4707, -1.4223, 3.0617] ship [4204.0, 565.1, 175.2] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, -0.0] clear 46.6
+ shell 2212 stbd   tris 56 stl [0.9401, -1.5414, 3.9504] ship [4212.4, 628.1, 66.7] up size [40.9, 32.7, 9.4] yaw 179.5 normal(ship) [0.0, 1.0, 0.0] clear 119.5
+ shell 3252 stbd   tris 58 stl [7.4516, -21.3901, -0.2258] ship [5619.7, 332.0, 528.3] up size [42.2, 32.7, 9.4] yaw 77.0 normal(ship) [-0.0, 1.0, 0.0] clear 20.1
+ shell 3240 stbd   tris 58 stl [7.2951, -22.238, -0.1557] ship [5679.8, 337.0, 517.2] up size [40.9, 32.7, 9.4] yaw 77.5 normal(ship) [-0.0, 1.0, 0.0] clear 15.2
+ shell 3228 stbd   tris 58 stl [7.1549, -22.8589, -0.1557] ship [5723.8, 337.0, 507.3] up size [40.9, 32.7, 9.4] yaw 77.5 normal(ship) [0.0, 1.0, 0.0] clear 34.4
+ shell 2153 stbd   tris 58 stl [0.7414, -53.1423, -0.235] ship [7870.9, 331.3, 52.6] up size [40.9, 32.7, 9.4] yaw 78.0 normal(ship) [0.0, 1.0, 0.0] clear 26.6
+ shell 2094 stbd   tris 58 stl [0.6066, -53.7644, -0.235] ship [7915.0, 331.3, 43.0] up size [40.9, 32.7, 9.4] yaw 78.0 normal(ship) [-0.0, 1.0, 0.0] clear 42.1
+
+main hull shell 680 triangles 833 bbox m [2898.6 7207.   534.7] ship x 792.7 to 7999.7
+ side edge at ship x    984 half width   853.8  heights (model z, m) [-115.5, -110.8, -108.5, 144.4, 146.9, 151.0]
+ side edge at ship x   1125 half width  1100.8  heights (model z, m) [-80.5, -77.8, -73.8, 93.1, 97.6, 99.9]
+ side edge at ship x   1267 half width  1347.7  heights (model z, m) [-39.1, 41.8, 48.2, 48.9]
+ side edge at ship x   1409 half width  1431.8  heights (model z, m) [-24.9, 20.7, 21.2, 21.5, 27.9]
+ side edge at ship x   1551 half width  1402.0  heights (model z, m) [-24.9, 20.7, 22.1, 22.9, 27.9]
+ side edge at ship x   1692 half width  1372.2  heights (model z, m) [-24.9, 20.7, 23.1, 24.3, 27.9]
+ side edge at ship x   1834 half width  1342.5  heights (model z, m) [-24.9, 20.7, 24.0, 25.8, 27.9]
+ side edge at ship x   1976 half width  1312.7  heights (model z, m) [-24.9, 20.7, 25.0, 27.2, 27.9]
+ side edge at ship x   2118 half width  1282.9  heights (model z, m) [-26.6, -24.9, 20.7, 25.9, 27.9]
+ side edge at ship x   2260 half width  1253.2  heights (model z, m) [-25.8, -24.9, 20.7, 26.8, 27.9]
+ side edge at ship x   2402 half width  1223.4  heights (model z, m) [-24.9, 20.7, 27.8, 27.9]
+ side edge at ship x   2543 half width  1115.4  heights (model z, m) [-41.1, -40.6, -33.2, -29.0, 34.3, 34.8, 42.2]
+ side edge at ship x   2685 half width  1163.9  heights (model z, m) [-32.1, -25.6, -24.9, 20.7, 21.4, 27.9]
+ side edge at ship x   2827 half width  1134.1  heights (model z, m) [-32.1, -27.0, -24.9, 20.7, 22.8, 27.9]
+ side edge at ship x   2969 half width  1104.3  heights (model z, m) [-32.1, -28.4, -24.9, 20.7, 24.2, 27.9]
+ side edge at ship x   3110 half width  1074.6  heights (model z, m) [-32.1, -29.8, -24.9, 20.7, 25.6, 27.9]
+ side edge at ship x   3252 half width  1044.8  heights (model z, m) [-32.1, -31.2, -24.9, 20.7, 27.0, 27.9]
+ side edge at ship x   3394 half width   936.8  heights (model z, m) [-41.3, -34.0, -33.5, 29.7, 34.3, 41.7, 42.3]
+ side edge at ship x   3536 half width   907.2  heights (model z, m) [-41.4, -37.0, -33.5, 4.3, 34.3, 38.7, 42.2]
+ side edge at ship x   3678 half width   877.7  heights (model z, m) [-41.5, -40.1, -33.5, -21.2, 34.2, 35.7, 42.2]
+ side edge at ship x   3820 half width   925.7  heights (model z, m) [-32.1, -25.0, -24.9, 20.7, 27.7, 27.9]
+ side edge at ship x   3961 half width   896.0  heights (model z, m) [-32.1, -26.7, -24.9, 20.7, 26.0, 27.9]
+ side edge at ship x   4103 half width   866.2  heights (model z, m) [-32.1, -28.4, -24.9, 20.7, 24.3, 27.9]
+ side edge at ship x   4245 half width   836.4  heights (model z, m) [-32.1, -30.2, -24.9, 20.7, 22.6, 27.9]
+ side edge at ship x   4387 half width   806.7  heights (model z, m) [-32.1, -31.9, -24.9, 20.7, 20.8, 27.9]
+ side edge at ship x   4528 half width   776.9  heights (model z, m) [-32.1, -30.7, -24.9, 20.7, 22.0, 27.9]
+ side edge at ship x   4670 half width   747.1  heights (model z, m) [-32.1, -29.2, -24.9, 20.7, 23.6, 27.9]
+ side edge at ship x   4812 half width   717.4  heights (model z, m) [-32.1, -27.6, -24.9, 20.7, 25.1, 27.9]
+ side edge at ship x   4954 half width   687.6  heights (model z, m) [-32.1, -26.1, -24.9, 20.7, 26.6, 27.9]
+ side edge at ship x   5096 half width   593.8  heights (model z, m) [-40.3, -33.8, -32.4, -13.0, 31.4, 33.2, 39.7]
+ side edge at ship x   5238 half width   549.1  heights (model z, m) [-42.3, -38.9, -37.1, -34.2, 9.8, 34.4, 39.6, 42.5]
+ side edge at ship x   5379 half width   519.6  heights (model z, m) [-42.3, -40.2, -34.2, -16.0, 34.4, 36.5, 42.4]
+ side edge at ship x   5521 half width   541.3  heights (model z, m) [-35.6, -29.9, -28.1, 24.5, 26.3, 30.1, 32.9]
+ side edge at ship x   5663 half width   538.8  heights (model z, m) [-32.1, -31.3, -24.9, 20.7, 21.4, 22.2, 27.9]
+ side edge at ship x   5805 half width   509.0  heights (model z, m) [-32.1, -30.4, -24.9, 20.7, 22.4, 24.0, 27.9]
+ side edge at ship x   5946 half width   479.2  heights (model z, m) [-32.1, -29.4, -24.9, 20.7, 23.3, 25.8, 27.9]
+ side edge at ship x   6088 half width   449.5  heights (model z, m) [-32.1, -28.5, -24.9, 20.7, 24.2, 27.6, 27.9]
+ side edge at ship x   6230 half width   419.7  heights (model z, m) [-32.1, -27.6, -24.9, 20.7, 25.2, 27.9]
+ side edge at ship x   6372 half width   389.9  heights (model z, m) [-32.1, -26.6, -24.9, 20.7, 26.1, 27.9]
+ side edge at ship x   6514 half width   360.2  heights (model z, m) [-32.1, -25.7, -24.9, 20.7, 27.0, 27.9]
+ side edge at ship x   6656 half width   295.2  heights (model z, m) [-36.9, -29.2, -29.1, 25.7, 25.8, 34.4]
+ side edge at ship x   6797 half width   248.8  heights (model z, m) [-39.2, -34.4, -31.3, 2.2, 29.0, 32.0, 37.5]
+ side edge at ship x   6939 half width   270.9  heights (model z, m) [-32.1, -31.4, -24.9, 20.7, 21.3, 22.6, 27.9]
+ side edge at ship x   7081 half width   241.1  heights (model z, m) [-32.1, -30.6, -24.9, 20.7, 22.2, 25.2, 27.9]
+ side edge at ship x   7223 half width   211.3  heights (model z, m) [-32.1, -29.7, -24.9, 20.7, 23.0, 27.9]
+ side edge at ship x   7364 half width   181.6  heights (model z, m) [-32.1, -28.8, -24.9, 20.7, 23.9, 27.9]
+ side edge at ship x   7506 half width   151.8  heights (model z, m) [-32.1, -27.9, -24.9, 20.7, 24.8, 27.9]
+ side edge at ship x   7648 half width   122.0  heights (model z, m) [-32.1, -27.1, -24.9, 20.7, 25.7, 27.9]
+ side edge at ship x   7790 half width    92.3  heights (model z, m) [-32.1, -26.2, -24.9, 20.7, 26.6, 27.9]
+ side edge at ship x   7932 half width    62.5  heights (model z, m) [-32.1, -25.3, -24.9, 20.7, 27.4, 27.9]
+
+engine bodies (shells of 432/504/560/760 triangles aft of model y 38): 11
+  {'shell': 211, 'triangles': 760, 'side': 'port', 'axis_stl': [-11.0914, 0.3048], 'ship_y': 369.6, 'ship_z': -786.4, 'ship_x_rear': 771.2, 'ship_x_front': 1014.3, 'length_m': 243.1, 'max_diameter_m': [252.4, 249.9], 'rear_rim_diameter_m': [213.0, 210.9]}
+  {'shell': 510, 'triangles': 760, 'side': 'port', 'axis_stl': [-5.0028, 0.1209], 'ship_y': 356.6, 'ship_z': -354.7, 'ship_x_rear': 469.5, 'ship_x_front': 702.8, 'length_m': 233.3, 'max_diameter_m': [252.4, 249.9], 'rear_rim_diameter_m': [213.0, 210.9]}
+  {'shell': 3205, 'triangles': 760, 'side': 'stbd', 'axis_stl': [5.0028, 0.1209], 'ship_y': 356.6, 'ship_z': 354.7, 'ship_x_rear': 469.5, 'ship_x_front': 702.8, 'length_m': 233.3, 'max_diameter_m': [252.4, 249.9], 'rear_rim_diameter_m': [213.0, 210.9]}
+  {'shell': 3500, 'triangles': 760, 'side': 'stbd', 'axis_stl': [11.0914, 0.3048], 'ship_y': 369.6, 'ship_z': 786.4, 'ship_x_rear': 771.2, 'ship_x_front': 1014.3, 'length_m': 243.1, 'max_diameter_m': [252.4, 249.9], 'rear_rim_diameter_m': [213.0, 210.9]}
+  {'shell': 805, 'triangles': 504, 'side': 'port', 'axis_stl': [-3.7069, -2.9903], 'ship_y': 136.0, 'ship_z': -262.8, 'ship_x_rear': 975.9, 'ship_x_front': 1297.8, 'length_m': 321.9, 'max_diameter_m': [160.1, 157.7], 'rear_rim_diameter_m': [134.6, 132.6]}
+  {'shell': 1250, 'triangles': 504, 'side': 'port', 'axis_stl': [-1.3434, -3.0429], 'ship_y': 132.3, 'ship_z': -95.2, 'ship_x_rear': 899.6, 'ship_x_front': 1221.5, 'length_m': 321.9, 'max_diameter_m': [160.1, 157.7], 'rear_rim_diameter_m': [134.6, 132.6]}
+  {'shell': 1558, 'triangles': 560, 'side': 'centre', 'axis_stl': [0.0, -0.6658], 'ship_y': 300.8, 'ship_z': 0.0, 'ship_x_rear': 271.7, 'ship_x_front': 593.5, 'length_m': 321.9, 'max_diameter_m': [160.1, 157.7], 'rear_rim_diameter_m': [134.6, 132.6]}
+  {'shell': 2471, 'triangles': 504, 'side': 'stbd', 'axis_stl': [1.3434, -3.0429], 'ship_y': 132.3, 'ship_z': 95.2, 'ship_x_rear': 899.6, 'ship_x_front': 1221.5, 'length_m': 321.9, 'max_diameter_m': [160.1, 157.7], 'rear_rim_diameter_m': [134.6, 132.6]}
+  {'shell': 2911, 'triangles': 504, 'side': 'stbd', 'axis_stl': [3.7069, -2.9903], 'ship_y': 136.0, 'ship_z': 262.8, 'ship_x_rear': 975.9, 'ship_x_front': 1297.8, 'length_m': 321.9, 'max_diameter_m': [160.1, 157.7], 'rear_rim_diameter_m': [134.6, 132.6]}
+  {'shell': 159, 'triangles': 432, 'side': 'port', 'axis_stl': [-14.1102, 0.2773], 'ship_y': 367.7, 'ship_z': -1000.4, 'ship_x_rear': 844.4, 'ship_x_front': 996.3, 'length_m': 151.9, 'max_diameter_m': [155.9, 153.5], 'rear_rim_diameter_m': [134.6, 132.6]}
+  {'shell': 3552, 'triangles': 432, 'side': 'stbd', 'axis_stl': [14.1102, 0.2773], 'ship_y': 367.7, 'ship_z': 1000.4, 'ship_x_rear': 844.4, 'ship_x_front': 996.3, 'length_m': 151.9, 'max_diameter_m': [155.9, 153.5], 'rear_rim_diameter_m': [134.6, 132.6]}
+
+largest centreline shells (superstructure, bridge tower, domes):
+  {'shell': 406, 'triangles': 1255, 'ship_x': [0.0, 3135.2], 'ship_y': [422.7, 740.5], 'half_width_m': 609.9, 'bbox_m': [1219.8, 3135.2, 317.8]}
+  {'shell': 1877, 'triangles': 82, 'ship_x': [2364.8, 4909.7], 'ship_y': [404.7, 565.6], 'half_width_m': 789.1, 'bbox_m': [1578.1, 2544.8, 161.0]}
+  {'shell': 1729, 'triangles': 252, 'ship_x': [1931.0, 4214.4], 'ship_y': [437.5, 943.6], 'half_width_m': 256.6, 'bbox_m': [513.1, 2283.4, 506.1]}
+  {'shell': 1575, 'triangles': 482, 'ship_x': [2809.2, 3774.3], 'ship_y': [0.3, 244.1], 'half_width_m': 482.3, 'bbox_m': [964.6, 965.1, 243.9]}
+  {'shell': 496, 'triangles': 94, 'ship_x': [695.6, 1287.3], 'ship_y': [158.9, 497.0], 'half_width_m': 497.1, 'bbox_m': [994.3, 591.7, 338.1]}
+  {'shell': 1875, 'triangles': 142, 'ship_x': [2776.9, 3806.0], 'ship_y': [189.9, 316.8], 'half_width_m': 517.0, 'bbox_m': [1034.1, 1029.1, 126.9]}
+  {'shell': 1289, 'triangles': 50, 'ship_x': [1615.2, 2808.2], 'ship_y': [129.6, 249.5], 'half_width_m': 430.7, 'bbox_m': [861.4, 1192.9, 119.9]}
+  {'shell': 1411, 'triangles': 60, 'ship_x': [4449.3, 5843.8], 'ship_y': [415.3, 535.9], 'half_width_m': 327.3, 'bbox_m': [654.5, 1394.5, 120.6]}
+  {'shell': 823, 'triangles': 84, 'ship_x': [1030.6, 1655.4], 'ship_y': [44.2, 263.9], 'half_width_m': 363.3, 'bbox_m': [726.7, 624.8, 219.7]}
+  {'shell': 1924, 'triangles': 12, 'ship_x': [231.0, 1109.5], 'ship_y': [388.6, 559.4], 'half_width_m': 157.5, 'bbox_m': [315.0, 878.5, 170.8]}
+  {'shell': 1048, 'triangles': 220, 'ship_x': [647.5, 1463.2], 'ship_y': [712.6, 809.2], 'half_width_m': 234.1, 'bbox_m': [468.1, 815.8, 96.6]}
+  {'shell': 1192, 'triangles': 110, 'ship_x': [660.7, 1433.0], 'ship_y': [674.5, 771.4], 'half_width_m': 223.6, 'bbox_m': [447.2, 772.4, 96.9]}
+  {'shell': 1923, 'triangles': 12, 'ship_x': [410.6, 1235.6], 'ship_y': [220.7, 391.5], 'half_width_m': 109.7, 'bbox_m': [219.5, 825.0, 170.8]}
+  {'shell': 1662, 'triangles': 254, 'ship_x': [5139.7, 5610.2], 'ship_y': [131.2, 258.9], 'half_width_m': 232.6, 'bbox_m': [465.3, 470.5, 127.7]}
+
+present example fits: {'cmsl': 2, 'utl': 61, 'quad175': 42, 'ion': 6, 'pd': 58, 'trc': 6, 'podAir': 1}
+ utl      example  61  source utl       47 | example->nearest source, plan m (min,q1,median,q3,max) [0.5, 2.4, 2.4, 2.4, 329.7]  3-D [1.1, 13.3, 21.0, 127.5, 442.2] | within 50 m: 47, within 150 m: 49 | source->nearest example plan [0.5, 2.3, 2.4, 2.4, 2.4], source positions with an example fit within 150 m: 47
+ quad175  example  42  source twin175   24 | example->nearest source, plan m (min,q1,median,q3,max) [7.3, 11.6, 302.8, 526.5, 949.9]  3-D [9.4, 11.9, 330.5, 676.9, 1072.1] | within 50 m: 18, within 150 m: 20 | source->nearest example plan [7.3, 7.3, 11.6, 41.5, 230.5], source positions with an example fit within 150 m: 22
+ ion      example   6  source ionBall   16 | example->nearest source, plan m (min,q1,median,q3,max) [153.5, 165.6, 201.9, 267.5, 289.3]  3-D [167.9, 180.6, 218.6, 278.1, 297.9] | within 50 m: 0, within 150 m: 0 | source->nearest example plan [153.5, 1746.9, 2813.6, 3684.7, 5465.3], source positions with an example fit within 150 m: 0
+ pd       example  58  source pd       130 | example->nearest source, plan m (min,q1,median,q3,max) [62.3, 282.9, 465.2, 573.6, 1026.5]  3-D [82.5, 336.7, 485.8, 574.4, 1027.0] | within 50 m: 0, within 150 m: 4 | source->nearest example plan [62.3, 341.6, 530.0, 693.8, 1714.6], source positions with an example fit within 150 m: 6
+
+example fits within 50 m (plan) of a source position, by kind and source class:
+  cmsl       2 : {'utl': (0, 0), 'twin175': (0, 0), 'ionBall': (0, 0), 'pd': (0, 0)}
+  utl       61 : {'utl': (47, 47), 'twin175': (2, 4), 'ionBall': (0, 0), 'pd': (0, 0)}
+  quad175   42 : {'utl': (2, 2), 'twin175': (18, 18), 'ionBall': (0, 0), 'pd': (2, 2)}
+  ion        6 : {'utl': (0, 0), 'twin175': (6, 6), 'ionBall': (0, 0), 'pd': (0, 0)}
+  pd        58 : {'utl': (2, 2), 'twin175': (0, 0), 'ionBall': (0, 0), 'pd': (0, 0)}
+  trc        6 : {'utl': (0, 0), 'twin175': (0, 0), 'ionBall': (0, 0), 'pd': (0, 0)}
+  podAir     1 : {'utl': (0, 0), 'twin175': (0, 0), 'ionBall': (0, 0), 'pd': (0, 0)}
+  y offset implied by the 47 utl fits on source positions (fit y - model z*70.9): min, q1, median, q3, max [220.4, 319.8, 331.4, 336.3, 347.0]
+  y offset implied by the 18 quad175 fits on source positions (fit y - model z*70.9): min, q1, median, q3, max [340.8, 342.0, 342.0, 343.3, 347.8]
+
+pictures: ['overview_top_marked.png', 'overview_stbd_marked.png', 'utl_shell1842.png', 'utl_shell3152.png', 'utl_shell1848.png', 'twin175_shell2466.png', 'twin175_shell2724.png', 'twin175_shell2860.png', 'ionBall_shell3125.png', 'ionBall_shell3522.png', 'ionBall_shell3267.png', 'pd_shell2094.png', 'pd_shell3360.png', 'pd_shell2503.png', 'excluded_shell255.png', 'excluded_shell1553.png', 'excluded_shell1887.png', 'section_shipx3111.png', 'section_shipx2501.png']

@@ -138,11 +138,11 @@ def facing_word(n):
     if n[2] < -0.985:
         return 'down'
     if abs(n[2]) < 0.2:
-        if abs(n[0]) > 0.8:
+        if abs(n[0]) > 0.95:
             return 'side (starboard)' if n[0] > 0 else 'side (port)'
-        if abs(n[1]) > 0.8:
+        if abs(n[1]) > 0.95:
             return 'aft' if n[1] > 0 else 'forward'
-        return 'side, oblique'
+        return ('aft' if n[1] > 0 else 'forward') + ' and ' + ('starboard' if n[0] > 0 else 'port') + ', oblique'
     return 'sloped up' if n[2] > 0 else 'sloped down'
 
 
@@ -286,6 +286,39 @@ def pictures(T, lab, classes, rdir, reps):
             path = os.path.join(rdir, '%s_shell%d.png' % (cls, cid))
             Image.fromarray(np.concatenate(ims, 1)).save(path)
             made.append(path)
+    # cross-sections of the starboard edge (side band): model z in metres on the left, ship y on the right
+    for y0 in (14.0, 22.6):
+        d = T[:, :, 1] - y0
+        m = (d.min(1) < 0) & (d.max(1) > 0)
+        segs = []
+        for tri, dd in zip(T[m], d[m]):
+            pts = []
+            for i in range(3):
+                j = (i + 1) % 3
+                if (dd[i] < 0) != (dd[j] < 0):
+                    t = dd[i] / (dd[i] - dd[j])
+                    pts.append(tri[i] + t * (tri[j] - tri[i]))
+            if len(pts) == 2:
+                segs.append(pts)
+        segs = np.array(segs)
+        xm = segs[:, :, 0].max()
+        x0, x1, z0, z1 = xm - 400 / S, xm + 60 / S, -150 / S, 150 / S
+        Wp = 1200
+        sc = Wp / (x1 - x0)
+        Hp = int((z1 - z0) * sc)
+        img = Image.new('RGB', (Wp, Hp), (255, 255, 255))
+        dr = ImageDraw.Draw(img)
+        for gz in range(-150, 151, 25):
+            Y = Hp - (gz / S - z0) * sc
+            dr.line([(0, Y), (Wp, Y)], fill=(255, 150, 150) if gz == 0 else (225, 225, 225))
+            dr.text((3, Y - 11), 'z %d m' % gz, fill=(110, 110, 110))
+            dr.text((Wp - 70, Y - 11), 'y %d' % (gz + Y_OFFSET), fill=(110, 110, 110))
+        for a_, b_ in segs:
+            dr.line([((a_[0] - x0) * sc, Hp - (a_[2] - z0) * sc), ((b_[0] - x0) * sc, Hp - (b_[2] - z0) * sc)], fill=(20, 60, 160), width=1)
+        dr.text((120, 4), 'section at ship x %.0f m (model y %.1f), starboard edge; half width %.0f m' % ((STL_Y_STERN - y0) * S, y0, xm * S), fill=(0, 0, 0))
+        path = os.path.join(rdir, 'section_shipx%d.png' % round((STL_Y_STERN - y0) * S))
+        img.save(path)
+        made.append(path)
     return made
 
 
@@ -494,6 +527,7 @@ def main():
                             ship_x_rear=round((STL_Y_STERN - s.hi[1]) * S, 1), ship_x_front=round((STL_Y_STERN - s.lo[1]) * S, 1),
                             length_m=round(s.d[1], 1), max_diameter_m=[round(s.d[0], 1), round(s.d[2], 1)],
                             rear_rim_diameter_m=[round(np.ptp(rear[:, 0]) * S, 1), round(np.ptp(rear[:, 2]) * S, 1)]))
+    eng = json.loads(json.dumps(eng))
     eng.sort(key=lambda e: (-e['max_diameter_m'][0], e['ship_z']))
     say('')
     say('engine bodies (shells of 432/504/560/760 triangles aft of model y 38):', len(eng))
@@ -506,6 +540,7 @@ def main():
         if abs(s.c[0]) < 0.02 and s.id != hull.id and s.d[1] > 250:
             big.append(dict(shell=s.id, triangles=s.tris, ship_x=[to_ship(s.hi)[0], to_ship(s.lo)[0]], ship_y=[round(s.lo[2] * S + Y_OFFSET, 1), round(s.hi[2] * S + Y_OFFSET, 1)],
                             half_width_m=round(s.hi[0] * S, 1), bbox_m=[round(x, 1) for x in s.d]))
+    big = json.loads(json.dumps(big))
     say('')
     say('largest centreline shells (superstructure, bridge tower, domes):')
     for b in big:
@@ -540,6 +575,31 @@ def main():
                 % (dk, len(A), ck, len(B), comp[dk]['example_to_nearest_source_plan_m'], comp[dk]['example_to_nearest_source_3d_m'], comp[dk]['example_within_50m_plan'],
                    comp[dk]['example_within_150m_plan'], comp[dk]['source_to_nearest_example_plan_m'], comp[dk]['source_with_example_within_150m_plan']))
 
+    if design:
+        say('')
+        say('example fits within 50 m (plan) of a source position, by kind and source class:')
+        cross = {}
+        for dk, pts in g.items():
+            A = np.array(pts)
+            row = {}
+            for ck, items in classes.items():
+                B = np.array([it['ship'] for it in items])
+                Dp = np.linalg.norm(A[:, None, [0, 2]] - B[None, :, [0, 2]], axis=2)
+                row[ck] = dict(example_fits_within_50m=int((Dp.min(1) < 50).sum()), source_positions_with_a_fit_within_50m=int((Dp.min(0) < 50).sum()))
+            cross[dk] = dict(count=len(A), near=row)
+            say('  %-8s %3d : %s' % (dk, len(A), {ck: (v['example_fits_within_50m'], v['source_positions_with_a_fit_within_50m']) for ck, v in row.items()}))
+        comp['cross'] = cross
+        # height offset implied by the example fits that sit on a source position
+        for dk, ck in (('utl', 'utl'), ('quad175', 'twin175')):
+            A = np.array(g.get(dk, []))
+            Bs = np.array([it['stl'] for it in classes[ck]])
+            Bp = np.array([it['ship'] for it in classes[ck]])
+            Dp = np.linalg.norm(A[:, None, [0, 2]] - Bp[None, :, [0, 2]], axis=2)
+            j = Dp.argmin(1)
+            ok = Dp.min(1) < 50
+            off = A[ok, 1] - Bs[j[ok], 2] * S
+            comp[dk]['implied_y_offset'] = [round(float(x), 1) for x in np.percentile(off, [0, 25, 50, 75, 100])]
+            say('  y offset implied by the %d %s fits on source positions (fit y - model z*%.1f): min, q1, median, q3, max %s' % (ok.sum(), dk, S, comp[dk]['implied_y_offset']))
     res = collections.OrderedDict(
         source=os.path.basename(stl), triangles=int(len(T)), shells=int(nc), scale=S,
         map='ship_x=(%.5f-stl_y)*%.1f (from the stern, bow +x); ship_z=stl_x*%.1f (starboard +z); ship_y=stl_z*%.1f+%.1f' % (STL_Y_STERN, S, S, S, Y_OFFSET),
@@ -552,6 +612,9 @@ def main():
         g = sorted([s for s in group if s.c[0] >= -0.02], key=lambda s: s.c[1])
         return [(g[i].id, half) for i in sorted(set(np.linspace(0, len(g) - 1, n).astype(int)))]
     reps = {'utl': pick(octs, 3, 160), 'twin175': pick(sqs, 3, 90), 'ionBall': pick(balls, 3, 80), 'pd': pick(pads, 3, 60)}
+    ex = [s for s in sh if s.tris == 67 and 170 < fp(s)[1]][:1] + [s for s in sh if s.tris == 52 and 140 < fp(s)[1] < 200][:1] + \
+         [s for s in sh if s.tris == 22 and 85 < fp(s)[0] < 95 and 70 < fp(s)[1] < 82][:1]
+    reps['excluded'] = [(s.id, 200 if s.tris != 22 else 80) for s in ex]
     made = pictures(T, lab, classes, os.path.join(out, 'renders'), reps)
     say('')
     say('pictures:', [os.path.basename(p) for p in made])
