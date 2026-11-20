@@ -64,6 +64,9 @@
 // 「航空機による対艦攻撃ができるくらいまで引き伸ばす形に」: examples regenerated on example model version 5 with repulsorlifts for
 // every ship's mass (more mass, power draw and rooms), SHIELD_MODEL.debit .5 → .25). The difference against the previous
 // recording was not broken down by field. Two recordings in a row gave the same file (sha256 d2ed7fbd…).
+// Re-recorded on bb6c788 (2026-11-20, user decisions「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」「緊急遮断でも
+// リパルサーリフトは給電を続ける形。ただ長いと落ちる」and the physics-review fixes: lift rooms placed in the hull proper, the support the
+// lift rooms took made up, examples regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 2d40f015…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
