@@ -113,7 +113,7 @@ function generatedPrimaryEvidence(C,ship,source,expected){
  if(declaredFraming)proof.exactDeclaredFraming=sha(stable(actual.hullData?.framingSamples)??'<absent>')===MC75_FRAMING_EXPECTED_SHA;
  const actualFits=new Map(ship.fits.map(f=>[f.id,f]));
  for(const fit of raw.fits.filter(f=>hostId(f.host)===original.id)){
-  const target=actualFits.get(fit.id),before=copy(fit);before.host=reboundHost(fit.host,actual.id);const pair=posePair(C,before,target),correctOwner=!!target&&target.host===before.host;
+  const target=actualFits.get(fit.id),before=copy(fit);before.host=reboundHost(fit.host,actual.id);const pair=posePair(C,before,target),/* 2026-11-21: a design saved by the current serializer names no body for a weapon (user decision 2026-11-20, no parent relation left); a body that is named must still be the rebound hull */correctOwner=!!target&&(target.host==null||target.host===before.host);
   let frameEquivalent=false,boundsEquivalent=false;try{if(target){frameEquivalent=equivalent(publicValue(C.fitFrameOf(copy(fit))),publicValue(C.fitFrameOf(copy(target))));boundsEquivalent=equivalent(publicValue(C.fitAABB(copy(fit))),publicValue(C.fitAABB(copy(target))));}}catch{}
   proof.ownedFits.push({id:fit.id,sourceHost:fit.host,actualHost:target?.host??null,correctOwner,localAndPoseEquivalent:equivalent(pair.before,pair.after),frameEquivalent,boundsEquivalent});
  }
