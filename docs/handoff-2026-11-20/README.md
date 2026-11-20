@@ -2,6 +2,15 @@
 
 前の申し送り：[../handoff-2026-11-19/README.md](../handoff-2026-11-19/README.md)。この文書は、2026-11-20 に受けたユーザーの指示・決定と、PR #122 以降の予定をまとめる。実装の状態は各 PR の説明と該当の文書を見ること。ここに書いてあるだけでは実装済みではない。
 
+**引き継ぐ人へ**（ユーザー指示 2026-11-20「もしも引き継ぐ時とかにも続けられるようにちゃんと決定内容や今後の予定を残しておいて」）：この文書だけで続きに入れるように書いている。作業を進めたら、§7（いまの状態と次の手順）と §8（未解決の点）をその都度書き換えること。新しい決定を受けたら、原文を該当の節に足すこと。
+
+| 読む順 | 文書 | 内容 |
+| --- | --- | --- |
+| 1 | `CLAUDE.md`、`reference-fidelity-rules.md`、[../claude-verification.md](../claude-verification.md) | 守る規則、検証の方法 |
+| 2 | この文書 | 2026-11-20 の決定、PR の予定、いまの状態 |
+| 3 | [../handoff-2026-11-19/README.md](../handoff-2026-11-19/README.md) | 航空指揮、損害、リフトの置き場所、#120 までの状態 |
+| 4 | [../handoff-2026-11-18/README.md](../handoff-2026-11-18/README.md)、[../handoff-2026-11-15/README.md](../handoff-2026-11-15/README.md) | 全体の作業順（A〜F）、戦術空間の決定 11 件、要件 5〜8、削りの焼き込み |
+
 ## 0. 進め方についての指示（2026-11-20）
 
 - 「そのまま続けて、マージまで持って行って」：PR #121 は検証とレビューを済ませてマージする。
@@ -98,3 +107,29 @@
 - マンデイター II：「マンデイターIIはこれをベースに使って」（外装は `assets/source/mandator2-user-exterior/`）。「7.7e26はファンダムで推定されてる数値なので絶対動かさない」（反応炉出力は固定。戦闘負荷では砲が発電を使い切り、推進には残りだけが回る）。
 - 埋め込み式ランチャー：「それでいい」（箱が当たった部品を超えても、船体・構造物の中なら可）。
 - リフトは船体内、緊急遮断でも 300 秒は給電を続ける（前の申し送りと `tests/planet-gravity.cjs`）。
+
+## 7. いまの状態と次の手順（2026-11-20 夕方の時点。進めたら書き換える）
+
+- ブランチ `claude/jolly-cannon-psv61o`、PR #121（draft、基準 `claude/relaxed-ritchie-bquetk`）。この節を書いた時点の先頭は `f0009c4`。#120 のマージ（`1da778b`）からのコミットは `git log 1da778b..HEAD` で見る。
+- **コードに入っていて push 済みのもの**：艦隊戦の引き伸ばし（シールドの削り値 .25、爆撃機の目標の割り当て）、リパルサーリフト（全艦、船体内、緊急遮断中 300 秒の維持）、熱の合算（`heatSolve`）、削り値の曲線（`shieldDebitK`）、リフト区画で艦が「機体システムを管理」扱いになる不具合の修正（`craftSystemsStats`）、埋め込み式ランチャーの規則（`mountEmbeddedLauncher`）、伝達路の探索でキャッシュを保持（`engineDriveRoutes`）、マンデイター II のビルダー（`buildMandatorReference`、`MAN2_EXTERIOR`／`MAN2_INTERIOR`／`MAN2_MOUNTS`、`shipRefitInternalCores` の mandator2 の分岐）。
+- **実行中だったもの**：全作例の再生成（`node scripts/refresh-examples.cjs --jobs 3`。マンデイター II だけで 75 分以上かかる）。セッションが切れていたら、`git status` で `data/examples/` と `data/fleet.js` が中途半端に変わっていないかを見て、変わっていれば `git checkout -- data/ index.html` で戻してから、やり直す。
+- **#121 をマージするまでの手順**（順番どおり）：
+  1. 再生成：`node scripts/update-craft-costs.cjs --check` → `node scripts/refresh-examples.cjs --jobs 3` → `node scripts/update-asset-manifest.cjs` → `--check`。
+  2. 結果の確認：全 29 隻のリフト（支持 ≥ 質量、船体内）、旋回・命中が #120 の時点（`git show 1da778b:data/fleet.js`）の値に戻っていること、加速、マンデイター II の兵装の数（720 TT 連装 61、175 TT 四連装 48、イオン 16、点防御 63、大型ランチャー 6）と斉射 132,640 TT、反応炉 7.7e26 W。表を `docs/benchmarks/` に日付入りのフォルダで置く。
+  3. 決定性基準の取り直し：`KS_DETERMINISM_WRITE=1 KS_DETERMINISM_BASE=<sha> node --test tests/fleet-battle-determinism.cjs` を 2 回（同一を確認）、そのあと書き込みなしで 2 回。テスト内の記録に理由（熱の合算、削り値の曲線、再生成）を足す。
+  4. 全体テスト：`tests/*.cjs` を全部（3 並列、1 本 1,800 秒まで。900 秒では `fleet-loadout-separation`・`recusant-munificent-guns`・`strategic-ai` が時間切れになる）。#120 の時点（`1da778b`）と main で落ちるものと並べる。乗り込みのテスト 2 本（`boarding-core`、`boarding-localization`）が合格に戻ることを確かめる。マンデイターに関するテスト（`mandator-example-refit`、`mandator-layout-publication`、`mandator-battery-layout`、`military-acceleration-gates` など）は作り直しに合わせて期待値を改める（理由を記録）。
+  5. マンデイター II の証拠：ゲームの描画での画像（上面・下面・艦尾・砲座の拡大）と、reference-fidelity-rules.md の 4 項目判定。原本の測定は `docs/benchmarks/mandator2-rebuild-2026-11-19/`。ユーザーの外装は変更していないこと（`MAN2_EXTERIOR` と `assets/source/mandator2-user-exterior/` の一致）を示す。
+  6. レビュー：physics（熱の合算、削り値の曲線、リフトと旋回・命中、マンデイター II の性能値）、regression（保存形式に関わる `deserialize` の変更、ランチャーの規則、伝達路の探索、再生成）、reference-fidelity（マンデイター II）。regression が求めた高い推論量での追加確認も行う。
+  7. ブラウザ確認：作例を開く、保存と再読込、リフト区画の表示、マンデイター II の表示、ユーザーの設計 2 件（熱、シールド配置）での計算の完了。
+  8. PR の説明を更新し、draft を外してマージする（§0 の指示）。
+- **スクラッチパッドにあるもの**（セッションが変わると消える。必要なら作り直す）：マンデイター II の試作一式とコード生成スクリプト（外装・内装・搭載位置の定数は `js/core.js` に入っているので、作り直しは不要）、全体テストの結果一覧、ユーザーの設計ファイル 2 件（リポジトリには入れていない）。
+
+## 8. 未解決の点（#121 の中で片付けるか、理由を付けて次へ送る）
+
+- **管制数 3 での反撃の遅れ**：インペリアル級の実際の管制数（3）では、「敵の攻撃隊を防いだあと反撃の爆撃隊を出す」が確認時間内に起きなかった（`tests/fleet-air-restraint.cjs` はテスト内で管制 6 を明示している）。迎撃の戦闘機で枠が埋まるためと見ているが、原因は未確認。艦隊戦シミュレーション（`KS_LIMIT=1200 KS_START=80000 node scripts/sim-fleet-air.cjs`）の取り直しのときに測る。
+- **伝達路が塞がれたときの探索の遅さ**：ユーザーの 2,200 m の設計で、シールド 2 基が伝達路にかかると読み込みに 230 秒かかる（キャッシュの修正後。修正前は終わらなかった）。迂回の探索の打ち切り方を見直す。
+- **マンデイター II**：点防御は片舷 2 個の台が組にならず空いている（63 基）。大型ランチャーは外装にラック台が 6 個しかないので 6 基（原本は 8）。機関本体 11 基のうち軸の上に置けたのは 3 基で、残りは主船体の中（#122 の「閉じた空洞も船内」で置き直す）。定格の加速は約 970 G（以前は約 1,130 G）、戦闘負荷では推進に回る電力が 0。
+- **以前のレビューの残り**：熱設計にリフトの電力が入っていない、MC75 の排熱設備の容量 −7.2%、リクサント級ドレッドノートの加速 +4.9%（ユーザーの確認待ち）、船体が小さい艦のリフトを構造物内に置く扱い（ユーザーの確認待ち）、`integrateCompartments` の条件に `repulsor` が無い、配置失敗時の `_shipRefitMaterializedParts`／`nextId` の戻し。
+- **削り値の曲線の数値**（上限 2、境目 1e-6 TT と 1 TT）は実装者の選択。ユーザーに伝えてあり、変更の指示は受けていない。
+- **変更前から落ちているテスト**：main でも約 150 本が落ちる。棚卸しは未着手。
+
