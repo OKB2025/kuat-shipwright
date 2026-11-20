@@ -84601,6 +84601,15 @@ function constructShipSystems(ship,key){
    if(!added){syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);break;}
    syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);/* the thermal sizing is not rerun here: it resized the converters (Death Star: rated rejection halved; physics review 2026-11-17) */
   }
+  // 2026-11-20 The layout steps after the repulsorlifts were placed (the drives' sizing, the machinery straightening) can move
+  // machinery into a lift room: the room then overlaps and does not count (Imperial I/II carried 78% of their mass). Such rooms
+  // are taken out and the lift is made up against the finished layout. A hull with no room left keeps what fits.
+  let liftRedone=false;for(let pass=0;pass<3;pass++){const m=shipRefitMeasure(ship),bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&m.info?.[p.id]?.overlap).map(p=>p.id)),good=ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!bad.has(p.id)).reduce((n,p)=>n+partVolume(p),0),want=m.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-good;
+   if(want>Math.max(.01,m.mass/CRAFT_SYSTEMS.landingSupport*1e-4)){const keep=ship.parts.slice(),ids=new Set(keep.map(p=>p.id));ship.parts=ship.parts.filter(p=>!bad.has(p.id));
+    let failed=false;try{shipRefitAddVolume(ship,'repulsor',want,'分散リパルサーリフト');for(const p of ship.parts)if(!ids.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;ship.parts=keep;failed=true;}
+    syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);liftRedone=true;if(failed)break;}else break;}
+  // A lift room placed in the last pass that overlaps a gun's room does not count either: it is taken out (the rest carry the ship or not, as measured).
+  if(liftRedone){const bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&measured.info?.[p.id]?.overlap).map(p=>p.id));if(bad.size){ship.parts=ship.parts.filter(p=>!bad.has(p.id));syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);}}
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
   ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.referenceTargetG??propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),reconfiguredReactors,addedInertial:[...new Set([...addedInertial.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='inertial').map(p=>p.id)])],addedIntegrity:[...new Set([...addedIntegrity.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='integrity').map(p=>p.id)])],addedPumps:[...new Set([...addedPumps.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='pump').map(p=>p.id)])],powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:weaponBranchInputW,weaponBusBudgetW,weaponBranchInputW,originalEngineOutlets,thermal:ship._shipThermalRefit};
   ship.shipSystemRefit.engineCoreIds=propulsion.engines.filter(p=>p.k==='engineCore').map(p=>p.id);
@@ -85452,7 +85461,13 @@ const EXE_DESIGN={"format":"starship-yard","v":3,"propulsionModelVersion":1,"nam
 function buildExecutorReference(){
  const design=JSON.parse(JSON.stringify(EXE_DESIGN));
  design.fits=[design.fits[0],...EXE_TRC.map(r=>({id:r[0],...EXE_TRC_BASE,p:[r[1],r[2],r[3]],n:[r[4],r[5],r[6]]})),...design.fits.slice(1)];
- const s=deserialize(design);s.name='エグゼクター級｜超大型指揮戦艦';s.reference='executor';s._userDesign='executor';return s;
+ const s=deserialize(design);s.name='エグゼクター級｜超大型指揮戦艦';s.reference='executor';s._userDesign='executor';
+ // 2026-11-20 User instruction「着陸設備ではなくリパルサーリフトと改めた上で艦の重量分搭載して」(asked of every ship): the user's design file
+ // carries none, and it is not put through constructShipSystems, so the repulsorlifts for its mass are added here as distributed
+ // rooms inside the hull. Nothing else of the design is changed. A hull with no room left keeps the design as it was.
+ {const m=shipRefitMeasure(s),want=m.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-s.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true).reduce((n,p)=>n+partVolume(p),0),ids=new Set(s.parts.map(p=>p.id)),keep=s.parts.slice();
+  if(want>.01)try{shipRefitAddVolume(s,'repulsor',want,'分散リパルサーリフト');for(const p of s.parts)if(!ids.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;syncCompartments(s);}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;s.parts=keep;}}
+ return s;
 }
 registerShipExample({
  key:'executor',name:'エグゼクター級｜超大型指揮戦艦',side:'銀河帝国',role:'スター・ドレッドノート',length:19000,

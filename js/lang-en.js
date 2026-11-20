@@ -10801,6 +10801,7 @@ Object.assign(root.KS_EN.terms,{
   "下部共通格納庫（兵員乗降・全機発着）": "Lower Common Hangar (Troop Boarding / All Craft Launch and Recovery)",
   "ガンシップ搭乗リフト": "Gunship Boarding Lift",
   "分散慣性補償設備": "Distributed Inertial Compensator",
+  "分散リパルサーリフト": "Distributed Repulsorlift",
   "追加慣性補償設備": "Additional Inertial Compensator",
   "分散構造維持設備": "Distributed Structural Integrity Field Generator",
   "追加構造維持設備": "Additional Structural Integrity Field Generator",
