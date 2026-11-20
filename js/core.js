@@ -83983,8 +83983,9 @@ function installCraftSystems(ship,recipe){
 // never passed through this routine. Every rating below belongs to installed
 // finite machinery; derived mass, thrust and power remain solver results.
 function shipRefitMeasure(ship){return withFrozenStructures(()=>{const work=surfaceWorkingShip(ship),old=work._lockedCache;work._lockedCache=cache(work);work._boundsPass={};try{const S=baseComputeStats(work,{engineeringOnly:true}),field=craftFieldGain(Math.max(.001,S.dims?.[0]||0)),volume=k=>work.parts.filter(p=>p.k===k&&!S.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0);S.inertialSupport=volume('inertial')*120*field;S.integritySupport=volume('integrity')*180*field;S.bareStructAccel=S.aStruct;S.aStruct*=1+12*Math.min(1,S.integritySupport/Math.max(1,S.mass));S.structG=S.aStruct/G0;return S;}finally{delete work._boundsPass;if(old)work._lockedCache=old;else delete work._lockedCache;}});}
-function shipRefitAnchors(ship){
+function shipRefitAnchors(ship,fine=false){
  const b=shipBounds(ship),out=[],put=q=>{if(q.every(Number.isFinite)&&insideOriginalEnvelope(ship,q))out.push(q.slice());};
+ if(fine)/* 2026-11-20 the lifts go in the hull proper only: a thin hull has few of the coarse points in it */for(let x=1;x<24;x++)for(let y=1;y<12;y++)for(let z=1;z<12;z++)put([lerp(b[0],b[3],x/24),lerp(b[1],b[4],y/12),lerp(b[2],b[5],z/12)]);
  for(const p of ship.parts.filter(isShapePart).sort((a,c)=>partVolume(c)-partVolume(a)))put(p.c);
  for(const x of [.12,.2,.3,.4,.5,.6,.7,.8,.88])for(const y of [.2,.35,.5,.65,.8])for(const z of [.15,.3,.5,.7,.85])put([lerp(b[0],b[3],x),lerp(b[1],b[4],y),lerp(b[2],b[5],z)]);
  return out;
@@ -84004,14 +84005,16 @@ function shipRefitFixedPart(ship,k,volume,label,preferred){
 // superstructure): user decision 2026-11-20「リフトは船体内で」.
 // A ship whose hull is itself put together from structures (no hull proper: CR90) has no such difference, and its lifts go anywhere inside its outline.
 const shipHasHullProper=ship=>ship.hullStructureVersion===1?ship.parts.some(isHullStructure):!ship.hull?.assembly;
-const liftRoomBad=(info,p,ship)=>!!info?.[p.id]?.overlap||(!ship||shipHasHullProper(ship))&&(info?.[p.id]?.inHull??1)<.999;
+// A hull proper too small for the lifts (Heraklon: the hull structure is 5% of the ship's structures) takes what fits; the rest
+// goes into the other structures (ship._liftAnywhere, set while the ship is built).
+const liftRoomBad=(info,p,ship)=>!!info?.[p.id]?.overlap||(!ship||shipHasHullProper(ship)&&!ship._liftAnywhere)&&(info?.[p.id]?.inHull??1)<.999;
 function shipRefitAddVolume(ship,k,volume,label){
  if(!(volume>1e-6))return [];
  if(['aux','pump','integrity','hdis','inertial','repulsor'].includes(k)){
-  const anchors=shipRefitAnchors(ship).filter(q=>k!=='repulsor'||!shipHasHullProper(ship)||v3InHull(ship,q))/* user decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」 */,b=shipBounds(ship);if(!anchors.length)throw new Error(ship.name+'：'+label+' の船内容積が不足しています（船体内に置き場所がありません）');const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
+  const hullOnly=k==='repulsor'&&shipHasHullProper(ship)&&!ship._liftAnywhere,coarse=shipRefitAnchors(ship).filter(q=>!hullOnly||v3InHull(ship,q)),fine=hullOnly&&coarse.length<12/* a thin hull has few of the coarse points in it (MC30c, Acclamator); a hull with enough of them keeps them: the fine ones lie near its edges, where a room is cut down to a sliver */,anchors=fine?shipRefitAnchors(ship,true).filter(q=>v3InHull(ship,q)):coarse/* user decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」 */,b=shipBounds(ship);if(!anchors.length)throw new Error(ship.name+'：'+label+' の船内容積が不足しています（置き場所がありません）');const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
   const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
-  let remaining=volume;for(let pass=0;pass<4&&remaining>Math.max(.1,volume*1e-5);pass++){
-   const n=pass?4:count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true,...(k==='repulsor'?{landingEquipment:true}:{})}));
+  let remaining=volume;for(let pass=0;pass<(fine?10:4)&&remaining>Math.max(.1,volume*1e-5);pass++){
+   const n=pass?(fine?8:4):count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true,...(k==='repulsor'?{landingEquipment:true}:{})}));
    syncCompartments(ship);remaining=Math.max(0,volume-made.reduce((total,p)=>total+partVolume(p),0));
   }
   if(remaining>Math.max(.1,volume*(['pump','integrity','inertial'].includes(k)?.02:1e-4)))throw new Error(ship.name+'：'+label+' の船内容積が不足しています（'+Math.round(remaining)+' m³）');return shipRefitFreezeRooms(ship,made);
@@ -84610,12 +84613,18 @@ function constructShipSystems(ship,key){
   // 2026-11-20 The layout steps after the repulsorlifts were placed (the drives' sizing, the machinery straightening) can move
   // machinery into a lift room: the room then overlaps and does not count (Imperial I/II carried 78% of their mass). Such rooms
   // are taken out and the lift is made up against the finished layout. A hull with no room left keeps what fits.
+  const liftFinal=()=>{
   let liftRedone=false;for(let pass=0;pass<3;pass++){const m=shipRefitMeasure(ship),bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&liftRoomBad(m.info,p,ship)).map(p=>p.id)),good=ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!bad.has(p.id)).reduce((n,p)=>n+partVolume(p),0),want=m.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-good;
    if(want>Math.max(.01,m.mass/CRAFT_SYSTEMS.landingSupport*1e-4)){const keep=ship.parts.slice(),ids=new Set(keep.map(p=>p.id));ship.parts=ship.parts.filter(p=>!bad.has(p.id));
     let failed=false;try{shipRefitAddVolume(ship,'repulsor',want,'分散リパルサーリフト');for(const p of ship.parts)if(!ids.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;ship.parts=keep;failed=true;}
     syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);liftRedone=true;if(failed)break;}else break;}
   // A lift room placed in the last pass that overlaps a gun's room does not count either: it is taken out (the rest carry the ship or not, as measured).
   if(liftRedone){const bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&liftRoomBad(measured.info,p,ship)).map(p=>p.id));if(bad.size){ship.parts=ship.parts.filter(p=>!bad.has(p.id));syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);}}
+  };liftFinal();
+  // A hull proper too small for the lifts (Heraklon: its hull structure is 5% of its structures) cannot carry the ship from
+  // inside the hull alone: the lifts of such a ship are placed again anywhere inside its outline, as for a ship with no hull proper.
+  if(shipHasHullProper(ship)&&!ship._liftAnywhere){const good=ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!liftRoomBad(measured.info,p,ship)).reduce((n,p)=>n+partVolume(p),0);
+   if(good*CRAFT_SYSTEMS.landingSupport<measured.mass){ship._liftAnywhere=true;ship.parts=ship.parts.filter(p=>!(p.k==='repulsor'&&p.landingEquipment===true&&String(p.label||'').startsWith('分散リパルサーリフト')));syncCompartments(ship);wirePower();liftFinal();}}
   // 2026-11-20 The lift rooms are fitted among the other fitted rooms and can take room from them (Recusant dreadnought: its
   // structural integrity rooms lost 6.9% of their volume, its structural limit and with it its acceleration 6.1%). What the
   // inertial compensators and integrity field lost is made up, to what they supported before the lifts or to the ship's need

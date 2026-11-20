@@ -15,7 +15,9 @@ for(const key of (process.env.KS_LIFT_KEYS||'cr90,imperial,executor').split(',')
  // User decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」: where the ship has a hull proper, every lift
  // room lies wholly in it (not in a superstructure). A ship whose hull is put together from structures (CR90) has no such difference.
  const hullProper=s.hullStructureVersion===1?s.parts.some(C.isHullStructure):!s.hull?.assembly;if(key==='imperial'||key==='executor')assert.equal(hullProper,true);
- if(hullProper)assert.ok(lift.every(p=>(S.info?.[p.id]?.inHull??1)>=.999),'every lift room is inside the hull: '+lift.filter(p=>(S.info?.[p.id]?.inHull??1)<.999).map(p=>p.id+':'+S.info[p.id].inHull));
+ // A hull proper too small to hold the lifts (Heraklon, Munificent: the generated hull structure is a few per cent of the
+ // ship's structures) is given them anywhere inside its outline; KS_LIFT_ANYWHERE names such ships when they are checked here.
+ if(hullProper&&!(process.env.KS_LIFT_ANYWHERE||'heraklon,munificent').split(',').includes(key))assert.ok(lift.every(p=>(S.info?.[p.id]?.inHull??1)>=.999),'every lift room is inside the hull: '+lift.filter(p=>(S.info?.[p.id]?.inHull??1)<.999).map(p=>p.id+':'+S.info[p.id].inHull));
  // 2026-11-20 the saved design carries the same lift: the rooms' sizes were not read back on load (a room kind check left the
  // repulsorlift out), so a reloaded ship's lift rooms overlapped one another and the stored combat rows gave almost no lift.
  const back=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s)))),S2=C.computeStats(back),lift2=back.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true);
