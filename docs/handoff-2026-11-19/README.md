@@ -459,3 +459,13 @@ b4a7ac4 に対する判定は physics-reviewer・regression-reviewer とも **FA
   - 記録は作例の再生成前（リパルサーリフト・管制数 3/4・発艦速度 4 倍が性能表に未反映）。再生成後に取り直す。
   - 決定性の基準（`tests/fleet-battle-determinism.cjs`）は取り直していない。最終の再生成と一緒に記録する。
   - `tests/electrical-transmission-loss.cjs` の 1 件（shared outlets…）は main（origin/main の core.js）でも失敗する既存の失敗。
+
+### リパルサーリフトの全艦搭載（ユーザー指示、2026-11-20 時点で作例 28 隻＋エグゼクターに搭載済み）
+
+- 搭載量は艦の質量 × 1.1（`SHIP_LIFT_MARGIN`）÷ 300 t/m³（`CRAFT_SYSTEMS.landingSupport`）。船体内の分散区画として置き、外形は変えない。
+- 2026-11-20 に直した 2 件（`tests/ship-repulsorlift.cjs`、cr90・imperial・executor で確認）：
+  - インペリアル I/II が質量の 78% だった。原因は、リフト区画を置いた後の工程（機関の容量決め・機関室の整列）で一部が他の機器と重なり、数えられなくなっていたこと。完成した配置に対して、重なった区画を外して置き直す（最大 3 回、最後まで重なる区画は外す）。110% になった。
+  - エグゼクターは未搭載だった。作例はユーザー提供の設計ファイルをそのまま読み込む経路（`buildExecutorReference`）で、`constructShipSystems` を通らないため。読み込み後に質量分の分散区画を足す。**ユーザーの設計にリフト区画 48 個（3,705 万 m³）を足している**点は確認が要る。足した区画への給電線は張っていない（設計ファイルの配線のまま）。
+- 単体調査（`buildDesign` → `computeStats`、支持量 ≥ 質量）：cr90、nebulonb、venator、imperial、imperial2、executor、mc75、mc80home、mc80liberty、mc30c、munificent、providenceDn、recusantDn、lucrehulk、lh3210、subjugator、mandator2、deathstar。ほかの艦は再生成後の性能表で確認する。
+- 未実装：戦闘中の浮力（`liftPowerless`）は電源の有無だけで決まり、リフト区画の損傷・支持量とはまだ結び付いていない。
+- 作例モデルの版を 5 に上げて全作例を再生成（`EXAMPLE_PROFILE_VERSION=5`）。
