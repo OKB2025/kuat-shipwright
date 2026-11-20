@@ -30,16 +30,17 @@ test('the seat sinks the base until the whole footprint reaches the sloped body,
  const flat=fixture(0);near(C.partAABB(flat.part)[1],surfaceY(flat.ship,20,30),1e-6);
 });
 
+const own=text=>{const o=JSON.parse(text);for(const k of [...C.PLACEMENT_BODY_KEYS,'seatOffset'])delete o[k];return JSON.stringify(o);};
 for(const [name,edit] of [['raised',p=>{p.c=[p.c[0],p.c[1]+3,p.c[2]];}],['turned',p=>{p.pitch=-4;}],['resized',p=>{p.s=[140,80,26];}]])
  test(`the body below ${name}: the child keeps its pose, solid and placement record, also after a reload`,()=>{
   const {ship,parent,part}=fixture(),before={record:record(part),c:plain(part.c),volume:C.partVolume(part)};edit(parent);C.refreshPlacementGeometry(ship);
   assert.equal(record(part),before.record);assert.deepEqual(plain(part.c),before.c);assert.equal(C.partVolume(part),before.volume);
-  const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2);C.refreshPlacementGeometry(L);assert.equal(record(q),before.record);assert.deepEqual(plain(q.c),before.c);
+  const L=C.deserialize(structuredClone(C.serialize(ship))),q=L.parts.find(p=>p.id===2);C.refreshPlacementGeometry(L);/* 2026-11-21 (user decision 2026-11-20, no parent relation left): the saved record names no body, so the loaded one is compared without the in-memory body keys (the whole record was compared before) */assert.equal(own(record(q)),own(before.record));assert.equal(structuredClone(C.serialize(ship)).parts.find(p=>p.id===2).placement.parentStructureId,undefined);assert.deepEqual(plain(q.c),before.c);
  });
 
 test('a reload and repeated refreshes write nothing',()=>{
  const {ship,part}=fixture(),r0=record(part),c0=plain(part.c);for(let i=0;i<3;i++)C.refreshPlacementGeometry(ship);assert.equal(record(part),r0);
- const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);const q=L.parts.find(p=>p.id===2);assert.equal(record(q),r0);assert.deepEqual(plain(q.c),c0);
+ const L=C.deserialize(structuredClone(C.serialize(ship)));C.refreshPlacementGeometry(L);const q=L.parts.find(p=>p.id===2);/* 2026-11-21: compared without the in-memory body keys, as above */assert.equal(own(record(q)),own(r0));assert.deepEqual(plain(q.c),c0);
 });
 
 test('a drag by the user seats the structure again at the new place; turning in place does not move it',()=>{
@@ -72,7 +73,7 @@ test('exterior equipment does not follow the structure it was mounted on',()=>{
  assert.equal(r.ok,true,r.error);assert.equal(C.acceptPlacementResult(s,r).ok,true);
  const engine=s.parts.find(p=>p.k==='engine'),pose=plain({c:engine.c,dir:engine.dir,roll:engine.roll}),rec=C.publicJSON(engine.placement);
  C.refreshPlacementGeometry(s);assert.equal(C.publicJSON(engine.placement),rec);
- const loaded=C.deserialize(structuredClone(C.serialize(s))),le=loaded.parts.find(p=>p.k==='engine');C.refreshPlacementGeometry(loaded);assert.equal(C.publicJSON(le.placement),rec);
+ const loaded=C.deserialize(structuredClone(C.serialize(s))),le=loaded.parts.find(p=>p.k==='engine');C.refreshPlacementGeometry(loaded);/* 2026-11-21: compared without the in-memory body keys (the saved record names no body; the body found again is structure 1) */assert.equal(own(C.publicJSON(le.placement)),own(rec));assert.equal(le.placement.parentStructureId,1);assert.deepEqual(plain(le.placement.rigidPose),plain(engine.placement.rigidPose));
  s.parts[0].c=[50,4,0];C.refreshPlacementGeometry(s);assert.deepEqual(plain({c:engine.c,dir:engine.dir,roll:engine.roll}),pose);assert.equal(engine.placement.geometryRevision,JSON.parse(rec).geometryRevision);
  const after=C.publicJSON(engine.placement);C.refreshPlacementGeometry(s);assert.equal(C.publicJSON(engine.placement),after);
 });

@@ -21,7 +21,7 @@ function assertJoined(ship,source,label){
  for(const id of LOST){const p=ship.parts.find(q=>q.id===id),meta=p.placement,o=source.parts.find(q=>q.id===id);
   // 2026-11-13 user decision (stage B: no parent relation): nothing adopts a parent; the lost parent stays as saved and
   // the copy is connected by its contact with the hull alone.
-  assert.equal(meta.parentStructureId,undefined,`${label} #${id}: no parent is adopted`);assert.equal(meta.unresolvedParentId,1,label);
+  /* 2026-11-21 (user decision 2026-11-20, no parent relation left): the mark of the lost body (unresolvedParentId 1, expected until this date) is dropped on load; nothing names a body */assert.equal(meta.unresolvedParentId,undefined,label);
   assert.ok(!meta.validationFailed&&!meta.repairRequired&&!meta.pendingGeometry,`${label} #${id}: ${meta.repairReason}`);
   assert.equal(p._placementError,undefined,`${label} #${id}: ${p._placementError}`);
   // Pose and shape are the user's: nothing moves, and the stored request follows the current shape.
@@ -58,7 +58,7 @@ test('a duplicate of a hull-mounted structure (parent outside the copy) is joine
  assert.equal(copy.placement.parentStructureId,undefined,'precondition: the copy lost its parent');
  ship.parts.push(copy);C.refreshPlacementGeometry(ship);
  // 2026-11-13 (no parent relation): no parent is adopted; the copy is connected by touching the hull.
- const p=ship.parts.find(q=>q.id===copy.id);assert.equal(p.placement.parentStructureId,undefined);assert.equal(p._placementError,undefined);
+ const p=ship.parts.find(q=>q.id===copy.id);/* 2026-11-21 (user decision 2026-11-20, no parent relation left): in memory the structure at the copy's own seat may be noted as its body (expected undefined before); nothing of it is saved */assert.equal(C.serialize(ship).parts.find(q=>q.id===p.id).placement.parentStructureId,undefined);assert.equal(p._placementError,undefined);
  assert.deepEqual(Array.from(p.c),copy.c,'kept where it was put');
  assert.equal(grounding(ship).placementDiagnostics.find(d=>d.partId===p.id).connected,true);
 });
@@ -99,7 +99,7 @@ test('a cut-fit structure pasted from another ship (root and parent dropped) is 
  const target=C.newShip({L:200,W:32,H:32,plan:'cigar',sec:'ellipse'},'other');target.fits=[];C.ensurePrimaryHull(target);
  copy.id=target.nextId++;C.remapPlacementCopy(copy,new Map(),{detachRoots:true});assert.equal(copy.placement.parentStructureId,undefined);
  target.parts.push(copy);C.refreshPlacementGeometry(target);const p=target.parts.find(q=>q.id===copy.id);
- assert.equal(p.placement.parentStructureId,undefined,'no parent adopted (2026-11-13)');assert.equal(p._placementError,undefined);assert.equal(grounding(target).placementDiagnostics.find(d=>d.partId===p.id).connected,true);
+ /* 2026-11-21: in memory the structure whose surface holds the copy's own seat may be noted as its body (expected undefined before); nothing of it is saved, and the copy is not moved */assert.equal(C.serialize(target).parts.find(q=>q.id===p.id).placement.parentStructureId,undefined,'no body is saved');assert.equal(p._placementError,undefined);assert.equal(grounding(target).placementDiagnostics.find(d=>d.partId===p.id).connected,true);
  assert.equal(JSON.stringify(['c','s','yaw','pitch','roll','form'].map(k=>p[k])),authored,'the authored shape and pose, not a fitted shape');
  assert.equal(JSON.stringify(p.placement.requestedGeometry.s),JSON.stringify(copy.s));
 });
@@ -151,7 +151,7 @@ test('a top-mounted box pasted under the hull is joined on the underside, like a
  const {ship,box}=cigarWithBox(),q=JSON.parse(C.publicJSON(box));q.id=ship.nextId++;q.c=[80,-1.8,0];C.remapPlacementCopy(q,new Map(),{detachRoots:true});ship.parts.push(q);C.refreshPlacementGeometry(ship);
  const p=ship.parts.find(x=>x.id===q.id),m=p.placement,hull=ship.parts[0];
  // 2026-11-13 (no parent relation): nothing is adopted or re-anchored; it is connected by its contact with the underside.
- assert.equal(m.parentStructureId,undefined);assert.equal(p._placementError,undefined);assert.equal(grounding(ship).placementDiagnostics.find(d=>d.partId===p.id).connected,true);
+ /* 2026-11-21 (user decision 2026-11-20, no parent relation left): in memory the structure at the copy's own seat may be noted as its body (expected undefined before); nothing of it is saved */assert.equal(C.serialize(ship).parts.find(q=>q.id===p.id).placement.parentStructureId,undefined);assert.equal(p._placementError,undefined);assert.equal(grounding(ship).placementDiagnostics.find(d=>d.partId===p.id).connected,true);
  const want=[75,-1.8,3];p.c=want.slice();C.refreshPlacementGeometry(ship);assert.equal(JSON.stringify(p.c),JSON.stringify(want),'the move is kept');
 });
 // Review 2026-11-13 (fitAxis): copies whose parent is inside the selection, mirror, save round trip.

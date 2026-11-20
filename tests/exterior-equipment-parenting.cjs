@@ -36,7 +36,7 @@ test('a missing parent preserves exterior hardware and its editable settings for
 });
 
 test('equipment left by a turned parent keeps its pose and record through save and readback',()=>{
- const s=fixture(),p=add(s);s.parts[0].roll=31;C.updatePlacementChildren(s,1);const record=C.publicJSON(p.placement),saved=plain(C.serialize(s)),loaded=C.deserialize(saved),q=loaded.parts.find(q=>q.id===p.id);assert.ok(q.placement.rigidPose);assert.equal(q.placement.parentStructureId,1);vector(q.c,p.c);C.updatePlacementChildren(loaded,1);vector(q.c,p.c);assert.equal(C.publicJSON(q.placement),record);
+ const s=fixture(),p=add(s);s.parts[0].roll=31;C.updatePlacementChildren(s,1);const record=C.publicJSON(p.placement),saved=plain(C.serialize(s)),loaded=C.deserialize(saved),q=loaded.parts.find(q=>q.id===p.id);assert.ok(q.placement.rigidPose);assert.equal(q.placement.parentStructureId,1);vector(q.c,p.c);C.updatePlacementChildren(loaded,1);vector(q.c,p.c);/* 2026-11-21 (user decision 2026-11-20, no parent relation left): the saved record names no body; the body found again on load is the same structure, with the body-relative keys expressed for its turned state. The part's own record is compared (the whole record before). */{const own=t=>{const o=JSON.parse(t);for(const k of C.PLACEMENT_BODY_KEYS)delete o[k];return o;};assert.deepEqual(own(C.publicJSON(q.placement)),own(record));assert.equal(saved.parts.find(x=>x.id===p.id).placement.parentStructureId,undefined);assert.equal(q._placementError,p._placementError);}
  assert.equal(C.placementDiagnostics(loaded).find(v=>v.partId===q.id).connected,C.placementDiagnostics(s).find(v=>v.partId===p.id).connected);
 });
 
