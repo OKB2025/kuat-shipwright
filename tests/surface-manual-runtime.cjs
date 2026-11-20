@@ -39,12 +39,24 @@ test('a direct pilot cannot recharge or thrust during a common-grid trip',()=>{
 // docs/handoff-2026-11-19/README.md:286): a flown hull without power falls freely as its repulsorlift fades (C.liftStep,
 // GRAVITY.liftFade), under the planet's gravity (C.planetGravity) and without the mass resistance of a ship under way.
 // Before, this case expected HULL_FALL.g with passive drag (tests/throttle-output-trial.cjs was changed the same way).
-test('manual blackout retains instantaneous inertia then falls freely as its lift fades',()=>{
- const r=run(`(()=>{const u=fixture(),v=trial.V.slice(),p=trial.P.slice();C.ionOverload(u,1000,{moduleIndex:1});const instant=trial.V.slice(),drag=C.massDragRate(u);trialStep(.25);return {before:v,instant,position:p,after:trial.V,finalPosition:trial.P,drag,thrust:trial.thrust,out:u.out};})()`);
- assert.deepEqual(plain(r.instant),plain(r.before));assert.equal(r.out,'電源喪失');let position=plain(r.position),velocity=plain(r.before);const dt=.05,decay=Math.exp(-r.drag*dt),gain=r.drag>0?-Math.expm1(-r.drag*dt)/r.drag:dt,distance=r.drag>0?(dt-gain)/r.drag:dt*dt/2;
- const R0=run('trialSys().planet.radius'),fade=run('C.GRAVITY.liftFade');let lift=1;
+// 2026-11-20 expectation changed with the user decision「緊急遮断でもリパルサーリフトは給電を続ける形。ただ長いと落ちる」(GRAVITY.liftHold,
+// js/core.js liftCutOut / liftPowerless / liftStep, commit d81593e): the blackout of this case is a thermal cut-out (the ion
+// overload trips the heat state, online===false), and through one the lift stays fed for GRAVITY.liftHold (300 s). While it is
+// held the hull does not fall; it drifts on with the passive mass resistance only, as the fleet model has it for every other ship
+// held by its lift (this fixture's mass resistance is 0, so its velocity is simply kept). Before, the fall was expected from the
+// first step: V[0] 99.9999966 after .25 s as the fading lift let the planet's gravity in; it now stays 100 through the hold.
+// The free fall of 2026-11-19 is checked unchanged once the hold has run out (second part).
+test('manual blackout retains instantaneous inertia, drifts while its lift is held, then falls freely as its lift fades',()=>{
+ const r=run(`(()=>{const u=fixture(),v=trial.V.slice(),p=trial.P.slice();C.ionOverload(u,1000,{moduleIndex:1});const instant=trial.V.slice(),drag=C.massDragRate(u);trialStep(.25);const held={after:trial.V.slice(),finalPosition:trial.P.slice(),lift:u.lift,hold:u.liftHold,powerless:C.liftPowerless(u),online:C.heatOf(u).online,thrust:trial.thrust};u.liftHold=C.GRAVITY.liftHold;trialStep(.25);return {before:v,instant,position:p,held,after:trial.V,finalPosition:trial.P,drag,thrust:trial.thrust,out:u.out,lift:u.lift,powerless:C.liftPowerless(u)};})()`);
+ assert.deepEqual(plain(r.instant),plain(r.before));assert.equal(r.out,'電源喪失');let position=plain(r.position),velocity=plain(r.before);const dt=.05,decay=Math.exp(-r.drag*dt),gain=r.drag>0?-Math.expm1(-r.drag*dt)/r.drag:dt;
+ // held by its lift: no gravity, the mass resistance alone
+ assert.equal(run('C.GRAVITY.liftHold'),300);assert.equal(r.held.online,false,'a thermal cut-out');assert.equal(r.held.lift,1);close(r.held.hold,.25);assert.equal(r.held.powerless,false);
+ for(let step=0;step<5;step++){position=position.map((p,i)=>p+velocity[i]*gain);velocity=velocity.map(v=>v*decay);}
+ for(let i=0;i<3;i++){close(r.held.after[i],velocity[i]);close(r.held.finalPosition[i],position[i]);}assert.equal(r.held.thrust,0);
+ // the hold has run out: free fall as the lift fades (the 2026-11-19 expectation, from where the drift left the hull)
+ const R0=run('trialSys().planet.radius'),fade=run('C.GRAVITY.liftFade');let lift=1;assert.equal(r.powerless,true);
  for(let step=0;step<5;step++){lift=Math.max(0,lift-dt/fade);const g=run('C.planetGravity')({center:[0,0,0],radius:R0},position);velocity=velocity.map((v,i)=>v+g[i]*(1-lift)*dt);position=position.map((p,i)=>p+velocity[i]*dt);}
- for(let i=0;i<3;i++){close(r.after[i],velocity[i]);close(r.finalPosition[i],position[i]);}assert.equal(r.thrust,0);
+ close(r.lift,lift);for(let i=0;i<3;i++){close(r.after[i],velocity[i]);close(r.finalPosition[i],position[i]);}assert.equal(r.thrust,0);
 });
 
 test('source loss rejects a jump start and cancels a pending manual spool without resuming it',()=>{

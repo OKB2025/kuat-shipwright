@@ -8,6 +8,10 @@ for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core
 const C=vm.runInContext('Core',cx);
 for(const key of (process.env.KS_LIFT_KEYS||'cr90,imperial,executor').split(','))test(key+' carries repulsorlifts for its own mass',()=>{
  const s=C.buildDesign(key),S=C.computeStats(s),lift=s.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true);
+ // 2026-11-20 (test triage): the lift rooms alone must not make a ship a managed craft-systems design. That cut every example's
+ // turn rate to 20% (turnK) and most examples' accuracy to 65% (fireK), and boarding could no longer close on its target.
+ {const craftKeys=Object.keys(C.CRAFT_SYSTEMS.power),other=s.parts.some(p=>craftKeys.includes(p.k));if(!other)assert.equal(S.craftSystems.managed,false,key+': lift rooms alone do not make the ship a managed craft-systems design');
+  const bare=C.computeStats({...s,parts:s.parts.filter(p=>!(p.k==='repulsor'&&p.landingEquipment===true))});assert.ok(Math.abs(S.accuracy/bare.accuracy-1)<1e-9,key+': accuracy is the same with and without the lift rooms: '+S.accuracy+' / '+bare.accuracy);}
  assert.ok(lift.length>0,'it has repulsorlift rooms');
  assert.ok(S.craftSystems.landingSupport>=S.mass,`support ${Math.round(S.craftSystems.landingSupport)} t for ${Math.round(S.mass)} t`);
  assert.ok(S.craftSystems.landingSupport<=S.mass*1.25,'and not far more than the margin asks');

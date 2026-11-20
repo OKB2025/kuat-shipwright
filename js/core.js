@@ -92198,7 +92198,11 @@ function cleanCraftSystems(raw){
 }
 function craftSystemsStats(ship,S){
  const R=craftSystemRequirements(ship,S),good=p=>!S.info?.[p.id]?.overlap,parts=ship.parts.filter(good),vol=k=>parts.filter(p=>p.k===k).reduce((n,p)=>n+Math.max(0,partVolume(p)),0),has=k=>parts.some(p=>p.k===k&&partVolume(p)>1e-12);
- const explicit=ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)||p.k==='repulsor'&&p.landingEquipment===true),compact=isCraft(ship)||ship.parts.some(p=>p.k==='cockpit'||p.k==='droidbrain');
+ // 2026-11-20 defect found by the test triage: since every ship carries repulsorlift rooms for its mass (user instruction 2026-11-19),
+ // a lift room alone made every ship a "managed" craft-systems design, and a ship with no manoeuvring or fire-control room of the
+ // craft kind had its turn rate cut to 20% and its accuracy to 65% (all 29 examples' turn rate, 26 examples' accuracy). A lift
+ // room now marks a design as managed only on a craft (cockpit or droid brain); the other craft-system parts mark it as before.
+ const compact=isCraft(ship)||ship.parts.some(p=>p.k==='cockpit'||p.k==='droidbrain'),explicit=ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)||compact&&p.k==='repulsor'&&p.landingEquipment===true);
  const managed=explicit||compact&&ship.systemsVersion===1,powered=clamp((S.power||0)/Math.max(1,(S.draw?.hotel||0)+(S.draw?.ray||0)),0,1);
  const lifeV=vol('lifeSupport'),lifeCapacity=lifeV*CRAFT_SYSTEMS.lifePeople,cabinHours=R.cabinCrew>0?lifeV*CRAFT_SYSTEMS.lifeHours/R.cabinCrew:null;
  const lifeHours=R.crew===0?null:Math.min(R.suitSeats>0?CRAFT_SYSTEMS.suitHours:Infinity,cabinHours??Infinity);
