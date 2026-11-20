@@ -84384,7 +84384,9 @@ const SHIP_ENGINE_ACCEL_TARGETS={imperial:2300,imperial2:2300,arquitens:1800,cr9
 // Factory-only goals. Values marked assumed are a design target, not a claim
 // that a published MGLT speed supplies a measured acceleration.
 // Examples whose structures carry no added surface pattern (user decision, 2026-11-11). Skin is appearance only.
-const PLAIN_SKIN_EXAMPLES=new Set(['executor','mandator2']);
+// 2026-11-21: the Mandator II is no longer in this set. Its exterior is the user's own design file, whose structures already carry
+// the skins the user gave them; forcing 'plain' changed the one structure that had another (the bridge body, id 651: 'service').
+const PLAIN_SKIN_EXAMPLES=new Set(['executor']);
 const SHIP_MILITARY_ACCEL_TARGETS=Object.freeze({mandator2:2000,dreadnaught:2000,gozanti:500,lucrehulk:2000,munificent:2000,nebulonb:1000,onager:2000,providence:2000,providenceDn:2000,recusant:2000,recusantDn:2000,reptransport:2000,subjugator:2000,executor:3300,venator:3000,acclamator:3500});
 function stockAccelerationPayload(ship){
  const copy=p=>JSON.parse(publicJSON(p));
@@ -85584,13 +85586,16 @@ function buildMandatorReference(){
  const oldLock=s._lockedCache;s._lockedCache=cache(s);s._rayLock={env:null,tris:new Map()};
  const count={},fail=[];
  // A mount is seated on the first surface under its measured position, looking along its measured normal.
- const put=(zone,k,pos,n,opt={})=>{const rise=opt.rise||400,h=rayEnv(s,add(pos,mul(n,rise)),mul(n,-1),{maxT:rise*2.25,structOnly:true});if(!h){fail.push(zone+' '+pos.map(Math.round)+'：面がありません');return;}
+ // 2026-11-21: where opt.nearest is set (the ion ball turrets, whose measured point is the middle of a ball in a boxed recess on
+ // a slanted wall), the ray is tried from several heights and the surface nearest the measured point is taken: from 400 m out the
+ // first surface met was sometimes an overhang, up to 35.9 m from the measured point.
+ const put=(zone,k,pos,n,opt={})=>{let h=null;if(opt.nearest){let best=Infinity;for(const rise of [15,30,60,120,240,400]){const x=rayEnv(s,add(pos,mul(n,rise)),mul(n,-1),{maxT:rise*2.25,structOnly:true});if(!x)continue;const d=len(sub(x.p,pos));if(d<best-1e-6){best=d;h=x;}}}else{const rise=opt.rise||400;h=rayEnv(s,add(pos,mul(n,rise)),mul(n,-1),{maxT:rise*2.25,structOnly:true});}if(!h){fail.push(zone+' '+pos.map(Math.round)+'：面がありません');return;}
   const before=s.fits.length,r=placeFit(s,k,h.p,n,opt.ped??0,!!opt.mirror,opt.o||{});if(r?.err){s.fits.splice(before);fail.push(zone+' '+pos.map(Math.round)+'：'+r.err);return;}
   for(const f of s.fits.slice(before)){f.batteryZone=zone+(f.p[2]>1?'-stbd':f.p[2]<-1?'-port':'-centre');count[zone]=(count[zone]||0)+1;}};
  try{
   for(const p of M.utl)put('main-utl','utl',p,[0,1,0],{mirror:p[2]>1,o:{mountMode:'top'}});
   for(const p of M.quad175)put('secondary-quad175','quad175',p,[0,1,0],{mirror:p[2]>1,o:{mountMode:'top'}});
-  for(const q of M.ion)put('ion-ball','ball175QuadIon',q.slice(0,3),norm(q.slice(3)),{mirror:true,o:{mountMode:'auto',tilt:true,assetPitch:90}});
+  for(const q of M.ion)put('ion-ball','ball175QuadIon',q.slice(0,3),norm(q.slice(3)),{mirror:true,nearest:true,o:{mountMode:'auto',tilt:true,assetPitch:90}});
   for(const q of M.ventral)put('ventral-'+q[0],q[0],[q[1],q[2]+60,q[3]],[0,-1,0],{mirror:true,ped:q[4],o:{mountMode:'bottom',tilt:false}});
   // Point defence: the source model's small bases in pairs, one mount on each pair (user decision 2026-11-19「点防御は2個1組で」).
   // The nearest bases are paired first; a base left over on the centreline pairs with its mirror image; other leftovers stay empty.
