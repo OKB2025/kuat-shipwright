@@ -22,7 +22,15 @@ test('a ship whose reactors are gone stops, loses its shield, makes no power and
  for(let t=0;t<2;t+=.25)C.fleetTick(B,.25,{gravity:true});
  const mods=a.p.modules;for(let i=0;i<mods.length;i++)if(mods[i].k==='reactor'||mods[i].k==='gen')a.mods[i]=0;
  const y0=a.pos[1],sh0=a.shield;let hitsAfter=0;
- for(let t=0;t<20;t+=.25){const before=a.shield+(a.hp??0);C.fleetTick(B,.25,{gravity:true});if(b.order.target==='a')hitsAfter++;}
+ // 2026-11-20 scenario changed (reviewed change, not a new rule): a's crew is kept at its complement while it is fired on.
+ // The examples were regenerated with repulsorlift rooms for each ship's mass (user instruction 2026-11-19, EXAMPLE_PROFILE_VERSION 5:
+ // the CR90 row has 155 modules, was 78; crew 27, was 26), and the same 20 s of fire on the unshielded hull now leaves 4.7 of 27
+ // crew (17%, under FLEET_MIN_CREW .35), so the ship is out of action for 乗員不足 — a reason of its own, as the next case
+ // checks for the bridge. On the PR base 1da778b it ended with 10.3 of 26 (40%), just over the limit. As with the sections above,
+ // the other reason is held off so that the case still checks what it is for: power loss alone is not out of action.
+ let crewLow=1;
+ for(let t=0;t<20;t+=.25){const before=a.shield+(a.hp??0);C.fleetTick(B,.25,{gravity:true});if(b.order.target==='a')hitsAfter++;crewLow=Math.min(crewLow,a.crew/a.p.crewNeed);a.crew=a.p.crewNeed;}
+ assert.ok(crewLow<1,'the fire still costs it crew each step: '+crewLow);
  assert.equal(a.out,'電源喪失');assert.equal(a.dead,false);assert.ok(C.fleetEffective(a),'still in the battle');
  assert.equal(C.shipElectricalAvailableW(a)||0,0,'no power');assert.ok(a.pos[1]<y0,'drawn down by gravity: '+(a.pos[1]-y0));assert.ok(a.shield<sh0,'the shield fades: '+sh0+' → '+a.shield);
  assert.ok(hitsAfter>0,'the enemy keeps it as its target');

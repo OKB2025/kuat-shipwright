@@ -12,7 +12,7 @@ test('ion bypasses the normal transient store and does not double-deposit penetr
 });
 // v24 A full field deflects 82% of a beam at no cost; the absorbed rest is split 88/12/0 (released / held for a moment / heat; docs/shield-deflection-v24.md).
 test('ordinary fire: the deflected share leaves freely, the absorbed share is split 88/12 and no heat enters global Q',()=>{
- const u=unit(),r=C.shieldReceive(u,{energyJ:100,ionJ:0},ctx),a=100-100*C.SHIELD_MODEL.deflectMax;near(r.absorbedJ,a);near(r.externalJ,82+.88*a);near(r.storedDeltaJ,.12*a);near(r.onboardHeatJ,0);near(u.ht?.qJ||0,0);near(u.shieldTransient*TT,.12*a);near(u.shield*TT,100-a);near(r.beamLeakJ,0);
+ const u=unit(),r=C.shieldReceive(u,{energyJ:100,ionJ:0},ctx),a=100-100*C.SHIELD_MODEL.deflectMax;near(r.absorbedJ,a);near(r.externalJ,82+.88*a);near(r.storedDeltaJ,.12*a);near(r.onboardHeatJ,0);near(u.ht?.qJ||0,0);near(u.shieldTransient*TT,.12*a);/* 2026-11-20 expectation changed (was 100-a = 82, now 95.5): user instruction 2026-11-19「シールドの削り値を減らして」(「砲火がシールドを減らす量そのもの」) — the field loses SHIELD_MODEL.debit (.25) of what it absorbs, no longer all of it (js/core.js shieldPacketEnergyJ, commit 1a62163). The split of the absorbed share (88/12/0) checked above is unchanged. */near(u.shield*TT,100-a*C.SHIELD_MODEL.debit);assert.equal(C.SHIELD_MODEL.debit,.25);near(r.beamLeakJ,0);
 });
 test('subjugator pulse retains redirected and unhit energy across successive shields',()=>{
  const first=C.ionPulseInteractionJ(100,100,100),second=C.ionPulseInteractionJ(first.remainingPulseJ,first.remainingPulseJ,100);near(first.remainingPulseJ,95);near(first.shieldDebitJ,5);near(second.remainingPulseJ,90.25);

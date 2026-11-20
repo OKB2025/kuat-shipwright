@@ -71,7 +71,7 @@ test('light speed, the 0.5c burst and its kinetic energy per kilogram',()=>{
  near(C.hyperKineticJ(1,.9*c),(1/Math.sqrt(1-.81)-1)*c*c,1e-12,'high speed: exact');near(C.hyperKineticJ(1e6,C.HYPERSPACE_BURST_SPEED_MPS),KE*1e6,1e-12,'linear in mass');
 });
 test('a stock ship\'s full charge is 10 s of Dj plus the kinetic energy at 0.5c of its mass, its load and its tow',()=>{
- for(const [key,J] of [['imperial',7.977e26],['venator',1.817e26],['executor',1.413e29],['deathstar',1.525e34]/* regenerated 2026-11-17: 1.09e15 t, class 4 */]){const p=FLEET[key].p;
+ for(const [key,J] of [['imperial',7.992e26],['venator',1.817e26],['executor',1.414e29],['deathstar',1.526e34]/* regenerated 2026-11-17: 1.09e15 t, class 4 */]/* 2026-11-20 expected values changed (were 7.977e26 / 1.817e26 / 1.413e29 / 1.525e34): the examples were regenerated with repulsorlift rooms for each ship's mass (user instruction 2026-11-19「リパルサーリフトと改めた上で艦の重量分搭載して」, EXAMPLE_PROFILE_VERSION 5), so each ship is 0.08-0.12% heavier and its burst energy with it. Measured on the PR base 1da778b: 7.98272e26 / 1.81588e26 / 1.41268e29 / 1.52454e34; now 7.99151e26 / 1.81749e26 / 1.41380e29 / 1.52642e34 (Dj unchanged). Only the Imperial left the 1e-3 tolerance, which is unchanged; the other three are re-centred on the regenerated rows. */){const p=FLEET[key].p;
   assert.equal(C.hyperDriveFitted(p),true,key);near(C.hyperChargeNeedJ(p),10*p.grid.Dj+KE*p.propulsion.massKg,1e-12,key);near(C.hyperChargeNeedJ(p),J,1e-3,key+' scale');
   assert.ok(KE*p.propulsion.massKg>50*10*p.grid.Dj,key+': the burst is most of the charge');}
  for(const key of ['imperial','venator']){const p=FLEET[key].p,base=C.hyperChargeNeedJ(p);
