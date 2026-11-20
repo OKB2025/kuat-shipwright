@@ -84000,10 +84000,15 @@ function shipRefitFixedPart(ship,k,volume,label,preferred){
  }
  return null;
 }
+// A lift room does not count, and is taken out, when it overlaps other equipment or lies partly outside the hull proper (in a
+// superstructure): user decision 2026-11-20「リフトは船体内で」.
+// A ship whose hull is itself put together from structures (no hull proper: CR90) has no such difference, and its lifts go anywhere inside its outline.
+const shipHasHullProper=ship=>ship.hullStructureVersion===1?ship.parts.some(isHullStructure):!ship.hull?.assembly;
+const liftRoomBad=(info,p,ship)=>!!info?.[p.id]?.overlap||(!ship||shipHasHullProper(ship))&&(info?.[p.id]?.inHull??1)<.999;
 function shipRefitAddVolume(ship,k,volume,label){
  if(!(volume>1e-6))return [];
  if(['aux','pump','integrity','hdis','inertial','repulsor'].includes(k)){
-  const anchors=shipRefitAnchors(ship),b=shipBounds(ship),count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
+  const anchors=shipRefitAnchors(ship).filter(q=>k!=='repulsor'||!shipHasHullProper(ship)||v3InHull(ship,q))/* user decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」 */,b=shipBounds(ship);if(!anchors.length)throw new Error(ship.name+'：'+label+' の船内容積が不足しています（船体内に置き場所がありません）');const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
   const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
   let remaining=volume;for(let pass=0;pass<4&&remaining>Math.max(.1,volume*1e-5);pass++){
    const n=pass?4:count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true,...(k==='repulsor'?{landingEquipment:true}:{})}));
@@ -84578,7 +84583,7 @@ function constructShipSystems(ship,key){
   // placed after the other support equipment, which keeps the room it needs. A hull with no room left for them keeps what fits
   // (its lift is then short of its mass, and the example check reports it) rather than failing to build.
   const supportBeforeLift={inertial:measured.inertialSupport,integrity:measured.integritySupport};
-  {const liftV=()=>ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!measured.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),want=Math.max(0,measured.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-liftV());
+  {const liftV=()=>ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!liftRoomBad(measured.info,p,ship)).reduce((n,p)=>n+partVolume(p),0),want=Math.max(0,measured.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-liftV());
    if(want>.01){const before=new Set(ship.parts.map(p=>p.id));try{shipRefitAddVolume(ship,'repulsor',want,'分散リパルサーリフト');}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;}
     for(const p of ship.parts)if(!before.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;syncCompartments(ship);measured=shipRefitMeasure(ship);}}
   let requestedInputW=key==='deathstar'?baselinePowerW*DS_DRIVE.powerShare/* v26 most of the plant's output goes to the drives */:propulsion.ordinary?propulsion.inputW:(propulsion.targetG?measured.mass*1000*G0*propulsion.targetG:propulsion.oldThrustN)*DRIVE_PROFILES.standard.wattsPerNewton;
@@ -84605,12 +84610,12 @@ function constructShipSystems(ship,key){
   // 2026-11-20 The layout steps after the repulsorlifts were placed (the drives' sizing, the machinery straightening) can move
   // machinery into a lift room: the room then overlaps and does not count (Imperial I/II carried 78% of their mass). Such rooms
   // are taken out and the lift is made up against the finished layout. A hull with no room left keeps what fits.
-  let liftRedone=false;for(let pass=0;pass<3;pass++){const m=shipRefitMeasure(ship),bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&m.info?.[p.id]?.overlap).map(p=>p.id)),good=ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!bad.has(p.id)).reduce((n,p)=>n+partVolume(p),0),want=m.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-good;
+  let liftRedone=false;for(let pass=0;pass<3;pass++){const m=shipRefitMeasure(ship),bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&liftRoomBad(m.info,p,ship)).map(p=>p.id)),good=ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!bad.has(p.id)).reduce((n,p)=>n+partVolume(p),0),want=m.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-good;
    if(want>Math.max(.01,m.mass/CRAFT_SYSTEMS.landingSupport*1e-4)){const keep=ship.parts.slice(),ids=new Set(keep.map(p=>p.id));ship.parts=ship.parts.filter(p=>!bad.has(p.id));
     let failed=false;try{shipRefitAddVolume(ship,'repulsor',want,'分散リパルサーリフト');for(const p of ship.parts)if(!ids.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;ship.parts=keep;failed=true;}
     syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);liftRedone=true;if(failed)break;}else break;}
   // A lift room placed in the last pass that overlaps a gun's room does not count either: it is taken out (the rest carry the ship or not, as measured).
-  if(liftRedone){const bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&measured.info?.[p.id]?.overlap).map(p=>p.id));if(bad.size){ship.parts=ship.parts.filter(p=>!bad.has(p.id));syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);}}
+  if(liftRedone){const bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&liftRoomBad(measured.info,p,ship)).map(p=>p.id));if(bad.size){ship.parts=ship.parts.filter(p=>!bad.has(p.id));syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);}}
   // 2026-11-20 The lift rooms are fitted among the other fitted rooms and can take room from them (Recusant dreadnought: its
   // structural integrity rooms lost 6.9% of their volume, its structural limit and with it its acceleration 6.1%). What the
   // inertial compensators and integrity field lost is made up, to what they supported before the lifts or to the ship's need
@@ -85476,7 +85481,9 @@ function buildExecutorReference(){
  // carries none, and it is not put through constructShipSystems, so the repulsorlifts for its mass are added here as distributed
  // rooms inside the hull. Nothing else of the design is changed. A hull with no room left keeps the design as it was.
  {const m=shipRefitMeasure(s),want=m.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-s.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true).reduce((n,p)=>n+partVolume(p),0),ids=new Set(s.parts.map(p=>p.id)),keep=s.parts.slice();
-  if(want>.01)try{shipRefitAddVolume(s,'repulsor',want,'分散リパルサーリフト');for(const p of s.parts)if(!ids.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;syncCompartments(s);}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;s.parts=keep;}}
+  if(want>.01)try{let need=want;for(let pass=0;pass<6&&need>want*1e-4;pass++){const had=new Set(s.parts.map(p=>p.id));shipRefitAddVolume(s,'repulsor',need,'分散リパルサーリフト');for(const p of s.parts)if(!had.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;syncCompartments(s);
+    const info=shipRefitMeasure(s).info,bad=new Set(s.parts.filter(p=>!ids.has(p.id)&&p.k==='repulsor'&&liftRoomBad(info,p,s)).map(p=>p.id));if(bad.size){s.parts=s.parts.filter(p=>!bad.has(p.id));syncCompartments(s);}
+    need=want-s.parts.filter(p=>!ids.has(p.id)&&p.k==='repulsor').reduce((n,p)=>n+partVolume(p),0);}}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;s.parts=keep;}}
  return s;
 }
 registerShipExample({
@@ -89137,7 +89144,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['powerLossDisabled','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.sortie?{sortie:JSON.parse(JSON.stringify(u.sortie))}:{}),...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:{...u.pass}}:{}),...(u._track?{_track:u._track.map(x=>Array.isArray(x)?x.slice():x&&typeof x==='object'?JSON.parse(JSON.stringify(x)):x)}:{})/* extra review 2026-11-19: the track history was shared with the plan, so a second commit of one plan saw the first one's track */,...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['powerLossDisabled','liftHold','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.sortie?{sortie:JSON.parse(JSON.stringify(u.sortie))}:{}),...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:{...u.pass}}:{}),...(u._track?{_track:u._track.map(x=>Array.isArray(x)?x.slice():x&&typeof x==='object'?JSON.parse(JSON.stringify(x)):x)}:{})/* extra review 2026-11-19: the track history was shared with the plan, so a second commit of one plan saw the first one's track */,...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -89577,7 +89584,7 @@ function hullFall(u,dt,rand=Math.random){
 // Potential energy is for the craft's fights (「位置エネルギーは空中戦で使用する」): a craft that climbs gives up speed and one that
 // dives gains it, ½v² + g·h kept through its change of height each step (craftEnergyStep). ★ At these craft's speeds and the
 // planet's real gravity the trade is small: 300 m of height is 3 m/s at 1,000 m/s.
-const GRAVITY=Object.freeze({g0:9.8,liftFade:180/* user decision 2026-11-19「数分かけて消える。消えた段階で撃墜判定」: three minutes (★ the figure is ours; it was 20 s) */});
+const GRAVITY=Object.freeze({g0:9.8,liftHold:300/* user decision 2026-11-20「緊急遮断でもリパルサーリフトは給電を続ける形。ただ長いと落ちる」: through a thermal cut-out the lifts stay fed for this long (★ five minutes is ours), then fade as below */,liftFade:180/* user decision 2026-11-19「数分かけて消える。消えた段階で撃墜判定」: three minutes (★ the figure is ours; it was 20 s) */});
 function planetGravity(P,pos){if(!P?.center||!(P.radius>0))return [0,0,0];const d=sub(P.center,pos),r=len(d);if(!(r>1))return [0,0,0];return mul(d,(P.g0??GRAVITY.g0)*(P.radius/r)**2/r);}
 function potentialEnergyJ(P,massKg,pos){if(!P?.center||!(P.radius>0))return 0;const r=Math.max(P.radius*.5,len(sub(pos,P.center)));return -(P.g0??GRAVITY.g0)*P.radius*P.radius*massKg/r;}
 const hullMassKg=u=>u?.p?.propulsion?.massKg||u?.propulsion?.massKg||(u?.p?.mass||0)*1000||0;
@@ -89588,8 +89595,9 @@ const hullMassKg=u=>u?.p?.propulsion?.massKg||u?.propulsion?.massKg||(u?.p?.mass
 // 「位置エネルギーで急降下爆撃の動きを追加すれば結構反乱軍側は当てれるのでは」). ★ The two figures are ours.
 const CRAFT_ENERGY=Object.freeze({keep:30,span:.4});
 function craftEnergyStep(u,from,P,dt=0){if(!P?.center||!craftUnit(u)||u.dead||u.docked||u.out||u.fall||(u.lift??1)<1/* physics review 2026-11-19: a craft that is falling already has gravity on it (planetFall) */)return 0;if(dt>0&&u.eV)u.eV*=Math.exp(-dt/CRAFT_ENERGY.keep);const v=len(u.velocity||[0,0,0]);if(!(v>1))return 0;const up=norm(sub(u.pos,P.center)),dh=dot(sub(u.pos,from),up);if(!dh)return 0;const g=len(planetGravity(P,u.pos)),v2=Math.sqrt(Math.max(v*v*.01,v*v-2*g*dh));u.velocity=mul(u.velocity,v2/v);const lim=(u.p?.maxSpeed||v)*CRAFT_ENERGY.span;u.eV=clamp((u.eV||0)+v2-v,-lim,lim);return v2-v;}
-function liftPowerless(u){if(u.dead||u.powerLossDisabled||u.out==='電源喪失')return true;if(!u.out||typeof shipElectricalAvailableW!=='function')return false;const w=shipElectricalAvailableW(u);return w!=null&&!(w>0);/* test classification 2026-11-19: a ship put out for another reason first kept its lift with no power at all */}
-function liftStep(u,dt){u.lift=clamp((u.lift??1)+(liftPowerless(u)?-1:1)*dt/GRAVITY.liftFade,0,1);return u.lift;}
+function liftCutOut(u){const h=typeof heatOf==='function'?heatOf(u):null;return !!h&&h.online===false;}
+function liftPowerless(u){if(!u.dead&&liftCutOut(u)&&!((u.liftHold||0)>=GRAVITY.liftHold))return false;/* the plant is shut down for heat: the lifts are still fed, for GRAVITY.liftHold seconds */if(u.dead||u.powerLossDisabled||u.out==='電源喪失')return true;if(!u.out||typeof shipElectricalAvailableW!=='function')return false;const w=shipElectricalAvailableW(u);return w!=null&&!(w>0);/* test classification 2026-11-19: a ship put out for another reason first kept its lift with no power at all */}
+function liftStep(u,dt){if(liftCutOut(u))u.liftHold=(u.liftHold||0)+dt;else if(u.liftHold)u.liftHold=0;u.lift=clamp((u.lift??1)+(liftPowerless(u)?-1:1)*dt/GRAVITY.liftFade,0,1);return u.lift;}
 // One step of a hull under the planet's gravity with what lift it has left. Returns true when it strikes the surface.
 function planetFall(u,dt,P,rand=Math.random){
  const lift=liftStep(u,dt);if(u.crash)return false;if(lift>=1&&!u.fall)return false;

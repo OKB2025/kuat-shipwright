@@ -46,3 +46,19 @@ test('lift comes back with the power, and a ship out of action for another reaso
 test('without a planet the earlier rule stands (a disabled ship sinks at HULL_FALL.g)',()=>{
  const {a,B}=pair();a.out='テスト';for(let t=0;t<20;t+=.25)C.fleetTick(B,.25,{gravity:true});assert.ok(a.pos[1]<0&&a.pos[1]>-200,'sinking slowly: '+a.pos[1]);
 });
+// User decision 2026-11-20「緊急遮断でもリパルサーリフトは給電を続ける形。ただ長いと落ちる」: a plant shut down for heat still feeds the
+// lifts, for GRAVITY.liftHold seconds; after that they fade over GRAVITY.liftFade as with any loss of power. (A restart takes
+// 300 s of the whole crew's work once the heat is under 90% of the capacity.)
+test('a thermal cut-out does not take the lift at once: it holds for GRAVITY.liftHold seconds, then fades; power back resets it',()=>{
+ const {a,B}=pair(),h0=alt(a);run(B,2);const hot=()=>{const h=C.heatOf(a);h.qJ=h.capacityJ*.99;/* too hot to restart */};
+ C.shipHeatBlackout(a,null);assert.equal(C.heatOf(a).online,false);
+ let t=0;for(;t<C.GRAVITY.liftHold-1;t+=.25){hot();C.fleetTick(B,.25,opts);}
+ assert.equal(a.out,'電源喪失');assert.equal(a.lift,1,'held through the cut-out');assert.ok(Math.abs(alt(a)-h0)<1e-6,'no height lost');assert.equal(a.dead,false);
+ for(t=0;t<C.GRAVITY.liftFade/2+1;t+=.25){hot();C.fleetTick(B,.25,opts);}
+ assert.ok(a.lift>.4&&a.lift<.6,'a long cut-out: the lift is fading: '+a.lift);assert.ok(alt(a)<h0,'and the ship is sinking');
+ for(t=0;t<C.GRAVITY.liftFade/2+2&&!a.dead;t+=.25){hot();C.fleetTick(B,.25,opts);}
+ assert.equal(a.dead,true,'shot down when the lift is gone');assert.equal(a.fate,'fall');
+ // a short cut-out: the plant restarts within the hold and the ship never sinks
+ const {a:c,B:B2}=pair(),c0=alt(c);run(B2,2);C.shipHeatBlackout(c,null);for(t=0;t<C.GRAVITY.liftHold+60&&!C.heatOf(c).online;t+=.25)C.fleetTick(B2,.25,opts);
+ assert.equal(C.heatOf(c).online,true,'restarted after '+t+' s');run(B2,30);assert.equal(c.lift,1);assert.ok(!c.liftHold,'the hold is reset');assert.ok(c0-alt(c)<50,'height lost '+(c0-alt(c)));assert.equal(c.dead,false);
+});
