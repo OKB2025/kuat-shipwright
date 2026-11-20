@@ -79,6 +79,9 @@
 // 「小型機のシールドをさらに弱くなるような曲線にする」「マンデイターIIはこれをベースに使って」, and the fix of the lift rooms marking every
 // ship as a managed craft-systems design (turn rate and accuracy restored); examples regenerated). Not broken down by field.
 // Two recordings in a row gave the same file (sha256 0464a03e…).
+// Re-recorded on 1dcfe03 (2026-11-20, physics review fix: the shield debit curve is for craft only — the small ships in the
+// battle no longer lose more than SHIELD_MODEL.debit of what their fields absorb). Two recordings in a row gave the same file
+// (sha256 73b788b0…).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),crypto=require('node:crypto'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),GOLDEN=path.join(__dirname,'helpers/fleet-battle-determinism.json'),REL=1e-12,STEPS=96;
 function load(){const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});return vm.runInContext('Core',cx);}
