@@ -80113,7 +80113,14 @@ function engineTransmission(ship){
  res.powerLinks=res.routes.map(r=>({kind:'power',from:virtualPorts.get(r.from)||r.from,to:virtualPorts.get(r.to)||r.to,cap:r.capacityW,auto:r.automatic,ok:true,routeId:r.id,efficiency:r.efficiency,lengthM:r.length,model:'source-distance',capacityGroup:r.id,groupCap:edges.get(r.id).limit}));
  if(ship._boundsPass)ship._boundsPass.engineTransmission=res;return ship._engineTransmission=res;
 }
-function engineDriveRoutes(ship){return physicalEngineDriveNetwork(ship);}
+// User report 2026-11-20 (a 2,200 m design with 184 structures: after two shield generators were placed the yard stayed at
+// 「形状を計算中…」): the route search tests many thousands of points against the hull and the hull-form structures, and each test
+// rebuilt the hull cache key (a JSON.stringify of the hull and its cuts) because nothing held the caches; an obstacle on the
+// shafts' way (the new generators) multiplies the tests. The caches are held for the whole search, as the builders hold them.
+function engineDriveRoutes(ship){
+ if(!ship||ship._lockedCache)return withHullCacheScope(()=>physicalEngineDriveNetwork(ship));
+ return withHullCacheScope(()=>{ship._lockedCache=cache(ship);try{return physicalEngineDriveNetwork(ship);}finally{delete ship._lockedCache;}});
+}
 function physicalEngineDriveNetwork(ship){
  const mechanical=true,transportFlux=shaftFluxFor(ship);
  if(!ship||ship._propulsionRoutingDeferred)return {routes:[],parts:[],engines:{},cores:{},virtualPorts:[],powerLinks:[],volume:0,length:0,massTonnes:0,cost:0,flux:transportFlux};
