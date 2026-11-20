@@ -60,6 +60,10 @@
 // First numeric difference against the previous recording with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0, unit 0 digest[9] (hp)
 // 1832.351 against 1833.717 (no missile damage in the launch step). The battle state now holds b.missiles (not in the
 // per-unit digest). Two recordings in a row gave the same file (sha256 1e7cd0ba…).
+// Re-recorded on a6aa802 (2026-11-20, user instructions「着陸設備ではなくリパルサーリフトと改めた上で艦の重量分搭載して」
+// 「航空機による対艦攻撃ができるくらいまで引き伸ばす形に」: examples regenerated on example model version 5 with repulsorlifts for
+// every ship's mass (more mass, power draw and rooms), SHIELD_MODEL.debit .5 → .25). The difference against the previous
+// recording was not broken down by field. Two recordings in a row gave the same file (sha256 d2ed7fbd…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
