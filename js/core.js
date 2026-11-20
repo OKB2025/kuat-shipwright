@@ -80117,10 +80117,9 @@ function engineTransmission(ship){
 // 「形状を計算中…」): the route search tests many thousands of points against the hull and the hull-form structures, and each test
 // rebuilt the hull cache key (a JSON.stringify of the hull and its cuts) because nothing held the caches; an obstacle on the
 // shafts' way (the new generators) multiplies the tests. The caches are held for the whole search, as the builders hold them.
-function engineDriveRoutes(ship){
- if(!ship||ship._lockedCache)return withHullCacheScope(()=>physicalEngineDriveNetwork(ship));
- return withHullCacheScope(()=>{ship._lockedCache=cache(ship);try{return physicalEngineDriveNetwork(ship);}finally{delete ship._lockedCache;}});
-}
+// 2026-11-20 (second review): the scope alone gives the whole gain. A lock set on the ship here was copied onto the cached
+// working ship (surfaceWorkingShip spreads the ship) and stayed there; the search locks the ship it works on itself.
+function engineDriveRoutes(ship){return withHullCacheScope(()=>physicalEngineDriveNetwork(ship));}
 function physicalEngineDriveNetwork(ship){
  const mechanical=true,transportFlux=shaftFluxFor(ship);
  if(!ship||ship._propulsionRoutingDeferred)return {routes:[],parts:[],engines:{},cores:{},virtualPorts:[],powerLinks:[],volume:0,length:0,massTonnes:0,cost:0,flux:transportFlux};

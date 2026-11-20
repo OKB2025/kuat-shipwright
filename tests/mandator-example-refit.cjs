@@ -18,6 +18,11 @@ function mandator(){if(!built){const ship=process.env.KS_MANDATOR_BUILD?C.buildD
 // 119,340 TT fitted against a requested 120,000): the guns stand on the mounts measured on the source model (47 octagonal pads
 // and the former 14 ventral seats: 61 twin 720 TT; 24 square recesses and the former 24 ventral seats: 48 quad 175 TT; 16 boxed
 // spheres: quad 175 TT ion ball turrets in place of the 6 ion cannon), and the declared volley is what those mounts give.
+// Known on 2026-11-20 (run on the stored example: 3 of 5 pass; the same two tests fail on main for other reasons):
+// - 'full single-volley storage': all 48 quad 175 TT mounts hold .823 of a volley (11,521 m³ of the 14,000 m³ they need is in the
+//   mount; the 2,479 m³ inside the hull was not allocated). A shortfall of the rebuilt example, left failing here on purpose, to be
+//   put right when the example is next regenerated (PR #122). The 720 TT twins and the ion ball turrets hold a full volley.
+// - 'shield processing follows each physical device…' is a fixture test that fails on main in the same way (not this example).
 const COUNTS={utl:61,quad175:48,ball175QuadIon:16},MAIN=['utl','quad175','ball175QuadIon'];
 const volleyOf=f=>{const d=C.fitSpec(f);return (d.tt||0)+(d.ion||0);};
 
