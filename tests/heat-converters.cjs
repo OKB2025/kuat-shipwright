@@ -65,17 +65,25 @@ test('converter input follows the heat actually converted and is itself heat abo
  assert.ok(['hdis','wing','radiator','solar'].every(k=>C.HEAT.disPowerK[k]===K),'one coefficient for every converter');
 });
 
-test('battle: the reservation follows this step\'s requested loads through the real paths, not the rating',()=>{
+// User decision 2026-11-20「近くのに繋がるとかではなくて熱量は合算して、変換量も合算して出す形に変更」: the expectations below were
+// changed with the rule. Before, the hdis linked to the guns took all the gun heat and the wing took the rest; now all heat is
+// one pool and each converter takes it in proportion to its capacity (the links in H.ln no longer decide anything).
+test('battle: the reservation follows this step\'s requested loads, pooled over the converters by capacity, not the rating',()=>{
  const K=C.HEAT.disPowerK.hdis,hd=C.HEAT.coolingHeadroom;
  // a wing far from the guns and an hdis on the guns' own path (auto links): the hdis must not be starved
  const H={src:[{k:'weapon',sh:1},{k:'hotel',sh:1}],dis:[{k:'hdis',id:'p1',cap:100,power:100*K,m:0},{k:'wing',id:'p2',cap:1e6,power:1e6*K,m:1}],ln:[{s:0,d:0,cap:1e9},{s:1,d:1,cap:1e9}]};
  const u={p:{grid:{P:1000,fixed:10,cooling:0,De:0}},ht:{qJ:0}},d=Array.from(C.coolingDemandW(u,H,{weapons:200,shields:0,throttle:0}));
  const gun=200*C.HEAT.waste.weapon,reactor=C.HEAT.waste.reactor*210;
- near(d[0],gun*K*hd,1e-3,'the hdis on the gun path is funded for all the gun heat that reaches it');
- near(d[1],(10+reactor)*K*hd,1e-3,'the wing is funded for the hotel heat and the reactor loss');
+ const all=gun+10+reactor,capAll=100+1e6;
+ near(d[0],all*100/capAll*K*hd,1e-3,'the hdis is funded for its share (by capacity) of all the heat');
+ near(d[1],all*1e6/capAll*K*hd,1e-3,'the wing is funded for its share (by capacity) of all the heat');
+ near(d[0]+d[1],all*K*hd,1e-3,'together they are funded for all the heat');
  // a converter rated at .4 of the gun heat (20 when the guns left .25 aboard; 2026-11-18 the share is .05, docs/weapon-heat-share.md)
  const lim=gun*.4,small=Array.from(C.coolingDemandW(u,{...H,dis:[{...H.dis[0],cap:lim,power:lim*K},H.dis[1]]},{weapons:200,shields:0,throttle:0}));
- near(small[0],lim*K,1e-12,'never above the rating');
+ assert.ok(small[0]<=lim*K*(1+1e-12),'never above the rating');
+ // when the pooled capacity is short of the heat, every converter is funded at its rating and no more
+ const short=Array.from(C.coolingDemandW(u,{...H,dis:[{...H.dis[0],cap:lim,power:lim*K},{...H.dis[1],cap:lim,power:lim*K}]},{weapons:200,shields:0,throttle:0}));
+ near(short[0],lim*K,1e-12,'short of capacity: at the rating');near(short[1],lim*K,1e-12,'short of capacity: at the rating');
  assert.ok(d[0]+d[1]<(H.dis[0].power+H.dis[1].power)*1e-3,'a large wing rating does not hold power away from propulsion');
  const idle=Array.from(C.coolingDemandW({p:{grid:{P:1000,fixed:0,De:0}},ht:{qJ:0}},H,{}));assert.deepEqual(idle,[0,0],'no heat, no reservation');
 });
@@ -101,4 +109,17 @@ test('a ship blacked out by a full store restarts only while a friendly ship tow
  assert.ok(towed.tower.ht.qJ<C.HEAT.governStart*towed.tower.ht.capacityJ*(1+1e-9),'the tower is never pushed into its own governor');
  const enemy=unit({coolingW:.02*P}),victim=unit({coolingW:.02*P});enemy.side=1;victim.side=0;C.shipHeatAdd(victim,victim.ht.capacityJ*1.01,ctx);allocate(enemy,{throttle:0});tick(enemy);
  assert.equal(C.towHeatRelief(enemy,victim,1),0,'only a friendly tower relieves heat');
+});
+
+// User decision 2026-11-20「近くのに繋がるとかではなくて熱量は合算して、変換量も合算して出す形に変更」. User report: a design with
+// 6.4e22 W of converters against 2e21 W of heat overheated 11 s after the engines started, because the engine's two nearest
+// converters were two small wings (1e18 W together).
+test('the ship is one heat pool: all heat against all conversion capacity, whatever is linked to what',()=>{
+ // the engine (100) is linked only to a small wing (1); the large converter (1000) is linked to nothing
+ const r=C.heatSolve([100,50],[1,1000],[{s:0,d:0,cap:1e9}]);
+ near(r.out[0],100,1e-12,'all the engine heat leaves');near(r.out[1],50,1e-12);near(r.used[0]+r.used[1],150,1e-12);
+ near(r.used[0]/r.used[1],1/1000,1e-12,'converters are loaded in proportion to their capacity');
+ // short of capacity: every source keeps the same share of its heat, every converter is full
+ const s=C.heatSolve([80,40],[30,30],[]);near(s.out[0],40,1e-12);near(s.out[1],20,1e-12);near(s.used[0],30,1e-12);near(s.used[1],30,1e-12);
+ const z=C.heatSolve([10],[],[]);assert.deepEqual(Array.from(z.out),[0],'no converter, nothing leaves');
 });

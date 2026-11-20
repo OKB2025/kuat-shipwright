@@ -60,12 +60,32 @@
 // First numeric difference against the previous recording with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0, unit 0 digest[9] (hp)
 // 1832.351 against 1833.717 (no missile damage in the launch step). The battle state now holds b.missiles (not in the
 // per-unit digest). Two recordings in a row gave the same file (sha256 1e7cd0ba…).
+// Re-recorded on a6aa802 (2026-11-20, user instructions「着陸設備ではなくリパルサーリフトと改めた上で艦の重量分搭載して」
+// 「航空機による対艦攻撃ができるくらいまで引き伸ばす形に」: examples regenerated on example model version 5 with repulsorlifts for
+// every ship's mass (more mass, power draw and rooms), SHIELD_MODEL.debit .5 → .25). The difference against the previous
+// recording was not broken down by field. Two recordings in a row gave the same file (sha256 d2ed7fbd…).
+// Re-recorded on bb6c788 (2026-11-20, user decisions「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」「緊急遮断でも
+// リパルサーリフトは給電を続ける形。ただ長いと落ちる」and the physics-review fixes: lift rooms placed in the hull proper, the support the
+// lift rooms took made up, examples regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 2d40f015…).
+// Re-recorded on 43b9ac0 (2026-11-20, same decisions: a lift placement that falls short keeps what was placed; six examples
+// regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 3be37f71…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
 // number within 1e-12 relative; the count of inexact ticks is reported.
 // Recorded with Node v22.23.5 (v22.23.4 until 2026-11-18); Math.* may differ on other V8s.
 //   KS_DETERMINISM_WRITE=1 KS_DETERMINISM_BASE=<commit> KS_TEST_ROOT=<base checkout> node --test tests/fleet-battle-determinism.cjs
+// Re-recorded on 1a44d1d (2026-11-20, user decisions「近くのに繋がるとかではなくて熱量は合算して、変換量も合算して出す形に変更」
+// 「小型機のシールドをさらに弱くなるような曲線にする」「マンデイターIIはこれをベースに使って」, and the fix of the lift rooms marking every
+// ship as a managed craft-systems design (turn rate and accuracy restored); examples regenerated). Not broken down by field.
+// Two recordings in a row gave the same file (sha256 0464a03e…).
+// Re-recorded on 1dcfe03 (2026-11-20, physics review fix: the shield debit curve is for craft only — the small ships in the
+// battle no longer lose more than SHIELD_MODEL.debit of what their fields absorb). Two recordings in a row gave the same file
+// (sha256 73b788b0…).
+// Re-recorded on 23efcde (2026-11-20, physics re-review): the recording on 1dcfe03 also held a defect of that fix — every
+// ship's field deflected at full strength whatever its charge (the capacity passed for the debit curve was also the capacity
+// its strength is taken against). With the two apart, ships lose .25 of what they absorb and deflect by their charge as before
+// the curve; craft follow the curve. Two recordings in a row gave the same file (sha256 29f2f979…).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),crypto=require('node:crypto'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),GOLDEN=path.join(__dirname,'helpers/fleet-battle-determinism.json'),REL=1e-12,STEPS=96;
 function load(){const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});return vm.runInContext('Core',cx);}

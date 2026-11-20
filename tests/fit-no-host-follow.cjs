@@ -109,6 +109,15 @@ test('H-A: an embedded launcher whose body does not fit inside its wall stays fl
  for(const t of [0.2,2]){const s=fixture();s.parts=[{id:1,k:'struct',form:'box',c:[100,30,0],s:[100,t,60]}];C.refreshPlacementGeometry(s);/* the reviewer's probe p3 */s.fits.push({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true});C.remount(s);
   const g=s.fits[0];assert.equal(g.float,true,'seated: floating ('+t+' m wall)');C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,true,'kept: still floating ('+t+' m wall)');}
 });
+// User decision 2026-11-20 (the Mandator II launch racks sit on 44 m blocks, the launcher body is 50 m deep; asked and answered
+// 「埋め込み式ランチャーはそれでいい」, and「外装は構造物パーツが違くても繋がってるなら同じ船体として一つのまとまり」): the body of an embedded
+// launcher may reach past the part it is set in when what lies behind is hull or structure too. The H-A case above (nothing behind
+// the wall) still floats.
+test('an embedded launcher set in a thin wall is supported when another structure fills the space behind the wall',()=>{
+ for(const t of [0.2,2]){const s=fixture();s.parts=[{id:1,k:'struct',form:'box',c:[100,30,0],s:[100,t,60]},{id:2,k:'struct',form:'box',c:[100,30,-t/2-40],s:[100,80,60]}];s.nextId=3;C.refreshPlacementGeometry(s);
+  s.fits.push({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true});C.remount(s);
+  const g=s.fits[0];assert.equal(g.float,false,'seated: supported ('+t+' m wall with a block behind)');C.remount(s,{keepFitPose:true});assert.equal(s.fits[0].float,false,'kept: still supported ('+t+' m wall)');}
+});
 test('H-B: a roof added above a kept bridge module changes neither its base nor its origin',()=>{
  for(const k of ['brS','brT']){if(!C.FITS[k])continue;const s=fixture();C.refreshPlacementGeometry(s);s.fits.push({id:9,k,p:[100,20,0],n:[0,1,0],a:2});C.remount(s);const f=s.fits[0],base=f.base,o=JSON.stringify(C.fitOrigin(f));
   s.parts.push({id:3,k:'struct',form:'box',c:[100,62,0],s:[60,60,4]});C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});const g=s.fits[0];near(g.base,base,1e-9);assert.equal(JSON.stringify(C.fitOrigin(g).map(v=>+v.toFixed(9))),JSON.stringify(JSON.parse(o).map(v=>+v.toFixed(9))),k+' origin');}/* base is derived: compared within 1e-9 (the kept window starts at a different height) */
@@ -158,4 +167,11 @@ for(const anchored of [false,true])test(`a ${anchored?'placed (anchored)':'plain
  const G={warnings:[]};C.groundingStats(s,G);assert.deepEqual(Array.from(G.ungrounded.fits),[f.id],'reported as standing on ungrounded structures');
  // Grounded again: it functions again, where it was.
  s.parts[0].c=[100,10,0];s._cache=null;C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.equal(f.float,false);assert.equal(f._onLoose,undefined);assert.equal(JSON.stringify(f.p),p0);assert.equal(C.computeStats(s).floatFits||0,0);
+});
+// 2026-11-20 (regression review of 636cac3 asked for the negative case): the block behind the wall does not reach the far end of
+// the launcher's body. The body (2.4 m deep for this small launcher) then ends in empty space, and the launcher floats as it does behind a bare wall.
+test('an embedded launcher whose body ends in empty space behind the wall still floats',()=>{
+ const s=fixture(),t=.2;s.parts=[{id:1,k:'struct',form:'box',c:[100,30,0],s:[100,t,60]},{id:2,k:'struct',form:'box',c:[100,30,-t/2-.25],s:[100,.5,60]}];s.nextId=3;C.refreshPlacementGeometry(s);assert.ok(C.launcherGeometry({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true}).bodySize[0]>1.5,'the body (2.4 m deep) is deeper than the wall and block together (0.7 m)');
+ s.fits.push({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true});C.remount(s);
+ assert.equal(s.fits[0].float,true,'a 0.5 m block behind a 0.2 m wall does not hold a body that reaches further back');
 });

@@ -13,10 +13,15 @@ test('a full field deflects most of a beam and absorbs the rest, letting nothing
 // the field is gone.
 test('the hull share grows slowly at first and takes everything once the field is gone',()=>{
  const leak=[1,.9,.7,.5,.3,.1,0].map(f=>split(f).beamLeakJ);
- leak.slice(0,6).forEach((x,i)=>near(x,0));near(leak[6],100);
+ // 2026-11-20 expectation changed with the user decision「小型機のシールドをさらに弱くなるような曲線にする」: this fixture's field (1,000 J) is a
+ // small one and loses twice what it absorbs (C.shieldDebitK), so at 10% (100 J left) it can no longer take the whole 100 J packet
+ // and the rest goes by (41.8 J). Down to 30% nothing goes by, as before. A ship-sized field (5 TT, debit .25) still lets nothing
+ // by at 10%.
+ leak.slice(0,5).forEach((x,i)=>near(x,0));assert.ok(leak[5]>0&&leak[5]<100,'a small field at 10% is overrun: '+leak[5]);near(leak[6],100);
+ {const TT=4.184e21,cap=5*TT,big=C.shieldPacketEnergyJ(cap*.1,0,cap*.1,1e40,cap);near(big.beamLeakJ/cap,0);}
 });
 test('only the absorbed share draws on the field',()=>{
- for(const f of [1,.8,.4]){const r=split(f);near(r.shieldDebitJ,r.absorbedJ);near(r.shieldAfterJ,1000*f-r.absorbedJ);near(r.deflectedJ+r.absorbedJ+r.beamLeakJ,100);}
+ for(const f of [1,.8,.4]){const r=split(f);/* 2026-11-19 expectation changed with the user instruction「シールドの削り値を減らして」(「砲火がシールドを減らす量そのもの」): the field loses SHIELD_MODEL.debit of what it absorbs, no longer all of it *//* 2026-11-20 user decision「小型機のシールドをさらに弱くなるような曲線にする」: the share follows the field's capacity (C.shieldDebitK); this fixture's field is 1,000 J, far below the small end */{const K=C.shieldDebitK(1000/4.184e21);assert.equal(K,C.SHIELD_MODEL.debitSmall);near(r.shieldDebitJ,r.absorbedJ*K);near(r.shieldAfterJ,1000*f-r.absorbedJ*K);}near(r.deflectedJ+r.absorbedJ+r.beamLeakJ,100);}
 });
 test('a field whose transient buffer is full lets the shortfall through',()=>{
  const room=1.2,r=C.shieldPacketEnergyJ(100,0,1000,room,1000);near(r.absorbedJ,room/C.SHIELD_MODEL.beamStore);near(r.beamLeakJ,100-r.deflectedJ-r.absorbedJ);assert.ok(r.beamLeakJ>0);

@@ -32,20 +32,20 @@ const ctx={time:1,damage:1,rand:()=>1,ev(){},out(){},sunk(){},hit(){}};
 
 test('an actual solo hit recharges from paid shield input then releases that power back to propulsion',()=>{
  const u=fixture();tick();near(u.pw.sh,0);near(u.propulsion.actualInputW/TT,95);const healthyInput=u.propulsion.actualInputW,reference=u.p.maxSpeed;
- C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)});near(u.shield/u.shieldMax,.7);const damaged=u.shield;let paidJ=0,sourceJ=0,steps=0;
+ C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)/C.SHIELD_MODEL.debit/* 2026-11-19 fixture changed: the field loses SHIELD_MODEL.debit of what it absorbs (user instruction「シールドの削り値を減らして」), so the hit that takes it to 70% is that much larger */});near(u.shield/u.shieldMax,.7);u.shieldWear=0;/* the ceiling's wear from this larger hit is not this case's subject (it kept the field from filling within the case's 200 steps) */const damaged=u.shield;let paidJ=0,sourceJ=0,steps=0;
  while(u.shield<u.shieldMax*(1-1e-11)&&steps++<200){tick();paidJ+=u.pw.sh*.1;sourceJ+=u.propulsion.power.draw*.1;assert.ok(u.propulsion.actualInputW<healthyInput);assert.ok(!u.out&&u.ht.online);}
  assert.ok(steps<200,'the actual stored field fills instead of remaining at70percent');near(u.shield,u.shieldMax);near(u.shield-damaged,paidJ/TT*C.K.deflect*RK,'stored field follows actual granted joules (times returnK)');assert.ok(C.shipFuelState(u).generatedElectricalJ>=sourceJ);
  tick();near(u.pw.sh,0);near(u.pw.requestedShieldRechargeW,0);near(u.propulsion.actualInputW,healthyInput);near(u.p.maxSpeed,reference);assert.equal(u.pw.activeCombatPower,false);
 });
 test('solo shield storage does not add electrical, fuel or operating heat a second time',()=>{
- const u=fixture();C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)});const fuelBefore=C.shipFuelState(u).generatedElectricalJ;tick();
+ const u=fixture();C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)/C.SHIELD_MODEL.debit/* 2026-11-19 fixture changed: the field loses SHIELD_MODEL.debit of what it absorbs (user instruction「シールドの削り値を減らして」), so the hit that takes it to 70% is that much larger */});const fuelBefore=C.shipFuelState(u).generatedElectricalJ;tick();
  /* 2026-11-16 PR #112: shield recharge x0.5 — the funded draw and the stored gain are C.SHIELD_RECHARGE_K of the design 20 TT / +1% */
  near(u.pw.sh/TT,20*C.SHIELD_RECHARGE_K);near(u.shield,u.p.shieldBuffer*(.7+.01*C.SHIELD_RECHARGE_K*RK))/* 2026-11-19: read against the design field, since the hit's wear lowers u.shieldMax */;near(C.shipFuelState(u).generatedElectricalJ-fuelBefore,100*TT*.1,'one funded source generation per allocation');
  const generated=u.ht.actualGeneratedElectricalJ,heat=u.ht.operatingHeatJ+Object.values(u.ht.e).reduce((n,J)=>n+J,0)+u.ht.engineE.reduce((n,J)=>n+J,0)+u.ht.reactorE.reduce((n,J)=>n+J,0),bank=u.bank;
  C.shieldRechargeStep(u,C.fleetSystems(u),0);near(u.ht.actualGeneratedElectricalJ,generated);near(u.ht.operatingHeatJ+Object.values(u.ht.e).reduce((n,J)=>n+J,0)+u.ht.engineE.reduce((n,J)=>n+J,0)+u.ht.reactorE.reduce((n,J)=>n+J,0),heat);near(u.bank,bank);
 });
 test('a battle-owned pilot receives no duplicate solo recharge before its world combat update',()=>{
- const u=fixture(true);C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)});const before=u.shield;tick();near(u.shield,before,'trial allocation leaves world-owned field unchanged');const expected=before+u.pw.sh*.1/TT*C.K.deflect*RK;
+ const u=fixture(true);C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)/C.SHIELD_MODEL.debit/* 2026-11-19 fixture changed: the field loses SHIELD_MODEL.debit of what it absorbs (user instruction「シールドの削り値を減らして」), so the hit that takes it to 70% is that much larger */});const before=u.shield;tick();near(u.shield,before,'trial allocation leaves world-owned field unchanged');const expected=before+u.pw.sh*.1/TT*C.K.deflect*RK;
  C.combatResolve(ctx,u,C.combatIncoming(),.1,C.fleetSystems(u));near(u.shield,expected,'the shared combat helper advances storage once');
 });
 test('the shared update retains established under-fire generation, reserve spending and decay',()=>{
@@ -54,7 +54,7 @@ test('the shared update retains established under-fire generation, reserve spend
  const q=C.shieldRechargeStep(u,{shield:1,battery:1},dt,{incomingShieldTT:incoming});near(q.generatedTT,gen0);near(q.reserveSpentTT,bd);near(q.decayedTT,decay);near(u.bank,20-bd);near(u.shield,expected);
 });
 test('an unfunded solo shield cannot refill stored energy or generate fictitious reactant use',()=>{
- const u=fixture();C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)});u.mods[0]=0;const before=u.shield,fuel=C.shipFuelState(u).generatedElectricalJ;tick();near(u.pw.sh,0);assert.ok(u.shield<=before);near(C.shipFuelState(u).generatedElectricalJ,fuel);assert.ok(u.out);
+ const u=fixture();C.shieldReceive(u,{energy:u.shieldMax*.3/(1-C.SHIELD_MODEL.deflectMax)/C.SHIELD_MODEL.debit/* 2026-11-19 fixture changed: the field loses SHIELD_MODEL.debit of what it absorbs (user instruction「シールドの削り値を減らして」), so the hit that takes it to 70% is that much larger */});u.mods[0]=0;const before=u.shield,fuel=C.shipFuelState(u).generatedElectricalJ;tick();near(u.pw.sh,0);assert.ok(u.shield<=before);near(C.shipFuelState(u).generatedElectricalJ,fuel);assert.ok(u.out);
 });
 
 test('fully funded one-third headroom top-ups finish in one step at varying frame times',()=>{

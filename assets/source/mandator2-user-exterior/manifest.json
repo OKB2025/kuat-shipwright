@@ -1,0 +1,16 @@
+{
+ "note": "ユーザーが設計画面で作ったマンデイター II の外装（2026-11-20「マンデイターIIはこれをベースに使って」）。作例の作り直しはこの外装を土台にする。まだ作例には組み込んでいない。",
+ "files": {
+  "mandator2-user-exterior.json": {
+   "file": "assets/source/mandator2-user-exterior/mandator2-user-exterior.json.gz",
+   "source_sha256": "57744e6dbfe9b808e3834ae16103064f05e5f31eab084aad9211885ecc9e5dbd",
+   "source_bytes": 284677,
+   "gzip_sha256": "4115121b0e6e33d5e296f3e0e7d29bfd712a8977f3ad17dcc9f14dd49b474410",
+   "format": "starship-yard v3 の設計ファイル（名前「マンデイターII級スター・ドレッドノート（8,000 m・外装）」）",
+   "received": "2026-11-20（ユーザーがセッションに添付）",
+   "author_license": "ユーザーの設計",
+   "examples": ["mandator2"],
+   "contents": "構造物 652 個（主船体、左右舷トレンチ、艦尾・機関外装、中央上部構造、腹面装甲と 2 つの腹面ドーム、ノズル外装 11 基、空き装備台 52 個、甲板細部、インペリアル級の艦橋本体）とセンサー 3 個。兵装・機関・内装・削り・トレンチ定義は入っていない。全長 8,000 m、幅 2,899.9 m、高さ 1,121.3 m。"
+  }
+ }
+}

@@ -105,8 +105,19 @@ test('power mode commands cannot override the fixed systems, weapons, navigation
  for(const mode of['weapons','shields','overload']){run("trialCommand('pmode:"+mode+"');trialSetThrottle(.373);trialStep(.1)");near(run('trialThrottleCommand()'),.373);near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);}
 });
 
-test('thermal blackout suppresses engine output and steering; the hull falls freely',()=>{
- const u=setup({massKg:1e11,velocity:[100,10,0],thermal:false});run('trial.stickX=1;trialStep(.5)');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.deepEqual(plain(run('trial.w')),[0,0,0]);{const want=freeFall([100,10,0],plain(run('trial.P')).map((x,i)=>x-run('trial.V')[i]*.5),.5);for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),want[i],'2026-11-19: a blacked-out hull falls freely (it kept its mass resistance before the decision above)');}
+// 2026-11-20 expectation changed with the user decision「緊急遮断でもリパルサーリフトは給電を続ける形。ただ長いと落ちる」(GRAVITY.liftHold,
+// js/core.js liftCutOut / liftPowerless / liftStep, commit d81593e): a plant shut down by a thermal cut-out (heat state online===false,
+// which is this case) keeps its lift fed for GRAVITY.liftHold (300 s). While it is held the hull does not fall: it drifts on and
+// slows with the mass resistance, as the fleet model has it for every other ship held by its lift (fleetTick: "held by its lift: it
+// drifts on and slows"). Before (2026-11-19) this case expected free fall from the first step: V stayed [100,10,0]; it is now
+// 100·e^(-rate·0.5) = 96.953, 9.6953. The free fall is still checked, after the hold has run out. Engine output and steering
+// are suppressed throughout, as before. (The fixture's planet has no gravity, so free fall here means: no resistance.)
+test('thermal blackout suppresses engine output and steering; the lift holds for GRAVITY.liftHold, then the hull falls freely',()=>{
+ const u=setup({massKg:1e11,velocity:[100,10,0],thermal:false});run('trial.stickX=1;trialStep(.5)');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.deepEqual(plain(run('trial.w')),[0,0,0]);
+ assert.equal(C.GRAVITY.liftHold,300);assert.equal(u.lift,1,'the lift is held through the cut-out');near(u.liftHold,.5,'time in the cut-out');assert.equal(C.liftPowerless(u),false);
+ {const e=Math.exp(-rate(1e11)*.5),want=[100*e,10*e,0];for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),want[i],'2026-11-20: held by its lift, a blacked-out hull drifts on and slows with the mass resistance');}
+ u.liftHold=C.GRAVITY.liftHold;const v0=plain(run('trial.V')),p0=plain(run('trial.P'));run('trial.stickX=1;trialStep(.5)');assert.equal(C.liftPowerless(u),true);assert.ok(u.lift<1,'the hold has run out: the lift fades');near(u.propulsion.actualInputW,0);near(run('trialMainOutput()'),0);assert.deepEqual(plain(run('trial.w')),[0,0,0]);
+ {const want=freeFall(v0,p0,.5);for(let i=0;i<3;i++)near(run(`trial.V[${i}]`),want[i],'2026-11-19: a blacked-out hull falls freely (it kept its mass resistance before the decision above)');}
 });
 
 test('steering-only power is not rendered as forward main-engine thrust',()=>{

@@ -3,6 +3,7 @@
 "use strict";
 root.KS_EN={
  "terms": {
+ "補助機関": "Auxiliary Engine",
  "配置用の部品IDを確保できません。": "A part ID could not be allocated for placement.",
  "配置した部品の形状・性能を計算しています。": "Calculating the placed parts' geometry and performance.",
  "配置の計算で問題が見つかりました。位置や接続を修正してください。": "Placement calculation found a problem. Adjust the position or connection.",
@@ -36,6 +37,7 @@ root.KS_EN={
  "搭載弾薬により変化": "Depends on loaded ordnance",
  "キャノピーの形状・寸法が不正です": "Invalid canopy shape or dimensions",
  "着陸設備": "Landing equipment",
+ "リパルサーリフト（部品）": "Repulsorlift",
  "射撃指揮装置": "Fire control equipment",
  "機能区画": "Functional compartments",
  "指揮設備": "Command equipment",
@@ -10800,6 +10802,7 @@ Object.assign(root.KS_EN.terms,{
   "下部共通格納庫（兵員乗降・全機発着）": "Lower Common Hangar (Troop Boarding / All Craft Launch and Recovery)",
   "ガンシップ搭乗リフト": "Gunship Boarding Lift",
   "分散慣性補償設備": "Distributed Inertial Compensator",
+  "分散リパルサーリフト": "Distributed Repulsorlift",
   "追加慣性補償設備": "Additional Inertial Compensator",
   "分散構造維持設備": "Distributed Structural Integrity Field Generator",
   "追加構造維持設備": "Additional Structural Integrity Field Generator",
@@ -10846,6 +10849,10 @@ Object.assign(root.KS_EN.messages,{
   "ユーザー": "User",
   "ユーザーの設計ファイル（2026-11-16 提供）": "User's design file (supplied 2026-11-16)",
   "ユーザー提供": "User-supplied",
+  "艦艇ミサイル #{0} 埋め込みセル": "Ship missile #{0} embedded cell",
+  "ユーザーの外装設計（2026-11-20 提供）。形状の元は MandatorIIClassDreadnaught.STL（ユーザー提供。作者・ライセンスの表記なし）": "User's exterior design (supplied 2026-11-20). The shape derives from MandatorIIClassDreadnaught.STL (user-supplied; no author or license stated)",
+  "ユーザーの設計ファイル（assets/source/mandator2-user-exterior/）": "User's design file (assets/source/mandator2-user-exterior/)",
+  "ユーザーの外装設計を土台にした作例（2026-11-20 に作り直し）。公式の寸法は無く、ファン設定で多い全長 8 km。短剣形の主船体、舷側のトレンチ、段状の城郭と艦橋塔、腹部の二つの反応炉ドーム、艦尾の 11 基のノズル外装はユーザーが設計画面で組んだもの。兵装は原本の STL から測った搭載位置に載せる：八角形の台 47 か所に 720TT 連装、四角い窪み 24 か所に 175TT 四連装、箱に埋まった球 16 か所に 175TT 四連装イオンのボールターレット、小さな台 2 個 1 組に点防御、舷側トレンチのラック台 6 か所に大型ランチャー（6×2 発）。下面には原本に搭載位置が無いため、従来の作例と同じ場所に 720TT 連装 14 基と 175TT 四連装 24 基を置く。機関は各ノズルに 1 基で、本体は船体内に置いて軸で繋ぐ。ハイパードライブ（クラス2、予備クラス10）と乗員は公式値が無いため想定で、持ち場の大半を自動化装置に任せている。": "An example built on the user's exterior design (rebuilt 2026-11-20). There are no official dimensions; the 8 km length common in fan references is used. The dagger-shaped main hull, the side trenches, the stepped citadel and bridge tower, the two ventral reactor domes and the eleven nozzle housings at the stern are as the user assembled them in the design screen. The armament sits on mount positions measured from the original STL: twin 720 TT on 47 octagonal platforms, quad 175 TT in 24 square recesses, quad 175 TT ion ball turrets on 16 boxed spheres, point defense on pairs of small platforms, and large launchers (6×2 rounds) on 6 rack platforms in the side trenches. The original has no mount positions on the underside, so 14 twin 720 TT and 24 quad 175 TT are placed where the former example had them. Each nozzle has one engine whose body is inside the hull, connected by a shaft. The hyperdrive (class 2, backup class 10) and the crew are assumptions in the absence of official figures; most stations are left to automation.",
   "ユーザーの設計（Executor_1230G_ISD_Bridge.json）": "User's design (Executor_1230G_ISD_Bridge.json)",
   "ユーザーの設計（v25 で差し替え）。全長 19 km の直線楔形の主船体に、インペリアル級と同じ艦橋一式（艦橋本体・追跡センサー・通信マスト）を載せる。武装はインペリアルII級 200 隻分（ターボレーザー砲座 2,000 基、点防御・四連装・三連装各 14 基、八連装 2 基）。主機は中央主動力炉と分散補助炉 2 基から 13 基のタービン露出型エンジンへ給電し、加速 1,230 G を想定。": "User's design (replaced in v25). A straight 19 km wedge-shaped main hull carries the same bridge set as the Imperial class (bridge body, tracking sensors and communications mast). Armament equals 200 Imperial II-class ships (2,000 turbolaser mounts; 14 each of point-defense, quadruple and triple mounts; 2 octuple mounts). The main drive feeds 13 exposed-turbine engines from a central main power reactor and two distributed auxiliary reactors, for an assumed acceleration of 1,230 G.",
   "ユーザー提供の STL ファイル（deathstar_1_5_10_5.stl）": "User-supplied STL file (deathstar_1_5_10_5.stl)",
