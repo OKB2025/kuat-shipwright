@@ -75688,7 +75688,8 @@ function structBox(pt) {   // struct part geometry: centre c, size [l,w,h], tape
 function inEnv(ship, p, skip) {
   if (inHull(ship, p)) return true;
   for (const pt of ship.parts) if (isShapePart(pt) && pt !== skip) { const b = structBounds(pt); if (p[0] >= b[0] && p[0] <= b[3] && p[1] >= b[1] && p[1] <= b[4] && p[2] >= b[2] && p[2] <= b[5] && inStruct(pt, p)) return true; }
-  return false;
+  // 2026-11-21 (user decision 2026-11-20): a space closed in by plates is inside the ship (envelopeVoidContains).
+  return envelopeVoidContains(ship, p);
 }
 
 // ---------- part geometry helpers ----------
@@ -79466,7 +79467,87 @@ function uncutSolidStructTriangles(p){
   const T=new Float32Array(material.length+doors.reduce((n,a)=>n+a.length,0));T.set(material);let off=material.length;for(const door of doors){T.set(door,off);off+=door.length;}p._pierced={base,key,t:T,material};return T;
 }
 function inStruct(p,q){if(p.placement?.materializedGeometry&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return !solidPartCutContains(p,q)&&placementGeometryContains(p,q);if(isHullStructure(p))return !solidPartCutContains(p,q)&&inHull(hullStructureShip(p._solidCutShip,p),hullLocalPoint(p,q));return !solidPartCutContains(p,q)&&unpiercedInStruct(p,q)&&!(p._apertures||[]).some(m=>inBox(q,m.b));}
-function insideOriginalEnvelope(ship,q){if(ship.subs.some(c=>(ship.hull.assembly||c.structures)&&inBox(q,c.b)))return false;if(!solidCutsContain(ship,q)&&v3InHull(ship,q))return true;if(solidCutsContain(ship,q,true))return false;const bounds=ship._clipEnvelope?.structs;return bounds?bounds.some(({p,b})=>q.every((v,i)=>v>=b[i]-.01&&v<=b[i+3]+.01)&&unpiercedInStruct(p,q)):ship.parts.some(p=>isShapePart(p)&&unpiercedInStruct(p,q));}
+// ---- Closed voids are inside the ship (2026-11-21) ----
+// User decision 2026-11-20: for interior equipment the connected exterior is one hull, and a space closed in by plates
+// (outside every solid, but with no way out) counts as inside. The exterior's triangles are entered in a grid over the
+// ship; cells no triangle touches are filled from the outside of the grid; a cell the fill does not reach, and that no
+// triangle touches, lies in a solid or in a closed void (state 3 or 0; 1 = a triangle touches it, 2 = outside). A point in a cell that triangles touch is in the void when a
+// straight line to the centre of a neighbouring unreached cell crosses none of them.
+// Only designs whose hull is made of parts are looked at, and a space carved out of a part's own outline is not a void.
+// Limits: an opening narrower than a cell does not open a void (the cells the plates touch close it);
+// a void narrower than about two cells (the ship's longest side / 128, at least 0.5 m) is not found.
+const ENVELOPE_VOID={cells:128,minCell:.5,maxCells:3e6,minParts:4};
+function triBoxOverlapRaw(cx,cy,cz,h,T,i){
+ const v=[T[i]-cx,T[i+1]-cy,T[i+2]-cz,T[i+3]-cx,T[i+4]-cy,T[i+5]-cz,T[i+6]-cx,T[i+7]-cy,T[i+8]-cz];
+ for(let a=0;a<3;a++){const x=v[a],y=v[3+a],z=v[6+a];if(Math.min(x,y,z)>h||Math.max(x,y,z)<-h)return false;}
+ const e=[v[3]-v[0],v[4]-v[1],v[5]-v[2],v[6]-v[3],v[7]-v[4],v[8]-v[5],v[0]-v[6],v[1]-v[7],v[2]-v[8]];
+ for(let k=0;k<3;k++){const ex=e[3*k],ey=e[3*k+1],ez=e[3*k+2];
+  for(let a=0;a<3;a++){const ax=a===0?0:a===1?ez:-ey,ay=a===0?-ez:a===1?0:ex,az=a===0?ey:a===1?-ex:0;
+   const p0=ax*v[0]+ay*v[1]+az*v[2],p1=ax*v[3]+ay*v[4]+az*v[5],p2=ax*v[6]+ay*v[7]+az*v[8],rad=h*(Math.abs(ax)+Math.abs(ay)+Math.abs(az));
+   if(Math.min(p0,p1,p2)>rad||Math.max(p0,p1,p2)<-rad)return false;}}
+ const nx=e[1]*e[5]-e[2]*e[4],ny=e[2]*e[3]-e[0]*e[5],nz=e[0]*e[4]-e[1]*e[3],d=nx*v[0]+ny*v[1]+nz*v[2],rad=h*(Math.abs(nx)+Math.abs(ny)+Math.abs(nz));
+ return Math.abs(d)<=rad;
+}
+function segmentHitsTriangle(a,b,T,i){
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],e1x=T[i+3]-T[i],e1y=T[i+4]-T[i+1],e1z=T[i+5]-T[i+2],e2x=T[i+6]-T[i],e2y=T[i+7]-T[i+1],e2z=T[i+8]-T[i+2];
+ const px=dy*e2z-dz*e2y,py=dz*e2x-dx*e2z,pz=dx*e2y-dy*e2x,det=e1x*px+e1y*py+e1z*pz;if(Math.abs(det)<1e-14)return false;
+ const inv=1/det,tx=a[0]-T[i],ty=a[1]-T[i+1],tz=a[2]-T[i+2],u=(tx*px+ty*py+tz*pz)*inv;if(u<-1e-9||u>1+1e-9)return false;
+ const qx=ty*e1z-tz*e1y,qy=tz*e1x-tx*e1z,qz=tx*e1y-ty*e1x,w=(dx*qx+dy*qy+dz*qz)*inv;if(w<-1e-9||u+w>1+1e-9)return false;
+ const t=(e2x*qx+e2y*qy+e2z*qz)*inv;return t>=-1e-9&&t<=1+1e-9;
+}
+function envelopeVoidGrid(ship){
+ const env=ship?._clipEnvelope;if(!env)return null;if(env.voids!==undefined)return env.voids;env.voids=null;
+ if(env.structs.length<ENVELOPE_VOID.minParts)return null;
+ const sets=[],setBounds=[],lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity],take=T=>{if(!T||!T.length||T.length%9)return;const B=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<T.length;i+=3)for(let a=0;a<3;a++){const v=T[i+a];if(v<B[a])B[a]=v;if(v>B[a+3])B[a+3]=v;}if(!B.every(Number.isFinite))return;sets.push(T);setBounds.push(B);for(let a=0;a<3;a++){if(B[a]<lo[a])lo[a]=B[a];if(B[a+3]>hi[a])hi[a]=B[a+3];}};
+ // The triangles are taken from a copy of each part without its caches: building this grid must leave every cache of the
+ // design as it was (the statistics of a ship without a closed void must not move by a digit).
+ // A hull that is not made of parts (the older single hull) has no plates to close a space: such designs are left as they were.
+ if(!ship.hull?.assembly&&ship.hullStructureVersion!==1)return null;
+ const copies=[];for(const {p,b} of env.structs){try{const q={};for(const k of Object.keys(p))if(!k.startsWith('_'))q[k]=p[k];if(p._placementGeometry)q._placementGeometry=p._placementGeometry;q._solidCutShip=ship;const before=sets.length;take(structTriangles(q));if(sets.length>before)copies.push({q,b});}catch(e){}}
+ if(!sets.length||!lo.every(Number.isFinite)||!hi.every(Number.isFinite))return null;
+ let h=Math.max(ENVELOPE_VOID.minCell,Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2])/ENVELOPE_VOID.cells),n;
+ for(;;){n=[0,1,2].map(a=>Math.ceil((hi[a]-lo[a])/h)+4);if(n[0]*n[1]*n[2]<=ENVELOPE_VOID.maxCells)break;h*=1.26;}
+ const o=[lo[0]-2*h,lo[1]-2*h,lo[2]-2*h],nx=n[0],ny=n[1],nz=n[2],sxy=nx*ny,state=new Uint8Array(nx*ny*nz),tris=new Map(),half=h/2*(1+1e-9);
+ sets.forEach((T,si)=>{for(let i=0;i<T.length;i+=9){
+  // A long triangle is entered piece by piece (halved along its longest side until a piece spans at most 4 cells a side),
+  // each piece tested against the cells of its own box; the cell is given the whole triangle.
+  const work=[Array.from(T.subarray?T.subarray(i,i+9):T.slice(i,i+9))];
+  while(work.length){const t=work.pop();let a0=Infinity,a1=-Infinity,b0=Infinity,b1=-Infinity,c0=Infinity,c1=-Infinity;for(let k=0;k<9;k+=3){const x=t[k],y=t[k+1],z=t[k+2];if(x<a0)a0=x;if(x>a1)a1=x;if(y<b0)b0=y;if(y>b1)b1=y;if(z<c0)c0=z;if(z>c1)c1=z;}
+   if(!(a1>=a0&&b1>=b0&&c1>=c0))continue;
+   if(Math.max(a1-a0,b1-b0,c1-c0)>4*h){let best=0,bl=-1;for(let e=0;e<3;e++){const p=3*e,q=3*((e+1)%3),l=(t[p]-t[q])**2+(t[p+1]-t[q+1])**2+(t[p+2]-t[q+2])**2;if(l>bl){bl=l;best=e;}}const p=3*best,q=3*((best+1)%3),s=3*((best+2)%3),m=[(t[p]+t[q])/2,(t[p+1]+t[q+1])/2,(t[p+2]+t[q+2])/2];work.push([t[p],t[p+1],t[p+2],m[0],m[1],m[2],t[s],t[s+1],t[s+2]],[m[0],m[1],m[2],t[q],t[q+1],t[q+2],t[s],t[s+1],t[s+2]]);continue;}
+   const i0=Math.max(0,Math.floor((a0-o[0])/h)),i1=Math.min(nx-1,Math.floor((a1-o[0])/h)),j0=Math.max(0,Math.floor((b0-o[1])/h)),j1=Math.min(ny-1,Math.floor((b1-o[1])/h)),k0=Math.max(0,Math.floor((c0-o[2])/h)),k1=Math.min(nz-1,Math.floor((c1-o[2])/h));
+   for(let z=k0;z<=k1;z++)for(let y=j0;y<=j1;y++)for(let x=i0;x<=i1;x++){if(!triBoxOverlapRaw(o[0]+(x+.5)*h,o[1]+(y+.5)*h,o[2]+(z+.5)*h,half,t,0))continue;const id=x+y*nx+z*sxy;state[id]=1;let L=tris.get(id);if(!L){L=[];tris.set(id,L);}if(L[L.length-2]!==si||L[L.length-1]!==i)L.push(si,i);}
+  }
+ }});
+ // fill from the outermost layer (it lies outside the ship's bounds)
+ const stack=[];for(let z=0;z<nz;z++)for(let y=0;y<ny;y++)for(let x=0;x<nx;x++)if(x===0||y===0||z===0||x===nx-1||y===ny-1||z===nz-1){const id=x+y*nx+z*sxy;if(!state[id]){state[id]=2;stack.push(id);}}
+ while(stack.length){const id=stack.pop(),x=id%nx,y=((id-x)/nx)%ny,z=(id-x-y*nx)/sxy;
+  if(x>0&&!state[id-1]){state[id-1]=2;stack.push(id-1);}if(x<nx-1&&!state[id+1]){state[id+1]=2;stack.push(id+1);}
+  if(y>0&&!state[id-nx]){state[id-nx]=2;stack.push(id-nx);}if(y<ny-1&&!state[id+nx]){state[id+nx]=2;stack.push(id+nx);}
+  if(z>0&&!state[id-sxy]){state[id-sxy]=2;stack.push(id-sxy);}if(z<nz-1&&!state[id+sxy]){state[id+sxy]=2;stack.push(id+sxy);}}
+ // What the fill did not reach is the inside of a solid or a closed void. No triangle lies between neighbouring cells of
+ // that kind, so each connected group is one or the other: its first cell's centre is tested against the solids.
+ // The test uses only the triangles gathered above (a ray's crossings of each part's closed surface, odd = inside), so
+ // building the grid touches no cache of the design.
+ const far=[o[0]+(nx+3)*h,0,0],solidAt=q=>{const b=[q[0]+(far[0]-q[0]),q[1]+(far[0]-q[0])*.0137,q[2]+(far[0]-q[0])*.0071];for(let si=0;si<sets.length;si++){const B=setBounds[si];if(q[0]<B[0]||q[0]>B[3]||q[1]<B[1]-h||q[1]>B[4]+h||q[2]<B[2]-h||q[2]>B[5]+h)continue;const T=sets[si];let n=0;for(let i=0;i<T.length;i+=9)if(segmentHitsTriangle(q,b,T,i))n++;if(n&1)return true;}return false;};
+ for(let start=0;start<state.length;start++){if(state[start])continue;const group=[start];state[start]=5;for(let at=0;at<group.length;at++){const id=group[at],x=id%nx,y=((id-x)/nx)%ny,z=(id-x-y*nx)/sxy;
+   if(x>0&&!state[id-1]){state[id-1]=5;group.push(id-1);}if(x<nx-1&&!state[id+1]){state[id+1]=5;group.push(id+1);}if(y>0&&!state[id-nx]){state[id-nx]=5;group.push(id-nx);}if(y<ny-1&&!state[id+nx]){state[id+nx]=5;group.push(id+nx);}if(z>0&&!state[id-sxy]){state[id-sxy]=5;group.push(id-sxy);}if(z<nz-1&&!state[id+sxy]){state[id+sxy]=5;group.push(id+sxy);}}
+  const x=start%nx,y=((start-x)/nx)%ny,z=(start-x-y*nx)/sxy;let solid=true;try{const q=[o[0]+(x+.5)*h,o[1]+(y+.5)*h,o[2]+(z+.5)*h];/* a space carved out of a part (a hangar bay, a recess) is inside that part's own outline: it is not a void between plates */solid=solidAt(q)||copies.some(({q:part,b})=>q.every((v,i)=>v>=b[i]-.01&&v<=b[i+3]+.01)&&unpiercedInStruct(part,q));}catch(e){solid=true;}
+  const mark=solid?3:4;for(const id of group)state[id]=mark;}
+ let count=0,hash=2166136261;for(let id=0;id<state.length;id++)if(state[id]===4){state[id]=0;count++;hash=Math.imul(hash^id,16777619);}
+ if(ENVELOPE_VOID.log)ENVELOPE_VOID.log.push({count,h,n:[nx,ny,nz],parts:env.structs.length,vol:count*h*h*h});/* tests and audits can watch what was found */
+ if(!count)return null;
+ return env.voids={o,h,n,state,tris,sets,count,key:[nx,ny,nz,+h.toPrecision(9),o.map(v=>+v.toPrecision(9)).join(','),count,(hash>>>0).toString(36)].join(':')};
+}
+// A point outside every solid: is it in a closed void? (insideOriginalEnvelope asks only after the solid tests failed.)
+function envelopeVoidContains(ship,q){
+ const g=envelopeVoidGrid(ship);if(!g)return false;const [nx,ny,nz]=g.n,x=Math.floor((q[0]-g.o[0])/g.h),y=Math.floor((q[1]-g.o[1])/g.h),z=Math.floor((q[2]-g.o[2])/g.h);
+ if(x<0||y<0||z<0||x>=nx||y>=ny||z>=nz)return false;const sxy=nx*ny,id=x+y*nx+z*sxy,s=g.state[id];if(s===0)return true;if(s===2)return false;
+ const L=g.tris.get(id)||[],near=[[x-1,y,z],[x+1,y,z],[x,y-1,z],[x,y+1,z],[x,y,z-1],[x,y,z+1]];
+ for(const [a,b,c] of near){if(a<0||b<0||c<0||a>=nx||b>=ny||c>=nz||g.state[a+b*nx+c*sxy]!==0)continue;const centre=[g.o[0]+(a+.5)*g.h,g.o[1]+(b+.5)*g.h,g.o[2]+(c+.5)*g.h];let clear=true;for(let i=0;i<L.length;i+=2)if(segmentHitsTriangle(q,centre,g.sets[L[i]],L[i+1])){clear=false;break;}if(clear)return true;}
+ return false;
+}
+function insideOriginalEnvelope(ship,q){if(ship.subs.some(c=>(ship.hull.assembly||c.structures)&&inBox(q,c.b)))return false;if(!solidCutsContain(ship,q)&&v3InHull(ship,q))return true;if(solidCutsContain(ship,q,true))return false;const bounds=ship._clipEnvelope?.structs;return bounds?bounds.some(({p,b})=>q.every((v,i)=>v>=b[i]-.01&&v<=b[i+3]+.01)&&unpiercedInStruct(p,q))||envelopeVoidContains(ship,q):ship.parts.some(p=>isShapePart(p)&&unpiercedInStruct(p,q));}
 function fitRoomToEnvelope(ship,p){
   if(!p.room)throw new Error('長さ・幅・高さを持つ区画を選んでください');
   const initial=p.room.slice();
@@ -79589,7 +79670,7 @@ function syncCompartmentsRaw(ship){
 function interiorLocalEnvelope(ship){
  const drop=(k,v)=>k.startsWith('_')?undefined:v,anchor=interiorAnchorHostId(ship),global=JSON.stringify([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,anchor],drop);
  const rows=ship.parts.filter(p=>isShapePart(p)).map(p=>({always:isHullStructure(p)||p.id===anchor,b:partAABB({...p,_apertures:null}),json:JSON.stringify([p,!!p._placementError],drop)+':'+engineSupportGeometryId(p._placementGeometry)}));
- return {key(b,kind){if(!b||!b.every(Number.isFinite))return global+JSON.stringify(rows.map(r=>r.json));const pad=.1+1e-6*Math.max(...b.map(Math.abs));let out=global+'|'+kind;for(const r of rows)if(r.always||!r.b.every(Number.isFinite)||boxesOverlap(r.b,b,-pad))out+='|'+r.json;return out;}};
+ return {key(b,kind){if(!b||!b.every(Number.isFinite))return global+JSON.stringify(rows.map(r=>r.json));const pad=.1+1e-6*Math.max(...b.map(Math.abs));let out=global+'|'+kind;{const g=envelopeVoidGrid(ship);if(g)out+='|void:'+g.key;/* 2026-11-21: a closed void depends on plates far from the room */}for(const r of rows)if(r.always||!r.b.every(Number.isFinite)||boxesOverlap(r.b,b,-pad))out+='|'+r.json;return out;}};
 }
 // The bounds an explicit interior solve can read: its requested body and any packing it retains.
 // Content key of a room's fitted shape (_clip or _packing), computed once per object: equal content gives an
@@ -95479,7 +95560,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,PLACEMENT_BODY_KEYS,placementDeriveBody,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,ENVELOPE_VOID,envelopeVoidGrid,envelopeVoidContains,PLACEMENT_BODY_KEYS,placementDeriveBody,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportMassRatio, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
