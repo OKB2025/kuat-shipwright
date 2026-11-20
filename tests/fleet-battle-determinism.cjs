@@ -67,6 +67,8 @@
 // Re-recorded on bb6c788 (2026-11-20, user decisions「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」「緊急遮断でも
 // リパルサーリフトは給電を続ける形。ただ長いと落ちる」and the physics-review fixes: lift rooms placed in the hull proper, the support the
 // lift rooms took made up, examples regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 2d40f015…).
+// Re-recorded on 43b9ac0 (2026-11-20, same decisions: a lift placement that falls short keeps what was placed; six examples
+// regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 3be37f71…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest
