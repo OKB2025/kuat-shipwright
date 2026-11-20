@@ -35,7 +35,8 @@ test('invalid fitting modes cannot enter either blueprint save or load paths',()
 });
 
 test('missing parents and invalid exact surface hits cannot consume an ID or add a fitting',()=>{
- for(const change of [{hostId:999},{hostId:undefined},{hit:{p:[83,21,23],n:[0,1,0]}},{hit:{p:[83,20,23],n:[0,0,0]}},{hit:{p:[NaN,20,23],n:[0,1,0]}}]){
+ /* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): {hostId:undefined} was in this list. A request that names no body is no longer refused: the structure under the tapped point is used. */{const s=fixture(),r=solve(s,{hostId:undefined});assert.equal(r.ok,true,r.error);assert.equal(r.fit.host,1);}
+ for(const change of [{hostId:999},{hit:{p:[83,21,23],n:[0,1,0]}},{hit:{p:[83,20,23],n:[0,0,0]}},{hit:{p:[NaN,20,23],n:[0,1,0]}}]){
   const s=fixture(),before=state(s),r=solve(s,change);assert.equal(r.ok,false,JSON.stringify(change));assert.ok(r.error);assert.equal(state(s),before);
  }
 });

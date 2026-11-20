@@ -7,7 +7,7 @@ const request=(extra={})=>({mode:'direct',parentStructureId:1,hit:{p:[2,10,3],n:
 function add(s,k='sensor'){const r=C.commitPlacement(s,equipment(k),request());assert.equal(r.ok,true,r.error);return r.part;}
 
 test('ordinary exterior equipment requires an explicit structure and real surface contact',()=>{
- const s=fixture(),p=equipment();let r=C.solvePlacement(s,p,{mode:'direct'});assert.equal(r.code,'parent-required');r=C.solvePlacement(s,p,request({parentStructureId:77}));assert.equal(r.code,'parent-missing');r=C.solvePlacement(s,{...p,c:[2,100,3]},request());assert.equal(r.ok,false);assert.equal(r.code,'contact-zero');r=C.solvePlacement(s,p,request({hit:{p:[2,30,3],n:[0,1,0]}}));assert.equal(r.ok,false);assert.equal(r.code,'surface-missing');
+ const s=fixture(),p=equipment();let r=C.solvePlacement(s,p,{mode:'direct'});/* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): no body has to be named; a request with no tapped surface has nothing to mount on (expected 'parent-required' before) */assert.equal(r.code,'surface-required');{const q=request();delete q.parentStructureId;const free=C.solvePlacement(s,p,q);assert.equal(free.ok,true,free.error);assert.equal(free.part.placement.parentStructureId,1,'the structure under the tapped point');}r=C.solvePlacement(s,p,request({parentStructureId:77}));assert.equal(r.code,'parent-missing');r=C.solvePlacement(s,{...p,c:[2,100,3]},request());assert.equal(r.ok,false);assert.equal(r.code,'contact-zero');r=C.solvePlacement(s,p,request({hit:{p:[2,30,3],n:[0,1,0]}}));assert.equal(r.ok,false);assert.equal(r.code,'surface-missing');
 });
 
 test('all normal exterior kinds keep direct mode and reject the three structure modes',()=>{
@@ -41,7 +41,7 @@ test('equipment left by a turned parent keeps its pose and record through save a
 });
 
 test('partial copying cannot keep an equipment parent from another design',()=>{
- const s=fixture(),p=add(s),copy=JSON.parse(C.publicJSON(p));copy.id=10;C.remapPlacementCopy(copy,new Map([[p.id,10]]));assert.equal(copy.placement.parentStructureId,undefined);assert.equal(copy.placement.unresolvedParentId,1);s.parts=[copy];const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,false);assert.equal(s.parts.length,1);assert.equal(C.placementDiagnostics(s)[0].connected,false);
+ const s=fixture(),p=add(s),copy=JSON.parse(C.publicJSON(p));copy.id=10;C.remapPlacementCopy(copy,new Map([[p.id,10]]));assert.equal(copy.placement.parentStructureId,undefined);/* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): no mark of the body left outside the copy (expected unresolvedParentId 1 before) */assert.equal(copy.placement.unresolvedParentId,undefined);s.parts=[copy];const result=C.updatePlacementChildren(s,1);assert.equal(result.ok,false);assert.equal(s.parts.length,1);assert.equal(C.placementDiagnostics(s)[0].connected,false);
 });
 
 test('a late normal-equipment result cannot commit after its parent changes',()=>{

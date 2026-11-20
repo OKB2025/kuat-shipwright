@@ -67,7 +67,7 @@ test('a copy that touches nothing stays unresolved and is not measured again unt
  const ship=C.deserialize(saved()),copy=JSON.parse(C.publicJSON(ship.parts.find(p=>p.id===106)));
  copy.id=ship.nextId++;copy.c=[copy.c[0],copy.c[1]+200,copy.c[2]];C.remapPlacementCopy(copy,new Map([[106,copy.id]]),{detachRoots:true});
  ship.parts.push(copy);C.refreshPlacementGeometry(ship);
- const p=ship.parts.find(q=>q.id===copy.id);assert.equal(p.placement.parentStructureId,undefined);assert.equal(p.placement.unresolvedParentId,1,'the parent left outside the copy');
+ const p=ship.parts.find(q=>q.id===copy.id);assert.equal(p.placement.parentStructureId,undefined);/* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): no mark of the body left outside the copy (expected unresolvedParentId 1 before) */assert.equal(p.placement.unresolvedParentId,undefined);
  // 2026-11-13 (no parent relation): it is red by contact (nothing is adopted or retried).
  assert.equal(grounding(ship).placementDiagnostics.find(d=>d.partId===p.id).connected,false);C.refreshPlacementGeometry(ship);assert.equal(p.placement.parentStructureId,undefined);
  // Moved onto the hull by the user: kept where it is put and connected by contact.
