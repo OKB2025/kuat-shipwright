@@ -3142,7 +3142,7 @@ function onTap(px, py, add, pointerType) {
   if(veTap(px,py,add))return;
   const t = tool();
   if(t === 'solid') { if(st.cutterAction === 'place') { const hit=pick(px,py,{parts:true,fits:false}); if(hit?.p)placeSolidCutter(hit);else toast('カッターを重ねる船体・構造物をタップしてください'); } return; }
-  if(designUI.pickParent){const hit=pick(px,py,{parts:true,fits:false});if(hit?.part&&C.isStructuralPart(hit.part)){designUI.parentId=hit.part.id;designUI.pickParent=false;designUI.drawer=true;renderPanel();}else toast('追加元にする構造物を選択してください');return;}
+  if(designUI.pickParent){const hit=pick(px,py,{parts:true,fits:false});if(hit?.part&&C.isStructuralPart(hit.part)){designUI.parentId=hit.part.id;designUI.pickParent=false;designUI.drawer=true;renderPanel();}else toast('取付先にする構造物を選択してください');return;}
   if(designUI.drawer&&!designUI.details&&['part','fit'].includes(t))return;
   // 1b A canvas tap places only while placement is explicitly armed (設置). On touch the first tap
   // shows the preview there and a second tap on the same spot places it; a mouse click places at once.
@@ -5054,7 +5054,7 @@ function designUIInfoPanel(){
  add('種類',T(def?.name||part.k));add('ID',part.id!=null?'#'+part.id:null);
  if(dimensions?.every(Number.isFinite))add('寸法',dimensions.map(v=>num(v,3)).join(' × ')+' m');
  if(position?.every(Number.isFinite))add('位置 XYZ（m）',position.map(v=>num(v,3)).join(' / '));
- const interior=part.placement&&designCapability(part).space==='interior',owner=part.host??part.placement?.parentStructureId??(interior?null:part.placement?.hostId);if(interior)add('配置基準',T('主船体に固定'));else if(owner!=null)add('追加元',owner==='hull'?T('船体'):'#'+owner);
+ const interior=part.placement&&designCapability(part).space==='interior',owner=part.host??part.placement?.parentStructureId??(interior?null:part.placement?.hostId);if(interior)add('配置基準',T('主船体に固定'));/* 2026-11-21 (user decision 2026-11-20, no parent relation left): the row naming the structure a part was added from is gone; a part belongs to no structure */void owner;
  if(fit){if(def.power)add('電力',fW(def.power));if(def.tt||def.ion)add('一斉射',fTT(def.tt||def.ion));if(part.trenchAggregate)add('基数',num(part.aggregateCount));}
  if(info&&Number.isFinite(info.materialVolume))add('体積',num(info.materialVolume,3)+' m³');
  if(info&&Number.isFinite(info.materialMass))add('質量',fMass(info.materialMass));
@@ -5203,9 +5203,8 @@ function designUIPlacementHTML(){
  const cap=designCapability(p),modes=cap.allowedModes||['direct'],saved=p.placement;
  if(!modes.includes(designUI.mode))designUI.mode=modes.includes(saved?.mode)?saved.mode:modes[0];
  const exterior=cap.space==='exterior',structure=cap.kind==='structure'&&exterior,parents=designParents().filter(q=>q.id!==p.id),legacy=editing&&!saved;
- if(structure&&editing&&saved&&designUI.parentId==null)designUI.parentId=saved.parentStructureId??null;
- const select=(field,value,empty)=>`<select data-design-${field} aria-label="${structure?'追加元':'内装の母体'}"><option value="">${empty}</option>${parents.map(q=>`<option value="${esc(String(q.id))}" ${String(q.id)===String(value)?'selected':''}>${esc(C.partLabel(q))} #${q.id}</option>`).join('')}${!ship.hull.assembly?`<option value="hull" ${value==='hull'?'selected':''}>船体</option>`:''}</select>`;
- return `<section class="design-placement" data-design-placement><canvas class="design-part-preview" id="designPartPreview" aria-label="部品の実形状プレビュー"></canvas><h4>${editing?'配置設定':'配置する部品'}</h4>${cap.kind==='weapon'?designWeaponPreviewHTML(p):''}${legacy?'<p class="note">従来の配置を保持しています。配置方式を適用するまで再成形しません。</p>':''}${exterior?`<p class="note" data-design-parent-cue data-parent-id="${esc(String(p.host??designUI.parentId??''))}">${esc('追加元と取付面は、3D表示でタップした構造物から決まります。')}${designParent(p.host??designUI.parentId)?`<br>${esc('開始時の目印')}：${esc(C.partLabel(designParent(p.host??designUI.parentId)))}`:''}</p>`:cap.space==='interior'?`<p class="note" data-design-interior-anchor>配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）</p>`:''}${cap.space==='interior'?`<label>面から内側への追加移動（m）<input type="number" data-design-interior-depth min="0" step="any" value="${designUI.interiorDepth||0}"></label>`:''}${cap.space==='interior'?`<label>面候補（奥行き）<select data-design-depth>${[0,1,2,3,4,5].map(i=>`<option value="${i}" ${designUI.depth===i?'selected':''}>${i===0?'手前の面':i+' 面奥'}</option>`).join('')}</select></label>`:''}${modes.length>1?`<div class="seg" role="group" aria-label="配置方式">${modes.map(m=>`<button type="button" data-design-mode="${m}" aria-pressed="${designUI.mode===m}">${esc(DESIGN_MODE_NAMES[m])}</button>`).join('')}</div>`:`<p class="note">${esc(DESIGN_MODE_NAMES[modes[0]])}${!cap.deformable?'（無変形）':''}</p>`}${structure&&designUI.mode==='vertical'?`<label>親に向ける接触側<select data-design-contact><option value="">選択面から判定</option>${['aft','fore','port','stbd'].map(k=>`<option value="${k}" ${designUI.contactSide===k?'selected':''}>${esc(STRUCTURE_ARMOR_FACES[k])}</option>`).join('')}</select></label>`:''}<p class="note">${exterior?'タップした構造物の面と取付条件を検証します。':'形状・干渉・機能条件を検証してから確定します。'}</p>${editing?'<div class="design-placement-actions"><button type="button" class="btn primary" data-design-action="arm">配置方式を適用・再接続</button></div>':''}</section>`;
+
+ return `<section class="design-placement" data-design-placement><canvas class="design-part-preview" id="designPartPreview" aria-label="部品の実形状プレビュー"></canvas><h4>${editing?'配置設定':'配置する部品'}</h4>${cap.kind==='weapon'?designWeaponPreviewHTML(p):''}${legacy?'<p class="note">従来の配置を保持しています。配置方式を適用するまで再成形しません。</p>':''}${exterior?`<p class="note" data-design-parent-cue data-parent-id="${esc(String(p.host??designUI.parentId??''))}">${esc('取付面は、3D表示でタップした構造物の面で決まります。')}</p>`:cap.space==='interior'?`<p class="note" data-design-interior-anchor>配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）</p>`:''}${cap.space==='interior'?`<label>面から内側への追加移動（m）<input type="number" data-design-interior-depth min="0" step="any" value="${designUI.interiorDepth||0}"></label>`:''}${cap.space==='interior'?`<label>面候補（奥行き）<select data-design-depth>${[0,1,2,3,4,5].map(i=>`<option value="${i}" ${designUI.depth===i?'selected':''}>${i===0?'手前の面':i+' 面奥'}</option>`).join('')}</select></label>`:''}${modes.length>1?`<div class="seg" role="group" aria-label="配置方式">${modes.map(m=>`<button type="button" data-design-mode="${m}" aria-pressed="${designUI.mode===m}">${esc(DESIGN_MODE_NAMES[m])}</button>`).join('')}</div>`:`<p class="note">${esc(DESIGN_MODE_NAMES[modes[0]])}${!cap.deformable?'（無変形）':''}</p>`}${structure&&designUI.mode==='vertical'?`<label>親に向ける接触側<select data-design-contact><option value="">選択面から判定</option>${['aft','fore','port','stbd'].map(k=>`<option value="${k}" ${designUI.contactSide===k?'selected':''}>${esc(STRUCTURE_ARMOR_FACES[k])}</option>`).join('')}</select></label>`:''}<p class="note">${exterior?'タップした構造物の面と取付条件を検証します。':'形状・干渉・機能条件を検証してから確定します。'}</p>${editing?'<div class="design-placement-actions"><button type="button" class="btn primary" data-design-action="arm">配置方式を適用・再接続</button></div>':''}</section>`;
 }
 function designUIPanel(){
  const scroll=designUICaptureScroll();
@@ -5336,7 +5335,7 @@ function designUISchedulePreview(){
 }
 // 1b The name of what an armed tool places, for the placement pill.
 function designUIPlacementName(){
- if(designUI.pickParent&&!designUI.armed)return T('追加元の構造物');
+ if(designUI.pickParent&&!designUI.armed)return T('取付先の構造物');
  const t=tool();
  if(t==='userpart')return userPartFind(st.userPart)?.name||T('ユーザー部品');
  if(t==='importmesh')return st.importRaw?.name||T('取り込んだ3D形状');
@@ -5355,9 +5354,9 @@ function designUIBar(){
  // Before the first tap a coarse (touch) pointer already gets the two-tap hint.
  const coarse=typeof matchMedia==='function'&&!!matchMedia('(pointer:coarse)')?.matches,touch=designUI.lastPointer?designUI.lastPointer!=='mouse':coarse,preview=!!designTouchPreviewCurrent();
  // A touch preview is newer than the last placement's message, so it takes the status line.
- const status=q?.state==='pending'?'検証中':q?.state==='ready'?'配置しています…':preview?'プレビュー中。同じ場所をもう一度タップすると配置します。別の場所をタップするとプレビューが移動します。':q?.state==='failed'?(q.result?.error||'配置を検証できませんでした'):items.some(item=>item.placement?.validationFailed)?'配置しました。計算で問題が見つかりました。点検から修正できます。':items.some(item=>item.placement?.pendingGeometry)?'配置しました。形状・性能はバックグラウンドで計算しています。':touch?'位置をタップするとプレビューを表示し、もう一度タップすると配置します。':designExternalPlacementTool()?(designUI.continuous?'追加元の構造物と取付位置をタップすると配置します。同じ設定で続けて配置できます。':'追加元の構造物と取付位置をタップすると配置します。'):(designUI.continuous?'位置をタップすると配置します。同じ設定で続けて配置できます。':'位置をタップすると配置します。');
+ const status=q?.state==='pending'?'検証中':q?.state==='ready'?'配置しています…':preview?'プレビュー中。同じ場所をもう一度タップすると配置します。別の場所をタップするとプレビューが移動します。':q?.state==='failed'?(q.result?.error||'配置を検証できませんでした'):items.some(item=>item.placement?.validationFailed)?'配置しました。計算で問題が見つかりました。点検から修正できます。':items.some(item=>item.placement?.pendingGeometry)?'配置しました。形状・性能はバックグラウンドで計算しています。':touch?'位置をタップするとプレビューを表示し、もう一度タップすると配置します。':designExternalPlacementTool()?(designUI.continuous?'取付先の構造物と取付位置をタップすると配置します。同じ設定で続けて配置できます。':'取付先の構造物と取付位置をタップすると配置します。'):(designUI.continuous?'位置をタップすると配置します。同じ設定で続けて配置できます。':'位置をタップすると配置します。');
  const request=q?q.request:last?.request,parentId=request?.parentStructureId,parent=parentId!=null?designParent(parentId):null,face=request?.hit?.face,point=request?.hit?.p;
- const target=parent?`<span class="design-parent-target" data-design-parent-name data-parent-id="${esc(String(parentId))}" data-surface-id="${esc(request.hostSurfaceId||'')}" data-hit-point="${esc(JSON.stringify(point))}">${esc(T('追加元'))}：${esc(parentId==='hull'?T('船体'):C.partLabel(parent))} #${esc(String(parentId))}${face?` ・ ${esc(T(STRUCTURE_ARMOR_FACES[face]||face))}`:''}${point?`<small>${esc(T('取付位置 XYZ（m）'))}：${point.map(v=>Number(v.toFixed(2))).join(' / ')}</small>`:''}</span>`:request?.hit?.rootPlane?`<span class="design-parent-target" data-design-root data-root-plane="Y=0">${esc(T('ルート構造物（親なし）'))} ・ ${esc(T('作業面 Y=0'))}</span>`:'';
+ const target=parent?`<span class="design-parent-target" data-design-parent-name data-parent-id="${esc(String(parentId))}" data-surface-id="${esc(request.hostSurfaceId||'')}" data-hit-point="${esc(JSON.stringify(point))}">${esc(T('取付先'))}：${esc(parentId==='hull'?T('船体'):C.partLabel(parent))} #${esc(String(parentId))}${face?` ・ ${esc(T(STRUCTURE_ARMOR_FACES[face]||face))}`:''}${point?`<small>${esc(T('取付位置 XYZ（m）'))}：${point.map(v=>Number(v.toFixed(2))).join(' / ')}</small>`:''}</span>`:request?.hit?.rootPlane?`<span class="design-parent-target" data-design-root data-root-plane="Y=0">${esc(T('ルート構造物（親なし）'))} ・ ${esc(T('作業面 Y=0'))}</span>`:'';
  // The pill: what is being placed, 完了 and キャンセル（Esc）; the status, symmetry and 設定に戻る below it.
  el.innerHTML=`<div class="design-pill-head"><b class="design-pill-name" data-design-placing>${esc(T(`［配置中：${designUIPlacementName()}］`))}</b><button type="button" class="btn primary" data-design-action="done">${esc(T('完了'))}</button><button type="button" class="btn ghost" data-design-action="cancel">${esc(T('キャンセル（Esc）'))}</button></div><p role="status">${esc(T(status))}</p>${target}<div class="design-pill-tools">${designUI.armed?designUISymmetryHTML():''}<button type="button" class="btn ghost" data-design-action="adjust">${esc(T('設定に戻る'))}</button></div>`;
 }
@@ -5389,7 +5388,7 @@ function designUIDiagnostics(part,request,status,result){
 }
 function designUIRequest(hit){
  if(!designUI.armed||!designUI.continuous&&(designUI.stampActive||designUI.stampQueue?.length))return false;
- if(!hit?.p||!hit.n||hit.fit){designUIRejectTap('追加元の構造物と取付位置をタップしてください');return;}
+ if(!hit?.p||!hit.n||hit.fit){designUIRejectTap('取付先の構造物と取付位置をタップしてください');return;}
  const source=ship,gen=eng.gen,operationId='placement-'+(++designUI.sequence),designId=ship.saveId;
  const list=designUI.replaceList||(['fit','adjust'].includes(tool())?'fits':'parts'),existing=designUI.replaceId!=null?ship[list].find(p=>p.id===designUI.replaceId):null;
  const imported=tool()==='importmesh'?importResult()?.part:null;
@@ -5408,7 +5407,7 @@ function designUIRequest(hit){
  if(existing&&list==='parts'&&cap.kind==='structure'){const pose=partPreview(hit);if(pose?.c)pv.c=pose.c.slice();}
  if(cap.space==='exterior'){
   const tapped=hit.parentStructureId??(hit.part&&C.isStructuralPart(hit.part)?hit.part.id:null),parent=tapped!=null?designParent(tapped):null;
-  if(tapped!=null&&(!parent||list==='parts'&&tapped===designUI.replaceId)||tapped==null&&(!hit.rootPlane||!designUIRootEligible(pv))){designUIRejectTap('追加元にする構造物の面をタップしてください');return;}
+  if(tapped!=null&&(!parent||list==='parts'&&tapped===designUI.replaceId)||tapped==null&&(!hit.rootPlane||!designUIRootEligible(pv))){designUIRejectTap('取付先にする構造物の面をタップしてください');return;}
   if(hit.rootPlane){if(!designUIRootEligible(pv)){designUIRejectTap('最初の構造物だけを作業面へ配置できます');return;}designUI.hostId=null;delete pv.placement;delete pv.host;delete pv.local;delete pv.localNormal;delete pv.localForward;}
   designUI.parentId=tapped;
  }
@@ -5498,7 +5497,7 @@ function designUIStampNext(){
  const queue=designUI.stampQueue||[],pending=queue[0];if(!pending)return;
  if(pending.invalidated||!designUI.armed||ship!==pending.source||ship.saveId!==pending.designId){queue.shift();designUIStampNext();return;}
  const {source,designId,operationId,request,rows,list}=pending,gen=eng.gen;
- for(const row of rows){const id=row.request.parentStructureId??row.request.hostId,parent=designParent(id);if(id!=null&&!parent){pending.result={error:'追加元の構造物が見つかりません。'};pending.state='failed';designUI.pending=pending;queue.shift();designUIBar();setTimeout(designUIStampNext,0);return;}row.request.parentGeometryRevision=parent?.placement?.geometryRevision||parent?.geometryRevision||0;}
+ for(const row of rows){const id=row.request.parentStructureId??row.request.hostId,parent=designParent(id);if(id!=null&&!parent){pending.result={error:'取付先の構造物が見つかりません。'};pending.state='failed';designUI.pending=pending;queue.shift();designUIBar();setTimeout(designUIStampNext,0);return;}row.request.parentGeometryRevision=parent?.placement?.geometryRevision||parent?.geometryRevision||0;}
  Object.assign(request,rows[0].request);if(rows.length>1)request.parts=rows;
  pending.gen=gen;pending.state='pending';designUI.pending=pending;designUI.stampActive=pending;designUIBar();
  const pv=rows[0].part;view?.setPlacementDiagnostics?.(ship,designUIDiagnostics(pv,request,'pending'));
@@ -6630,7 +6629,7 @@ function bindEngineering(){
     if(d.goto){openLayoutTarget({list:'parts',id:+d.goto});}
     if('internal'in d){st.view='xray';syncHud();requestDraw();}
     if('commandroom'in d){st.equipmentId=null;st.tab='mod';st.group='command';st.part='command';st.partTool='place';renderPanel();}
-    if(b.id==='btnAtCoordinates'){if(designCapability(designPartDefinition()).space==='exterior'){toast('外装は3D表示で追加元の構造物と取付位置をタップしてください');return;}const c=['X','Y','Z'].map(a=>Number($('#newP'+a).value));if(c.some(v=>!Number.isFinite(v)||Math.abs(v)>C.DESIGN_LIMITS.coordinate)){toast('座標を確認してください');return;}st.newPos=c;const p=partPreview({p:c,n:[0,1,0],kind:'section'});if(!p){toast('船体・構造物の側面をタップしてください');return;}let made;const placed=mutate('座標に区画を配置',()=>{made=C.placePart(ship,p.k,p.c,C.isShapePart(p)?p.s:p.d,p,st.mirror);try{placeVerticalParts(made);}catch(e){removeLinked('parts',made);made=null;throw e;}},'parts');if(placed&&made){st.sel={list:'parts',id:made.id};st.partTool='select';renderPanel();}}
+    if(b.id==='btnAtCoordinates'){if(designCapability(designPartDefinition()).space==='exterior'){toast('外装は3D表示で取付先の構造物と取付位置をタップしてください');return;}const c=['X','Y','Z'].map(a=>Number($('#newP'+a).value));if(c.some(v=>!Number.isFinite(v)||Math.abs(v)>C.DESIGN_LIMITS.coordinate)){toast('座標を確認してください');return;}st.newPos=c;const p=partPreview({p:c,n:[0,1,0],kind:'section'});if(!p){toast('船体・構造物の側面をタップしてください');return;}let made;const placed=mutate('座標に区画を配置',()=>{made=C.placePart(ship,p.k,p.c,C.isShapePart(p)?p.s:p.d,p,st.mirror);try{placeVerticalParts(made);}catch(e){removeLinked('parts',made);made=null;throw e;}},'parts');if(placed&&made){st.sel={list:'parts',id:made.id};st.partTool='select';renderPanel();}}
   });
   $('#panel').addEventListener('change',e=>{
     const t=e.target;if(!t.dataset.reactor)return;

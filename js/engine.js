@@ -81,7 +81,7 @@ function resolvePlacementSurface(candidate, part, request, list, parentId) {
     if (hit && C.dot(hit.n, n) > .5) matches.push({patch, distance: C.len(C.sub(hit.p, point))});
   }
   matches.sort((a, b) => a.distance - b.distance || a.patch.id.localeCompare(b.patch.id));
-  if (!matches.length) return {failure: {ok: false, code: 'surface-missing', error: '指定した追加元の実形状に取付面がありません。面を選び直してください'}};
+  if (!matches.length) return {failure: {ok: false, code: 'surface-missing', error: '指定した取付先の実形状に取付面がありません。面を選び直してください'}};
   // Do not snap the point or relax Core's contact tolerance: the original
   // authored-mesh hit undergoes the same strict shape/contact checks below.
   return {request: {...request, hostSurfaceId: matches[0].patch.id}};

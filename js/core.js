@@ -91005,7 +91005,7 @@ function placementEquipmentSurface(ship,parent,metadata,anchor,normal,reproject=
  // A lost or ambiguous face id falls back to the whole parent (hint only).
  const T=patch?.triangles||placementTriangles(parent),epsilon=placementEpsilon(T)*4,n=norm(normal),reach=reproject?Math.max(1,len(sub(solidMeshBounds(T).slice(3),solidMeshBounds(T).slice(0,3)))*2):epsilon*8;
  const hits=[1,-1].map(sign=>rayTris(T,add(anchor,mul(n,reach*sign)),mul(n,-sign))).filter(Boolean).sort((a,b)=>len(sub(a.p,anchor))-len(sub(b.p,anchor))),hit=hits[0];
- if(!hit||!reproject&&len(sub(hit.p,anchor))>epsilon*8||Math.abs(dot(hit.n,n))<.5)return placementFailure('surface-missing','指定した追加元の実形状に取付点がありません。面を選び直してください');
+ if(!hit||!reproject&&len(sub(hit.p,anchor))>epsilon*8||Math.abs(dot(hit.n,n))<.5)return placementFailure('surface-missing','指定した取付先の実形状に取付点がありません。面を選び直してください');
  return {ok:true,p:hit.p,n:dot(hit.n,n)<0?mul(hit.n,-1):hit.n};
 }
 // Stage B: equipment does not move with its body, so where it meets the body is found from its own world pose: the
@@ -91037,14 +91037,14 @@ function placementEquipmentContact(ship,part,parent){
 function solveExteriorEquipmentPlacement(ship,input,request,metadata,context){
  let part=input;const old=context.old;
  /* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): exterior equipment has no recorded body. A request may name the structure the user tapped: it must exist and be as it was when tapped (the request, checked as before). With none named, the structure whose surface holds the tapped point or the part's own seat is used; with none there, it touches nothing. */
- if(request.parentStructureId!=null&&(!placementParent(ship,request.parentStructureId)||request.parentStructureId===part.id&&part.id>0))return placementFailure(request.parentStructureId===part.id?'parent-self':'parent-missing',request.parentStructureId===part.id?'自分自身の面には置けません':'追加元の構造物が見つかりません。再接続してください');
+ if(request.parentStructureId!=null&&(!placementParent(ship,request.parentStructureId)||request.parentStructureId===part.id&&part.id>0))return placementFailure(request.parentStructureId===part.id?'parent-self':'parent-missing',request.parentStructureId===part.id?'自分自身の面には置けません':'取付先の構造物が見つかりません。再接続してください');
  const named=placementParent(ship,request.parentStructureId??old.parentStructureId),parent=named||(()=>{const sp=request.hit?.p||(Array.isArray(old.seatOffset)&&Array.isArray(part.c)?sub(part.c,old.seatOffset):null),sn=request.hit?.n||old.contactNormal;try{return Array.isArray(sp)&&Array.isArray(sn)?placementBodyAtSeat(ship,part,sp,sn):null;}catch(e){return null;}})(),parentId=parent?.id;
  if(!parent)return request.hit||Array.isArray(old.seatOffset)?placementFailure('contact-zero','どの構造物にも接していません。構造物の面に取り付けてください'):placementFailure('surface-required','外装設備を取り付ける面を選んでください');
- if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return placementFailure('parent-stale','追加元の形状が更新されています。再検証してください');
+ if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return placementFailure('parent-stale','取付先の形状が更新されています。再検証してください');
  parent._solidCutShip=ship;
  const surfaceId=request.hostSurfaceId??(!request.hit&&parentId===old.parentStructureId?old.hostSurfaceId:null);if(surfaceId)metadata.hostSurfaceId=surfaceId;else delete metadata.hostSurfaceId;
  let anchor=request.hit?.p||placementAnchor(parent,old),normal=request.hit?.n||(old.contactLocalNormal?placementWorldNormal(parent,old.contactLocalNormal):old.contactNormal);
- if(!anchor||!normal||anchor.length!==3||normal.length!==3||![...anchor,...normal].every(Number.isFinite)||len(normal)<1e-8)return placementFailure('surface-required','外装設備を取り付ける追加元の面を選んでください');
+ if(!anchor||!normal||anchor.length!==3||normal.length!==3||![...anchor,...normal].every(Number.isFinite)||len(normal)<1e-8)return placementFailure('surface-required','外装設備を取り付ける取付先の面を選んでください');
  // Stage B (2026-11-13): exterior equipment does not follow the body it was mounted on. Only the user's own
  // placement (a tap, a drag, a new draft, another body chosen) seats it; any other re-solve (reload, Worker,
  // the body below moved, turned or resized) keeps its world pose and is judged where it stands.
@@ -91069,7 +91069,7 @@ function solveExteriorEquipmentPlacement(ship,input,request,metadata,context){
  // writes nothing authored (worker-authored-drift).
  const keepRecord=kept&&placementSameShape(old.requestedGeometry,part);
  part.placement=metadata;
- if(part.k==='engine')buildEngineMountSupport(ship,part,parent);const contact=placementEquipmentContact(ship,part,parent);if(!contact.connected)return placementFailure(contact.reason||'contact-zero','追加元との通常取付の接触がありません。位置や向きを修正してください',{contact});
+ if(part.k==='engine')buildEngineMountSupport(ship,part,parent);const contact=placementEquipmentContact(ship,part,parent);if(!contact.connected)return placementFailure(contact.reason||'contact-zero','取付先との通常取付の接触がありません。位置や向きを修正してください',{contact});
  if(keepRecord)for(const key of [...PLACEMENT_AUTHORED_ANCHOR_KEYS,'rigidPose'])if(Object.hasOwn(old,key))metadata[key]=publicCopyOf(old[key]);
  part._placementParentKey=placementDependencyKey(parent),part._placementParentPoseKey=placementPositionKey(parent);part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);
  return {ok:true,part,contact,inputKey:context.inputKey,existingId:context.existing?part.id:null,parentId,parentKey:placementDependencyKey(parent)};
@@ -91106,10 +91106,10 @@ function preparePlacementDraft(ship,input,request={}){
  }else{
   /* 2026-11-21 (user decision 2026-11-20, no parent relation left): a draft needs no named body. The structure the user tapped is its sink target when the request names one that exists; otherwise the structure whose surface holds the tapped point; with neither it is put where asked and judged by contact. The first structure of an assembled hull is the root, as before. */
   const namedId=request.parentStructureId??old.parentStructureId;if(namedId!=null&&namedId===part.id&&part.id>0)return placementFailure('parent-self','自分自身の面には置けません');
-  if(request.parentStructureId!=null&&!placementParent(ship,request.parentStructureId))return placementFailure('parent-missing','追加元の構造物が見つかりません。再接続してください');let seatBody=namedId!=null?placementParent(ship,namedId)||null:null;if(!seatBody&&request.hit&&vector(request.hit.p)&&vector(request.hit.n,true))try{seatBody=placementBodyAtSeat(ship,part,request.hit.p,request.hit.n)||null;}catch(e){seatBody=null;}const parentId=seatBody?.id;
+  if(request.parentStructureId!=null&&!placementParent(ship,request.parentStructureId))return placementFailure('parent-missing','取付先の構造物が見つかりません。再接続してください');let seatBody=namedId!=null?placementParent(ship,namedId)||null:null;if(!seatBody&&request.hit&&vector(request.hit.p)&&vector(request.hit.n,true))try{seatBody=placementBodyAtSeat(ship,part,request.hit.p,request.hit.n)||null;}catch(e){seatBody=null;}const parentId=seatBody?.id;
   if(parentId==null){if(ship.hull.assembly&&!ship.parts.some(q=>isShapePart(q)&&q.id!==part.id)&&!(part.placement&&!part.placement.root))metadata.root=true;else for(const k of [...PLACEMENT_BODY_KEYS,'root'])delete metadata[k];}
   else{
-   const parent=placementParent(ship,parentId),point=request.hit?.p||(old.surfaceAnchor?worldStruct(parent,old.surfaceAnchor):null),normal=request.hit?.n||old.contactNormal;if(!vector(point)||!vector(normal,true))return placementFailure('surface-required','追加元の面と接触側を選んでください');
+   const parent=placementParent(ship,parentId),point=request.hit?.p||(old.surfaceAnchor?worldStruct(parent,old.surfaceAnchor):null),normal=request.hit?.n||old.contactNormal;if(!vector(point)||!vector(normal,true))return placementFailure('surface-required','取付先の面と接触側を選んでください');
    const n=norm(normal);metadata.parentStructureId=parentId;metadata.parentGeometryRevision=parent.placement?.geometryRevision??0;metadata.parentGeometryKey=placementDependencyKey(parent);metadata.parentLocalAnchor=localStruct(parent,part.c);metadata.surfaceAnchor=localStruct(parent,point);metadata.seatOffset=sub(part.c,point);metadata.contactNormal=n;metadata.contactLocalNormal=placementLocalNormal(parent,n);if(parent.s)metadata.anchorDimensions=meshScale(parent);
    if(cap.kind==='structure'){
     let side=request.contactSide||(mode==='horizontal'?(n[1]<0?'top':'bottom'):mode==='vertical'?'port':'surface');side=({front:'fore',back:'aft',left:'port',right:'stbd',side:'port'})[side]||side;
@@ -91177,9 +91177,9 @@ function placementPendingFailure(item,result){
 }
 function placementPendingSurface(ship,parent,point,normal,metadata){
  if(metadata.hostSurfaceId)return {ok:true,hit:{p:point,n:normal}};
- if(!parent||!point||!normal)return placementFailure('surface-required','追加元の面と接触側を選んでください');
+ if(!parent||!point||!normal)return placementFailure('surface-required','取付先の面と接触側を選んでください');
  for(const patch of surfacePatches(ship,true,false,new Set(['p'+parent.id]))){const epsilon=placementEpsilon(patch.triangles)*4,n=norm(normal),reach=epsilon*8,hit=rayTris(patch.triangles,add(point,mul(n,reach)),mul(n,-1),reach*2);if(hit&&len(sub(hit.p,point))<=epsilon&&dot(hit.n,n)>.98)return {ok:true,hit,hostSurfaceId:patch.id};}
- return placementFailure('surface-missing','追加元の実形状で取付位置を解決できません。位置を調整してください');
+ return placementFailure('surface-missing','取付先の実形状で取付位置を解決できません。位置を調整してください');
 }
 // User report 2026-11-14 (third design) and the high review of 2026-11-15: a structure whose tapped body is not in the
 // ship (a copy made without its body: no parentStructureId; or a body deleted later: an id that names nothing) has
@@ -91204,7 +91204,7 @@ function resolvePendingPlacementPart(ship,part,parent,options={}){
  // has nothing to sink to. It is taken exactly where the user put it and judged by contact; it used to be refused as
  // 'parent-missing' and stayed red through every reload.
  if(placementCapability(part).space==='exterior'&&!meta.root&&!parent&&placementCapability(part).kind==='structure'){const valid=placementValidateSolid(placementShape(part));if(!valid.ok)return valid;if(structureEquipmentInterference(ship,part))return placementFailure('placement-interference','固定機器と干渉します。位置か寸法を修正してください');/* the same check a structure with a body gets (high review 2026-11-15) */delete meta.pendingGeometry;delete meta.newPlacement;meta.requestedGeometry=placementShape(part);delete part._placementError;try{placementStructureGeometry(ship,part);}catch(e){}return {ok:true,part,keptAsPut:true};}
- if(placementCapability(part).space==='exterior'&&!meta.root){if(!parent)return placementFailure('parent-missing','追加元の構造物が失われています');const point=placementAnchor(parent,meta),normal=meta.contactLocalNormal?placementWorldNormal(parent,meta.contactLocalNormal):meta.contactNormal,surface=placementPendingSurface(ship,parent,point,normal,meta);if(!surface.ok)return surface;request.hit=surface.hit;request._storedHit=true;if(surface.hostSurfaceId){request.hostSurfaceId=surface.hostSurfaceId;meta.hostSurfaceId=surface.hostSurfaceId;}}
+ if(placementCapability(part).space==='exterior'&&!meta.root){if(!parent)return placementFailure('parent-missing','取付先の構造物が失われています');const point=placementAnchor(parent,meta),normal=meta.contactLocalNormal?placementWorldNormal(parent,meta.contactLocalNormal):meta.contactNormal,surface=placementPendingSurface(ship,parent,point,normal,meta);if(!surface.ok)return surface;request.hit=surface.hit;request._storedHit=true;if(surface.hostSurfaceId){request.hostSurfaceId=surface.hostSurfaceId;meta.hostSurfaceId=surface.hostSurfaceId;}}
  const result=solvePlacement(ship,input,request);if(!result.ok)return result;
  for(const key of Object.keys(part))if(key.startsWith('_')&&!Object.hasOwn(result.part,key))delete part[key];Object.assign(part,result.part);delete part._placementError;delete part._interiorPlacementError;return result;
 }
@@ -91224,7 +91224,7 @@ function solvePlacement(ship,input,request={}){
  if(cap.kind!=='structure')return solveExteriorEquipmentPlacement(ship,part,request,metadata,{old,existing,inputKey});
  /* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): a structure needs no body. With none named (or the named one gone) it is accepted where it was put, and the contact graph judges it; the first structure of an assembled hull is still the root. Only tapping the part itself is refused. */
  if(parentId!=null&&parentId===part.id&&part.id>0)return placementFailure('parent-self','自分自身の面には置けません');
- if(request.parentStructureId!=null&&!placementParent(ship,request.parentStructureId))return placementFailure('parent-missing','追加元の構造物が見つかりません。再接続してください');
+ if(request.parentStructureId!=null&&!placementParent(ship,request.parentStructureId))return placementFailure('parent-missing','取付先の構造物が見つかりません。再接続してください');
  const bodyless=parentId==null?!!(input.placement&&!old.root||ship.parts.some(q=>isShapePart(q)&&q.id!==part.id)||!ship.hull.assembly):!placementParent(ship,parentId);
  if(bodyless){const checked=placementValidateSolid(part);if(!checked.ok)return checked;const m={...metadata};for(const k of [...PLACEMENT_BODY_KEYS,'root'])delete m[k];part.placement=m;return {ok:true,part,contact:{connected:false,bodyless:true,area:0,regions:[]},inputKey,existingId:existing?input.id:null};}
  if(parentId==null){const checked=placementValidateSolid(part);if(!checked.ok)return checked;part.placement={...metadata,root:true};return {ok:true,part,contact:{connected:true,root:true,area:0},inputKey,existingId:existing?input.id:null};}
@@ -91234,14 +91234,14 @@ function solvePlacement(ship,input,request={}){
  // patches, the saved anchor and pose are kept and the result stands or falls
  // on the real contact with the parent below (face contact or overlap).
  const surfaceId=request.hostSurfaceId??old.hostSurfaceId,surfacePatch=surfaceId?placementSurfacePatch(ship,parentId,surfaceId):null,surfaceHintLost=!!surfaceId&&!surfacePatch;
- if(placementSurfaceIdStale(ship,parentId,request.hostSurfaceId,old.hostSurfaceId))return placementFailure('surface-missing','追加元の面が失われています。面を選び直して再接続してください');
- if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return placementFailure('parent-stale','追加元の形状が更新されています。再検証してください');
+ if(placementSurfaceIdStale(ship,parentId,request.hostSurfaceId,old.hostSurfaceId))return placementFailure('surface-missing','取付先の面が失われています。面を選び直して再接続してください');
+ if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==(parent.placement?.geometryRevision??0))return placementFailure('parent-stale','取付先の形状が更新されています。再検証してください');
  const savedAnchor=request.hit?null:placementAnchor(parent,old);let anchor=request.hit?.p||savedAnchor,normal=request.hit?.n||(old.contactLocalNormal?placementWorldNormal(parent,old.contactLocalNormal):old.contactNormal);
  // A vertex edit can move the selected skin away from its previous local
  // point. Reproject onto that exact stable face only; a removed face or a
  // hole remains a repair target, never a nearby replacement surface.
  if(!request.hit&&surfacePatch&&anchor&&normal){const T=surfacePatch.triangles,b=solidMeshBounds(T),reach=Math.max(1,len(sub(b.slice(3),b.slice(0,3)))*2),n=norm(normal),hits=[1,-1].map(sign=>rayTris(T,add(anchor,mul(n,reach*sign)),mul(n,-sign))).filter(Boolean).sort((a,b)=>len(sub(a.p,anchor))-len(sub(b.p,anchor))),hit=hits[0];if(!hit)return placementFailure('surface-missing','保存した面上の接触位置が失われています。再接続してください');anchor=hit.p;normal=hit.n;}
- if(!anchor||!normal||anchor.length!==3||normal.length!==3||![...anchor,...normal].every(Number.isFinite))return placementFailure('surface-required','追加元の面と接触側を選んでください');
+ if(!anchor||!normal||anchor.length!==3||normal.length!==3||![...anchor,...normal].every(Number.isFinite))return placementFailure('surface-required','取付先の面と接触側を選んでください');
  let contactSide=request.contactSide||old.contactSide||(mode==='horizontal'?(normal[1]<0?'top':'bottom'):mode==='vertical'?'port':'surface');const hit={...request.hit,p:anchor.slice(),n:norm(normal)};
  const sideAliases={front:'fore',back:'aft',left:'port',right:'stbd',side:'port'};contactSide=sideAliases[contactSide]||contactSide;
  if(mode==='horizontal'&&!['top','bottom'].includes(contactSide)||mode==='vertical'&&!['fore','aft','port','stbd'].includes(contactSide))return placementFailure('contact-side','この配置方式の接触側を選び直してください');
@@ -91316,7 +91316,7 @@ function solvePlacement(ship,input,request={}){
  let contact=placementContact(ship,part,parent);
  if(!contact.connected){const box=partAABB(part),near=q=>{const b=partAABB(q);return b[0]<=box[3]&&b[3]>=box[0]&&b[1]<=box[4]&&b[4]>=box[1]&&b[2]<=box[5]&&b[5]>=box[2];};
   for(const q of ship.parts){if(q===parent||q.id===part.id||!isShapePart(q)||q.plate||q._placementError||q.placement?.validationFailed||!near(q))continue;q._solidCutShip=ship;const c=placementContact(ship,part,q);if(c.connected){contact={...c,neighbourId:q.id};break;}}}
- if(!contact.connected)return placementFailure('contact-zero','追加元との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});
+ if(!contact.connected)return placementFailure('contact-zero','取付先との有効な接触がありません。位置・寸法・接触側を修正してください',{contact,unattachedPart:part});
  // Interior equipment lies inside the hull and its structures (user decision 2026-11-11): a structure
  // around it extends that interior and is not a clash. Its own validity is checked by the interior solver.
  // This includes legacy interior parts without placement metadata (2026-11-12: sunk structures over
@@ -91337,7 +91337,7 @@ function acceptPlacementResult(ship,result,options={}){
  if(!result?.ok||!result.part)return placementFailure('placement-result','検証に成功した配置結果がありません');
  const replaceId=options.replaceId??result.existingId,index=replaceId!=null?ship.parts.findIndex(p=>p.id===replaceId):-1;
  if(replaceId!=null&&(index<0||placementShapeKey(ship.parts[index])!==result.inputKey))return placementFailure('placement-stale','部品が変更または削除されています。再検証してください');
- if(result.parentId!=null){const parent=placementParent(ship,result.parentId);if(!parent||placementDependencyKey(parent)!==result.parentKey)return placementFailure('parent-stale','追加元が変更または削除されています。再検証してください');}
+ if(result.parentId!=null){const parent=placementParent(ship,result.parentId);if(!parent||placementDependencyKey(parent)!==result.parentKey)return placementFailure('parent-stale','取付先が変更または削除されています。再検証してください');}
  const part=result.part,geometry=result.effectiveGeometry;if(part.engineMountSupport)part.engineMountSupport=normalizeEngineMountSupport(part.engineMountSupport);if(index<0&&part.placement?.root&&ship.parts.some(isShapePart))delete part.placement.root;/* 2026-11-21: another structure arrived first; this one is an ordinary structure judged by contact (it was refused for a missing parent before) */if(geometry){if(geometry.placement)part._placementGeometry=geometry.placement;if(geometry.clip)part._clip=geometry.clip;if(geometry.packing)part._packing=geometry.packing;}
  if(index>=0){part.id=replaceId;ship.parts[index]=part;}else{if(ship.parts.length>=DESIGN_LIMITS.parts)return placementFailure('placement-limit','部品数の上限です');part.id=ship.nextId++;ship.parts.push(part);}if(part.placement?.requestedGeometry)part.placement.requestedGeometry.id=part.id;part._solidCutShip=ship;part._placementSelfKey=placementShapeKey(part);part._placementRequestKey=placementRequestKey(part);if(result.parentId!=null)part._placementParentKey=placementDependencyKey(placementParent(ship,result.parentId)),part._placementParentPoseKey=placementPositionKey(placementParent(ship,result.parentId));ship._cache=null;delete ship._interiorKey;return {...result,part};
 }
@@ -91490,7 +91490,7 @@ function refreshPlacementGeometry(ship,options={}){
   const interior=explicitInteriorPlacement(p);
   let keepPose=!!p._placementAdoptKeepPose;delete p._placementAdoptKeepPose;
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||interior&&meta.parentGeometryKey!==interiorEnvelopeKey(ship)||meta.newPlacement&&parent&&meta.parentGeometryKey!==placementDependencyKey(parent))){/* a refused new draft (the user's unfinished placement) is retried when the body it was tapped on changes *//* stage B: a refused exterior item is solved again when the user edits it, not when the body it was tapped on changes */meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;keepPose=!meta.root&&!meta.newPlacement&&Array.isArray(meta.parentLocalAnchor);}
-  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','追加元の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent,{keepPose});graphCache.graph=null;if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[placementRefusalKey(ship,p,parent)];failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
+  if(meta.pendingGeometry){const result=parent?._placementError?placementFailure('parent-unresolved','取付先の配置を修正してください'):resolvePendingPlacementPart(ship,p,parent,{keepPose});graphCache.graph=null;if(result.ok)updated.push(p.id);else{placementPendingFailure(p,result);if(interior)meta.parentGeometryKey=interiorEnvelopeKey(ship);else if(parent)meta.parentGeometryKey=placementDependencyKey(parent);p._placementRefusalKeys=[placementRefusalKey(ship,p,parent)];failed.push({partId:p.id,code:result.code});}resolvedParts.push(p.id);p._placementSelfKey=placementShapeKey(p);p._placementRequestKey=placementRequestKey(p);if(parent)p._placementParentKey=placementDependencyKey(parent),p._placementParentPoseKey=placementPositionKey(parent);active.delete(p.id);done.add(p.id);return;}
   // A refused structure is re-checked whenever it has not been solved for its current public state
   // (placementRefusalKey): a fresh copy (load, import, new Worker ship), or a patch that brought back an
   // earlier refused state. It is solved from its stored request exactly as a cold load solves any placed
@@ -91789,19 +91789,19 @@ function fitAttachmentSurface(ship,host,point,normal,surfaceId,storedSurfaceId){
  // direction on the highest point of the host under it, and its support (mountTurretSupport for guns, the base
  // height for other fittings) fills down to the slopes, so it neither tilts nor sinks into the host.
  if(h&&len(sub(h.p,point))<=epsilon&&dot(h.n,n)>=.2)return {ok:true,hit:{...h,p:point.slice(),n:n.slice(),part:host},epsilon,supported:true};
- return placementFailure('surface-missing','指定した取付位置は追加元の実形状の面上にありません');
+ return placementFailure('surface-missing','指定した取付位置は取付先の実形状の面上にありません');
 }
 // Audit 2026-11-14 (no parent relation, as for unanchored fittings): when the recorded body no longer carries the seat,
 // any structure directly under the fitting's own seat supports it. The host record is only where it was placed.
 function fitSeatAnyStructure(ship,f){if(!fitPoseValid(f))return null;const up=norm(fitUp(f)||[0,1,0]),h=rayEnv(ship,add(f.p,mul(up,2*FIT_SUPPORT_GAP_M)),mul(up,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true});return h?.part&&isShapePart(h.part)&&!h.part.plate?{p:f.p.slice(),n:(f.n||up).slice(),part:h.part}:null;}
 function fitAttachmentHit(ship,f){
- if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;delete f._placementFailure;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}const any=fitSeatAnyStructure(ship,f);if(any){delete f._fitPlacementError;delete f._placementFailure;return any;}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と追加元の接触が失われています'};return null;}
- const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),r=host?fitAttachmentSurface(ship,host,f.p,f.n||AXES[f.a],f.placement?.hostSurfaceId,f.placement?.hostSurfaceId):{ok:false,code:'parent-missing',error:'装備の追加元が失われています'};
+ if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;delete f._placementFailure;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}const any=fitSeatAnyStructure(ship,f);if(any){delete f._fitPlacementError;delete f._placementFailure;return any;}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と取付先の接触が失われています'};return null;}
+ const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),r=host?fitAttachmentSurface(ship,host,f.p,f.n||AXES[f.a],f.placement?.hostSurfaceId,f.placement?.hostSurfaceId):{ok:false,code:'parent-missing',error:'装備の取付先が失われています'};
  if(!r.ok){const any=fitSeatAnyStructure(ship,f);if(any){delete f._fitPlacementError;delete f._placementFailure;return any;}f._fitPlacementError={code:r.code,error:r.error};return null;}delete f._fitPlacementError;delete f._placementFailure;return r.hit;
 }
 function prepareFitAttachment(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
- if(!host||!f.local||!f.localNormal){const any=fitPoseValid(f)?fitSeatAnyStructure(ship,f):null;if(any){/* 2026-11-21: no body is saved; the structure under its seat is its body (in memory only) */if(!f.trenchRef)bindFitBody(ship,f,any.part,any);return true;}f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;f._fitPlacementError={code:'parent-missing',error:'装備の追加元が失われています'};return false;}
+ if(!host||!f.local||!f.localNormal){const any=fitPoseValid(f)?fitSeatAnyStructure(ship,f):null;if(any){/* 2026-11-21: no body is saved; the structure under its seat is its body (in memory only) */if(!f.trenchRef)bindFitBody(ship,f,any.part,any);return true;}f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;f._fitPlacementError={code:'parent-missing',error:'装備の取付先が失われています'};return false;}
  // Stage C: the stored world pose stands; the host-local anchor only seeds a fitting that has none.
  if(fitPoseValid(f))return true;
  f.p=fitAttachmentPoint(host,f);f.n=fitAttachmentWorldNormal(host,f);
@@ -91812,7 +91812,7 @@ function fitPlacementShapeKey(f){const q=publicCopyOf(f);for(const k of ['base',
 function normalizeFitPlacementMetadata(value,fit){
  if(value==null)return null;if(!value||typeof value!=='object'||Array.isArray(value)||value.modelVersion!==PLACEMENT_MODEL_VERSION||value.mode!=='direct')throw new Error('保存された装備の配置方式は通常取付ではありません');
  if(value.contactFit!=null)throw new Error('接触側の成形方法が不正です');
- if(value.parentStructureId!=null||value.hostId!=null)throw new Error('装備の追加元は既存のhostに保存してください');
+ if(value.parentStructureId!=null||value.hostId!=null)throw new Error('装備の取付先は既存のhostに保存してください');
  const out=publicCopyOf(value);for(const key of ['pendingGeometry','validationFailed'])if(out[key]!=null&&typeof out[key]!=='boolean')throw new Error('配置の計算状態が不正です');for(const k of ['geometryRevision','parentGeometryRevision'])if(out[k]!=null&&(!Number.isSafeInteger(out[k])||out[k]<0))throw new Error('装備の配置世代が不正です');
  if(out.hostSurfaceId!=null&&(typeof out.hostSurfaceId!=='string'||out.hostSurfaceId.length>1000))throw new Error('装備の面参照が不正です');
  for(const k of ['supportEligible','supportAttachment'])if(out[k]!=null&&typeof out[k]!=='boolean')throw new Error('装備の支持面情報が不正です');
@@ -91832,7 +91832,7 @@ function solveFitPlacementRaw(ship,input,request={},contextOptions={}){
  /* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): a weapon has no recorded body. A request may name the structure the user tapped: it must exist and be as it was when tapped (that is the request, checked as before). With none named, the structure whose surface holds the seat is used (also when the weapon's own in-memory body is gone). */
  const requestedId=request.hostId??request.parentStructureId,parent=(()=>{if(requestedId!=null)return ship.parts.find(p=>p.id===requestedId&&isShapePart(p))||null;const named=ship.parts.find(p=>p.id===input.host&&isShapePart(p));if(named)return named;const sp=request.hit?.p||input.p,sn=request.hit?.n||input.n||(input.a!=null?AXES[input.a]:null);try{return Array.isArray(sp)&&Array.isArray(sn)?placementBodyAtSeat(ship,null,sp,sn):null;}catch(e){return null;}})(),hostId=parent?.id;if(!parent)return requestedId!=null?placementFailure('parent-missing','取り付ける構造物を指定してください'):placementFailure('surface-missing','取り付ける面が見つかりません。構造物の面を選んでください');
  const revision=parent.placement?.geometryRevision??parent.geometryRevision??0;
- if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==revision)return placementFailure('parent-stale','追加元の形状が更新されています。再検証してください');
+ if(request.parentGeometryRevision!=null&&request.parentGeometryRevision!==revision)return placementFailure('parent-stale','取付先の形状が更新されています。再検証してください');
  const source=publicCopyOf(input),existing=ship.fits.find(f=>f.id===input.id),surfaceId=request.hostSurfaceId??input.placement?.hostSurfaceId;
  const point=request.hit?.p||(source.local?fitAttachmentPoint(parent,source):source.p),normal=request.hit?.n||(source.localNormal?fitAttachmentWorldNormal(parent,source):source.n||AXES[source.a??2]);
  // Validation runs only on this detached copy, so probes cannot mutate the
@@ -91866,7 +91866,7 @@ function solveFitPlacementRaw(ship,input,request={},contextOptions={}){
 function acceptFitPlacementResult(ship,result,options={}){
  if(!result?.ok||!result.fit)return placementFailure('placement-result','検証に成功した装備の配置結果がありません');
  const parent=ship.parts.find(p=>p.id===result.parentId&&isShapePart(p)),fit=result.fit,replaceId=options.replaceId??result.existingId,index=replaceId!=null?ship.fits.findIndex(f=>f.id===replaceId):-1;
- if(!parent||placementDependencyKey(parent)!==result.parentKey||(parent.placement?.geometryRevision??parent.geometryRevision??0)!==result.parentGeometryRevision)return placementFailure('parent-stale','追加元が変更または削除されています。再検証してください');
+ if(!parent||placementDependencyKey(parent)!==result.parentKey||(parent.placement?.geometryRevision??parent.geometryRevision??0)!==result.parentGeometryRevision)return placementFailure('parent-stale','取付先が変更または削除されています。再検証してください');
  if(replaceId!=null&&(index<0||fitPlacementShapeKey(ship.fits[index])!==result.inputKey))return placementFailure('placement-stale','装備が変更または削除されています。再検証してください');
  if(fit.host!==parent.id||!fit.local||!fit.localNormal||fit.float)return placementFailure('placement-result','検証済みの取付情報が不正です');
  const others={...ship,fits:ship.fits.filter(f=>f.id!==replaceId)},clash=fitClash(others,fit);if(clash)return placementFailure('placement-interference',clash);
@@ -91892,7 +91892,7 @@ function placementFitContact(ship,fit,parent){
  return {connected:area>epsilon*epsilon,area,regions,reason:area>epsilon*epsilon?null:'contact-zero',distanceTolerance:epsilon};
 }
 function rehostFitPlacement(ship,fit,parent){
- const contact=placementFitContact(ship,fit,parent);if(!contact.connected)return placementFailure('contact-zero','現在の装備の支持面は追加元と接触していません',{contact});
+ const contact=placementFitContact(ship,fit,parent);if(!contact.connected)return placementFailure('contact-zero','現在の装備の支持面は取付先と接触していません',{contact});
  const n=fit.n||fitUp(fit),forward=fit.frameForward||fitFrameOf({...fit,assetYaw:0,frameFlip:false}).fw,zero={...parent,c:[0,0,0]},localForward=localStruct(zero,forward),metadata={...(fit.placement||{}),modelVersion:PLACEMENT_MODEL_VERSION,mode:'direct',geometryRevision:(fit.placement?.geometryRevision||0)+1,parentGeometryRevision:parent.placement?.geometryRevision??parent.geometryRevision??0,parentGeometryKey:placementDependencyKey(parent),localUp:localStruct(zero,fitUp(fit)),supportAttachment:true,supportEligible:turretSupportEligible(fit)};
  delete metadata.hostId;delete metadata.parentStructureId;delete metadata.hostSurfaceId;
  fit.host=parent.id;fit.local=fitAttachmentLocal(parent,fit.p);fit.localNormal=fitAttachmentNormal(parent,n);fit.localForward=[localForward[0]/parent.s[0],localForward[1]/parent.s[2],localForward[2]/parent.s[1]];fit.placement=metadata;fit.float=false;delete fit._fitPlacementError;delete fit._placementFailure;
@@ -91902,7 +91902,7 @@ function refreshFitPlacementAttachments(ship){
  const updated=[],failed=[],severed=[],resolvedFits=[];for(const fit of ship.fits||[]){if(!isAnchoredFit(fit))continue;
   /* 2026-11-21: no body is saved; a weapon that names none (a loaded design) takes the structure under its seat */if(placementParent(ship,fit.host)==null&&!fit.trenchRef){const any=fitSeatAnyStructure(ship,fit);if(any)bindFitBody(ship,fit,any.part,any);}
   if(fit.placement.validationFailed){const parent=placementParent(ship,fit.host);if(fit.placement.validationSourceKey!==placementPendingSourceKey(fit)||parent&&fit.placement.parentGeometryKey!==placementDependencyKey(parent)){fit.placement.pendingGeometry=true;delete fit.placement.validationFailed;delete fit.placement.repairRequired;delete fit.placement.repairReason;}}
-  if(fit.placement.pendingGeometry){const parent=placementParent(ship,fit.host),keepWorld=fitPoseValid(fit),/* audit 2026-11-14: a retry keeps the fitting where it is in the world (it does not follow its body) */point=!keepWorld&&parent&&fit.local?fitAttachmentPoint(parent,fit):fit.p,normal=!keepWorld&&parent&&fit.localNormal?fitAttachmentWorldNormal(parent,fit):fit.n,surface=parent?.placement?.validationFailed||parent?._placementError&&!parent._placementLoose?placementFailure('parent-unresolved','追加元の配置を修正してください'):parent?placementPendingSurface(ship,parent,point,normal,fit.placement):placementFailure('parent-missing','装備の追加元が失われています'),result=surface.ok?solveFitPlacement(ship,fit,{mode:'direct',entityKind:'fit',hostId:fit.host,hit:surface.hit,hostSurfaceId:surface.hostSurfaceId||fit.placement.hostSurfaceId,geometryRevision:fit.placement.geometryRevision},{isolatedSource:true}):surface;
+  if(fit.placement.pendingGeometry){const parent=placementParent(ship,fit.host),keepWorld=fitPoseValid(fit),/* audit 2026-11-14: a retry keeps the fitting where it is in the world (it does not follow its body) */point=!keepWorld&&parent&&fit.local?fitAttachmentPoint(parent,fit):fit.p,normal=!keepWorld&&parent&&fit.localNormal?fitAttachmentWorldNormal(parent,fit):fit.n,surface=parent?.placement?.validationFailed||parent?._placementError&&!parent._placementLoose?placementFailure('parent-unresolved','取付先の配置を修正してください'):parent?placementPendingSurface(ship,parent,point,normal,fit.placement):placementFailure('parent-missing','装備の取付先が失われています'),result=surface.ok?solveFitPlacement(ship,fit,{mode:'direct',entityKind:'fit',hostId:fit.host,hit:surface.hit,hostSurfaceId:surface.hostSurfaceId||fit.placement.hostSurfaceId,geometryRevision:fit.placement.geometryRevision},{isolatedSource:true}):surface;
    if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;delete fit._placementFailure;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
   }
   if(fit.placement.validationFailed){failed.push({fitId:fit.id,code:fit.placement.repairReason||'placement-failed'});continue;}
@@ -92757,7 +92757,7 @@ function groundingStats(ship,S){
  S.placementDiagnostics=placementDiagnostics(ship,{adj:parts.some(structureExplicit)?contactGraph().adj:new Map(),connected:grounded,severed:cutOff,through:severedThrough,loose:looseSet,fromGrounding:true});
  let cutEquipment=[];try{cutEquipment=solidCutEquipmentHits(ship);}catch(e){cutEquipment=[];}S.cutEquipment=cutEquipment;
  if(cutEquipment.length)S.warnings.push({lv:'warn',code:'cut-equipment',text:`削りが固定機器（反応炉・機関など）${cutEquipment.length} 基に重なっています。機器は動かしていません。削りか機器の位置を確認してください。`,targets:cutEquipment.map(h=>({list:'parts',id:h.partId}))});
- S.severedFits=severedFits;if(severedIds.length||severedFits.length)S.warnings.push({lv:'warn',code:'severed',text:`削った結果、追加元から切り離された構造物・機器が ${severedIds.length+severedFits.length} 個あります。位置はそのままです。必要なら動かすか削りを調整してください。`,targets:[...severedIds.map(id=>({list:'parts',id})),...severedFits.map(id=>({list:'fits',id}))]});
+ S.severedFits=severedFits;if(severedIds.length||severedFits.length)S.warnings.push({lv:'warn',code:'severed',text:`削った結果、切り離された構造物・機器が ${severedIds.length+severedFits.length} 個あります。位置はそのままです。必要なら動かすか削りを調整してください。`,targets:[...severedIds.map(id=>({list:'parts',id})),...severedFits.map(id=>({list:'fits',id}))]});
  if(S.floating){const n=parts.filter(p=>S.info?.[p.id]?.floating&&!looseSet.has(p.id)).length;S.warnings=S.warnings.filter(w=>!/浮いている区画/.test(w.text));if(n)S.warnings.unshift({lv:'bad',text:`船体から離れて浮いている区画が ${n} 個あります。`});}
  if(loose.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない部品が ${loose.length} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。`});
  if(looseFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない構造物の上に取り付けた装備が ${looseFits.length} 基あります。`});
