@@ -32,7 +32,10 @@ function differences(a,b,prefix='',limit=6,out=[]){
  else if(a&&b&&typeof a==='object'&&typeof b==='object')for(const key of new Set([...Object.keys(a),...Object.keys(b)])){if(out.length>=limit)break;differences(a[key],b[key],prefix+'.'+key,limit,out);}
  else out.push(prefix);return out;
 }
-const FIT_FIELDS=['id','k','p','a','n','tilt','yaw','pitch','roll','assetYaw','mountAxis','mountOffset','frameFlip','frameForward','localForward','host','local','localNormal','mountMode','localMount','tw','vt','ped','pedSize','width','height','depth','scale','skinAsset','skinSize','batteryZone','commandEnabled','commandDepth','commandHeight','chargeDepth','mount','legacyMissileMount','launcherCols','launcherRows','launcherEmbedded','launchYaw','launchPitch','launcherBlocked','slope','base','low','mountSupport','float','referencePlan'];
+// 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): a saved weapon names no body, so
+// 'host', 'local', 'localNormal' and 'localForward' are no longer compared (they were until this date). The weapon's world pose
+// (p, a, n, tilt, frameForward …) is compared as before, and the world frame and bounds are compared separately below.
+const FIT_FIELDS=['id','k','p','a','n','tilt','yaw','pitch','roll','assetYaw','mountAxis','mountOffset','frameFlip','frameForward','mountMode','localMount','tw','vt','ped','pedSize','width','height','depth','scale','skinAsset','skinSize','batteryZone','commandEnabled','commandDepth','commandHeight','chargeDepth','mount','legacyMissileMount','launcherCols','launcherRows','launcherEmbedded','launchYaw','launchPitch','launcherBlocked','slope','base','low','mountSupport','float','referencePlan'];
 const NOZZLE_FIELDS=['id','k','c','d','dir','nozzleLength','skinAsset','skinAnchor','skinDiameter','skinAxial','skinSize','bodyLength','bodyRadius','engineLength','roll','yaw','pitch','equipmentId','tw','vt','label'];
 const LAYOUT_FIELDS=['hull','hullStructureVersion','cuts','trenches','solidCuts','subs','hatches','armor','hullSkin','hullBands','paint','lights','engineGlow'];
 const pick=(value,fields)=>value?Object.fromEntries(fields.filter(key=>Object.hasOwn(value,key)&&value[key]!==undefined).map(key=>[key,publicValue(value[key])])):null;

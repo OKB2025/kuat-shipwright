@@ -79178,12 +79178,31 @@ function normalizeGroups(list,ship){
  const keep=out.filter(g=>leaves(g)>0),kept=new Set(keep.map(g=>g.id));for(const g of keep)g.groups=g.groups.filter(x=>kept.has(x));
  return {groups:keep,nextId:next};
 }
-// EXPERIMENT 2026-11-21
-function stripPlacementBodies(o){
- for(const f of o.fits||[]){if(f.trenchRef)continue;for(const k of ['host','local','localNormal','localForward'])delete f[k];if(f.placement)for(const k of ['hostSurfaceId','parentGeometryRevision','parentGeometryKey','localUp','unresolvedHostId'])delete f.placement[k];}
+// 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): a saved design names no body
+// for its weapons. What is saved is the weapon's own world pose (p, n, frameForward). The body it stands on is found
+// from contact each time the design is loaded or mounted (prepareFitAttachment) and is held in memory only
+// (host, local, localNormal, localForward, placement.hostSurfaceId / parentGeometry* / localUp). A trench battery
+// keeps trenchRef: the hull that owns the trench definition generates it.
+function stripPlacementBodies(o,ship){
+ for(const f of o.fits||[]){
+  const src=ship?.fits?.find(q=>q.id===f.id),host=src&&src.host!=null?ship.parts.find(q=>q.id===src.host&&isShapePart(q)):null;
+  if(host&&Array.isArray(f.local)&&Array.isArray(f.localNormal)&&!fitPoseValid(f)){f.p=fitAttachmentPoint(host,f);f.n=fitAttachmentWorldNormal(host,f);}
+  if(host&&!Array.isArray(f.frameForward)&&Array.isArray(f.localForward)&&f.localForward.length===3&&f.localForward.every(Number.isFinite))f.frameForward=norm(worldStruct({...host,c:[0,0,0]},[f.localForward[0]*host.s[0],f.localForward[1]*host.s[2],f.localForward[2]*host.s[1]]));
+  for(const k of ['host','local','localNormal','localForward'])delete f[k];
+  if(f.placement)for(const k of ['hostSurfaceId','parentGeometryRevision','parentGeometryKey','localUp','unresolvedHostId'])delete f.placement[k];
+ }
  return o;
 }
-function serialize(ship){for(const scope of trenchArmamentScopes(ship))for(const t of scope.trenches)if(t.armament)normalizeTrenchArmament(t.armament);ship=migrateWeaponDesign(ship);if(ship._surfaceSource)return serialize(ship._surfaceSource);migrateLegacyPropulsion(ship);surfaceSync(ship);const o=v3Serialize(ship);for(const key of ['parts','fits'])for(const p of o[key]){const source=ship[key].find(q=>q.id===p.id);if(source?.placement)p.placement=normalizePlacementMetadata(source.placement,source);if(source?.engineMountSupport)p.engineMountSupport=normalizeEngineMountSupport(source.engineMountSupport);}stripPlacementBodies(o);o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=persistentEngineFeedLinks(generatedEngineFeedLinks(ship,links));return clearDesignLoadouts(o);}
+// The body under a weapon's seat becomes its in-memory record (not saved; see stripPlacementBodies).
+function bindFitBody(ship,f,body,hit=null){
+ if(!body||!isShapePart(body)||!Array.isArray(f.p))return false;const n=f.n||fitUp(f),zero={...body,c:[0,0,0]};
+ f.host=body.id;f.local=fitAttachmentLocal(body,f.p);f.localNormal=fitAttachmentNormal(body,n);
+ if(Array.isArray(f.frameForward)){const v=localStruct(zero,f.frameForward);f.localForward=[v[0]/body.s[0],v[1]/body.s[2],v[2]/body.s[1]];}
+ if(f.placement){f.placement.localUp=localStruct(zero,fitUp(f));f.placement.parentGeometryRevision=body.placement?.geometryRevision??body.geometryRevision??0;f.placement.parentGeometryKey=placementDependencyKey(body);
+  if(!f.placement.hostSurfaceId){let patch=null;try{patch=placementRebindSurface(ship,body,{p:(hit?.p||f.p),n:(hit?.n||n)});}catch(e){patch=null;}if(patch)f.placement.hostSurfaceId=patch;}}
+ return true;
+}
+function serialize(ship){for(const scope of trenchArmamentScopes(ship))for(const t of scope.trenches)if(t.armament)normalizeTrenchArmament(t.armament);ship=migrateWeaponDesign(ship);if(ship._surfaceSource)return serialize(ship._surfaceSource);migrateLegacyPropulsion(ship);surfaceSync(ship);const o=v3Serialize(ship);for(const key of ['parts','fits'])for(const p of o[key]){const source=ship[key].find(q=>q.id===p.id);if(source?.placement)p.placement=normalizePlacementMetadata(source.placement,source);if(source?.engineMountSupport)p.engineMountSupport=normalizeEngineMountSupport(source.engineMountSupport);}stripPlacementBodies(o,ship);o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=persistentEngineFeedLinks(generatedEngineFeedLinks(ship,links));return clearDesignLoadouts(o);}
 // Owned profiles are authored geometry. Validate known fields without widening
 // narrow stations or adding optional defaults from the legacy editor loader.
 function normalizeOwnedHullProfile(raw){
@@ -90622,7 +90641,16 @@ function placementUncutParentBuild(ship,parent,keepShipCuts=false,keepIds=null){
 function placementHasCuts(ship,parent){return (ship.solidCuts||[]).some(c=>ship.hull?.assembly||c.structures)||(ship.subs||[]).some(c=>ship.hull?.assembly||c.structures)||PLACEMENT_REMOVAL_KEYS.some(k=>parent?.hullData?.[k]?.length);}
 // A fitting whose host surface a cut removed: it is not on the host now but would be on the host with
 // the cuts ignored. Like a severed structure it is a warning with a select link, not a floating fitting.
+// 2026-11-21: no body is saved with a weapon. A floating weapon that names none (a loaded design) is tried against each
+// structure whose box holds its seat: the one it would stand on with the cuts ignored is the body a cut took from it.
 function fitSeveredByCut(ship,f){
+ if(ship.parts.some(p=>p.id===f.host&&isShapePart(p)))return fitSeveredByCutOn(ship,f);
+ if(!isAnchoredFit(f)||!fitPoseValid(f)||f.trenchRef)return false;const n=f.n||fitUp(f);
+ for(const q of ship.parts){if(!isShapePart(q)||q.plate||!placementHasCuts(ship,q))continue;let b;try{b=partAABB(q);}catch(e){continue;}if(![0,1,2].every(i=>f.p[i]>=b[i]-1&&f.p[i]<=b[i+3]+1))continue;
+  const g={...f,host:q.id,local:fitAttachmentLocal(q,f.p),localNormal:fitAttachmentNormal(q,n)};let cut=false;try{cut=fitSeveredByCutOn(ship,g);}catch(e){cut=false;}if(cut){bindFitBody(ship,f,q);return true;}}
+ return false;
+}
+function fitSeveredByCutOn(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));if(!host||!isAnchoredFit(f)||!f.local||!f.localNormal||!placementHasCuts(ship,host))return false;
  try{const bare=placementUncutParent(ship,host),point=fitAttachmentPoint(host,f),normal=fitAttachmentWorldNormal(host,f);return !!fitAttachmentSurface(bare.ship,bare.parent,point,normal,f.placement?.hostSurfaceId,f.placement?.hostSurfaceId).ok;}catch(e){return false;}
 }
@@ -91725,7 +91753,7 @@ function fitAttachmentHit(ship,f){
 }
 function prepareFitAttachment(ship,f){
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p));
- if(!host||!f.local||!f.localNormal){if(fitPoseValid(f)&&fitSeatAnyStructure(ship,f))return true;/* its body is gone but another structure is under its seat */f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;f._fitPlacementError={code:'parent-missing',error:'装備の追加元が失われています'};return false;}
+ if(!host||!f.local||!f.localNormal){const any=fitPoseValid(f)?fitSeatAnyStructure(ship,f):null;if(any){/* 2026-11-21: no body is saved; the structure under its seat is its body (in memory only) */if(!f.trenchRef)bindFitBody(ship,f,any.part,any);return true;}f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;f._fitPlacementError={code:'parent-missing',error:'装備の追加元が失われています'};return false;}
  // Stage C: the stored world pose stands; the host-local anchor only seeds a fitting that has none.
  if(fitPoseValid(f))return true;
  f.p=fitAttachmentPoint(host,f);f.n=fitAttachmentWorldNormal(host,f);
@@ -91823,6 +91851,7 @@ function rehostFitPlacement(ship,fit,parent){
 }
 function refreshFitPlacementAttachments(ship){
  const updated=[],failed=[],severed=[],resolvedFits=[];for(const fit of ship.fits||[]){if(!isAnchoredFit(fit))continue;
+  /* 2026-11-21: no body is saved; a weapon that names none (a loaded design) takes the structure under its seat */if(placementParent(ship,fit.host)==null&&!fit.trenchRef){const any=fitSeatAnyStructure(ship,fit);if(any)bindFitBody(ship,fit,any.part,any);}
   if(fit.placement.validationFailed){const parent=placementParent(ship,fit.host);if(fit.placement.validationSourceKey!==placementPendingSourceKey(fit)||parent&&fit.placement.parentGeometryKey!==placementDependencyKey(parent)){fit.placement.pendingGeometry=true;delete fit.placement.validationFailed;delete fit.placement.repairRequired;delete fit.placement.repairReason;}}
   if(fit.placement.pendingGeometry){const parent=placementParent(ship,fit.host),keepWorld=fitPoseValid(fit),/* audit 2026-11-14: a retry keeps the fitting where it is in the world (it does not follow its body) */point=!keepWorld&&parent&&fit.local?fitAttachmentPoint(parent,fit):fit.p,normal=!keepWorld&&parent&&fit.localNormal?fitAttachmentWorldNormal(parent,fit):fit.n,surface=parent?.placement?.validationFailed||parent?._placementError&&!parent._placementLoose?placementFailure('parent-unresolved','追加元の配置を修正してください'):parent?placementPendingSurface(ship,parent,point,normal,fit.placement):placementFailure('parent-missing','装備の追加元が失われています'),result=surface.ok?solveFitPlacement(ship,fit,{mode:'direct',entityKind:'fit',hostId:fit.host,hit:surface.hit,hostSurfaceId:surface.hostSurfaceId||fit.placement.hostSurfaceId,geometryRevision:fit.placement.geometryRevision},{isolatedSource:true}):surface;
    if(result.ok){Object.assign(fit,result.fit);delete fit._fitPlacementError;delete fit._placementFailure;updated.push(fit.id);}else{if(surface.hostSurfaceId)fit.placement.hostSurfaceId=surface.hostSurfaceId;placementPendingFailure(fit,result);if(parent)fit.placement.parentGeometryKey=placementDependencyKey(parent);failed.push({fitId:fit.id,code:result.code});}resolvedFits.push(fit.id);continue;
