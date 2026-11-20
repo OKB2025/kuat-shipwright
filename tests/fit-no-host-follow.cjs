@@ -168,3 +168,10 @@ for(const anchored of [false,true])test(`a ${anchored?'placed (anchored)':'plain
  // Grounded again: it functions again, where it was.
  s.parts[0].c=[100,10,0];s._cache=null;C.refreshPlacementGeometry(s);C.remount(s,{keepFitPose:true});assert.equal(f.float,false);assert.equal(f._onLoose,undefined);assert.equal(JSON.stringify(f.p),p0);assert.equal(C.computeStats(s).floatFits||0,0);
 });
+// 2026-11-20 (regression review of 636cac3 asked for the negative case): the block behind the wall does not reach the far end of
+// the launcher's body. The body (2.4 m deep for this small launcher) then ends in empty space, and the launcher floats as it does behind a bare wall.
+test('an embedded launcher whose body ends in empty space behind the wall still floats',()=>{
+ const s=fixture(),t=.2;s.parts=[{id:1,k:'struct',form:'box',c:[100,30,0],s:[100,t,60]},{id:2,k:'struct',form:'box',c:[100,30,-t/2-.25],s:[100,.5,60]}];s.nextId=3;C.refreshPlacementGeometry(s);assert.ok(C.launcherGeometry({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true}).bodySize[0]>1.5,'the body (2.4 m deep) is deeper than the wall and block together (0.7 m)');
+ s.fits.push({id:5,k:'shipMsl',p:[100,30,t/2],n:[0,0,1],tilt:[0,0,1],a:4,ped:0,launcherEmbedded:true});C.remount(s);
+ assert.equal(s.fits[0].float,true,'a 0.5 m block behind a 0.2 m wall does not hold a body that reaches further back');
+});
