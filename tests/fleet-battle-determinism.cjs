@@ -82,6 +82,10 @@
 // Re-recorded on 1dcfe03 (2026-11-20, physics review fix: the shield debit curve is for craft only — the small ships in the
 // battle no longer lose more than SHIELD_MODEL.debit of what their fields absorb). Two recordings in a row gave the same file
 // (sha256 73b788b0…).
+// Re-recorded on 23efcde (2026-11-20, physics re-review): the recording on 1dcfe03 also held a defect of that fix — every
+// ship's field deflected at full strength whatever its charge (the capacity passed for the debit curve was also the capacity
+// its strength is taken against). With the two apart, ships lose .25 of what they absorb and deflect by their charge as before
+// the curve; craft follow the curve. Two recordings in a row gave the same file (sha256 29f2f979…).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),crypto=require('node:crypto'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),GOLDEN=path.join(__dirname,'helpers/fleet-battle-determinism.json'),REL=1e-12,STEPS=96;
 function load(){const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});return vm.runInContext('Core',cx);}
