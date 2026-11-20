@@ -135,6 +135,7 @@
 - マンデイター II はブラウザ（実際の Worker）で開け、保存して読み直しても統計が同一（開くのに 1,698 秒、読み直しに 1,495 秒。ほかの処理と並行）。`tests/mandator-example-refit.cjs` は保存済みの設計を測る形に改め、5 件中 3 件合格（落ちる 2 件は §8 と、テスト内のコメント）。
 - 全体テストの回し直し（`9233a7d`、545 本）：失敗 140 本。main で落ちない失敗は 1 本（`ship-repulsorlift`。この PR で足した区画ごとの往復の確認が、インペリアル級で落ちた。船体面で削られる 2 区画の体積が、保存の丸めで 1e-5 ほど変わる。確認の許容差を 1e-6 から 1e-4 に直した：`742d928`、3/3 合格）。前回から直ったのは `fleet-localization`。したがって main でも落ちる 139 本が残る。
 - **#121 はマージ済み**（`690d66d`）。レビューの判定と既知の残りは PR #121 の説明にもある。regression の UNVERIFIED 3 項目と reference-fidelity の UNVERIFIED 3 項目は、証拠を足したあとの再レビューを受けていない（#122 でマンデイター II を再生成するときに、あらためて受ける）。
+- **main への反映**（ユーザーの決定 2026-11-21「マンデイターの再生成の後で」）：`claude/relaxed-ritchie-bquetk` → main の PR は、#122 でマンデイター II を再生成してマージしたあとに作る。それまで main には入れない（main の先頭は #118 のマージ `e8d3dfe`。公開サイトの Actions は main が動いたときだけ走ると見ている。Pages の設定は未確認）。
 - **いま**：ブランチ `claude/jolly-cannon-psv61o` を `690d66d` から作り直し、#122（§2）に着手。
 - 再生成の手順：`node scripts/update-craft-costs.cjs --check` → `node scripts/refresh-examples.cjs --jobs 3`（マンデイター II だけで 75 分以上）→ `node scripts/update-asset-manifest.cjs` → `--check` → 決定性基準の取り直し（`KS_DETERMINISM_WRITE=1 KS_DETERMINISM_BASE=<sha> node --test tests/fleet-battle-determinism.cjs` を 2 回、書き込みなしで 2 回）。
 - 全体テストの回し方：`tests/*.cjs` を 3 並列、1 本 1,800 秒まで。900 秒では `fleet-loadout-separation`・`recusant-munificent-guns`・`strategic-ai` が時間切れになる。
