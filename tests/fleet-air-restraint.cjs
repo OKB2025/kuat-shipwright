@@ -10,6 +10,15 @@ const profiles={};for(const k of ['craft_tie_ln','craft_tie_sa','craft_xwing','c
 // when a fleet strikes is the subject of the cases at the end.
 function setup(){
  const isd=C.fleetUnit('isd','imperial',plain(F.designs.imperial.p),1),foe=C.fleetUnit('foe','mc75',plain(F.designs.mc75.p),0);isd.pos=[40000,0,0];isd.yaw=Math.PI;foe.pos=[-40000,0,0];
+ // 2026-11-20 fixture changed (test triage). These cases were written against the Imperial row stored before the regeneration:
+ // air control 6 and mouths passing 1.25 craft a second. The regenerated row carries the user decisions of 2026-11-19 that
+ // were already in the code (air control 3: EXAMPLE_AIR_CONTROL; mouths four times as fast: K.launchOpen/launchRay), with which
+ // 5 of the 13 cases failed (one craft already out after a quarter second; three groups cannot show "several groups with a
+ // reserve"). The cases are about the air command's rules, so the fixture states the control and the mouth rates they need.
+ // The real row's figures are checked by the last case of this file (twelve craft out in two to three seconds) and by
+ // tests/air-control-stated.cjs. Case 4 slows the MC75's one mouth alike (it must stay the slower of the two); even() below
+ // states the same for its two Imperial-class ships.
+ isd.p.airCtl=6;for(const m of isd.p.mouths)m.r/=4;isd.p.launch/=4;
  for(const u of [isd,foe])u.order={...u.order,type:'hold',fire:false};
  const B=C.fleetBattle([foe,isd],true);B.seed=5;C.fleetAirSetup(B,[{home:'isd',type:'tie_sa',count:24},{home:'isd',type:'tie_ln',count:48},{home:'foe',type:'ywing',count:12},{home:'foe',type:'xwing',count:12}],profiles,{});B.air.posture[0].strike=B.air.posture[1].strike=true;return {B,isd,foe};
 }
@@ -46,12 +55,12 @@ test('craft in use stay up: bombers with stores and a ship to strike',()=>{
 // User decision 2026-11-19「航空機の発艦はちゃんとハッチから出して。ハッチのサイズで発艦速度が決まる」: craft leave by the hangar mouths, each
 // mouth at the rate its opening gives (the profile's mouths[].r craft a second).
 test('craft come out of the hangar mouths at the rate the mouths give, and appear just outside a mouth',()=>{
- const {B,isd,foe}=setup(),rate=isd.p.mouths.reduce((n,m)=>n+m.r,0);assert.ok(Math.abs(rate-isd.p.launch)<1e-2,'the mouths add up to the ship\'s launch rate');
+ const {B,isd,foe}=setup();for(const m of foe.p.mouths)m.r/=4;foe.p.launch/=4;/* 2026-11-20 as in setup() */const rate=isd.p.mouths.reduce((n,m)=>n+m.r,0);assert.ok(Math.abs(rate-isd.p.launch)<1e-2,'the mouths add up to the ship\'s launch rate');
  C.fleetTick(B,.25,{});assert.equal(B.units.filter(u=>u.sortie&&u.team===1).length,0,'nobody is out after a quarter of a second');
  run(B,2);const n=B.units.filter(u=>u.sortie&&u.team===1).length,T=B.time-.25/* the order is given on the first step */;
  assert.ok(n>=Math.floor(rate*T)-isd.p.mouths.length&&n<=Math.ceil(rate*T)+1,`about ${rate.toFixed(2)} a second: ${n} craft in ${T} s`);
  const slow=B.units.filter(u=>u.sortie&&u.team===0).length,r0=foe.p.mouths.reduce((x,m)=>x+m.r,0);assert.ok(slow<=Math.ceil(r0*T)+1&&slow<n,`the MC75's one mouth passes fewer (${slow} at ${r0.toFixed(2)} a second)`);
- const fresh=C.fleetUnit('isd2','imperial',plain(F.designs.imperial.p),1);fresh.pos=[0,0,0];fresh.yaw=0;const B2=C.fleetBattle([fresh,C.fleetUnit('t','cr90',plain(F.designs.cr90.p),0)],true);B2.units[1].pos=[90000,0,0];
+ const fresh=C.fleetUnit('isd2','imperial',plain(F.designs.imperial.p),1);for(const m of fresh.p.mouths)m.r/=4;fresh.p.launch/=4;/* 2026-11-20 as in setup() */fresh.pos=[0,0,0];fresh.yaw=0;const B2=C.fleetBattle([fresh,C.fleetUnit('t','cr90',plain(F.designs.cr90.p),0)],true);B2.units[1].pos=[90000,0,0];
  C.fleetAirSetup(B2,[{home:'isd2',type:'tie_sa',count:12}],profiles,{});B2.air.posture[1].strike=true;run(B2,1.25);const c=B2.units.find(u=>u.sortie);assert.ok(c,'the first craft is out');
  const d=Math.min(...fresh.p.mouths.map(m=>C.len(C.sub(c.pos,C.dockLocalToWorld(fresh,m.p)))));assert.ok(d<60,'it appears at a mouth, not beside the ship: '+d.toFixed(1)+' m from the nearest mouth');
 });
@@ -72,6 +81,7 @@ test('a squadron that has landed is re-armed and can go up again, bombers too',(
 // follows when that strike is over.
 function even(arrive,first=[false,false]){
  const a=C.fleetUnit('a','imperial',plain(F.designs.imperial.p),0),z=C.fleetUnit('z','imperial',plain(F.designs.imperial.p),1);a.pos=[-45000,0,0];z.pos=[45000,0,0];z.yaw=Math.PI;
+ for(const u of [a,z]){u.p.airCtl=6;for(const m of u.p.mouths)m.r/=4;u.p.launch/=4;}/* 2026-11-20 as in setup() */
  for(const u of [a,z])u.order={...u.order,type:'hold',fire:false};const B=C.fleetBattle([a,z],true);B.seed=9;
  C.fleetAirSetup(B,[{home:'a',type:'ywing',count:12},{home:'a',type:'xwing',count:24},{home:'z',type:'tie_sa',count:12},{home:'z',type:'tie_ln',count:36}],profiles,{...(arrive?{arrive}:{}),...(first?{first}:{})});return {B,a,z};
 }
