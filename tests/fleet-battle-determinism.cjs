@@ -75,6 +75,10 @@
 // number within 1e-12 relative; the count of inexact ticks is reported.
 // Recorded with Node v22.23.5 (v22.23.4 until 2026-11-18); Math.* may differ on other V8s.
 //   KS_DETERMINISM_WRITE=1 KS_DETERMINISM_BASE=<commit> KS_TEST_ROOT=<base checkout> node --test tests/fleet-battle-determinism.cjs
+// Re-recorded on 1a44d1d (2026-11-20, user decisions「近くのに繋がるとかではなくて熱量は合算して、変換量も合算して出す形に変更」
+// 「小型機のシールドをさらに弱くなるような曲線にする」「マンデイターIIはこれをベースに使って」, and the fix of the lift rooms marking every
+// ship as a managed craft-systems design (turn rate and accuracy restored); examples regenerated). Not broken down by field.
+// Two recordings in a row gave the same file (sha256 0464a03e…).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),zlib=require('node:zlib'),crypto=require('node:crypto'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),GOLDEN=path.join(__dirname,'helpers/fleet-battle-determinism.json'),REL=1e-12,STEPS=96;
 function load(){const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});return vm.runInContext('Core',cx);}
