@@ -1,4 +1,4 @@
-key	mass t	mass Δ	accel G	accel Δ	turn rad/s	turn Δ	accuracy	accuracy Δ	volley TT	volley Δ	parts(modules)
+key	mass t	mass Δ	accel (fleet row; rated m/s² × .002, not G)	accel Δ	turn rad/s	turn Δ	accuracy	accuracy Δ	volley TT	volley Δ	parts(modules)
 acclamator	2.683e+6	0.11%	23.77	-0.12%	0.1020	-0.06%	0.9000	0.00%	9.60000	0.00%	294
 arquitens	4.909e+5	0.13%	34.85	-0.14%	0.1877	-0.07%	0.9000	0.00%	8.00000	0.00%	255
 cr90	5.313e+4	0.13%	96.06	-0.14%	0.2400	0.00%	0.7450	0.00%	0.00202400	0.00%	155
