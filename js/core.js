@@ -91504,7 +91504,11 @@ function placementDropPieces(ship,seeds,reachOf,axisOf,reparented,seats=new Map(
 }
 function placementCopyClosure(ship,selection={}){
  const parts=new Set((selection.parts||[]).map(p=>typeof p==='object'?p.id:p)),fits=new Set((selection.fits||[]).map(f=>typeof f==='object'?f.id:f));let changed=true;
- /* stage B (2026-11-13): no parent relation; a copy or delete takes the selected parts only (weapons still follow their host here; stage C owns that rule) */while(changed){changed=false;for(const f of ship.fits||[])if(!fits.has(f.id)&&parts.has(f.host)){fits.add(f.id);changed=true;}}
+ // 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): a copy or delete takes exactly the
+ // selected parts and weapons. A weapon standing on a selected structure is not taken along unless it is selected itself.
+ // What stays: the batteries a hull's trench definition generates (trenchRef.hostId names the hull that owns the trench, as a
+ // hatch names its hull). They are that hull's own configuration and are copied with it.
+ void changed;for(const f of ship.fits||[])if(f.trenchRef&&parts.has(f.trenchRef.hostId))fits.add(f.id);
  return {parts:[...parts],fits:[...fits]};
 }
 function placementRestoreMaterialized(part){
