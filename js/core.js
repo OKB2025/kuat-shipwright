@@ -94141,7 +94141,7 @@ const HEAT={
  wingPowerCurve:{lowW:2e18,highW:2e20,low:.005,high:.015},
  skinW:0,            // retired (user decision 2026-11-12): the hull skin removes no heat; any shortfall needs converters
  coolingHeadroom:1.1, // battle: converter power reserved for this step's requested-load heat, × this, never above the rating
- autoLinks:2,        // auto-generated heat paths: each source to its nearest dissipators…
+ autoLinks:2,        // (2026-11-20: the links no longer decide anything, heatSolve pools the ship) auto-generated heat paths: each source to its nearest dissipators…
  linkK:1.5,          // …each sized to this many times the source's 'max' waste
  limitAt:.7,minOut:.60,crit:1,restartAt:.90, // store fill (of capacity): output limiting starts, floor of limiting, critical, restart
  governStart:.55,governEnd:.68,governEngineFloor:.1, // automatic governor: thrust and weapon charging ease off between these fills, below limitAt
@@ -94205,7 +94205,15 @@ function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon
 // share from everyone), and that repeats until nothing moves. Paths to a dissipator only one source reaches
 // (a dedicated physical dissipator) are filled first, then the shared ones: dedicated and shared
 // equipment run on this one algorithm. Returns the flow on each link, what left each source, what each dissipator took.
+// User decision 2026-11-20「近くのに繋がるとかではなくて熱量は合算して、変換量も合算して出す形に変更」: the ship's heat is one pool.
+// All heat is summed and all conversion capacity is summed; which converter is near which source no longer matters. When the
+// capacity is short every source keeps the same share of its heat, and every converter is loaded in proportion to its capacity.
+// The links are kept for the saved format and the drawing only (heatSolveLinked below is the retired per-path solver).
 function heatSolve(D,cap,L){
+ const d=D.map(v=>Math.max(0,v||0)),c=cap.map(v=>Math.max(0,v||0)),sd=d.reduce((a,b)=>a+b,0),sc=c.reduce((a,b)=>a+b,0),moved=Math.min(sd,sc),ks=sd>0?moved/sd:0,kc=sc>0?moved/sc:0;
+ return {flow:(L||[]).map(()=>0),out:d.map(v=>v*ks),used:c.map(v=>v*kc)};
+}
+function heatSolveLinked(D,cap,L){
  const n=D.length,m=cap.length,left=D.map(v=>Math.max(0,v||0)),room=cap.map(v=>Math.max(0,v||0)),lr=L.map(l=>Math.max(0,l.cap||0)),flow=new Float64Array(L.length),deg=new Int32Array(m);
  for(let j=0;j<L.length;j++)if(lr[j]>0)deg[L[j].d]++;
  const eps=Math.max(1e-30,left.reduce((a,b)=>a+b,0)*1e-9);
