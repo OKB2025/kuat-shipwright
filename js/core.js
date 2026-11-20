@@ -84577,6 +84577,7 @@ function constructShipSystems(ship,key){
   // mass (CRAFT_SYSTEMS.landingSupport tonnes a cubic metre) as distributed rooms inside the hull, so no outline changes. They are
   // placed after the other support equipment, which keeps the room it needs. A hull with no room left for them keeps what fits
   // (its lift is then short of its mass, and the example check reports it) rather than failing to build.
+  const supportBeforeLift={inertial:measured.inertialSupport,integrity:measured.integritySupport};
   {const liftV=()=>ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&!measured.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),want=Math.max(0,measured.mass*SHIP_LIFT_MARGIN/CRAFT_SYSTEMS.landingSupport-liftV());
    if(want>.01){const before=new Set(ship.parts.map(p=>p.id));try{shipRefitAddVolume(ship,'repulsor',want,'分散リパルサーリフト');}catch(error){if(!String(error.message||error).includes('船内容積が不足'))throw error;}
     for(const p of ship.parts)if(!before.has(p.id)&&p.k==='repulsor')p.landingEquipment=true;syncCompartments(ship);measured=shipRefitMeasure(ship);}}
@@ -84610,6 +84611,15 @@ function constructShipSystems(ship,key){
     syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);liftRedone=true;if(failed)break;}else break;}
   // A lift room placed in the last pass that overlaps a gun's room does not count either: it is taken out (the rest carry the ship or not, as measured).
   if(liftRedone){const bad=new Set(ship.parts.filter(p=>p.k==='repulsor'&&p.landingEquipment===true&&measured.info?.[p.id]?.overlap).map(p=>p.id));if(bad.size){ship.parts=ship.parts.filter(p=>!bad.has(p.id));syncCompartments(ship);wirePower();measured=shipRefitMeasure(ship);}}
+  // 2026-11-20 The lift rooms are fitted among the other fitted rooms and can take room from them (Recusant dreadnought: its
+  // structural integrity rooms lost 6.9% of their volume, its structural limit and with it its acceleration 6.1%). What the
+  // inertial compensators and integrity field lost is made up, to what they supported before the lifts or to the ship's need
+  // (mass x 1.03) if that is less. Nothing is added to a ship whose support was short before: that is not the lifts' doing.
+  if(!giantShip(ship)){const m=shipRefitMeasure(ship),need=m.mass*1.03,short=(k,per)=>{const had=supportBeforeLift[k],now=k==='inertial'?m.inertialSupport:m.integritySupport;return Number.isFinite(had)&&Number.isFinite(now)?Math.max(0,Math.min(need,had)-now)/(per*field):0;},sI=short('inertial',120),sG=short('integrity',180);
+   let added=false;const tryAdd=(k,v,label,list)=>{const before=new Set(ship.parts.map(p=>p.id));try{list.push(...shipRefitAddVolume(ship,k,v,label));added=true;}catch{ship.parts=ship.parts.filter(p=>before.has(p.id));}};
+   if(sI>Math.max(.1,m.mass/120*1e-4))tryAdd('inertial',sI*1.02,'追加慣性補償設備',addedInertial);
+   if(sG>Math.max(.1,m.mass/180*1e-4))tryAdd('integrity',sG*1.02,'追加構造維持設備',addedIntegrity);
+   if(added){syncCompartments(ship);wirePower();}measured=added?shipRefitMeasure(ship):m;}
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
   ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.referenceTargetG??propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),reconfiguredReactors,addedInertial:[...new Set([...addedInertial.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='inertial').map(p=>p.id)])],addedIntegrity:[...new Set([...addedIntegrity.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='integrity').map(p=>p.id)])],addedPumps:[...new Set([...addedPumps.filter(p=>ship.parts.includes(p)).map(p=>p.id),...(ship._accelSupportParts||[]).filter(p=>p.k==='pump').map(p=>p.id)])],powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:weaponBranchInputW,weaponBusBudgetW,weaponBranchInputW,originalEngineOutlets,thermal:ship._shipThermalRefit};
   ship.shipSystemRefit.engineCoreIds=propulsion.engines.filter(p=>p.k==='engineCore').map(p=>p.id);
@@ -89847,7 +89857,7 @@ function craftAttitudeStep(u,old,dest,rate,dt){
  // 2026-11-20 The lift vector is kept square to the bow. A craft flying straight down or up (one that has just dropped out of a
  // ventral hangar mouth) had its bow along the default lift vector: it could neither roll nor pull, and flew on down for good
  // (a Y-wing from an MC75 was 230 km below the battle after three minutes). Its lift vector is then taken along its heading.
- {const d=dot(f,up),sq=sub(up,mul(f,d)),l=len(sq);if(l>1e-3)up=mul(sq,1/l);else{let h=[Math.cos(old.yaw||0),0,Math.sin(old.yaw||0)];h=sub(h,mul(f,dot(f,h)));if(!(len(h)>1e-3))h=sub([1,0,0],mul(f,f[0]));up=norm(h);}}
+ {const d=dot(f,up),sq=sub(up,mul(f,d)),l=len(sq);if(l>1e-3)up=mul(sq,1/l);else{let h=[Math.cos(old.yaw||0),0,Math.sin(old.yaw||0)];h=sub(h,mul(f,dot(f,h)));if(!(len(h)>1e-3)){const ax=Math.abs(f[1])<.9?[0,1,0]:[1,0,0];h=sub(ax,mul(f,dot(f,ax)));/* the axis least along the bow (physics review 2026-11-20: [1,0,0] gave nothing for a bow along x) */}up=norm(h);}}
  const to=sub(dest,old.pos),dist=len(to);if(!(dist>1)||!(dt>0))return {f,up,angle:0,need:0};
  const dir=mul(to,1/dist),along=clamp(dot(f,dir),-1,1),off=Math.acos(along),e=sub(dir,mul(f,along)),el=len(e);if(!(el>1e-6))return {f,up,angle:0,need:0};
  const want=mul(e,1/el),cu=clamp(dot(up,want),-1,1),push=cu<-.5&&off<CRAFT_DOGFIGHT.push;
@@ -92159,8 +92169,8 @@ function cleanCraftSystems(raw){
  const out={v:1,managed:raw.managed===true,power:number(raw.power,0,1e30),crew:Math.round(number(raw.crew,0,1e9)),suitSeats:Math.round(number(raw.suitSeats,0,1e9)),lifeSupportCapacity:Math.floor(number(raw.lifeSupportCapacity,0,1e9)),
   lifeSupportHours:raw.lifeSupportHours===null?null:number(raw.lifeSupportHours,0,1e6),ejectionSeats:Math.floor(number(raw.ejectionSeats,0,1e9)),ejectionCoverage:ratio(raw.ejectionCoverage),ejectionSurvival:ratio(raw.ejectionSurvival),
   navCapacity:number(raw.navCapacity,0,1e9),navDemand:number(raw.navDemand,0,1e9),navReady:raw.navReady===true,targetDemand:number(raw.targetDemand,0,1e9),targetCapacity:number(raw.targetCapacity,0,1e9),targetRatio:ratio(raw.targetRatio),fireK:number(raw.fireK,.35,1,1),
-  maneuverSupport:number(raw.maneuverSupport,0,1e15),maneuverRatio:ratio(raw.maneuverRatio),turnK:number(raw.turnK,.2,1,1),laserUnits:number(raw.laserUnits,0,1e12),
-  laserGunShare:ratio(raw.laserGunShare),laserAaShare:ratio(raw.laserAaShare),laserGasSeconds:raw.laserGasSeconds===null?null:number(raw.laserGasSeconds,0,1e9),landingSupport:number(raw.landingSupport,0,1e15),landingRatio:ratio(raw.landingRatio),landingReady:raw.landingReady===true};
+  maneuverSupport:number(raw.maneuverSupport,0,1e18/* 2026-11-20 physics review: the Death Star's lift support (1.2e15 t for its 1.09e15 t) was cut to 1e15 in the stored row */),maneuverRatio:ratio(raw.maneuverRatio),turnK:number(raw.turnK,.2,1,1),laserUnits:number(raw.laserUnits,0,1e12),
+  laserGunShare:ratio(raw.laserGunShare),laserAaShare:ratio(raw.laserAaShare),laserGasSeconds:raw.laserGasSeconds===null?null:number(raw.laserGasSeconds,0,1e9),landingSupport:number(raw.landingSupport,0,1e18/* 2026-11-20 physics review: the Death Star's lift support (1.2e15 t for its 1.09e15 t) was cut to 1e15 in the stored row */),landingRatio:ratio(raw.landingRatio),landingReady:raw.landingReady===true};
  out.suitSeats=Math.min(out.crew,out.suitSeats);
  if(raw.laserGunShare==null&&out.laserUnits>0)out.laserGunShare=1;if(raw.laserAaShare==null&&out.laserUnits>0)out.laserAaShare=1;
  if(!out.managed){out.lifeSupportHours=null;out.laserGasSeconds=null;out.fireK=out.turnK=1;}
