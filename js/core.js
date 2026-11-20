@@ -77801,14 +77801,14 @@ function mountEmbeddedLauncher(ship,f){
  if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up;h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
   // High review H-A: the kept pose is still judged as a whole (the body inside the wall it meets, its axis out of the wall,
   // the clearance), exactly as the seating path does, only without moving it.
-  {const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>h.part?inPart(h.part,q):insideOriginalEnvelope(ship,q);let valid=dot(g.axis,nn)>.05;for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
+  {const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>(h.part&&inPart(h.part,q))||insideOriginalEnvelope(ship,q)/* user decision 2026-11-20 (asked: 「埋め込み式ランチャーはそれでいい」;「外装は構造物パーツが違くても繋がってるなら同じ船体」): the body may reach past the part it is set in, as long as it stays inside the hull and structures */;let valid=dot(g.axis,nn)>.05;for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
    f.float=!valid;f.launcherBlocked=!valid||!launcherClearance(ship,f);}return f;}
  const moved=f._launcherHostPoint&&len(sub(f.p,f._launcherHostPoint))>1e-6;
  if(host&&f.local&&!moved){p=worldStruct(host,[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]]);if(f.localNormal)n=norm(worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]));}
  h=isAnchoredFit(f)?fitAttachmentHit(ship,f):rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:8,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
  f.p=h.p.slice();f.n=h.n.slice();f.tilt=h.n.slice();f.a=AXES.reduce((i,x,j)=>dot(x,h.n)>dot(AXES[i],h.n)?j:i,0);f.base=f.low=f.slope=f.ped=0;f.localMount=true;f.host=h.part?.id||'hull';f.float=false;
  if(h.part&&isShapePart(h.part)){const q=localStruct(h.part,f.p),nn=localStruct({...h.part,c:[0,0,0]},f.n);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}else{delete f.local;delete f.localNormal;}
- const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>h.part?inPart(h.part,q):insideOriginalEnvelope(ship,q);let valid=dot(g.axis,f.n)>.05;
+ const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>(h.part&&inPart(h.part,q))||insideOriginalEnvelope(ship,q)/* user decision 2026-11-20 (asked: 「埋め込み式ランチャーはそれでいい」;「外装は構造物パーツが違くても繋がってるなら同じ船体」): the body may reach past the part it is set in, as long as it stays inside the hull and structures */;let valid=dot(g.axis,f.n)>.05;
  for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
  f.float=!valid;f.launcherBlocked=!valid||!launcherClearance(ship,f);f._launcherHostPoint=f.p.slice();return f;
 }
