@@ -50,3 +50,15 @@ test('accelerated inward probes match exact triangle rays on cut, rotated, roof 
  const {ship,body}=fixture();body.yaw=23;body.pitch=17;body.roll=11;ship.solidCuts.push(C.normalizeSolidCut({id:ship.nextId++,shape:'box',c:[220,120,-65],s:[18,80,80],structures:true}));verify(ship);const previous=C.structTriangles(body);body.s[1]*=.65;body.c[2]+=7;verify(ship);assert.notEqual(C.structTriangles(body),previous,'edited hosts supply a new immutable buffer and cannot reuse old depth bounds');
  const hull=C.newShip({L:80,W:60,H:40,plan:'rect',sec:'rect'},'Depth hull');hull.parts=[];hull.fits=[];verify(hull);const before=C.hullGeo(hull).tris;hull.hull.W=42;verify(hull);assert.notEqual(C.hullGeo(hull).tris,before);
 });
+
+// 2026-11-21 (user decision 2026-11-20「内装にとって外装は構造物パーツが違くても繋がってるなら同じ『船体』として…パーツが違うから干渉といったことが
+// 発生しないように」): behind a structure's face the depth runs on through a structure that touches its back wall. A structure
+// beside it (the test above) still adds nothing.
+test('inward depth behind a face runs on through a structure touching the back wall',()=>{
+ const {ship,body}=fixture(),top=patch(ship,body,'top'),B=C.partAABB(body),own=C.surfaceInwardDepth(ship,top,top.center);assert.ok(Math.abs(own-(B[4]-B[1]))<1e-3,'own thickness '+own);
+ // a second box right under the first, 40 m thick, the same footprint
+ const under=C.placePart(ship,'struct',[body.c[0],B[1]-20,body.c[2]],[body.s[0],body.s[1],body.s[2]],{form:'box'},false);const U0=C.partAABB(under),scale=40/(U0[4]-U0[1]);under.s=under.s.map((v,i)=>{const q=under.s.slice();q[i]=v*scale;const t={...under,s:q};return Math.abs((C.partAABB(t)[4]-C.partAABB(t)[1])-40)<1e-6?v*scale:v;});ship._cache=null;
+ const U=C.partAABB(under);assert.ok(Math.abs((U[4]-U[1])-40)<1e-6&&Math.abs(U[4]-B[1])<1e-6,'the second box is 40 m thick and touches the first from below: '+JSON.stringify(U));
+ const fresh=patch(ship,body,'top'),through=C.surfaceInwardDepth(ship,fresh,fresh.center),want=Math.min(fresh.depth,own+40);assert.ok(Math.abs(through-want)<2e-2,`depth ${through}, expected ${want} (own ${own} + 40, capped at ${fresh.depth})`);
+ if(fresh.depth>own+1)assert.ok(through>own+1,'deeper than the first box alone');
+});

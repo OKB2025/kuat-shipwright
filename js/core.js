@@ -78507,7 +78507,15 @@ function surfaceDepthRay(T,o,d){return rayBVH(surfaceDepthBVH(T),o,d);
 function surfaceInwardDepth(ship,patch,point=patch.center){
  const n=patch.normal,o=surfaceAdd(point,n,-1e-4),part=patch._part,inside=part?inPart(part,o):inHull(ship,o);if(!inside)return 0;const d=mul(n,-1);let T;
  if(!part)T=hullGeo(ship).tris;else if(part._packing)T=part._packing.tris;else if(part._clip)T=part._clip.tris;else if(part.k==='sensor'&&part.skinSize)T=structTriangles(sensorShape(part));else if(part.room)T=structTriangles(roomShape(part));else if(isShapePart(part))T=structTriangles(part);
- const h=T?surfaceDepthRay(T,o,d):rayPart(o,d,part);return h?Math.max(0,Math.min(patch.depth,h.t+1e-4)):0;
+ const h=T?surfaceDepthRay(T,o,d):rayPart(o,d,part);if(!h)return 0;let t=h.t+1e-4;
+ // 2026-11-21 (user decision 2026-11-20: the connected exterior is one hull for what is inside it). Behind a structure's
+ // face the depth does not stop at that structure's own back wall where another structure, the hull or a closed void
+ // goes on behind it: it runs on through whatever is inside the ship there.
+ if(part&&isShapePart(part)&&t<patch.depth)for(let pass=0;pass<12&&t<patch.depth;pass++){const q=add(o,mul(d,t+1e-3));if(!insideOriginalEnvelope(ship,q))break;let far=0;
+  for(const other of ship.parts){if(other===part||!isShapePart(other)||other._placementError&&!other._placementLoose)continue;let b;try{b=partAABB(other);}catch(e){continue;}if(!q.every((v,i)=>v>=b[i]-.01&&v<=b[i+3]+.01)||!unpiercedInStruct(other,q))continue;let x=null;try{x=surfaceDepthRay(structTriangles(other),q,d);}catch(e){x=null;}if(x&&x.t>far)far=x.t;}
+  if(!(far>0)){const g=envelopeVoidGrid(ship);if(!g||!envelopeVoidContains(ship,q))break;far=g.h/2;}
+  t+=far+1e-3;}
+ return Math.max(0,Math.min(patch.depth,t));
 }
 function surfaceAutoCandidates(ship,options={}){const angle=clamp(Number.isFinite(options.minAngle)?options.minAngle:45,0,90),lim=Math.cos(angle*Math.PI/180),ids=Array.isArray(options.ids)?new Set(options.ids):null,records=new Map((ship.surfaces?.patches||[]).map(q=>[q.id,q]));return surfacePatches(ship).filter(p=>surfaceEditablePatch(ship,p)&&(!ids||ids.has(p.id))&&p.exposed&&Math.abs(p.normal[1])<=lim+1e-6&&(options.overwrite===true||!records.has(p.id)||records.get(p.id).authored===false));}
 function autoConfigureSurfaces(ship,options={}){
@@ -78573,7 +78581,7 @@ function surfaceDeviceTotals(ship,patches=surfacePatches(ship)){const totals={pa
 function surfacePointOn(p,u,v){const origin=p._origin||p.center,q=surfaceAdd(surfaceAdd(origin,p.u,u),p.v,v),hit=rayTris(p.exposedTriangles??p.triangles,surfaceAdd(q,p.normal,Math.max(10,p.depth*2)),mul(p.normal,-1));return hit?.p||null;}
 function surfaceRoomAt(p,c,point){const q={k:c.kind==='part'?c.k:'habitat',c:surfaceAdd(point,p.normal,-c.depth/2-(c.inset||0)),surfaceNormal:p.normal.slice(),yaw:0,d:1},frame=structFrame(q);q.yaw=Math.atan2(dot(p.u,frame.rt),dot(p.u,frame.fw))*180/Math.PI;setRoomSize(q,[c.w,c.h,c.depth]);return q;}
 function surfaceEnvelopeContains(ship,point,room,patch=null){
- const contains=q=>patch?patch._part?inPart(patch._part,q):inHull(ship,q):insideOriginalEnvelope(ship,q);
+ const contains=q=>patch?patch._part?inPart(patch._part,q)||/* 2026-11-21: behind a structure's face, what is inside the ship (another structure, the hull, a closed void) holds the room too */isShapePart(patch._part)&&insideOriginalEnvelope(ship,q):inHull(ship,q):insideOriginalEnvelope(ship,q);
  if(contains(point))return true;
  // Mesh vertices use Float32 world coordinates. On translated or rotated
  // faces they can round a few micrometres through an otherwise exact plane.
