@@ -89828,7 +89828,12 @@ const CRAFT_DOGFIGHT=Object.freeze({roleMargin:.17,bracket:1500,outsideOff:600,a
 // at the side the point is on, and pitches up toward it at up to `rate`; a point a little below its bow it reaches by pitching
 // down (at half the rate) instead of rolling over.
 function craftAttitudeStep(u,old,dest,rate,dt){
- let f=old.att?.f||[Math.cos(old.yaw||0),0,Math.sin(old.yaw||0)],up=old.att?.up||[0,1,0];const to=sub(dest,old.pos),dist=len(to);if(!(dist>1)||!(dt>0))return {f,up,angle:0,need:0};
+ let f=old.att?.f||[Math.cos(old.yaw||0),0,Math.sin(old.yaw||0)],up=old.att?.up||[0,1,0];
+ // 2026-11-20 The lift vector is kept square to the bow. A craft flying straight down or up (one that has just dropped out of a
+ // ventral hangar mouth) had its bow along the default lift vector: it could neither roll nor pull, and flew on down for good
+ // (a Y-wing from an MC75 was 230 km below the battle after three minutes). Its lift vector is then taken along its heading.
+ {const d=dot(f,up),sq=sub(up,mul(f,d)),l=len(sq);if(l>1e-3)up=mul(sq,1/l);else{let h=[Math.cos(old.yaw||0),0,Math.sin(old.yaw||0)];h=sub(h,mul(f,dot(f,h)));if(!(len(h)>1e-3))h=sub([1,0,0],mul(f,f[0]));up=norm(h);}}
+ const to=sub(dest,old.pos),dist=len(to);if(!(dist>1)||!(dt>0))return {f,up,angle:0,need:0};
  const dir=mul(to,1/dist),along=clamp(dot(f,dir),-1,1),off=Math.acos(along),e=sub(dir,mul(f,along)),el=len(e);if(!(el>1e-6))return {f,up,angle:0,need:0};
  const want=mul(e,1/el),cu=clamp(dot(up,want),-1,1),push=cu<-.5&&off<CRAFT_DOGFIGHT.push;
  if(!push){const ang=Math.acos(cu),step=Math.min(ang,CRAFT_DOGFIGHT.roll*dt);if(ang>1e-6){const side=dot(cross(up,want),f)>=0?1:-1,c=Math.cos(step),sn=Math.sin(step)*side,r=cross(f,up);up=norm(add(mul(up,c),mul(r,sn)));}}
@@ -90207,7 +90212,11 @@ function fleetAirStep(b,dt,opts={}){
   // A fighter's missile at a craft before its bow.
   for(const f of F){const w=f.sortie;if(!w.stores.length||f.order.type!=='attack'||(w.mslAt||0)>t)continue;const q=byId.get(f.order.target);if(!up(q)||!craftUnit(q)||dist(f,q)>FLEET_AIR.airShot||!craftGunsBear(f,q))continue;fleetAirRelease(b,f,q,'cmsl',1,FLEET_AIR.kinds[1],null);w.stores.pop();w.mslAt=t+FLEET_AIR.airWait;air.log.atCraft[team]++;}
   // Bombers.
-  for(const y of bombers[team]){if(!up(y))continue;const w=y.sortie,home=byId.get(w.home),Ty=byId.get(w.tgt);
+  for(const y of bombers[team]){if(!up(y))continue;const w=y.sortie,home=byId.get(w.home);
+   // 2026-11-20 A bomber that came out after the strike's target was chosen is given it too (it had none, was given no order
+   // and flew on as it left the hangar).
+   if(T&&eff(T)&&!eff(byId.get(w.tgt))){w.tgt=T.id;w.phase='approach';w.dive=null;const base=Math.atan2(y.pos[2]-T.pos[2],y.pos[0]-T.pos[0]);w.routeA=base+(FLEET_AIR.axes>1?(w.routeN-(FLEET_AIR.axes-1)/2)*FLEET_AIR.spread/(FLEET_AIR.axes-1):0);}
+   const Ty=byId.get(w.tgt);
    if(!w.stores.length||!Ty||!eff(Ty)){if(!w.stores.length||!pool.length){y.order=up(home)?{...y.order,type:'escort',target:home.id,fire:false,dash:false}:{...y.order,type:'hold',fire:false,dash:false};}continue;}
    if(C0&&!C0.go){y.order={...y.order,type:'move',point:add(Ty.pos,mul(norm(sub(y.pos,Ty.pos)),FLEET_AIR.hold)),fire:false,dash:false};continue;}
    const slant=dist(y,Ty),bombs=w.stores.filter(q=>q.kind==='bomb');
