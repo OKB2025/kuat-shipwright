@@ -85339,18 +85339,19 @@ function buildMandatorReference(){
  const count={},fail=[];
  // A mount is seated on the first surface under its measured position, looking along its measured normal.
  const put=(zone,k,pos,n,opt={})=>{const rise=opt.rise||400,h=rayEnv(s,add(pos,mul(n,rise)),mul(n,-1),{maxT:rise*2.25,structOnly:true});if(!h){fail.push(zone+' '+pos.map(Math.round)+'：面がありません');return;}
-  const before=s.fits.length,r=placeFit(s,k,h.p,n,opt.ped??0,!!opt.mirror,opt.o||{});if(r?.err){s.fits.splice(before);fail.push(zone+' '+pos.map(Math.round)+'：'+r.err);return;}
+  /* user instruction 2026-11-21「マンデイターについて、面に合わせて傾けて配置するようにして」: opt.surface seats the gun on the face it meets, tilted to it */
+  const before=s.fits.length,r=placeFit(s,k,h.p,opt.surface?h.n:n,opt.ped??0,!!opt.mirror,opt.surface?{...(opt.o||{}),mountMode:'auto',tilt:true}:opt.o||{});if(r?.err){s.fits.splice(before);fail.push(zone+' '+pos.map(Math.round)+'：'+r.err);return;}
   for(const f of s.fits.slice(before)){f.batteryZone=zone+(f.p[2]>1?'-stbd':f.p[2]<-1?'-port':'-centre');count[zone]=(count[zone]||0)+1;}};
  try{
-  for(const p of M.utl)put('main-utl','utl',p,[0,1,0],{mirror:p[2]>1,o:{mountMode:'top'}});
-  for(const p of M.quad175)put('secondary-quad175','quad175',p,[0,1,0],{mirror:p[2]>1,o:{mountMode:'top'}});
+  for(const p of M.utl)put('main-utl','utl',p,[0,1,0],{mirror:p[2]>1,surface:true});
+  for(const p of M.quad175)put('secondary-quad175','quad175',p,[0,1,0],{mirror:p[2]>1,surface:true});
   for(const q of M.ion)put('ion-ball','ball175QuadIon',q.slice(0,3),norm(q.slice(3)),{mirror:true,o:{mountMode:'auto',tilt:true,assetPitch:90}});
-  for(const q of M.ventral)put('ventral-'+q[0],q[0],[q[1],q[2]+60,q[3]],[0,-1,0],{mirror:true,ped:q[4],o:{mountMode:'bottom',tilt:false}});
+  for(const q of M.ventral)put('ventral-'+q[0],q[0],[q[1],q[2]+60,q[3]],[0,-1,0],{mirror:true,ped:q[4],surface:true});
   // Point defence: the source model's small bases in pairs, one mount on each pair (user decision 2026-11-19「点防御は2個1組で」).
   // The nearest bases are paired first; a base left over on the centreline pairs with its mirror image; other leftovers stay empty.
   {const bases=M.pd,used=new Set(),cand=[];for(let i=0;i<bases.length;i++)for(let j=i+1;j<bases.length;j++){if(dot(bases[i].slice(3),bases[j].slice(3))<.9)continue;const d=len(sub(bases[i].slice(0,3),bases[j].slice(0,3)));if(d<=260)cand.push([d,i,j]);}cand.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
-   for(const [d,i,j] of cand){if(used.has(i)||used.has(j))continue;used.add(i);used.add(j);const n=norm(bases[i].slice(3));put('pd','pd',mul(add(bases[i].slice(0,3),bases[j].slice(0,3)),.5),n,{mirror:true,rise:70,ped:.15,o:{mountMode:n[1]<-.5?'bottom':'top'}});}
-   bases.forEach((b,i)=>{if(!used.has(i)&&Math.abs(b[2])<100){used.add(i);put('pd','pd',[b[0],b[1],0],[0,b[4]<0?-1:1,0],{rise:70,ped:.15,o:{mountMode:'top'}});}});}
+   for(const [d,i,j] of cand){if(used.has(i)||used.has(j))continue;used.add(i);used.add(j);const n=norm(bases[i].slice(3));put('pd','pd',mul(add(bases[i].slice(0,3),bases[j].slice(0,3)),.5),n,{mirror:true,rise:70,ped:.15,surface:true});}
+   bases.forEach((b,i)=>{if(!used.has(i)&&Math.abs(b[2])<100){used.add(i);put('pd','pd',[b[0],b[1],0],[0,b[4]<0?-1:1,0],{rise:70,ped:.15,surface:true});}});}
   // Heavy launchers (6 by 2 tubes, embedded, the tubes' rows along the hull) on the rack blocks of the side trench. The
   // source model has four racks a side; the user's exterior has three blocks a side, and only those carry a rack.
   for(const blk of s.parts.filter(p=>/トレンチ隔壁・外板・右舷/.test(p.label||'')&&Math.abs(p.s[0]-90)<1.5&&Math.abs(p.s[2]-32)<1.5)){let h=null;
