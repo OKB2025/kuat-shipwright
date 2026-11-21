@@ -93428,6 +93428,8 @@ function aviationSurfaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  const b=aviationPartBounds(p);if(hit.p[axis]<b[axis]-.05||hit.p[axis]>b[axis+3]+.05)return null;
  return hit;
 }
+// NOT CALLED since 2026-11-21 (the overlap rule: no opening is measured for a bay that does not reach the skin). Kept for
+// reference until the next hatch change; the description below is of the retired path.
 // Second look for faces the outside test cannot see: a recess cut into the hull
 // in front of the face (so the skin seen from outside is not the one the face
 // meets), a surface crossing the far half of the compartment, or a compartment
