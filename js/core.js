@@ -76807,6 +76807,9 @@ const DESIGNS = {
     placePart(s, 'shield', [s.hull.L * 0.13, 55, 115], 34, {}, true);
     s.armor = {hull: 0.45, cit: 0.6};
     fillHangars(s, 30, 0.42, 0.68, true, 72);
+    // the lowest filled bay over each ventral door is lowered onto the bottom skin before the doors are drawn (seatBayOnSkin, user
+    // decision 2026-11-21); the doors then migrate onto those bays. The door's centre is the hatchStrip midpoint below.
+    for (const sg of [1, -1]) { const x = s.hull.L * (0.45 + 0.66) / 2, z = sg * 0.42 * (sectionBase(s.hull, s.hull.L * 0.45).hw + sectionBase(s.hull, s.hull.L * 0.66).hw) / 2, over = s.parts.filter(p => p.k === 'hangar').map(p => [p, partAABB(p)]).filter(([, b]) => x >= b[0] && x <= b[3] && z >= b[2] && z <= b[5]).sort((u, v) => u[1][1] - v[1][1])[0]; if (over) seatBayOnSkin(s, over[0]); }
     hatchStrip(s, 0.45, 0.66, 50, 'ray', true, 0.42);
     const bh = deckPoint(s, st.c[0] + st.s[0] * 0.18, 0); if (bh) placeFit(s, 'brT', bh.p, bh.n, 2, false);
     const tt = powerTT(s, 0.55);
@@ -78055,6 +78058,14 @@ function armoredMaterialArea(ship,currentArea){
  ship._armoredMaterial={key,area};return area;
 }
 function inHull(ship,p){if(solidCutsContain(ship,p))return false;if(ship.hullStructureVersion===1)return ship.parts.some(q=>isHullStructure(q)&&(q._placementGeometry?placementGeometryContains(q,p):inHull(hullStructureShip(ship,q),hullLocalPoint(q,p))));if(!v3InHull(ship,p))return false;return !ship.hatches.some(h=>{if(h.hullOwner)return false;const b=openingBounds(ship,h);if(!b||!inBox(p,b))return false;const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h),mid=(b[u]+b[u+3])/2,spec=slidingHatchSpec(ship,h),half=spec?Math.min(openingHalf(b,p[l],u),spec.travel*spec.open):openingHalf(b,p[l],u)*(h.open??1);if(Math.abs(p[u]-mid)>=half){const skin=openingSurfacePoint(ship,h,p[l],p[u]);if(skin&&Math.abs(p[ax]-skin[ax])<1.9)return false;}return true;});}
+// User decision 2026-11-21 (「区画を外板まで下げる」): an example bay that opens downward but stops short of the bottom skin (the
+// sample's filled bays keep a 3 m margin, the Onager's and the Dreadnaught's sit above a sloping bottom) is lowered until its floor
+// reaches the lowest skin under its footprint, so the opening is where the bay and the skin overlap (aviationSkinOverlap); the
+// part of the bay below a higher stretch of skin is clipped away with the rest of the compartment. Returns the drop in metres.
+function seatBayOnSkin(ship,bay){
+ const b=partAABB(bay),hits=[];for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){const x=lerp(b[0],b[3],.05+.9*i/4),z=lerp(b[2],b[5],.05+.9*j/4),h=rayEnv(ship,[x,bay.c[1],z],[0,-1,0],{structOnly:true});if(h)hits.push(bay.c[1]-h.t);}
+ if(!hits.length)return 0;const drop=b[1]-Math.min(...hits);if(!(drop>1e-6))return 0;bay.c=[bay.c[0],bay.c[1]-drop,bay.c[2]];return drop;
+}
 function openBay(ship,bay,face='top',kind='open'){
   if(!Object.hasOwn(AVIATION_SURFACE_FACES,face))face='top';const n=aviationFaceNormal(face),{axis,longAxis,widthAxis}=hatchAxes({n}),sg=n[axis];
   const b=partAABB(bay),a=bay.c.slice(),end=bay.c.slice();a[longAxis]=b[longAxis]+2;end[longAxis]=b[longAxis+3]-2;a[axis]=end[axis]=b[axis+(sg>0?3:0)];
@@ -84829,7 +84840,7 @@ registerShipExample({
   room('cargo','前部腹部貨物倉',[520,40,0],[60,30,18]);
   room('command','背部装甲指揮甲板（艦橋）',[372,72,0],[40,30,12]);
   room('service','格納庫前方の航空整備・補給区画',[384.5,30.25,0],[25,44,16.5]);
-  const bay=room('hangar','腹部戦闘機格納庫（TIE 1個中隊）',[347,32.2,0],[50,44,38.4],{airRole:'mixed'});openBay(s,bay,'bottom','ray');
+  const bay=room('hangar','腹部戦闘機格納庫（TIE 1個中隊）',[347,32.2,0],[50,44,38.4],{airRole:'mixed'});seatBayOnSkin(s,bay);openBay(s,bay,'bottom','ray');
   delete s._building;
   // v25 Armament from the user's design (design file supplied 2026-11-16, sha256 5250e57d…6941): ten 34 TT single
   // spherical turbolasers in the flank blisters, twenty 100 kt triple spherical PD lasers along the hull and six
@@ -86472,7 +86483,7 @@ function onaBuild(opt={}){
  // ---- the two docking bays (canon) ----
  // The hangars and servicing rooms remain aft of the main-gun chambers.
  // Each bay opens downward through the retained hull beside the engine tubes.
- for(const sg of [1,-1]){const b=room('hangar',(sg>0?'右舷':'左舷')+'艦尾ドッキング・ベイ',[430,65,sg*165],[120,30,14],{airRole:'mixed'});openBay(s,b,'bottom','ray');}
+ for(const sg of [1,-1]){const b=room('hangar',(sg>0?'右舷':'左舷')+'艦尾ドッキング・ベイ',[430,65,sg*165],[120,30,14],{airRole:'mixed'});seatBayOnSkin(s,b);openBay(s,b,'bottom','ray');}
  room('service','艦尾航空機整備・補給区画',[380,65,188],[30,8,8],{},true);
  if(opt.stage==='rooms'){delete s._building;return s;}
  const {pairs}=onaMountKit(s,opt);
@@ -93254,12 +93265,14 @@ const AVIATION_OVERLAP_CACHE=new WeakMap();
 function aviationSkinOverlap(ship,p,envelope=aviationEnvelope(ship),toward=null,limit=null){
  if(!envelope.tris?.length)return null;const key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge,toward,limit]);
  let cache=AVIATION_OVERLAP_CACHE.get(p);if(!cache){cache=new Map();AVIATION_OVERLAP_CACHE.set(p,cache);}const slot=String(toward)+'|'+String(limit);const old=cache.get(slot);if(old?.key===key)return old.value;
- const B0=aviationPartBounds(p),B=limit?[0,1,2].map(i=>Math.max(B0[i],limit[i])).concat([0,1,2].map(i=>Math.min(B0[i+3],limit[i+3]))):B0,T=envelope.tris,lo=[B[0],B[1],B[2]],hi=[B[3],B[4],B[5]],eps=1e-6*Math.max(1,...[0,1,2].map(i=>hi[i]-lo[i]));let area=0;const got=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
+ const B0=aviationPartBounds(p),B=limit?[0,1,2].map(i=>Math.max(B0[i],limit[i])).concat([0,1,2].map(i=>Math.min(B0[i+3],limit[i+3]))):B0,taper=limit?.length>6&&Number.isFinite(limit[2])?openingPlanes(limit).slice(4):null,T=envelope.tris,lo=[B[0],B[1],B[2]],hi=[B[3],B[4],B[5]],eps=1e-6*Math.max(1,...[0,1,2].map(i=>hi[i]-lo[i]));let area=0;const got=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
  const clip=(poly,axis,value,keepBelow)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=keepBelow?value-a[axis]:a[axis]-value,db=keepBelow?value-b[axis]:b[axis]-value;if(da>=0)out.push(a);if((da>=0)!==(db>=0)){const t=da/(da-db);out.push(a.map((v,k)=>v+(b[k]-v)*t));}}return out;};
  for(let i=0;i+8<T.length;i+=9){const tri=[[T[i],T[i+1],T[i+2]],[T[i+3],T[i+4],T[i+5]],[T[i+6],T[i+7],T[i+8]]];if([0,1,2].some(k=>Math.max(tri[0][k],tri[1][k],tri[2][k])<lo[k]-eps||Math.min(tri[0][k],tri[1][k],tri[2][k])>hi[k]+eps))continue;
   const nt=cross(sub(tri[1],tri[0]),sub(tri[2],tri[0])),nl=len(nt);if(!(nl>0))continue;const inward=mul(nt,-1/nl);
   if(toward&&dot(nt,toward)/nl<=1e-6)continue;
-  let poly=tri;for(let k=0;k<3&&poly.length>=3;k++){poly=clip(poly,k,lo[k]-eps,false);if(poly.length>=3)poly=clip(poly,k,hi[k]+eps,true);}if(poly.length<3)continue;
+  let poly=tri;for(let k=0;k<3&&poly.length>=3;k++){poly=clip(poly,k,lo[k]-eps,false);if(poly.length>=3)poly=clip(poly,k,hi[k]+eps,true);}
+  /* a tapered door (limit[6], limit[7]: half widths across z at the two x ends, as openingHalf) also clips to its slanted sides */
+  if(taper&&poly.length>=3)for(const {n,d} of taper){poly=clipGeneral(poly,n,d+eps);if(poly.length<3)break;}if(poly.length<3)continue;
   let a=0;for(let j=1;j+1<poly.length;j++)a+=len(cross(sub(poly[j],poly[0]),sub(poly[j+1],poly[0])))/2;if(!(a>0))continue;
   const c=mul(poly.reduce((v,q)=>add(v,q),[0,0,0]),1/poly.length),depth=Math.min(.25,Math.max(.02,Math.min(...[0,1,2].map(k=>hi[k]-lo[k]))*.01));
   /* skin lying on the compartment's own face (a bay set flush with the hull) overlaps it too: a point just inside the skin is in the bay */
@@ -93275,11 +93288,14 @@ function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  // compartment, whichever way that skin faces; the hatch's face only gives the launch direction. A compartment that does not
  // reach the skin has no opening (「貫通してないのに装甲が無くされるのはおかしい話だ」).
  // Across the face the door keeps its aperture and rim (aviationFiniteBounds), as the openings always have.
- const finite=aviationFiniteBounds(p,h),{axis:faceAxis}=hatchAxes(h),limit=finite.slice(0,6);limit[faceAxis]=-Infinity;limit[faceAxis+3]=Infinity;
+ const finite=aviationFiniteBounds(p,h),{axis:faceAxis}=hatchAxes(h),tapered=finite.length>6&&faceAxis!==2,limit=finite.slice(0,tapered?8:6);limit[faceAxis]=-Infinity;limit[faceAxis+3]=Infinity;
  const overlap=aviationSkinOverlap(ship,p,envelope,h.n,limit.map(v=>Number.isFinite(v)?Math.round(v*1e6)/1e6:v));
  // Along the face's axis the opening reaches from the bay's sill out past its face, as before, so the open mouth shows the
  // room behind the skin (tests/hull-bay-render.cjs, tests/aviation-aperture-renderer.cjs); across the face it is the overlap.
- let opening=null;if(overlap){const f=finite,axis=faceAxis;opening=overlap.bounds.slice(0,6);opening[axis]=Math.min(opening[axis],f[axis]);opening[axis+3]=Math.max(opening[axis+3],f[axis+3]);}
+ let opening=null;if(overlap){const f=finite,axis=faceAxis;opening=overlap.bounds.slice(0,6);opening[axis]=Math.min(opening[axis],f[axis]);opening[axis+3]=Math.max(opening[axis+3],f[axis+3]);
+  /* A tapered door (the Venator's V-shaped decks: finite[6], finite[7]) keeps its taper, clipped to the overlap, so the hull cut follows the
+     bay's slanted sides instead of the box around them (the box took 890,000 m³ more out of the Venator's hull, 2026-11-21 regeneration). */
+  if(tapered){const mid=(f[2]+f[5])/2,half=Math.max(mid-opening[2],opening[5]-mid),h0=Math.min(openingHalf(f,opening[0]),half),h1=Math.min(openingHalf(f,opening[3]),half);opening[2]=mid-Math.max(h0,h1);opening[5]=mid+Math.max(h0,h1);opening.push(h0,h1);}}
  const value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!overlap,area:overlap?overlap.area:0,bounds:opening,mode:overlap?'overlap':null};cache.set(face,value);return value;
 }
 // Samples the face on a grid and keeps the largest contiguous rectangle where
