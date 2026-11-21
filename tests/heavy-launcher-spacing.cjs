@@ -70,4 +70,6 @@ test('each heavy lid is a cylinder standing 1 m out of its mouth, inside the lau
  for(let i=0;i<8;i++){const l=g.lids[i],m=g.muzzles[i];near(C.dot(C.sub(l.top,m),g.axis),1,'1 m out');near(C.dot(C.sub(m,l.base),g.axis),.25,'.25 m in');near(l.radius,.42*cell);
   for(let k=0;k<3;k++)assert.ok(l.top[k]>=g.bounds[k]-1e-9&&l.top[k]<=g.bounds[k+3]+1e-9,'the lid is in the extent');}
  assert.equal(C.launcherGeometry({k:'shipMsl',launcherCols:2,launcherRows:2,p:[0,0,0],n:[0,1,0],a:2}).lids,undefined,'small cells have no lid cylinder');
+ // user decision 2026-11-21「蓋の分は重量を加算しないように」: the lids add no mass; the launcher weighs its cells' rounds and cells only
+ near(C.fitSpec(fit()).mass,C.SHIP_TORPEDO.mass*C.HEAVY_LAUNCHER.massK*8,'mass of 8 cells, nothing for the lids');
 });
