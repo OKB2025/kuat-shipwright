@@ -93414,7 +93414,9 @@ function aviationSurfaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  // User decision 2026-11-21「ハッチ化するなら重なることを条件にする。図るのは無くして。貫通してないのに装甲が無くされるのはおかしい話だ」:
  // the opening is where the compartment overlaps the skin, wherever along the face's axis the skin crosses it (a clipped bay
  // reaches well past the skin; it was counted only where the skin lay within a skin's depth of the bay's face).
- const b=aviationFiniteBounds(p,h);if(hit.p[axis]<b[axis]-.05||hit.p[axis]>b[axis+3]+.05)return null;
+ // 2026-11-21 (full test run, ship-dock): the whole depth of the compartment counts, not only the part above its sill (a wedge
+ // hull's skin crosses a top bay in its lower half; that bay overlaps the skin and gets its mouth, as the old 'face' look gave).
+ const b=aviationPartBounds(p);if(hit.p[axis]<b[axis]-.05||hit.p[axis]>b[axis+3]+.05)return null;
  return hit;
 }
 // Second look for faces the outside test cannot see: a recess cut into the hull
