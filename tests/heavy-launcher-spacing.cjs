@@ -65,9 +65,14 @@ test('a turn about the launch direction rotates the cells around the launch axis
  assert.ok(fits.some(f=>f.launchRoll===30));if(fits.length===2)assert.ok(fits.some(f=>f.launchRoll===-30),'the mirror turns the other way');
  const back=C.deserialize(JSON.parse(JSON.stringify(C.serialize(s)))).fits.filter(f=>f.k==='shipMsl');assert.deepEqual(back.map(f=>f.launchRoll).sort(),fits.map(f=>f.launchRoll).sort());
 });
-test('each heavy lid is a cylinder standing 1 m out of its mouth, inside the launcher extent',()=>{
- const g=C.launcherGeometry(fit());assert.equal(g.lids.length,8);const L=C.HEAVY_LAUNCHER.lid;assert.equal(L.height,1);
- for(let i=0;i<8;i++){const l=g.lids[i],m=g.muzzles[i];near(C.dot(C.sub(l.top,m),g.axis),1,'1 m out');near(C.dot(C.sub(m,l.base),g.axis),.25,'.25 m in');near(l.radius,.42*cell);
+// 2026-11-21: the lids stood out into the Mandator II's racks (36 of 648 rays from the lids met a surface within 1 m), so by the
+// user's instruction「元の発射機のサイズに合う位置に蓋の外板、そこから蓋分を下げる形でVLS構造物を配置する」the lid's outer face is at the
+// mouth and the body lies 1 m further back; the launch points stay at the mouth.
+test('each heavy lid is a 1 m cylinder whose outer face is at the mouth, the body set back by it',()=>{
+ const f=fit(),g=C.launcherGeometry(f);assert.equal(g.lids.length,8);const L=C.HEAVY_LAUNCHER.lid;assert.equal(L.height,1);assert.equal(g.embedded,true);
+ const front=g.frontPoint;for(const m of g.muzzles)near(C.dot(C.sub(m,front),g.axis),.02,'the launch points stay at the mouth');
+ near(C.dot(C.sub(C.add(g.bodyCenter,C.mul(g.axis,g.bodySize[0]/2)),front),g.axis),-1,'the body front is 1 m behind the mouth');
+ for(let i=0;i<8;i++){const l=g.lids[i],m=g.muzzles[i];near(C.dot(C.sub(l.top,front),g.axis),0,'the outer face is at the mouth');near(C.dot(C.sub(l.top,l.base),g.axis),1.25,'1 m lid, .25 m into the body');near(l.radius,.42*cell);
   for(let k=0;k<3;k++)assert.ok(l.top[k]>=g.bounds[k]-1e-9&&l.top[k]<=g.bounds[k+3]+1e-9,'the lid is in the extent');}
  assert.equal(C.launcherGeometry({k:'shipMsl',launcherCols:2,launcherRows:2,p:[0,0,0],n:[0,1,0],a:2}).lids,undefined,'small cells have no lid cylinder');
  // user decision 2026-11-21「蓋の分は重量を加算しないように」: the lids add no mass; the launcher weighs its cells' rounds and cells only
