@@ -84279,6 +84279,7 @@ function shipRefitInternalCores(ship,nozzles,requestedByNozzle,externalBodies,ke
       candidate.c=c;const bb=partAABB(candidate);
       if(hard.some((q,i)=>boxesOverlap(bb,bounds[i],.01)&&overlapParts(candidate,q)))continue;
       if(!unclippedSurfSamples(candidate).concat(unclippedVolSamples(candidate),[c]).every(q=>insideOriginalEnvelope(ship,q)))continue;
+      if(placement?.accept&&!placement.accept(c,candidate))continue;
       placed=placePart(ship,'engineCore',c,diameter,{length,dir:axis.slice(),reactor:reactor.id,autoFit:false,allowOverlap:true,busFeed:true,propulsionModelVersion:PROPULSION_MODEL_VERSION,driveProfileId:'standard',machineryGradeId:'standard',ratedInputW:inputW,feedCapacityW:inputW*1.3,legacyCoolingInputW:0,label:(role||(local?'ノズル直結推進機関':'内蔵推進機関'))+' '+(cores.length+1)});break;
      }
      if(placed)break;
@@ -84304,7 +84305,15 @@ function shipRefitInternalCores(ship,nozzles,requestedByNozzle,externalBodies,ke
     // longer bodies of the same volume are tried on the axis; a nozzle with no room on its axis (the stern of that exterior is a shell
     // of plates, hollow inside) gets its body inside the hull by the general placement, joined by a shaft.
     let placed=false,last=null;for(const scale of key==='mandator2'?[1,.85,.7,.55,.45,.35]:[1]){const d=nozzle.d*scale,length=Math.max(d*.6,W/PROPULSION.referenceInputDensity/(Math.PI*(d/2)**2));if(length>DESIGN_LIMITS.engineLength)continue;const keep=ship.parts.slice();try{build([nozzle],false,key==='subjugator'?reactors.find(r=>r.id===nozzle.reactor)||main:main,key==='subjugator'?'亜光速推進機関本体':/主機関/.test(nozzle.label||'')?'主推進機関':'副推進機関',{required:true,sideFeed:true,dimensions:{d,length},center:({axis,length,diameter,gap})=>nozzleCoreCenter(ship,[nozzle],axis,length,diameter,gap)});placed=true;break;}catch(error){last=error;ship.parts=keep;}}
-    if(!placed&&key==='mandator2'){const before=new Set(ship.parts.map(p=>p.id));build([nozzle],true,main);placed=ship.parts.some(p=>!before.has(p.id));}
+    // 2026-11-21: a body placed by the general placement must have a straight way to its nozzle (the shaft is one straight run).
+    // The build of 2026-11-21 put the body of 補助機関 07 where the straight line to its nozzle left the ship: its route was
+    // refused (transmission-blocked). A place is taken only when the line from it to the nozzle, with a ring of a tenth of the
+    // nozzle's diameter around it, stays inside the ship and passes through no other equipment. If no place passes, the first
+    // place that fits is taken as before.
+    if(!placed&&key==='mandator2'){const before=new Set(ship.parts.map(p=>p.id)),others=ship.parts.filter(q=>!isShapePart(q)&&q!==nozzle&&q.k!=='engine'),otherBounds=others.map(q=>{try{return partAABB(q);}catch(e){return null;}}),
+      straight=(c,candidate)=>{const A=c,B=nozzle.c,L=len(sub(B,A));if(!(L>0))return true;const f=frameAxis(sub(B,A)),rr=nozzle.d*.1,half=(candidate.length||0)/2;for(let i=0;i<=64;i++){const P=add(A,mul(sub(B,A),i/64)),ring=[P,...[0,1,2,3,4,5,6,7].map(j=>add(P,add(mul(f.v,Math.cos(j*Math.PI/4)*rr),mul(f.w,Math.sin(j*Math.PI/4)*rr))))];if(!ring.every(q=>insideOriginalEnvelope(ship,q)||unclippedInPart(candidate,q)||inPart(nozzle,q)))return false;if(len(sub(P,A))>half+rr&&others.some((q,k)=>otherBounds[k]&&P.every((v,a)=>v>=otherBounds[k][a]&&v<=otherBounds[k][a+3])&&inPart(q,P)))return false;}return true;};
+     try{build([nozzle],true,main,undefined,{accept:straight,center:()=>null});}catch(error){ship.parts=ship.parts.filter(p=>before.has(p.id));}
+     if(!ship.parts.some(p=>!before.has(p.id)))build([nozzle],true,main);placed=ship.parts.some(p=>!before.has(p.id));}
     if(!placed)throw last||new Error(key+': 機関 #'+nozzle.id+' の本体を配置できません');}
   }else if(key==='imperial'||key==='imperial2'){
    const isd=key==='imperial'||key==='imperial2',primary=nozzles.filter(p=>(key==='onager'?/主機関/:/主イオン/).test(p.label||'')),main=reactors.find(p=>p.k==='gen')||reactors[0];
