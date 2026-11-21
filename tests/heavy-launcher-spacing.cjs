@@ -68,6 +68,17 @@ test('a turn about the launch direction rotates the cells around the launch axis
 // 2026-11-21: the lids stood out into the Mandator II's racks (36 of 648 rays from the lids met a surface within 1 m), so by the
 // user's instruction「元の発射機のサイズに合う位置に蓋の外板、そこから蓋分を下げる形でVLS構造物を配置する」the lid's outer face is at the
 // mouth and the body lies 1 m further back; the launch points stay at the mouth.
+// regression review 2026-11-21 (FAIL): every mirror turns the other way — placement's mirror (above), the whole-ship mirror here,
+// and the editor's linked twin and mirror copy (tests/ship-launcher-ui.cjs).
+test('a design saved with an external heavy launcher loads it set in and seated',()=>{
+ const [s,h]=structShip('Old external heavy');C.placeFit(s,'shipMsl',[150,80,20],[0,1,0],0,false,{launcherCols:2,launcherRows:1,launcherHeavy:true});
+ const j=JSON.parse(JSON.stringify(C.serialize(s)));j.fits.find(f=>f.k==='shipMsl').launcherEmbedded=false;/* as a file saved before 2026-11-21 */
+ const t=C.deserialize(j);C.syncCompartments(t);C.remount(t,{keepFitPose:true});const f=t.fits.find(f=>f.k==='shipMsl');
+ assert.equal(f.launcherEmbedded,true);assert.equal(C.shipLauncherConfig(f).embedded,true);assert.equal(!!f.float,false,'seated in the structure');assert.equal(!!f.launcherBlocked,false);
+});
+test('the whole-ship mirror turns a launcher the other way; none stays none',()=>{
+ assert.equal(C.assemblyMirrorFit(fit({launchRoll:25,launchYaw:10})).launchRoll,-25);assert.equal(C.assemblyMirrorFit(fit({launchYaw:10})).launchRoll,undefined);
+});
 test('each heavy lid is a 1 m cylinder whose outer face is at the mouth, the body set back by it',()=>{
  const f=fit(),g=C.launcherGeometry(f);assert.equal(g.lids.length,8);const L=C.HEAVY_LAUNCHER.lid;assert.equal(L.height,1);assert.equal(g.embedded,true);
  const front=g.frontPoint;for(const m of g.muzzles)near(C.dot(C.sub(m,front),g.axis),.02,'the launch points stay at the mouth');

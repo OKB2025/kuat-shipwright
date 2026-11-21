@@ -4577,7 +4577,7 @@ function syncFitTwin(from, to, link) {
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
   // A mirror image turns the other way: one flip negates the train angle, two restore it.
   if (from.assetYaw != null || to.assetYaw != null) to.assetYaw = (from.assetYaw || 0) * ((link.z ? -1 : 1) * (link.y ? -1 : 1));
-  if(C.isShipLauncher?.(from))to.launchYaw=(from.launchYaw||0)*((link.z?-1:1)*(link.y?-1:1));
+  if(C.isShipLauncher?.(from)){const m=(link.z?-1:1)*(link.y?-1:1);to.launchYaw=(from.launchYaw||0)*m;if(from.launchRoll)to.launchRoll=from.launchRoll*m;else delete to.launchRoll;/* a mirror turns the other way (regression review 2026-11-21) */}
   refreshFitSupport(to);
 }
 function editSel(fn) {   // live edit of the selected part/fit (and its mirrored twins)
@@ -4695,7 +4695,7 @@ function placeVerticalFits(f, k, ped, opts) {
     const mirroredOpts={...opts,...(g.mountMode==='top'?{mountMode:'bottom'}:g.mountMode==='bottom'?{mountMode:'top'}:{}),...(C.fitCanRotate(g)?{assetYaw:-(g.assetYaw||0)}:{})};
     const r = placeEditorFit(k, p, n2, ped, false, mirroredOpts);
     if (r.err || !r.fit) continue;
-    copyFitSettings(g, r.fit);if(C.isShipLauncher?.(g)){r.fit.launchYaw=-(g.launchYaw||0);refreshFitSupport(r.fit);} g.vt = r.fit.id; r.fit.vt = g.id; made.push(r.fit);
+    copyFitSettings(g, r.fit);if(C.isShipLauncher?.(g)){r.fit.launchYaw=-(g.launchYaw||0);if(g.launchRoll)r.fit.launchRoll=-g.launchRoll;else delete r.fit.launchRoll;refreshFitSupport(r.fit);} g.vt = r.fit.id; r.fit.vt = g.id; made.push(r.fit);
   }
   if (made.length === 2) { made[0].tw = made[1].id; made[1].tw = made[0].id; }
   return made.length;
