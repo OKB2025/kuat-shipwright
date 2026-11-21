@@ -22,7 +22,9 @@ function preloadAssets({assets,concurrency=2,onProgress=()=>{},fetchAsset=getBlo
  return {done,get state(){return {...state};},stop(){stopped=true;state.phase='stopped';notify();}};
 }
 function createPreloader({keys,createWorker,busy=()=>false,onProgress=()=>{},idleMs=2000,scope=W}){
- const list=[...new Set(keys)].map(key=>({key,trial:false})),done=new Set(),failed=new Set();
+ // Items are example keys, or {key, load} for a saved design (load() gives its JSON; user decision 2026-11-21: examples and the
+ // user's designs are treated alike, so saved designs are prepared in the background as the examples are).
+ const seen=new Set(),list=keys.map(k=>typeof k==='string'?{key:k}:k).filter(k=>k&&k.key&&!seen.has(k.key)&&seen.add(k.key)).map(k=>({...k,trial:false})),done=new Set(),failed=new Set();
  let worker=null,timer=null,monitor=null,inflight=null,token=0,stopped=false,quietUntil=0,serial=0,starting=false;
  const state={phase:'waiting',ready:0,failed:0,total:list.length,current:null};
  const notify=phase=>{state.phase=phase;state.ready=done.size;state.failed=failed.size;onProgress({...state});};
@@ -34,7 +36,7 @@ function createPreloader({keys,createWorker,busy=()=>false,onProgress=()=>{},idl
   timer=null;if(blocked()){schedule();return;}if(worker||starting||!list.length)return;
   const ticket=++token;starting=true;state.current=list[0].key;notify('preparing');
   try{const w=await createWorker();if(ticket!==token||blocked()){w?.terminate();starting=false;schedule();return;}worker=w;starting=false;
-   const next=()=>{if(!list.length)return;const item=list[0];state.current=item.key;inflight=++serial;worker.postMessage({type:'fleet',id:inflight,key:item.key,trial:item.trial,prepareOnly:true,silent:true});};
+   const next=async()=>{if(!list.length)return;const item=list[0];state.current=item.key;const id=++serial;inflight=id;let design=null;if(item.load){try{design=item.design||(item.design=await item.load());}catch(error){design=null;}if(ticket!==token||inflight!==id)return;if(!design){failed.add(item.key);list.shift();close();notify(list.length?'waiting':'complete');schedule();return;}}worker.postMessage(design?{type:'fleet',id,design,trial:item.trial,prepareOnly:true,silent:true}:{type:'fleet',id,key:item.key,trial:item.trial,prepareOnly:true,silent:true});};
    worker.onmessage=e=>{if(ticket!==token||!inflight||e.data?.id!==inflight)return;const r=e.data,item=list[0];
     if(r.src==='unavailable'||r.type==='fleet'&&!r.cacheSaved){state.lastError=r.src==='unavailable'?'Persistent storage is unavailable':'Completed data could not be saved';close();stopped=true;notify('unavailable');return;}
     if(r.type==='error'){state.lastError=r.message||'Example preparation failed';failed.add(item.key);list.shift();close();notify(list.length?'waiting':'complete');schedule();return;}

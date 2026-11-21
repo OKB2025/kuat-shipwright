@@ -4145,6 +4145,11 @@ let savingCurrent = false;
 // v24 Every saved design gets its battle data (fleet profile, battle and
 // piloted meshes) built in the engine's background cache at save time.
 let pendingSave = null;
+// Saved ship designs that are finished (not provisional), newest first, as background preparation items (see createPreloader).
+async function savedDesignPreloadItems(limit=24){
+  let all=[];try{all=await Store.list();}catch(e){return [];}
+  return all.filter(r=>r&&r.kind==='ship'&&!r.provisional&&r.data).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0)).slice(0,limit).map(r=>({key:'save:'+r.id+'-'+r.savedAt,load:async()=>{const d=await unpack(r.data);return d&&typeof d==='object'?d:null;}}));
+}
 function prepareSavedCombat(design) {
   if (typeof YardEngineClient === 'undefined' || !design) return [];
   return [false, true].map(trial => YardEngineClient.request('fleet', {design, trial, prepareOnly: true}).catch(() => null));
@@ -5648,14 +5653,18 @@ function start(hot) {
   window.__yard = {veObject: () => veObject(), designUI, designUIOpen: w => designUIOpen(w), designUIArm: () => designUIArm(), designUIClose: k => designUIClose(k), tool: () => tool(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
-  engineStart.then(mode => {
+  engineStart.then(async mode => {
     engineHello(mode); boot?.step('engine', 'done'); titleStatus();
     let downloads=null,preparation=null;
-    const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'作例の準備が完了しました':preparation.phase==='complete'?`作例を準備しました ${preparation.ready} / ${preparation.total}`:`作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
+    const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'保存した設計と作例の準備が完了しました':preparation.phase==='complete'?`保存した設計と作例を準備しました ${preparation.ready} / ${preparation.total}`:`保存した設計と作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
     if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:[...Object.values(YardFleetData.blueprints||{}),...Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint)].filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});window.KSAssetDownloads.done.then(()=>LocalExamples.seed()).catch(()=>{});}
     if(mode==='worker'&&boot?.createBackgroundWorker&&window.KSAssetCache){
       window.KSPreload?.stop();
-      window.KSPreload=KSAssetCache.createPreloader({keys:EXAMPLES.map(e=>e.key),createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
+      // User decision 2026-11-21「作例とユーザー設計はゲーム上での差異はつけない…ユーザー設計の艦も作例艦同様、完成した段階で戦闘用データも組み込む」:
+      // the user's finished saved designs are prepared in the background like the examples (first, as they are the ones the
+      // user fields). The engine's build cache is per release, so without this each update rebuilt them when first fielded.
+      const savedItems=await savedDesignPreloadItems().catch(()=>[]);
+      window.KSPreload=KSAssetCache.createPreloader({keys:[...savedItems,...EXAMPLES.map(e=>e.key)],createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
         preparation=s;window.dispatchEvent(new CustomEvent('ks-preload-progress',{detail:s}));preparationStatus();
       }});
     }
