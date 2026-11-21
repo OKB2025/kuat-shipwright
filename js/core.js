@@ -93248,17 +93248,23 @@ function aviationFaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
 // The skin (hull and structures, with their cuts) lying inside a compartment: its area and the box around it. null when the
 // compartment does not reach the skin. Cached per compartment shape and envelope.
 const AVIATION_OVERLAP_CACHE=new WeakMap();
-function aviationSkinOverlap(ship,p,envelope=aviationEnvelope(ship)){
- if(!envelope.tris?.length)return null;const key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge]);
- const old=AVIATION_OVERLAP_CACHE.get(p);if(old?.key===key)return old.value;
- const B=aviationPartBounds(p),T=envelope.tris,lo=[B[0],B[1],B[2]],hi=[B[3],B[4],B[5]],eps=1e-6*Math.max(1,...[0,1,2].map(i=>hi[i]-lo[i]));let area=0;const got=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
+// toward: the hatch face's outward normal; only skin facing that side at all counts (a wall at right angles to the hatch,
+// such as the host's side walls that clip a bay under a top hatch, is not opened by it).
+function aviationSkinOverlap(ship,p,envelope=aviationEnvelope(ship),toward=null,limit=null){
+ if(!envelope.tris?.length)return null;const key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge,toward,limit]);
+ let cache=AVIATION_OVERLAP_CACHE.get(p);if(!cache){cache=new Map();AVIATION_OVERLAP_CACHE.set(p,cache);}const slot=String(toward)+'|'+String(limit);const old=cache.get(slot);if(old?.key===key)return old.value;
+ const B0=aviationPartBounds(p),B=limit?[0,1,2].map(i=>Math.max(B0[i],limit[i])).concat([0,1,2].map(i=>Math.min(B0[i+3],limit[i+3]))):B0,T=envelope.tris,lo=[B[0],B[1],B[2]],hi=[B[3],B[4],B[5]],eps=1e-6*Math.max(1,...[0,1,2].map(i=>hi[i]-lo[i]));let area=0;const got=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
  const clip=(poly,axis,value,keepBelow)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=keepBelow?value-a[axis]:a[axis]-value,db=keepBelow?value-b[axis]:b[axis]-value;if(da>=0)out.push(a);if((da>=0)!==(db>=0)){const t=da/(da-db);out.push(a.map((v,k)=>v+(b[k]-v)*t));}}return out;};
  for(let i=0;i+8<T.length;i+=9){const tri=[[T[i],T[i+1],T[i+2]],[T[i+3],T[i+4],T[i+5]],[T[i+6],T[i+7],T[i+8]]];if([0,1,2].some(k=>Math.max(tri[0][k],tri[1][k],tri[2][k])<lo[k]-eps||Math.min(tri[0][k],tri[1][k],tri[2][k])>hi[k]+eps))continue;
+  const nt=cross(sub(tri[1],tri[0]),sub(tri[2],tri[0])),nl=len(nt);if(!(nl>0))continue;const inward=mul(nt,-1/nl);
+  if(toward&&dot(nt,toward)/nl<=1e-6)continue;
   let poly=tri;for(let k=0;k<3&&poly.length>=3;k++){poly=clip(poly,k,lo[k]-eps,false);if(poly.length>=3)poly=clip(poly,k,hi[k]+eps,true);}if(poly.length<3)continue;
   let a=0;for(let j=1;j+1<poly.length;j++)a+=len(cross(sub(poly[j],poly[0]),sub(poly[j+1],poly[0])))/2;if(!(a>0))continue;
-  const c=mul(poly.reduce((v,q)=>add(v,q),[0,0,0]),1/poly.length);if(!aviationPartContains(p,c))continue;
+  const c=mul(poly.reduce((v,q)=>add(v,q),[0,0,0]),1/poly.length),depth=Math.min(.25,Math.max(.02,Math.min(...[0,1,2].map(k=>hi[k]-lo[k]))*.01));
+  /* skin lying on the compartment's own face (a bay set flush with the hull) overlaps it too: a point just inside the skin is in the bay */
+  if(!aviationPartContains(p,c)&&!aviationPartContains(p,add(c,mul(inward,depth))))continue;
   area+=a;for(const q of poly)for(let k=0;k<3;k++){got[k]=Math.min(got[k],q[k]);got[k+3]=Math.max(got[k+3],q[k]);}}
- const value=area>1e-6?{area,bounds:got.map((v,i)=>v+(i<3?-.05:.05))}:null;AVIATION_OVERLAP_CACHE.set(p,{key,value});return value;
+ const value=area>1e-6?{area,bounds:got.slice()}:null;/* no margin across the face: the opening stays within the (clipped) bay; along the face's axis aviationContact spans sill to face */cache.set(slot,{key,value});return value;
 }
 function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  const owner=p;p=aviationHatchSource(p);
@@ -93267,8 +93273,13 @@ function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  // User decision 2026-11-21 (「何も考えずに普通に区画と外壁が重なってる部分がハッチになる」): the opening is the skin inside the
  // compartment, whichever way that skin faces; the hatch's face only gives the launch direction. A compartment that does not
  // reach the skin has no opening (「貫通してないのに装甲が無くされるのはおかしい話だ」).
- const overlap=aviationSkinOverlap(ship,p,envelope);
- const value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!overlap,area:overlap?overlap.area:0,bounds:overlap?overlap.bounds.slice():null,mode:overlap?'overlap':null};cache.set(face,value);return value;
+ // Across the face the door keeps its aperture and rim (aviationFiniteBounds), as the openings always have.
+ const finite=aviationFiniteBounds(p,h),{axis:faceAxis}=hatchAxes(h),limit=finite.slice(0,6);limit[faceAxis]=-Infinity;limit[faceAxis+3]=Infinity;
+ const overlap=aviationSkinOverlap(ship,p,envelope,h.n,limit.map(v=>Number.isFinite(v)?Math.round(v*1e6)/1e6:v));
+ // Along the face's axis the opening reaches from the bay's sill out past its face, as before, so the open mouth shows the
+ // room behind the skin (tests/hull-bay-render.cjs, tests/aviation-aperture-renderer.cjs); across the face it is the overlap.
+ let opening=null;if(overlap){const f=finite,axis=faceAxis;opening=overlap.bounds.slice(0,6);opening[axis]=Math.min(opening[axis],f[axis]);opening[axis+3]=Math.max(opening[axis+3],f[axis+3]);}
+ const value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!overlap,area:overlap?overlap.area:0,bounds:opening,mode:overlap?'overlap':null};cache.set(face,value);return value;
 }
 // Samples the face on a grid and keeps the largest contiguous rectangle where
 // every corner and centre meets a surface belonging to the compartment.
@@ -95351,7 +95362,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   TRENCH_ARMAMENT_VERSION, isTrenchBatteryGroup, trenchArmamentKinds, trenchArmamentPacking, configureTrenchArmament, syncTrenchArmament, trenchChargeCompartments, trenchArmamentGroups, bulkTrenchGroups,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
-  combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,clipCompartmentByMesh,clipCompartmentMesh,interiorConnectedSolid,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,PLACEMENT_BODY_KEYS,placementDeriveBody,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
+  combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,clipCompartmentByMesh,clipCompartmentMesh,interiorConnectedSolid,aviationEnvelope,aviationSkinOverlap,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,PLACEMENT_BODY_KEYS,placementDeriveBody,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportMassRatio, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
