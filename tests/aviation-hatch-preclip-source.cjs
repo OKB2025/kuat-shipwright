@@ -17,12 +17,12 @@ function confirmShape(s,p,volume,requested){
 
 test('a clipped curved bay keeps the hatch candidates of its pre-clipping source, including the missing forward opening',()=>{
  const {s,p}=fixture(),clip=p._clip,volume=C.partVolume(p),before=C.publicJSON(s),expected=C.aviationSurfaceContacts(s,source(p)),actual=C.aviationSurfaceContacts(s,p);
- assert.ok(expected.find(q=>q.face==='fore').contact,'the original bay intersects a real forward-facing shell');assert.deepEqual(plain(actual),plain(expected),'effective mesh sampling must not remove or reshape original candidate faces');
+ /* 2026-11-21 (user decision「ハッチ化するなら重なることを条件にする。図るのは無くして。貫通してないのに装甲が無くされるのはおかしい話だ」): the bay's forward face stops short of the curved shell in front of it (the shell is 1 to 6 m ahead of the face where a ray along x meets it); until this date that skin was measured and opened anyway. Now there is no forward candidate; the faces whose skin the bay does pierce (aft, bottom, port, starboard) are candidates. */assert.equal(expected.find(q=>q.face==='fore').contact,false,'no opening where the bay does not reach the skin');assert.ok(expected.find(q=>q.face==='aft').contact,'the bay pierces the aft shell');assert.deepEqual(plain(actual),plain(expected),'effective mesh sampling must not remove or reshape original candidate faces');
  assert.equal(p._clip,clip);near(C.partVolume(p),volume);assert.equal(C.publicJSON(s),before,'candidate generation is read-only');
 });
 
 for(const explicit of [false,true])test(`${explicit?'explicit':'legacy'} clipping survives hatch creation, opening edits, removal and regeneration`,()=>{
- const {s,p}=fixture(explicit),volume=C.partVolume(p),requested=C.publicJSON(source(p)),face=explicit?'top':'fore';
+ const {s,p}=fixture(explicit),volume=C.partVolume(p),requested=C.publicJSON(source(p)),face=explicit?'top':'aft'/* 2026-11-21: 'fore' before; that face no longer reaches the skin (see the first test) */;
  for(const kind of ['open','ray','none','open']){
   const h=C.setAviationSurfaceMode(s,p,face,kind);C.hullGeo(s);C.syncCompartments(s);
   // Hatch metadata is independent of the original room's geometry.
@@ -34,7 +34,7 @@ for(const explicit of [false,true])test(`${explicit?'explicit':'legacy'} clippin
 
 test('the original candidate and effective clipped body both survive saving and reloading',()=>{
  for(const explicit of [false,true]){
-  const {s,p}=fixture(explicit),volume=C.partVolume(p),face=explicit?'top':'fore',geometry=plain({c:p.c,room:p.room,placement:p.placement});C.setAviationSurfaceMode(s,p,face,'ray');C.syncCompartments(s);
+  const {s,p}=fixture(explicit),volume=C.partVolume(p),face=explicit?'top':'aft'/* 2026-11-21: 'fore' before (see the first test) */,geometry=plain({c:p.c,room:p.room,placement:p.placement});C.setAviationSurfaceMode(s,p,face,'ray');C.syncCompartments(s);
   const loaded=C.deserialize(C.serialize(s)),bay=loaded.parts.find(q=>q.id===p.id);C.syncCompartments(loaded);assert.deepEqual(plain({c:bay.c,room:bay.room,placement:bay.placement}),geometry);near(C.partVolume(bay),volume);assert.equal(bay._interiorPlacementError,undefined);
   assert.deepEqual(plain(C.aviationSurfaceContacts(loaded,bay)),plain(C.aviationSurfaceContacts(loaded,source(bay))));const h=loaded.hatches.find(h=>h.bay===p.id&&h.face===face);assert.ok(h&&C.aviationHatchActive(loaded,h));
  }

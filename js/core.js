@@ -93411,7 +93411,10 @@ function aviationSurfaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  // Test both sides of a coincident boundary to keep exact contact stable. The
  // inward point must still belong to the compartment, including its rotation.
  if(!aviationContainsBehind(p,hit.p,h))return null;
- const b=aviationFiniteBounds(p,h),skin=aviationSkinDepth(p,h)+.05;if(hit.p[axis]<b[axis]-(sign<0?skin:.05)||hit.p[axis]>b[axis+3]+(sign>0?skin:.05))return null;
+ // User decision 2026-11-21「ハッチ化するなら重なることを条件にする。図るのは無くして。貫通してないのに装甲が無くされるのはおかしい話だ」:
+ // the opening is where the compartment overlaps the skin, wherever along the face's axis the skin crosses it (a clipped bay
+ // reaches well past the skin; it was counted only where the skin lay within a skin's depth of the bay's face).
+ const b=aviationFiniteBounds(p,h);if(hit.p[axis]<b[axis]-.05||hit.p[axis]>b[axis+3]+.05)return null;
  return hit;
 }
 // Second look for faces the outside test cannot see: a recess cut into the hull
@@ -93438,18 +93441,8 @@ function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  let cache=AVIATION_CONTACT_CACHE.get(owner);if(!cache){cache=new Map();AVIATION_CONTACT_CACHE.set(owner,cache);}const old=cache.get(face);if(old?.key===key)return old;
  const b=aviationFiniteBounds(p,h),{axis}=hatchAxes(h);
  let value=aviationContactScan(ship,p,h,b,(t,v)=>aviationSurfaceHit(ship,p,h,t,v,envelope));
- if(!value.bounds){
-  const alt=aviationContactScan(ship,p,h,b,(t,v)=>aviationFaceHit(ship,p,h,t,v,envelope));
-  if(alt.bounds){
-   // The mouth reaches from the skin it pierces to the sill, measured over the
-   // part of the compartment that lies behind that skin.
-   const sign=h.n[axis],pb=aviationPartBounds(p),faceAt=sign>0?pb[axis+3]:pb[axis],thick=pb[axis+3]-pb[axis],f=sign>0?1-(h.sill??.5):(h.sill??.5);
-   let deep=0,gap=0;for(const hit of alt.hits){const dd=(faceAt-hit.p[axis])*sign;deep=Math.max(deep,dd);gap=Math.max(gap,-dd);}
-   const reach=Math.min(thick,deep+(thick-deep)*f),bb=alt.bounds;
-   if(sign>0){bb[axis]=faceAt-reach;bb[axis+3]=faceAt+gap+.3;}else{bb[axis]=faceAt-gap-.3;bb[axis+3]=faceAt+reach;}
-   value={...alt,mode:'face'};
-  }
- }
+ // User decision 2026-11-21 (above): no opening is measured for a compartment that does not reach the skin (the 'face' look,
+ // up to 1.5 m in front of the face, took armour away from a skin the bay did not pierce).
  value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!value.bounds,area:value.bounds?value.area:0,bounds:value.bounds,mode:value.bounds?value.mode||'outside':null};cache.set(face,value);return value;
 }
 // Samples the face on a grid and keeps the largest contiguous rectangle where
