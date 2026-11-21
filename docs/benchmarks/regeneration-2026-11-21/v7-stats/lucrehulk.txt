@@ -1,6 +1,6 @@
 launch                       125.120 192.475 53.83%
-launchPotential              125.120 192.475 53.83%
 openA                        312800 481187 53.83%
+launchPotential              125.120 192.475 53.83%
 vuln                         0.100356 0.112467 12.07%
 integritySupport             6.45166e+8 5.88906e+8 -8.72%
 troopCapacity                44558.0 44762.0 0.46%
