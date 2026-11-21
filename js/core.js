@@ -85489,8 +85489,8 @@ registerShipExample({
 
 // ---- src/ships/mandator2.js ----
 // Mandator II-class Star Dreadnought. Since 2026-11-20 the example stands on the user's own exterior design
-// (「マンデイターIIはこれをベースに使って」: assets/source/mandator2-user-exterior/, 652 structures and three sensors, saved from the
-// yard; sha256 in that folder's manifest). MAN2_EXTERIOR is that file, unchanged. What this builder adds to it:
+// (「マンデイターIIはこれをベースに使って」: assets/source/mandator2-user-exterior/; since 2026-11-21 the user's second model, 372 structures and three sensors, saved
+// from the yard; sha256 in that folder's manifest). MAN2_EXTERIOR is that file, unchanged. What this builder adds to it:
 //  - the interior equipment of the previous example (MAN2_INTERIOR: reactors, shields, hyperdrive, hangars and their hatches,
 //    stores, automation, command rooms), at the places it had, with the plant and the shields sized to SHIP_REFERENCE;
 //  - one engine in each of the user's eleven nozzle bells, its forward end on the bell's back face;
@@ -85571,8 +85571,8 @@ function buildMandatorReference(){
 }
 registerShipExample({
  key:'mandator2',name:MAN2_INTERIOR.name,side:'銀河共和国',role:'艦隊旗艦・ドレッドノート',length:8000,
- title:'Mandator II-class Star Dreadnaught',credit:'ユーザーの外装設計（2026-11-20 提供）。形状の元は MandatorIIClassDreadnaught.STL（ユーザー提供。作者・ライセンスの表記なし）',author:'ユーザー（形状の元は作者不明の STL）',source:'ユーザーの設計ファイル（assets/source/mandator2-user-exterior/）',license:'不明（元の STL に出典・ライセンスの記載なし）',
- note:'ユーザーの外装設計を土台にした作例（2026-11-20 に作り直し）。公式の寸法は無く、ファン設定で多い全長 8 km。短剣形の主船体、舷側のトレンチ、段状の城郭と艦橋塔、腹部の二つの反応炉ドーム、艦尾の 11 基のノズル外装はユーザーが設計画面で組んだもの。兵装は原本の STL から測った搭載位置に載せる：八角形の台 47 か所に 720TT 連装、四角い窪み 24 か所に 175TT 四連装、箱に埋まった球 16 か所に 175TT 四連装イオンのボールターレット、小さな台 2 個 1 組に点防御、舷側トレンチのラック台 6 か所に大型ランチャー（6×2 発）。下面には原本に搭載位置が無いため、従来の作例と同じ場所に 720TT 連装 14 基と 175TT 四連装 24 基を置く。機関は各ノズルに 1 基で、本体は船体内に置いて軸で繋ぐ。ハイパードライブ（クラス2、予備クラス10）と乗員は公式値が無いため想定で、持ち場の大半を自動化装置に任せている。',
+ title:'Mandator II-class Star Dreadnaught',credit:'ユーザーの外装設計（2026-11-21 提供の 2 つ目のモデル）。形状の元は MandatorIIClassDreadnaught.STL（ユーザー提供。作者・ライセンスの表記なし）',author:'ユーザー（形状の元は作者不明の STL）',source:'ユーザーの設計ファイル（assets/source/mandator2-user-exterior/）',license:'不明（元の STL に出典・ライセンスの記載なし）',
+ note:'ユーザーの外装設計を土台にした作例（2026-11-21 に 2 つ目のモデルで作り直し）。公式の寸法は無く、ファン設定で多い全長 8 km。短剣形の主船体、舷側のトレンチ、段状の城郭と艦橋塔、腹部の二つの反応炉ドーム、艦尾の 11 基のノズル外装はユーザーが設計画面で組んだもの。兵装は原本の STL から測った搭載位置に載せる：八角形の台 47 か所に 720TT 連装、四角い窪み 24 か所に 175TT 四連装、箱に埋まった球 16 か所に 175TT 四連装イオンのボールターレット、小さな台 2 個 1 組に点防御、舷側トレンチのラック台 6 か所に大型ランチャー（6×2 発）。下面には原本に搭載位置が無いため、従来の作例と同じ場所に 720TT 連装 14 基と 175TT 四連装 24 基を置く。機関は各ノズルに 1 基で、本体はノズルの直前から主反応炉の方向へ引き延ばして置き、軸で繋ぐ。ハイパードライブは艦尾中央の張り出し甲板室、反応物の設備は主反応炉の前、熱エネルギー変換装置は機関の列の間に置く。ハイパードライブ（クラス2、予備クラス10）と乗員は公式値が無いため想定で、持ち場の大半を自動化装置に任せている。',
  airWings:MAN2_INTERIOR.airWings,groundForces:MAN2_INTERIOR.groundForces,
  build:buildMandatorReference
 });
