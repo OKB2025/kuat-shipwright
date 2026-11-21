@@ -30,7 +30,7 @@ test('the seat sinks the base until the whole footprint reaches the sloped body,
  const flat=fixture(0);near(C.partAABB(flat.part)[1],surfaceY(flat.ship,20,30),1e-6);
 });
 
-const own=text=>{const o=JSON.parse(text);for(const k of [...C.PLACEMENT_BODY_KEYS,'seatOffset'])delete o[k];return JSON.stringify(o);};
+const own=text=>{const o=JSON.parse(text);for(const k of C.PLACEMENT_BODY_KEYS)delete o[k];/* the part's own seat (seatOffset) is saved and is compared */return JSON.stringify(o);};
 for(const [name,edit] of [['raised',p=>{p.c=[p.c[0],p.c[1]+3,p.c[2]];}],['turned',p=>{p.pitch=-4;}],['resized',p=>{p.s=[140,80,26];}]])
  test(`the body below ${name}: the child keeps its pose, solid and placement record, also after a reload`,()=>{
   const {ship,parent,part}=fixture(),before={record:record(part),c:plain(part.c),volume:C.partVolume(part)};edit(parent);C.refreshPlacementGeometry(ship);
