@@ -7,8 +7,8 @@ const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),plan=(a,b)=>Math.hyp
 const residual=(name,k,targets,filter=()=>true)=>{const fits=des.fits.filter(f=>f.k===k&&filter(f)),rows=[];for(const t of targets){let best=null;for(const f of fits){const e=plan(f.p,t);if(!best||e<best.plan)best={id:f.id,plan:e,dy:f.p[1]-t[1],p:f.p.map(r)};}rows.push({target:t.map(r),fit:best?.id,plan:r(best?.plan??NaN),dy:r(best?.dy??NaN),at:best?.p});}
  const ps=rows.map(x=>x.plan).sort((a,b)=>a-b);R[name]={targets:targets.length,fits:fits.length,planMedian:ps[ps.length>>1],planMax:ps[ps.length-1],dyMin:Math.min(...rows.map(x=>x.dy)),dyMax:Math.max(...rows.map(x=>x.dy)),distinctFits:new Set(rows.map(x=>x.fit)).size,worst:rows.slice().sort((a,b)=>b.plan-a.plan).slice(0,3),rows};};
 const both=L=>L.flatMap(p=>Math.abs(p[2])>1?[p,[p[0],p[1],-p[2],...p.slice(3)]]:[p]);
-residual('utl dorsal','utl',both(M.utl).map(p=>p.slice(0,3)),f=>f.mountMode!=='bottom');
-residual('quad175 dorsal','quad175',both(M.quad175).map(p=>p.slice(0,3)),f=>f.mountMode!=='bottom');
+residual('utl dorsal','utl',both(M.utl).map(p=>p.slice(0,3)),f=>!/^ventral-/.test(f.batteryZone)/* 2026-11-21: zone, not mount mode (the tilted guns are all mountMode 'auto') */);
+residual('quad175 dorsal','quad175',both(M.quad175).map(p=>p.slice(0,3)),f=>!/^ventral-/.test(f.batteryZone)/* 2026-11-21: zone, not mount mode (the tilted guns are all mountMode 'auto') */);
 residual('ion ball','ball175QuadIon',both(M.ion).map(p=>p.slice(0,3)));
 for(const k of ['utl','quad175'])residual(k+' ventral',k,both(M.ventral.filter(q=>q[0]===k).map(q=>[q[1],q[2],q[3]])),f=>/^ventral-/.test(f.batteryZone)/* 2026-11-21: the ventral guns are seated tilted to their faces (mountMode 'auto'), so the zone picks them out */);
 // point defence: greedy pairing as the builder does it, and the largest pairing possible under the same rule (≤260 m, normals within acos .9)

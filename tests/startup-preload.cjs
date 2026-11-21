@@ -20,3 +20,8 @@ test('a saved design item sends its design for both variants; a design that cann
   w.reply();await wait(10);assert.equal(w.jobs[1].trial,true);assert.deepEqual(w.jobs[1].design,design);assert.equal(loads,1,'read once for both variants');w.reply();assert.equal(s.pre.state.ready,1);
   await wait(300);assert.equal(s.pre.state.failed,1,'an unreadable save is skipped');await wait(300);const last=s.workers.at(-1);assert.equal(last.jobs[0].key,'cr90');}finally{s.pre.stop();}
 });
+test('a saved design whose result could not be kept is skipped and the examples behind it are still prepared (regression review 2026-11-21)',async()=>{
+ const design={name:'Saved',parts:[],fits:[]},s=setup([{key:'save:a-1',load:async()=>design},'cr90']);
+ try{await wait(300);await wait(10);s.workers[0].reply({cacheSaved:false});assert.equal(s.pre.state.failed,1);assert.notEqual(s.pre.state.phase,'unavailable');await wait(300);const w=s.workers[1];assert.equal(w.jobs[0].key,'cr90');w.reply();w.reply();assert.equal(s.pre.state.ready,1);assert.equal(s.pre.state.phase,'complete');
+  const t=setup([{key:'save:b-2',load:async()=>design},'cr90']);try{await wait(310);t.workers[0].reply({src:'unavailable'});assert.equal(t.pre.state.phase,'unavailable');}finally{t.pre.stop();}}finally{s.pre.stop();}
+});

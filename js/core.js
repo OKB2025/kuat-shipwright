@@ -75184,7 +75184,7 @@ function syncHullHatches(ship,p){
  for(const a of p.hullData?.hatches||[]){if(!ship?.hatches)continue;let b=ship.hatches.find(x=>x.hullOwner===p.id&&x.hullHatch===a.id);if(!b){b=JSON.parse(JSON.stringify(a));const used=new Set([...ship.parts,...ship.fits,...ship.hatches,...ship.cuts,...ship.trenches,...ship.subs,...(ship.solidCuts||[])].map(q=>q.id));let id=Math.max(1,ship.nextId||1);while(used.has(id))id++;b.id=id;b.hullOwner=p.id;b.hullHatch=a.id;ship.nextId=id+1;ship.hatches.push(b);}else{
    const oldA=a.aperture??.85,newA=Number.isFinite(b.aperture)&&b.aperture>0?b.aperture:oldA,ratio=newA!==oldA?newA/oldA:Number.isFinite(b.w)&&b.w>0&&a.w>0?b.w/a.w:1;
    let changed=false;
-   if(a.cut&&Number.isFinite(ratio)&&Math.abs(ratio-1)>1e-12){const {widthAxis:u}=hatchAxes(a),mid=(a.cut[u]+a.cut[u+3])/2;a.cut=a.cut.map((v,i)=>i===u||i===u+3?mid+(v-mid)*ratio:i>=6?v*ratio:v);a.w*=ratio;changed=true;}
+   if(a.cut&&Number.isFinite(ratio)&&Math.abs(ratio-1)>1e-12){const {widthAxis:u}=hatchAxes(a),mid=(a.cut[u]+a.cut[u+3])/2;a.cut=a.cut.map((v,i)=>i===u||i===u+3?mid+(v-mid)*ratio:i>=6?v*ratio:v);a.w*=ratio;if(Number.isFinite(a.openArea))a.openArea*=ratio;changed=true;}
    for(const k of ['k','open','motion','aperture','sill'])if(b[k]!=null&&b[k]!==a[k]){if(k==='k'&&!['open','ray'].includes(b[k]))continue;a[k]=b[k];changed=true;}
    if(changed)invalidateHullHatchGeometry(ship,p);
   }b.a=hullWorldPoint(p,a.a);b.b=hullWorldPoint(p,a.b);b.n=norm(sub(hullWorldPoint(p,add(a.a,a.n)),b.a));b.w=a.w;}
@@ -75203,7 +75203,7 @@ function scaleHullStructureCuts(ship,p,F){
  for(const t of data.trenches||[]){if(Number.isFinite(t.height))t.height*=F[1];if(Number.isFinite(t.depth))t.depth*=F[2];}
  for(const b of data.subs||[])if(Array.isArray(b.b)&&b.b.length===6)b.b=[...sc(b.b.slice(0,3)),...sc(b.b.slice(3))];
  for(const q of data.solidCuts||[]){if(Array.isArray(q.c))q.c=sc(q.c);if(Array.isArray(q.s)&&Array.isArray(q.rotation)){const k=[[1,0,0],[0,1,0],[0,0,1]].map(e=>len(sc(solidCutRotation(q,e))));q.s=[q.s[0]*k[0],q.s[1]*k[2],q.s[2]*k[1]];}}
- const hatch=h=>{const {widthAxis:u}=hatchAxes(h);if(Array.isArray(h.a))h.a=sc(h.a);if(Array.isArray(h.b))h.b=sc(h.b);if(Number.isFinite(h.w))h.w*=F[u];if(Array.isArray(h.cut))h.cut=h.cut.map((v,i)=>i<6?v*F[i%3]:v*F[u]);};
+ const hatch=h=>{const {widthAxis:u}=hatchAxes(h);if(Array.isArray(h.a))h.a=sc(h.a);if(Array.isArray(h.b))h.b=sc(h.b);if(Number.isFinite(h.w))h.w*=F[u];if(Array.isArray(h.cut))h.cut=h.cut.map((v,i)=>i<6?v*F[i%3]:v*F[u]);if(Number.isFinite(h.openArea)){const {longAxis:l}=hatchAxes(h);h.openArea*=F[l]*F[u];}};
  for(const h of data.hatches||[])hatch(h);for(const h of ship?.hatches||[])if(h.hullOwner===p.id)hatch(h);
  invalidateHullHatchGeometry(ship,p);delete p._hullShip;return true;
 }
@@ -78066,6 +78066,20 @@ function seatBayOnSkin(ship,bay){
  const b=partAABB(bay),hits=[];for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){const x=lerp(b[0],b[3],.05+.9*i/4),z=lerp(b[2],b[5],.05+.9*j/4),h=rayEnv(ship,[x,bay.c[1],z],[0,-1,0],{structOnly:true});if(h)hits.push(bay.c[1]-h.t);}
  if(!hits.length)return 0;const drop=b[1]-Math.min(...hits);if(!(drop>1e-6))return 0;bay.c=[bay.c[0],bay.c[1]-drop,bay.c[2]];return drop;
 }
+// The same user decision for a side mouth that stops short of the outer skin (physics review 2026-11-21: only outer skin opens): the
+// bay's room is extended toward that face until it reaches the outer skin under its mouth (the Providence's beam-to-beam deck
+// stops 0.5-1.6 m inside its outer plating; the MC80 Home One's starboard bay is covered by a structure 5-9 m outboard). Along each
+// of 5×5 rays from the room's centre plane the skin is the first surface past which the point is outside the hull and every
+// structure; the room grows by the largest such reach (never shrinks, at most `limit` m). Returns the growth in metres.
+function extendBayToSkin(ship,bay,face,limit=12){
+ const n=aviationFaceNormal(face),ax=[0,1,2].reduce((m,k)=>Math.abs(n[k])>Math.abs(n[m])?k:m,0),sign=Math.sign(n[ax]),b=partAABB(bay),env=aviationEnvelope(ship),[u,v]=[0,1,2].filter(k=>k!==ax);if(!env.bvh)return 0;
+ const faceAt=sign>0?b[ax+3]:b[ax],reach=[];for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){const o=[0,0,0];o[u]=lerp(b[u],b[u+3],.05+.9*i/4);o[v]=lerp(b[v],b[v+3],.05+.9*j/4);o[ax]=bay.c[ax];
+  let q=o,skin=null;for(let k=0;k<64;k++){const h=rayBVH(env.bvh,q,n);if(!h)break;const past=add(h.p,mul(n,.05));if(!aviationInsideEnvelope(env,past)){skin=h.p[ax];break;}q=add(h.p,mul(n,1e-4));}
+  if(skin!=null)reach.push((skin-faceAt)*sign);}
+ const grow=Math.max(0,...reach.filter(r=>r<=limit));if(!(grow>1e-6))return 0;
+ // room is [x, z, y] (the long, beam and height extents)
+ const slot=ax===0?0:ax===2?1:2,size=bay.room.slice();size[slot]+=grow;setRoomSize(bay,size);const c=bay.c.slice();c[ax]+=sign*grow/2;bay.c=c;return grow;
+}
 function openBay(ship,bay,face='top',kind='open'){
   if(!Object.hasOwn(AVIATION_SURFACE_FACES,face))face='top';const n=aviationFaceNormal(face),{axis,longAxis,widthAxis}=hatchAxes({n}),sg=n[axis];
   const b=partAABB(bay),a=bay.c.slice(),end=bay.c.slice();a[longAxis]=b[longAxis]+2;end[longAxis]=b[longAxis+3]-2;a[axis]=end[axis]=b[axis+(sg>0?3:0)];
@@ -79053,7 +79067,7 @@ function restoreHullStructureSave(ship,p,q){
  if(!q.hullProfile||typeof q.hullProfile!=='object'||Array.isArray(q.hullProfile)||!q.hullData||typeof q.hullData!=='object'||Array.isArray(q.hullData))throw new Error('船体構造物の形状データが不正です');
  const data=q.hullData,profile=normalizeOwnedHullProfile(q.hullProfile),local=deserialize({format:'starship-yard',v:3,name:'船体構造物',hull:profile,parts:[],fits:[],armor:ship.armor,
   cuts:data.cuts||[],trenches:data.trenches||[],solidCuts:data.solidCuts||[],subs:data.subs||[],hatches:data.hatches||[],hullSkin:data.hullSkin,hullBands:data.hullBands,paint:data.paint,detail:data.detail,reference:data.reference},{hullLocal:true});
- for(const h of local.hatches){const raw=data.hatches.find(q=>q.id===h.id);if(raw.cut==null)continue;const b=raw.cut;if(!Array.isArray(b)||![6,8].includes(b.length)||!b.every(Number.isFinite)||b.some(v=>Math.abs(v)>DESIGN_LIMITS.coordinate)||[0,1,2].some(i=>b[i]>b[i+3])||b.length===8&&(b[6]<0||b[7]<0))throw new Error('船体構造物の開口形状が不正です');h.cut=b.slice();}
+ for(const h of local.hatches){const raw=data.hatches.find(q=>q.id===h.id);if(raw.cut==null)continue;const b=raw.cut;if(!Array.isArray(b)||![6,8].includes(b.length)||!b.every(Number.isFinite)||b.some(v=>Math.abs(v)>DESIGN_LIMITS.coordinate)||[0,1,2].some(i=>b[i]>b[i+3])||b.length===8&&(b[6]<0||b[7]<0))throw new Error('船体構造物の開口形状が不正です');h.cut=b.slice();/* the skin area measured when the opening was adopted (aviationSkinOverlap) is kept with its cut (regression review 2026-11-21: it was dropped on load) */if(raw.openArea!=null){if(!Number.isFinite(raw.openArea)||raw.openArea<0||raw.openArea>DESIGN_LIMITS.coordinate**2)throw new Error('船体構造物の開口面積が不正です');h.openArea=raw.openArea;}}
  p.form='hull';p.hullProfile=profile;p.hullData={};
  for(const key of ['cuts','trenches','solidCuts','subs','hatches'])p.hullData[key]=local[key];
  for(const key of ['hullSkin','hullBands','paint','detail'])if(Object.hasOwn(data,key)&&local[key]!=null)p.hullData[key]=local[key];
@@ -79062,6 +79076,13 @@ function restoreHullStructureSave(ship,p,q){
  if(data.framingSamples!=null){if(!Array.isArray(data.framingSamples)||data.framingSamples.length>4096||data.framingSamples.some(row=>!Array.isArray(row)||row.length!==2||!row.every(Number.isFinite)||row[0]<0||row[0]>1||row[1]<=0||row[1]>1))throw new Error('船体構造物の骨組み断面が不正です');p.hullData.framingSamples=data.framingSamples.map(row=>row.slice());}
  if(q.primaryHull===true)p.primaryHull=true;if(q.hullMirrorZ===true)p.hullMirrorZ=true;
  ship.hullStructureVersion=1;ship.hull.assembly=true;
+}
+// Links and groups naming a retired habitation compartment go with it (regression review 2026-11-21); the room itself is dropped,
+// and counted for the notice, where the parts are read (s.retiredHabitats).
+function migrateRetiredHabitatRefs(o){
+ if(!o||!Array.isArray(o.parts)||!o.parts.some(p=>p?.k==='habitat'&&!p.surfacePatch))return o;
+ const gone=new Set(o.parts.filter(p=>p?.k==='habitat'&&!p.surfacePatch).map(p=>p.id)),port=s=>typeof s==='string'&&/^p\d+$/.test(s)&&gone.has(+s.slice(1));
+ return {...o,...(Array.isArray(o.links)?{links:o.links.filter(l=>!port(l?.from)&&!port(l?.to))}:{}),...(Array.isArray(o.groups)?{groups:o.groups.map(g=>({...g,parts:g.parts?.filter(id=>!gone.has(id))}))}:{})};
 }
 function migrateRetiredRadiators(o){
  if(!o||!Array.isArray(o.parts)||!o.parts.some(p=>p.k==='radiator'))return o;
@@ -79083,7 +79104,7 @@ function deserialize(o,internalOptions=null){
   {const RETIRED={exe_bridge:['isd_bridge','isdBridge'],isdh_bridge:['isd_bridge','isdBridge'],exe_sensor_port:['isd_sensor_port','isdSensor'],exe_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_sensor_port:['isd_sensor_port','isdSensor'],isdh_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_mast:['isd_mast','isdMast']};
    if(Array.isArray(o?.parts)&&o.parts.some(p=>Object.hasOwn(RETIRED,p?.skinAsset||'')))o={...o,parts:o.parts.map(p=>{const r=RETIRED[p?.skinAsset];if(!r)return p;const [k,id]=r,e=equipmentOptions(id);
     if(e.k==='struct')return {...p,skinAsset:k,equipmentId:id,s:e.s.slice(),label:e.label};const a=REFERENCE_ASSETS[k];return {...p,skinAsset:k,equipmentId:id,skinSize:a.size.slice(),d:Math.max(...a.size),label:e.label};})};}
-  o=migrateRetiredRadiators(migratePropulsionDistribution(migrateWeaponDesign(migrateAeroParts(migrateExternalDissipators(o)))));
+  o=migrateRetiredHabitatRefs(migrateRetiredRadiators(migratePropulsionDistribution(migrateWeaponDesign(migrateAeroParts(migrateExternalDissipators(o))))));
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(cells)s.retiredCells=cells;
   if(internalOptions?.hullLocal){s._hullLocalBlueprint=true;s._aviationMigrated=true;}
@@ -79397,8 +79418,11 @@ function clipCompartmentByMesh(ship,p){
  const packing=p._packing;delete p._packing;let raw;try{raw=interiorRawMesh(p);}finally{if(packing)p._packing=packing;}/* the room's own shape, not a stale packing */
  const region=regions.length===1?regions[0]:interiorUnionRegion(regions),rawVolume=meshVolume(raw);
  if(!region?.tris?.length||!(rawVolume>0))return null;
- const tris=Float32Array.from(interiorIntersection(raw,region.tris)),volume=meshVolume(tris);
- if(!Number.isFinite(volume)||volume<-1e-6*rawVolume||volume>rawVolume*(1+1e-6))return null;
+ const tris=Float32Array.from(interiorIntersection(raw,region.tris));
+ /* physics review 2026-11-21: meshVolume is unsigned, so an inside-out or empty result passed; an empty or inverted result falls back
+    to the grid clipper (clipCompartmentMesh) */
+ let signed=0;for(let i=0;i+8<tris.length;i+=9)signed+=(tris[i]*(tris[i+4]*tris[i+8]-tris[i+5]*tris[i+7])-tris[i+1]*(tris[i+3]*tris[i+8]-tris[i+5]*tris[i+6])+tris[i+2]*(tris[i+3]*tris[i+7]-tris[i+4]*tris[i+6]))/6;
+ if(!tris.length||!Number.isFinite(signed)||signed<=1e-9*rawVolume||signed>rawVolume*(1+1e-6))return null;
  return tris;
 }
 function clipCompartmentMesh(ship,p,b){
@@ -85351,7 +85375,10 @@ function buildMandatorReference(){
  // A mount is seated on the first surface under its measured position, looking along its measured normal.
  const put=(zone,k,pos,n,opt={})=>{const rise=opt.rise||400,h=rayEnv(s,add(pos,mul(n,rise)),mul(n,-1),{maxT:rise*2.25,structOnly:true});if(!h){fail.push(zone+' '+pos.map(Math.round)+'：面がありません');return;}
   /* user instruction 2026-11-21「マンデイターについて、面に合わせて傾けて配置するようにして」: opt.surface seats the gun on the face it meets, tilted to it */
-  const before=s.fits.length,r=placeFit(s,k,h.p,opt.surface?h.n:n,opt.ped??0,!!opt.mirror,opt.surface?{...(opt.o||{}),mountMode:'auto',tilt:true}:opt.o||{});if(r?.err){s.fits.splice(before);fail.push(zone+' '+pos.map(Math.round)+'：'+r.err);return;}
+  /* the face met must be the mount's own face: a point-defence pair is seated at the midpoint of its two bases, and where that midpoint
+     falls on a side wall (79° from the bases, reference-fidelity review 2026-11-21) the bases' measured normal is kept */
+  const face=opt.surface&&h.n&&dot(norm(h.n),norm(n))>=Math.cos(Math.PI/4)?h.n:n;
+  const before=s.fits.length,r=placeFit(s,k,h.p,face,opt.ped??0,!!opt.mirror,opt.surface?{...(opt.o||{}),mountMode:'auto',tilt:true}:opt.o||{});if(r?.err){s.fits.splice(before);fail.push(zone+' '+pos.map(Math.round)+'：'+r.err);return;}
   for(const f of s.fits.slice(before)){f.batteryZone=zone+(f.p[2]>1?'-stbd':f.p[2]<-1?'-port':'-centre');count[zone]=(count[zone]||0)+1;}};
  try{
   for(const p of M.utl)put('main-utl','utl',p,[0,1,0],{mirror:p[2]>1,surface:true});
@@ -85859,7 +85886,7 @@ function mc80HomeBuild(opt={}){
  // model), with storage decks inboard of them.
  for(const sg of [1,-1]){
   const bay=room('hangar',(sg>0?'右舷':'左舷')+'発着格納庫',[552,93,sg*121],[222,42,22],{airRole:'mixed'});
-  openBay(s,bay,sg>0?'stbd':'port','ray');
+  extendBayToSkin(s,bay,sg>0?'stbd':'port');openBay(s,bay,sg>0?'stbd':'port','ray');
   room('hangar',(sg>0?'右舷':'左舷')+'艦載機格納甲板',[552,93,sg*80],[222,40,30],{airRole:'storage'});
  }
  if(opt.stage==='machinery'){delete s._building;return s;}
@@ -86712,7 +86739,7 @@ function providenceBuild(opt={}){
  // height scale), open from beam to beam (outer skin |z| 114 m): the deck fills it, and its two beam mouths
  // are the ray-shielded hangar openings.
  const dock=part('hangar','後部格納甲板（舷側貫通発着口）',[M(358.5),Y(140.5),0],M(30),{room:[M(123),M(228),M(15)],airRole:'mixed'});
- openBay(s,dock,'port','ray');openBay(s,dock,'stbd','ray');
+ extendBayToSkin(s,dock,'port');extendBayToSkin(s,dock,'stbd');openBay(s,dock,'port','ray');openBay(s,dock,'stbd','ray');
  if(opt.stage==='dock'){delete s._building;return s;}
  // ---- stern: auxiliary reactor for the radial ion drives; port-side hyperdrive module ----
  const ra=part('aux','艦尾補助炉',[M(216),Y(120),0],M(100));
@@ -93197,7 +93224,7 @@ function aviationEnvelope(ship){
  let hull=v3HullGeo(raw).tris;for(const c of ship.subs||[])hull=subtractBoxMesh(hull,c.b);hull=applySolidCuts(raw,hull);
  const sources=[hull];for(const p of structures){let tris=isHullStructure(p)?hullAviationTriangles(p):unpiercedStructTriangles(p);for(const c of ship.subs||[])if(ship.hull.assembly||c.structures)tris=subtractBoxMesh(tris,c.b);sources.push(applySolidCuts(raw,tris,true));}
  const tris=new Float32Array(sources.reduce((n,a)=>n+a.length,0));let off=0;for(const source of sources){tris.set(source,off);off+=source.length;}
- const value={key,tris,bounds:solidMeshBounds(tris),bvh:tris.length?buildBVH(tris):null};AVIATION_ENVELOPE_CACHE.set(ship,value);return value;
+ const value={key,tris,bounds:solidMeshBounds(tris),bvh:tris.length?buildBVH(tris):null,shells:sources.filter(t=>t.length).map(t=>({tris:t}))};AVIATION_ENVELOPE_CACHE.set(ship,value);return value;
 }
 // Hatch queries use the authored room before clipping or equipment packing.
 // Keep that query view separate from the effective solid and its capacity.
@@ -93262,6 +93289,12 @@ function aviationFaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
 const AVIATION_OVERLAP_CACHE=new WeakMap();
 // toward: the hatch face's outward normal; only skin facing that side at all counts (a wall at right angles to the hatch,
 // such as the host's side walls that clip a bay under a top hatch, is not opened by it).
+// A point inside the hull or any structure, each as the closed solid the envelope was laid from (trenches and cuts applied).
+// A shell that is not watertight after cuts can give one ray the wrong parity, so three directions vote (the MC80's mirrored side bays
+// measured 4,884 and 1,061 m² with one ray).
+const AVIATION_PARITY_DIRS=[[.937426,.202719,.283022],[-.283022,.937426,-.202719],[.202719,-.283022,-.937426]];
+function aviationInsideEnvelope(envelope,q){return !!envelope.shells?.some(g=>{const b=g.bounds||(g.bounds=solidMeshBounds(g.tris));if(q.some((v,i)=>v<b[i]-1e-7||v>b[i+3]+1e-7))return false;g.bvh||=buildBVH(g.tris);const epsilon=Math.max(1e-7,Math.max(...b.map(Math.abs))*1e-9);let votes=0;
+ for(const d of AVIATION_PARITY_DIRS){let o=q.slice(),hits=0;for(let i=0;i<128;i++){const h=rayBVH(g.bvh,o,d);if(!h)break;hits++;o=add(h.p,mul(d,epsilon));}if(hits%2)votes++;}return votes>=2;});}
 function aviationSkinOverlap(ship,p,envelope=aviationEnvelope(ship),toward=null,limit=null){
  if(!envelope.tris?.length)return null;const key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge,toward,limit]);
  let cache=AVIATION_OVERLAP_CACHE.get(p);if(!cache){cache=new Map();AVIATION_OVERLAP_CACHE.set(p,cache);}const slot=String(toward)+'|'+String(limit);const old=cache.get(slot);if(old?.key===key)return old.value;
@@ -93277,7 +93310,16 @@ function aviationSkinOverlap(ship,p,envelope=aviationEnvelope(ship),toward=null,
   const c=mul(poly.reduce((v,q)=>add(v,q),[0,0,0]),1/poly.length),depth=Math.min(.25,Math.max(.02,Math.min(...[0,1,2].map(k=>hi[k]-lo[k]))*.01));
   /* skin lying on the compartment's own face (a bay set flush with the hull) overlaps it too: a point just inside the skin is in the bay */
   if(!aviationPartContains(p,c)&&!aviationPartContains(p,add(c,mul(inward,depth))))continue;
+  /* Physics review 2026-11-21: the envelope is the hull and every structure laid together, not their union, so a face buried in
+     the ship (a deck or keel structure's top inside the hull) or a skin covered by a structure was counted as well (the Lucrehulk's
+     ventral bays measured 4.5 times their cross-section). Only outer skin counts: 5 cm outside the face is outside the hull and every
+     structure, each tested as the solid the envelope was laid from (so a trench or cut stays outside). */
+  if(aviationInsideEnvelope(envelope,add(c,mul(inward,-.05))))continue;
+  /* the opening's area is the skin's area seen along the launch direction (as the box openings were), not its true area */
+  if(toward)a*=Math.abs(dot(inward,toward));
   area+=a;for(const q of poly)for(let k=0;k<3;k++){got[k]=Math.min(got[k],q[k]);got[k+3]=Math.max(got[k+3],q[k]);}}
+ /* stepped outer skins facing the same way overlap when seen along the launch direction: the opening is at most the outline they cover */
+ if(toward&&area>0){const ax=[0,1,2].reduce((m,k)=>Math.abs(toward[k])>Math.abs(toward[m])?k:m,0),[u,v]=[0,1,2].filter(k=>k!==ax);area=Math.min(area,(got[u+3]-got[u])*(got[v+3]-got[v]));}
  const value=area>1e-6?{area,bounds:got.slice()}:null;/* no margin across the face: the opening stays within the (clipped) bay; along the face's axis aviationContact spans sill to face */cache.set(slot,{key,value});return value;
 }
 function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
@@ -93288,7 +93330,7 @@ function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  // compartment, whichever way that skin faces; the hatch's face only gives the launch direction. A compartment that does not
  // reach the skin has no opening (「貫通してないのに装甲が無くされるのはおかしい話だ」).
  // Across the face the door keeps its aperture and rim (aviationFiniteBounds), as the openings always have.
- const finite=aviationFiniteBounds(p,h),{axis:faceAxis}=hatchAxes(h),tapered=finite.length>6&&faceAxis!==2,limit=finite.slice(0,tapered?8:6);limit[faceAxis]=-Infinity;limit[faceAxis+3]=Infinity;
+ const finite=aviationFiniteBounds(p,h),{axis:faceAxis}=hatchAxes(h),tapered=finite.length>6&&faceAxis===1/* the taper runs across z along x: top and bottom faces only (physics review) */,limit=finite.slice(0,tapered?8:6);limit[faceAxis]=-Infinity;limit[faceAxis+3]=Infinity;
  const overlap=aviationSkinOverlap(ship,p,envelope,h.n,limit.map(v=>Number.isFinite(v)?Math.round(v*1e6)/1e6:v));
  // Along the face's axis the opening reaches from the bay's sill out past its face, as before, so the open mouth shows the
  // room behind the skin (tests/hull-bay-render.cjs, tests/aviation-aperture-renderer.cjs); across the face it is the overlap.

@@ -18,3 +18,11 @@ test('a placed habitation compartment is dropped on load with a count for the no
  assert.equal(u.retiredHabitats,undefined,'a face room is not a placed compartment');
  assert.match(app,/居住設備区画 \$\{n\} 区画を外しました/,'the editor tells the user');
 });
+test('links, groups and fittings that named the retired room do not survive it (regression review 2026-11-21)',()=>{
+ const s=C.newShip({L:300,W:100,H:60},'Habitat refs');C.placePart(s,'habitat',[150,30,0],10,{room:[10,10,10]},false);const j=JSON.parse(JSON.stringify(C.serialize(s))),hab=j.parts.find(p=>p.k==='habitat');
+ j.links=(j.links||[]).concat([{kind:'heat',from:'p'+hab.id,to:'p'+hab.id,cap:1}]);j.groups=[{id:1,name:'g',parts:[hab.id]}];
+ const back=JSON.parse(JSON.stringify(C.serialize(C.deserialize(j))));
+ assert.equal((back.links||[]).filter(l=>l.from==='p'+hab.id||l.to==='p'+hab.id).length,0);
+ for(const g of back.groups||[])assert.ok(!(g.parts||[]).includes(hab.id));
+ assert.ok(!back.fits.some(f=>f.host===hab.id));
+});

@@ -38,6 +38,8 @@ function createPreloader({keys,createWorker,busy=()=>false,onProgress=()=>{},idl
   try{const w=await createWorker();if(ticket!==token||blocked()){w?.terminate();starting=false;schedule();return;}worker=w;starting=false;
    const next=async()=>{if(!list.length)return;const item=list[0];state.current=item.key;const id=++serial;inflight=id;let design=null;if(item.load){try{design=item.design||(item.design=await item.load());}catch(error){design=null;}if(ticket!==token||inflight!==id)return;if(!design){failed.add(item.key);list.shift();close();notify(list.length?'waiting':'complete');schedule();return;}}worker.postMessage(design?{type:'fleet',id,design,trial:item.trial,prepareOnly:true,silent:true}:{type:'fleet',id,key:item.key,trial:item.trial,prepareOnly:true,silent:true});};
    worker.onmessage=e=>{if(ticket!==token||!inflight||e.data?.id!==inflight)return;const r=e.data,item=list[0];
+    // A saved design whose data could not be kept (regression review 2026-11-21) is skipped; the examples behind it go on.
+    if(item.load&&r.type==='fleet'&&!r.cacheSaved&&r.src!=='unavailable'){state.lastError='Completed data could not be saved';failed.add(item.key);list.shift();close();notify(list.length?'waiting':'complete');schedule();return;}
     if(r.src==='unavailable'||r.type==='fleet'&&!r.cacheSaved){state.lastError=r.src==='unavailable'?'Persistent storage is unavailable':'Completed data could not be saved';close();stopped=true;notify('unavailable');return;}
     if(r.type==='error'){state.lastError=r.message||'Example preparation failed';failed.add(item.key);list.shift();close();notify(list.length?'waiting':'complete');schedule();return;}
     if(r.type!=='fleet')return;
