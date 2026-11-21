@@ -1,30 +1,30 @@
-acclamator	all 15754 numbers equal
-arquitens	all 13665 numbers equal
-cr90	all 11877 numbers equal
-deathstar	all 44439 numbers equal
-dreadnaught	all 6560 numbers equal
-executor	all 69027 numbers equal
-gozanti	all 7449 numbers equal
-gr75	all 13576 numbers equal
-hammerhead	all 4219 numbers equal
-heraklon	all 3093 numbers equal
-imperial	all 10255 numbers equal
-imperial2	all 10197 numbers equal
-lh3210	all 7115 numbers equal
-lucrehulk	all 8318 numbers equal
-mandator2	647 of 1198 numbers differ; largest relative difference (structure or zero) at p.modules.length; next: p.heat.src.length ∞, p.heat.dis.length ∞, p.heat.ln.length ∞
-mc30c	8 of 3671 numbers differ; largest relative difference 2.22e-16 at p.modules.2.launchMuzzles.0.2; next: p.modules.2.muzzle.2 2.2e-16, p.modules.3.launchMuzzles.0.2 2.2e-16, p.modules.3.muzzle.2 2.2e-16
-mc75	all 9163 numbers equal
-mc80home	all 9674 numbers equal
-mc80liberty	all 11081 numbers equal
-munificent	all 25180 numbers equal
-nebulonb	all 3241 numbers equal
-onager	all 10967 numbers equal
-providence	all 14086 numbers equal
-providenceDn	2 of 21781 numbers differ; largest relative difference 6.44e-15 at p.systems.navCapacity; next: p.acc 3.2e-15
-recusant	all 24638 numbers equal
-recusantDn	all 27255 numbers equal
-reptransport	all 2338 numbers equal
-subjugator	164 of 1477 numbers differ; largest relative difference (structure or zero) at p.modules.length; next: p.heat.src.length ∞, p.heat.ln.length ∞, p.systems.landingSupport 3.7e-7
-venator	all 14966 numbers equal
-ships compared 29, identical in every number 25
+acclamator	all 17343 numbers equal
+arquitens	all 15052 numbers equal
+cr90	all 13096 numbers equal
+deathstar	all 51043 numbers equal
+dreadnaught	all 7584 numbers equal
+executor	all 80644 numbers equal
+gozanti	all 8222 numbers equal
+gr75	all 14860 numbers equal
+hammerhead	all 5008 numbers equal
+heraklon	all 3472 numbers equal
+imperial	4 of 11951 numbers differ; largest relative difference 2.22e-16 at p.grid.powerPaths.16.lengthM; next: p.grid.powerPaths.18.lengthM 2.2e-16, p.grid.powerPaths.21.lengthM 2.2e-16, p.grid.powerPaths.20.lengthM 1.1e-16
+imperial2	4 of 11883 numbers differ; largest relative difference 2.22e-16 at p.grid.powerPaths.16.lengthM; next: p.grid.powerPaths.18.lengthM 2.2e-16, p.grid.powerPaths.21.lengthM 2.2e-16, p.grid.powerPaths.20.lengthM 1.1e-16
+lh3210	all 8464 numbers equal
+lucrehulk	all 9844 numbers equal
+mandator2	8905 of 14373 numbers differ; largest relative difference (structure or zero) at p.grid.domains.0.modules.length; next: p.grid.powerPaths.length ∞, p.grid.powerPaths.296.capacityGroup (present on one side) ∞, p.grid.powerPaths.296.groupCap (present on one side) ∞
+mc30c	8 of 4236 numbers differ; largest relative difference 2.22e-16 at p.modules.2.launchMuzzles.0.2; next: p.modules.2.muzzle.2 2.2e-16, p.modules.3.launchMuzzles.0.2 2.2e-16, p.modules.3.muzzle.2 2.2e-16
+mc75	6 of 10860 numbers differ; largest relative difference 2.22e-16 at p.grid.powerPaths.52.lengthM; next: p.grid.powerPaths.55.lengthM 2.2e-16, p.grid.powerPaths.55.efficiency 2.2e-16, p.grid.powerPaths.56.lengthM 2.2e-16
+mc80home	8 of 10940 numbers differ; largest relative difference 4.44e-16 at p.grid.powerPaths.32.lengthM; next: p.grid.powerPaths.8.lengthM 2.2e-16, p.grid.powerPaths.17.lengthM 2.2e-16, p.grid.powerPaths.20.lengthM 2.2e-16
+mc80liberty	all 12676 numbers equal
+munificent	all 26569 numbers equal
+nebulonb	all 3798 numbers equal
+onager	2 of 11817 numbers differ; largest relative difference 4.44e-16 at p.grid.powerPaths.43.lengthM; next: p.grid.powerPaths.7.lengthM 2.2e-16
+providence	all 16067 numbers equal
+providenceDn	3 of 23965 numbers differ; largest relative difference 6.44e-15 at p.systems.navCapacity; next: p.acc 3.2e-15, p.grid.powerPaths.379.lengthM 1.1e-16
+recusant	all 26548 numbers equal
+recusantDn	all 29338 numbers equal
+reptransport	1 of 2725 numbers differ; largest relative difference 4.44e-16 at p.grid.powerPaths.2.lengthM; next: 
+subjugator	7681 of 64354 numbers differ; largest relative difference (structure or zero) at p.grid.domains.0.modules.length; next: p.grid.powerPaths.length ∞, p.grid.powerPaths.1360.capacityGroup (present on one side) ∞, p.grid.powerPaths.1360.groupCap (present on one side) ∞
+venator	6 of 16267 numbers differ; largest relative difference 2.22e-16 at p.grid.powerPaths.7.lengthM; next: p.grid.powerPaths.33.lengthM 2.2e-16, p.grid.powerPaths.35.lengthM 2.2e-16, p.grid.powerPaths.44.lengthM 2.2e-16
+ships compared 29, identical in every number 18
