@@ -80277,7 +80277,6 @@ function engineTransmission(ship){
 // shafts' way (the new generators) multiplies the tests. The caches are held for the whole search, as the builders hold them.
 // 2026-11-20 (second review): the scope alone gives the whole gain. A lock set on the ship here was copied onto the cached
 // working ship (surfaceWorkingShip spreads the ship) and stayed there; the search locks the ship it works on itself.
-const DRIVE_NETWORK_MEMO=new Map(),DRIVE_NETWORK_MEMO_MAX=6;
 function engineDriveRoutes(ship){return withHullCacheScope(()=>physicalEngineDriveNetwork(ship));}
 function physicalEngineDriveNetwork(ship){
  const mechanical=true,transportFlux=shaftFluxFor(ship);
@@ -80286,11 +80285,6 @@ function physicalEngineDriveNetwork(ship){
  const cacheSlot=mechanical?'engineDriveRoutes':'engineTransmission',privateSlot=mechanical?'_engineDriveRoutes':'_engineTransmission';if(ship._boundsPass?.[cacheSlot])return ship._boundsPass[cacheSlot];
  const key=JSON.stringify([ship.hull,ship.cuts,ship.subs,ship.trenches,ship.solidCuts,ship.parts,ship.fits,ship.hatches,(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),ship.parts.filter(p=>electricalSourcePower(p)>0).map(p=>[p.id,electricalSourcePower(p)])],(k,v)=>k.startsWith('_')?undefined:v);
  if(ship[privateSlot]?.key===key){if(ship._boundsPass)ship._boundsPass[cacheSlot]=ship[privateSlot];return ship[privateSlot];}
- // 2026-11-21 (user report「計算が終わらない」): the same network is asked for on several copies of one design while a part is
- // being placed (the candidate copy the placement is checked on, the design after the part is accepted, its working copy).
- // The result depends only on the content in `key` (the per-ship slot above already relies on that) and holds no reference
- // to the ship's own objects, so the last few results are also kept by content, for any copy with the same content.
- {const kept=DRIVE_NETWORK_MEMO.get(cacheSlot+key);if(kept){if(ship._boundsPass)ship._boundsPass[cacheSlot]=kept;return ship[privateSlot]=kept;}}
  const previousHullCache=ship._lockedCache;ship._lockedCache=cache(ship);try{
  const transmissionDomains=powerDomainGroups(ship),bodies=engineMachineryPaths(ship),owners=mechanical?ship.parts.filter(p=>p.k==='engine'&&!integratedEngine(p)&&engineOwner(p,ship)):propulsionOwners(ship).filter(p=>p.k==='engineCore'||bodies.some(b=>b.nozzle===p.id)),ports=new Map(ship.parts.map(p=>['p'+p.id,p])),sourcePower=p=>mechanical?p?.k==='engineCore'||legacySharedEngine(p,ship)?engineShareInputW(resolveEngineSpec(p,ship))*(1-PROPULSION.wasteFraction):0:electricalSourcePower(p),sources=ship.parts.filter(p=>sourcePower(p)>0),shaftCapacity=p=>{const core=engineOwner(p,ship);if(!core||core.k!=='engineCore'&&!legacySharedEngine(core,ship))return 0;const rating=engineShareInputW(resolveEngineSpec(core,ship))*(1-PROPULSION.wasteFraction);return Math.min(nozzleShaftCapacity(p,ship),Number.isFinite(p.shaftCapacityW)?Math.max(0,p.shaftCapacityW):rating*nozzleInputShare(p,ship));},manual=mechanical?owners.map(p=>({kind:'power',from:'p'+p.machineryId,to:'p'+p.id,cap:shaftCapacity(p)})):(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),edges=new Map(),targets=new Map(owners.map(p=>['p'+p.id,{p,spec:resolveEngineSpec(p,ship),demandW:mechanical?shaftCapacity(p):resolveEngineSpec(p,ship).ratedInputW}]));
  const put=(l,automatic=false)=>{const id=l.from+'>'+l.to,prev=edges.get(id),cap=Number.isFinite(l.cap)?Math.max(0,l.cap):PROPULSION.maxInputW;if(prev)prev.limit=Math.min(PROPULSION.maxInputW,prev.limit+cap);else edges.set(id,{id,from:l.from,to:l.to,limit:cap,automatic,distributedWiring:!mechanical});};
@@ -80446,7 +80440,6 @@ function physicalEngineDriveNetwork(ship){
  if(mechanical)for(const p of sources){const rows=res.routes.filter(r=>r.coreId===p.id&&r.ok),capacityW=rows.reduce((n,r)=>n+r.capacityW,0);res.cores[p.id]={connected:capacityW>0,capacityW,routeIds:rows.map(r=>r.id),reason:capacityW>0?null:'drive-path-blocked'};}
  const sourcePorts=new Set(sources.map(p=>'p'+p.id)),virtualPorts=new Map([...relevant].filter(id=>!sourcePorts.has(id)&&!targets.has(id)).sort().map((id,i)=>[id,'p'+(-7000000-i)]));res.virtualPorts=[...virtualPorts].map(([original,port])=>({original,port,partId:ports.get(original)?.id}));res.powerLinks=[];
  for(const r of res.routes){const from=virtualPorts.get(r.from)||r.from,to=virtualPorts.get(r.to)||r.to,conduit=r.partId!=null?'p'+r.partId:null;if(!conduit){if(r.ok)res.powerLinks.push({kind:'power',from,to,cap:r.capacityW,auto:r.automatic,ok:true,physical:true,routeId:r.id,efficiency:r.efficiency,capacityGroup:r.id,groupCap:edges.get(r.id).limit});continue;}for(const [i,[a,b]]of [[from,conduit],[conduit,to]].entries())res.powerLinks.push({kind:'power',from:a,to:b,cap:r.capacityW,auto:r.automatic,ok:r.ok,physical:true,routeId:r.id,efficiency:i===0?r.efficiency:1,...(!i?{capacityGroup:r.id,groupCap:edges.get(r.id).limit}:{} )});}
- DRIVE_NETWORK_MEMO.set(cacheSlot+key,res);while(DRIVE_NETWORK_MEMO.size>DRIVE_NETWORK_MEMO_MAX)DRIVE_NETWORK_MEMO.delete(DRIVE_NETWORK_MEMO.keys().next().value);
  if(ship._boundsPass)ship._boundsPass[cacheSlot]=res;return ship[privateSlot]=res;
  }finally{if(previousHullCache)ship._lockedCache=previousHullCache;else delete ship._lockedCache;}
 }
