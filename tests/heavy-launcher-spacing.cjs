@@ -97,3 +97,9 @@ test('a heavy launcher leaves its host surface uncut; a small embedded launcher 
   const out=C.launcherRecessTriangles(s,'hull',T);assert.equal(out===T||out.length===T.length&&out.every((v,i)=>v===T[i]),!cut,heavy?'no recess for a heavy launcher':'a small embedded launcher opens its host');}
 });
 
+// User report 2026-11-21 (「艦艇用発射機の中身が小型のミサイルということになってるがこれは表示ミス？」): the craft magazine table
+// (proton torpedoes, concussion missiles, 0.22 m bore) is not shown for a ship launcher; its cells and rounds are in its own section.
+test('the craft magazine table is not shown for a ship launcher',()=>{
+ const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');assert.match(app,/C\.FITS\[selected\.k\]\?\.store&&!C\.isShipLauncher\?\.\(selected\)/);
+ const small=C.missileLauncherSpec(fit({launcherHeavy:false,launcherCols:1,launcherRows:1}));near(small.tt,C.AIR_ROUNDS.missile.tt);assert.equal(small.ammoPerCell,6,'small cells: six 1 by 4 m missiles a cell');
+});
