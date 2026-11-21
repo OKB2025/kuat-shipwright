@@ -84105,9 +84105,12 @@ function shipRefitAddVolume(ship,k,volume,label){
  if(['aux','pump','integrity','hdis','inertial','repulsor'].includes(k)){
   const hullOnly=k==='repulsor'&&shipHasHullProper(ship)&&!ship._liftAnywhere,coarse=shipRefitAnchors(ship).filter(q=>!hullOnly||v3InHull(ship,q)),fine=hullOnly&&coarse.length<12/* a thin hull has few of the coarse points in it (MC30c, Acclamator); a hull with enough of them keeps them: the fine ones lie near its edges, where a room is cut down to a sliver */,anchors=fine?shipRefitAnchors(ship,true).filter(q=>v3InHull(ship,q)):coarse/* user decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」 */,b=shipBounds(ship);if(!anchors.length)throw new Error(ship.name+'：'+label+' の船内容積が不足しています（置き場所がありません）');const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
   const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
-  /* 2026-11-21 (PR #122): up to 6 rounds instead of 4. A build that places its volume stops at once and is unchanged; the Recusant,
-     whose larger hatch opening (overlap rule) lowers its mass, was left 6 m³ of structural integrity short after 4. */
-  let remaining=volume;for(let pass=0;pass<(fine?10:6)&&remaining>Math.max(.1,volume*1e-5);pass++){
+  /* 2026-11-21 (PR #122): two more rounds, only for a build that would otherwise stop with the error below (the Recusant, whose
+     larger hatch opening under the overlap rule lowers its mass, was left 6 m³ of structural integrity short after 4). A build that
+     ends within the allowance after the usual rounds stops there as before (a first version kept going and changed the
+     droid-controlled Recusant's inertial compensation). */
+  const allowance=Math.max(.1,volume*(['pump','integrity','inertial'].includes(k)?.02:1e-4)),rounds=fine?10:4;
+  let remaining=volume;for(let pass=0;(pass<rounds||pass<rounds+2&&remaining>allowance)&&remaining>Math.max(.1,volume*1e-5);pass++){
    const n=pass?(fine?8:4):count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true,...(k==='repulsor'?{landingEquipment:true}:{})}));
    syncCompartments(ship);remaining=Math.max(0,volume-made.reduce((total,p)=>total+partVolume(p),0));
   }
