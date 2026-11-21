@@ -60,7 +60,10 @@ test('native world-ray picking sees the rear housing through an open embedded mo
 test('heavy cells show column and row spacing; placement carries it, an edit is one undo, and 12.1 m is not stored',()=>{
  const run=setup();run("st.fit='shipMsl';st.launcherHeavy=false;");let html=run('launcherPitchControls()');assert.ok(!html.includes('LauncherColSpacing'),'small cells have no spacing');
  run("st.launcherHeavy=true;st.launcherCols=4;st.launcherRows=2;");html=run('launcherPitchControls()');
- for(const id of ['newLauncherColSpacing','newLauncherRowSpacing'])assert.ok(html.includes('data-sl="'+id+'"'),id);assert.match(html,/列の間隔/);assert.match(html,/段の間隔/);assert.match(html,/min="12\.1"/);assert.match(html,/max="100"/);
+ for(const id of ['newLauncherColSpacing','newLauncherRowSpacing'])assert.ok(html.includes('data-sl="'+id+'"'),id);
+ // 2026-11-21「埋め込み専用で」: no external choice for heavy cells; the turn about the launch direction is offered
+ assert.ok(!/data-newlaunchermount="external"/.test(html),'no external mount for heavy cells');assert.match(html,/大型セルは構造物に埋め込みます/);assert.ok(html.includes('data-sl="newLaunchRoll"'));
+ run("st.launcherHeavy=false;st.launcherEmbedded=false;changeShipLauncher('launcherHeavy',true,'new')");assert.equal(run('st.launcherEmbedded'),true,'choosing heavy cells sets them in');assert.equal(run("changeShipLauncher('launcherEmbedded','external','new')"),false,'and they cannot be taken out');assert.match(html,/列の間隔/);assert.match(html,/段の間隔/);assert.match(html,/min="12\.1"/);assert.match(html,/max="100"/);
  // (placed with the core: the fixture's tap placement fails on main and the base too, tests 2-4 above)
  run("input('newLauncherColSpacing',18.5);input('newLauncherRowSpacing',14.9);{const h=C.rayEnv(ship,[250,500,60],[0,-1,0],{structOnly:true});C.placeFit(ship,'shipMsl',h.p,h.n,0,false,{launchPitch:0,...shipLauncherPlacementOptions()});st.sel={list:'fits',id:ship.fits.at(-1).id};}");
  assert.equal(run('selItem().launcherColSpacing'),18.5);assert.equal(run('selItem().launcherRowSpacing'),14.9);

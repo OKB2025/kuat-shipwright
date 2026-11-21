@@ -10296,6 +10296,8 @@ Object.assign(root.KS_EN.terms,{
 '横セル数':'Horizontal Cells',
 '縦セル数':'Vertical Cells',
 'セルの間隔は、選択した中の大型セルの発射機にだけ適用します。':'The cell spacing applies only to the heavy-cell launchers in the selection.',
+'発射方向まわりの回転':'Rotation about the launch direction',
+'大型セルは構造物に埋め込みます。':'Heavy cells are set into a structure.',
 '列の間隔（セルの中心どうし）':'Column spacing (cell centre to centre)',
 '段の間隔（セルの中心どうし）':'Row spacing (cell centre to centre)',
 '大型セルの間隔を広げると、本体の幅・高さだけが広がります（弾数・質量・費用はセル数で決まります）。':'Widening the heavy cells\' spacing only widens the body (rounds, mass and cost follow the cell count).',
