@@ -78892,7 +78892,7 @@ function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const wo
 // by cuts, editable meshes that are not closed solids, and user-part instances.
 function shapeStats(ship,S){
  S.warnings=S.warnings||[];const from=S.warnings.length;
- for(const p of ship.parts)if(p._interiorPlacementError)S.warnings.push({lv:'warn',code:p._interiorPlacementError.code,partId:p.id,text:partLabel(p)+'：'+p._interiorPlacementError.error,targets:[{list:'parts',id:p.id}]});
+ for(const p of ship.parts)if(p._interiorPlacementError)S.warnings.push({lv:'bad'/* user decision 2026-11-21 (option 1): a refused interior placement is an error, shown with its reason; it was a warning the user missed (「切り取られない」) */,code:p._interiorPlacementError.code,partId:p.id,text:partLabel(p)+'：'+p._interiorPlacementError.error,targets:[{list:'parts',id:p.id}]});
  for(const w of solidCutThinWalls(ship))S.warnings.push({lv:'warn',code:'thin-wall',cutId:w.id,text:`立体切削 #${w.id} の切り口に厚さ ${w.thickness.toFixed(2)} m の薄い壁が残っています（${w.limit.toFixed(1)} m 未満）。カッターを動かして壁を残すか、貫通させてください。`});
  if(typeof meshStructIssues==='function')for(const r of meshStructIssues(ship))S.warnings.push(r);
  if(typeof assemblyIssues==='function')for(const r of assemblyIssues(ship,S))S.warnings.push(r);
@@ -79647,6 +79647,17 @@ function interiorConnectedSolid(tris){
  // of a surface meet with differently divided edges (the hull's centreline), no edge spans match and one solid fell into strips.
  // Faces that share a corner point belong to the same solid there; pieces that are really apart share none.
  {const roots=new Set();for(let i=0;i<count;i++)roots.add(root(i));if(roots.size>1){const grid=epsilon*16,corners=new Map();for(let i=0;i<count;i++)for(let j=0;j<3;j++){const o=i*9+j*3,key=Math.round(tris[o]/grid)+','+Math.round(tris[o+1]/grid)+','+Math.round(tris[o+2]/grid),seen=corners.get(key);if(seen==null)corners.set(key,i);else join(seen,i);}}}
+ // User decision 2026-11-21 (「このようなことが起こらないように判定基準は合わせて」): pieces still apart are joined where a corner of
+ // one lies on a face of the other (a seam where one side's corner falls on the other side's edge or face). Pieces with a real
+ // gap between them touch nowhere and stay apart (a 5 cm through-cut is still refused).
+ {const groups=new Map();for(let i=0;i<count;i++){const r=root(i);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(i);}
+  if(groups.size>1){const tol=epsilon*16,box=list=>{const q=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(const i of list)for(let k=0;k<9;k++){const a=k%3;q[a]=Math.min(q[a],tris[i*9+k]);q[a+3]=Math.max(q[a+3],tris[i*9+k]);}return q;};
+   const tri=i=>[0,1,2].map(j=>[tris[i*9+j*3],tris[i*9+j*3+1],tris[i*9+j*3+2]]),onTriangle=(q,[a,b,c])=>{const n=cross(sub(b,a),sub(c,a)),l=len(n);if(l<=tol*tol)return false;const u=mul(n,1/l);if(Math.abs(dot(sub(q,a),u))>tol)return false;
+    for(const [x,y] of [[a,b],[b,c],[c,a]]){const e=sub(y,x),m=cross(e,sub(q,x));if(dot(m,u)<-tol*len(e))return false;}return true;};
+   const lists=[...groups.values()],boxes=lists.map(box);
+   for(let g=0;g<lists.length;g++)for(let h=g+1;h<lists.length;h++){if(root(lists[g][0])===root(lists[h][0]))continue;const A=boxes[g],B=boxes[h];if([0,1,2].some(k=>A[k]>B[k+3]+tol||B[k]>A[k+3]+tol))continue;
+    let touch=false;for(const [P,Q] of [[lists[g],lists[h]],[lists[h],lists[g]]]){for(const i of P){for(const q of tri(i)){for(const t of Q)if(onTriangle(q,tri(t))){touch=true;break;}if(touch)break;}if(touch)break;}if(touch)break;}
+    if(touch)join(lists[g][0],lists[h][0]);}}}
  const volumes=new Map(),origin=b.slice(0,3);for(let i=0;i<count;i++){const a=sub(Array.from(tris.slice(i*9,i*9+3)),origin),c=sub(Array.from(tris.slice(i*9+3,i*9+6)),origin),d=sub(Array.from(tris.slice(i*9+6,i*9+9)),origin),key=root(i);volumes.set(key,(volumes.get(key)||0)+dot(a,cross(c,d))/6);}
  // An enclosed reservation creates an inward cavity shell, not a second
  // usable compartment. Only outward shells represent disconnected solids.
