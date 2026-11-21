@@ -343,7 +343,7 @@
   },
   "providence": {
    "combat": {
-    "sha256": "a402132328bf935a35da59def3a7f239adf1441e43c74512ff115dd951d5bb95"
+    "sha256": "c2ce648ba3624d2515c05f0324bb7903fedae3c49b986d6f25cef58f236e0bfd"
    },
    "design": {
     "sha256": "6b5becf96e75f63507fb9a475b0f6c556fee0341b4561982d3b6d33ebfcfdd9b",
@@ -353,7 +353,7 @@
   },
   "providenceDn": {
    "combat": {
-    "sha256": "7c9c88c3f874bc6bcdd67cbcd6b0a3deccd652b7a5ac5965c835d492497ea6b7"
+    "sha256": "9f17e1bf62bfcec5fbdbef9a273e6580dc3f35f8303306c70a5fabdf8de9d1e2"
    },
    "design": {
     "sha256": "dc0617ed6e500f1ec9399ec59034f6e2f6c2732399e38a157f82b8f3c9a23417",
