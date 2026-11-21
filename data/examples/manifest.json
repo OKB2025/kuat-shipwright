@@ -373,12 +373,12 @@
   },
   "recusantDn": {
    "combat": {
-    "sha256": "880b4899a29ee1aa66c210a0329601c636a434c10f33f22b30614e611d673dc0"
+    "sha256": "0b1115c511a2164b8bbf11ffd7fe9b917d1ebf5edb65a958a5d711da799ed2a4"
    },
    "design": {
-    "sha256": "81b4cd28e9a434c1ecde278e72f4b0a5e6e431718bc2aff65b2eecc115fd7b1c",
-    "jsonSha256": "4e06ce72f339b8c984dde07a91fe5e54fc364079f29c1c1692724db455c110ff",
-    "blueprintSha256": "808b9f565a144b2069af8e88818093806cdd179d76a2bc91f34423ecfbd85ef8"
+    "sha256": "4e00b16a8bb5cfe452a97caa5ca80af1efc32697aabf1c05abacca6a9afeb8de",
+    "jsonSha256": "a0a5d11cd7e758626d86fb86bd5bd7a033b1c10de0b511123d05ba4d934db891",
+    "blueprintSha256": "ff25d8bed44c9c58388ff34f65c0fe3695f71574f92c30b91f5da363ef912b03"
    }
   },
   "reptransport": {
