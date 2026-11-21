@@ -34,7 +34,10 @@ test('preview caches follow moves, deletion, restoration and private aircraft-st
  const {C,G}=runtime(),ship=C.newShip({L:300,W:120,H:60,assembly:true});ship.parts=[];const f=fit(1,'pd',100);ship.fits=[f];const original=G.meshPreview(ship,[],[f]);
  f.p[0]+=25;const moved=G.meshPreview(ship,[],[f]);assert.notDeepEqual(active(original.previewRefFits,'pos'),active(moved.previewRefFits,'pos'));ship.fits=[];const deleted=G.meshPreview(ship,[],[]);assert.equal(deleted.previewRefFits.ni,0);
  f.p[0]-=25;ship.fits=[f];const restored=G.meshPreview(ship,[],[f]);assert.deepEqual(active(restored.previewRefFits,'pos'),active(original.previewRefFits,'pos'));
- const pylon=fit(2,'cpylon',50),spec=C.fitSpec(pylon),store=Object.keys(C.ORDNANCE).find(k=>C.storeCapacity(spec.store,k)>=2);assert.ok(store);ship.fits=[pylon];pylon._store={k:store,n:1};const one=G.meshPreview(ship,[],[pylon]);pylon._store.n=2;const two=G.meshPreview(ship,[],[pylon]);assert.ok(two.previewFits.ni>one.previewFits.ni,'a private payload change must update the visible stores');
+ // 2026-11-19 expectation changed: a pylon's stores are not drawn in the design, so a payload change leaves the visible
+ // fittings as they are (was: more indices with more stores). docs/craft-crew-ordnance-v24.md:46 「吊る弾は設計では描かない」;
+ // js/gfx.js cpylon comment ("Its stores are chosen per squadron ... and are not part of the design").
+ const pylon=fit(2,'cpylon',50),spec=C.fitSpec(pylon),store=Object.keys(C.ORDNANCE).find(k=>C.storeCapacity(spec.store,k)>=2);assert.ok(store);ship.fits=[pylon];pylon._store={k:store,n:1};const one=G.meshPreview(ship,[],[pylon]);pylon._store.n=2;const two=G.meshPreview(ship,[],[pylon]);assert.equal(two.previewFits.ni,one.previewFits.ni,'a wing pylon draws no stores (docs/craft-crew-ordnance-v24.md)');
 });
 
 test('conservative cold bounds retain exact barrel, pedestal, pod and angled launcher picking through pose edits',()=>{

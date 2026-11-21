@@ -45,9 +45,13 @@ test('a widening pulse conserves one energy budget across four ships, coarse tic
 });
 
 test('a hit on an electrically disconnected gun does not inject overload into its nominal main grid',()=>{
- const f=battle(),u=f.a;u.p.modules[0].powerConnected=false;const before=C.powerFactor(u,'reactor');
+ // 2026-11-19 expectation changed: unblocked ion goes only to the whole vessel's heat store, with no local overload
+ // (docs/whole-vessel-energy-model.md:23「max(0,E−S) だけを全艦蓄熱に加える。…局所過負荷タイマーを使わない」). 1e8 TT is far over
+ // this ship's heat capacity, so the whole plant stops by heat and the reactor factor falls to 0; that is not an injection
+ // into the gun's nominal grid. The case now checks the hit went to heat, and still that the main source did not trip.
+ const f=battle(),u=f.a;u.p.modules[0].powerConnected=false;
  C.ionOverload(u,1e8,{fitId:101},{ev:()=>{}});
- assert.equal(C.powerFactor(u,'reactor'),before);assert.ok(!(u.gridState?.domains?.main?.trip>0),'an unconnected gun cannot trip the main source');
+ assert.equal(u.lastIonHit.scope,'heat');assert.ok(!(u.gridState?.domains?.main?.trip>0),'an unconnected gun cannot trip the main source');
 });
 
 test('calculating a tactical turn preview cannot consume live cell charge or advance its protection state',()=>{

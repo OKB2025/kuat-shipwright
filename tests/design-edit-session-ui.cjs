@@ -229,7 +229,7 @@ test('Close keeps a pending reconnect source and its later Worker result does no
  r("designUI.layout='edit';designUIEditBegin();designUI.replaceId=1;designUI.armed=true;designUIRequest({parentStructureId:2,p:[30,5,0],n:[0,1,0]});const id=ship.parts[0].id;headerAction('close')");
  assert.equal(r('ship.parts[0].placement.pendingGeometry'),true);assert.equal(r('designUIEditSession()'),null);assert.equal(r('undoStack.length'),1);const generation=r('eng.gen');t.context.packet=resolution(t);
  assert.equal(r('onEnginePlacementResolution(packet)'),true);assert.equal(r('eng.gen'),generation);assert.equal(r('ship.parts[0].id'),r('id'));assert.equal(r('ship.parts[0].placement.pendingGeometry'),undefined);assert.equal(r('designUI.drawer'),false);assert.equal(r('designUIEditSession()'),null);assert.equal(r('undoStack.length'),1);
- r('undo()');assert.equal(r('ship.parts[0].placement'),undefined);r('redo()');assert.equal(r('ship.parts[0].placement.parentStructureId'),2);
+ r('undo()');assert.equal(r('ship.parts[0].placement'),undefined);r('redo()');/* 2026-11-21 (user decision 2026-11-20, no parent relation left): the redo snapshot is a saved design and names no body (expected parentStructureId 2 before); the placement record itself is back */assert.equal(r('!!ship.parts[0].placement'),true);assert.equal(r('ship.parts[0].placement.unresolvedParentId'),undefined);
 });
 
 test('a clean Close preserves existing Redo and a new-placement Cancel creates no source or history',()=>{

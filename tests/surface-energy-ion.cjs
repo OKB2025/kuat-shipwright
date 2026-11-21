@@ -14,7 +14,10 @@ test('explicit energy conversion conserves input, output and losses while effect
 });
 
 test('ordinary ion redirects 95 percent, debits only five percent and never fills a transient buffer',()=>{
- const ion=unit(),i=C.shieldReceive(ion,{energy:100,ion:100});close(i.external,95);close(i.shieldWork,5);close(i.incoming,i.external+i.shieldWork+i.onboardHeat);close(ion.shield,995);close(ion.shieldTransient,0);close(i.onboardHeat,0);
+ // 2026-11-19 expectation changed: a 100 m hull's field is scaled down by its length (fieldScale, CRAFT_SHIELD; user decision
+ // 2026-11-18「小型艦は航空機のシールド低下曲線に併せてシールドを弱くして」, recorded at js/core.js fieldScale), so the fixture's
+ // 1000 becomes 0.29. The case sets the 1000 it is about directly; the ion split it checks is unchanged.
+ const ion=unit();ion.shield=ion.shieldMax=1000;const i=C.shieldReceive(ion,{energy:100,ion:100});close(i.external,95);close(i.shieldWork,5);close(i.incoming,i.external+i.shieldWork+i.onboardHeat);close(ion.shield,995);close(ion.shieldTransient,0);close(i.onboardHeat,0);
  for(let n=0;n<30;n++){ion.shield=1000;C.shieldReceive(ion,{energy:1000,ion:1000});}close(ion.lastShieldHit.leaked,0);close(ion.shieldTransient,0);
 });
 

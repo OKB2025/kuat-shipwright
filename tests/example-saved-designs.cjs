@@ -50,7 +50,7 @@ test('no runtime file calls the authoring tool that builds examples procedurally
 test('an example opens from its saved design, exactly like a user save',async()=>{
  const e=engine(),built=await e.request({type:'build',key:KEY}),asset=e.D.blueprints[KEY];
  assert.equal(e.calls.build,0);assert.deepEqual(e.reads,[asset.url]);assert.equal(built.src,'built');
- const saved=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,asset.url)))),d=e.C.deserialize(saved);e.C.syncCompartments(d);e.C.remount(d);e.C.syncCompartments(d);
+ /* 2026-11-21 (PR #122: saved designs name no body for a weapon): the load steps are those of js/engine.js (handleBuild, applyDesign): remount with keepFitPose. The plain remount used here until this date re-seated a weapon from the body it named; with no body saved it re-seats a legacy weapon on the surface under it, which moved craft_tie_ln's fit 15 by 2e-16 m. */const saved=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,asset.url)))),d=e.C.deserialize(saved);e.C.syncCompartments(d);e.C.remount(d,{keepFitPose:true});e.C.syncCompartments(d);
  assert.equal(built.state,e.C.publicJSON(d),'same result as the user-save load steps on the stored design');
 });
 

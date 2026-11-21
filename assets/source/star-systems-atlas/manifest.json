@@ -1,0 +1,16 @@
+{
+ "note": "ユーザーが作成した資料（2026-11-20 提供「資料が出来た」）。星系ごとの恒星・惑星・衛星・小惑星帯・軌道施設の構成を、カノンとレジェンズに分けて収録し、各星系に出典を付けている。戦術空間の拡大（PR #124 の予定、docs/handoff-2026-11-20/README.md §4）で、星系の天体構成と出典の根拠に使う。ゲームにはまだ使っていない。",
+ "files": {
+  "Star_Wars_Systems_Atlas_JA.html": {
+   "file": "assets/source/star-systems-atlas/Star_Wars_Systems_Atlas_JA.html.gz",
+   "source_sha256": "16638e2f8cbd1bc581bb3a82a4cb23e4986543cf49356550fb7123731053d746",
+   "source_bytes": 1528270,
+   "gzip_sha256": "9b2f69ed1f17704957aea1bf246a3b26468b4617794e561e8cfe97e98f0b1d09",
+   "format": "単一の HTML（題名「スター・ウォーズ 星系構成図鑑」）。星系 803 件、資料系列ごとの欄 1,033 件（カノン 482、レジェンズ 551）。各欄は section.version（data-c が系列、data-region が領域）で、恒星は p.starrow、天体は ul.orbits の入れ子（span.kind が種類、span.object が名前、ul.children が衛星など）、出典は details.references のリンク。",
+   "received": "2026-11-20（ユーザーがセッションに添付）。資料内の調査日は 2026-11-21（日本時間）",
+   "author_license": "ユーザーの作成。資料内の記載：Wookieepedia contributors による記事をもとに抽出・翻案した部分は CC BY-SA 3.0。個々の記事は各項目の出典に掲載",
+   "coverage": "ゲームの銀河マップの星系 84 件のうち 79 件が資料に見つかる（名前での照合、2026-11-20）。見つからないもの：ミンバン、ターミナス、リンゴ・ヴィンダ、カリーダ星雲、ハイポリ（表記の違いの可能性あり。未確認）",
+   "script": "未作成（抽出スクリプトは #124 で作る）"
+  }
+ }
+}

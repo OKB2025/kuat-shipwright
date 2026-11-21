@@ -1,0 +1,24 @@
+## craft_xwing
+shape parts (id and host ignored): before 50 after 50 identical: true
+fits identical (ids ignored): true | hatches true | hull identical: true
+part kinds before {"struct":46,"wing":4,"aux":1,"engine":4,"cockpit":1,"astromech":1,"fuel":1,"inertial":1,"shield":1,"hyper":1,"hdis":5,"lifeSupport":1,"ejectSeat":1,"pump":1,"navComputer":1,"targetComputer":1,"maneuver":4,"laserGas":2,"landingGear":3}
+part kinds after  {"struct":46,"wing":4,"aux":1,"engine":4,"cockpit":1,"astromech":1,"fuel":1,"inertial":1,"shield":1,"hyper":1,"hdis":5,"lifeSupport":1,"ejectSeat":1,"pump":1,"navComputer":1,"targetComputer":1,"maneuver":4,"laserGas":2,"landingGear":3}
+links before {"power":16,"heat":108} after {"power":16,"heat":108}
+stats failed: 航宙艦設計局 v2/v3 の設計図を選んでください
+rebuild compare failed: "[object Object]" is not valid JSON
+## craft_btlb
+shape parts (id and host ignored): before 9 after 9 identical: true
+fits identical (ids ignored): true | hatches true | hull identical: true
+part kinds before {"struct":7,"wing":2,"cockpit":2,"astromech":1,"gen":3,"engine":2,"shield":1,"hyper":1,"fuel":1,"hdis":9,"inertial":1,"bombBay":1,"lifeSupport":1,"ejectSeat":2,"pump":1,"navComputer":1,"targetComputer":1,"maneuver":4,"laserGas":2,"landingGear":3}
+part kinds after  {"struct":7,"wing":2,"cockpit":2,"astromech":1,"gen":3,"engine":2,"shield":1,"hyper":1,"fuel":1,"hdis":9,"inertial":1,"bombBay":1,"lifeSupport":1,"ejectSeat":2,"pump":1,"navComputer":1,"targetComputer":1,"maneuver":4,"laserGas":2,"landingGear":3}
+links before {"power":51,"heat":121} after {"power":51,"heat":121}
+stats failed: 航宙艦設計局 v2/v3 の設計図を選んでください
+rebuild compare failed: "[object Object]" is not valid JSON
+## craft_tie_sa
+shape parts (id and host ignored): before 13 after 13 identical: true
+fits identical (ids ignored): true | hatches true | hull identical: true
+part kinds before {"struct":11,"solarPanel":2,"cockpit":1,"gen":2,"engine":2,"fuel":1,"inertial":1,"bombBay":1,"ejectSeat":1,"pump":1,"navComputer":1,"targetComputer":1,"maneuver":4,"laserGas":2,"landingGear":2,"hdis":4}
+part kinds after  {"struct":11,"solarPanel":2,"cockpit":1,"gen":2,"engine":2,"fuel":1,"inertial":1,"bombBay":1,"ejectSeat":1,"pump":1,"navComputer":1,"targetComputer":1,"maneuver":4,"laserGas":2,"landingGear":2,"hdis":11}
+links before {"power":18,"heat":42} after {"power":32,"heat":91}
+stats failed: 航宙艦設計局 v2/v3 の設計図を選んでください
+rebuild compare failed: "[object Object]" is not valid JSON

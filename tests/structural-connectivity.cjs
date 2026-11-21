@@ -120,7 +120,7 @@ test('a kept-whole child stays connected after a reload or deferred load followe
   placeOn(ship,hull,110,'box',[6,4,4],2.5);recess([122,30,0]);C.refreshPlacementGeometry(ship);return ship;};
  const farCut=s=>{C.hullOwnSolidCut(s,s.parts[0],{id:s.nextId++,shape:'box',c:[20,28,0],s:[4,4,4],rotation:[0,0,0],mirror:false,structures:false});s._cache=null;return C.refreshPlacementGeometry(s);};
  const ship=make();for(const [label,L] of [['reload',C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))))],['deferred',(()=>{const D=C.deserialize(JSON.parse(C.publicJSON(C.serialize(ship))),{deferPlacementGeometry:true});C.refreshPlacementGeometry(D);return D;})()]]){
-  const b=L.parts.find(q=>q.label==='box');assert.equal(b.placement.parentPoseKey,C.placementPositionKey(L.parts[0]),label+': the parent key matches after a reload');
+  const b=L.parts.find(q=>q.label==='box');/* 2026-11-21 (user decision 2026-11-20, no parent relation left): the saved record names no body and carries no key of one (the body's pose key was compared here until this date). This box is 12 m inside the hull after the recess moved, so no body is noted for it in memory either; its connection is judged by contact below, as before. */assert.equal(b.placement.parentPoseKey,undefined,label);assert.equal(b._placementError,undefined,label);
   const r=farCut(L),S=grounding(L);assert.equal(r.ok,true,label+' '+JSON.stringify(r.failed));assert.equal(b._placementError,undefined,label);assert.ok(!S.ungrounded.parts.includes(b.id),label+': not red');}
 });
 

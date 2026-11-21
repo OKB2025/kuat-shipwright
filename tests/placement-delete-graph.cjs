@@ -32,9 +32,9 @@ test('wedge siblings keep their exact solids and volumes through deletion, save 
  const s=ship();s.parts[0]={...box(1,[50,0,0],[100,80,20]),form:'wedge'};const a=child(s,[45,100,0],[10,10,10]),b=child(s,[55,100,0],[10,10,10]),saved=C.serialize(s),volumes=new Map(s.parts.filter(p=>p.id!==1).map(p=>[p.id,C.partVolume(p)]));C.removeParts(s,[1]);assert.equal(s.parts.length,2);for(const p of s.parts)near(C.partVolume(p),volumes.get(p.id));const restored=C.deserialize(C.serialize(s));for(const p of restored.parts)near(C.partVolume(p),volumes.get(p.id));const undo=C.deserialize(saved);assert.ok(undo.parts.some(p=>p.id===1));assert.equal(undo.parts.find(p=>p.id===a.id).placement.parentStructureId,1);near(C.partVolume(undo.parts.find(p=>p.id===b.id)),volumes.get(b.id));
 });
 
-test('the copy closure takes the selected parts only (weapons hosted on them still follow their host)',()=>{
+test('the copy closure takes the selected parts and weapons only',()=>{
  const s=ship(),a=child(s),b=child(s,[0,100,0],[6,6,6],a.id);s.fits.push({id:s.nextId++,k:'turbo',p:[0,26,0],a:2,host:b.id});const closure=C.placementCopyClosure(s,{parts:[1],fits:[]});assert.deepEqual(Array.from(closure.parts),[1]);assert.deepEqual(Array.from(closure.fits),[]);
- const withB=C.placementCopyClosure(s,{parts:[b.id],fits:[]});assert.deepEqual(Array.from(withB.fits),[s.fits[0].id]);const copy=C.surfaceCopySelection(s,{parts:[1],fits:[]});assert.equal(copy.parts.length,1);assert.equal(copy.fits.length,0);
+ /* 2026-11-21: the weapon on b is no longer taken along (expected [its id] before; user decision 2026-11-20, no parent relation left) */const withB=C.placementCopyClosure(s,{parts:[b.id],fits:[]});assert.deepEqual(Array.from(withB.fits),[]);assert.deepEqual(Array.from(C.placementCopyClosure(s,{parts:[b.id],fits:[s.fits[0].id]}).fits),[s.fits[0].id]);const copy=C.surfaceCopySelection(s,{parts:[1],fits:[]});assert.equal(copy.parts.length,1);assert.equal(copy.fits.length,0);
 });
 
 function sensor(s,parentId=1,p=[0,10,0]){const r=C.commitPlacement(s,{id:-1,k:'sensor',c:[p[0],p[1]+1,p[2]],d:2},{mode:'direct',parentStructureId:parentId,hit:{p,n:[0,1,0]}});assert.equal(r.ok,true,r.error);return r.part;}

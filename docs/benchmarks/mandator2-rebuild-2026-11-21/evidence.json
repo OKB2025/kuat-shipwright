@@ -1,0 +1,1287 @@
+{
+ "design": {
+  "sha256": "3dd265831593f13fb6308b0a69b407cc11c514375f76077cbed8d5a70fe48b58",
+  "bytes": 1345603
+ },
+ "source": {
+  "sha256": "088416b5b467f130fd5a8335175fd09509052a05e1a96c9f66d73a05a2ffaa33",
+  "bytes": 784339,
+  "structures": 372,
+  "sensors": 3
+ },
+ "exterior": {
+  "hullEqual": true,
+  "partsCompared": 375,
+  "differing": [],
+  "addedByKind": {
+   "gen": 1,
+   "aux": 1,
+   "shield": 6,
+   "hyper": 1,
+   "fuel": 2,
+   "pump": 2,
+   "inertial": 2,
+   "integrity": 4,
+   "command": 2,
+   "cargo": 4,
+   "automation": 2,
+   "hangar": 4,
+   "service": 2,
+   "hdis": 4,
+   "engine": 11,
+   "engineCore": 11,
+   "repulsor": 62
+  },
+  "addedStructures": [],
+  "cuts": 0,
+  "trenches": 0,
+  "solidCuts": 0
+ },
+ "seconds": 537,
+ "stats": {
+  "mass": 2033406000,
+  "power": 7.7e+26,
+  "cost": 6728144603,
+  "maxAccelG": 0,
+  "shieldCapacity": 7.7e+27,
+  "floatingFits": 0,
+  "looseParts": 0,
+  "overlaps": 0,
+  "warnings": [
+   [
+    "info",
+    "兵装の充電速度は機械的な最大連射の 79%。余剰電力に応じて再充電します。"
+   ],
+   [
+    "info",
+    "ジェネレーターの表面の 2% が露出しています。構造物で覆うか集中防御で守れます。"
+   ],
+   [
+    "warn",
+    "自動化装置が持ち場 870,962 名分（全持ち場 916,802 名の 95%）を受け持ち、電力 4.6×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け持ち分が抜け、人と装置を合わせた乗員"
+   ],
+   [
+    "warn",
+    "戦闘負荷で廃熱 1.67e26 W に対し変換 8.19e25 W、不足 8.53e25 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 33,074,295 m³ 追加すると解消します。その消費電力 1.30"
+   ],
+   [
+    "warn",
+    "立体切削 #8303 の切り口に厚さ 0.52 m の薄い壁が残っています（12.0 m 未満）。カッターを動かして壁を残すか、貫通させてください。"
+   ],
+   [
+    "warn",
+    "立体切削 #8304 の切り口に厚さ 0.82 m の薄い壁が残っています（12.0 m 未満）。カッターを動かして壁を残すか、貫通させてください。"
+   ],
+   [
+    "warn",
+    "立体切削 #8600 の切り口に厚さ 0.05 m の薄い壁が残っています（12.0 m 未満）。カッターを動かして壁を残すか、貫通させてください。"
+   ]
+  ],
+  "thrust": 0,
+  "aThrust": 0,
+  "accelG": 0,
+  "thrustG": 0,
+  "shieldDissipationW": 184034,
+  "bareStructAccel": 3084.79,
+  "ratedThrustN": 20269520000000000,
+  "ratedAccelMps2": 9968.259,
+  "maximumAccelMps2": 9968.259,
+  "dissipatorPower": 1.22203e+24,
+  "dissipatorRatedPower": 1.229026e+24,
+  "actualThrustN": 0,
+  "actualAccelMps2": 0,
+  "freeAccelerationMps2": 0
+ },
+ "fits": {
+  "utl": 61,
+  "quad175": 48,
+  "ball175QuadIon": 16,
+  "pd": 63,
+  "shipMsl": 6
+ },
+ "charge": {
+  "utl": {
+   "n": 61,
+   "min": 1,
+   "blocked": 0
+  },
+  "quad175": {
+   "n": 48,
+   "min": 1,
+   "blocked": 0
+  },
+  "ball175QuadIon": {
+   "n": 16,
+   "min": 1,
+   "blocked": 0
+  },
+  "pd": {
+   "n": 63,
+   "min": 1,
+   "blocked": 0
+  }
+ },
+ "layout": [
+  {
+   "id": 2267,
+   "k": "gen",
+   "label": "主反応炉（腹部大型球状装甲内）",
+   "box": [
+    2977,
+    71,
+    -305,
+    3587,
+    681,
+    305
+   ],
+   "volume": 118846974,
+   "inside": 1,
+   "inHull": 0.7318436,
+   "overlap": false
+  },
+  {
+   "id": 2268,
+   "k": "aux",
+   "label": "分散副反応炉区画（標準出力密度）",
+   "box": [
+    5184,
+    148,
+    -242,
+    5559,
+    493,
+    242
+   ],
+   "volume": 28183660,
+   "inside": 1,
+   "inHull": 0.859375,
+   "overlap": false
+  },
+  {
+   "id": 2280,
+   "k": "shield",
+   "label": "偏向シールド発生器（後部）",
+   "box": [
+    2157,
+    277,
+    477,
+    2343,
+    463,
+    663
+   ],
+   "volume": 3362651,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2281,
+   "k": "shield",
+   "label": "偏向シールド発生器（後部）",
+   "box": [
+    2157,
+    277,
+    -663,
+    2343,
+    463,
+    -477
+   ],
+   "volume": 3362651,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2282,
+   "k": "shield",
+   "label": "偏向シールド発生器（中央）",
+   "box": [
+    3618,
+    278,
+    338,
+    3782,
+    442,
+    502
+   ],
+   "volume": 2309983,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2283,
+   "k": "shield",
+   "label": "偏向シールド発生器（中央）",
+   "box": [
+    3618,
+    278,
+    -502,
+    3782,
+    442,
+    -338
+   ],
+   "volume": 2309983,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2284,
+   "k": "shield",
+   "label": "偏向シールド発生器（前部）",
+   "box": [
+    5740,
+    285,
+    100,
+    5860,
+    405,
+    220
+   ],
+   "volume": 910989,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2285,
+   "k": "shield",
+   "label": "偏向シールド発生器（前部）",
+   "box": [
+    5740,
+    285,
+    -220,
+    5860,
+    405,
+    -100
+   ],
+   "volume": 910989,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2286,
+   "k": "hyper",
+   "label": "ハイパードライブ",
+   "box": [
+    210,
+    545,
+    -75,
+    510,
+    695,
+    75
+   ],
+   "volume": 5078146,
+   "inside": 1,
+   "inHull": 0.5454545,
+   "overlap": false
+  },
+  {
+   "id": 2287,
+   "k": "fuel",
+   "label": "反応物サイロ",
+   "box": [
+    3630,
+    270,
+    550,
+    3950,
+    390,
+    670
+   ],
+   "volume": 3550939,
+   "inside": 1,
+   "inHull": 0.9571984,
+   "overlap": false
+  },
+  {
+   "id": 2288,
+   "k": "fuel",
+   "label": "反応物サイロ",
+   "box": [
+    3630,
+    270,
+    -670,
+    3950,
+    390,
+    -550
+   ],
+   "volume": 3551063,
+   "inside": 1,
+   "inHull": 0.9571984,
+   "overlap": false
+  },
+  {
+   "id": 2289,
+   "k": "pump",
+   "label": "反応物供給設備",
+   "box": [
+    3600,
+    285,
+    140,
+    3800,
+    375,
+    260
+   ],
+   "volume": 2160000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2290,
+   "k": "pump",
+   "label": "反応物供給設備",
+   "box": [
+    3600,
+    285,
+    -260,
+    3800,
+    375,
+    -140
+   ],
+   "volume": 2160000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2291,
+   "k": "inertial",
+   "label": "慣性補償装置",
+   "box": [
+    5000,
+    275,
+    187,
+    5560,
+    425,
+    337
+   ],
+   "volume": 9779800,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2292,
+   "k": "inertial",
+   "label": "慣性補償装置",
+   "box": [
+    5000,
+    275,
+    -337,
+    5560,
+    425,
+    -187
+   ],
+   "volume": 9779818,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2293,
+   "k": "integrity",
+   "label": "縦通構造維持幹線",
+   "box": [
+    2400,
+    305,
+    500,
+    3500,
+    395,
+    640
+   ],
+   "volume": 13860000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2294,
+   "k": "integrity",
+   "label": "縦通構造維持幹線",
+   "box": [
+    2400,
+    305,
+    -640,
+    3500,
+    395,
+    -500
+   ],
+   "volume": 13860000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2295,
+   "k": "integrity",
+   "label": "前部構造維持幹線",
+   "box": [
+    6100,
+    325,
+    25,
+    7100,
+    365,
+    95
+   ],
+   "volume": 2800000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2296,
+   "k": "integrity",
+   "label": "前部構造維持幹線",
+   "box": [
+    6100,
+    325,
+    -95,
+    7100,
+    365,
+    -25
+   ],
+   "volume": 2800000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2297,
+   "k": "command",
+   "label": "司令部（戦闘情報センター）",
+   "box": [
+    1697,
+    935,
+    -30,
+    1787,
+    965,
+    30
+   ],
+   "volume": 162000,
+   "inside": 1,
+   "inHull": 0,
+   "overlap": false
+  },
+  {
+   "id": 2298,
+   "k": "command",
+   "label": "予備艦橋",
+   "box": [
+    5865,
+    398,
+    -20,
+    5935,
+    422,
+    20
+   ],
+   "volume": 67200,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2299,
+   "k": "cargo",
+   "label": "地上部隊の補給物資・予備部品庫",
+   "box": [
+    4590,
+    365,
+    395,
+    4910,
+    435,
+    545
+   ],
+   "volume": 2756496,
+   "inside": 1,
+   "inHull": 0.9545455,
+   "overlap": false
+  },
+  {
+   "id": 2300,
+   "k": "cargo",
+   "label": "地上部隊の補給物資・予備部品庫",
+   "box": [
+    4590,
+    365,
+    -545,
+    4910,
+    435,
+    -395
+   ],
+   "volume": 2764873,
+   "inside": 1,
+   "inHull": 0.9545455,
+   "overlap": false
+  },
+  {
+   "id": 2301,
+   "k": "cargo",
+   "label": "物資庫",
+   "box": [
+    5950,
+    315,
+    115,
+    6350,
+    365,
+    225
+   ],
+   "volume": 2200000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2302,
+   "k": "cargo",
+   "label": "物資庫",
+   "box": [
+    5950,
+    315,
+    -225,
+    6350,
+    365,
+    -115
+   ],
+   "volume": 2200000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2303,
+   "k": "automation",
+   "label": "艦内運用の自動化装置",
+   "box": [
+    3535,
+    451,
+    145,
+    4465,
+    522,
+    295
+   ],
+   "volume": 9176743,
+   "inside": 1,
+   "inHull": 0.6636364,
+   "overlap": false
+  },
+  {
+   "id": 2304,
+   "k": "automation",
+   "label": "艦内運用の自動化装置",
+   "box": [
+    3535,
+    451,
+    -295,
+    4465,
+    522,
+    -145
+   ],
+   "volume": 9239183,
+   "inside": 1,
+   "inHull": 0.6636364,
+   "overlap": false
+  },
+  {
+   "id": 2305,
+   "k": "hangar",
+   "label": "右舷腹部発着格納庫",
+   "box": [
+    3920,
+    225,
+    220,
+    4500,
+    325,
+    350
+   ],
+   "volume": 0,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2307,
+   "k": "hangar",
+   "label": "右舷艦載機格納甲板",
+   "box": [
+    3920,
+    295,
+    90,
+    4500,
+    365,
+    220
+   ],
+   "volume": 5278000,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2308,
+   "k": "service",
+   "label": "右舷航空整備・補給区画",
+   "box": [
+    4500,
+    270,
+    220,
+    4920,
+    330,
+    350
+   ],
+   "volume": 3159655,
+   "inside": 1,
+   "inHull": 0.9970845,
+   "overlap": false
+  },
+  {
+   "id": 2309,
+   "k": "hangar",
+   "label": "左舷腹部発着格納庫",
+   "box": [
+    3920,
+    225,
+    -350,
+    4500,
+    325,
+    -220
+   ],
+   "volume": 0,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2311,
+   "k": "hangar",
+   "label": "左舷艦載機格納甲板",
+   "box": [
+    3920,
+    295,
+    -219,
+    4500,
+    365,
+    -89
+   ],
+   "volume": 5054182,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 2312,
+   "k": "service",
+   "label": "左舷航空整備・補給区画",
+   "box": [
+    4500,
+    270,
+    -350,
+    4920,
+    330,
+    -220
+   ],
+   "volume": 3158561,
+   "inside": 1,
+   "inHull": 0.9970845,
+   "overlap": false
+  },
+  {
+   "id": 2313,
+   "k": "hdis",
+   "label": "熱エネルギー変換装置（右舷・機関の列の間）",
+   "box": [
+    825,
+    313,
+    484,
+    1425,
+    467,
+    656
+   ],
+   "volume": 15637945,
+   "inside": 1,
+   "inHull": 0.6734694,
+   "overlap": false
+  },
+  {
+   "id": 2314,
+   "k": "hdis",
+   "label": "熱エネルギー変換装置（左舷・機関の列の間）",
+   "box": [
+    825,
+    313,
+    -656,
+    1425,
+    467,
+    -484
+   ],
+   "volume": 15615518,
+   "inside": 1,
+   "inHull": 0.6734694,
+   "overlap": false
+  },
+  {
+   "id": 8872,
+   "k": "hdis",
+   "label": "艦内高エネルギー散逸区画 1",
+   "box": [
+    2950,
+    363,
+    -13,
+    2976,
+    389,
+    13
+   ],
+   "volume": 18680,
+   "inside": 1,
+   "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 8873,
+   "k": "hdis",
+   "label": "艦内高エネルギー散逸区画 2",
+   "box": [
+    5261,
+    339,
+    525,
+    5287,
+    365,
+    552
+   ],
+   "volume": 18681,
+   "inside": 1,
+   "inHull": 0,
+   "overlap": false
+  }
+ ],
+ "liftRooms": {
+  "n": 62,
+  "support": 2097168000,
+  "mass": 2033406000
+ },
+ "engines": [
+  {
+   "nozzle": 2271,
+   "label": "主機関 01",
+   "nozzleAt": [
+    707,
+    356,
+    355
+   ],
+   "body": 8804,
+   "bodyLabel": "主推進機関 9",
+   "bodyAt": [
+    1839,
+    356,
+    355
+   ],
+   "bodyD": 214,
+   "bodyLength": 2025,
+   "offAxisM": 0,
+   "ratedInputW": 2.4718516871289083e+25,
+   "normalRatingW": 2.4718516873760936e+25,
+   "ratedOverNormal": 1,
+   "requestedW": 2.4718516873760936e+25,
+   "bodyInside": 1,
+   "bodyInHull": 0.9111969,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 259,
+    "capacityShare": 1,
+    "radiusM": 74.8
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2270,
+   "label": "主機関 02",
+   "nozzleAt": [
+    707,
+    356,
+    -355
+   ],
+   "body": 8798,
+   "bodyLabel": "主推進機関 3",
+   "bodyAt": [
+    1839,
+    356,
+    -355
+   ],
+   "bodyD": 214,
+   "bodyLength": 2025,
+   "offAxisM": 0,
+   "ratedInputW": 2.4718516871289083e+25,
+   "normalRatingW": 2.4718516873760936e+25,
+   "ratedOverNormal": 1,
+   "requestedW": 2.4718516873760936e+25,
+   "bodyInside": 1,
+   "bodyInHull": 0.9111969,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 259,
+    "capacityShare": 1,
+    "radiusM": 74.8
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2273,
+   "label": "主機関 03",
+   "nozzleAt": [
+    930,
+    369,
+    786
+   ],
+   "body": 8805,
+   "bodyLabel": "主推進機関 10",
+   "bodyAt": [
+    1541,
+    369,
+    786
+   ],
+   "bodyD": 214,
+   "bodyLength": 1013,
+   "offAxisM": 0,
+   "ratedInputW": 1.235921629349972e+25,
+   "normalRatingW": 1.2359216294735643e+25,
+   "ratedOverNormal": 1,
+   "requestedW": 1.2359216294735643e+25,
+   "bodyInside": 1,
+   "bodyInHull": 0.9266409,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 245,
+    "capacityShare": 1,
+    "radiusM": 74.8
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2272,
+   "label": "主機関 04",
+   "nozzleAt": [
+    930,
+    369,
+    -786
+   ],
+   "body": 8797,
+   "bodyLabel": "主推進機関 2",
+   "bodyAt": [
+    1541,
+    369,
+    -786
+   ],
+   "bodyD": 214,
+   "bodyLength": 1013,
+   "offAxisM": 0,
+   "ratedInputW": 1.235921629349972e+25,
+   "normalRatingW": 1.2359216294735643e+25,
+   "ratedOverNormal": 1,
+   "requestedW": 1.2359216294735643e+25,
+   "bodyInside": 1,
+   "bodyInHull": 0.9266409,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 245,
+    "capacityShare": 1,
+    "radiusM": 74.8
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2269,
+   "label": "補助機関 05",
+   "nozzleAt": [
+    355,
+    301,
+    0
+   ],
+   "body": 8801,
+   "bodyLabel": "副推進機関 6",
+   "bodyAt": [
+    1569,
+    301,
+    0
+   ],
+   "bodyD": 135,
+   "bodyLength": 2307,
+   "offAxisM": 0,
+   "ratedInputW": 1.127588161826601e+25,
+   "normalRatingW": 1.1275881619393597e+25,
+   "ratedOverNormal": 1,
+   "requestedW": 1.1275881619393597e+25,
+   "bodyInside": 1,
+   "bodyInHull": 0.7142857,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 150,
+    "capacityShare": 1,
+    "radiusM": 47.4
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2278,
+   "label": "補助機関 06",
+   "nozzleAt": [
+    1037,
+    136,
+    -263
+   ],
+   "body": 8799,
+   "bodyLabel": "副推進機関 4",
+   "bodyAt": [
+    1403,
+    136,
+    -263
+   ],
+   "bodyD": 135,
+   "bodyLength": 641,
+   "offAxisM": 0,
+   "ratedInputW": 3.13216258578895e+24,
+   "normalRatingW": 3.132162586102166e+24,
+   "ratedOverNormal": 1,
+   "requestedW": 3.132162586102166e+24,
+   "bodyInside": 1,
+   "bodyInHull": 0.06949807,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 137,
+    "capacityShare": 1,
+    "radiusM": 47.4
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2279,
+   "label": "補助機関 07",
+   "nozzleAt": [
+    1037,
+    136,
+    263
+   ],
+   "body": 8803,
+   "bodyLabel": "副推進機関 8",
+   "bodyAt": [
+    1403,
+    136,
+    263
+   ],
+   "bodyD": 135,
+   "bodyLength": 641,
+   "offAxisM": 0,
+   "ratedInputW": 3.13216258578895e+24,
+   "normalRatingW": 3.132162586102166e+24,
+   "ratedOverNormal": 1,
+   "requestedW": 3.132162586102166e+24,
+   "bodyInside": 1,
+   "bodyInHull": 0.06949807,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 137,
+    "capacityShare": 1,
+    "radiusM": 47.4
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2277,
+   "label": "補助機関 08",
+   "nozzleAt": [
+    1017,
+    132,
+    95
+   ],
+   "body": 8802,
+   "bodyLabel": "副推進機関 7",
+   "bodyAt": [
+    1339,
+    132,
+    95
+   ],
+   "bodyD": 135,
+   "bodyLength": 513,
+   "offAxisM": 0,
+   "ratedInputW": 2.5057282684605335e+24,
+   "normalRatingW": 2.505728268711106e+24,
+   "ratedOverNormal": 1,
+   "requestedW": 2.505728268711106e+24,
+   "bodyInside": 1,
+   "bodyInHull": 0.1389961,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 155,
+    "capacityShare": 1,
+    "radiusM": 47.4
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2276,
+   "label": "補助機関 09",
+   "nozzleAt": [
+    1017,
+    132,
+    -95
+   ],
+   "body": 8800,
+   "bodyLabel": "副推進機関 5",
+   "bodyAt": [
+    1339,
+    132,
+    -95
+   ],
+   "bodyD": 135,
+   "bodyLength": 513,
+   "offAxisM": 0,
+   "ratedInputW": 2.5057282684605335e+24,
+   "normalRatingW": 2.505728268711106e+24,
+   "ratedOverNormal": 1,
+   "requestedW": 2.505728268711106e+24,
+   "bodyInside": 1,
+   "bodyInHull": 0.1389961,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 155,
+    "capacityShare": 1,
+    "radiusM": 47.4
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2275,
+   "label": "補助機関 10",
+   "nozzleAt": [
+    1076,
+    367,
+    1000
+   ],
+   "body": 8806,
+   "bodyLabel": "副推進機関 11",
+   "bodyAt": [
+    1702,
+    367,
+    1000
+   ],
+   "bodyD": 132,
+   "bodyLength": 1123,
+   "offAxisM": 0,
+   "ratedInputW": 5.205373290267354e+24,
+   "normalRatingW": 5.205373290787891e+24,
+   "ratedOverNormal": 1,
+   "requestedW": 5.205373290787891e+24,
+   "bodyInside": 1,
+   "bodyInHull": 0.972973,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 151,
+    "capacityShare": 1,
+    "radiusM": 46.1
+   },
+   "usable": true
+  },
+  {
+   "nozzle": 2274,
+   "label": "補助機関 11",
+   "nozzleAt": [
+    1076,
+    367,
+    -1000
+   ],
+   "body": 8796,
+   "bodyLabel": "副推進機関 1",
+   "bodyAt": [
+    1702,
+    367,
+    -1000
+   ],
+   "bodyD": 132,
+   "bodyLength": 1123,
+   "offAxisM": 0,
+   "ratedInputW": 5.205373290267354e+24,
+   "normalRatingW": 5.205373290787891e+24,
+   "ratedOverNormal": 1,
+   "requestedW": 5.205373290787891e+24,
+   "bodyInside": 1,
+   "bodyInHull": 0.972973,
+   "route": {
+    "ok": true,
+    "reason": null,
+    "lengthM": 151,
+    "capacityShare": 1,
+    "radiusM": 46.1
+   },
+   "usable": true
+  }
+ ],
+ "propulsion": {
+  "ratedThrustN": 20269520000000000,
+  "ratedAccelMps2": 9968.259,
+  "accelerationLimitBasis": "structural",
+  "structuralAccelerationLimitMps2": 40102.27,
+  "inertialFactor": 1,
+  "sumCoreRatedThrustN": 56812290000000000,
+  "sumNormalInputW": 1.071179e+26,
+  "sumRatedInputW": 7.7e+26,
+  "nozzleShaftCapacityW": 2.378931e+26,
+  "cores": [
+   {
+    "id": 8796,
+    "ratedInputW": 3.741800573644472e+25,
+    "normalInputW": 5.205373290787891e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 2760783000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8797,
+    "ratedInputW": 8.884227900289187e+25,
+    "normalInputW": 1.235921629473564e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 6554980000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8798,
+    "ratedInputW": 1.7768516387011998e+26,
+    "normalInputW": 2.4718516873760936e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 13110000000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8799,
+    "ratedInputW": 2.2515057243187444e+25,
+    "normalInputW": 3.132162586102166e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1661211000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8800,
+    "ratedInputW": 1.801203285430704e+25,
+    "normalInputW": 2.505728268711106e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1328968000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8801,
+    "ratedInputW": 8.105489838060754e+25,
+    "normalInputW": 1.1275881619393597e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 5980410000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8802,
+    "ratedInputW": 1.801203285430704e+25,
+    "normalInputW": 2.505728268711106e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1328968000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8803,
+    "ratedInputW": 2.2515057243187444e+25,
+    "normalInputW": 3.132162586102166e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1661211000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8804,
+    "ratedInputW": 1.7768516387011998e+26,
+    "normalInputW": 2.4718516873760936e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 13110000000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8805,
+    "ratedInputW": 8.884227900289187e+25,
+    "normalInputW": 1.235921629473564e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 6554980000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8806,
+    "ratedInputW": 3.741800573644472e+25,
+    "normalInputW": 5.205373290787891e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 2760783000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   }
+  ]
+ },
+ "chargeWithoutFigure": 0,
+ "roundTrip": {
+  "parts": [
+   496,
+   496
+  ],
+  "fits": [
+   194,
+   194
+  ],
+  "posesOnlyBefore": 0,
+  "posesOnlyAfter": 0,
+  "massEqual": true,
+  "mass": [
+   2033406100.8555775,
+   2033406100.8555775
+  ],
+  "floatingAfter": 0,
+  "overlapsAfter": 0,
+  "ratedThrust": [
+   20269518831068716,
+   20269518831068716
+  ]
+ },
+ "run": {
+  "commit": "9338cace89ffc0e6c91e6f0e95970c1ac196936e",
+  "coreSha256": "261575c8c9a2a0941f59733fd5293640b9213783703c510f21bca9ec616a8075"
+ }
+}

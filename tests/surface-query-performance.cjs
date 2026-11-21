@@ -44,10 +44,14 @@ test('self-occlusion uses actual geometry and rechecks target direction and repl
  u.p.surface.shell=box([400,0,0]);assert.equal(fire(),0,'a new solid ahead of both muzzles must block the same shot');u.p.surface.shell=box([0,0,0]);assert.equal(fire(),1);
 });
 
-test('repeated fire queries immediately reflect physical damage, local ion protection, crew and heat changes',()=>{
+// 2026-11-19 expectation changed: unblocked ion goes only to the whole vessel's heat store, with no local protection trip
+// (docs/whole-vessel-energy-model.md:23「…局所過負荷タイマーを使わない」), so the hit's scope is 'heat' and the gun stays off
+// until the plant restarts on the shared conditions (heat at 90% or less and the crew's restart work, as in
+// tests/surface-energy-ion.cjs), not after a 30 s local timer.
+test('repeated fire queries immediately reflect physical damage, ion heat, crew and heat changes',()=>{
  const {u,fire}=armed(),ctx={time:0,rand:()=>.9,ev(){},out(){},sunk(){}};assert.equal(fire(),1);
  u.mods[0]=0;assert.equal(fire(),0);u.mods[0]=1;assert.equal(fire(),1);
- const trip=C.ionOverload(u,2,{moduleIndex:0},ctx);assert.equal(trip.scope,'local');assert.equal(fire(),0);C.powerTick(u,30,ctx);assert.equal(fire(),1);
+ const trip=C.ionOverload(u,2,{moduleIndex:0},ctx);assert.equal(trip.scope,'heat');assert.equal(fire(),0);u.ht.qJ=.8*u.ht.capacityJ;u.p.crewCapacity=20;C.powerTick(u,300,ctx);C.powerTick(u,300,ctx);assert.equal(fire(),1);
  u.crew=0;assert.equal(fire(),0);u.crew=20;assert.equal(fire(),1);
  const H=C.heatProfile(u.p),i=H.src.findIndex(s=>s.k==='weapon'&&s.m?.includes(0));assert.ok(i>=0);u.ht.md[i]=3;assert.equal(fire(),0);u.ht.md[i]=0;u.ht.lm[i]=1;assert.equal(fire(),1);
 });

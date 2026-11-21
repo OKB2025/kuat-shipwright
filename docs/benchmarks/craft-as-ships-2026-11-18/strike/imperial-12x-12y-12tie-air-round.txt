@@ -1,0 +1,4 @@
+strike on imperial: 12 X-wings (escort), 12 Y-wings (BTL-B) with 2 ion torpedoes each (0.0298 TT, released at 4000 m), 12 TIE/ln interceptors; from 30 km; 3 runs
+run 1: ended 62.5s | lost: X-wings 11/12, Y-wings 12/12, TIEs 3/12 | torpedoes: released 24 (first at 32.25s), lost with their bombers 0, shot down 9.4, hit 14.6 | ship: in action | 
+run 2: ended 62.5s | lost: X-wings 9/12, Y-wings 12/12, TIEs 7/12 | torpedoes: released 20 (first at 32.25s), lost with their bombers 4, shot down 9.4, hit 10.6 | ship: in action | 
+run 3: ended 62.5s | lost: X-wings 9/12, Y-wings 12/12, TIEs 5/12 | torpedoes: released 24 (first at 32.25s), lost with their bombers 0, shot down 9.4, hit 14.6 | ship: in action | 

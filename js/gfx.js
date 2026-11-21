@@ -633,11 +633,24 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
  box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
  box(g,M,o,-L/2+t+.008,0,0,.016,H-t*2,W-t*2,FC.dark);
  for(const sign of [-1,1]){box(g,M,o,0,sign*(H-t)/2,0,L,t,W,FC.body);box(g,M,o,0,0,sign*(W-t)/2,L,H-t*2,t,FC.body);}
- const rows=p.rows||1,cols=p.cols||1,ch=H/rows,cw=W/cols;
+ const rows=p.rows||1,cols=p.cols||1,ch=p.spaced?p.cellSize[1]:H/rows,cw=p.spaced?p.cellSize[2]:W/cols;
+ if(p.spaced){
+  // User instruction 2026-11-21「セル間隔と数、並び列は編集可能に」: spaced heavy cells; each cell has its own frame on the front face.
+  // The plate fills only the gaps between the cells; the mouths stay open (no front quad seals the launch path, as above).
+  const cs=p.colSpacing,rs=p.rowSpacing;
+  for(let c=0;c<cols-1;c++)if(cs>cw)box(g,M,o,L/2+.002,0,(c+.5-(cols-1)/2)*cs,.01,H-t*2,cs-cw,FC.body);
+  for(let r=0;r<rows-1;r++)if(rs>ch)for(let c=0;c<cols;c++)box(g,M,o,L/2+.002,(r+.5-(rows-1)/2)*rs,(c-(cols-1)/2)*cs,.01,rs-ch,cw,FC.body);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const y=(r-(rows-1)/2)*p.rowSpacing,z=(c-(cols-1)/2)*p.colSpacing;
+   for(const s of [-1,1]){box(g,M,o,L/2+.005,y+s*(ch-t)/2,z,.02,t,cw,FC.ring);box(g,M,o,L/2+.005,y,z+s*(cw-t)/2,.02,ch-t*2,t,FC.ring);}}
+ }else{
  for(let i=1;i<rows;i++)box(g,M,o,0,-H/2+i*ch,0,L,t,W-t*2,FC.ring);
  for(let i=1;i<cols;i++)box(g,M,o,0,0,-W/2+i*cw,L,H-t*2,t,FC.ring);
  for(let r=0;r<=rows;r++)box(g,M,o,L/2+.005,C.clamp(-H/2+r*ch,-(H-t)/2,(H-t)/2),0,.02,t,W,FC.ring);
  for(let c=0;c<=cols;c++)box(g,M,o,L/2+.005,0,C.clamp(-W/2+c*cw,-(W-t)/2,(W-t)/2),.02,H-t*2,t,FC.ring);
+ }
+ // User instruction 2026-11-19「VLSの蓋はSTLどおり円形」: a heavy cell's launch mouth has a round cover, as the source model's tubes have.
+ // 2026-11-21「VLSの蓋は描くだけではなく円柱型のパーツもつけて」(「表面に出る円柱の蓋」): the lid is the launcher's cylinder (C.launcherGeometry lids), standing out of the mouth.
+ if(p.heavy){const fwd=p.bodyFrame.fw;if(p.lids)for(const l of p.lids){axisFrustum(g,l.base,l.top,l.radius,l.radius,FC.body,true,false,24);axisFrustum(g,C.add(l.top,C.mul(fwd,.002)),C.add(l.top,C.mul(fwd,.03)),l.radius*.82,l.radius*.82,FC.ring,true,false,24);}else{const r=Math.min(ch,cw)*.42;for(const m of p.muzzles)axisFrustum(g,C.add(m,C.mul(fwd,-.25)),C.add(m,C.mul(fwd,.05)),r,r,FC.dark,true,false,16);}}
  if(!p.embedded&&p.supportHeight>0&&p.baseThickness>0){
   const rt=p.bodyFrame.rt,fw=C.norm(C.cross(p.baseFrame.up,rt)),B=[...fw,...p.baseFrame.up,...rt],base=p.baseOrigin,th=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,base),p.baseFrame.up),height=Math.max(0,pivotY-th);
   box(g,B,base,0,th/2,0,L*.5,th,W*1.35,FC.ped);

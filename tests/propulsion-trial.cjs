@@ -38,12 +38,22 @@ function setup({supply=1e18,thermal=1,velocity=[0,0,0],tele=5}={}){
 // 2026-11-16 PR #112 (curve-B engine waste): this engine's normal input is its 1e18 W rating, so a reduced input runs at a lower load with
 // less than 5% waste and gives more than the linear share of thrust. thrustShare(u,f) is the thrust (and engF) fraction and
 // wasteAt(u,f) the waste heat at input f*1e18 W, both from C.engineOperatingPoint; at f=1 they reproduce 1 and 5e16 W.
+// 2026-11-19 expectation changed (the thermal-0 case of the first test, and the direct blackout test) with the user decision
+//「他の艦に合わせる」(docs/handoff-2026-11-19/README.md, "ユーザー決定 2 件の反映"; docs/damage-penetration.md, 6th section
+//「重力・リフト・位置エネルギー」): the ship being flown, once without power, loses its repulsorlift over GRAVITY.liftFade and
+// falls freely under the trial planet's gravity (C.planetGravity with trialSys().planet) by the share of lift it has lost,
+// with no mass resistance; velocity first, then place (js/app.js trialStep, as C.planetFall). Before, it fell at HULL_FALL.g
+// with the mass resistance of a ship under way (fall()). This file's trialSys() stub has a planet of radius 0, which has no
+// gravity, so the hull keeps its velocity and moves on with it, as in tests/throttle-output-trial.cjs. A thermal shutdown here
+// leaves no electrical source, so it is a power loss (u.out '電源喪失') and falls the same way. The escort case still expects
+// fall(): escortsStep is unchanged and passes.
+const freeFall=(position,velocity,dt)=>{const lift=1-dt/C.GRAVITY.liftFade,g=C.planetGravity({center:[0,0,0],radius:0},position),v=velocity.map((n,i)=>n+g[i]*(1-lift)*dt);return {velocity:v,position:position.map((n,i)=>n+v[i]*dt)};};
 const thrustShare=(u,f)=>{const s=u.p.propulsion.engines[0];return C.engineOperatingPoint(s,1e18*f).actualThrustN/C.engineOperatingPoint(s,1e18).actualThrustN;},wasteAt=(u,f)=>C.engineOperatingPoint(u.p.propulsion.engines[0],1e18*f).wasteHeatW;
 test('ENG-T04/15 direct controls use the same actual watts/newtons and one battle acceleration scale',()=>{
  for(const thermal of [1,.6,0]){
   const u=setup({thermal});run('trialStep(.1)');
   near(u.propulsion.actualInputW,1e18*thermal);near(u.propulsion.actualThrustN,fullThrustN*thrustShare(u,thermal));near(u.propulsion.wasteHeatW,wasteAt(u,thermal));
-  near(run('trial.V[0]'),thermal>0?fullGameAcceleration*calibratedGain(.1)*thrustShare(u,thermal):fall([10000,10000,0],[0,0,0],.1,2).velocity[0]);near(run('trial.engF'),thrustShare(u,thermal));
+  near(run('trial.V[0]'),thermal>0?fullGameAcceleration*calibratedGain(.1)*thrustShare(u,thermal):freeFall([10000,10000,0],[0,0,0],.1).velocity[0]);near(run('trial.engF'),thrustShare(u,thermal));
   const other=setup({thermal});C.allocateShipPower(other,C.fleetSystems(other),{throttle:1,shields:0,weapons:0},.1,'balanced');
   near(other.propulsion.actualInputW,u.propulsion.actualInputW);near(other.propulsion.actualThrustN,u.propulsion.actualThrustN);
  }
@@ -53,7 +63,7 @@ test('a half-powered direct-control engine delivers half the actual acceleration
 });
 test('ENG-T13 direct blackout enters disabled fall, retains momentum and stops angular controls',()=>{
  const u=setup({supply:0,velocity:[5,3,2],tele:1});run('trial.w=[.3,.2,.1];trial.stickX=1;trialStep(.1)');
- const expected=fall([10000,10000,0],[5,3,2],.1,2);
+ const expected=freeFall([10000,10000,0],[5,3,2],.1);
  near(u.propulsion.actualInputW,0);assert.equal(u.out,'電源喪失');assert.equal(u.powerLossDisabled,true);for(let i=0;i<3;i++){near(run(`trial.V[${i}]`),expected.velocity[i]);near(run(`trial.P[${i}]`),expected.position[i]);}assert.deepEqual(Array.from(run('trial.w')),[0,0,0]);assert.deepEqual(Array.from(run('trial.R')),[1,0,0,0,1,0,0,0,1]);
 });
 test('ENG-T04 zero throttle creates no propulsion heat and no waiting thrust',()=>{

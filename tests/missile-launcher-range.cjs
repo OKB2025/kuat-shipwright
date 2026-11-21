@@ -1,3 +1,6 @@
+// 2026-11-19 expectation changed with the user decision「古い表も揃えて」: the concussion missile's yield is the air missile's
+// (1 m by 4 m, half warhead, 0.03 TT a tonne: 0.0471 TT), no longer 25 TT. The cases below read it from the table; hand-made
+// units that state tt:25 themselves are unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
@@ -58,7 +61,7 @@ test('missile-only AI chooses a standoff within the ranges of its actual launche
 test('aircraft squadron release checks its own round range before spending stores',()=>{
  const s={id:'range-squad',craft:'awing',n:1,side:0,home:'carrier',pos:[0,0,0]},w={nextId:1,missiles:[]},t={id:'target',pos:[10000.01,0,0]};R.squadStores(s);const before=plain(s.ammo);
  assert.equal(R.squadRelease(w,0,s,t,false,null).length,0);assert.deepEqual(plain(s.ammo),before);assert.equal(w.missiles.length,0);
- t.pos=[10000,0,0];assert.ok(R.squadRelease(w,0,s,t,false,null).length>0);assert.ok(w.missiles.length>0);assert.ok(w.missiles.every(m=>m.kind==='cmsl'&&m.range===10000&&m.traveled===0&&m.tt===25&&m.life<=m.range/m.s+1e-9));
+ t.pos=[10000,0,0];assert.ok(R.squadRelease(w,0,s,t,false,null).length>0);assert.ok(w.missiles.length>0);assert.ok(w.missiles.every(m=>m.kind==='cmsl'&&m.range===10000&&m.traveled===0&&m.tt===C.ORDNANCE.cmsl.tt&&m.life<=m.range/m.s+1e-9));
 });
 
 test('RTS targeting launches ship missiles through 60 km and preserves aircraft ammunition',()=>{
@@ -80,8 +83,8 @@ test('an already spent guided round cannot score an impact inside its final-step
 });
 
 test('aircraft store descriptors propagate the round range without changing their warhead',()=>{
- const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===25));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
- const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==25));
+ const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
+ const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==C.ORDNANCE.cmsl.tt));
 });
 
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
@@ -112,7 +115,9 @@ test('manual ship salvos spend the corresponding cells and retain partial final 
 test('strategic-map rounds land on a small ship from every launch range instead of circling it',()=>{
  // 2026-11-18: the strike was judged at the start of a 0.25 s step (650 m at full speed against a reach of 300 m), and at
  // these launch ranges every round stepped across the 100 m target until its motor ran out (docs/missiles-arrive.md).
- for(const distance of [6014,8617,13138,26153,41086,54101]){const {w,u,t}=world('shipMsl',distance),seen=new Map();
+ // 2026-11-19 expectation changed: the target's sections are made 1e6 times stronger. With u.hp retired (v30 section damage,
+ // docs/damage-penetration.md:60) the 1,000 t fixture was sunk by the first 25 TT round and the cell stopped after four.
+ for(const distance of [6014,8617,13138,26153,41086,54101]){const {w,u,t}=world('shipMsl',distance),seen=new Map();for(const x of t.sec){x.max*=1e6;x.s=x.max;}
   for(let s=0;s<70;s+=.25){R.tick(w,.25);for(const m of w.missiles)seen.set(m.id,m);}
   const launched=[...seen.values()],hit=launched.filter(m=>m.hit>0).length;assert.equal(launched.length,6,distance+' m: the cell fired its six rounds');assert.equal(hit,6,distance+' m: '+hit+' of 6 struck');}
 });

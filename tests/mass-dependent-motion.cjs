@@ -65,9 +65,16 @@ test('historical speed options cannot clip funded force or pin a ship at the old
  const drift=C.integratePropulsionMotion(unit(1e11),[2000,0,0],[0,0,0],2,{maxSpeed:1000});assert.ok(drift.velocity[0]>1000);near(drift.velocity[0],2000*Math.exp(-expectedRate(1e11)*2));
  const powered=C.integratePropulsionMotion(u,[2000,0,0],[100,0,0],2,{maxSpeed:1000});near(powered.velocity[0],2200);near(powered.displacement[0],4200);
 });
+// 2026-11-19 expectation changed (the strategic-map cases below: 'peace' here and the two world tests after it) with the user
+// decisions on the planet's gravity and repulsorlift (docs/damage-penetration.md, 6th section「重力・リフト・位置エネルギー」;
+// docs/handoff-2026-11-19/README.md) and「他の艦に合わせる」: a hull that loses its power loses its lift over GRAVITY.liftFade
+// and falls freely under the system planet's gravity (Rts.sysPlanet, C.planetGravity) by the share of lift it has lost, with no
+// mass resistance (C.planetFall). Before, it fell at HULL_FALL.g with the mass resistance of a ship under way. Written the same
+// way as tests/throttle-output-trial.cjs. The tactical case (a battle without a planet) keeps its drift with resistance.
+const freeFall=(u,P,start,dt)=>{const lift=Math.max(0,(u.lift??1)-dt/C.GRAVITY.liftFade),g=C.planetGravity(P,start),velocity=u.velocity.map((v,i)=>v+g[i]*(1-lift)*dt);return {velocity,displacement:velocity.map(v=>v*dt)};};
 test('both fleet clocks use disabled motion on total power loss with the existing gravity setting',()=>{
- for(const kind of ['tactical','peace']){const u=unit(1e11);u.velocity=[1000,20,-40];u.order={...u.order,type:'move',point:[10000,0,0]};u.p.grid.P=0;u.p.grid.Pgen=0;const start=u.pos.slice(),want=C.integratePropulsionMotion(u,u.velocity,kind==='peace'?[0,-C.HULL_FALL.g,0]:[0,0,0],.25);
-  if(kind==='tactical')C.fleetTick(C.fleetBattle([u],false),.25,{collide:false});else{u.sys=0;u.side=0;u.info={mass:1e8};R.peaceTick({time:10,units:new Map([[u.id,u]]),groups:new Map(),ctgs:new Map(),battles:new Map(),sides:[],sensors:false},0,.25);}
+ for(const kind of ['tactical','peace']){const u=unit(1e11);u.velocity=[1000,20,-40];u.order={...u.order,type:'move',point:[10000,0,0]};u.p.grid.P=0;u.p.grid.Pgen=0;const world={time:10,units:new Map([[u.id,u]]),groups:new Map(),ctgs:new Map(),battles:new Map(),sides:[],sensors:false},start=u.pos.slice(),want=kind==='peace'?freeFall(u,R.sysPlanet(world,0),start,.25):C.integratePropulsionMotion(u,u.velocity,[0,0,0],.25);
+  if(kind==='tactical')C.fleetTick(C.fleetBattle([u],false),.25,{collide:false});else{u.sys=0;u.side=0;u.info={mass:1e8};R.peaceTick(world,0,.25);}
   assert.equal(u.out,'電源喪失',kind);
   for(let i=0;i<3;i++){near(u.velocity[i],want.velocity[i],kind);near(u.pos[i],start[i]+want.displacement[i],kind);}
  }
@@ -79,14 +86,14 @@ test('a disabled vessel gravity integration uses the same drag once per tick',()
 test('releasing a powerless pilot into a quiet world uses the disabled drift clock once',()=>{
  const p=profile(1e11),w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[{key:'mass-motion',p,info:{mass:1e8,hyper:null,capital:true,sensor:0}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mass-motion'}],[]]}),u=[...w.units.values()][0];
  u.manual=false;u.order={...u.order,type:'hold'};u.velocity=[1000,20,0];u.p.grid.P=0;u.p.grid.Pgen=0;w.stir=new Map();
- const before=u.pos.slice(),expected=C.integratePropulsionMotion(u,u.velocity,[0,-C.HULL_FALL.g,0],.25);R.tick(w,.25);
+ const before=u.pos.slice(),expected=freeFall(u,R.sysPlanet(w,u.sys),before,.25);R.tick(w,.25);
  assert.equal(u.out,'電源喪失');
  assert.equal(w.stir.has(u.sys),false,'disabled gravity continues without retaining an active maneuver registry entry');for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],before[i]+expected.displacement[i]);}
 });
 test('a disabled stirred world advances gravity and mass resistance once, not in both peace and drift passes',()=>{
  const p=profile(1e11),w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,designs:[{key:'mass-fall',p,info:{mass:1e8,hyper:null,capital:true,sensor:0}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'mass-fall'}],[]]}),u=[...w.units.values()][0];
  u.out='disabled';u.velocity=[1000,0,0];u.p.grid.P=0;u.p.grid.Pgen=0;w.stir=new Map([[u.sys,{t0:w.time,still:0}]]);
- const before=u.pos.slice(),expected=C.integratePropulsionMotion(u,u.velocity,[0,-C.HULL_FALL.g,0],.25);R.tick(w,.25);
+ const before=u.pos.slice(),expected=freeFall(u,R.sysPlanet(w,u.sys),before,.25);R.tick(w,.25);
  for(let i=0;i<3;i++){near(u.velocity[i],expected.velocity[i]);near(u.pos[i],before[i]+expected.displacement[i]);}
 });
 test('main nozzle intensity follows funded manual thrust rather than steering-only electrical draw',()=>{
