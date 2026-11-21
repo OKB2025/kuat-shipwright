@@ -93143,7 +93143,21 @@ function hullAviationTriangles(p){
  const q={...p,hullProfile:{...p.hullProfile},hullData:{...p.hullData,hatches:[]},_hullShip:null,_hullGeometry:null};
  const tris=hullStructureGeometry(null,q).tris;p._hullAviationGeometry={key,tris};return tris;
 }
-function adoptAviationHullHatch(ship,h){
+// The rule a hull-owned opening was measured with. 2 (2026-11-21): the skin anywhere in the compartment's depth, and the face
+// points standing out of the hull (user reports「切り取りで入れたはずなのにハッチ範囲が狭すぎる」「ハッチが全く治ってない」). An opening baked
+// into a hull structure before that is measured again once, from its own compartment, and stamped.
+const AVIATION_OVERLAP_RULE=2;
+function remeasureAviationHullHatch(ship,h){
+ if(!h.hullOwner||!h.surface||!h.bay)return false;const owner=ship.parts.find(p=>p.id===h.hullOwner&&isHullStructure(p)),local=owner?.hullData?.hatches?.find(q=>q.id===h.hullHatch);
+ if(!local||local.overlapRule===AVIATION_OVERLAP_RULE)return false;const bay=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar');if(!bay)return false;
+ const keep=owner.hullData.hatches;owner.hullData.hatches=keep.filter(q=>q!==local);const probe={...publicCopyOf(h)};delete probe.hullOwner;delete probe.hullHatch;
+ let measured=null;try{const tmp={...ship,hatches:[probe],parts:ship.parts};if(adoptAviationHullHatchInto(tmp,probe,owner))measured=owner.hullData.hatches.find(q=>q.id===probe.hullHatch);}catch(e){measured=null;}
+ owner.hullData.hatches=keep;if(!measured){local.overlapRule=AVIATION_OVERLAP_RULE;return false;}
+ for(const k of ['a','b','n','w','face','cut'])local[k]=JSON.parse(JSON.stringify(measured[k]));local.overlapRule=AVIATION_OVERLAP_RULE;invalidateHullHatchGeometry(ship,owner);syncHullHatches(ship,owner);return true;
+}
+// The measuring part of the adoption for one hull structure (used to measure a baked opening again).
+function adoptAviationHullHatchInto(ship,h,only){const all=ship.parts;ship.parts=all.filter(p=>!isHullStructure(p)||p===only);try{return adoptAviationHullHatch(ship,h,true);}finally{ship.parts=all;}}
+function adoptAviationHullHatch(ship,h,measureOnly=false){
  if(h.hullOwner||!h.surface||!h.bay)return false;const bay=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar');if(!bay)return false;
  const n=aviationFaceNormal(h.face),bb=partAABB(bay).map((v,i)=>v+(i<3?-2:2));let best=null;
  for(const owner of ship.parts.filter(isHullStructure)){
@@ -93154,10 +93168,10 @@ function adoptAviationHullHatch(ship,h){
   const probe={...publicCopyOf(h),face,n:aviationFaceNormal(face),bay:part.id,surface:true},query={hull:{...owner.hullProfile,assembly:false},parts:[part],fits:[],hatches:[probe],cuts:data.cuts||[],trenches:data.trenches||[],subs:data.subs||[],solidCuts:data.solidCuts||[],armor:ship.armor,nextId:1,_aviationMigrated:true,_aviationSyncing:true};
   const contact=aviationContact(query,part,face);if(!contact.bounds)continue;const b=contact.bounds,{axis:ax,longAxis:l,widthAxis:u}=hatchAxes(probe),a=[0,0,0],z=[0,0,0];a[ax]=z[ax]=b[ax+(probe.n[ax]>0?3:0)];a[u]=z[u]=(b[u]+b[u+3])/2;a[l]=b[l];z[l]=b[l+3];
   const score=dot(sub(hullWorldPoint(owner,mul(add(a,z),.5)),bay.c),n);if(best&&best.score>=score)continue;
-  const local={...publicCopyOf(h),a,b:z,n:probe.n,w:b[u+3]-b[u],face,cut:b.slice()};for(const k of ['bay','surface','hullOwner','hullHatch'])delete local[k];best={owner,local,score};
+  const local={...publicCopyOf(h),a,b:z,n:probe.n,w:b[u+3]-b[u],face,cut:b.slice(),overlapRule:AVIATION_OVERLAP_RULE};for(const k of ['bay','surface','hullOwner','hullHatch'])delete local[k];best={owner,local,score};
  }
  if(!best)return false;const {owner,local}=best,used=new Set(owner.hullData.hatches.map(q=>q.id));while(used.has(local.id))local.id++;
- owner.hullData.hatches.push(local);h.hullOwner=owner.id;h.hullHatch=local.id;invalidateHullHatchGeometry(ship,owner);syncHullHatches(ship,owner);return true;
+ owner.hullData.hatches.push(local);h.hullOwner=owner.id;h.hullHatch=local.id;if(measureOnly)return true;invalidateHullHatchGeometry(ship,owner);syncHullHatches(ship,owner);return true;
 }
 function aviationEnvelope(ship){
  const locked=ship._lockedCache&&AVIATION_ENVELOPE_CACHE.get(ship);if(locked)return locked;
@@ -93189,6 +93203,12 @@ function aviationFiniteBounds(p,h){
 }
 function aviationSurfaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  if(!envelope.bvh)return null;const {axis,longAxis,widthAxis}=hatchAxes(h),sign=h.n[axis],o=[0,0,0],d=[0,0,0];o[longAxis]=t;o[widthAxis]=v;o[axis]=envelope.bounds[axis+(sign>0?3:0)]+sign*2;d[axis]=-sign;
+ // User report 2026-11-21 (「ハッチが全く治ってない」, a Victory's hangar placed with clipping that stands out below the sloping bow):
+ // where the compartment's face itself lies outside the hull and the structures, the compartment stands out through the skin
+ // there, so that point of the face is open. A ray along the face's axis only grazes a skin that does not face that way (the
+ // bow's nearly flat bottom seen from the front gave a 19 m² sliver of a face half outside the hull).
+ const pb=aviationPartBounds(p),onFace=o.slice();onFace[axis]=pb[axis+(sign>0?3:0)]-sign*Math.min(.25,(pb[axis+3]-pb[axis])*.01);
+ if(aviationPartContains(p,onFace)&&!insideOriginalEnvelope(ship,onFace))return {p:onFace,outside:true};
  const hit=rayBVH(envelope.bvh,o,d);if(!hit)return null;
  // Test both sides of a coincident boundary to keep exact contact stable. The
  // inward point must still belong to the compartment, including its rotation.
@@ -93289,6 +93309,7 @@ function syncAviationSurfaces(ship){
  }
  const envelope=aviationEnvelope(ship);for(const h of ship.hatches.filter(h=>h.surface&&!h.hullOwner)){const p=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar'),contact=p&&aviationContact(ship,p,h.face,envelope);h._surfaceBounds=contact?.bounds?.slice()||null;h._surfaceMode=contact?.mode||null;h._surfaceArea=contact?.area||0;if(!h._surfaceBounds)continue;const b=h._surfaceBounds,{axis,longAxis,widthAxis}=hatchAxes(h),mid=(b[widthAxis]+b[widthAxis+3])/2;h.a=[0,0,0];h.b=[0,0,0];for(const q of [h.a,h.b]){q[axis]=b[axis+(h.n[axis]>0?3:0)];q[widthAxis]=mid;}h.a[longAxis]=b[longAxis];h.b[longAxis]=b[longAxis+3];h.w=b[widthAxis+3]-b[widthAxis];}
  if(ship.parts.some(isHullStructure))for(const h of ship.hatches.filter(h=>h.surface&&!h.hullOwner))adoptAviationHullHatch(ship,h);
+ for(const h of ship.hatches.filter(h=>h.hullOwner&&h.surface&&h.bay))remeasureAviationHullHatch(ship,h);
  const signature=JSON.stringify(ship.hatches.filter(h=>h.surface).map(h=>[h.id,h.k,h._surfaceBounds]));if(ship._aviationSurfaceKey!==signature){ship._aviationSurfaceKey=signature;for(const key of ['_cache','_portalGeo','_solidHull','_referenceHull','_armoredMaterial','_interiorKey'])delete ship[key];}
  }finally{delete ship._aviationSyncing;}
 }
