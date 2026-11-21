@@ -69,4 +69,8 @@ test('heavy cells show column and row spacing; placement carries it, an edit is 
  run('undo()');assert.equal(run('selItem().launcherColSpacing'),18.5);run('redo()');assert.equal(run('selItem().launcherColSpacing'),25);
  run("input('launcherColSpacing',12.1);input('launcherRowSpacing',3)");assert.equal(run("'launcherColSpacing' in selItem()"),false,'back to touching: nothing stored');assert.equal(run("'launcherRowSpacing' in selItem()"),false,'below 12.1 m is 12.1 m');
  const saved=plain(run('C.deserialize(C.serialize(ship)).fits.map(C.shipLauncherConfig)'));assert.equal(saved[0].colSpacing,12.1);
+ // regression review 2026-11-21: copying a heavy launcher with the default spacing (not stored) resets a spaced one
+ assert.deepEqual(plain(run("(()=>{const to={k:'shipMsl',launcherHeavy:true,launcherColSpacing:30,launcherRowSpacing:20},from={k:'shipMsl',launcherHeavy:true,launcherCols:2,launcherRows:1};launcherSpacingFrom(from,to);return ['launcherColSpacing' in to,'launcherRowSpacing' in to];})()")),[false,false]);
+ assert.deepEqual(plain(run("(()=>{const to={k:'shipMsl',launcherHeavy:true},from={k:'shipMsl',launcherHeavy:true,launcherColSpacing:18.5};launcherSpacingFrom(from,to);return [to.launcherColSpacing,'launcherRowSpacing' in to];})()")),[18.5,false]);
+ assert.equal(run("(()=>{const to={k:'shipMsl',launcherHeavy:true,launcherColSpacing:30};launcherSpacingFrom({k:'shipMsl'},to);return to.launcherColSpacing;})()"),30,'a small-cell source leaves the spacing alone');
 });

@@ -635,9 +635,11 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
  for(const sign of [-1,1]){box(g,M,o,0,sign*(H-t)/2,0,L,t,W,FC.body);box(g,M,o,0,0,sign*(W-t)/2,L,H-t*2,t,FC.body);}
  const rows=p.rows||1,cols=p.cols||1,ch=p.spaced?p.cellSize[1]:H/rows,cw=p.spaced?p.cellSize[2]:W/cols;
  if(p.spaced){
-  // User instruction 2026-11-21「セル間隔と数、並び列は編集可能に」: spaced heavy cells; each cell has its own frame on the front face
-  // and the face between them is the launcher's plate.
-  box(g,M,o,L/2+.002,0,0,.01,H-t*2,W-t*2,FC.body);
+  // User instruction 2026-11-21「セル間隔と数、並び列は編集可能に」: spaced heavy cells; each cell has its own frame on the front face.
+  // The plate fills only the gaps between the cells; the mouths stay open (no front quad seals the launch path, as above).
+  const cs=p.colSpacing,rs=p.rowSpacing;
+  for(let c=0;c<cols-1;c++)if(cs>cw)box(g,M,o,L/2+.002,0,(c+.5-(cols-1)/2)*cs,.01,H-t*2,cs-cw,FC.body);
+  for(let r=0;r<rows-1;r++)if(rs>ch)for(let c=0;c<cols;c++)box(g,M,o,L/2+.002,(r+.5-(rows-1)/2)*rs,(c-(cols-1)/2)*cs,.01,rs-ch,cw,FC.body);
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const y=(r-(rows-1)/2)*p.rowSpacing,z=(c-(cols-1)/2)*p.colSpacing;
    for(const s of [-1,1]){box(g,M,o,L/2+.005,y+s*(ch-t)/2,z,.02,t,cw,FC.ring);box(g,M,o,L/2+.005,y,z+s*(cw-t)/2,.02,ch-t*2,t,FC.ring);}}
  }else{
