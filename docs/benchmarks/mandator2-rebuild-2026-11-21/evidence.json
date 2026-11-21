@@ -1,7 +1,7 @@
 {
  "design": {
-  "sha256": "4d08572f9931555f921b30e80308b874c3430741e7aeed527b004047f181d8b2",
-  "bytes": 1314749
+  "sha256": "3dd265831593f13fb6308b0a69b407cc11c514375f76077cbed8d5a70fe48b58",
+  "bytes": 1345603
  },
  "source": {
   "sha256": "088416b5b467f130fd5a8335175fd09509052a05e1a96c9f66d73a05a2ffaa33",
@@ -27,7 +27,7 @@
    "automation": 2,
    "hangar": 4,
    "service": 2,
-   "hdis": 2,
+   "hdis": 4,
    "engine": 11,
    "engineCore": 11,
    "repulsor": 62
@@ -37,11 +37,11 @@
   "trenches": 0,
   "solidCuts": 0
  },
- "seconds": 413,
+ "seconds": 487,
  "stats": {
-  "mass": 1811001000,
+  "mass": 2033406000,
   "power": 7.7e+26,
-  "cost": 6359180907,
+  "cost": 6728144603,
   "maxAccelG": 0,
   "shieldCapacity": 7.7e+27,
   "floatingFits": 0,
@@ -58,11 +58,11 @@
    ],
    [
     "warn",
-    "自動化装置が持ち場 827,360 名分（全持ち場 870,905 名の 95%）を受け持ち、電力 4.6×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け持ち分が抜け、人と装置を合わせた乗員"
+    "自動化装置が持ち場 870,962 名分（全持ち場 916,802 名の 95%）を受け持ち、電力 4.6×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け持ち分が抜け、人と装置を合わせた乗員"
    ],
    [
     "warn",
-    "戦闘負荷で廃熱 1.55e26 W に対し変換 9.95e25 W、不足 5.57e25 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 21,619,994 m³ 追加すると解消します。その消費電力 8.49"
+    "戦闘負荷で廃熱 1.67e26 W に対し変換 8.19e25 W、不足 8.53e25 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 33,074,295 m³ 追加すると解消します。その消費電力 1.30"
    ],
    [
     "warn",
@@ -82,12 +82,12 @@
   "accelG": 0,
   "thrustG": 0,
   "shieldDissipationW": 184034,
-  "bareStructAccel": 3351.791,
-  "ratedThrustN": 20491740000000000,
-  "ratedAccelMps2": 11315.14,
-  "maximumAccelMps2": 11315.14,
-  "dissipatorPower": 1.485418e+24,
-  "dissipatorRatedPower": 1.493142e+24,
+  "bareStructAccel": 3084.79,
+  "ratedThrustN": 20269520000000000,
+  "ratedAccelMps2": 9968.259,
+  "maximumAccelMps2": 9968.259,
+  "dissipatorPower": 1.22203e+24,
+  "dissipatorRatedPower": 1.229026e+24,
   "actualThrustN": 0,
   "actualAccelMps2": 0,
   "freeAccelerationMps2": 0
@@ -163,10 +163,10 @@
    "box": [
     2157,
     277,
-    667,
+    477,
     2343,
     463,
-    853
+    663
    ],
    "volume": 3362651,
    "inside": 1,
@@ -180,10 +180,10 @@
    "box": [
     2157,
     277,
-    -853,
+    -663,
     2343,
     463,
-    -667
+    -477
    ],
    "volume": 3362651,
    "inside": 1,
@@ -384,10 +384,10 @@
    "box": [
     2400,
     305,
-    690,
+    500,
     3500,
     395,
-    830
+    640
    ],
    "volume": 13860000,
    "inside": 1,
@@ -401,10 +401,10 @@
    "box": [
     2400,
     305,
-    -830,
+    -640,
     3500,
     395,
-    -690
+    -500
    ],
    "volume": 13860000,
    "inside": 1,
@@ -484,16 +484,16 @@
    "k": "cargo",
    "label": "地上部隊の補給物資・予備部品庫",
    "box": [
-    1740,
+    4590,
     365,
-    625,
-    2060,
+    395,
+    4910,
     435,
-    775
+    545
    ],
-   "volume": 3360000,
+   "volume": 2756496,
    "inside": 1,
-   "inHull": 1,
+   "inHull": 0.9545455,
    "overlap": false
   },
   {
@@ -501,16 +501,16 @@
    "k": "cargo",
    "label": "地上部隊の補給物資・予備部品庫",
    "box": [
-    1740,
+    4590,
     365,
-    -775,
-    2060,
+    -545,
+    4910,
     435,
-    -625
+    -395
    ],
-   "volume": 3360000,
+   "volume": 2764873,
    "inside": 1,
-   "inHull": 1,
+   "inHull": 0.9545455,
    "overlap": false
   },
   {
@@ -686,42 +686,76 @@
   {
    "id": 2313,
    "k": "hdis",
-   "label": "熱エネルギー変換装置（右舷・機関区画の脇）",
+   "label": "熱エネルギー変換装置（右舷・機関の列の間）",
    "box": [
-    1931,
-    318,
-    429,
-    2569,
-    482,
-    611
+    825,
+    313,
+    484,
+    1425,
+    467,
+    656
    ],
-   "volume": 19007584,
+   "volume": 15637945,
    "inside": 1,
-   "inHull": 1,
+   "inHull": 0.6734694,
    "overlap": false
   },
   {
    "id": 2314,
    "k": "hdis",
-   "label": "熱エネルギー変換装置（左舷・機関区画の脇）",
+   "label": "熱エネルギー変換装置（左舷・機関の列の間）",
    "box": [
-    1931,
-    318,
-    -611,
-    2569,
-    482,
-    -429
+    825,
+    313,
+    -656,
+    1425,
+    467,
+    -484
    ],
-   "volume": 19007584,
+   "volume": 15615518,
+   "inside": 1,
+   "inHull": 0.6734694,
+   "overlap": false
+  },
+  {
+   "id": 8872,
+   "k": "hdis",
+   "label": "艦内高エネルギー散逸区画 1",
+   "box": [
+    2950,
+    363,
+    -13,
+    2976,
+    389,
+    13
+   ],
+   "volume": 18680,
    "inside": 1,
    "inHull": 1,
+   "overlap": false
+  },
+  {
+   "id": 8873,
+   "k": "hdis",
+   "label": "艦内高エネルギー散逸区画 2",
+   "box": [
+    5261,
+    339,
+    525,
+    5287,
+    365,
+    552
+   ],
+   "volume": 18681,
+   "inside": 1,
+   "inHull": 0,
    "overlap": false
   }
  ],
  "liftRooms": {
   "n": 62,
-  "support": 1867780000,
-  "mass": 1811001000
+  "support": 2097168000,
+  "mass": 2033406000
  },
  "engines": [
   {
@@ -735,19 +769,19 @@
    "body": 8804,
    "bodyLabel": "主推進機関 9",
    "bodyAt": [
-    1029,
+    1839,
     356,
     355
    ],
    "bodyD": 214,
-   "bodyLength": 405,
+   "bodyLength": 2025,
    "offAxisM": 0,
-   "ratedInputW": 4.943703374257817e+24,
-   "normalRatingW": 4.943703374752187e+24,
+   "ratedInputW": 2.4718516871289083e+25,
+   "normalRatingW": 2.4718516873760936e+25,
    "ratedOverNormal": 1,
-   "requestedW": 4.943703374752187e+24,
+   "requestedW": 2.4718516873760936e+25,
    "bodyInside": 1,
-   "bodyInHull": 0.5096525,
+   "bodyInHull": 0.9111969,
    "route": {
     "ok": true,
     "reason": null,
@@ -768,19 +802,19 @@
    "body": 8798,
    "bodyLabel": "主推進機関 3",
    "bodyAt": [
-    1029,
+    1839,
     356,
     -355
    ],
    "bodyD": 214,
-   "bodyLength": 405,
+   "bodyLength": 2025,
    "offAxisM": 0,
-   "ratedInputW": 4.943703374257817e+24,
-   "normalRatingW": 4.943703374752187e+24,
+   "ratedInputW": 2.4718516871289083e+25,
+   "normalRatingW": 2.4718516873760936e+25,
    "ratedOverNormal": 1,
-   "requestedW": 4.943703374752187e+24,
+   "requestedW": 2.4718516873760936e+25,
    "bodyInside": 1,
-   "bodyInHull": 0.5096525,
+   "bodyInHull": 0.9111969,
    "route": {
     "ok": true,
     "reason": null,
@@ -801,19 +835,19 @@
    "body": 8805,
    "bodyLabel": "主推進機関 10",
    "bodyAt": [
-    1237,
+    1541,
     369,
     786
    ],
    "bodyD": 214,
-   "bodyLength": 405,
+   "bodyLength": 1013,
    "offAxisM": 0,
-   "ratedInputW": 4.943686517399887e+24,
-   "normalRatingW": 4.943686517894257e+24,
+   "ratedInputW": 1.235921629349972e+25,
+   "normalRatingW": 1.2359216294735643e+25,
    "ratedOverNormal": 1,
-   "requestedW": 4.943686517894257e+24,
+   "requestedW": 1.2359216294735643e+25,
    "bodyInside": 1,
-   "bodyInHull": 0.7992278,
+   "bodyInHull": 0.9266409,
    "route": {
     "ok": true,
     "reason": null,
@@ -834,19 +868,19 @@
    "body": 8797,
    "bodyLabel": "主推進機関 2",
    "bodyAt": [
-    1237,
+    1541,
     369,
     -786
    ],
    "bodyD": 214,
-   "bodyLength": 405,
+   "bodyLength": 1013,
    "offAxisM": 0,
-   "ratedInputW": 4.943686517399887e+24,
-   "normalRatingW": 4.943686517894257e+24,
+   "ratedInputW": 1.235921629349972e+25,
+   "normalRatingW": 1.2359216294735643e+25,
    "ratedOverNormal": 1,
-   "requestedW": 4.943686517894257e+24,
+   "requestedW": 1.2359216294735643e+25,
    "bodyInside": 1,
-   "bodyInHull": 0.7992278,
+   "bodyInHull": 0.9266409,
    "route": {
     "ok": true,
     "reason": null,
@@ -867,19 +901,19 @@
    "body": 8801,
    "bodyLabel": "副推進機関 6",
    "bodyAt": [
-    544,
+    1569,
     301,
     0
    ],
    "bodyD": 135,
-   "bodyLength": 256,
+   "bodyLength": 2307,
    "offAxisM": 0,
-   "ratedInputW": 1.2528757353628896e+24,
-   "normalRatingW": 1.2528757354881773e+24,
+   "ratedInputW": 1.127588161826601e+25,
+   "normalRatingW": 1.1275881619393597e+25,
    "ratedOverNormal": 1,
-   "requestedW": 1.2528757354881773e+24,
+   "requestedW": 1.1275881619393597e+25,
    "bodyInside": 1,
-   "bodyInHull": 0,
+   "bodyInHull": 0.7142857,
    "route": {
     "ok": true,
     "reason": null,
@@ -900,19 +934,19 @@
    "body": 8799,
    "bodyLabel": "副推進機関 4",
    "bodyAt": [
-    1211,
+    1403,
     136,
     -263
    ],
    "bodyD": 135,
-   "bodyLength": 256,
+   "bodyLength": 641,
    "offAxisM": 0,
-   "ratedInputW": 1.2528650343155797e+24,
-   "normalRatingW": 1.2528650344408663e+24,
+   "ratedInputW": 3.13216258578895e+24,
+   "normalRatingW": 3.132162586102166e+24,
    "ratedOverNormal": 1,
-   "requestedW": 1.2528650344408663e+24,
+   "requestedW": 3.132162586102166e+24,
    "bodyInside": 1,
-   "bodyInHull": 0,
+   "bodyInHull": 0.06949807,
    "route": {
     "ok": true,
     "reason": null,
@@ -933,19 +967,19 @@
    "body": 8803,
    "bodyLabel": "副推進機関 8",
    "bodyAt": [
-    1211,
+    1403,
     136,
     263
    ],
    "bodyD": 135,
-   "bodyLength": 256,
+   "bodyLength": 641,
    "offAxisM": 0,
-   "ratedInputW": 1.2528650343155797e+24,
-   "normalRatingW": 1.2528650344408663e+24,
+   "ratedInputW": 3.13216258578895e+24,
+   "normalRatingW": 3.132162586102166e+24,
    "ratedOverNormal": 1,
-   "requestedW": 1.2528650344408663e+24,
+   "requestedW": 3.132162586102166e+24,
    "bodyInside": 1,
-   "bodyInHull": 0,
+   "bodyInHull": 0.06949807,
    "route": {
     "ok": true,
     "reason": null,
@@ -966,19 +1000,19 @@
    "body": 8802,
    "bodyLabel": "副推進機関 7",
    "bodyAt": [
-    1211,
+    1339,
     132,
     95
    ],
    "bodyD": 135,
-   "bodyLength": 256,
+   "bodyLength": 513,
    "offAxisM": 0,
-   "ratedInputW": 1.2528641342302665e+24,
-   "normalRatingW": 1.252864134355553e+24,
+   "ratedInputW": 2.5057282684605335e+24,
+   "normalRatingW": 2.505728268711106e+24,
    "ratedOverNormal": 1,
-   "requestedW": 1.252864134355553e+24,
+   "requestedW": 2.505728268711106e+24,
    "bodyInside": 1,
-   "bodyInHull": 0.01158301,
+   "bodyInHull": 0.1389961,
    "route": {
     "ok": true,
     "reason": null,
@@ -999,19 +1033,19 @@
    "body": 8800,
    "bodyLabel": "副推進機関 5",
    "bodyAt": [
-    1211,
+    1339,
     132,
     -95
    ],
    "bodyD": 135,
-   "bodyLength": 256,
+   "bodyLength": 513,
    "offAxisM": 0,
-   "ratedInputW": 1.2528641342302665e+24,
-   "normalRatingW": 1.252864134355553e+24,
+   "ratedInputW": 2.5057282684605335e+24,
+   "normalRatingW": 2.505728268711106e+24,
    "ratedOverNormal": 1,
-   "requestedW": 1.252864134355553e+24,
+   "requestedW": 2.505728268711106e+24,
    "bodyInside": 1,
-   "bodyInHull": 0.01158301,
+   "bodyInHull": 0.1389961,
    "route": {
     "ok": true,
     "reason": null,
@@ -1032,19 +1066,19 @@
    "body": 8806,
    "bodyLabel": "副推進機関 11",
    "bodyAt": [
-    1265,
+    1702,
     367,
     1000
    ],
    "bodyD": 132,
-   "bodyLength": 250,
+   "bodyLength": 1123,
    "offAxisM": 0,
-   "ratedInputW": 1.156749620059412e+24,
-   "normalRatingW": 1.156749620175087e+24,
+   "ratedInputW": 5.205373290267354e+24,
+   "normalRatingW": 5.205373290787891e+24,
    "ratedOverNormal": 1,
-   "requestedW": 1.156749620175087e+24,
+   "requestedW": 5.205373290787891e+24,
    "bodyInside": 1,
-   "bodyInHull": 0.8648649,
+   "bodyInHull": 0.972973,
    "route": {
     "ok": true,
     "reason": null,
@@ -1065,19 +1099,19 @@
    "body": 8796,
    "bodyLabel": "副推進機関 1",
    "bodyAt": [
-    1265,
+    1702,
     367,
     -1000
    ],
    "bodyD": 132,
-   "bodyLength": 250,
+   "bodyLength": 1123,
    "offAxisM": 0,
-   "ratedInputW": 1.156749620059412e+24,
-   "normalRatingW": 1.156749620175087e+24,
+   "ratedInputW": 5.205373290267354e+24,
+   "normalRatingW": 5.205373290787891e+24,
    "ratedOverNormal": 1,
-   "requestedW": 1.156749620175087e+24,
+   "requestedW": 5.205373290787891e+24,
    "bodyInside": 1,
-   "bodyInHull": 0.8648649,
+   "bodyInHull": 0.972973,
    "route": {
     "ok": true,
     "reason": null,
@@ -1087,5 +1121,167 @@
    },
    "usable": true
   }
- ]
+ ],
+ "propulsion": {
+  "ratedThrustN": 20269520000000000,
+  "ratedAccelMps2": 9968.259,
+  "accelerationLimitBasis": "structural",
+  "structuralAccelerationLimitMps2": 40102.27,
+  "inertialFactor": 1,
+  "sumCoreRatedThrustN": 56812290000000000,
+  "sumNormalInputW": 1.071179e+26,
+  "sumRatedInputW": 7.7e+26,
+  "cores": [
+   {
+    "id": 8796,
+    "ratedInputW": 3.741800573644472e+25,
+    "normalInputW": 5.205373290787891e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 2760783000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8797,
+    "ratedInputW": 8.884227900289187e+25,
+    "normalInputW": 1.235921629473564e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 6554980000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8798,
+    "ratedInputW": 1.7768516387011998e+26,
+    "normalInputW": 2.4718516873760936e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 13110000000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8799,
+    "ratedInputW": 2.2515057243187444e+25,
+    "normalInputW": 3.132162586102166e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1661211000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8800,
+    "ratedInputW": 1.801203285430704e+25,
+    "normalInputW": 2.505728268711106e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1328968000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8801,
+    "ratedInputW": 8.105489838060754e+25,
+    "normalInputW": 1.1275881619393597e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 5980410000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8802,
+    "ratedInputW": 1.801203285430704e+25,
+    "normalInputW": 2.505728268711106e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1328968000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8803,
+    "ratedInputW": 2.2515057243187444e+25,
+    "normalInputW": 3.132162586102166e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 1661211000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8804,
+    "ratedInputW": 1.7768516387011998e+26,
+    "normalInputW": 2.4718516873760936e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 13110000000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8805,
+    "ratedInputW": 8.884227900289187e+25,
+    "normalInputW": 1.235921629473564e+25,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 6554980000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   },
+   {
+    "id": 8806,
+    "ratedInputW": 3.741800573644472e+25,
+    "normalInputW": 5.205373290787891e+24,
+    "densityFactor": 7.188342,
+    "efficiency": 0.8659446,
+    "wasteFraction": 0.1340554,
+    "ratedThrustN": 2760783000000000,
+    "wattsPerNewton": 13553400000,
+    "inputLimitModel": "reactor-supply"
+   }
+  ],
+  "note": "filled from data/fleet.js after the run (the first run of this version read S.propulsion, which carries no per-engine figures)"
+ },
+ "chargeWithoutFigure": 0,
+ "roundTrip": {
+  "parts": [
+   496,
+   496
+  ],
+  "fits": [
+   194,
+   194
+  ],
+  "posesOnlyBefore": 0,
+  "posesOnlyAfter": 0,
+  "massEqual": true,
+  "mass": [
+   2033406100.8555775,
+   2033406100.8555775
+  ],
+  "floatingAfter": 0,
+  "overlapsAfter": 0,
+  "ratedThrust": [
+   20269518831068716,
+   20269518831068716
+  ]
+ },
+ "run": {
+  "commit": "e3eef22b810bc52e52bb59eae992d4f1d55d9d4c",
+  "coreSha256": "c606ca6f0bb08d61f669dd8024cbf403f69203a81855415fb7d3fe7ed525ed83"
+ }
 }
