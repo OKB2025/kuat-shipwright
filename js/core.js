@@ -81136,10 +81136,12 @@ function weaponCapacitors(ship){
  ship._capacitors={key,envelope,parts};return parts;
 }
 function aviationConnected(a,b){
- const A=partAABB(a),B=partAABB(b),tol=1.5;
- if([0,1,2].some(k=>A[k]>B[k+3]+tol||B[k]>A[k+3]+tol))return false;
+ // 2026-11-21: a packed compartment is made of whole cells, so a gap narrower than one cell on that axis is the packing's rounding, not a wall
+ // (Providence: the upper hangar deck's 5.2 m cells stop 4.4 m above the rear hangar deck). Elsewhere 1.5 m, as before.
+ const A=partAABB(a),B=partAABB(b),tols=[0,1,2].map(k=>Math.max(1.5,a._packing?.cell?.[k]||0,b._packing?.cell?.[k]||0));
+ if([0,1,2].some(k=>A[k]>B[k+3]+tols[k]||B[k]>A[k+3]+tols[k]))return false;
  const lo=[0,1,2].map(k=>Math.max(A[k],B[k])),hi=[0,1,2].map(k=>Math.min(A[k+3],B[k+3]));
- const near=(p,q)=>inPart(p,q)||[0,1,2].some(ax=>[-1,1].some(sg=>{const r=q.slice();r[ax]+=sg*tol;return inPart(p,r);}));
+ const near=(p,q)=>inPart(p,q)||[0,1,2].some(ax=>[-1,1].some(sg=>{const r=q.slice();r[ax]+=sg*tols[ax];return inPart(p,r);}));
  const connected=q=>near(a,q)&&near(b,q);
  for(let i=0;i<5;i++)for(let j=0;j<5;j++)for(let k=0;k<5;k++)if(connected([i,j,k].map((v,ax)=>lerp(lo[ax],hi[ax],(v+.5)/5))))return true;
  // Sloping shared walls can lie between box-grid samples. Probe the actual
