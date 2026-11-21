@@ -22,3 +22,21 @@ test('the routing is held back only for three or more drafts in one full pass',(
  assert.match(core,/placement\?\.pendingGeometry\)\.length>=3/,'the threshold in refreshPlacementGeometry');
  assert.match(core,/keptPass:true/,'only the support-only pass carries the flag');assert.match(core,/kept&&request\.keptPass/);
 });
+
+// 2026-11-21 (high-effort review of PR #122): after an Undo the Worker patches its ship with a snapshot that names no body; the
+// body it finds again must not read as the user's edit of the part (placementRequestKey left the body-relative keys out for this).
+// Before the fix the sensor below became red with a stored 'placement-interference' refusal after one Undo; a cold load was fine.
+test('an Undo does not turn a body found again into the user\'s edit (no stored refusal)',()=>{
+ const pick=(ship,id)=>ship.parts.find(p=>p.id===id);
+ for(const kind of ['gen','repulsor']){
+  const s=fixture(),se=C.commitPlacement(s,{id:-1,k:'sensor',c:[-4.3,10+4*.46,1.7],d:4},{mode:'direct',parentStructureId:1,hit:{p:[-4.3,10,1.7],n:[0,1,0]}});assert.equal(se.ok,true,se.error);
+  C.refreshPlacementGeometry(s);const W=JSON.parse(C.publicJSON(s));C.refreshPlacementGeometry(W);
+  pick(s,1).c=[0.5,0,0];C.patchShip(W,JSON.parse(C.publicJSON(s)));C.refreshPlacementGeometry(W);C.patchShip(s,JSON.parse(C.publicJSON(W)));
+  s.parts.push({id:s.nextId++,k:kind,c:[-4.3,12,1.7],d:3});C.patchShip(W,JSON.parse(C.publicJSON(s)));C.refreshPlacementGeometry(W);C.patchShip(s,JSON.parse(C.publicJSON(W)));
+  const before=pick(W,se.part.id)._placementError||'ok';
+  const snap=JSON.stringify({...JSON.parse(C.publicJSON(s)),format:'starship-yard',v:3}),restored=JSON.parse(JSON.stringify(C.deserialize(JSON.parse(snap),{deferPlacementGeometry:true}),(k,v)=>k.startsWith('_')?undefined:v));
+  C.patchShip(W,JSON.parse(C.publicJSON(restored)));C.refreshPlacementGeometry(W);const p=pick(W,se.part.id);
+  assert.equal(p._placementError||'ok',before,kind+': the same verdict as before the Undo');assert.equal(p.placement.repairRequired,undefined,kind+': no refusal stored');
+  C.patchShip(s,JSON.parse(C.publicJSON(W)));assert.equal(C.serialize(s).parts.find(q=>q.id===se.part.id).placement.repairReason,undefined,kind+': nothing stored in the saved design');
+ }
+});

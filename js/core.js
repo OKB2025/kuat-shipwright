@@ -79211,7 +79211,8 @@ function forgetPlacementBody(ship,part,meta){
  // Regression review 2026-11-21: a shield of the old exterior form (legacyExteriorShieldAttachment: direct, a body named, no interior host) is known as such
  // only by the body it names; without it a reload treated it as interior equipment. This compatibility record is left as it is saved.
  if(legacyExteriorShieldAttachment({...part,placement:meta}))return meta;
- if(meta.parentStructureId!=null&&!Array.isArray(meta.seatOffset)){const a=placementSeatAnchor(ship,part,part.placement);if(a)meta.seatOffset=sub(part.c,a);}
+ if(meta.parentStructureId!=null&&!Array.isArray(meta.seatOffset)){const a=placementSeatAnchor(ship,part,part.placement);if(a)meta.seatOffset=sub(part.c,a);
+  /* deep review 2026-11-21: the named body is gone (an older file); the seat is taken from the part's own pose along the contact normal, so the record keeps where the part meets a body */else if(Array.isArray(meta.contactNormal)&&Array.isArray(meta.rigidPose?.offset)&&Array.isArray(meta.contactLocalNormal)&&Array.isArray(part.c)){const nW=norm(meta.contactNormal),along=dot(meta.rigidPose.offset,norm(meta.contactLocalNormal));if(Number.isFinite(along))meta.seatOffset=mul(nW,along);}}
  for(const k of PLACEMENT_BODY_KEYS)delete meta[k];return meta;
 }
 function placementBodyAtSeat(ship,part,p,n,reach=0){
@@ -79231,7 +79232,7 @@ function placementBindBody(ship,part,body,anchor,normal){
  return body;
 }
 function placementDeriveBody(ship,part){
- const meta=part?.placement;if(!meta||meta.root||explicitInteriorPlacement(part))return undefined;if(meta.parentStructureId!=null){if(placementParent(ship,meta.parentStructureId)||meta.pendingGeometry||meta.newPlacement)return undefined;for(const k of PLACEMENT_BODY_KEYS)delete meta[k];/* the body noted in memory is gone */}
+ const meta=part?.placement;if(!meta||meta.root||explicitInteriorPlacement(part))return undefined;if(meta.parentStructureId!=null){const named=placementParent(ship,meta.parentStructureId);if(named&&!meta.pendingGeometry&&!meta.newPlacement&&!meta.surfaceAnchor&&Array.isArray(meta.seatOffset)&&Array.isArray(meta.contactNormal)&&Array.isArray(part.c)){/* deep review 2026-11-21: a body named without its anchors (a part dropped onto it by a delete) is bound fully */const anchor=sub(part.c,meta.seatOffset),normal=norm(meta.contactNormal);let seat=anchor;if(placementCapability(part).kind!=='structure'){named._solidCutShip=ship;const s=placementEquipmentSurface(ship,named,{},anchor,normal,true);if(s.ok)seat=s.p;}return placementBindBody(ship,part,named,seat,normal);}if(named||meta.pendingGeometry||meta.newPlacement)return undefined;for(const k of PLACEMENT_BODY_KEYS)delete meta[k];/* the body noted in memory is gone */}
  if(!Array.isArray(meta.seatOffset)||!Array.isArray(meta.contactNormal)||!Array.isArray(part.c))return undefined;
  const anchor=sub(part.c,meta.seatOffset),normal=norm(meta.contactNormal);let body=null;
  // Equipment: the structure it is judged to stand on (the same contact test as in a session). A structure: the one whose surface holds its seat.
@@ -90661,7 +90662,11 @@ function resizeStructureHeightAtContact(part,height){
  return true;
 }
 
-function placementRequestKey(p){const m=p.placement;return m?publicJSON([m.mode,m.modelVersion,m.geometryRevision,m.contactSide,m.contactFit,m.contactOffset,m.contactAxis,m.pendingGeometry,m.validationFailed,m.hostSurfaceId,m.surfaceAnchor,m.contactLocalNormal,m.anchorDimensions,m.rigidPose,m.requestedGeometry,...(m.fitAxis?[m.fitAxis]:[])]):'';}
+// 2026-11-21 (deep review of PR #122): the body-relative keys (hostSurfaceId, surfaceAnchor, contactLocalNormal, anchorDimensions,
+// rigidPose) are memory only and are found again after every load or Undo; the part's own seat (seatOffset, contactNormal) is
+// what the user asked for. With the body keys in this key, a body found again after an Undo read as the user's edit, ran the
+// edit's interference checks and could store a refusal.
+function placementRequestKey(p){const m=p.placement;return m?publicJSON([m.mode,m.modelVersion,m.geometryRevision,m.contactSide,m.contactFit,m.contactOffset,m.contactAxis,m.pendingGeometry,m.validationFailed,m.seatOffset,m.contactNormal,m.requestedGeometry,...(m.fitAxis?[m.fitAxis]:[])]):'';}
 function placementKeyHash(text){let a=2166136261,b=2246822507;for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);a=Math.imul(a^c,16777619);b=Math.imul(b^c,3266489909);}return text.length+':'+(a>>>0).toString(36)+':'+(b>>>0).toString(36);}
 function placementDependencyKey(p){return placementKeyHash(publicJSON([placementShape(p),p.placement?.geometryRevision||0]));}
 // Positioning key (user rule 2026-11-11: the hull is the base body, structures
@@ -91206,7 +91211,7 @@ function authoredStateDrift(sent,received){
 function placementDraftStatus(ship){
  const pending=[],failed=[];for(const list of ['parts','fits'])for(const item of ship?.[list]||[]){const meta=item.placement;if(meta?.validationFailed)failed.push({list,id:item.id,code:meta.repairReason||'placement-failed'});else if(meta?.pendingGeometry)pending.push({list,id:item.id});}return {ok:!pending.length&&!failed.length,ready:!pending.length&&!failed.length,pending,failed};
 }
-function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport'])delete source[key];return surfaceHash([source]);}
+function placementPendingSourceKey(item){const source=publicCopyOf(item);for(const key of ['placement','float','base','low','slope','mountSupport','host','local','localNormal','localForward'/* 2026-11-21: the body is memory only (not saved) */])delete source[key];return surfaceHash([source]);}
 // The failure record names its code and the validated source key, so a reader can tell whether it still
 // describes the item's current failure (an Undo can restore an older state without re-validating it; for
 // interior equipment that no longer applies: restore goes through deserialize, which re-checks a stored
@@ -91528,7 +91533,7 @@ function refreshPlacementGeometry(ship,options={}){
  // placement packets. Legacy engines have no parent metadata to visit, but
  // their repaired body position must still reach the same generation.
  const embedded=syncEmbeddedEngineMachinery(ship);for(const id of embedded.updated)if(!ship.parts.find(p=>p.id===id)?.placement){updated.push(id);resolvedParts.push(id);}for(const row of embedded.failed)if(!ship.parts.find(p=>p.id===row.partId)?.placement){failed.push(row);resolvedParts.push(row.partId);}
- const visit=p=>{if(done.has(p.id)||active.has(p.id)||!eligible(p))return;active.add(p.id);/* stage B: no parent adoption and no parent cycle (the tapped body is only a sink target); a pending draft waits for a pending tapped body only */const meta=p.placement,parent=placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null))||/* 2026-11-21: no body is saved; the structure at the part's own seat */placementDeriveBody(ship,p);if(parent&&meta.pendingGeometry&&parent.placement?.pendingGeometry)visit(parent);
+ const visit=p=>{if(done.has(p.id)||active.has(p.id)||!eligible(p))return;active.add(p.id);/* stage B: no parent adoption and no parent cycle (the tapped body is only a sink target); a pending draft waits for a pending tapped body only */const meta=p.placement,parent=/* 2026-11-21: no body is saved; the structure at the part's own seat (also when a body is named without its anchors) */placementDeriveBody(ship,p)||placementParent(ship,meta.parentStructureId??(meta.pendingGeometry?meta.hostId:null));if(parent&&meta.pendingGeometry&&parent.placement?.pendingGeometry)visit(parent);
   const interior=explicitInteriorPlacement(p);
   let keepPose=!!p._placementAdoptKeepPose;delete p._placementAdoptKeepPose;
   if(meta.validationFailed&&(placementShapeKey(p)!==placementShapeKey(meta.requestedGeometry)||interior&&meta.parentGeometryKey!==interiorEnvelopeKey(ship)||meta.newPlacement&&parent&&meta.parentGeometryKey!==placementDependencyKey(parent))){/* a refused new draft (the user's unfinished placement) is retried when the body it was tapped on changes *//* stage B: a refused exterior item is solved again when the user edits it, not when the body it was tapped on changes */meta.pendingGeometry=true;delete meta.validationFailed;delete meta.repairRequired;delete meta.repairReason;keepPose=!meta.root&&!meta.newPlacement&&Array.isArray(meta.parentLocalAnchor);}
