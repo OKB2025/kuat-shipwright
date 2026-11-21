@@ -4,6 +4,7 @@
 root.KS_EN={
  "terms": {
  "補助機関": "Auxiliary Engine",
+ "機関の列の間": "between the engine rows",
  "配置用の部品IDを確保できません。": "A part ID could not be allocated for placement.",
  "配置した部品の形状・性能を計算しています。": "Calculating the placed parts' geometry and performance.",
  "配置の計算で問題が見つかりました。位置や接続を修正してください。": "Placement calculation found a problem. Adjust the position or connection.",
