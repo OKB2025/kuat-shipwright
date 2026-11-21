@@ -37,7 +37,7 @@
   "trenches": 0,
   "solidCuts": 0
  },
- "seconds": 487,
+ "seconds": 537,
  "stats": {
   "mass": 2033406000,
   "power": 7.7e+26,
@@ -1131,6 +1131,7 @@
   "sumCoreRatedThrustN": 56812290000000000,
   "sumNormalInputW": 1.071179e+26,
   "sumRatedInputW": 7.7e+26,
+  "nozzleShaftCapacityW": 2.378931e+26,
   "cores": [
    {
     "id": 8796,
@@ -1253,8 +1254,7 @@
     "wattsPerNewton": 13553400000,
     "inputLimitModel": "reactor-supply"
    }
-  ],
-  "note": "filled from data/fleet.js after the run (the first run of this version read S.propulsion, which carries no per-engine figures)"
+  ]
  },
  "chargeWithoutFigure": 0,
  "roundTrip": {
@@ -1281,7 +1281,7 @@
   ]
  },
  "run": {
-  "commit": "e3eef22b810bc52e52bb59eae992d4f1d55d9d4c",
-  "coreSha256": "c606ca6f0bb08d61f669dd8024cbf403f69203a81855415fb7d3fe7ed525ed83"
+  "commit": "9338cace89ffc0e6c91e6f0e95970c1ac196936e",
+  "coreSha256": "261575c8c9a2a0941f59733fd5293640b9213783703c510f21bca9ec616a8075"
  }
 }
