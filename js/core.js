@@ -78023,6 +78023,9 @@ function slidingHatchPanels(ship,h){
  SLIDING_PANEL_CACHE.set(h,{key,base,structures:structures.map(q=>q.base),panels});return panels;
 }
 function hatchOpenArea(ship,h,opening=h.open??1){
+ // 2026-11-21: an opening measured as the skin inside its compartment opens that skin's area (whichever way it faces).
+ if(Number.isFinite(h.openArea))return h.openArea*clamp(opening,0,1);
+ if(h.surface&&!h.hullOwner&&h.bay){const bay=ship.parts.find(q=>q.id===h.bay&&q.k==='hangar');if(bay&&!ship._aviationSyncing&&!ship._lockedCache){const c=aviationContact(ship,bay,h.face);if(c.mode==='overlap')return c.area*clamp(opening,0,1);}else if(h._surfaceMode==='overlap')return (h._surfaceArea||0)*clamp(opening,0,1);}
  if(h.hullOwner){const p=ship.parts.find(p=>p.id===h.hullOwner&&isHullStructure(p)),a=p?.hullData?.hatches?.find(q=>q.id===h.hullHatch);return a?hatchOpenArea(hullStructureShip(ship,p),a,opening):0;}
  const b=openingBounds(ship,h);if(!b)return h.portal?0:v3HatchGrid(ship,h).area;
  const {longAxis:l,widthAxis:u}=hatchAxes(h),a=openingHalf(b,b[l],u),z=openingHalf(b,b[l+3],u),L=b[l+3]-b[l],open=clamp(opening,0,1);
@@ -93169,7 +93172,7 @@ function adoptAviationHullHatch(ship,h){
   const probe={...publicCopyOf(h),face,n:aviationFaceNormal(face),bay:part.id,surface:true},query={hull:{...owner.hullProfile,assembly:false},parts:[part],fits:[],hatches:[probe],cuts:data.cuts||[],trenches:data.trenches||[],subs:data.subs||[],solidCuts:data.solidCuts||[],armor:ship.armor,nextId:1,_aviationMigrated:true,_aviationSyncing:true};
   const contact=aviationContact(query,part,face);if(!contact.bounds)continue;const b=contact.bounds,{axis:ax,longAxis:l,widthAxis:u}=hatchAxes(probe),a=[0,0,0],z=[0,0,0];a[ax]=z[ax]=b[ax+(probe.n[ax]>0?3:0)];a[u]=z[u]=(b[u]+b[u+3])/2;a[l]=b[l];z[l]=b[l+3];
   const score=dot(sub(hullWorldPoint(owner,mul(add(a,z),.5)),bay.c),n);if(best&&best.score>=score)continue;
-  const local={...publicCopyOf(h),a,b:z,n:probe.n,w:b[u+3]-b[u],face,cut:b.slice()};for(const k of ['bay','surface','hullOwner','hullHatch'])delete local[k];best={owner,local,score};
+  const local={...publicCopyOf(h),a,b:z,n:probe.n,w:b[u+3]-b[u],face,cut:b.slice(),...(contact.mode==='overlap'?{openArea:contact.area}:{})};for(const k of ['bay','surface','hullOwner','hullHatch'])delete local[k];best={owner,local,score};
  }
  if(!best)return false;const {owner,local}=best,used=new Set(owner.hullData.hatches.map(q=>q.id));while(used.has(local.id))local.id++;
  owner.hullData.hatches.push(local);h.hullOwner=owner.id;h.hullHatch=local.id;invalidateHullHatchGeometry(ship,owner);syncHullHatches(ship,owner);return true;
@@ -93242,15 +93245,30 @@ function aviationFaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  else if(!aviationContainsBehind(p,hit.p,h))return null;
  return hit;
 }
+// The skin (hull and structures, with their cuts) lying inside a compartment: its area and the box around it. null when the
+// compartment does not reach the skin. Cached per compartment shape and envelope.
+const AVIATION_OVERLAP_CACHE=new WeakMap();
+function aviationSkinOverlap(ship,p,envelope=aviationEnvelope(ship)){
+ if(!envelope.tris?.length)return null;const key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge]);
+ const old=AVIATION_OVERLAP_CACHE.get(p);if(old?.key===key)return old.value;
+ const B=aviationPartBounds(p),T=envelope.tris,lo=[B[0],B[1],B[2]],hi=[B[3],B[4],B[5]],eps=1e-6*Math.max(1,...[0,1,2].map(i=>hi[i]-lo[i]));let area=0;const got=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
+ const clip=(poly,axis,value,keepBelow)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=keepBelow?value-a[axis]:a[axis]-value,db=keepBelow?value-b[axis]:b[axis]-value;if(da>=0)out.push(a);if((da>=0)!==(db>=0)){const t=da/(da-db);out.push(a.map((v,k)=>v+(b[k]-v)*t));}}return out;};
+ for(let i=0;i+8<T.length;i+=9){const tri=[[T[i],T[i+1],T[i+2]],[T[i+3],T[i+4],T[i+5]],[T[i+6],T[i+7],T[i+8]]];if([0,1,2].some(k=>Math.max(tri[0][k],tri[1][k],tri[2][k])<lo[k]-eps||Math.min(tri[0][k],tri[1][k],tri[2][k])>hi[k]+eps))continue;
+  let poly=tri;for(let k=0;k<3&&poly.length>=3;k++){poly=clip(poly,k,lo[k]-eps,false);if(poly.length>=3)poly=clip(poly,k,hi[k]+eps,true);}if(poly.length<3)continue;
+  let a=0;for(let j=1;j+1<poly.length;j++)a+=len(cross(sub(poly[j],poly[0]),sub(poly[j+1],poly[0])))/2;if(!(a>0))continue;
+  const c=mul(poly.reduce((v,q)=>add(v,q),[0,0,0]),1/poly.length);if(!aviationPartContains(p,c))continue;
+  area+=a;for(const q of poly)for(let k=0;k<3;k++){got[k]=Math.min(got[k],q[k]);got[k+3]=Math.max(got[k+3],q[k]);}}
+ const value=area>1e-6?{area,bounds:got.map((v,i)=>v+(i<3?-.05:.05))}:null;AVIATION_OVERLAP_CACHE.set(p,{key,value});return value;
+}
 function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  const owner=p;p=aviationHatchSource(p);
  const existing=ship.hatches.find(h=>h.bay===p.id&&h.face===face),h={n:aviationFaceNormal(face),aperture:existing?.aperture??.85,sill:existing?.sill??.5},key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge,surfaceMeshId(p._packing?.tris||p._clip?.tris),h]);
  let cache=AVIATION_CONTACT_CACHE.get(owner);if(!cache){cache=new Map();AVIATION_CONTACT_CACHE.set(owner,cache);}const old=cache.get(face);if(old?.key===key)return old;
- const b=aviationFiniteBounds(p,h),{axis}=hatchAxes(h);
- let value=aviationContactScan(ship,p,h,b,(t,v)=>aviationSurfaceHit(ship,p,h,t,v,envelope));
- // User decision 2026-11-21 (above): no opening is measured for a compartment that does not reach the skin (the 'face' look,
- // up to 1.5 m in front of the face, took armour away from a skin the bay did not pierce).
- value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!value.bounds,area:value.bounds?value.area:0,bounds:value.bounds,mode:value.bounds?value.mode||'outside':null};cache.set(face,value);return value;
+ // User decision 2026-11-21 (「何も考えずに普通に区画と外壁が重なってる部分がハッチになる」): the opening is the skin inside the
+ // compartment, whichever way that skin faces; the hatch's face only gives the launch direction. A compartment that does not
+ // reach the skin has no opening (「貫通してないのに装甲が無くされるのはおかしい話だ」).
+ const overlap=aviationSkinOverlap(ship,p,envelope);
+ const value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!overlap,area:overlap?overlap.area:0,bounds:overlap?overlap.bounds.slice():null,mode:overlap?'overlap':null};cache.set(face,value);return value;
 }
 // Samples the face on a grid and keeps the largest contiguous rectangle where
 // every corner and centre meets a surface belonging to the compartment.
