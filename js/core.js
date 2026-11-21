@@ -84100,17 +84100,17 @@ const shipHasHullProper=ship=>ship.hullStructureVersion===1?ship.parts.some(isHu
 // A hull proper too small for the lifts (Heraklon: the hull structure is 5% of the ship's structures) takes what fits; the rest
 // goes into the other structures (ship._liftAnywhere, set while the ship is built).
 const liftRoomBad=(info,p,ship)=>!!info?.[p.id]?.overlap||(!ship||shipHasHullProper(ship)&&!ship._liftAnywhere)&&(info?.[p.id]?.inHull??1)<.999;
-function shipRefitAddVolume(ship,k,volume,label){
+function shipRefitAddVolume(ship,k,volume,label,extraRounds=0){
  if(!(volume>1e-6))return [];
  if(['aux','pump','integrity','hdis','inertial','repulsor'].includes(k)){
   const hullOnly=k==='repulsor'&&shipHasHullProper(ship)&&!ship._liftAnywhere,coarse=shipRefitAnchors(ship).filter(q=>!hullOnly||v3InHull(ship,q)),fine=hullOnly&&coarse.length<12/* a thin hull has few of the coarse points in it (MC30c, Acclamator); a hull with enough of them keeps them: the fine ones lie near its edges, where a room is cut down to a sliver */,anchors=fine?shipRefitAnchors(ship,true).filter(q=>v3InHull(ship,q)):coarse/* user decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」 */,b=shipBounds(ship);if(!anchors.length)throw new Error(ship.name+'：'+label+' の船内容積が不足しています（置き場所がありません）');const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
   const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
-  /* 2026-11-21 (PR #122): two more rounds, only for a build that would otherwise stop with the error below (the Recusant, whose
-     larger hatch opening under the overlap rule lowers its mass, was left 6 m³ of structural integrity short after 4). A build that
-     ends within the allowance after the usual rounds stops there as before (a first version kept going and changed the
-     droid-controlled Recusant's inertial compensation). */
+  /* 2026-11-21 (PR #122): extraRounds more rounds, only when the usual ones end beyond the allowance. Only the final systems
+     call of the ship refit asks for them (2): its error is not caught and stops the build (the Recusant, whose larger hatch
+     opening under the overlap rule lowers its mass, was left 6 m³ of structural integrity short after 4). The callers that catch
+     the error and go on (the lift and short-fall top-ups) keep the usual rounds, so their builds are unchanged (physics review). */
   const allowance=Math.max(.1,volume*(['pump','integrity','inertial'].includes(k)?.02:1e-4)),rounds=fine?10:4;
-  let remaining=volume;for(let pass=0;(pass<rounds||pass<rounds+2&&remaining>allowance)&&remaining>Math.max(.1,volume*1e-5);pass++){
+  let remaining=volume;for(let pass=0;(pass<rounds||pass<rounds+extraRounds&&remaining>allowance)&&remaining>Math.max(.1,volume*1e-5);pass++){
    const n=pass?(fine?8:4):count,d=Math.cbrt(remaining/n);for(let i=0;i<n;i++)made.push(placePart(ship,k,anchor(),d,{label:label+' '+(made.length+1),room:[d,d,d],autoFit:true,...(k==='repulsor'?{landingEquipment:true}:{})}));
    syncCompartments(ship);remaining=Math.max(0,volume-made.reduce((total,p)=>total+partVolume(p),0));
   }
@@ -84696,7 +84696,7 @@ function constructShipSystems(ship,key){
   // Its own modest mass fits within the three-percent physical design margin.
   const supported=k=>ship.parts.filter(p=>p.k===k&&!measured.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),finalInertial=Math.max(0,measured.mass*1.03/(120*field)-supported('inertial')),finalIntegrity=Math.max(0,measured.mass*1.03/(180*field)-supported('integrity'));
   if(finalInertial>Math.max(.1,measured.mass/120*1e-5)||finalIntegrity>Math.max(.1,measured.mass/180*1e-5)){
-   addedInertial.push(...shipRefitAddVolume(ship,'inertial',finalInertial,'追加慣性補償設備'));addedIntegrity.push(...shipRefitAddVolume(ship,'integrity',finalIntegrity,'追加構造維持設備'));syncCompartments(ship);
+   addedInertial.push(...shipRefitAddVolume(ship,'inertial',finalInertial,'追加慣性補償設備',2));addedIntegrity.push(...shipRefitAddVolume(ship,'integrity',finalIntegrity,'追加構造維持設備',2));syncCompartments(ship);
    refitShipThermal(ship,key,{stats:initial,powerW:baselinePowerW,E,W,S:Q,H,margin:1.15});syncCompartments(ship);measured=shipRefitMeasure(ship);
   }
   // User instruction 2026-11-19「着陸設備ではなくリパルサーリフトと改めた上で艦の重量分搭載して」: every ship carries repulsorlifts for its own
