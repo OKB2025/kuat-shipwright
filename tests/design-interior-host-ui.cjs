@@ -65,7 +65,7 @@ test('a previous interior selection cannot leak its mother into a new exterior r
 
 test('the interior panel has no host selector and shows the read-only primary hull anchor (Japanese and English)',()=>{
  const fs=require('node:fs'),path=require('node:path'),root=path.resolve(__dirname,'..'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),en=fs.readFileSync(path.join(root,'js/lang-en.js'),'utf8');
- assert.doesNotMatch(app,/select\('host'/);assert.doesNotMatch(app,/'designHost'in t\.dataset/);assert.match(app,/data-design-interior-anchor>配置基準：主船体に固定/);assert.match(app,/add\('配置基準',T\('主船体に固定'\)\)/);
- for(const key of ['配置基準','主船体に固定','配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）'])assert.ok(en.includes(JSON.stringify(key)+':'),key);
+ assert.doesNotMatch(app,/select\('host'/);assert.doesNotMatch(app,/'designHost'in t\.dataset/);/* 2026-11-21 (user report: the label「配置基準：主船体に固定」read as a parent structure still at work): the label names the ship's inside, not a structure */assert.match(app,/data-design-interior-anchor>配置先：船内/);assert.match(app,/add\('配置先',T\('船内（主船体と取り付けた構造物の内部）'\)\)/);
+ for(const key of ['配置先','船内（主船体と取り付けた構造物の内部）','配置先：船内（主船体と取り付けた構造物を合わせた内部に収めます）'])assert.ok(en.includes(JSON.stringify(key)+':'),key);
  assert.doesNotMatch(app,/designUI\.hostId=(it|h\.it|p)\.placement\?\.hostId/,'selecting an item does not restore a structure host');
 });

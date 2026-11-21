@@ -79936,7 +79936,7 @@ function interiorPlacementIn(ship,part,mode,capability,anchor,region,regionId){
  const target=unclippedPartVolume(p);if(!(target>0)||!Number.isFinite(target))return fail('empty-shape','配置する形状の容積がありません');
  const obstacles=interiorPlacementObstacles(ship,p),bounds=partAABB(p),near=obstacles.filter(q=>boxesOverlap(bounds,partAABB(q),1e-7)),source=interiorRawMesh(p),sourceVolume=meshVolume(source),tolerance=Math.max(1e-7,target*1e-7);
  let clipped=interiorIntersection(source,region.tris);for(const q of near)clipped=interiorDifference(clipped,interiorRawMesh(q));
- const available=meshVolume(clipped),hostBoundaryCrossing=interiorAnalyticBoundaryCrosses(p,region.tris),fullyInside=Math.abs(available-sourceVolume)<=Math.max(tolerance,sourceVolume*1e-6)&&!hostBoundaryCrossing&&!near.some(q=>overlapParts(p,q)||interiorCurvedConflict(p,q));
+ const available=meshVolume(clipped),hostBoundaryCrossing=interiorAnalyticBoundaryCrosses(p,region.tris),fullyInside=/* 2026-11-21 (user report: a navigation computer wholly inside a Victory's hull and castle was refused, 「実寸の0%が配置先からはみ出しています」): the clipped volume can come out a little LARGER than the body where the region is a union of several structures (their seams are counted twice by the clip, +3.9e-6 in that design). Only a shortfall means the body leaves the ship; an excess is not one. */available>=sourceVolume-Math.max(tolerance,sourceVolume*1e-6)&&!hostBoundaryCrossing&&!near.some(q=>overlapParts(p,q)||interiorCurvedConflict(p,q));
  const finish=effectiveVolume=>{const hatchFailure=interiorHatchConstraint(ship,p);return hatchFailure?fail(hatchFailure.code,hatchFailure.error):{ok:true,part:p,requestedVolume:target,effectiveVolume,fullyInside};};
  if(mode==='direct'){
   const curved=!p.room&&['sphere','cyl','engine'].includes(PARTS[p.k]?.shape),contained=fullyInside||curved&&available>=sourceVolume*(1-PLACEMENT_TOLERANCES.volumeRelative);
@@ -79945,7 +79945,7 @@ function interiorPlacementIn(ship,part,mode,capability,anchor,region,regionId){
    // One code as before; the reason says which test failed and which parts take part, so a refused
    // placement can be traced (outside the host, across its surface, or against other equipment).
    const retained=sourceVolume>0?available/sourceVolume:0,label=q=>(q.label||PARTS[q.k]?.name||q.k)+' #'+q.id,reason=!region.contains(p.c)?'center-outside':hostBoundaryCrossing?'host-boundary':clashes.length?'equipment-overlap':'host-outside';
-   const text={'center-outside':'中心が配置先の外にあります','host-boundary':'配置先の外面をまたいでいます','equipment-overlap':'他の設備と干渉しています（'+clashes.slice(0,4).map(label).join('、')+(clashes.length>4?' ほか'+(clashes.length-4)+'件':'')+'）','host-outside':'実寸の'+Math.max(0,Math.round((1-retained)*1000)/10)+'%が配置先からはみ出しています'}[reason];
+   const text={'center-outside':'中心が配置先の外にあります','host-boundary':'配置先の外面をまたいでいます','equipment-overlap':'他の設備と干渉しています（'+clashes.slice(0,4).map(label).join('、')+(clashes.length>4?' ほか'+(clashes.length-4)+'件':'')+'）','host-outside':'実寸の'+(()=>{const v=Math.max(0,(1-retained)*100);return v>=.1?String(Math.round(v*10)/10):v>0?v.toPrecision(2):'0';})()+'%が配置先からはみ出しています'}[reason];
    return {...fail('fixed-outside','固定機器の実寸が船内に収まらないか、他の設備と干渉しています：'+text+'（配置先 '+(regionId==='ship'?'船内':regionId==='hull'?'船体':'#'+regionId)+'）'),detail:{reason,hostId:regionId,partIds:clashes.map(q=>q.id),retained,centerInside:!!region.contains(p.c),hostBoundaryCrossing:!!hostBoundaryCrossing}};
   }
   return finish(target);

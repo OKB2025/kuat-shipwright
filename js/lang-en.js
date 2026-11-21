@@ -10602,9 +10602,10 @@ Object.assign(root.KS_EN.messages,{
 });
 Object.assign(root.KS_EN.terms,{
  "3Dでタップして母体を指定":"Tap in 3D to choose the host",
- "配置基準":"Anchor",
+ "配置先":"Placed in",
+ "船内（主船体と取り付けた構造物の内部）":"Inside the ship (the primary hull and the structures attached to it)",
  "主船体に固定":"Fixed to the primary hull",
- "配置基準：主船体に固定（船体と取り付けた構造物の内部に収めます）":"Anchor: fixed to the primary hull (it must lie inside the hull and its attached structures)"
+ "配置先：船内（主船体と取り付けた構造物を合わせた内部に収めます）":"Placed in: inside the ship (it must lie inside the primary hull and the structures attached to it, taken together)"
 });
 Object.assign(root.KS_EN.messages,{
  "機関本体が外装型タービンの内部に収まりません":"The machinery body does not fit inside the external turbine casing",
