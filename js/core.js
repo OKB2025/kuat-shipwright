@@ -77321,6 +77321,11 @@ Object.assign(PARTS.navComputer,{group:'command'});
 // Retain old stable kinds for saved drawings; new installation has one entry
 // for each combined function. Launcher magazines remain generated equipment.
 PARTS.landingGear.catalogHidden=true;
+// User decision 2026-11-21 (「居住区は廃止する方針(余積を居住区扱いのみ)では無かったのか」「外面編集は装甲のみになりそれ以外は無くなったのでは？」):
+// the habitation compartment, added on 2026-11-03 for the equipment faces' habitation share, was left in the parts list when those
+// faces were retired (2026-11-05). It is retired like the crew quarters (v19): not offered, and a placed one is dropped on load.
+// The definition stays only for the old equipment faces' compatibility layout (surfacePatch rooms).
+PARTS.habitat.catalogHidden=true;
 PARTS.targetComputer.catalogHidden=true;
 addComp('engineCore','内蔵推進機関','cyl',1.1,[87,164,205],'power','反応炉の電力を受け取り、独立した動力伝達路を通じて一つ以上のノズルを駆動する内蔵機関。入力容量は実寸と機関等級で決まります。',{def:8,min:.1,max:4000,ratio:2,crew:.2,cost:1,hp:1});
 addComp('machinery','自動推進機関','route',1.1,[87,164,205],'power','炉とノズルの間に自動生成される機関。',{def:30,min:1});
@@ -77916,6 +77921,7 @@ function v3Deserialize(o){
   const ident=x=>{if(!Number.isInteger(x)||x<=0||ids.has(x))throw new Error('部品IDが不正または重複しています');ids.add(x);mx=Math.max(mx,x);return x;};
   // v19 quarters and troop rooms are retired: the crew and troops live in the free volume.
   const retired=o.parts.filter(p=>RETIRED_PARTS.has(p?.k)).length;if(retired)s.retiredRooms=retired;
+  const habitats=o.parts.filter(p=>p?.k==='habitat'&&!p.surfacePatch).length;if(habitats){s.retiredHabitats=habitats;o={...o,parts:o.parts.filter(p=>!(p?.k==='habitat'&&!p.surfacePatch))};}/* 2026-11-21: placed habitation compartments are retired (see PARTS.habitat) */
   // v20 vehicle bays become storage hangars: ground vehicles share the hangars with the aircraft.
   const vehicleBays=o.parts.filter(p=>p?.k==='vehicle').length;if(vehicleBays)s.vehicleBays=vehicleBays;
   o={...o,parts:o.parts.map(p=>p?.k==='vehicle'?{...p,k:'hangar',airRole:'storage',label:p.label||'車両格納庫'}:p)};

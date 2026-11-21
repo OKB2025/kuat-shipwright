@@ -6462,6 +6462,7 @@ root.KS_EN={
   "プロヴィデンス級キャリア／デストロイヤー": "Providence-class Carrier/Destroyer",
   "接地していない部品があります（赤枠 {0} 個）。船体か、船体につながる部品に接するよう動かしてください": "Some components are not attached ({0} outlined in red). Move them into contact with the hull or a component connected to it.",
   "居住区・兵員室 {0} 区画を外しました（v19 から乗員と兵員は船内の空き容積に乗ります）": "Removed {0} accommodation/troop compartments. Since v19, crew and troops occupy free internal volume.",
+  "居住設備区画 {0} 区画を外しました（乗員は船内の空き容積に乗ります。居住設備区画は廃止されました）": "Removed {0} habitation compartments (the crew live in the free internal volume; habitation compartments are retired).",
   "車両格納区画 {0} 区画を機体格納の格納区画に変えました（v20 から車両は航空機と同じ格納庫に寸法で入ります。ハッチか、ハッチにつながる格納区画に接するようにしてください）": "Converted {0} vehicle bays to hangar compartments. Since v20, vehicles use the same dimension checks as aircraft. Connect these compartments to a hatch or a hangar linked to one.",
   "ドラッグでカッターを移動。重ね終えたら「重なりを切り取る」": "Drag to move the cutter. When positioned, choose Cut Overlap.",
   "ドラッグで視点を回転。半透明の立体が切り取る範囲です": "Drag to rotate the view. The translucent solid shows the volume to remove.",

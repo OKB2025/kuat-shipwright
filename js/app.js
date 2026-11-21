@@ -2654,6 +2654,7 @@ function setShip(s, opts) {
   if(fleet.mode!=='design')fleetSetMode('design');
   if(ship && !(opts&&opts.keepHistory)){undoStack.push(snap());if(undoStack.length>60)undoStack.shift();redoStack.length=0;}
   if (s.retiredCells) { const n = s.retiredCells; delete s.retiredCells; setTimeout(() => toast(`パワーセル ${n} 区画を熱エネルギー変換装置に置き換えました（v24 から砲の蓄電は各砲塔の充電装置が担います）`), 450); }
+  if (s.retiredHabitats) { const n = s.retiredHabitats; delete s.retiredHabitats; setTimeout(() => toast(`居住設備区画 ${n} 区画を外しました（乗員は船内の空き容積に乗ります。居住設備区画は廃止されました）`), 450); }
   if (s.retiredRooms) { const n = s.retiredRooms; delete s.retiredRooms; setTimeout(() => toast(`居住区・兵員室 ${n} 区画を外しました（v19 から乗員と兵員は船内の空き容積に乗ります）`), 400); }
   if (s.vehicleBays) { const n = s.vehicleBays; delete s.vehicleBays; setTimeout(() => toast(`車両格納区画 ${n} 区画を機体格納の格納区画に変えました（v20 から車両は航空機と同じ格納庫に寸法で入ります。ハッチか、ハッチにつながる格納区画に接するようにしてください）`), 700); }
   // Reserve identity before the first edit/save so all undo states of a new
