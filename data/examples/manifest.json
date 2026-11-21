@@ -243,7 +243,7 @@
   },
   "lh3210": {
    "combat": {
-    "sha256": "31f182789fcbec4385af6342efe689b7d6cbad87e4ec80e2f26e889394b70efe"
+    "sha256": "a295cc82e0409e6cb1282348c34c9b5bfa58f49d608e26d8d243b950db087cfb"
    },
    "design": {
     "sha256": "d57da75e08a0eba43973c513691807fa16ad8f86387a4f9589d676fe16de0318",
@@ -253,22 +253,22 @@
   },
   "lucrehulk": {
    "combat": {
-    "sha256": "7d18f756f77cf79a9caedd7a39da5a3616fcf887186ad046110be5f0bf0d1fde"
+    "sha256": "f2638c12291c243356f2f92c3ba7e44bcf8e489effba51c99da25a9bdb26ee51"
    },
    "design": {
-    "sha256": "159358123bc3fb91b792a568a6f210aa216067659cc7351bea87f8af61f616da",
-    "jsonSha256": "4433c171ddd9df2b7bf6aeffbf7b0964a5f6c359b7f0b0ae1d22aa907114f386",
-    "blueprintSha256": "0b79adeffdb12f14bb61fda65dc4c2c75fee9b82dd4e66bf20d9de0d4e0bfb9e"
+    "sha256": "b11f56e5f07e0c58430bd5685ff6d30ceaf110c324ed58ba5a41fc66ed4fa39f",
+    "jsonSha256": "909d37974c9bcddd6dbc9bd21be4b946697bb185cfc2d35c844a8ebb692869dd",
+    "blueprintSha256": "32895f84cdeacd7a106efe40416785b72e3a2ecbbcbf2d3eb543140f9da8beab"
    }
   },
   "mandator2": {
    "combat": {
-    "sha256": "0f96115678bdf73dde6c04d1a2193d19f2ce4356bfceaef0f4dae8852e2e900d"
+    "sha256": "4d04b2b80bbdf8b6e2031ff733d0874b54a1a9276e79d682faa9ac41eb315a3e"
    },
    "design": {
-    "sha256": "26a4560dd2600bf3598123e9a01d21b8998ca012abefda205c313b7444c6920c",
-    "jsonSha256": "f7291301a3f56440a21d30a8bf2e63c227251bef023a4402e0ec938e024f986b",
-    "blueprintSha256": "e0fb8ea2594aa12ff3dd2821cf4e6c3b6176c33f075526fb9816516f7f1b8c7b"
+    "sha256": "b0a91e161e75a7e513786b301bc56bc1abbf7512ccaf5f82356c0c377534e9ec",
+    "jsonSha256": "4d08572f9931555f921b30e80308b874c3430741e7aeed527b004047f181d8b2",
+    "blueprintSha256": "61ea3c1fba6a4802ce23d3dfc1b0ecd22534f0117a1da68b53b6c54c8bdbd065"
    }
   },
   "mc30c": {
@@ -313,12 +313,12 @@
   },
   "munificent": {
    "combat": {
-    "sha256": "af700ddcaee29856870ae965e70ddfe3c73b1315d08d64127767dbc6be1930ec"
+    "sha256": "2abb766c43a561ddf5b5de8c0d2633148b137a16d72e6a472d5c86c3dc75c524"
    },
    "design": {
-    "sha256": "7cc178f5e18631be3c1b83007a0fa87038ec13b67b4454eb221cce7e40533b68",
-    "jsonSha256": "26f404685d2e68727721e806a691d205eebae1dbc3a59c40c84a8d3041f9c11e",
-    "blueprintSha256": "f5825cb22c6488c81f6e753ebac3bc30c8f7158ce34c3ebc9d86ffd9690c9433"
+    "sha256": "f74e3101563188f709126dc96931348a78b607df43755f4afd90c35bfc8ca101",
+    "jsonSha256": "75e9835dfc90dc801312106ea674a1af94172f2d36335d13732961d06ae5e151",
+    "blueprintSha256": "08a0a81cc3a6dcfa4be99c990ce0782fcb7ebfa1cd497373e4311b10bdfcc862"
    }
   },
   "nebulonb": {
