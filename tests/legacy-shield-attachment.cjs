@@ -40,3 +40,15 @@ test('new shield requests cannot reuse the old exterior compatibility relationsh
  assert.equal(result.ok,false);assert.equal(result.code,'fixed-outside');
  assert.equal(C.placementCapability(part).space,'interior');
 });
+
+// 2026-11-21 (regression review of PR #122: saved designs name no body, user decision 2026-11-20). A shield of the old exterior
+// form is known as an exterior attachment only by the body it names (legacyExteriorShieldAttachment), so its record is the one
+// kept as saved: after two more saves and loads it is still that attachment, on its body, where it was, and connected.
+test('a legacy exterior shield is still an exterior attachment after saving and loading again',()=>{
+ for(const kind of ['shield','localShield']){
+  const first=legacyShip(kind),again=C.deserialize(plain(C.serialize(C.deserialize(plain(C.serialize(first)))))),a=first.parts.find(p=>p.id===2),b=again.parts.find(p=>p.id===2);
+  assert.equal(a.placement.parentStructureId,1,kind+': the fixture names its body');assert.equal(b.placement.parentStructureId,1,kind+': the body is still named after two round trips');
+  assert.deepEqual(plain(b.c),plain(a.c));assert.deepEqual(plain(b.placement.rigidPose),plain(a.placement.rigidPose));assert.equal(b._placementError,a._placementError);
+  const da=C.placementDiagnostics(first).find(d=>d.partId===2),db=C.placementDiagnostics(again).find(d=>d.partId===2);assert.equal(!!db?.connected,!!da?.connected,kind+': the same connection verdict');
+ }
+});

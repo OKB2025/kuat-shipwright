@@ -55,3 +55,27 @@ test('native world-ray picking sees the rear housing through an open embedded mo
  C.__shipUiRayFit=G.rayFit;run("const Gfx={rayFit:(o,d,f)=>C.__shipUiRayFit(o,d,f)};");const picking=app.slice(app.indexOf('function visibleAt('),app.indexOf('// ---------- tools ----------',app.indexOf('function visibleAt('))),helpersStart=picking.indexOf('const requestedParts ='),helpersEnd=picking.indexOf('function editorRayEnv(');run(picking.slice(0,helpersStart)+picking.slice(helpersEnd));
  const hit=run("(()=>{const q=C.launcherGeometry(f),o=C.add(q.muzzles[0],C.mul(q.axis,2));return pickRay(o,C.mul(q.axis,-1),{parts:false,fits:true});})()");assert.ok(hit.fit);assert.equal(hit.fit.k,'shipMsl');assert.ok(hit.t>4,'picking passes the mouth and reaches the real rear housing');delete C.__shipUiRayFit;
 });
+
+// User instruction 2026-11-21「セル間隔と数、並び列は編集可能に」: heavy cells' column and row spacing (12.1 m default, not stored).
+test('heavy cells show column and row spacing; placement carries it, an edit is one undo, and 12.1 m is not stored',()=>{
+ const run=setup();run("st.fit='shipMsl';st.launcherHeavy=false;");let html=run('launcherPitchControls()');assert.ok(!html.includes('LauncherColSpacing'),'small cells have no spacing');
+ run("st.launcherHeavy=true;st.launcherCols=4;st.launcherRows=2;");html=run('launcherPitchControls()');
+ for(const id of ['newLauncherColSpacing','newLauncherRowSpacing'])assert.ok(html.includes('data-sl="'+id+'"'),id);
+ // 2026-11-21「埋め込み専用で」: no external choice for heavy cells; the turn about the launch direction is offered
+ assert.ok(!/data-newlaunchermount="external"/.test(html),'no external mount for heavy cells');assert.match(html,/大型セルは構造物に埋め込みます/);assert.ok(html.includes('data-sl="newLaunchRoll"'));
+ run("st.launcherHeavy=false;st.launcherEmbedded=false;changeShipLauncher('launcherHeavy',true,'new')");assert.equal(run('st.launcherEmbedded'),true,'choosing heavy cells sets them in');assert.equal(run("changeShipLauncher('launcherEmbedded','external','new')"),false,'and they cannot be taken out');assert.match(html,/列の間隔/);assert.match(html,/段の間隔/);assert.match(html,/min="12\.1"/);assert.match(html,/max="100"/);
+ // (placed with the core: the fixture's tap placement fails on main and the base too, tests 2-4 above)
+ run("input('newLauncherColSpacing',18.5);input('newLauncherRowSpacing',14.9);{const h=C.rayEnv(ship,[250,500,60],[0,-1,0],{structOnly:true});C.placeFit(ship,'shipMsl',h.p,h.n,0,false,{launchPitch:0,...shipLauncherPlacementOptions()});st.sel={list:'fits',id:ship.fits.at(-1).id};}");
+ assert.equal(run('selItem().launcherColSpacing'),18.5);assert.equal(run('selItem().launcherRowSpacing'),14.9);
+ const q=plain(run('C.shipLauncherConfig(selItem())'));assert.equal(q.spaced,true);assert.ok(Math.abs(run('C.fitSpec(selItem()).wm')-(12.1+3*18.5))<1e-9);
+ run("undoStack.length=0");run("input('launcherColSpacing',20,false);input('launcherColSpacing',25)");assert.equal(run('undoStack.length'),1);assert.equal(run('selItem().launcherColSpacing'),25);
+ run('undo()');assert.equal(run('selItem().launcherColSpacing'),18.5);run('redo()');assert.equal(run('selItem().launcherColSpacing'),25);
+ run("input('launcherColSpacing',12.1);input('launcherRowSpacing',3)");assert.equal(run("'launcherColSpacing' in selItem()"),false,'back to touching: nothing stored');assert.equal(run("'launcherRowSpacing' in selItem()"),false,'below 12.1 m is 12.1 m');
+ const saved=plain(run('C.deserialize(C.serialize(ship)).fits.map(C.shipLauncherConfig)'));assert.equal(saved[0].colSpacing,12.1);
+ // regression review 2026-11-21 (FAIL): the linked mirror twin turns the other way (and back to none)
+ assert.deepEqual(plain(run("(()=>{const base={k:'shipMsl',launcherHeavy:true,p:[50,20,10],n:[0,1,0],a:2,ped:0,base:0},from={...base,launchYaw:10,launchRoll:30},to={...base,p:[50,20,-10]},out=[];syncFitTwin(from,to,{z:true});out.push(to.launchRoll,to.launchYaw);syncFitTwin(from,to,{z:true,y:true});out.push(to.launchRoll);delete from.launchRoll;syncFitTwin(from,to,{z:true});out.push('launchRoll' in to);return out;})()")),[-30,-10,30,false]);
+ // regression review 2026-11-21: copying a heavy launcher with the default spacing (not stored) resets a spaced one
+ assert.deepEqual(plain(run("(()=>{const to={k:'shipMsl',launcherHeavy:true,launcherColSpacing:30,launcherRowSpacing:20},from={k:'shipMsl',launcherHeavy:true,launcherCols:2,launcherRows:1};launcherSpacingFrom(from,to);return ['launcherColSpacing' in to,'launcherRowSpacing' in to];})()")),[false,false]);
+ assert.deepEqual(plain(run("(()=>{const to={k:'shipMsl',launcherHeavy:true},from={k:'shipMsl',launcherHeavy:true,launcherColSpacing:18.5};launcherSpacingFrom(from,to);return [to.launcherColSpacing,'launcherRowSpacing' in to];})()")),[18.5,false]);
+ assert.equal(run("(()=>{const to={k:'shipMsl',launcherHeavy:true,launcherColSpacing:30};launcherSpacingFrom({k:'shipMsl'},to);return to.launcherColSpacing;})()"),30,'a small-cell source leaves the spacing alone');
+});

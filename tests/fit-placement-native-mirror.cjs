@@ -18,7 +18,7 @@ test('native mirror fixture retains authenticated Mandator geometry and the sele
 });
 
 test('a reflected anchor outside the selected real face is strictly rejected without mutating the native hull',()=>{
- const s=C.deserialize(plain(C.serialize(ship))),before=state(s),result=solve(s,reflected);assert.equal(result.ok,false);assert.equal(result.code,'surface-missing');assert.equal(result.error,'指定した取付位置は追加元の実形状の面上にありません');assert.equal(state(s),before);assert.equal(s.fits.length,0);
+ const s=C.deserialize(plain(C.serialize(ship))),before=state(s),result=solve(s,reflected);assert.equal(result.ok,false);assert.equal(result.code,'surface-missing');assert.equal(result.error,'指定した取付位置は取付先の実形状の面上にありません');assert.equal(state(s),before);assert.equal(s.fits.length,0);
 });
 
 test('the exact primary and corrected mirror surface points solve and commit real UTL fittings on the native hull',()=>{

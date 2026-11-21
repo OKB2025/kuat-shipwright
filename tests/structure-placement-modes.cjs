@@ -17,7 +17,7 @@ test('definitions publish capability metadata for late equipment and normal exte
 test('only the first structure can become a root and root diagnostics stay valid with descendants',()=>{
  const s=fixture(null),root=C.commitPlacement(s,box([80,80,20]),{mode:'horizontal'});assert.equal(root.ok,true,root.error);assert.equal(root.part.placement.root,true);
  add(s,root.part.id);assert.equal(C.placementDiagnostics(s).find(p=>p.partId===root.part.id).root,true);
- const second=C.solvePlacement(s,box(),{mode:'horizontal'});assert.equal(second.ok,false);assert.equal(second.code,'parent-required');
+ const second=C.solvePlacement(s,box(),{mode:'horizontal'});/* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): a second structure with no tapped body is accepted where it is put, as an ordinary structure judged by contact (it was refused with 'parent-required' before). It is not a root. */assert.equal(second.ok,true,second.error);assert.equal(second.part.placement.root,undefined);assert.equal(second.part.placement.parentStructureId,undefined);
 });
 
 test('invalid capability combinations are refused by Core and both save paths',()=>{
@@ -81,7 +81,7 @@ test('new root and surface placement reject open or nonfinite solids without cha
 
 test('full and partial array copies remap parent IDs and never attach to an omitted external parent',()=>{
  const s=fixture(),child=add(s),r=C.placeLinearCopies(s,{parts:[1,child.id],fits:[]},{count:2,start:[0,0,0],end:[100,0,0],anchor:[0,0,0]});assert.equal(r.ok,true,r.error);const row=r.copies[0],copied=s.parts.filter(p=>row.parts.includes(p.id)),copyChild=copied.find(p=>p.placement?.parentStructureId);assert.ok(copyChild);assert.ok(row.parts.includes(copyChild.placement.parentStructureId));assert.equal(C.placementContact(s,copyChild,s.parts.find(p=>p.id===copyChild.placement.parentStructureId)).connected,true);
- const t=fixture(),q=add(t),partial=C.placeLinearCopies(t,{parts:[q.id],fits:[]},{count:2,start:q.c,end:[100,q.c[1],0]});assert.equal(partial.ok,true,partial.error);const copiedPartial=t.parts.find(p=>p.id===partial.parts[0]);assert.equal(copiedPartial.placement.parentStructureId,undefined);assert.equal(copiedPartial.placement.unresolvedParentId,1);assert.equal(C.placementDiagnostics(t).find(p=>p.partId===copiedPartial.id).connected,false);
+ const t=fixture(),q=add(t),partial=C.placeLinearCopies(t,{parts:[q.id],fits:[]},{count:2,start:q.c,end:[100,q.c[1],0]});assert.equal(partial.ok,true,partial.error);const copiedPartial=t.parts.find(p=>p.id===partial.parts[0]);assert.equal(copiedPartial.placement.parentStructureId,undefined);/* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): no mark of the body left outside the copy (expected unresolvedParentId 1 before) */assert.equal(copiedPartial.placement.unresolvedParentId,undefined);assert.equal(C.placementDiagnostics(t).find(p=>p.partId===copiedPartial.id).connected,false);
 });
 
 test('user-part capture and insertion preserve internal relationships through two ID remaps',()=>{
@@ -141,7 +141,7 @@ test('new exterior engines use the same catalog dimensions and functional settin
 });
 
 test('a previously verified root cannot commit after another structure has appeared',()=>{
- const s=fixture(null),r=C.solvePlacement(s,box(),{mode:'horizontal'});assert.equal(r.ok,true);s.parts.push({...box(),id:s.nextId++});const committed=C.acceptPlacementResult(s,r);assert.equal(committed.ok,false);assert.equal(committed.code,'parent-required');assert.equal(s.parts.length,1);
+ const s=fixture(null),r=C.solvePlacement(s,box(),{mode:'horizontal'});assert.equal(r.ok,true);s.parts.push({...box(),id:s.nextId++});const committed=C.acceptPlacementResult(s,r);/* 2026-11-21 (user decision 2026-11-20「今でも配置規則に親子が存在する？完全に無くすように」): the late result is committed as an ordinary structure, not as a second root (it was refused with 'parent-required' before) */assert.equal(committed.ok,true,committed.error);assert.equal(s.parts.length,2);assert.equal(s.parts.filter(p=>p.placement?.root).length,0);
 });
 
 test('clipboard coordinate scaling remaps local anchors and keeps an unseated copy at its new input position',()=>{
