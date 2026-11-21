@@ -633,11 +633,19 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
  box(g,M,o,-L/2+t/2,0,0,t,H,W,FC.body);
  box(g,M,o,-L/2+t+.008,0,0,.016,H-t*2,W-t*2,FC.dark);
  for(const sign of [-1,1]){box(g,M,o,0,sign*(H-t)/2,0,L,t,W,FC.body);box(g,M,o,0,0,sign*(W-t)/2,L,H-t*2,t,FC.body);}
- const rows=p.rows||1,cols=p.cols||1,ch=H/rows,cw=W/cols;
+ const rows=p.rows||1,cols=p.cols||1,ch=p.spaced?p.cellSize[1]:H/rows,cw=p.spaced?p.cellSize[2]:W/cols;
+ if(p.spaced){
+  // User instruction 2026-11-21「セル間隔と数、並び列は編集可能に」: spaced heavy cells; each cell has its own frame on the front face
+  // and the face between them is the launcher's plate.
+  box(g,M,o,L/2+.002,0,0,.01,H-t*2,W-t*2,FC.body);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const y=(r-(rows-1)/2)*p.rowSpacing,z=(c-(cols-1)/2)*p.colSpacing;
+   for(const s of [-1,1]){box(g,M,o,L/2+.005,y+s*(ch-t)/2,z,.02,t,cw,FC.ring);box(g,M,o,L/2+.005,y,z+s*(cw-t)/2,.02,ch-t*2,t,FC.ring);}}
+ }else{
  for(let i=1;i<rows;i++)box(g,M,o,0,-H/2+i*ch,0,L,t,W-t*2,FC.ring);
  for(let i=1;i<cols;i++)box(g,M,o,0,0,-W/2+i*cw,L,H-t*2,t,FC.ring);
  for(let r=0;r<=rows;r++)box(g,M,o,L/2+.005,C.clamp(-H/2+r*ch,-(H-t)/2,(H-t)/2),0,.02,t,W,FC.ring);
  for(let c=0;c<=cols;c++)box(g,M,o,L/2+.005,0,C.clamp(-W/2+c*cw,-(W-t)/2,(W-t)/2),.02,H-t*2,t,FC.ring);
+ }
  // User instruction 2026-11-19「VLSの蓋はSTLどおり円形」: a heavy cell's launch mouth has a round cover, as the source model's tubes have.
  if(p.heavy){const r=Math.min(ch,cw)*.42,fwd=p.bodyFrame.fw;for(const m of p.muzzles)axisFrustum(g,C.add(m,C.mul(fwd,-.25)),C.add(m,C.mul(fwd,.05)),r,r,FC.dark,true,false,16);}
  if(!p.embedded&&p.supportHeight>0&&p.baseThickness>0){
