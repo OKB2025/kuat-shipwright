@@ -10327,7 +10327,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "8f1tla",
+   "signature": "16vc4kl",
    "build": 150608,
    "crew": 1000,
    "total": 151608,
@@ -22404,7 +22404,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1dttd5p",
+   "signature": "1dnymvt",
    "build": 159845,
    "crew": 0,
    "total": 159845,
@@ -33480,7 +33480,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1stdda3",
+   "signature": "bg3mma",
    "build": 88727,
    "crew": 1000,
    "total": 89727,
@@ -50347,7 +50347,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "6jvjwe",
+   "signature": "4tay07",
    "build": 102488,
    "crew": 0,
    "total": 102488,
@@ -65424,7 +65424,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1ubabvp",
+   "signature": "bjaeb8",
    "build": 152699,
    "crew": 1000,
    "total": 153699,
@@ -71094,7 +71094,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "11ebm1i",
+   "signature": "1e9u0b1",
    "build": 134698,
    "crew": 1000,
    "total": 135698,
@@ -88613,7 +88613,7 @@ const FLEET_PROFILE_VERSION=25;/* 25 (2026-11-18, PR #117): weapon efficiency .7
 // statistics read, and the tables they use. Then regenerate the stored rows
 // (scripts/refresh-examples.cjs). tests/example-profile-version.cjs recomputes small
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
-const EXAMPLE_PROFILE_VERSION=5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
+const EXAMPLE_PROFILE_VERSION=6/* 2026-11-21: a space closed in by plates is inside the ship; depth behind a structure's face runs on through what is inside; saved designs name no body for weapons and placed parts. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
