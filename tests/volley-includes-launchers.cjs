@@ -5,12 +5,15 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),{C}
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 function helpers(ship){const c=vm.createContext({C,ship});const a=app.indexOf('function launcherVolleyTT('),b=app.indexOf('function bar(',a);assert.ok(a>=0&&b>a);vm.runInContext(app.slice(a,b),c);return c;}
 const load=k=>C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,`data/examples/${k}/design.json.gz`)))));
-test('ship: volley = guns + one salvo of the ship launchers',()=>{
+test('ship: volley = guns + one salvo of the ship launchers (not the 20-second rate in mslSalvo)',()=>{
  const ship=load('mc30c'),S=C.computeStats(ship),h=helpers(ship);
- assert.ok(S.mslSalvo>0,'mc30c carries missile launchers');
+ const launchers=ship.fits.filter(f=>C.isShipLauncher(f));assert.equal(launchers.length,8,'mc30c carries eight launchers');
+ const one=launchers.reduce((n,f)=>n+C.fitSpec(f).msl,0);
+ assert.ok(Math.abs(one-8*C.fitSpec(launchers[0]).msl)<1e-12);
+ assert.ok(S.mslSalvo>one*10,`mslSalvo is a 20-second rate (${S.mslSalvo} against one salvo ${one})`);
  assert.equal(h.gunVolleyTT(S),S.allGunVolleyTT);
- assert.equal(h.launcherVolleyTT(S),S.mslSalvo+(S.imslSalvo||0));
- assert.equal(h.totalVolleyTT(S),S.allGunVolleyTT+S.mslSalvo+(S.imslSalvo||0));
+ assert.ok(Math.abs(h.launcherVolleyTT(S)-one)<1e-12,`one salvo ${h.launcherVolleyTT(S)} = ${one}`);
+ assert.ok(Math.abs(h.totalVolleyTT(S)-(S.allGunVolleyTT+one))<1e-12);
 });
 test('craft: launcher value is a 20-second rate and is not added',()=>{
  const ship=load('craft_xwing'),S=C.computeStats(ship),h=helpers(ship);

@@ -78067,9 +78067,17 @@ function inHull(ship,p){if(solidCutsContain(ship,p))return false;if(ship.hullStr
 // sample's filled bays keep a 3 m margin, the Onager's and the Dreadnaught's sit above a sloping bottom) is lowered until its floor
 // reaches the lowest skin under its footprint, so the opening is where the bay and the skin overlap (aviationSkinOverlap); the
 // part of the bay below a higher stretch of skin is clipped away with the rest of the compartment. Returns the drop in metres.
+// User decision 2026-11-22 (「高さを足して機数を戻す」, after the reference-fidelity review found the Dreadnaught's TIE squadron bay
+// holding 11 craft instead of 12 and the Onager's bays 12 instead of 14): only the floor goes down; the ceiling stays where it was,
+// so the bay grows by the drop and keeps every metre it had above its old floor (the room's vertical size grows, the centre moves
+// down by half the drop). A bay whose vertical room axis cannot be told keeps the old behaviour (moved down whole).
 function seatBayOnSkin(ship,bay){
  const b=partAABB(bay),hits=[];for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){const x=lerp(b[0],b[3],.05+.9*i/4),z=lerp(b[2],b[5],.05+.9*j/4),h=rayEnv(ship,[x,bay.c[1],z],[0,-1,0],{structOnly:true});if(h)hits.push(bay.c[1]-h.t);}
- if(!hits.length)return 0;const drop=b[1]-Math.min(...hits);if(!(drop>1e-6))return 0;bay.c=[bay.c[0],bay.c[1]-drop,bay.c[2]];return drop;
+ if(!hits.length)return 0;const drop=b[1]-Math.min(...hits);if(!(drop>1e-6))return 0;
+ const placed=partAABB({...bay,_clip:null,_packing:null}),height=placed[4]-placed[1],k=Array.isArray(bay.room)?bay.room.findIndex(v=>Math.abs(v-height)<1e-6*Math.max(1,height)):-1;
+ if(k>=0&&bay.room.filter(v=>Math.abs(v-height)<1e-6*Math.max(1,height)).length===1){const size=bay.room.slice();size[k]+=drop;setRoomSize(bay,size);bay.c=[bay.c[0],bay.c[1]-drop/2,bay.c[2]];}
+ else bay.c=[bay.c[0],bay.c[1]-drop,bay.c[2]];
+ return drop;
 }
 // The same user decision for a side mouth that stops short of the outer skin (physics review 2026-11-21: only outer skin opens): the
 // bay's room is extended toward that face until it reaches the outer skin under its mouth (the Providence's beam-to-beam deck

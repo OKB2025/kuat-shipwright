@@ -3383,9 +3383,11 @@ function renderStrip() {
   renderInspBar();designUIMetrics();
 }
 // 2026-11-22 (user: 「性能の火力には艦搭載のミサイル/魚雷も含んで」): the firepower shown on the performance tab counts one salvo
-// of every ship-mounted missile and torpedo launcher (mslSalvo + imslSalvo, a full salvo of all cells) next to the guns. Craft keep
-// their gun-only figures (their launcher value is a 20-second rate, not one salvo). allGunVolleyTT itself is unchanged (fleet data, tests).
-function launcherVolleyTT(S){return S&&!(typeof ship!=='undefined'&&ship&&C.isCraft(ship))?Math.max(0,S.mslSalvo||0)+Math.max(0,S.imslSalvo||0):0;}
+// of every ship-mounted missile and torpedo launcher next to the guns: each launcher's fitSpec msl (round yield × cells), under the
+// same mounting condition computeStats uses for mslSalvo (external, or a VLS more than 5% inside). S.mslSalvo itself is a 20-second
+// rate for these launchers (physics review 2026-11-22), so it is not used here. Craft keep their gun-only figures.
+// allGunVolleyTT itself is unchanged (fleet data, tests). The design is the one being edited (the stats shown are always its own).
+function launcherVolleyTT(S,design=(typeof ship!=='undefined'?ship:null)){if(!S||!design||C.isCraft(design))return 0;let n=0;for(const f of design.fits||[]){if(f.float)continue;const d=C.fitSpec(f);if(!d||d.cat!=='w'||!(d.msl>0))continue;if(C.missileMount(f)!=='ext'&&!((S.vlsInfo?.[f.id]?.ratio||0)>.05))continue;n+=d.msl;}return n;}
 function gunVolleyTT(S){return S?.allGunVolleyTT??((S?.alphaTot||0)+(S?.ionTot||0));}
 function totalVolleyTT(S){return gunVolleyTT(S)+launcherVolleyTT(S);}
 function bar(frac, cls) { return `<span class="bar ${cls || ''}"><em style="width:${Math.max(0, Math.min(100, frac * 100)).toFixed(1)}%"></em></span>`; }
