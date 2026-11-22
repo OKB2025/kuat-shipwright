@@ -2058,7 +2058,7 @@ function openCommandMenu(sub) {
   else { st.tab = 'bridge'; st.bridgeMode = sub; st.bridgeTool = 'place'; }
 }
 // The bridge editor lives inside 区画 → 指揮・艦橋; its state keeps the 'bridge' key.
-const tabKey = () => st.tab === 'bridge' ? 'mod' : ['hull','carve','armor'].includes(st.tab) ? 'edit' : st.tab;
+const tabKey = () => st.tab === 'bridge' ? 'mod' : ['hull','carve','armor','paint'].includes(st.tab) ? 'edit' : st.tab;
 function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); if (!nativeRender) renderInspBar(); }
 const st = {
   tab: 'edit', part: 'struct', partTool: 'place',
@@ -2130,6 +2130,7 @@ function engineStatus() {
 }
 function uploadStored() {
   if (!view) return;
+  view.setDecalImages?.(ship?.decalImages);
   for (const [k, g] of Object.entries(meshStore.geos)) if (g) view.upload(k, g);
   if (meshStore.glow) view.setGlow(meshStore.glow, C.engineGlowRGB(ship?.engineGlow));
   if (meshStore.grid) view.setLines('grid', meshStore.grid);
@@ -2153,7 +2154,7 @@ function applyGeometry(msg, guard) {
   const upload=()=>{
     if(!valid())return settle(false);
     const began=clock();
-    do{const[k,g]=entries[index++]||[];if(g){meshStore.geos[k]=g;if(view)view.upload(k,g);}}while(index<entries.length&&(!large||clock()-began<6));
+    do{const[k,g]=entries[index++]||[];if(g){meshStore.geos[k]=g;if(view){if(k==='decals')view.setDecalImages?.(ship?.decalImages);view.upload(k,g);}}}while(index<entries.length&&(!large||clock()-began<6));
     if(index<entries.length)return new Promise(resolve=>setTimeout(()=>resolve(upload()),0));
     return finish();
   };
@@ -2961,6 +2962,7 @@ function tool() {
     // 削る is one tool for solid cutters (user decision 2026-11-11). Trench, bevel, notch and the
     // plan trapezoid are hull-only shape tools under 形状.
     case 'carve': return 'solid';
+    case 'paint': return 'decal';
     case 'hull': return st.hullShapeTool === 'notch' ? 'notch' : 'inspect';
     default: return 'inspect';
   }
@@ -3142,6 +3144,7 @@ function onTap(px, py, add, pointerType) {
   if(designUIInspectMode()){designUIInspectTap(pick(px,py,{parts:true,fits:true}),!!add);return;}
   if(veTap(px,py,add))return;
   const t = tool();
+  if(t === 'decal') { decalTap(px,py); return; }
   if(t === 'solid') { if(st.cutterAction === 'place') { const hit=pick(px,py,{parts:true,fits:false}); if(hit?.p)placeSolidCutter(hit);else toast('カッターを重ねる船体・構造物をタップしてください'); } return; }
   if(designUI.pickParent){const hit=pick(px,py,{parts:true,fits:false});if(hit?.part&&C.isStructuralPart(hit.part)){designUI.parentId=hit.part.id;designUI.pickParent=false;designUI.drawer=true;renderPanel();}else toast('取付先にする構造物を選択してください');return;}
   if(designUI.drawer&&!designUI.details&&['part','fit'].includes(t))return;
@@ -3713,7 +3716,7 @@ function baseFitEditor() {
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
     ${weaponMountIssue(it,C.fitUp(it))?`<p class="note neg" data-weapon-mount-error>${weaponMountIssue(it,C.fitUp(it))}</p>`:''}
     ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}${launcherPitchControls(it)}${craftGunSinkControls(it)}
-    ${fitPedestalControls(it)}</div>`;
+    ${fitPedestalControls(it)}${fitColorHTML(it)}</div>`;
 }
 function partList() {
   const items = ship.parts.filter(p => !(p.tw && p.id > p.tw));
@@ -3809,6 +3812,7 @@ function baseRenderPanel() {
       h = solidCutPanelHTML() + `<div class="pinfo" id="pinfo"></div>`;
       break;
     }
+    case 'paint': h = decalPanelHTML(); break;
     case 'spec':
       h = `<div class="spec-wrap">${specHTML(S)}${specExtrasHTML()}</div>`;
       break;
@@ -4585,7 +4589,7 @@ function fitLinks(f) {
   const out = []; if (tw) out.push({fit: tw, z: true, y: false}); if (vt) out.push({fit: vt, z: false, y: true}); if (vtw && vtw !== tw && vtw !== vt) out.push({fit: vtw, z: true, y: true});
   return out;
 }
-const FIT_SYNC_KEYS = ['ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
+const FIT_SYNC_KEYS = ['paint', 'ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
 function syncFitTwin(from, to, link) {
   if (to.k !== from.k) { to.k = from.k; for (const k of ['skinAsset', 'mountOffset', 'mountAxis']) if (from[k] === undefined) delete to[k]; }
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
@@ -4738,6 +4742,8 @@ function bind() {
     else if (d.hsize) { mutate('格納庫の大きさ', () => editSel(it => { it.d = +d.hsize; }), 'parts'); renderPanel(); }
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
     else if ('desel' in d) { selClear(); xfReset(); renderPanel(); }
+    else if ('partpaintclear' in d) { mutate('部品の色を標準に戻す', () => editSel(p => { delete p.paint; }), 'parts'); renderPanel(); }
+    else if ('fitpaintclear' in d) { mutate('砲の色を標準に戻す', () => editSel(f => { delete f.paint; }), 'fits'); renderPanel(); }
     else if ('fitpair' in d) { st.fitPairEdit = st.fitPairEdit === false; renderPanel(); refreshOverlay(); }
     else if ('delsel' in d) {
       if (st.tab === 'edit') { editDelete(); renderPanel(); return; }
@@ -5252,7 +5258,7 @@ function designUIPanel(){
     const placement=designUIPlacementHTML();if(placement)panel.insertAdjacentHTML('beforeend','<details data-design-attachment><summary>取付・配置方式</summary>'+placement+'</details>');
     if(st.sel?.list==='parts'&&C.isStructuralPart(selItem())&&!panel.querySelector('[data-design-here]'))panel.insertAdjacentHTML('beforeend','<div class="design-placement-actions"><button type="button" class="btn" data-design-here>ここに構造物を追加</button></div>');
     panel.insertAdjacentHTML('afterbegin',designUISymmetryHTML(true));
-    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
+    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button><button class="btn sm" data-design-context="paint">塗装・エンブレム</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
    }
    if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p></section>');designUIEditStatus();}
   }
@@ -5313,6 +5319,7 @@ function designUIContextOpen(context){
  }
  // 削る works on every structure (user decision 2026-11-11); armor and the hull shape tools
  // (形状) stay with hull structures.
+ if(context==='paint'){designUI.resetScroll=true;designUI.context='paint';st.tab='paint';st.decalArm=null;renderPanel();return;}
  if(context==='carve'&&C.isShapePart(item)){designUI.resetScroll=true;designUI.context='carve';st.tab='carve';if(!C.isHullStructure?.(item))st.cutterHullId=null;renderPanel();return;}
  if(!C.isHullStructure?.(item)||!['armor','hull'].includes(context))return;
  designUI.resetScroll=true;designUI.context=context;st.tab=context;renderPanel();
@@ -6744,6 +6751,10 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
   if(st.tab==='spec')panel.insertAdjacentHTML('afterbegin',trialCardHTML());
   organizePanel();
 }
+// 2026-11-22 Equipment and guns take a colour of their own, as structures do (user: 「船体、パーツ、砲も構造物同様色を変えれるように」).
+// No value means the standard colour of the kind; 「標準の色に戻す」 removes it.
+function partColorHTML(p){return `<div class="pgroup" data-part-color><h4>部品の色</h4><label>部品の色 <input type="color" data-partpaint value="${p.paint||'#a4acb4'}"></label>${p.paint?'<button type="button" class="btn sm ghost" data-partpaintclear>標準の色に戻す</button>':''}</div>`;}
+function fitColorHTML(f){return `<div class="pgroup" data-fit-color><h4>砲の色</h4><label>砲の色 <input type="color" data-fitpaint value="${f.paint||'#b8bec4'}"></label>${f.paint?'<button type="button" class="btn sm ghost" data-fitpaintclear>標準の色に戻す</button>':''}</div>`;}
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
   html+=cockpitEquipmentHTML(p);
@@ -6766,6 +6777,7 @@ function partEditor(){
   if(p.k==='engine'&&!C.parametricEngine(p))html+=`<div class="pgroup"><h4>拡張ノズル</h4><div class="sliders">${slider('throatRatio','奥の噴出口の径',Math.round((p.throatRatio??.34)*100),18,80,1,Math.round((p.throatRatio??.34)*100)+'%')}</div></div>`;
   if(p.k==='hangar')html+=aviationPartHTML(p);
   if(C.isShapePart(p)&&p.form==='arc')html+=`<div class="pgroup"><h4>環状船体の空洞と開き</h4>${[['arcInner','内径の比率',(p.arcInner??.65)*100,5,95],['arcStart','円弧の開始角',p.arcStart??30,-180,180],['arcSweep','円弧の角度',p.arcSweep??300,5,360]].map(([k,n,v,lo,hi])=>`<label>${n}<input type="number" data-arc="${k}" value="${v}" min="${lo}" max="${hi}" step="1"></label>`).join('')}<p class="note">360°で閉じた環。0°は艦首側です。内径を広げると船内容積と質量が減ります。</p></div>`;
+  if(p.k!=='struct')html+=partColorHTML(p);
   if(p.k==='struct')html+=`<div class="pgroup"><label><input type="checkbox" data-bands ${p.bands?.length?'checked':''}> 青色の識別帯</label><p class="note">構造物の塗装です。艦橋ポッドや指揮区画は追加しません。</p></div>`;
   return html;
 }
@@ -6799,8 +6811,10 @@ function bindRealism(){
     if(t.dataset.station!=null){const i=+t.dataset.station,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v)||j>7)return;let switched=false;mutate('船体断面を調整',()=>{const a=ensureStations();if(j>=4)switched=deckSection(a);for(const row of a){while(row.length<Math.max(6,j+1))row.push(row.length===3?0:row.length===4?hullEditorProfile().deckWidth??.52:row.length===5?hullEditorProfile().keelWidth??0:row.length===6?hullEditorProfile().belt??.13:hullEditorProfile().chineHeight??.5);}a[i][j]=j===0?C.clamp(v,a[i-1][0]+.002,a[i+1][0]-.002):C.clamp(v,[0,.005,.005,-.5,0,0,.02,.2][j],[1,1.5,1.5,.8,.98,.98,.98,.8][j]);C.normalizeBow(hullEditorProfile());},'hull');if(switched)toast('甲板・船底の幅を使うため、断面を「装甲楔形」に切り替えました');renderPanel();}
     if('autofit'in t.dataset){mutate('区画の自動統合',()=>editSel(p=>p.autoFit=t.checked),'parts');renderPanel();}
     if('partlabel'in t.dataset){mutate('区画名',()=>editSel(p=>p.label=t.value.slice(0,80)),'none');renderPanel();}
-    if('partpaint'in t.dataset){mutate('構造物の色',()=>editSel(p=>p.paint=t.value),'parts');}
+    if('partpaint'in t.dataset){mutate(selItem()?.k==='struct'?'構造物の色':'部品の色',()=>editSel(p=>p.paint=t.value),'parts');renderPanel();}
+    if('fitpaint'in t.dataset){mutate('砲の色',()=>editSel(f=>f.paint=t.value.toLowerCase()),'fits');renderPanel();}
   });
+  bindDecalPanel($('#panel'));
   $('#panel').addEventListener('input',e=>{if(blockedHullControl(e.target))return;const t=e.target,k=t.dataset.sl;if(t.value==='')return;const v=t.min!=null&&t.max!=null?C.clamp(+t.value,+t.min,+t.max):+t.value;if(!Number.isFinite(v))return;const out=$('#out-'+k);
     const live=(fn,what='parts')=>{beginDrag('形状・区画を調整');fn();touch(what);scheduleStats(350);};
     if(k?.startsWith('newRoom'))st.roomSize[+k.at(-1)]=v;
@@ -11056,6 +11070,69 @@ function reconcileSolidCutter(){
   if(q)st.solidCutter=C.normalizeSolidCut(q);
   else{st.solidCutEdit=null;if(st.solidCutter)st.solidCutter=C.normalizeSolidCut({...st.solidCutter,id:-1});}
 }
+// ---------- 2026-11-22 Painted shapes and emblems (Core normalizeDecals, Gfx meshDecals) ----------
+// 塗装・エンブレム: add a rectangle, circle or triangle, or read an image of the player's own (none ships with the game,
+// user decision 2026-11-22), then tap the hull or a structure where it goes. Each decal has a colour, a size, a turn and
+// an optional mirror image on the other side. Edits go through mutate (Undo) and rebuild only the decal mesh.
+const DECAL_KIND_NAMES={rect:'長方形',circle:'円',triangle:'三角形',image:'画像'};
+function decalById(id){return (ship?.decals||[]).find(d=>d.id===id)||null;}
+function decalDefaultSize(){const L=Math.max(ship?.hull?.L||100,1);return Math.round(Math.min(2000,Math.max(.5,L*.08))*10)/10;}
+function decalPanelHTML(){
+ const list=ship?.decals||[],sel=decalById(st.decalSel),images=ship?.decalImages||{},n=Object.keys(images).length;
+ const row=d=>`<button type="button" class="chip${d.id===st.decalSel?' on':''}" data-decalsel="${d.id}" aria-pressed="${d.id===st.decalSel}">${esc(T(DECAL_KIND_NAMES[d.kind]||d.kind))} ${d.id}${d.mirror?' ⇋':''}</button>`;
+ const num=(k,label,v,lo,hi,step)=>`<label class="field-label">${esc(T(label))} <input type="number" data-decalnum="${k}" value="${v}" min="${lo}" max="${hi}" step="${step}"></label>`;
+ return `<div class="pgroup" data-decal-panel><h4>塗装・エンブレム</h4>
+ <p class="note">船体や構造物の表面に図形や画像を描きます。質量や性能は変わりません。画像はご自身で用意したもの（写真など）を読み込んでください。ゲームには画像は入っていません。</p>
+ <div class="seg" role="group" aria-label="追加">${['rect','circle','triangle'].map(k=>`<button type="button" class="btn sm" data-decaladd="${k}">${esc(T(DECAL_KIND_NAMES[k]))}を追加</button>`).join('')}<button type="button" class="btn sm" data-decalimport ${n>=C.DECAL_LIMITS.images?'disabled':''}>画像を読み込む</button><input type="file" accept="image/png,image/jpeg,image/webp" data-decalfile hidden></div>
+ ${st.decalArm?`<p class="note" data-decal-armed>${esc(T(st.decalArm.move?'新しい位置の表面をタップしてください。':'貼る場所の表面をタップしてください。'))} <button type="button" class="btn sm ghost" data-decalcancel>やめる</button></p>`:''}
+ ${list.length?`<div class="chips" data-decal-list>${list.map(row).join('')}</div>`:'<p class="note">まだありません。</p>'}
+ ${sel?`<div class="pgroup" data-decal-editor><h4>${esc(T(DECAL_KIND_NAMES[sel.kind]))} ${sel.id}</h4>
+  ${sel.kind!=='image'?`<label>色 <input type="color" data-decalcolor value="${sel.color||'#ffffff'}"></label>`:''}
+  <div class="sliders">${num('w','幅 (m)',sel.w,.05,C.DECAL_LIMITS.size,.1)}${num('h','高さ (m)',sel.h,.05,C.DECAL_LIMITS.size,.1)}${num('rot','回転 (°)',Math.round(sel.rot||0),-180,180,1)}</div>
+  <label><input type="checkbox" data-decalmirror ${sel.mirror?'checked':''}> 反対側にも描く（左右対称）</label>
+  <div><button type="button" class="btn sm" data-decalmove>位置を変える</button><button type="button" class="btn sm danger" data-decaldel>削除</button></div></div>`:''}
+ </div>`;
+}
+function decalTap(px,py){
+ const arm=st.decalArm;if(!arm){const hit=pick(px,py,{parts:true,fits:false});toast(T('「図形を追加」か「画像を読み込む」を選んでから、表面をタップしてください'));return hit;}
+ const view0=view.ray(px,py),hit=pick(px,py,{parts:true,fits:false});if(!hit?.p||!hit.n){toast(T('船体か構造物の表面をタップしてください'));return;}
+ let n=C.norm(hit.n);if(view0&&C.dot(n,view0.d)>0)n=C.mul(n,-1);const c=hit.p.slice();
+ if(arm.move){const id=arm.move;mutate('塗装・エンブレムを移動',()=>{const d=decalById(id);if(d){d.c=c;d.n=n;}},'decals');st.decalArm=null;renderPanel();return;}
+ const size=arm.w||decalDefaultSize();
+ mutate('塗装・エンブレムを追加',()=>{ship.decals||=[];if(ship.decals.length>=C.DECAL_LIMITS.count)return '塗装・エンブレムは '+C.DECAL_LIMITS.count+' 個までです';const id=Math.max(0,...ship.decals.map(d=>d.id))+1;
+  const d={id,kind:arm.kind,c,n,w:size,h:arm.h||size,rot:0,color:arm.kind==='image'?'#ffffff':(arm.color||'#c8322b')};if(arm.kind==='image'){ship.decalImages||={};ship.decalImages[arm.image]=arm.data;d.image=arm.image;}
+  ship.decals.push(d);st.decalSel=id;},'decals');
+ st.decalArm=null;renderPanel();
+}
+function decalReadImage(file){
+ if(!file)return;if(!/^image\/(png|jpeg|webp)$/.test(file.type)){toast(T('PNG・JPEG・WebP の画像を選んでください'));return;}
+ if(file.size>20*1024*1024){toast(T('画像が大きすぎます（20 MB まで）'));return;}
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{URL.revokeObjectURL(url);const S=256,k=Math.min(1,S/Math.max(img.width,img.height)),w=Math.max(1,Math.round(img.width*k)),h=Math.max(1,Math.round(img.height*k)),cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);
+  /* PNG keeps transparency; a large photo falls back to WebP (also transparent) and then JPEG */let data=cv.toDataURL('image/png');if(data.length>C.DECAL_LIMITS.imageChars){const webp=cv.toDataURL('image/webp',.85);data=/^data:image\/webp/.test(webp)&&webp.length<=C.DECAL_LIMITS.imageChars?webp:cv.toDataURL('image/jpeg',.85);}
+  if(data.length>C.DECAL_LIMITS.imageChars){toast(T('画像を小さくできませんでした'));return;}
+  const used=Object.values(ship.decalImages||{}).reduce((a,v)=>a+v.length,0);if(used+data.length>C.DECAL_LIMITS.totalImageChars){toast(T('画像の合計が大きすぎます。使っていない画像を削除してください'));return;}
+  let key='img1';for(let i=1;Object.hasOwn(ship.decalImages||{},key);i++)key='img'+(i+1);
+  const W=decalDefaultSize();st.decalArm={kind:'image',image:key,data,w:W,h:Math.round(W*h/w*100)/100};renderPanel();toast(T('貼る場所の表面をタップしてください。'));};
+ img.onerror=()=>{URL.revokeObjectURL(url);toast(T('画像を読み込めませんでした'));};img.src=url;
+}
+function bindDecalPanel(panel){
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.closest('[data-decal-panel]'))return;const d=b.dataset;
+  if(d.decaladd){st.decalArm={kind:d.decaladd};renderPanel();}
+  else if('decalimport'in d)panel.querySelector('[data-decalfile]')?.click();
+  else if('decalcancel'in d){st.decalArm=null;renderPanel();}
+  else if(d.decalsel){st.decalSel=+d.decalsel;renderPanel();}
+  else if('decalmove'in d&&decalById(st.decalSel)){st.decalArm={move:st.decalSel};renderPanel();}
+  else if('decaldel'in d&&decalById(st.decalSel)){const id=st.decalSel;mutate('塗装・エンブレムを削除',()=>{ship.decals=ship.decals.filter(q=>q.id!==id);const used=new Set(ship.decals.map(q=>q.image).filter(Boolean));for(const k of Object.keys(ship.decalImages||{}))if(!used.has(k))delete ship.decalImages[k];if(!ship.decals.length){delete ship.decals;delete ship.decalImages;}},'decals');st.decalSel=null;renderPanel();}
+ });
+ panel.addEventListener('change',e=>{const t=e.target;if(!t.closest?.('[data-decal-panel]'))return;const sel=decalById(st.decalSel);
+  if('decalfile'in t.dataset){decalReadImage(t.files?.[0]);t.value='';return;}if(!sel)return;const id=sel.id;
+  if('decalcolor'in t.dataset)mutate('塗装・エンブレムの色',()=>{decalById(id).color=t.value.toLowerCase();},'decals');
+  else if(t.dataset.decalnum){const k=t.dataset.decalnum,v=+t.value;if(!Number.isFinite(v))return;mutate('塗装・エンブレムの大きさ・向き',()=>{const d=decalById(id);d[k]=k==='rot'?C.clamp(v,-180,180):C.clamp(v,.05,C.DECAL_LIMITS.size);},'decals');}
+  else if('decalmirror'in t.dataset)mutate('塗装・エンブレムの左右対称',()=>{const d=decalById(id);if(t.checked)d.mirror=true;else delete d.mirror;},'decals');
+  renderPanel();
+ });
+}
 function cutterActive(){return !!ship&&st.tab==='carve'&&st.carveTool==='solid'&&fleet.mode==='design';}
 function cutterNumber(v){return Number(v.toFixed(6));}
 function cutterInputs(field,labels,unit){
@@ -11575,7 +11652,7 @@ function restoreRenderer(useCompat=false,fit=false){
    const next=canvas.cloneNode(false);next.width=300;next.height=150;canvas.replaceWith(next);canvas=next;
    view=new Gfx.CompatRenderer(canvas);renderHealth.error=String(e.message||e);
   }
-  renderHealth.mode=view.kind==='compat'?'compat':'webgl';renderHealth.lost=false;renderHealth.failures=0;
+  renderHealth.mode=view.kind==='compat'?'compat':'webgl';renderHealth.lost=false;renderHealth.failures=0;view.onDecalsReady=()=>{dirty.draw=true;};
   if(cam)view.cam=cam;if(off)view.off=off;
   bindCanvasRendering(canvas);attachControls(canvas);view.onTextureReady=requestDraw;
   if(fleet?.assets)for(const [key,a] of fleet.assets)if((fleet.mode==='review'||trial.battle)&&a.geometry)view.loadFleet(key,a.geometry);

@@ -310,6 +310,8 @@ function geometryPass(job, flags) {
     lastOverlap = overlapSig(lastInfo);
   }
   if (flags.hatches) { const h = G.meshHatches(ship); geos.hatchOpen = geoOut(h.open, transfer); geos.hatchRay = geoOut(h.ray, transfer); geos.refHatches = geoOut(G.meshReferenceHatches(ship), transfer); }
+  // 2026-11-22 Painted shapes and emblems lie on the hull and structures: rebuilt with them or on their own edit.
+  if (flags.decals || flags.hull || flags.parts) geos.decals = geoOut(G.meshDecals(ship), transfer);
   if (flags.fits) { const fr = {}; geos.fits = geoOut(G.meshFits(ship, null, fr), transfer); geos.refFits = geoOut(G.meshReferenceFits(ship, fr), transfer); out.fitRanges = fr; }
   out.meshMs = now() - t0;
   return out;
@@ -327,11 +329,12 @@ function applyState(job) {
 async function deriveState(job) {
   const what = new Set(job.what || []);
   const any = (...k) => k.some(w => what.has(w));
-  const flags = {hull: false, parts: false, hatches: false, fits: false};
+  const flags = {hull: false, parts: false, hatches: false, fits: false, decals: false};
   if (job.reset || any('hull', 'all', 'hatches')) flags.hull = flags.parts = flags.hatches = flags.fits = true;
   if (any('parts')) flags.parts = flags.hatches = flags.fits = true;
   if (any('fits')) flags.fits = flags.parts = true;
   if (any('view')) flags.parts = true;
+  if (any('decals')) flags.decals = true;
   // Moving exposed structures can reveal or cover a configured hull patch.
   // Its removed skin must be rebuilt together with the equipment, even when
   // the hull's physical collision geometry has not changed.
