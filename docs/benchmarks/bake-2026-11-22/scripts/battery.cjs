@@ -1,0 +1,9 @@
+// Prototype check: ISD trench batteries converted to wall batteries give the same groups.
+const fs=require('fs'),path=require('path'),zlib=require('zlib');const root=process.cwd();const {C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+const k=process.argv[2]||'imperial';const s=C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples',k,'design.json.gz')))));C.syncCompartments(s);
+const sum=ship=>{const g=C.bulkTrenchGroups(ship);return g.map(f=>({k:f.k,side:f.trenchRef.side,n:f.aggregateCount,valid:f.valid,err:f.reason,p:f.p.map(v=>+v.toFixed(1)),charge:+(f.chargeVolume||0).toFixed(0)}));};
+const before=sum(s);let made=[];for(const hull of s.parts.filter(p=>C.isHullStructure(p)&&(p.hullData?.trenches||[]).some(t=>t.armament)))made=made.concat(C.bakeTrenchBatteries(s,hull));C.syncCompartments(s);const after=sum(s);
+const key=f=>f.k+':'+f.n+':'+Math.sign(f.p[2]);const A=before.slice(),B=after.slice();let worst=0,unmatched=0,validDiff=0,chargeDiff=0;for(const f of A){let best=null,bd=1e18;for(const g of B){if(key(g)!==key(f))continue;const d=Math.hypot(...f.p.map((v,i)=>v-g.p[i]));if(d<bd){bd=d;best=g;}}if(!best){unmatched++;continue;}B.splice(B.indexOf(best),1);worst=Math.max(worst,bd);if(best.valid!==f.valid){validDiff++;console.log('DIFF',JSON.stringify(f),'=>',JSON.stringify(best));}if(Math.abs(best.charge-f.charge)>1e-6*Math.max(1,f.charge))chargeDiff++;}
+console.log('groups',A.length,after.length,'unmatched',unmatched,'extra',B.length,'worst position shift m',worst.toFixed(3),'validity differs',validDiff,'charge differs',chargeDiff,'total guns',A.reduce((n,f)=>n+f.n,0),after.reduce((n,f)=>n+f.n,0));
+console.log('batteries',made.length,);
+const o=JSON.parse(JSON.stringify(C.serialize(s)));const r=C.deserialize(o);C.syncCompartments(r);console.log('reload equal counts',JSON.stringify(sum(r).map(f=>f.n))===JSON.stringify(after.map(f=>f.n)));

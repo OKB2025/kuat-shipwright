@@ -75252,7 +75252,9 @@ function ensurePrimaryHull(ship,options={}){
 }
 function hullStructureGeometry(ship,p){
  if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);
- if(p._placementGeometry){const tris=placementGeometryTriangles(p);if(p._placementHullGeometry?.tris===tris)return p._placementHullGeometry.value;const base=hullGeo(hullStructureShip(ship,p)),value={...base,tris,materialTris:tris,referenceSkin:null,volume:meshVolume(p._placementGeometry.local),area:solidMeshArea(tris),bounds:solidMeshBounds(tris)};p._placementHullGeometry={tris,value};return value;}
+ if(p._placementGeometry){const tris=placementGeometryTriangles(p),aperture=p.bakedMesh?JSON.stringify(p._apertures||[]):'';if(p._placementHullGeometry?.tris===tris&&p._placementHullGeometry.aperture===aperture)return p._placementHullGeometry.value;const base=hullGeo(hullStructureShip(ship,p));
+  /* a baked hull's material is its shape less its hatch mouths, as a hull structure's was (2026-11-22) */const material=p.bakedMesh&&p._apertures?.length?(uncutSolidStructTriangles(p),p._pierced?.material||tris):tris;
+  const value={...base,tris,materialTris:material,referenceSkin:null,volume:material===tris?meshVolume(p._placementGeometry.local):meshVolume(material),area:solidMeshArea(tris),bounds:solidMeshBounds(tris)};p._placementHullGeometry={tris,aperture,value};return value;}
  if(p.s.some((v,i)=>v!==p.hullProfile[['L','W','H'][i]]))syncHullStructure(ship,p,false);
  syncHullHatches(ship,p);
  const local=hullStructureShip(ship,p),g=hullGeo(local),key=JSON.stringify([p.c,p.s,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.hullMirrorZ]);
@@ -76446,7 +76448,7 @@ function baseComputeStats(ship,options={}) {
   // Keep the existing longitudinal mass distribution, normalized to the
   // remaining volume of the cut shell instead of the original loft volume.
   if(ship.solidCuts?.length){const mass=bins.reduce((a,b)=>a+b,0),scale=mass>0?g.volume*K.hullDens/mass:0;for(let i=0;i<nb;i++)bins[i]*=scale;}
-  if(g.shells)for(const {p,g:sg} of g.shells){const local=hullGeo(hullStructureShip(ship,p));let sum=0;const samples=[];for(let i=0;i+1<local.xs.length;i++){const x=(local.xs[i]+local.xs[i+1])/2,v=(local.secs[i].area+local.secs[i+1].area)/2*(local.xs[i+1]-local.xs[i]);samples.push([x,v]);sum+=v;}const ratio=sum>0?sg.volume/sum*g.shellRatio:0;for(const [x,v]of samples)bins[binOf(hullWorldPoint(p,[x,p.hullProfile.H/2,0])[0])]+=v*ratio*K.hullDens;}
+  if(g.shells)for(const {p,g:sg} of g.shells){let sum=0;const samples=[];if(p.bakedSections){/* a baked hull keeps how its cut sections spread its volume along it (bakeStructure) */for(const [t,f] of p.bakedSections){samples.push([t*p.hullProfile.L,f]);sum+=f;}}else{const local=hullGeo(hullStructureShip(ship,p));for(let i=0;i+1<local.xs.length;i++){const x=(local.xs[i]+local.xs[i+1])/2,v=(local.secs[i].area+local.secs[i+1].area)/2*(local.xs[i+1]-local.xs[i]);samples.push([x,v]);sum+=v;}}const ratio=sum>0?sg.volume/sum*g.shellRatio:0;for(const [x,v]of samples)bins[binOf(hullWorldPoint(p,[x,p.hullProfile.H/2,0])[0])]+=v*ratio*K.hullDens;}
   const hullBins=bins.slice(); bins.fill(0);
   const occupied=allOccupied(ship), physical=[...ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)),...occupied], material=structuralMaterial(ship),accepted=[], acceptedBounds=[];
   const inAccepted=p=>{for(let i=0;i<accepted.length;i++){const b=acceptedBounds[i];if(p[0]>=b[0]-1e-4&&p[0]<=b[3]+1e-4&&p[1]>=b[1]-1e-4&&p[1]<=b[4]+1e-4&&p[2]>=b[2]-1e-4&&p[2]<=b[5]+1e-4&&inPart(accepted[i],p))return true;}return false;};
@@ -78063,7 +78065,11 @@ function armoredMaterialArea(ship,currentArea){
  try{area=exposedSurface(closed,allOccupied(closed));}finally{if(old)closed._lockedCache=old;else delete closed._lockedCache;}
  ship._armoredMaterial={key,area};return area;
 }
-function inHull(ship,p){if(solidCutsContain(ship,p))return false;if(ship.hullStructureVersion===1)return ship.parts.some(q=>isHullStructure(q)&&(q._placementGeometry?placementGeometryContains(q,p):inHull(hullStructureShip(ship,q),hullLocalPoint(q,p))));if(!v3InHull(ship,p))return false;return !ship.hatches.some(h=>{if(h.hullOwner)return false;const b=openingBounds(ship,h);if(!b||!inBox(p,b))return false;const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h),mid=(b[u]+b[u+3])/2,spec=slidingHatchSpec(ship,h),half=spec?Math.min(openingHalf(b,p[l],u),spec.travel*spec.open):openingHalf(b,p[l],u)*(h.open??1);if(Math.abs(p[u]-mid)>=half){const skin=openingSurfacePoint(ship,h,p[l],p[u]);if(skin&&Math.abs(p[ax]-skin[ax])<1.9)return false;}return true;});}
+function inHull(ship,p){if(solidCutsContain(ship,p))return false;if(ship.hullStructureVersion===1)return ship.parts.some(q=>isHullStructure(q)&&(q._placementGeometry?placementGeometryContains(q,p)&&!bakedHullMouthOpen(ship,q,p):inHull(hullStructureShip(ship,q),hullLocalPoint(q,p))));if(!v3InHull(ship,p))return false;return !hullMouthOpen(ship,p);}
+// The open part of a hatch mouth is not inside the hull (its door's own skin is, near the shut door's plane).
+function hullMouthOpen(ship,p){return ship.hatches.some(h=>{if(h.hullOwner)return false;const b=openingBounds(ship,h);if(!b||!inBox(p,b))return false;const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h),mid=(b[u]+b[u+3])/2,spec=slidingHatchSpec(ship,h),half=spec?Math.min(openingHalf(b,p[l],u),spec.travel*spec.open):openingHalf(b,p[l],u)*(h.open??1);if(Math.abs(p[u]-mid)>=half){const skin=openingSurfacePoint(ship,h,p[l],p[u]);if(skin&&Math.abs(p[ax]-skin[ax])<1.9)return false;}return true;});}
+// A baked hull's shape has no hatch holes: its own hatch mouths are tested as an unbaked hull's are (2026-11-22).
+function bakedHullMouthOpen(ship,q,p){if(!q.bakedMesh||!(q.hullData?.hatches?.length))return false;const local=hullStructureShip(ship,q);return hullMouthOpen(local,hullLocalPoint(q,p));}
 // User decision 2026-11-21 (「区画を外板まで下げる」): an example bay that opens downward but stops short of the bottom skin (the
 // sample's filled bays keep a 3 m margin, the Onager's and the Dreadnaught's sit above a sloping bottom) is lowered until its floor
 // reaches the lowest skin under its footprint, so the opening is where the bay and the skin overlap (aviationSkinOverlap); the
@@ -78116,7 +78122,9 @@ function meshVolume(T){let sum=0;for(let i=0;i<T.length;i+=9){const ax=T[i],ay=T
 function uncutSolidHullGeo(ship,flat=false){
   syncAviationSurfaces(ship);
   const g=v3HullGeo(ship,flat),mouths=ship.hatches.filter(h=>!h.hullOwner).map(h=>({h,b:openingBounds(ship,h)})).filter(x=>x.b),bs=mouths.map(x=>x.b);
-  for(const p of ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)))p._apertures=mouths.map(({h,b})=>({b,open:h.open??1,axis:hatchAxes(h).axis,slide:isSlidingHatch(ship,h),detached:!!h._doorDetached})).concat(ship.subs.filter(c=>ship.hull.assembly||c.structures).map(c=>({b:c.b,open:1,axis:1})));
+  /* a baked hull is opened by the ship's hatches as other structures are, and by its own (no longer cut into its shape) */
+  const ownMouths=p=>p.bakedMesh?ship.hatches.filter(h=>h.hullOwner===p.id).map(h=>({h,b:openingBounds(ship,h)})).filter(x=>x.b):[];
+  for(const p of ship.parts.filter(p=>isShapePart(p)&&(!isHullStructure(p)||p.bakedMesh)))p._apertures=mouths.concat(ownMouths(p)).map(({h,b})=>({b,open:h.open??1,axis:hatchAxes(h).axis,slide:isSlidingHatch(ship,h),detached:!!h._doorDetached})).concat(ship.subs.filter(c=>ship.hull.assembly||c.structures).map(c=>({b:c.b,open:1,axis:1})));
   if(!bs.length)return g;
   const key=JSON.stringify([cache(ship).key,bs,flat]),slot=flat?'_portalGeoFlat':'_portalGeo';if(ship[slot]?.key===key)return ship[slot].g;
   let T=g.tris;
@@ -79135,20 +79143,26 @@ function meshPieces(m){
 // The hull structure's hatches become ship hatches: the handle keeps its place, the baked opening box (cut, in the hull's
 // frame) is carried into the ship's frame (its corners' bounds), and the skin area measured into it (openArea) is kept.
 function detachOwnedHatches(ship,part){
- for(const h of ship.hatches.filter(q=>q.hullOwner===part.id)){const local=(part.hullData?.hatches||[]).find(q=>q.id===h.hullHatch);delete h.hullOwner;delete h.hullHatch;
+ for(const h of ship.hatches.filter(q=>q.hullOwner===part.id)){const local=(part.hullData?.hatches||[]).find(q=>q.id===h.hullHatch);let area=null;try{area=hatchGrid(ship,h).area;}catch{}/* the opening as it is counted now (a cut box when the bay did not overlap the skin when it was baked) */delete h.hullOwner;delete h.hullHatch;
   if(local?.cut){const c=local.cut,corners=[];for(const x of [c[0],c[3]])for(const y of [c[1],c[4]])for(const z of [c[2],c[5]])corners.push(hullWorldPoint(part,[x,y,z]));h.cut=[0,1,2].map(i=>Math.min(...corners.map(q=>q[i]))).concat([0,1,2].map(i=>Math.max(...corners.map(q=>q[i]))),c.length===8?[c[6],c[7]]:[]);}
-  if(Number.isFinite(local?.openArea))h.openArea=local.openArea;}
+  if(Number.isFinite(area)&&area>=0)h.openArea=area;else if(Number.isFinite(local?.openArea))h.openArea=local.openArea;
+  /* the opening stays as the hull had it (its box and area), not re-measured from the bay as a live surface hatch would be */if(h.cut)delete h.surface;}
 }
 // Bakes one structure with every cut that reaches it. Returns {ok, parts:[ids of the pieces], batteries:[ids]}.
 function bakeStructure(ship,part){
  if(!isShapePart(part)||part.plate)return {ok:false,code:'bake-part',error:'焼き込めない部品です'};
- part._solidCutShip=ship;let T=unpiercedStructTriangles(part);if(ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))T=applySolidCuts(ship,T,true);
+ /* a hull's hatch mouths are holes in its own shape: the shape is taken without them, and the hull keeps its hatches,
+    which open the baked shape as ship hatches open any structure (the structures' apertures, uncutSolidStructTriangles) */
+ const clear=()=>{for(const k of Object.keys(part))if(k[0]==='_'&&k!=='_solidCutShip')delete part[k];delete ship._cache;},own=isHullStructure(part)?part.hullData?.hatches:null,handles=ship.hatches.slice(),nextId=ship.nextId;if(own?.length){part.hullData.hatches=[];clear();}
+ part._solidCutShip=ship;let T;try{T=unpiercedStructTriangles(part);}finally{if(own?.length){/* the hull's hatches and their ship handles (with their bays) come back exactly as they were */part.hullData.hatches=own;ship.hatches=handles;ship.nextId=Math.max(ship.nextId,nextId);clear();part._solidCutShip=ship;}}if(ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))T=applySolidCuts(ship,T,true);
  const baked=bakedMeshFromTriangles(part,T);if(!baked.mesh)return {ok:false,code:'bake-mesh',error:'削った形を作れません：'+(baked.issues||[]).join('、')};
  let batteries=[];const pieces=meshPieces(baked.mesh),ids=[part.id];
  /* A hull structure stays a hull structure (its hull material, framing, hatches and size): only its shape becomes the stored
     mesh, read where a materialized shape is (placementRestoreMaterialized). Its own cuts, trenches, notches and bevels are
     in that shape now; the armed trenches become wall batteries first. */
- if(isHullStructure(part)){batteries=bakeTrenchBatteries(ship,part).map(q=>q.id);part.bakedMesh=pieces[0];for(const k of ['cuts','trenches','solidCuts','subs'])if(part.hullData)part.hullData[k]=[];syncHullStructure(ship,part,false);}
+ if(isHullStructure(part)){const local=hullGeo(hullStructureShip(ship,part)),L=part.hullProfile.L,rows=[];let total=0;for(let i=0;i+1<local.xs.length;i++){const v=(local.secs[i].area+local.secs[i+1].area)/2*(local.xs[i+1]-local.xs[i]);rows.push([(local.xs[i]+local.xs[i+1])/2/L,v]);total+=v;}
+  part.bakedSections=total>0?rows.filter(r=>r[1]>0).map(([t,v])=>[t,v/total]):null;if(!part.bakedSections)delete part.bakedSections;
+  batteries=bakeTrenchBatteries(ship,part).map(q=>q.id);part.bakedMesh=pieces[0];for(const k of ['cuts','trenches','solidCuts','subs'])if(part.hullData)part.hullData[k]=[];syncHullStructure(ship,part,false);}
  else{convertStructToMesh(ship,part,pieces[0]);refitStructMesh(part);}
  for(let i=1;i<pieces.length;i++){const q=JSON.parse(JSON.stringify(part,(k,v)=>k[0]==='_'?undefined:v));for(const k of ['hullProfile','hullData','primaryHull','hullMirrorZ','bakedMesh'])delete q[k];q.form='mesh';q.id=nid(ship);q.mesh=pieces[i];q.label=(part.label||'構造物')+'（分割 '+(i+1)+'）';delete q.tw;delete q.placement;refitStructMesh(q);ship.parts.push(q);ids.push(q.id);}
  for(const k of Object.keys(part))if(k[0]==='_'&&k!=='_solidCutShip')delete part[k];return {ok:true,parts:ids,batteries};
@@ -79267,7 +79281,7 @@ function deserialize(o,internalOptions=null){
     if((p.bands||p.arcBands||p.stripes)&&/^#[0-9a-f]{6}$/i.test(q.bandPaint))p.bandPaint=q.bandPaint;
     // Editable meshes: cleaned on load; an unusable mesh falls back to a box of the same size.
     if(p.form==='mesh'){const r=normalizeStructMesh(q.mesh);if(r.mesh){p.mesh=r.mesh;if(q.imported===true)p.imported=true;}else{p.form='box';s.meshRepairs=(s.meshRepairs||0)+1;}}
-    /* 2026-11-22 a hull structure's baked shape (bakeStructure): checked as a free mesh; a broken one is refused */if(q.bakedMesh!=null){if(p.k!=='struct'||p.form!=='hull')throw new Error('焼き込んだ形は船体構造物だけが持てます');const r=normalizeStructMesh(q.bakedMesh,{primitive:true});if(!r.mesh)throw new Error('船体構造物の焼き込んだ形が不正です');p.bakedMesh=r.mesh;}else delete p.bakedMesh;
+    /* 2026-11-22 a hull structure's baked shape (bakeStructure): checked as a free mesh; a broken one is refused */if(q.bakedMesh!=null){if(p.k!=='struct'||p.form!=='hull')throw new Error('焼き込んだ形は船体構造物だけが持てます');const r=normalizeStructMesh(q.bakedMesh,{primitive:true});if(!r.mesh)throw new Error('船体構造物の焼き込んだ形が不正です');p.bakedMesh=r.mesh;if(q.bakedSections!=null){if(!Array.isArray(q.bakedSections)||q.bakedSections.length>4096||!q.bakedSections.every(r=>Array.isArray(r)&&r.length===2&&r.every(Number.isFinite)&&r[1]>=0&&r[0]>=-1&&r[0]<=2))throw new Error('船体構造物の焼き込んだ断面が不正です');p.bakedSections=q.bakedSections.map(r=>r.slice());}}else{delete p.bakedMesh;delete p.bakedSections;}
     if(isShapePart(p)&&q.wing){const w=normalizeWing(q.wing);if(w)p.wing=w;}if(isAeroPart(p)){if(p.k==='wing'&&(q.wingTipSide===1||q.wingTipSide===-1))p.wingTipSide=q.wingTipSide;for(const k of ['panelFrame','panelRib','panelFold','panelKnee','panelSparX'])if(Number.isFinite(q[k]))p[k]=q[k];if(['radial','spar','none'].includes(q.panelBracing))p.panelBracing=q.panelBracing;normalizeAeroPart(p);}if((p.k==='sensor'||p.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,q.band)&&q.band!=='multi')p.band=q.band;
     if(p.form==='shell'){p.shellCurve=finite(q.shellCurve,-1,1,1);p.shellThick=finite(q.shellThick,.02,60,3);if(q.shellFlip===true)p.shellFlip=true;}
     if(p.k==='repulsor'&&q.landingEquipment===true)p.landingEquipment=true;if(p.k==='cockpit'&&q.canopy!=null)setCanopyShape(p,q.canopy);
@@ -79387,14 +79401,14 @@ function structDoorSkin(T,m){
   for(let i=0;i<T.length;i+=9){const poly=clipOpening([Array.from(T.slice(i,i+3)),Array.from(T.slice(i+3,i+6)),Array.from(T.slice(i+6,i+9))],b);out.push(...doorFragments(poly,b,m.axis,m.open));}return Float32Array.from(out);
 }
 function uncutSolidStructTriangles(p){
-  if(isHullStructure(p))return unpiercedStructTriangles(p);
+  if(isHullStructure(p)&&!p.bakedMesh)return unpiercedStructTriangles(p);
   const base=unpiercedStructTriangles(p),ms=p._apertures;if(!ms?.length)return base;
   const key=JSON.stringify(ms);if(p._pierced?.base===base&&p._pierced.key===key)return p._pierced.t;
   const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<base.length;i++){const a=i%3;bounds[a]=Math.min(bounds[a],base[i]);bounds[a+3]=Math.max(bounds[a+3],base[i]);}
-  let material=base;const doors=[];for(const m of ms){if(!boxesOverlap(bounds,m.b))continue;const a=subtractBoxMesh(material,m.b),cap=['arc','roundloft','outline','loft','shell','mesh'].includes(p.form)?solidCutCaps(p,m.b):convexCutCaps(base,m.b),out=new Float32Array(a.length+cap.length);out.set(a);out.set(cap,a.length);material=out;doors.push(structDoorSkin(base,m));}
+  let material=base;const doors=[];for(const m of ms){if(!boxesOverlap(bounds,m.b))continue;const a=subtractBoxMesh(material,m.b),cap=['arc','roundloft','outline','loft','shell','mesh'].includes(p.form)||p.bakedMesh?solidCutCaps(p,m.b):convexCutCaps(base,m.b),out=new Float32Array(a.length+cap.length);out.set(a);out.set(cap,a.length);material=out;doors.push(structDoorSkin(base,m));}
   const T=new Float32Array(material.length+doors.reduce((n,a)=>n+a.length,0));T.set(material);let off=material.length;for(const door of doors){T.set(door,off);off+=door.length;}p._pierced={base,key,t:T,material};return T;
 }
-function inStruct(p,q){if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return !solidPartCutContains(p,q)&&placementGeometryContains(p,q);if(isHullStructure(p))return !solidPartCutContains(p,q)&&inHull(hullStructureShip(p._solidCutShip,p),hullLocalPoint(p,q));return !solidPartCutContains(p,q)&&unpiercedInStruct(p,q)&&!(p._apertures||[]).some(m=>inBox(q,m.b));}
+function inStruct(p,q){if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return !solidPartCutContains(p,q)&&placementGeometryContains(p,q)&&!(p.bakedMesh&&p._solidCutShip&&bakedHullMouthOpen(p._solidCutShip,p,q))/* a baked hull's hatch mouths are open, as they were in its shape */;if(isHullStructure(p))return !solidPartCutContains(p,q)&&inHull(hullStructureShip(p._solidCutShip,p),hullLocalPoint(p,q));return !solidPartCutContains(p,q)&&unpiercedInStruct(p,q)&&!(p._apertures||[]).some(m=>inBox(q,m.b));}
 // 2026-11-21: a rule that counted a space closed in by plates as inside the ship (a grid over the exterior, filled from outside)
 // was added and taken out again the same day. An opening narrower than about two grid cells read as closed: on the rebuilt
 // Mandator II the inside of four nozzle bells counted as inside the ship and those nozzles were reported blocked. The user's
@@ -91022,7 +91036,9 @@ function placementSinkToSurface(ship,part,parent,axis){
  if(any&&depth>0)part.c=sub(part.c,mul(a,depth));
 }
 function placementGeometryTriangles(p){const g=p._placementGeometry;if(!g?.local)return null;const key=JSON.stringify([p.c,p.yaw,p.pitch,p.roll,p.surfaceNormal]);if(g.key===key)return g.tris;const T=new Float64Array(g.local.length);for(let i=0;i<T.length;i+=3)T.set(worldStruct(p,Array.from(g.local.slice(i,i+3))),i);g.key=key;return g.tris=T;}
-function placementGeometryContains(p,q){const T=placementGeometryTriangles(p),b=solidMeshBounds(T);if(q.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;let o=q.slice(),hits=0;const d=norm([.937426,.202719,.283022]);for(let i=0;i<128;i++){const h=rayTris(T,o,d);if(!h)break;hits++;o=add(h.p,mul(d,1e-5));}return hits%2===1;}
+/* 2026-11-22 the bounds and a BVH are kept with the placed triangles: a baked hull (bakedMesh, 16,000 triangles) is
+   tested at every room sample, and the brute-force ray made one room sync take 500 s instead of 8 s */
+function placementGeometryContains(p,q){const T=placementGeometryTriangles(p),g=p._placementGeometry;if(g._containsTris!==T){g._containsTris=T;g._containsBounds=solidMeshBounds(T);g._containsBVH=T.length>=9*64?buildBVH(T):null;}const b=g._containsBounds;if(q.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;let o=q.slice(),hits=0;const d=norm([.937426,.202719,.283022]),bvh=g._containsBVH;for(let i=0;i<128;i++){const h=bvh?rayBVH(bvh,o,d,Infinity):rayTris(T,o,d);if(!h)break;hits++;o=add(h.p,mul(d,1e-5));}return hits%2===1;}
 function placementRigidVector(parent,v){return worldStruct({...parent,c:[0,0,0]},v);}
 // Nozzle foundations are finite structural hardware behind the nozzle
 // flange. Their material never enters the engine's operating volume/rating.
