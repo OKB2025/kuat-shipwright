@@ -1,0 +1,32 @@
+{
+ "retired": 1,
+ "habitats": 0,
+ "child": {
+  "parentId": null,
+  "parentStructureId": null
+ },
+ "fit": {
+  "host": 328,
+  "hostId": null
+ },
+ "mass": [
+  207388.86013859583,
+  202945.06238219922
+ ],
+ "newWarnings": [
+  "戦闘負荷で廃熱 6.33e21 W に対し変換 6.32e21 W、不足 9.70e18 W（最短 8 分 で出力制限）。熱エネルギー変換装置を約 3.8 m³ 追加すると解消します。その消費電力 1.48e17 W は反応炉の余力 0 W を超え、推進・武装の出力が削られます。"
+ ],
+ "saved": {
+  "child": {
+   "parentId": null,
+   "parentStructureId": null
+  },
+  "fit": {
+   "host": null,
+   "hostId": null
+  },
+  "anyHabitatRef": false
+ },
+ "secondRound": true,
+ "error": null
+}

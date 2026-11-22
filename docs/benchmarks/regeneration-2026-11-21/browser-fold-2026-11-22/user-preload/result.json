@@ -1,0 +1,34 @@
+{
+ "saveId": "ship-f234317a-2712-47b7-ab75-86bc356f2a61",
+ "seconds": 5,
+ "progress": [
+  {
+   "phase": "waiting",
+   "ready": 0,
+   "failed": 0,
+   "total": 42,
+   "current": null,
+   "lastError": null
+  },
+  {
+   "phase": "preparing",
+   "ready": 0,
+   "failed": 0,
+   "total": 42,
+   "current": "save:ship-f234317a-2712-47b7-ab75-86bc356f2a61-1795342947844",
+   "lastError": null
+  },
+  {
+   "phase": "waiting",
+   "ready": 1,
+   "failed": 0,
+   "total": 42,
+   "current": null,
+   "lastError": null
+  }
+ ],
+ "firstKey": "save:ship-f234317a-2712-47b7-ab75-86bc356f2a61-1795342947844",
+ "firstIsSave": true,
+ "status": "保存した設計と作例を準備中 1 / 42",
+ "errors": []
+}
