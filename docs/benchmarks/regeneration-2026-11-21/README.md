@@ -17,6 +17,7 @@
 
 `EXAMPLE_PROFILE_VERSION` 6 → 7（区画の切り取りを面をつないで行う `clipCompartmentByMesh`）。この PR のほかの変更（ハッチを区画と外板の重なりで決める・台形の扉を保つ、外板に届かない格納庫を外板まで下げる／広げる、マンデイター II の砲を面に合わせて傾ける、居住区の廃止、機体の価格表、詰め込んだ区画どうしのつながりの判定、船体に焼き込んだハッチに重なりの面積を残す）も含めて、全 47 件を `node scripts/refresh-examples.cjs --jobs 3` で作り直した。最終の作り直しはコア `a90d41e`、生成物のコミット `b0b99bf`（失敗 0 件、機体の価格表 0 件の失敗）。
 
+- **最後の作り直し（2026-11-22、`bed3df2` のコア）**：原本照合レビューで、外板まで下げた格納庫の機数が減っていた（dreadnaught 12 → 11 機、説明文の「TIE 1個中隊（12機）」に足りない。onager 14 → 12 機）と分かった。ユーザーの決定「高さを足して機数を戻す」で、下げるのは床だけにし、天井は元の高さに残す（`seatBayOnSkin`）。全 47 件を作り直し（70 分、失敗 0、機体の価格表 OK）、変わったのは dreadnaught と onager だけ（`v7-rebuild-bed3df2-vs-77a93b4.txt`）。dreadnaught は 12 機（格納庫 84,480 → 85,811 m³）、onager は 18 機（100,800 → 127,365 m³。斜めの船底まで広がった分、版 6 より多い）。開口と発艦の速さはどちらも変わらない。sample の格納庫は寸法（`room`）を持たない立方体なので、前と同じく区画ごと下げ、設計は変わらない。試験 `tests/lowered-bays-capacity.cjs`。
 - 比較の基準：版 6 の `data/fleet.js`（`2153ee3` で書いたもの）と、版 6 の設計（`ce7e99a`）。
   - `v7-vs-v6.tsv`：`node compare.cjs <基準> data/fleet.js`
   - `v7-all-numbers.txt`：`node compare-all.cjs <基準> data/fleet.js`。29 隻のうち全数値一致は mc30c、reptransport の 2 隻。

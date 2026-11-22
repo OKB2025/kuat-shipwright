@@ -1,0 +1,30 @@
+acclamator	all 22613 numbers equal
+arquitens	all 14998 numbers equal
+cr90	all 12988 numbers equal
+deathstar	all 50321 numbers equal
+dreadnaught	2036 of 7568 numbers differ; largest relative difference (structure or zero) at p.grid.domains.0.modules.length; next: p.grid.powerPaths.length ∞, p.grid.powerPaths.133.capacityGroup (present on one side) ∞, p.grid.powerPaths.133.groupCap (present on one side) ∞
+executor	all 80734 numbers equal
+gozanti	all 2552 numbers equal
+gr75	all 14802 numbers equal
+hammerhead	all 5068 numbers equal
+heraklon	all 3304 numbers equal
+imperial	all 11577 numbers equal
+imperial2	all 11509 numbers equal
+lh3210	all 8434 numbers equal
+lucrehulk	all 10024 numbers equal
+mandator2	all 13708 numbers equal
+mc30c	all 4236 numbers equal
+mc75	all 9030 numbers equal
+mc80home	all 10940 numbers equal
+mc80liberty	all 13474 numbers equal
+munificent	all 33625 numbers equal
+nebulonb	all 3858 numbers equal
+onager	3085 of 12003 numbers differ; largest relative difference (structure or zero) at p.grid.domains.0.modules.length; next: p.grid.powerPaths.length ∞, p.grid.powerPaths.124.capacityGroup (present on one side) ∞, p.grid.powerPaths.124.groupCap (present on one side) ∞
+providence	all 15953 numbers equal
+providenceDn	all 24127 numbers equal
+recusant	all 20252 numbers equal
+recusantDn	all 30150 numbers equal
+reptransport	all 2725 numbers equal
+subjugator	all 65354 numbers equal
+venator	all 16267 numbers equal
+ships compared 29, identical in every number 27
