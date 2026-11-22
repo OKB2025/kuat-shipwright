@@ -11280,8 +11280,21 @@ function applySolidCutter(){
     if(owner&&C.hullOwnSolidCut){if(editing&&!owned){ship.solidCuts.push({...applied,structures:true});C.setSolidCutScope(ship,applied.id,'hull',owner.id);}else C.hullOwnSolidCut(ship,owner,applied);if(owner.hullData.hullSkin?.enabled)owner.hullData.hullSkin.enabled=false;}
     else{if(from){C.hullOwnSolidCut(ship,from,applied);C.setSolidCutScope(ship,applied.id,'all');}else ship.solidCuts.push(applied);if(ship.hullSkin?.enabled)ship.hullSkin.enabled=false;for(const p of ship.parts)if(applied.structures&&C.isHullStructure?.(p)&&p.hullData?.hullSkin?.enabled)p.hullData.hullSkin.enabled=false;}
   },'hull');
-  if(changed&&applied){const q=worldSolidCut(applied.id);st.solidCutEdit=q?applied.id:null;st.solidCutter=C.normalizeSolidCut(q||{...applied,id:-1});st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';}
+  if(changed&&applied){const q=worldSolidCut(applied.id);st.solidCutEdit=q?applied.id:null;st.solidCutter=C.normalizeSolidCut(q||{...applied,id:-1});st.cutterAction='camera';st.cutterVisible=false;cutterOverlayKey='';bakeCutsNow();}
   renderPanel();return !!changed;
+}
+// 2026-11-22 A confirmed cut is baked at once (user decision 2026-11-13 「焼き込み、分かれた塊は別の部品にする」): the Worker turns
+// every structure it reaches into the shape it leaves (Core bakeAllCuts) and the design comes back without the cut record. It
+// replaces the state the cut's own Undo step leads to, so Undo goes back to before the cut; moving it later is Undo.
+let bakeSequence=0;
+function bakeCutsNow(){
+  if(!ship||!YardEngineClient?.request)return;const source=ship,gen=eng.gen,designId=ship.saveId,sourceState=C.publicJSON(ship),operationId='bake-'+(++bakeSequence);toast('削りを焼き込んでいます…');
+  YardEngineClient.request('trenchArmament',{gen,state:sourceState,designId,operationId,request:{bake:true}}).then(packet=>{
+    if(ship!==source||ship.saveId!==designId||C.publicJSON(ship)!==sourceState||packet.stale||packet.cancelled){toast('焼き込む前に設計が変わりました。削りは記録のまま残っています');return;}
+    if(!packet.result?.ok||!packet.state){toast(packet.result?.error||'削りを焼き込めませんでした');return;}
+    const state=typeof packet.state==='string'?JSON.parse(packet.state):packet.state;state.saveId=designId;C.patchShip(ship,state);ship._client=true;
+    st.solidCutEdit=null;st.solidCutter=null;cutterOverlayKey='';touch('all');scheduleStats(60);autosave();renderPanel();requestDraw();toast('削りを焼き込みました');
+  }).catch(error=>toast(String(error.message||error)));
 }
 // The list's 全体に適用 switch and 取り消す. Each is one mutate (one Undo step); for a half of a split
 // mirrored pair, Core.setSolidCutScope moves both halves, and 取り消す removes both.
