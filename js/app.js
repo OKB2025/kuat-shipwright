@@ -2058,7 +2058,7 @@ function openCommandMenu(sub) {
   else { st.tab = 'bridge'; st.bridgeMode = sub; st.bridgeTool = 'place'; }
 }
 // The bridge editor lives inside 区画 → 指揮・艦橋; its state keeps the 'bridge' key.
-const tabKey = () => st.tab === 'bridge' ? 'mod' : ['hull','carve','armor','paint'].includes(st.tab) ? 'edit' : st.tab;
+const tabKey = () => st.tab === 'bridge' ? 'mod' : ['hull','carve','armor','paint','battery'].includes(st.tab) ? 'edit' : st.tab;
 function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); if (!nativeRender) renderInspBar(); }
 const st = {
   tab: 'edit', part: 'struct', partTool: 'place',
@@ -2963,6 +2963,7 @@ function tool() {
     // plan trapezoid are hull-only shape tools under 形状.
     case 'carve': return 'solid';
     case 'paint': return 'decal';
+    case 'battery': return 'battery';
     case 'hull': return st.hullShapeTool === 'notch' ? 'notch' : 'inspect';
     default: return 'inspect';
   }
@@ -3145,6 +3146,7 @@ function onTap(px, py, add, pointerType) {
   if(veTap(px,py,add))return;
   const t = tool();
   if(t === 'decal') { decalTap(px,py); return; }
+  if(t === 'battery') { batteryTap(px,py); return; }
   if(t === 'solid') { if(st.cutterAction === 'place') { const hit=pick(px,py,{parts:true,fits:false}); if(hit?.p)placeSolidCutter(hit);else toast('カッターを重ねる船体・構造物をタップしてください'); } return; }
   if(designUI.pickParent){const hit=pick(px,py,{parts:true,fits:false});if(hit?.part&&C.isStructuralPart(hit.part)){designUI.parentId=hit.part.id;designUI.pickParent=false;designUI.drawer=true;renderPanel();}else toast('取付先にする構造物を選択してください');return;}
   if(designUI.drawer&&!designUI.details&&['part','fit'].includes(t))return;
@@ -3813,6 +3815,7 @@ function baseRenderPanel() {
       break;
     }
     case 'paint': h = decalPanelHTML(); break;
+    case 'battery': h = batteryPanelHTML(); break;
     case 'spec':
       h = `<div class="spec-wrap">${specHTML(S)}${specExtrasHTML()}</div>`;
       break;
@@ -4938,7 +4941,7 @@ function designUIEditSession(){const q=designUI.editSession;return q?.source===s
 function designUIEditDirty(){const q=designUIEditSession();return !!q&&snap()!==q.before;}
 function designUISavedDesign(){const q=designUIEditSession();if(q)return structuredClone(q.design);if(typeof S!=='undefined'&&!S||C.placementDraftStatus?.(ship)?.ready===false||typeof eng!=='undefined'&&(eng.adoptedGen<eng.gen||eng.statsGen<eng.gen))return JSON.parse(JSON.stringify({...ship,...(ship.surfaces?{surfaces:{...ship.surfaces,legacyArmor:ship.surfaces.legacyArmor??ship.armor?.hull??0}}:{}),format:'starship-yard',v:3,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value));return C.serialize(ship);}
 function designUIEditBegin(){
- if(designUI.editRestoring||designUIEditSession()||!designUI.drawer||designUI.details||st.tab!=='edit'&&!designUI.context||designUI.layout&&designUI.layout!=='edit'||!st.sel||!designEntityEditable(st.sel.list,selItem()))return;
+ if(designUI.editRestoring||designUIEditSession()||!designUI.drawer||designUI.details||designUI.context==='battery'/* a battery is applied on its own through the Worker (batterySubmit) */||st.tab!=='edit'&&!designUI.context||designUI.layout&&designUI.layout!=='edit'||!st.sel||!designEntityEditable(st.sel.list,selItem()))return;
  const design=structuredClone(designUISavedDesign()),before=snap();designUI.editSession={source:ship,before,design,length:autosaveShipLength(),selected:{...st.sel},initialSelected:{...st.sel},undo:undoStack.slice(),redo:redoStack.slice()};
  redoStack.length=0;updateUndo();
 }
@@ -5258,7 +5261,7 @@ function designUIPanel(){
     const placement=designUIPlacementHTML();if(placement)panel.insertAdjacentHTML('beforeend','<details data-design-attachment><summary>取付・配置方式</summary>'+placement+'</details>');
     if(st.sel?.list==='parts'&&C.isStructuralPart(selItem())&&!panel.querySelector('[data-design-here]'))panel.insertAdjacentHTML('beforeend','<div class="design-placement-actions"><button type="button" class="btn" data-design-here>ここに構造物を追加</button></div>');
     panel.insertAdjacentHTML('afterbegin',designUISymmetryHTML(true));
-    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button><button class="btn sm" data-design-context="paint">塗装・エンブレム</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
+    const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button><button class="btn sm" data-design-context="paint">塗装・エンブレム</button><button class="btn sm" data-design-context="battery">砲列</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
    }
    if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p></section>');designUIEditStatus();}
   }
@@ -5319,6 +5322,7 @@ function designUIContextOpen(context){
  }
  // 削る works on every structure (user decision 2026-11-11); armor and the hull shape tools
  // (形状) stay with hull structures.
+ if(context==='battery'){/* the battery is checked by the Worker on the saved design, as a trench battery: finish the part edit first */if(typeof designUIEditSession==='function'&&designUIEditSession())designUIEditApply({close:true});designUICancel();st.sel=null;/* no part edit session: the battery is applied on its own (designUIEditBegin starts one for a selection) */designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.resetScroll=true;designUI.context='battery';st.tab='battery';batteryUI.arm=null;renderPanel();return;}
  if(context==='paint'){designUI.resetScroll=true;designUI.context='paint';st.tab='paint';st.decalArm=null;renderPanel();return;}
  if(context==='carve'&&C.isShapePart(item)){designUI.resetScroll=true;designUI.context='carve';st.tab='carve';if(!C.isHullStructure?.(item))st.cutterHullId=null;renderPanel();return;}
  if(!C.isHullStructure?.(item)||!['armor','hull'].includes(context))return;
@@ -6329,6 +6333,7 @@ function trenchArmamentChoose(id){
 function trenchArmamentOpen(item){
   const ref=item?.trenchRef;if(!ref)return false;
   if(designUI.space!=='exterior'){designSpaceNotice();return false;}
+  if(ref.hostId==='battery'){if(typeof designUIEditSession==='function'&&designUIEditSession())designUIEditApply({close:true});designUICancel();st.sel=null;designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.context='battery';st.tab='battery';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');batterySelect(ref.trenchId);syncHud();refreshOverlay();requestDraw();return true;}
   if(typeof designUIEditSession==='function'&&designUIEditSession())designUIEditApply({close:true});
   designUICancel();designUI.drawer=true;designUI.details=false;designUI.layout='edit';designUI.context='trench';st.tab='hull';st.hullShapeTool='trench';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');
   const parent=ship.parts.find(p=>p.id===ref.hostId&&C.isHullStructure?.(p));st.sel=parent?{list:'parts',id:parent.id}:null;
@@ -6813,6 +6818,7 @@ function bindRealism(){
     if('fitpaint'in t.dataset){mutate('砲の色',()=>editSel(f=>f.paint=t.value.toLowerCase()),'fits');renderPanel();}
   });
   if(typeof bindDecalPanel==='function')bindDecalPanel($('#panel'));
+  if(typeof bindBatteryPanel==='function')bindBatteryPanel($('#panel'));
   $('#panel').addEventListener('input',e=>{if(blockedHullControl(e.target))return;const t=e.target,k=t.dataset.sl;if(t.value==='')return;const v=t.min!=null&&t.max!=null?C.clamp(+t.value,+t.min,+t.max):+t.value;if(!Number.isFinite(v))return;const out=$('#out-'+k);
     const live=(fn,what='parts')=>{beginDrag('形状・区画を調整');fn();touch(what);scheduleStats(350);};
     if(k?.startsWith('newRoom'))st.roomSize[+k.at(-1)]=v;
@@ -11130,6 +11136,63 @@ function bindDecalPanel(panel){
   else if('decalmirror'in t.dataset)mutate('塗装・エンブレムの左右対称',()=>{const d=decalById(id);if(t.checked)d.mirror=true;else delete d.mirror;},'decals');
   renderPanel();
  });
+}
+// ---------- 2026-11-22 Wall gun batteries (Core configureBattery; user 「トレンチの有無に関わらず砲列を配置できるように」) ----------
+// 砲列: tap the start and the end of the row on a wall of the hull or a structure, choose the guns and their counts, the
+// band's height and how far in the charge row may reach, and create it. The Worker checks the rows, the lines of fire and
+// the charge rooms exactly as for a trench battery; nothing changes until it succeeds.
+const batteryUI={arm:null,sel:null,rows:[],height:'',depth:'',pending:null,error:'',sequence:0};
+function batteryById(id){return (ship?.batteries||[]).find(q=>q.id===id)||null;}
+function batteryPanelHTML(){
+ const q=batteryUI,list=ship?.batteries||[],sel=batteryById(q.sel),kinds=C.trenchArmamentKinds?.()||[],arm=q.arm,editing=!!sel||!!arm?.done;
+ if(!q.rows.length)q.rows=[{kind:kinds[0]?.kind||'pd',count:'4'}];
+ const rows=q.rows.map((row,i)=>`<div class="row2"><label><span class="field-label">砲種</span><select data-battery-kind="${i}">${kinds.map(d=>`<option value="${esc(d.kind)}" ${d.kind===row.kind?'selected':''}>${esc(T(d.name||d.short||d.kind))}</option>`).join('')}</select></label><label><span class="field-label">基数</span><input type="number" min="0" step="1" inputmode="numeric" data-battery-count="${i}" value="${esc(row.count)}"></label><button type="button" class="btn sm ghost" data-battery-row-remove="${i}">この砲種を外す</button></div>`).join('');
+ return `<div class="pgroup" data-battery-panel><h4>砲列</h4><p class="note">壁の上に砲列を引きます。トレンチがなくても置けます。砲は帯の中に棚状に並び、充電区画は壁の内側に置かれます。</p>
+ ${list.length?`<div class="chips">${list.map(b=>`<button type="button" class="chip${b.id===q.sel?' on':''}" data-battery-sel="${b.id}">${esc(b.label||'砲列')} ${b.id}</button>`).join('')}</div>`:''}
+ <div><button type="button" class="btn sm" data-battery-draw>壁に新しい砲列を引く</button></div>
+ ${arm&&!arm.done?`<p class="note" data-battery-armed>${esc(T(arm.pts.length?'砲列の終わりの点をタップしてください。':'砲列の始めの点を壁の上でタップしてください。'))} <button type="button" class="btn sm ghost" data-battery-cancel>やめる</button></p>`:''}
+ ${editing?`<div class="pgroup" data-battery-editor><h4>${sel?esc(sel.label||'砲列')+' '+sel.id:'新しい砲列'}</h4>${rows}<button type="button" class="btn sm" data-battery-row-add ${q.rows.length>=kinds.length?'disabled':''}>砲種を追加</button>
+  <div class="sliders"><label class="field-label">帯の高さ (m) <input type="number" min="0.1" step="0.1" data-battery-height value="${esc(q.height)}"></label><label class="field-label">内側の奥行き (m) <input type="number" min="0.1" step="0.1" data-battery-depth value="${esc(q.depth)}"></label></div>
+  <p class="note" role="status" aria-live="polite" data-battery-status>${esc(T(q.pending?'砲列を検証中…':q.error||'適用時に壁・射線・充電区画を検証します。'))}</p>
+  <div class="row2"><button type="button" class="btn primary" data-battery-apply ${q.pending?'disabled':''}>${sel?'砲列を変更':'砲列を作成'}</button>${sel?'<button type="button" class="btn danger" data-battery-delete>この砲列を撤去</button>':''}<button type="button" class="btn ghost" data-battery-cancel>取り消す</button></div></div>`:''}
+ </div>`;
+}
+function batterySelect(id){const b=batteryById(id),q=batteryUI;q.sel=b?b.id:null;q.arm=null;q.error='';if(b){q.rows=(b.armament?.counts||[]).map(r=>({kind:r.kind,count:String(r.count)}));q.height=String(b.height);q.depth=String(b.depth);}renderPanel();}
+function batteryTap(px,py){
+ const q=batteryUI,arm=q.arm;if(!arm||arm.done){toast(T('「壁に新しい砲列を引く」を選んでから、壁をタップしてください'));return;}
+ const hit=pick(px,py,{parts:true,fits:false});if(!hit?.p||!hit.n){toast(T('船体か構造物の壁をタップしてください'));return;}
+ const r=view.ray(px,py);let n=C.norm(hit.n);if(r&&C.dot(n,r.d)>0)n=C.mul(n,-1);arm.pts.push(hit.p.slice());arm.ns.push(n);if(arm.pts.length===1)arm.host=C.isShapePart(hit.part)?hit.part.id:null;
+ if(arm.pts.length===2){arm.done=true;const k=C.FITS[q.rows[0]?.kind]||{};const span=C.len(C.sub(arm.pts[1],arm.pts[0]));if(!q.height)q.height=String(Math.round(Math.max(1,(k.wm||5)*2)*10)/10);if(!q.depth)q.depth=String(Math.round(Math.max(2,Math.min(span,(ship.hull.W||50)*.25))*10)/10);}
+ renderPanel();
+}
+function batteryRequestRows(){const allowed=new Set((C.trenchArmamentKinds?.()||[]).map(r=>r.kind)),seen=new Set(),out=[];for(const row of batteryUI.rows){const count=Number(row.count);if(!allowed.has(row.kind)||seen.has(row.kind)||!Number.isSafeInteger(count)||count<0)throw Error('砲種を重複させず、基数を0以上の整数で指定してください');seen.add(row.kind);if(count)out.push({kind:row.kind,count});}return out.sort((a,b)=>a.kind.localeCompare(b.kind));}
+function batterySubmit(op){
+ const q=batteryUI;if(q.pending)return;/* a part edit with changes not yet applied would be lost or mixed in; an untouched one is the same design */if(typeof designUIEditDirty==='function'&&designUIEditDirty()){toast('部品の編集を適用するか取り消してから、砲列を適用してください');return;}
+ let battery;try{if(op==='delete')battery={op:'delete',id:q.sel};else{const counts=batteryRequestRows(),height=Number(q.height),depth=Number(q.depth);if(!(height>0&&depth>0))throw Error('帯の高さと奥行きを正の数で指定してください');battery={op:'set',...(q.sel!=null?{id:q.sel}:{}),height,depth,counts};
+  if(q.sel==null){const a=q.arm;if(!a?.done)throw Error('壁の上で砲列の始めと終わりをタップしてください');const n=C.norm(C.add(a.ns[0],a.ns[1]));battery.host=a.host;battery.world={pts:a.pts.map(p=>p.slice()),n};}}}
+ catch(e){q.error=e.message;toast(T(q.error));renderPanel();return;}
+ const source=ship,gen=eng.gen,designId=ship.saveId,sourceState=C.publicJSON(ship),operationId='battery-'+(++q.sequence),pending=q.pending={source,gen,designId,sourceState,operationId};q.error='';renderPanel();
+ YardEngineClient.request('trenchArmament',{gen,state:sourceState,designId,operationId,request:{battery}}).then(packet=>{
+  if(q.pending!==pending)return;q.pending=null;
+  if(ship!==source||ship.saveId!==designId||eng.gen!==gen||C.publicJSON(ship)!==sourceState||packet.stale||packet.cancelled){q.error='設計が変更されました。もう一度適用してください。';renderPanel();return;}
+  if(!packet.result?.ok||!packet.state){q.error=packet.result?.error||'砲列の検証に失敗しました';toast(T(q.error));renderPanel();return;}
+  const state=typeof packet.state==='string'?JSON.parse(packet.state):packet.state;state.saveId=designId;
+  const ok=mutate(op==='delete'?'砲列を撤去':q.sel!=null?'砲列を変更':'砲列を作成',()=>{C.patchShip(ship,state);ship._client=true;},'all');
+  if(ok){q.arm=null;if(op==='delete'){q.sel=null;}else batterySelect(packet.result.batteryId);}renderPanel();requestDraw();
+ }).catch(error=>{if(q.pending!==pending)return;q.pending=null;q.error=String(error.message||error);toast(T(q.error));renderPanel();});
+}
+function bindBatteryPanel(panel){
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.closest('[data-battery-panel]'))return;const d=b.dataset,q=batteryUI;
+  if('batteryDraw'in d){q.sel=null;q.arm={pts:[],ns:[],host:null};q.error='';renderPanel();}
+  else if('batteryCancel'in d){q.arm=null;q.sel=null;q.error='';renderPanel();}
+  else if(d.batterySel)batterySelect(+d.batterySel);
+  else if('batteryRowAdd'in d){const used=new Set(q.rows.map(r=>r.kind)),k=(C.trenchArmamentKinds?.()||[]).find(r=>!used.has(r.kind));if(k)q.rows.push({kind:k.kind,count:'1'});renderPanel();}
+  else if(d.batteryRowRemove!=null){q.rows.splice(+d.batteryRowRemove,1);renderPanel();}
+  else if('batteryApply'in d)batterySubmit('set');
+  else if('batteryDelete'in d)batterySubmit('delete');
+ });
+ panel.addEventListener('change',e=>{const t=e.target,q=batteryUI;if(!t.closest?.('[data-battery-panel]'))return;
+  if(t.dataset.batteryKind!=null)q.rows[+t.dataset.batteryKind].kind=t.value;else if(t.dataset.batteryCount!=null)q.rows[+t.dataset.batteryCount].count=t.value;else if('batteryHeight'in t.dataset)q.height=t.value;else if('batteryDepth'in t.dataset)q.depth=t.value;});
 }
 function cutterActive(){return !!ship&&st.tab==='carve'&&st.carveTool==='solid'&&fleet.mode==='design';}
 function cutterNumber(v){return Number(v.toFixed(6));}
