@@ -77738,7 +77738,7 @@ function bridgeLooseStructures(ship){
 }
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');try{
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -81230,11 +81230,11 @@ function normalizeBatteries(raw){
  return out;
 }
 // The world line of a battery: its points, its length, and at a distance x along it the point and the along (u), up and
-// outward (n) directions. The outward direction is the authored normal made square to the run of each segment.
+// outward (n) directions. The guns face the authored normal; the band's up is square to the run of each segment.
 function batteryRail(ship,q){
  const host=q.host!=null?ship.parts.find(p=>p.id===q.host&&isShapePart(p)):null;if(q.host!=null&&!host)return {ok:false,code:'battery-host',error:'砲列の取付先の構造物がありません'};
  const P=q.pts.map(p=>host?fitAttachmentPoint(host,{local:p}):p.slice()),n0=host?fitAttachmentWorldNormal(host,{localNormal:q.n}):norm(q.n),segs=[];let span=0;
- for(let i=0;i+1<P.length;i++){const run=sub(P[i+1],P[i]),l=len(run);if(!(l>1e-6))continue;const u=mul(run,1/l),n1=sub(n0,mul(u,dot(n0,u)));if(!(len(n1)>1e-6))return {ok:false,code:'battery-opening',error:'砲列の向きが壁に沿っていません'};const n=norm(n1);segs.push({a:P[i],u,n,up:norm(cross(n,u)),from:span,l});span+=l;}
+ for(let i=0;i+1<P.length;i++){const run=sub(P[i+1],P[i]),l=len(run);if(!(l>1e-6))continue;const u=mul(run,1/l),n1=sub(n0,mul(u,dot(n0,u)));if(!(len(n1)>1e-6))return {ok:false,code:'battery-opening',error:'砲列の向きが壁に沿っていません'};/* the guns face the authored direction (a trench's face straight out to its side, wherever its wall slants); the band's up is square to the run */segs.push({a:P[i],u,n:n0,up:norm(cross(norm(n1),u)),from:span,l});span+=l;}
  if(!segs.length)return {ok:false,code:'battery-opening',error:'砲列の長さがありません'};
  const at=x=>{let g=segs[segs.length-1];for(const q of segs)if(x<=q.from+q.l){g=q;break;}return g;},point=(x,yoff=0)=>{const g=at(x);return add(add(g.a,mul(g.u,clamp(x-g.from,0,g.l))),mul(g.up,yoff));};
  const mid=at(span/2);return {ok:true,host,pts:P,a:P[0],b:P[P.length-1],u:mid.u,n:mid.n,up:mid.up,frame:x=>at(x),span,height:q.height,depth:q.depth,point};
@@ -86843,8 +86843,21 @@ function deathStarBuild(){
  // neck, the amplifier bulb) have no well of their own: on the drawing they stand in solid structure, and here they
  // are embedded in the hemisphere and the drum (an overlap is a connection; nothing is added to hold the weapon).
  const wellAt=52700,neckAt=33400,coreR=DS.coreR;/* the cutaway drawing's 10.4 km (user decision 2026-11-17「炉心は断面図の大きさ、残りは補助炉」; 8 km by the decision of 2026-11-15) */well(wellAt,R+6000,a);
- // Meridian trenches (the user's addition, wide enough for a fighter): standing rings through the poles.
- for(let i=0;i<DS.meridians;i++)s.solidCuts.push({id:s.nextId++,shape:'torus',c:C0.slice(),s:[2*R,2*R,DS.meridianW],rotation:[90,22.5+i*180/DS.meridians,0],mirror:false,structures:true});
+ // Meridian trenches (the user's addition, wide enough for a fighter): rings through the poles. They follow each hemisphere's
+ // own surface (user decision 2026-11-15「焼き込みの時に直す」, done with the baked cuts 2026-11-22): a hemisphere is a half
+ // ellipsoid (radius A across, B = R − w/2 up from its base plane), not the sphere of radius R a torus assumed, so the torus
+ // left most latitudes uncut. Each quarter meridian is a chain of boxes about 3.6 km long, centred on the surface, as wide as
+ // the trench (DS.meridianW) and cutting half of it deep (the torus tube's radius); the chain is baked like any cut.
+ {const A=base/2,B=rise,depth=DS.meridianW/2,meridians=[];
+  for(let i=0;i<DS.meridians;i++)for(const side of [0,180]){const yawDeg=22.5+i*180/DS.meridians+side,yaw=yawDeg*rad,h=[Math.cos(yaw),0,-Math.sin(yaw)];if(!side)meridians.push(yawDeg);
+   for(const north of [1,-1]){const y0=R+north*w/2,P=t=>[C0[0]+A*Math.cos(t)*h[0],y0+north*B*Math.sin(t),C0[2]+A*Math.cos(t)*h[2]],arc=Math.PI/4*(A+B),n=Math.max(8,Math.ceil(arc/3600));
+    for(let k=0;k<n;k++){const t0=k/n*Math.PI/2,t1=(k+1)/n*Math.PI/2,tm=(t0+t1)/2,run=sub(P(t1),P(t0)),T=norm(run),g=norm([Math.cos(tm)/A*h[0],north*Math.sin(tm)/B,Math.cos(tm)/A*h[2]]),N=norm(sub(g,mul(T,dot(g,T)))),W=cross(T,N);
+     const ry=Math.asin(clamp(-T[2],-1,1)),rz=Math.atan2(T[1],T[0]),rx=Math.atan2(N[2],W[2]);
+     s.solidCuts.push({id:s.nextId++,shape:'box',c:P(tm),s:[len(run)*1.04,2*depth,DS.meridianW],rotation:[rx/rad,ry/rad,rz/rad],mirror:false,structures:true});}}}
+  /* the superlaser's exhaust ports go under a meridian trench's floor (ensureSuperlaserExhaust): the trench's great circle */
+  s._meridianTrenches=meridians.map(yawDeg=>({shape:'torus',c:C0.slice(),s:[2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*depth],rotation:[90,yawDeg,0]}));
+  /* baked here, before the rooms and guns are placed against the surface: some 560 cut records would otherwise be subtracted at every step of the build */
+  {const r=bakeAllCuts(s);if(!r.ok)throw new Error('deathstar: 削りを焼き込めません '+JSON.stringify(r.failed));}}
  // The reactor core at the centre.
  const core=part('gen','主反応炉（ハイパーマター反応炉）',C0.slice(),2*coreR);
  // The column through the poles on the drawing: the reactant silos above and below the core.
@@ -88625,7 +88638,7 @@ const FLEET_PROFILE_VERSION=25;/* 25 (2026-11-18, PR #117): weapon efficiency .7
 // statistics read, and the tables they use. Then regenerate the stored rows
 // (scripts/refresh-examples.cjs). tests/example-profile-version.cjs recomputes small
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
-const EXAMPLE_PROFILE_VERSION=7/* 2026-11-21 (next PR): a room crossing the ship's boundary is clipped by joining its faces with the hull's and the structures' (clipCompartmentByMesh) instead of the marching-tetrahedra rebuild, so clipped rooms keep slightly more volume (the grid lost corners; up to a few % on a room). Was 6: */;void 6/* 2026-11-21: hangar hatches open where the compartment overlaps the skin, through its whole depth (user decision; no measured opening for a bay that does not reach the skin), and the builder adds two more rounds of systems volume only when the usual ones fall short (the two Recusants rebuilt); older saved designs load differently (the body they name is dropped; a weapon is re-seated from its own pose; the support-only pass does not ask about interference), which changes syncCompartments/remount results; the Mandator II on the user's second model. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
+const EXAMPLE_PROFILE_VERSION=8/* 2026-11-22: every cut of an example is baked into the structures it reaches (bakeAllCuts; a hull keeps its hull material and stores its shape), and an armed trench becomes a wall battery. Was 7: */;void 7/* 2026-11-21 (next PR): a room crossing the ship's boundary is clipped by joining its faces with the hull's and the structures' (clipCompartmentByMesh) instead of the marching-tetrahedra rebuild, so clipped rooms keep slightly more volume (the grid lost corners; up to a few % on a room). Was 6: */;void 6/* 2026-11-21: hangar hatches open where the compartment overlaps the skin, through its whole depth (user decision; no measured opening for a bay that does not reach the skin), and the builder adds two more rounds of systems volume only when the usual ones fall short (the two Recusants rebuilt); older saved designs load differently (the body they name is dropped; a weapon is re-seated from its own pose; the support-only pass does not ask about interference), which changes syncCompartments/remount results; the Mandator II on the user's second model. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
@@ -92129,7 +92142,7 @@ addComp('slaser','スーパーレーザー','cyl',.7,[52,56,62],'weapons','バ�
 // the design has none. One port serves one superlaser; it is found again by its label.
 const EXHAUST_PORT_LABEL='集中排熱口';
 function exhaustPortFor(ship,sw){return ship.parts.find(p=>p.k==='hdis'&&String(p.label||'')===EXHAUST_PORT_LABEL+' #'+sw.id)||null;}
-function meridianTrenches(ship){const b=shipBounds(ship,{simple:true}),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2);return (ship.solidCuts||[]).filter(c=>c.shape==='torus'&&Math.abs(Math.abs(c.rotation?.[0]||0)-90)<1&&Math.hypot(c.c[0]-mid[0],c.c[2]-mid[2])<Math.max(1,(b[3]-b[0])*.02));}
+function meridianTrenches(ship){if(ship._meridianTrenches)return ship._meridianTrenches;const b=shipBounds(ship,{simple:true}),mid=[0,1,2].map(i=>(b[i]+b[i+3])/2);return (ship.solidCuts||[]).filter(c=>c.shape==='torus'&&Math.abs(Math.abs(c.rotation?.[0]||0)-90)<1&&Math.hypot(c.c[0]-mid[0],c.c[2]-mid[2])<Math.max(1,(b[3]-b[0])*.02));}
 function ensureSuperlaserExhaust(ship){
  const made=[];if(!ship?.parts)return made;
  for(const sw of ship.parts.filter(p=>p.k==='slaser')){
