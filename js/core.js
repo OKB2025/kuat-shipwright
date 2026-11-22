@@ -86855,9 +86855,7 @@ function deathStarBuild(){
      const ry=Math.asin(clamp(-T[2],-1,1)),rz=Math.atan2(T[1],T[0]),rx=Math.atan2(N[2],W[2]);
      s.solidCuts.push({id:s.nextId++,shape:'box',c:P(tm),s:[len(run)*1.04,2*depth,DS.meridianW],rotation:[rx/rad,ry/rad,rz/rad],mirror:false,structures:true});}}}
   /* the superlaser's exhaust ports go under a meridian trench's floor (ensureSuperlaserExhaust): the trench's great circle */
-  s._meridianTrenches=meridians.map(yawDeg=>({shape:'torus',c:C0.slice(),s:[2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*depth],rotation:[90,yawDeg,0]}));
-  /* baked here, before the rooms and guns are placed against the surface: some 560 cut records would otherwise be subtracted at every step of the build */
-  {const r=bakeAllCuts(s);if(!r.ok)throw new Error('deathstar: 削りを焼き込めません '+JSON.stringify(r.failed));}}
+  s._meridianTrenches=meridians.map(yawDeg=>({shape:'torus',c:C0.slice(),s:[2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*depth],rotation:[90,yawDeg,0]}));}/* baked with the other examples' cuts at the end of buildDesign: baked earlier, every room placed in a 160 km station tested its points against the meshes (2026-11-22, a build of over 100 minutes) */
  // The reactor core at the centre.
  const core=part('gen','主反応炉（ハイパーマター反応炉）',C0.slice(),2*coreR);
  // The column through the poles on the drawing: the reactant silos above and below the core.
