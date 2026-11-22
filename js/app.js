@@ -3378,10 +3378,16 @@ function renderStrip() {
     <span class="ss"><i>質量</i><b>${fMass(S.mass)}</b></span>
     <span class="ss"><i>出力</i><b>×${M.xISD >= 0.1 ? M.xISD.toFixed(2) : M.xISD.toFixed(3)}<small>ISD</small></b></span>
     <span class="ss"><i>最大加速</i><b>${fG(M.accelG)}</b></span>
-    <span class="ss"><i>一斉射</i><b>${fTT(M.allGunVolleyTT)}</b></span>
+    <span class="ss"><i>一斉射</i><b>${fTT(totalVolleyTT(M))}</b></span>
     <span class="ss-flag ${bad ? 'bad' : warn.length ? 'warn' : 'ok'}" aria-label="警告 ${warn.length} 件">${warn.length ? warn.length : '✓'}</span>`;
   renderInspBar();designUIMetrics();
 }
+// 2026-11-22 (user: 「性能の火力には艦搭載のミサイル/魚雷も含んで」): the firepower shown on the performance tab counts one salvo
+// of every ship-mounted missile and torpedo launcher (mslSalvo + imslSalvo, a full salvo of all cells) next to the guns. Craft keep
+// their gun-only figures (their launcher value is a 20-second rate, not one salvo). allGunVolleyTT itself is unchanged (fleet data, tests).
+function launcherVolleyTT(S){return S&&!(typeof ship!=='undefined'&&ship&&C.isCraft(ship))?Math.max(0,S.mslSalvo||0)+Math.max(0,S.imslSalvo||0):0;}
+function gunVolleyTT(S){return S?.allGunVolleyTT??((S?.alphaTot||0)+(S?.ionTot||0));}
+function totalVolleyTT(S){return gunVolleyTT(S)+launcherVolleyTT(S);}
 function bar(frac, cls) { return `<span class="bar ${cls || ''}"><em style="width:${Math.max(0, Math.min(100, frac * 100)).toFixed(1)}%"></em></span>`; }
 function radar(S) {
   const sc = scores(S), n = 6, R = 62, cx = 90, cy = 82;
@@ -3396,7 +3402,7 @@ function radar(S) {
 function scores(S) {
   S=catalogStats(S);
   const cl = (v) => Math.max(0, Math.min(100, v));
-  const fpd = S.mass > 0 ? S.alphaBest / (S.mass / 1e6) : 0;
+  const fpd = S.mass > 0 ? (S.alphaBest + launcherVolleyTT(S)) / (S.mass / 1e6) : 0;
   return [
     {k: '火力', v: cl(100 * (1 - Math.exp(-fpd / 100)))},
     {k: '防御', v: cl(40 * Math.min(1, S.shieldPct / 1.5) + 35 * Math.min(1, S.armorHull / 1.5) + 25 * S.protectedFrac)},
@@ -3455,7 +3461,7 @@ function specHTML(S, opt = {}) {
     <div><dt>全長×全幅×全高</dt><dd>${fLen(S.dims[0])} × ${fLen(S.dims[1])} × ${fLen(S.dims[2])}</dd></div>
     <div><dt>質量</dt><dd>${fMass(S.mass)}<small>装甲 ${fMass(S.armorMass)}</small></dd></div>
     <div><dt>主機出力</dt><dd>${fW(S.power)}<small>ISD比 ×${S.xISD.toFixed(2)}</small></dd></div>
-    <div><dt>${S.superweapons?.length?'一斉射（通常砲・公称）':'一斉射（全砲・公称）'}</dt><dd>${fTT(S.allGunVolleyTT??S.alphaTot+(S.ionTot||0))}<small>通常砲の主射界 ${fTT(S.alphaBest)}</small></dd></div>
+    <div><dt>${launcherVolleyTT(S)>0?(S.superweapons?.length?'一斉射（通常砲・ミサイル・魚雷・公称）':'一斉射（全砲・ミサイル・魚雷・公称）'):(S.superweapons?.length?'一斉射（通常砲・公称）':'一斉射（全砲・公称）')}</dt><dd>${fTT(totalVolleyTT(S))}<small>${launcherVolleyTT(S)>0?`砲 ${fTT(gunVolleyTT(S))}・ミサイル／魚雷 ${fTT(launcherVolleyTT(S))}・`:''}通常砲の主射界 ${fTT(S.alphaBest)}</small></dd></div>
     ${superweaponCatalogHTML(S)}
     ${engagementCapacityHTML(S)}
     <div><dt>最大加速</dt><dd>${fG(S.accelG)}<small>推力・構造強度・慣性制御の上限</small></dd></div>
@@ -3867,7 +3873,7 @@ function renderPanelInfo() {
   let h = '';
   switch (armMode() ? 'arm' : st.tab) {
     case 'edit': case 'mod': h = `<div class="mini"><span>出力 ${fW(M.power)}（ISD比 ×${M.xISD.toFixed(2)}）</span><span>最大加速 ${fG(M.accelG)}</span><span>シールド ${fPct(M.shieldPct)}</span><span>ハイパー ${S.hyperClass ? 'クラス' + S.hyperClass.toFixed(1) : 'なし'}</span><span>搭載機 ${num(Math.floor(S.slots))}</span><span>反応炉の露出 ${fPct(S.genExpFrac)}</span></div>`; break;
-    case 'arm': h = `<div class="mini"><span>一斉射 ${fTT(M.allGunVolleyTT)}</span><span>主射界 ${fTT(M.alphaBest)}（${fPct(M.arcEff)}）</span><span>兵装電力 ${Math.round(S.draw.weapons / Math.max(1, M.power) * 100)}%</span><span>配電路 ${fPct(S.feedShare || 0)}</span><span>運転時の兵装充電 ${fPct(S.rc)}</span></div>`; break;
+    case 'arm': h = `<div class="mini"><span>一斉射 ${fTT(totalVolleyTT(M))}</span><span>主射界 ${fTT(M.alphaBest)}（${fPct(M.arcEff)}）</span><span>兵装電力 ${Math.round(S.draw.weapons / Math.max(1, M.power) * 100)}%</span><span>配電路 ${fPct(S.feedShare || 0)}</span><span>運転時の兵装充電 ${fPct(S.rc)}</span></div>`; break;
     case 'bridge': h = `<div class="mini"><span>艦橋 ${S.bridges} 基</span><span>平均視界 ${fPct(S.view)}</span><span>命中補正 ${fPct(S.accuracy)}</span></div>`; break;
     case 'armor': h = `<div class="mini"><span>装甲質量 ${fMass(S.armorMass)}</span><span>表面積 ${ja(S.area)} m²</span><span>重要区画の防護 ${fPct(S.protectedFrac)}</span><span>脆弱性 ${fPct(S.vuln)}</span><span>最大加速 ${fG(M.accelG)}</span></div>`; break;
     case 'carve': h = `<div class="mini"><span>質量 ${fMass(S.mass)}</span><span>表面積 ${ja(S.area)} m²</span><span>体積／表面積 ${S.VS.toFixed(1)} m</span><span>最大加速 ${fG(M.accelG)}</span><span>縦強度 ${fG(S.structG)}</span></div>`; break;
@@ -11667,7 +11673,7 @@ function tutGo(i,first){
 function tutSummary(){
  if(!S)return '<p class="tut-wait">性能を計算中…</p>';
  const warn=(S.warnings||[]).filter(w=>w.lv!=='info').length;
- return `<dl class="tut-sum"><div><dt>艦橋</dt><dd>${S.bridges} 基</dd></div><div><dt>計画最大加速</dt><dd>${fG(designAccelerationG(S))}</dd></div><div><dt>一斉射</dt><dd>${fTT(catalogStats(S).allGunVolleyTT)}</dd></div><div><dt>超空間</dt><dd>${S.hyperClass?'クラス '+S.hyperClass.toFixed(1):'なし'}</dd></div></dl><p class="tut-note">${warn?`注意点が ${warn} 件あります。画面下の「点検」から該当する部品へ移動できます。`:'大きな問題はありません。'}</p>`;
+ return `<dl class="tut-sum"><div><dt>艦橋</dt><dd>${S.bridges} 基</dd></div><div><dt>計画最大加速</dt><dd>${fG(designAccelerationG(S))}</dd></div><div><dt>一斉射</dt><dd>${fTT(totalVolleyTT(catalogStats(S)))}</dd></div><div><dt>超空間</dt><dd>${S.hyperClass?'クラス '+S.hyperClass.toFixed(1):'なし'}</dd></div></dl><p class="tut-note">${warn?`注意点が ${warn} 件あります。画面下の「点検」から該当する部品へ移動できます。`:'大きな問題はありません。'}</p>`;
 }
 function tutRender(){
  let box=$('#tut');
