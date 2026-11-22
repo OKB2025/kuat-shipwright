@@ -3716,7 +3716,7 @@ function baseFitEditor() {
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
     ${weaponMountIssue(it,C.fitUp(it))?`<p class="note neg" data-weapon-mount-error>${weaponMountIssue(it,C.fitUp(it))}</p>`:''}
     ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}${launcherPitchControls(it)}${craftGunSinkControls(it)}
-    ${fitPedestalControls(it)}${fitColorHTML(it)}</div>`;
+    ${fitPedestalControls(it)}<div class="pgroup" data-fit-color><h4>砲の色</h4><label>砲の色 <input type="color" data-fitpaint value="${it.paint||'#b8bec4'}"></label>${it.paint?'<button type="button" class="btn sm ghost" data-fitpaintclear>標準の色に戻す</button>':''}</div></div>`;
 }
 function partList() {
   const items = ship.parts.filter(p => !(p.tw && p.id > p.tw));
@@ -6753,8 +6753,6 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
 }
 // 2026-11-22 Equipment and guns take a colour of their own, as structures do (user: 「船体、パーツ、砲も構造物同様色を変えれるように」).
 // No value means the standard colour of the kind; 「標準の色に戻す」 removes it.
-function partColorHTML(p){return `<div class="pgroup" data-part-color><h4>部品の色</h4><label>部品の色 <input type="color" data-partpaint value="${p.paint||'#a4acb4'}"></label>${p.paint?'<button type="button" class="btn sm ghost" data-partpaintclear>標準の色に戻す</button>':''}</div>`;}
-function fitColorHTML(f){return `<div class="pgroup" data-fit-color><h4>砲の色</h4><label>砲の色 <input type="color" data-fitpaint value="${f.paint||'#b8bec4'}"></label>${f.paint?'<button type="button" class="btn sm ghost" data-fitpaintclear>標準の色に戻す</button>':''}</div>`;}
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
   html+=cockpitEquipmentHTML(p);
@@ -6777,7 +6775,7 @@ function partEditor(){
   if(p.k==='engine'&&!C.parametricEngine(p))html+=`<div class="pgroup"><h4>拡張ノズル</h4><div class="sliders">${slider('throatRatio','奥の噴出口の径',Math.round((p.throatRatio??.34)*100),18,80,1,Math.round((p.throatRatio??.34)*100)+'%')}</div></div>`;
   if(p.k==='hangar')html+=aviationPartHTML(p);
   if(C.isShapePart(p)&&p.form==='arc')html+=`<div class="pgroup"><h4>環状船体の空洞と開き</h4>${[['arcInner','内径の比率',(p.arcInner??.65)*100,5,95],['arcStart','円弧の開始角',p.arcStart??30,-180,180],['arcSweep','円弧の角度',p.arcSweep??300,5,360]].map(([k,n,v,lo,hi])=>`<label>${n}<input type="number" data-arc="${k}" value="${v}" min="${lo}" max="${hi}" step="1"></label>`).join('')}<p class="note">360°で閉じた環。0°は艦首側です。内径を広げると船内容積と質量が減ります。</p></div>`;
-  if(p.k!=='struct')html+=partColorHTML(p);
+  if(p.k!=='struct')html+=`<div class="pgroup" data-part-color><h4>部品の色</h4><label>部品の色 <input type="color" data-partpaint value="${p.paint||'#a4acb4'}"></label>${p.paint?'<button type="button" class="btn sm ghost" data-partpaintclear>標準の色に戻す</button>':''}</div>`;
   if(p.k==='struct')html+=`<div class="pgroup"><label><input type="checkbox" data-bands ${p.bands?.length?'checked':''}> 青色の識別帯</label><p class="note">構造物の塗装です。艦橋ポッドや指揮区画は追加しません。</p></div>`;
   return html;
 }
@@ -6814,7 +6812,7 @@ function bindRealism(){
     if('partpaint'in t.dataset){mutate(selItem()?.k==='struct'?'構造物の色':'部品の色',()=>editSel(p=>p.paint=t.value),'parts');renderPanel();}
     if('fitpaint'in t.dataset){mutate('砲の色',()=>editSel(f=>f.paint=t.value.toLowerCase()),'fits');renderPanel();}
   });
-  bindDecalPanel($('#panel'));
+  if(typeof bindDecalPanel==='function')bindDecalPanel($('#panel'));
   $('#panel').addEventListener('input',e=>{if(blockedHullControl(e.target))return;const t=e.target,k=t.dataset.sl;if(t.value==='')return;const v=t.min!=null&&t.max!=null?C.clamp(+t.value,+t.min,+t.max):+t.value;if(!Number.isFinite(v))return;const out=$('#out-'+k);
     const live=(fn,what='parts')=>{beginDrag('形状・区画を調整');fn();touch(what);scheduleStats(350);};
     if(k?.startsWith('newRoom'))st.roomSize[+k.at(-1)]=v;
