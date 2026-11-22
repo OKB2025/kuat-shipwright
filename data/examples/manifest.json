@@ -1,6 +1,6 @@
 {
  "schemaVersion": 2,
- "built": "2026-11-21",
+ "built": "2026-11-22",
  "ships": {
   "acclamator": {
    "combat": {
@@ -253,12 +253,12 @@
   },
   "lucrehulk": {
    "combat": {
-    "sha256": "e218e645d2528dc8efd4f0a71994f0c9b9be0e3c93e1df9d5a2132522d57c275"
+    "sha256": "73464261f1e15881ea4c41179bb386f9c30a17de1bf522cac5e0193e291f3b4c"
    },
    "design": {
-    "sha256": "1344ce6d587daf9bbf0050a5d8791de761462927bcc488daf1121e0bca6ffce3",
-    "jsonSha256": "b10f762ca5e08322074629baa77d329f686aca07debca1fd5753472dd1b43ec3",
-    "blueprintSha256": "a2845f3e796b2705937605c666e3cc419b57a9c19eb585e150339290e083a3c8"
+    "sha256": "a1bc5167d9fc7c6bd907f309b911e23308c8ab33abb948fe547eff9ea55a9796",
+    "jsonSha256": "1c9c5835655fb45b8a7f05673d64720d7af0e1b312dfa40f6f03d9c04ead1e80",
+    "blueprintSha256": "468a4cf2e309d163ee1beeb364cf91bde55410ee2e53a2f3e3fd2a9162a005d6"
    }
   },
   "mandator2": {
