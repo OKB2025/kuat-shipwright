@@ -29,6 +29,6 @@ is (a) the grid clipper losing volume, (b) a change in which region is kept, or 
 | vwing #32 / #33 | −9.1% / −9.5% | −0.86% / −1.06% | 0 |
 
 The face-joined volume is within 1.3% of the definition and below it, by about what the room's own mesh loses to faceting
-(tie_ln #9: raw mesh 0.69473 against the analytic 0.69971, −0.7%). Nothing measurable of it lies outside the envelope. The
+(tie_ln #9: raw mesh 0.69473 against the analytic 0.69971, −0.7%). No sampled point of it lies outside the envelope except one in vwing #28. The outside test uses 20,000 points per room (n2 in the JSON), so a room with no hit bounds the outside volume at about 0.1% of its volume (95%, box × 3 / 20,000), not 1e-6 m³. The
 grid clipper lost 6–21% on these small rooms. This is case (a): the version 7 figures are the better measurement.
 Not checked: the ships' rooms (only the six craft with the largest figure changes were sampled).
