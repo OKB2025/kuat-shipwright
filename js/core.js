@@ -75615,7 +75615,9 @@ function sampleSection(ship, x, options={}) {
 }
 function cache(ship) {
   if(ship._lockedCache)return ship._lockedCache;
-  const key = JSON.stringify([ship.hull, ship.cuts, ship.subs, ship.trenches, ship.solidCuts, ship.hatches.filter(h=>h.portal),ship.fits.filter(f=>isShipLauncher(f)&&shipLauncherConfig(f).embedded).map(launcherStateKey), ship.parts.filter(p=>ship.hatches.some(h=>h.bay===p.id)).map(p=>[p.c,p.room,p.yaw,p.foreWidth,p.aftWidth])],(k,v)=>k.startsWith('_')&&k!=='_doorDetached'?undefined:v);
+  // 2026-11-22: a bay's clipped volume is in the key: the mouth of an open bay is cut from the hull by the bay's clipped shape, and with the
+  // face-joined clipping a geometry built before the bay was clipped stayed (tests/hull-structure.cjs: a legacy hull 279 m³ larger than after migration).
+  const key = JSON.stringify([ship.hull, ship.cuts, ship.subs, ship.trenches, ship.solidCuts, ship.hatches.filter(h=>h.portal),ship.fits.filter(f=>isShipLauncher(f)&&shipLauncherConfig(f).embedded).map(launcherStateKey), ship.parts.filter(p=>ship.hatches.some(h=>h.bay===p.id)).map(p=>[p.c,p.room,p.yaw,p.foreWidth,p.aftWidth,p._clip?.volume??null])],(k,v)=>k.startsWith('_')&&k!=='_doorDetached'?undefined:v);
   if (!ship._cache || ship._cache.key !== key) ship._cache = {key, sec: new Map(), geo: null, hf: null, hfKey: ''};
   return ship._cache;
 }
