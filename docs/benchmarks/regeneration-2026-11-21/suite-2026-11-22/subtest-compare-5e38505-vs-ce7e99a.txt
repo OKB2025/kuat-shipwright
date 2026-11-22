@@ -1,0 +1,6 @@
+same failing subtests: 136
+HEAD has failing subtests not failing on ce7e99a: 3
+ - design-edit-session-ui | new: ['Close keeps a pending reconnect source and its later Worker result does not reopen editing or add Undo', 'a clean Close preserves existing Redo and a new-placement Cancel creates no source or history', 'the real Cancel action restores source and history instead of taking the Close path', 'the real Close action keeps changed inputs and compacts them into one Undo; explicit Apply and Discard sit in the footer'] | fixed: []
+ - fleet-orders-localization | new: ['basic catalogue performance shows its maximum separately from selected operating acceleration', 'the actual design statistics show the same simultaneous engagement capacity used by combat'] | fixed: []
+ - mandator-example-refit | new: ['Mandator II derives its requested output, shield storage and salvo from physical equipment', 'shield processing follows each physical device health, trips and granted input'] | fixed: []
+fewer failures on HEAD: 0

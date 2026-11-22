@@ -200,7 +200,7 @@ test('applying a parent graph deletion keeps its fitting removal in the same Und
 function bindHeaderActions(t){
  t.run(`
   const document={querySelector:s=>$('doc:'+s),addEventListener:(kind,listener)=>events.set('document:'+kind,listener),body:{classList:{contains:()=>true}}};
-  for(const selector of ['#btnTrialQuick','#viewport','#dock','#designInspection','#inspBar','#panel','doc:.main']){const node=$(selector);node.insertAdjacentHTML=()=>{};node.append=()=>{};node.addEventListener=(kind,listener)=>events.set(selector+':'+kind,listener);}
+  for(const selector of ['#btnTrialQuick','#viewport','#dock','#designInspection','#inspBar','#panel','#designMetrics','doc:.main']){const node=$(selector);node.insertAdjacentHTML=()=>{};node.append=()=>{};node.addEventListener=(kind,listener)=>events.set(selector+':'+kind,listener);}
   ${fn('bindDesignUI')}
   bindDesignUI();
   function headerAction(action){events.get('document:click')({target:{closest:()=>({dataset:{designAction:action}})}});}

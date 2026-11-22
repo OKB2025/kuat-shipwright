@@ -19,8 +19,11 @@
     - `immediate-design-placement-ui`、`ui-phase1-power-bar-ui`：`designUIMetrics` だけを取り出して動かすため、新しく呼ぶ `designMetricsOpen` が無かった（ReferenceError）。試験が `designMetricsOpen` も取り出すようにした。
     - `design-continuous-placement-ui`：`bindDesignUI` が新しく `#designMetrics` にクリック処理を付けるが、作り物の部品に `addEventListener` が無かった（TypeError）。作り物を用意する部品の一覧に `#designMetrics` を足した。
   - 期待値・許容差・判定は変えていない。
+- 件ごとの比較（物理レビューの指摘、`subtest-compare-5e38505-vs-ce7e99a.txt`）：両方で落ちる試験について、落ちた件の名前を `ce7e99a` と比べた。136 本は同じ件だけが落ちる。違ったのは 3 本：
+  - `design-edit-session-ui`（4 件多い）と `fleet-orders-localization`（2 件多い）：上の 3 本と同じ種類の試験の作り物の不足だった（`#designMetrics` に `addEventListener` が無い、新しい `launcherVolleyTT`／`totalVolleyTT` を読み込んでいない）。試験側を同じように直し、単独で再実行すると、落ちる件が `ce7e99a` と同じになった（`/tmp/ks-verify/20261122-final-suites/fix-*.log`）。期待値は変えていない。
+  - `mandator-example-refit`：`ce7e99a` 側が時間切れで、件の記録が無い（下の個別の項）。
 - 先に直した 2 本（`fleet-battle-determinism`、`worker-authored-drift`）は今のコードで通る。
 - 個別に確かめたもの：
   - `onager-fixed-axis-runtime`：両方とも 12 件中 1 件（11 番「RTS の結果時計…」）だけ落ちる。同じ失敗なので、この PR の前からのもの。
-  - `mandator-example-refit`：今のコードでは 5 件中 2 件が落ちる（2 番 `full single-volley storage for gun 8649`、5 番 シールド処理）。`34a935b`（マンデイター II の傾き `cffa5d4` より前）でも同じ 2 件が同じ文面で落ちる（`/tmp/ks-verify/20261122-suite/out/mandator-example-refit.log`）ので、傾きによるものではない。`ce7e99a` では 1,800 秒で時間切れになったため、時間を延ばして再実行した（結果は下）。
+  - `mandator-example-refit`：今のコードでは 5 件中 2 件が落ちる（2 番 `full single-volley storage for gun 8649`、5 番 シールド処理）。`34a935b` でも同じ 2 件が同じ文面で落ちる（`/tmp/ks-verify/20261122-suite/out/mandator-example-refit.log`）。ただし砲を傾けたのは `5087a2d`（ビルダー）で、`34a935b` は傾けたあとの作り直し `b0b99bf` を含む。したがってこの比較からは、傾けたことが原因かどうかは言えない（訂正：先の版で「傾きによるものではない」と書いたのは誤り。`cffa5d4` は証拠と注記を足しただけのコミット）。試験の中の 2026-11-20 の注記（傾ける前）には、quad175 48 基がすべて 0.823 で落ちていたとあり、以前から落ちていた可能性は高い。`ce7e99a` では 1,800 秒で時間切れになったため、時間を延ばして再実行した（結果は下）。
   - `example-figures-regression`：両方とも 1,800 秒で時間切れ。比べられていない（UNVERIFIED）。
