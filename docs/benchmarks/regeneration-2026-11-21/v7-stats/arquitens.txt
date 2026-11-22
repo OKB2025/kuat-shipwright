@@ -1,0 +1,2 @@
+cost                         3.97298e+6 3.98697e+6 0.35%
+dissipatorRatedPower         7.99855e+19 7.98198e+19 -0.21%

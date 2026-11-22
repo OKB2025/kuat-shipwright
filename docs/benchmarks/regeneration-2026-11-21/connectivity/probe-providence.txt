@@ -1,0 +1,4 @@
+#24-#181: connected false, reach true, tols 9.71,2.61,8.02, grid probe none (face probe or not connected)
+#184-#181: connected false, reach false, tols 1.50,1.50,1.50, grid probe none (face probe or not connected)
+#24-#184: connected true, reach true, tols 6.25,1.50,1.50, grid probe {"q":[407.53,122.85,-109.49],"a":"axis 1 +1.50","b":"axis 1 -1.50"}
+gap above #24 (y 137.88 to +4.4) samples 624 occupied by [["1 struct 船体構造物",624],["100000 struct 後部の構造物 1",624],["183 hangar 上部格納甲板（天井ラックの艦載機） 3",57]]
