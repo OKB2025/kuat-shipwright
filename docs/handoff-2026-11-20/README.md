@@ -221,3 +221,4 @@
   - つながりの許容がセル 1 つ分なので、セルの大きい区画どうしが薄い壁を挟んでつながることがある。
   - gozanti の価格 −69% は区画ごとの固定費による（仮の価格式の弱点）。
 - 記録：`docs/benchmarks/regeneration-2026-11-21/README.md`（版 7）、`docs/benchmarks/hatch-overlap-2026-11-21/README.md`、`docs/benchmarks/mandator2-rebuild-2026-11-21/README.md`。
+- main への反映（ユーザーの決定 2026-11-22「メインに入れて」）：この PR を `claude/relaxed-ritchie-bquetk` にマージしたあと、そのブランチ → main の PR を作ってマージする。
