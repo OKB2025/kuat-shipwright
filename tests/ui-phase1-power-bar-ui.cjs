@@ -40,7 +40,7 @@ test('the 性能 panel and the metrics both use the shared bar; the 性能 panel
  const spec=extract('specHTML');assert.match(spec,/\$\{combatPowerBarHTML\(operating\)\}/);assert.doesNotMatch(spec,/\['その他', d\.hotel \+ d\.ray/);assert.match(spec,/機関は戦闘時の想定負荷（定格の35%）で表示します。冷却設備は排熱設備の定格消費電力です。/);
  const cx=vm.createContext({});const box={dataset:{},innerHTML:''};cx.box=box;
  vm.runInContext(`const esc=String,T=x=>x,fW=x=>x+' W',fLen=x=>x,fMass=x=>x,fG=x=>x,num=x=>x;const $=s=>s==='#designMetrics'?box:null;const designUIInfoPanel=()=>{},designUIPlacementStage=()=>({pending:[],failed:[]}),catalogStats=S=>({...S,accelG:1});const eng={ready:true,statsGen:1,gen:1};const C={heatReadoutRates:()=>null};
- let S={dims:[100],mass:5,power:200,draw:${JSON.stringify(draw)}};${shareLine}${extract('combatPowerSegments')}${extract('combatPowerBarHTML')}${extract('designUIMetrics')}designUIMetrics();`,cx);
+ let S={dims:[100],mass:5,power:200,draw:${JSON.stringify(draw)}};${shareLine}${extract('combatPowerSegments')}${extract('combatPowerBarHTML')}${extract('designMetricsOpen')}${extract('designUIMetrics')}designUIMetrics();`,cx);
  assert.match(box.innerHTML,/<div class="design-power" data-design-metric="power-bar"><dt>戦闘時の電力配分<\/dt><dd><div class="pbar pbar-sm"/);
  assert.equal([...box.innerHTML.matchAll(/data-power-segment=/g)].length,5);
  vm.runInContext('S=null;designUIMetrics()',cx);assert.match(box.innerHTML,/data-design-metric="power-bar"><dt>戦闘時の電力配分<\/dt><dd>—<\/dd>/);

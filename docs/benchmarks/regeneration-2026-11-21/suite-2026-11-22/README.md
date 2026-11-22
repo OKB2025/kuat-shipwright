@@ -7,4 +7,20 @@
   - `fleet-battle-determinism`：版 7 の作り直しで作例の艦（arquitens、cr90、hammerhead）が変わったため、記録と 0 刻み目から合わない（作り直し前の `4dd4fdb` でも落ちる）。最初の数値の差は arquitens の位置 x の相対 1.6e-10。記録し直し、2 回続けて同じファイル（sha256 ef3d0ef7…）。
 - 前回は落ち、今回通ったもの 1 本：`ship-dock`。
 - 残る 139 本は前回も落ちていたもの（この PR の前から落ちている試験を含む。棚卸しは未着手）。
-- 画面の変更 2 件（`afe85d5`、`e0dba61`）は全体実行の後に入れた。その分の試験は `volley-includes-launchers`、`design-metrics-collapse` と、関係する既存の試験を変更前後で比べた（同じ結果）。
+- 画面の変更 2 件（`afe85d5`、`e0dba61`）は全体実行の後に入れた。その時点では関係する既存の試験を変更前後で比べ「同じ結果」と書いたが、下の最終実行で、性能表を畳む変更（`e0dba61`）が 3 本の試験を落としていたことが分かった（訂正）。
+
+## 最終実行（2026-11-22、`5e38505`）と、この PR の前（`ce7e99a`）との比較
+
+- 今のコード：`tests/*.cjs` 556 本を上と同じ条件で実行。142 本が失敗（`failed-5e38505.txt`）。`246a1f5` は資料だけの変更なので、試験の結果は変わらない。
+- この PR の前（版 6、`ce7e99a`、作業木 `/tmp/ks-verify/20261121-abc/base`）：`failed-34a935b.txt` の 141 本を同じ条件で実行。通ったのは `fleet-battle-determinism` と `worker-authored-drift` の 2 本だけ（`base-ce7e99a-passed.txt`）。残りは落ちるか時間切れ（`base-ce7e99a-failed.txt`、2 列目が終了コード、124 は 1,800 秒の時間切れ）。
+- 142 本の内訳：
+  - 139 本は `ce7e99a` でも通らない。137 本は落ち、この PR の前から落ちている試験。2 本（`mandator-example-refit`、`example-figures-regression`）は `ce7e99a` で時間切れのため、下で個別に扱う。
+  - 3 本は `34a935b` では通り、`e0dba61`（性能表を畳む）で落ちるようになった。原因はどれも試験の作り物の環境で、表示の期待値ではない。直した後、3 本とも単独実行で通る（ログは `/tmp/ks-verify/20261122-final-suites/fix-*.log`）。
+    - `immediate-design-placement-ui`、`ui-phase1-power-bar-ui`：`designUIMetrics` だけを取り出して動かすため、新しく呼ぶ `designMetricsOpen` が無かった（ReferenceError）。試験が `designMetricsOpen` も取り出すようにした。
+    - `design-continuous-placement-ui`：`bindDesignUI` が新しく `#designMetrics` にクリック処理を付けるが、作り物の部品に `addEventListener` が無かった（TypeError）。作り物を用意する部品の一覧に `#designMetrics` を足した。
+  - 期待値・許容差・判定は変えていない。
+- 先に直した 2 本（`fleet-battle-determinism`、`worker-authored-drift`）は今のコードで通る。
+- 個別に確かめたもの：
+  - `onager-fixed-axis-runtime`：両方とも 12 件中 1 件（11 番「RTS の結果時計…」）だけ落ちる。同じ失敗なので、この PR の前からのもの。
+  - `mandator-example-refit`：今のコードでは 5 件中 2 件が落ちる（2 番 `full single-volley storage for gun 8649`、5 番 シールド処理）。`34a935b`（マンデイター II の傾き `cffa5d4` より前）でも同じ 2 件が同じ文面で落ちる（`/tmp/ks-verify/20261122-suite/out/mandator-example-refit.log`）ので、傾きによるものではない。`ce7e99a` では 1,800 秒で時間切れになったため、時間を延ばして再実行した（結果は下）。
+  - `example-figures-regression`：両方とも 1,800 秒で時間切れ。比べられていない（UNVERIFIED）。

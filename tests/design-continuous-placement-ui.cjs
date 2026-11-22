@@ -32,7 +32,7 @@ test('checking the actual new-placement control enables repeated independent tap
  const t=setup(),r=t.run;r(`
  const handlers=new Map();
  const document={querySelector:s=>$('doc:'+s),addEventListener:(kind,handler)=>handlers.set('document:'+kind,handler)};
- for(const selector of ['#btnTrialQuick','#viewport','#dock','#designInspection','#inspBar','#panel','doc:.main']){const node=$(selector);node.insertAdjacentHTML=()=>{};node.append=()=>{};node.addEventListener=(kind,handler)=>handlers.set(selector+':'+kind,handler);}
+ for(const selector of ['#btnTrialQuick','#viewport','#dock','#designInspection','#inspBar','#panel','#designMetrics','doc:.main']){const node=$(selector);node.insertAdjacentHTML=()=>{};node.append=()=>{};node.addEventListener=(kind,handler)=>handlers.set(selector+':'+kind,handler);}
  ${fn('bindDesignUI')}
  bindDesignUI();
  const change=handlers.get('#panel:change');change({target:{dataset:{designContinuous:''},checked:true}});
