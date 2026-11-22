@@ -38,7 +38,7 @@ test('Mandator II derives its requested output, shield storage and salvo from ph
  // four more quad 175 TT mounts than the declared battery.
  assert.deepEqual(counts,COUNTS);assert.equal(ship.fits.filter(f=>f.k==='stl').length,0,'the user 175 TT mounts carry quads');
  const mainAndIon=ship.fits.filter(f=>MAIN.includes(f.k)).reduce((n,f)=>n+volleyOf(f),0);near(mainAndIon,132640,1e-12);
- const below=ship.fits.filter(f=>['utl','quad175'].includes(f.k)&&f.mountMode==='bottom');assert.ok(below.length>=30,'the ventral keel carries guns');
+ /* 2026-11-21: the guns are seated tilted to their faces (mountMode 'auto', user instruction), so the ventral battery is found by its zone */const below=ship.fits.filter(f=>['utl','quad175'].includes(f.k)&&/^ventral-/.test(f.batteryZone||''));assert.ok(below.length>=30,'the ventral keel carries guns');
  near(stats.power,7.7e26);near(stats.shieldCapacity,7.7e27);near(stats.shieldDissipationW,184034,1e-12);
  for(const reactor of ship.parts.filter(C.isReactor))near(C.reactorPower(reactor),C.partVolume(reactor)*C.REACTOR_POWER_DENSITY,1e-12);
  assert.ok(ship.fits.filter(f=>C.FITS[f.k]?.cat==='w').every(f=>!f.float),'all guns have physical hull stations');

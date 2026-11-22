@@ -50,7 +50,7 @@ test('a resolution received during a drag waits for release without taking anoth
 });
 
 test('the visible metrics remain provisional while a part is pending and report a later exact failure',()=>{
- const t=setup(),r=t.run;r(fn('designUIPlacementStage'));r(fn('designUIMetrics').replace('function designUIMetrics(', 'function actualDesignUIMetrics('));
+ const t=setup(),r=t.run;r(fn('designUIPlacementStage'));r(fn('designMetricsOpen'));r(fn('designUIMetrics').replace('function designUIMetrics(', 'function actualDesignUIMetrics('));
  r('tap(1000);eng.statsGen=eng.gen;actualDesignUIMetrics()');assert.equal(r('$("#designMetrics").dataset.state'),'pending');assert.match(r('$("#designMetrics").innerHTML'),/計算中/);
  t.context.packet=resolution(t);r('onEnginePlacementResolution(packet);actualDesignUIMetrics()');assert.equal(r('$("#designMetrics").dataset.state'),'failed');assert.match(r('$("#designMetrics").innerHTML'),/計算失敗/);
 });

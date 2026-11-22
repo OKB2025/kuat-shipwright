@@ -1,0 +1,274 @@
+{
+ "acclamator": {
+  "Vhang": 1117030.51666248,
+  "Vacc": 1117030.51666248,
+  "launch": 0,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 10.23
+ },
+ "carrier": {
+  "Vhang": 4829625,
+  "Vacc": 4829625,
+  "launch": 14.603932448343357,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 2.623
+ },
+ "deathstar": {
+  "Vhang": 39057039499.564095,
+  "Vacc": 39057039499.564095,
+  "launch": 5500.688543793455,
+  "openA": 13751721.359483637,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 64.108
+ },
+ "destroyer": {
+  "Vhang": 1822500,
+  "Vacc": 0,
+  "launch": 0,
+  "openA": 0,
+  "noAccess": [
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31
+  ],
+  "warnUnconnected": true,
+  "sec": 1.784
+ },
+ "dreadnaught": {
+  "Vhang": 83502.41673319471,
+  "Vacc": 83502.41673319471,
+  "launch": 0.4263608527199999,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 16.348
+ },
+ "executor": {
+  "Vhang": 141700000,
+  "Vacc": 141700000,
+  "launch": 0,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 33.898
+ },
+ "heavy": {
+  "Vhang": 5400000,
+  "Vacc": 0,
+  "launch": 0,
+  "openA": 0,
+  "noAccess": [
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35
+  ],
+  "warnUnconnected": true,
+  "sec": 2.462
+ },
+ "heraklon": {
+  "Vhang": 15711.364272243101,
+  "Vacc": 15711.364272243101,
+  "launch": 0.1240326843656726,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 3.051
+ },
+ "imperial": {
+  "Vhang": 2482263.336431207,
+  "Vacc": 2482263.336431207,
+  "launch": 5.003025199999999,
+  "openA": 11617.375,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 17.66
+ },
+ "imperial2": {
+  "Vhang": 2482263.336431207,
+  "Vacc": 2482263.336431207,
+  "launch": 5.003025199999999,
+  "openA": 11617.375,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 14.407
+ },
+ "lh3210": {
+  "Vhang": 76679307.82990213,
+  "Vacc": 76679307.82990213,
+  "launch": 77.1462770089249,
+  "openA": 192865.69252231225,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 22.483
+ },
+ "lucrehulk": {
+  "Vhang": 187559847.0003307,
+  "Vacc": 187559847.0003307,
+  "launch": 172.7489087710905,
+  "openA": 431872.2719277262,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 27.757
+ },
+ "mandator2": {
+  "Vhang": 21955465.816472877,
+  "Vacc": 21955465.816472877,
+  "launch": 30.551419607677026,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 437.045
+ },
+ "mc75": {
+  "Vhang": 281144.2686840961,
+  "Vacc": 281144.2686840961,
+  "launch": 1.4225326926654567,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 10.014
+ },
+ "mc80home": {
+  "Vhang": 940153.7212667926,
+  "Vacc": 940153.7212667926,
+  "launch": 1.956817536667246,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 34.992
+ },
+ "mc80liberty": {
+  "Vhang": 300283.35975192446,
+  "Vacc": 300283.35975192446,
+  "launch": 2.4284208568319996,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 86.193
+ },
+ "nebulonb": {
+  "Vhang": 22441.052421167824,
+  "Vacc": 22441.052421167824,
+  "launch": 0.20465638307194775,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 19.675
+ },
+ "onager": {
+  "Vhang": 85011.2968096763,
+  "Vacc": 85011.2968096763,
+  "launch": 1.4198428396799998,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 13.974
+ },
+ "providence": {
+  "Vhang": 2690826.627834743,
+  "Vacc": 2690826.627834743,
+  "launch": 4.266383808013187,
+  "openA": 8523.951187412851,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 36.32
+ },
+ "providenceDn": {
+  "Vhang": 21566702.478606295,
+  "Vacc": 21566702.478606295,
+  "launch": 17.238685703999703,
+  "openA": 34373.77830564049,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 42.349
+ },
+ "recusant": {
+  "Vhang": 575936.2038792521,
+  "Vacc": 575936.2038792521,
+  "launch": 2.2930615351408563,
+  "openA": 5732.65383785214,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 54.868
+ },
+ "recusantDn": {
+  "Vhang": 3588534.2250085804,
+  "Vacc": 3588534.2250085804,
+  "launch": 9.217194245734834,
+  "openA": 23042.985614337085,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 47.833
+ },
+ "sample": {
+  "Vhang": 2484000,
+  "Vacc": 2484000,
+  "launch": 0.34884155520172755,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 3.975
+ },
+ "subjugator": {
+  "Vhang": 2061748.8363053622,
+  "Vacc": 2061748.8363053622,
+  "launch": 8.910228015517365,
+  "openA": 22275.570038793412,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 246.19
+ },
+ "venator": {
+  "Vhang": 5866452.190411927,
+  "Vacc": 5866452.190411927,
+  "launch": 0,
+  "openA": 0,
+  "noAccess": [],
+  "warnUnconnected": false,
+  "sec": 14.205
+ }
+}

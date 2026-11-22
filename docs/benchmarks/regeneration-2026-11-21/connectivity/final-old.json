@@ -1,0 +1,787 @@
+{
+ "acclamator": {
+  "Vhang": 1117030.51666248,
+  "Vacc": 1117030.51666248,
+  "launch": 0,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "46": {
+    "connected": true,
+    "area": 0
+   },
+   "47": {
+    "connected": true,
+    "area": 0
+   }
+  },
+  "warnings": [
+   "heat",
+   "packing-space"
+  ],
+  "warnUnconnected": false,
+  "sec": 11.006
+ },
+ "carrier": {
+  "Vhang": 4829625,
+  "Vacc": 4829625,
+  "launch": 14.603932448343357,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 60849.71853476399,
+  "noAccess": [],
+  "hatches": {
+   "95": {
+    "connected": true,
+    "area": 30424.859
+   },
+   "96": {
+    "connected": true,
+    "area": 30424.859
+   }
+  },
+  "warnings": [
+   "reactant-supply",
+   "シールド発生器がありません。",
+   "噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "慣性制御装置の対応質量が不足しています。",
+   "構造維持装置の対応質量が不足しています。",
+   "生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "自動推進機関と 3 区画が干渉しています。重複区画は稼働しません。",
+   "重なり合っている区画があります（6 区画）。"
+  ],
+  "warnUnconnected": false,
+  "sec": 2.62
+ },
+ "deathstar": {
+  "Vhang": 39057039499.564095,
+  "Vacc": 39057039499.564095,
+  "launch": 5500.688543793455,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 13751721.359483637,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "70": {
+    "connected": true,
+    "area": 4583907.12
+   },
+   "72": {
+    "connected": true,
+    "area": 4583907.12
+   },
+   "74": {
+    "connected": true,
+    "area": 4583907.12
+   }
+  },
+  "warnings": [
+   "automation",
+   "cut-equipment",
+   "heat",
+   "packing-space",
+   "packing-space",
+   "packing-space"
+  ],
+  "warnUnconnected": false,
+  "sec": 72.797
+ },
+ "destroyer": {
+  "Vhang": 1822500,
+  "Vacc": 0,
+  "launch": 0,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 0,
+  "noAccess": [
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31
+  ],
+  "hatches": {},
+  "warnings": [
+   "reactant-supply",
+   "シールドが目標強度の 0% です。発生器の容量と給電を確認してください。",
+   "ハッチに通じていない航空区画があります。",
+   "噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "慣性制御装置の対応質量が不足しています。",
+   "構造維持装置の対応質量が不足しています。",
+   "生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "自動推進機関と 1 区画が干渉しています。重複区画は稼働しません。",
+   "重なり合っている区画があります（2 区画）。"
+  ],
+  "warnUnconnected": true,
+  "sec": 2.443
+ },
+ "dreadnaught": {
+  "Vhang": 83502.41673319471,
+  "Vacc": 83502.41673319471,
+  "launch": 0.3351226913070214,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 1396.344547112589,
+  "noAccess": [],
+  "hatches": {
+   "57": {
+    "connected": true,
+    "area": 1396.345
+   }
+  },
+  "warnings": [],
+  "warnUnconnected": false,
+  "sec": 15.728
+ },
+ "executor": {
+  "Vhang": 141700000,
+  "Vacc": 141700000,
+  "launch": 0,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "42000": {
+    "connected": true,
+    "area": 0
+   },
+   "42001": {
+    "connected": true,
+    "area": 0
+   },
+   "42002": {
+    "connected": true,
+    "area": 0
+   },
+   "42003": {
+    "connected": true,
+    "area": 0
+   },
+   "42004": {
+    "connected": true,
+    "area": 0
+   }
+  },
+  "warnings": [
+   "automation",
+   "heat",
+   "heat"
+  ],
+  "warnUnconnected": false,
+  "sec": 36.406
+ },
+ "heavy": {
+  "Vhang": 5400000,
+  "Vacc": 0,
+  "launch": 0,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 0,
+  "noAccess": [
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35
+  ],
+  "hatches": {},
+  "warnings": [
+   "reactant-supply",
+   "シールド発生器がありません。",
+   "ハッチに通じていない航空区画があります。",
+   "噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "慣性制御装置の対応質量が不足しています。",
+   "構造維持装置の対応質量が不足しています。",
+   "生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "自動推進機関と 3 区画が干渉しています。重複区画は稼働しません。",
+   "重なり合っている区画があります（6 区画）。"
+  ],
+  "warnUnconnected": true,
+  "sec": 3.055
+ },
+ "heraklon": {
+  "Vhang": 15711.364272243101,
+  "Vacc": 15711.364272243101,
+  "launch": 0.1240326843656726,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 516.8028515236358,
+  "noAccess": [],
+  "hatches": {
+   "45": {
+    "connected": true,
+    "area": 516.803
+   }
+  },
+  "warnings": [
+   "heat",
+   "シールドが目標強度の 90% です。発生器の容量と給電を確認してください。",
+   "生命維持・シールド・機関への給電が不足しています（稼働率 90%）。"
+  ],
+  "warnUnconnected": false,
+  "sec": 3.167
+ },
+ "imperial": {
+  "Vhang": 2482263.336431207,
+  "Vacc": 2482263.336431207,
+  "launch": 5.003025199999999,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 11617.375,
+  "rayA": 1483.6466666666608,
+  "noAccess": [],
+  "hatches": {
+   "84": {
+    "connected": true,
+    "area": 11617.375
+   },
+   "86": {
+    "connected": true,
+    "area": 1483.647
+   }
+  },
+  "warnings": [
+   "heat"
+  ],
+  "warnUnconnected": false,
+  "sec": 16.919
+ },
+ "imperial2": {
+  "Vhang": 2482263.336431207,
+  "Vacc": 2482263.336431207,
+  "launch": 5.003025199999999,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 11617.375,
+  "rayA": 1483.6466666666608,
+  "noAccess": [],
+  "hatches": {
+   "84": {
+    "connected": true,
+    "area": 11617.375
+   },
+   "86": {
+    "connected": true,
+    "area": 1483.647
+   }
+  },
+  "warnings": [
+   "heat"
+  ],
+  "warnUnconnected": false,
+  "sec": 16.201
+ },
+ "lh3210": {
+  "Vhang": 76679307.82990213,
+  "Vacc": 76679307.82990213,
+  "launch": 57.42021104209189,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 143550.52760522973,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "41": {
+    "connected": true,
+    "area": 16400.792
+   },
+   "43": {
+    "connected": true,
+    "area": 19645.251
+   },
+   "45": {
+    "connected": true,
+    "area": 22891.091
+   },
+   "47": {
+    "connected": true,
+    "area": 19332.801
+   },
+   "49": {
+    "connected": true,
+    "area": 32640.296
+   },
+   "51": {
+    "connected": true,
+    "area": 32640.296
+   }
+  },
+  "warnings": [],
+  "warnUnconnected": false,
+  "sec": 26.612
+ },
+ "lucrehulk": {
+  "Vhang": 187559847.0003307,
+  "Vacc": 187559847.0003307,
+  "launch": 172.7489087710905,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 431872.2719277262,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "41": {
+    "connected": true,
+    "area": 16400.792
+   },
+   "43": {
+    "connected": true,
+    "area": 19645.251
+   },
+   "45": {
+    "connected": true,
+    "area": 22891.091
+   },
+   "47": {
+    "connected": true,
+    "area": 19332.801
+   },
+   "49": {
+    "connected": true,
+    "area": 32640.296
+   },
+   "51": {
+    "connected": true,
+    "area": 32640.296
+   },
+   "154": {
+    "connected": true,
+    "area": 72080.436
+   },
+   "156": {
+    "connected": true,
+    "area": 72080.436
+   },
+   "158": {
+    "connected": true,
+    "area": 72080.436
+   },
+   "160": {
+    "connected": true,
+    "area": 72080.436
+   }
+  },
+  "warnings": [],
+  "warnUnconnected": false,
+  "sec": 30.846
+ },
+ "mandator2": {
+  "Vhang": 21955465.816472877,
+  "Vacc": 21955465.816472877,
+  "launch": 30.551419607677026,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 127297.58169865428,
+  "noAccess": [],
+  "hatches": {
+   "2306": {
+    "connected": true,
+    "area": 63648.791
+   },
+   "2310": {
+    "connected": true,
+    "area": 63648.791
+   }
+  },
+  "warnings": [
+   "automation",
+   "heat",
+   "thin-wall",
+   "thin-wall",
+   "thin-wall"
+  ],
+  "warnUnconnected": false,
+  "sec": 490.247
+ },
+ "mc75": {
+  "Vhang": 281144.2686840961,
+  "Vacc": 281144.2686840961,
+  "launch": 1.4225416953064327,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 5927.257063776803,
+  "noAccess": [],
+  "hatches": {
+   "39": {
+    "connected": true,
+    "area": 5927.257
+   }
+  },
+  "warnings": [
+   "heat"
+  ],
+  "warnUnconnected": false,
+  "sec": 12.551
+ },
+ "mc80home": {
+  "Vhang": 940153.7212667926,
+  "Vacc": 940153.7212667926,
+  "launch": 1.956817536667246,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 8153.4064027801915,
+  "noAccess": [],
+  "hatches": {
+   "73": {
+    "connected": true,
+    "area": 4076.703
+   },
+   "76": {
+    "connected": true,
+    "area": 4076.703
+   }
+  },
+  "warnings": [],
+  "warnUnconnected": false,
+  "sec": 40.68
+ },
+ "mc80liberty": {
+  "Vhang": 300283.35975192446,
+  "Vacc": 300283.35975192446,
+  "launch": 1.33314407488834,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 5554.7669787014165,
+  "noAccess": [],
+  "hatches": {
+   "98": {
+    "connected": true,
+    "area": 5554.767
+   }
+  },
+  "warnings": [
+   "heat"
+  ],
+  "warnUnconnected": false,
+  "sec": 101.505
+ },
+ "nebulonb": {
+  "Vhang": 22441.052421167824,
+  "Vacc": 22441.052421167824,
+  "launch": 0.20465638307194775,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 852.734929466449,
+  "noAccess": [],
+  "hatches": {
+   "59": {
+    "connected": true,
+    "area": 426.367
+   },
+   "60": {
+    "connected": true,
+    "area": 426.367
+   }
+  },
+  "warnings": [],
+  "warnUnconnected": false,
+  "sec": 21.393
+ },
+ "onager": {
+  "Vhang": 85011.2968096763,
+  "Vacc": 85011.2968096763,
+  "launch": 1.4198557574658341,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 5916.065656107642,
+  "noAccess": [],
+  "hatches": {
+   "73": {
+    "connected": true,
+    "area": 2958.033
+   },
+   "75": {
+    "connected": true,
+    "area": 2958.033
+   }
+  },
+  "warnings": [
+   "packing-space"
+  ],
+  "warnUnconnected": false,
+  "sec": 14.562
+ },
+ "providence": {
+  "Vhang": 2690826.627834743,
+  "Vacc": 1853037.9424213595,
+  "launch": 4.266383808013187,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 8523.951187412851,
+  "rayA": 3570.0138877001946,
+  "noAccess": [
+   181,
+   196
+  ],
+  "hatches": {
+   "25": {
+    "connected": true,
+    "area": 1785.007
+   },
+   "26": {
+    "connected": true,
+    "area": 1785.007
+   },
+   "201": {
+    "connected": true,
+    "area": 4261.976
+   },
+   "202": {
+    "connected": true,
+    "area": 4261.976
+   }
+  },
+  "warnings": [
+   "charging",
+   "command-room",
+   "packing-space",
+   "packing-space",
+   "ハッチに通じていない航空区画があります。"
+  ],
+  "warnUnconnected": true,
+  "sec": 37.851
+ },
+ "providenceDn": {
+  "Vhang": 21566702.478606295,
+  "Vacc": 14851912.102160519,
+  "launch": 17.238685703999703,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 34373.77830564049,
+  "rayA": 14538.226590597955,
+  "noAccess": [
+   221,
+   236
+  ],
+  "hatches": {
+   "25": {
+    "connected": true,
+    "area": 7269.113
+   },
+   "26": {
+    "connected": true,
+    "area": 7269.113
+   },
+   "243": {
+    "connected": true,
+    "area": 17186.889
+   },
+   "244": {
+    "connected": true,
+    "area": 17186.889
+   }
+  },
+  "warnings": [
+   "charging",
+   "command-room",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "ハッチに通じていない航空区画があります。"
+  ],
+  "warnUnconnected": true,
+  "sec": 43.366
+ },
+ "recusant": {
+  "Vhang": 575936.2038792521,
+  "Vacc": 575936.2038792521,
+  "launch": 2.2930615351408563,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 5732.65383785214,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "15": {
+    "connected": true,
+    "area": 5732.654
+   }
+  },
+  "warnings": [
+   "command-room",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "ungrounded"
+  ],
+  "warnUnconnected": false,
+  "sec": 53.862
+ },
+ "recusantDn": {
+  "Vhang": 3588534.2250085804,
+  "Vacc": 3588534.2250085804,
+  "launch": 9.217194245734834,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 23042.985614337085,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "15": {
+    "connected": true,
+    "area": 23042.986
+   }
+  },
+  "warnings": [
+   "automation",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "packing-space",
+   "ungrounded",
+   "慣性制御装置の対応質量が不足しています。"
+  ],
+  "warnUnconnected": false,
+  "sec": 48.983
+ },
+ "sample": {
+  "Vhang": 2484000,
+  "Vacc": 2484000,
+  "launch": 0.3488415552017275,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 1453.5064800071978,
+  "noAccess": [],
+  "hatches": {
+   "104": {
+    "connected": true,
+    "area": 726.753
+   },
+   "105": {
+    "connected": true,
+    "area": 726.753
+   }
+  },
+  "warnings": [
+   "reactant-supply",
+   "シールドが目標強度の 0% です。発生器の容量と給電を確認してください。",
+   "慣性制御装置の対応質量が不足しています。",
+   "構造維持装置の対応質量が不足しています。",
+   "生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "自動推進機関と 2 区画が干渉しています。重複区画は稼働しません。",
+   "重なり合っている区画があります（7 区画）。"
+  ],
+  "warnUnconnected": false,
+  "sec": 3.629
+ },
+ "subjugator": {
+  "Vhang": 2061748.8363053622,
+  "Vacc": 2061748.8363053622,
+  "launch": 8.91025962465204,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 22275.6490616301,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "87": {
+    "connected": true,
+    "area": 11137.825
+   },
+   "89": {
+    "connected": true,
+    "area": 11137.825
+   }
+  },
+  "warnings": [
+   "automation"
+  ],
+  "warnUnconnected": false,
+  "sec": 259.101
+ },
+ "venator": {
+  "Vhang": 5866452.190411927,
+  "Vacc": 5866452.190411927,
+  "launch": 0,
+  "launchTime": null,
+  "deployableCount": 0,
+  "openA": 0,
+  "rayA": 0,
+  "noAccess": [],
+  "hatches": {
+   "40": {
+    "connected": true,
+    "area": 0
+   },
+   "56": {
+    "connected": true,
+    "area": 0
+   },
+   "63": {
+    "connected": true,
+    "area": 0
+   },
+   "65": {
+    "connected": true,
+    "area": 0
+   },
+   "102": {
+    "connected": true,
+    "area": 0
+   }
+  },
+  "warnings": [],
+  "warnUnconnected": false,
+  "sec": 14.265
+ }
+}

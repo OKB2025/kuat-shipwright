@@ -2654,6 +2654,7 @@ function setShip(s, opts) {
   if(fleet.mode!=='design')fleetSetMode('design');
   if(ship && !(opts&&opts.keepHistory)){undoStack.push(snap());if(undoStack.length>60)undoStack.shift();redoStack.length=0;}
   if (s.retiredCells) { const n = s.retiredCells; delete s.retiredCells; setTimeout(() => toast(`パワーセル ${n} 区画を熱エネルギー変換装置に置き換えました（v24 から砲の蓄電は各砲塔の充電装置が担います）`), 450); }
+  if (s.retiredHabitats) { const n = s.retiredHabitats; delete s.retiredHabitats; setTimeout(() => toast(`居住設備区画 ${n} 区画を外しました（乗員は船内の空き容積に乗ります。居住設備区画は廃止されました）`), 450); }
   if (s.retiredRooms) { const n = s.retiredRooms; delete s.retiredRooms; setTimeout(() => toast(`居住区・兵員室 ${n} 区画を外しました（v19 から乗員と兵員は船内の空き容積に乗ります）`), 400); }
   if (s.vehicleBays) { const n = s.vehicleBays; delete s.vehicleBays; setTimeout(() => toast(`車両格納区画 ${n} 区画を機体格納の格納区画に変えました（v20 から車両は航空機と同じ格納庫に寸法で入ります。ハッチか、ハッチにつながる格納区画に接するようにしてください）`), 700); }
   // Reserve identity before the first edit/save so all undo states of a new
@@ -3377,10 +3378,18 @@ function renderStrip() {
     <span class="ss"><i>質量</i><b>${fMass(S.mass)}</b></span>
     <span class="ss"><i>出力</i><b>×${M.xISD >= 0.1 ? M.xISD.toFixed(2) : M.xISD.toFixed(3)}<small>ISD</small></b></span>
     <span class="ss"><i>最大加速</i><b>${fG(M.accelG)}</b></span>
-    <span class="ss"><i>一斉射</i><b>${fTT(M.allGunVolleyTT)}</b></span>
+    <span class="ss"><i>一斉射</i><b>${fTT(totalVolleyTT(M))}</b></span>
     <span class="ss-flag ${bad ? 'bad' : warn.length ? 'warn' : 'ok'}" aria-label="警告 ${warn.length} 件">${warn.length ? warn.length : '✓'}</span>`;
   renderInspBar();designUIMetrics();
 }
+// 2026-11-22 (user: 「性能の火力には艦搭載のミサイル/魚雷も含んで」): the firepower shown on the performance tab counts one salvo
+// of every ship-mounted missile and torpedo launcher next to the guns: each launcher's fitSpec msl (round yield × cells), under the
+// same mounting condition computeStats uses for mslSalvo (external, or a VLS more than 5% inside). S.mslSalvo itself is a 20-second
+// rate for these launchers (physics review 2026-11-22), so it is not used here. Craft keep their gun-only figures.
+// allGunVolleyTT itself is unchanged (fleet data, tests). The design is the one being edited (the stats shown are always its own).
+function launcherVolleyTT(S,design=(typeof ship!=='undefined'?ship:null)){if(!S||!design||C.isCraft(design))return 0;let n=0;for(const f of design.fits||[]){if(f.float)continue;const d=C.fitSpec(f);if(!d||d.cat!=='w'||!(d.msl>0))continue;if(C.missileMount(f)!=='ext'&&!((S.vlsInfo?.[f.id]?.ratio||0)>.05))continue;n+=d.msl;}return n;}
+function gunVolleyTT(S){return S?.allGunVolleyTT??((S?.alphaTot||0)+(S?.ionTot||0));}
+function totalVolleyTT(S){return gunVolleyTT(S)+launcherVolleyTT(S);}
 function bar(frac, cls) { return `<span class="bar ${cls || ''}"><em style="width:${Math.max(0, Math.min(100, frac * 100)).toFixed(1)}%"></em></span>`; }
 function radar(S) {
   const sc = scores(S), n = 6, R = 62, cx = 90, cy = 82;
@@ -3395,7 +3404,7 @@ function radar(S) {
 function scores(S) {
   S=catalogStats(S);
   const cl = (v) => Math.max(0, Math.min(100, v));
-  const fpd = S.mass > 0 ? S.alphaBest / (S.mass / 1e6) : 0;
+  const fpd = S.mass > 0 ? (S.alphaBest + launcherVolleyTT(S)) / (S.mass / 1e6) : 0;
   return [
     {k: '火力', v: cl(100 * (1 - Math.exp(-fpd / 100)))},
     {k: '防御', v: cl(40 * Math.min(1, S.shieldPct / 1.5) + 35 * Math.min(1, S.armorHull / 1.5) + 25 * S.protectedFrac)},
@@ -3454,7 +3463,7 @@ function specHTML(S, opt = {}) {
     <div><dt>全長×全幅×全高</dt><dd>${fLen(S.dims[0])} × ${fLen(S.dims[1])} × ${fLen(S.dims[2])}</dd></div>
     <div><dt>質量</dt><dd>${fMass(S.mass)}<small>装甲 ${fMass(S.armorMass)}</small></dd></div>
     <div><dt>主機出力</dt><dd>${fW(S.power)}<small>ISD比 ×${S.xISD.toFixed(2)}</small></dd></div>
-    <div><dt>${S.superweapons?.length?'一斉射（通常砲・公称）':'一斉射（全砲・公称）'}</dt><dd>${fTT(S.allGunVolleyTT??S.alphaTot+(S.ionTot||0))}<small>通常砲の主射界 ${fTT(S.alphaBest)}</small></dd></div>
+    <div><dt>${launcherVolleyTT(S)>0?(S.superweapons?.length?'一斉射（通常砲・ミサイル・魚雷・公称）':'一斉射（全砲・ミサイル・魚雷・公称）'):(S.superweapons?.length?'一斉射（通常砲・公称）':'一斉射（全砲・公称）')}</dt><dd>${fTT(totalVolleyTT(S))}<small>${launcherVolleyTT(S)>0?`砲 ${fTT(gunVolleyTT(S))}・ミサイル／魚雷 ${fTT(launcherVolleyTT(S))}・`:''}通常砲の主射界 ${fTT(S.alphaBest)}</small></dd></div>
     ${superweaponCatalogHTML(S)}
     ${engagementCapacityHTML(S)}
     <div><dt>最大加速</dt><dd>${fG(S.accelG)}<small>推力・構造強度・慣性制御の上限</small></dd></div>
@@ -3866,7 +3875,7 @@ function renderPanelInfo() {
   let h = '';
   switch (armMode() ? 'arm' : st.tab) {
     case 'edit': case 'mod': h = `<div class="mini"><span>出力 ${fW(M.power)}（ISD比 ×${M.xISD.toFixed(2)}）</span><span>最大加速 ${fG(M.accelG)}</span><span>シールド ${fPct(M.shieldPct)}</span><span>ハイパー ${S.hyperClass ? 'クラス' + S.hyperClass.toFixed(1) : 'なし'}</span><span>搭載機 ${num(Math.floor(S.slots))}</span><span>反応炉の露出 ${fPct(S.genExpFrac)}</span></div>`; break;
-    case 'arm': h = `<div class="mini"><span>一斉射 ${fTT(M.allGunVolleyTT)}</span><span>主射界 ${fTT(M.alphaBest)}（${fPct(M.arcEff)}）</span><span>兵装電力 ${Math.round(S.draw.weapons / Math.max(1, M.power) * 100)}%</span><span>配電路 ${fPct(S.feedShare || 0)}</span><span>運転時の兵装充電 ${fPct(S.rc)}</span></div>`; break;
+    case 'arm': h = `<div class="mini"><span>一斉射 ${fTT(totalVolleyTT(M))}</span><span>主射界 ${fTT(M.alphaBest)}（${fPct(M.arcEff)}）</span><span>兵装電力 ${Math.round(S.draw.weapons / Math.max(1, M.power) * 100)}%</span><span>配電路 ${fPct(S.feedShare || 0)}</span><span>運転時の兵装充電 ${fPct(S.rc)}</span></div>`; break;
     case 'bridge': h = `<div class="mini"><span>艦橋 ${S.bridges} 基</span><span>平均視界 ${fPct(S.view)}</span><span>命中補正 ${fPct(S.accuracy)}</span></div>`; break;
     case 'armor': h = `<div class="mini"><span>装甲質量 ${fMass(S.armorMass)}</span><span>表面積 ${ja(S.area)} m²</span><span>重要区画の防護 ${fPct(S.protectedFrac)}</span><span>脆弱性 ${fPct(S.vuln)}</span><span>最大加速 ${fG(M.accelG)}</span></div>`; break;
     case 'carve': h = `<div class="mini"><span>質量 ${fMass(S.mass)}</span><span>表面積 ${ja(S.area)} m²</span><span>体積／表面積 ${S.VS.toFixed(1)} m</span><span>最大加速 ${fG(M.accelG)}</span><span>縦強度 ${fG(S.structG)}</span></div>`; break;
@@ -4144,6 +4153,11 @@ let savingCurrent = false;
 // v24 Every saved design gets its battle data (fleet profile, battle and
 // piloted meshes) built in the engine's background cache at save time.
 let pendingSave = null;
+// Saved ship designs that are finished (not provisional), newest first, as background preparation items (see createPreloader).
+async function savedDesignPreloadItems(limit=24){
+  let all=[];try{all=await Store.list();}catch(e){return [];}
+  return all.filter(r=>r&&r.kind==='ship'&&!r.provisional&&r.data).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0)).slice(0,limit).map(r=>({key:'save:'+r.id+'-'+r.savedAt,load:async()=>{const d=await unpack(r.data);return d&&typeof d==='object'?d:null;}}));
+}
 function prepareSavedCombat(design) {
   if (typeof YardEngineClient === 'undefined' || !design) return [];
   return [false, true].map(trial => YardEngineClient.request('fleet', {design, trial, prepareOnly: true}).catch(() => null));
@@ -5310,6 +5324,10 @@ async function designUITrialStart(){
  designUIClose();prepareDeferredDraft();await waitStats();return trialStart();
 }
 
+// 2026-11-22 (user: 「点検と同様に性能表も畳めるようにして」): the metrics card folds to its heading like the inspection bar.
+// Open by default; the choice is remembered per viewer (localStorage, optional).
+function designMetricsOpen(){if(typeof st!=='undefined'&&typeof st.metricsOpen==='boolean')return st.metricsOpen;try{return localStorage.getItem('yard.designMetricsOpen')!=='0';}catch(e){return true;}}
+function toggleDesignMetrics(){const open=!designMetricsOpen();st.metricsOpen=open;try{localStorage.setItem('yard.designMetricsOpen',open?'1':'0');}catch(e){}designUIMetrics();}
 function designUIMetrics(){
  designUIInfoPanel();
  const el=$('#designMetrics');if(!el)return;
@@ -5317,7 +5335,10 @@ function designUIMetrics(){
  el.dataset.state=failed?'failed':pending?'pending':'current';
  const M=S?catalogStats(S):null;
  const thermal=C.heatReadoutRates?.(S?.heat),heatTitle=T('各設備の計算済み負荷条件における最大発熱の合計です。'),rejectionTitle=T('設置済み排熱設備と船体表面の定格合計です。熱種と輸送経路により実際の排熱量は変わります。');
- el.innerHTML=`<p role="status">${failed?T('計算失敗'):pending?T('計算中'):T('最新確定')}</p><div><dt>${T('全長')}</dt><dd>${S?.dims?fLen(S.dims[0]):'—'}</dd></div><div><dt>${T('質量')}</dt><dd>${S?fMass(S.mass):'—'}</dd></div><div><dt>${T('出力')}</dt><dd>${M?fW(M.power):'—'}</dd></div><div><dt>${T('最大加速')}</dt><dd>${M?fG(M.accelG):'—'}</dd></div><div data-design-metric="equipment-heat"><dt title="${esc(heatTitle)}" aria-label="${esc(T('設備最大発熱量（1秒あたり）'))}">${T('設備最大発熱 /秒')}</dt><dd>${thermal?.equipmentMaxHeatW!=null?fW(thermal.equipmentMaxHeatW):'—'}</dd></div><div data-design-metric="rejection-capacity"><dt title="${esc(rejectionTitle)}" aria-label="${esc(T('排熱能力（1秒あたり）'))}">${T('排熱能力 /秒')}</dt><dd>${thermal?.rejectionCapacityW!=null?fW(thermal.rejectionCapacityW):'—'}</dd></div><div class="design-power" data-design-metric="power-bar"><dt>${T('戦闘時の電力配分')}</dt><dd>${S?.draw?combatPowerBarHTML(S,{compact:true})+'</div>':'—'}</dd></div>`;
+ const open=designMetricsOpen();el.dataset.open=open?'1':'0';
+ const head=`<p role="status" class="dm-head"><button type="button" data-dmtoggle aria-expanded="${open}" aria-controls="designMetrics" title="${esc(T(open?'性能表を畳む':'性能表を開く'))}"><b>${T('性能表')}</b><span>${failed?T('計算失敗'):pending?T('計算中'):T('最新確定')}</span><i class="dm-car" aria-hidden="true">${open?'▾':'▸'}</i></button></p>`;
+ if(!open){el.innerHTML=head;return;}
+ el.innerHTML=`${head}<div><dt>${T('全長')}</dt><dd>${S?.dims?fLen(S.dims[0]):'—'}</dd></div><div><dt>${T('質量')}</dt><dd>${S?fMass(S.mass):'—'}</dd></div><div><dt>${T('出力')}</dt><dd>${M?fW(M.power):'—'}</dd></div><div><dt>${T('最大加速')}</dt><dd>${M?fG(M.accelG):'—'}</dd></div><div data-design-metric="equipment-heat"><dt title="${esc(heatTitle)}" aria-label="${esc(T('設備最大発熱量（1秒あたり）'))}">${T('設備最大発熱 /秒')}</dt><dd>${thermal?.equipmentMaxHeatW!=null?fW(thermal.equipmentMaxHeatW):'—'}</dd></div><div data-design-metric="rejection-capacity"><dt title="${esc(rejectionTitle)}" aria-label="${esc(T('排熱能力（1秒あたり）'))}">${T('排熱能力 /秒')}</dt><dd>${thermal?.rejectionCapacityW!=null?fW(thermal.rejectionCapacityW):'—'}</dd></div><div class="design-power" data-design-metric="power-bar"><dt>${T('戦闘時の電力配分')}</dt><dd>${S?.draw?combatPowerBarHTML(S,{compact:true})+'</div>':'—'}</dd></div>`;
 }
 function designUISchedulePreview(){
  cancelAnimationFrame(designUI.previewFrame);designUI.previewFrame=requestAnimationFrame(()=>{
@@ -5589,6 +5610,7 @@ function bindDesignUI(){
  const viewport=$('#viewport'),dock=$('#dock');if(!viewport||!dock)return;
  viewport.insertAdjacentHTML('beforeend','<aside id="designInfoWindow" data-design-info class="design-info" hidden aria-label="部品情報"></aside><aside class="design-readouts" id="designReadouts" aria-label="艦艇の諸元と点検"><dl class="design-metrics" id="designMetrics" aria-label="艦艇の主要諸元"></dl><section id="designInspection" class="design-inspection"></section></aside><div class="design-placement-bar" id="designPlacementBar" hidden></div>');
  const inspection=$('#inspBar');if(inspection)$('#designInspection').append(inspection);
+ $('#designMetrics')?.addEventListener('click',e=>{if(e.target.closest?.('[data-dmtoggle]'))toggleDesignMetrics();});
  document.querySelector('.main').insertAdjacentHTML('beforeend','<nav class="design-menu" id="designMenu" aria-label="艦艇設計"><div class="seg" role="group" aria-label="配置する空間"><button type="button" data-design-space="exterior" aria-pressed="true">外装</button><button type="button" data-design-space="interior" aria-pressed="false">内装</button></div><button type="button" class="btn" data-design-open="new">新規配置</button><button type="button" class="btn ghost" data-design-open="list">設置一覧</button><button type="button" class="btn ghost" data-design-open="performance">性能</button></nav>');
  dock.insertAdjacentHTML('beforeend','<div class="design-edit-footer" id="designEditFooter" data-design-edit-footer hidden></div>');
  dock.insertAdjacentHTML('afterbegin','<div class="design-drawer-head"><strong id="designDrawerTitle">新規配置</strong><button type="button" class="btn sm ghost" data-design-action="close" aria-label="取消">取消</button><div class="design-modal-actions" data-design-modal-actions hidden><button type="button" class="btn primary" data-design-action="arm">設置</button></div></div>');
@@ -5647,14 +5669,18 @@ function start(hot) {
   window.__yard = {veObject: () => veObject(), designUI, designUIOpen: w => designUIOpen(w), designUIArm: () => designUIArm(), designUIClose: k => designUIClose(k), tool: () => tool(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
-  engineStart.then(mode => {
+  engineStart.then(async mode => {
     engineHello(mode); boot?.step('engine', 'done'); titleStatus();
     let downloads=null,preparation=null;
-    const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'作例の準備が完了しました':preparation.phase==='complete'?`作例を準備しました ${preparation.ready} / ${preparation.total}`:`作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
+    const preparationStatus=()=>{const el=document.getElementById('preloadStatus');if(!el)return;const labels=[];if(downloads&&downloads.phase==='downloading')labels.push(`作例データを取得中 ${downloads.ready} / ${downloads.total}`);if(preparation&&!['unavailable','stopped'].includes(preparation.phase))labels.push(preparation.phase==='complete'&&!preparation.failed?'保存した設計と作例の準備が完了しました':preparation.phase==='complete'?`保存した設計と作例を準備しました ${preparation.ready} / ${preparation.total}`:`保存した設計と作例を準備中 ${preparation.ready} / ${preparation.total}`);el.hidden=!labels.length;el.replaceChildren(...labels.flatMap((label,i)=>{const span=document.createElement('span');span.textContent=label;return i?[document.createTextNode(' · '),span]:[span];}));};
     if(window.KSAssetCache){window.KSAssetDownloads?.stop();window.KSAssetDownloads=KSAssetCache.preloadAssets({assets:[...Object.values(YardFleetData.blueprints||{}),...Object.values(YardFleetData.designs).map(e=>e.model?.preparedBlueprint)].filter(Boolean),onProgress:s=>{downloads=s;window.dispatchEvent(new CustomEvent('ks-download-progress',{detail:s}));preparationStatus();}});window.KSAssetDownloads.done.then(()=>LocalExamples.seed()).catch(()=>{});}
     if(mode==='worker'&&boot?.createBackgroundWorker&&window.KSAssetCache){
       window.KSPreload?.stop();
-      window.KSPreload=KSAssetCache.createPreloader({keys:EXAMPLES.map(e=>e.key),createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
+      // User decision 2026-11-21「作例とユーザー設計はゲーム上での差異はつけない…ユーザー設計の艦も作例艦同様、完成した段階で戦闘用データも組み込む」:
+      // the user's finished saved designs are prepared in the background like the examples (first, as they are the ones the
+      // user fields). The engine's build cache is per release, so without this each update rebuilt them when first fielded.
+      const savedItems=await savedDesignPreloadItems().catch(()=>[]);
+      window.KSPreload=KSAssetCache.createPreloader({keys:[...savedItems,...EXAMPLES.map(e=>e.key)],createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
         preparation=s;window.dispatchEvent(new CustomEvent('ks-preload-progress',{detail:s}));preparationStatus();
       }});
     }
@@ -6814,7 +6840,7 @@ function referencePanel(panel){
   const selected=selItem();if(selected&&st.sel.list==='fits'&&C.needsCapacitor(selected))panel.insertAdjacentHTML('afterbegin',turretCompartmentHTML(selected));
   // v18 Missile launchers: cells below deck (VLS) or a box on the hull.
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.msl&&!C.isConcussionLauncher?.(selected)){const mm=C.missileMount(selected),q=S?.vlsInfo?.[selected.id],M=C.MISSILE_MOUNTS;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>ミサイル発射機の搭載方式</h4>${seg('mslmount',Object.entries(M).map(([k,v])=>[k,v.name]),mm)}<p>${mm==='vls'?`船内のセル・弾庫 ${q?num(q.volume,0):'—'} / ${q?num(q.required,0):'—'} m³（${q?fPct(q.ratio):'—'}）· 搭載弾数 ${Math.round(M.vls.stock*(q?.ratio??1))} 発`:`船内容積を使いません · 搭載弾数 ${M.ext.stock} 発`}</p><p class="note">VLS は発射機の下に船内容積を確保します（その分、乗員の居住に回せる空き容積が減ります）。露出はハッチだけで被弾しにくい反面、弾庫まで撃ち抜かれると誘爆します。外置きは船内容積を使わず、搭載弾数が半分、箱型発射機がむき出しで被弾しやすくなります。</p></div>`);}
-  if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.store){const sd=C.FITS[selected.k].store;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(C.STORE_MOUNTS[sd.mount].name)}の容量</h4><p>${esc(storeCapText(sd))}${sd.mount==='wing'?' · 機外に吊るので機内の容積を使いません':''}</p>${storeCapHTML(sd)}<p class="note">発射装置の容量は艦と航空機で共通です。搭載弾は射撃ごとに減り、補給時に再装填します。航空機の弾種・搭載数は編成画面の中隊ごとに選べます。弾の質量だけ機体が重くなります。</p></div>`);}
+  if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.store&&!C.isShipLauncher?.(selected)/* 2026-11-21 (user report: the table listed the craft rounds for a ship launcher); a ship launcher's cells and rounds are in its own section */){const sd=C.FITS[selected.k].store;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(C.STORE_MOUNTS[sd.mount].name)}の容量</h4><p>${esc(storeCapText(sd))}${sd.mount==='wing'?' · 機外に吊るので機内の容積を使いません':''}</p>${storeCapHTML(sd)}<p class="note">発射装置の容量は艦と航空機で共通です。搭載弾は射撃ごとに減り、補給時に再装填します。航空機の弾種・搭載数は編成画面の中隊ごとに選べます。弾の質量だけ機体が重くなります。</p></div>`);}
   const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${d.craft?'装備の交換':'砲塔の交換・向き'}</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponReplacementKeys(f).map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${d.boltTT?`1発・1砲身 ${fTT(d.boltTT)} × ${d.barrels||1} 門 · `:''}${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>給電元：${feedSrc(S.feedInfo[f.id])} · 距離 ${num(S.feedInfo[f.id][1])} m`:''}</p></div>`);}
  }
 }
@@ -11657,7 +11683,7 @@ function tutGo(i,first){
 function tutSummary(){
  if(!S)return '<p class="tut-wait">性能を計算中…</p>';
  const warn=(S.warnings||[]).filter(w=>w.lv!=='info').length;
- return `<dl class="tut-sum"><div><dt>艦橋</dt><dd>${S.bridges} 基</dd></div><div><dt>計画最大加速</dt><dd>${fG(designAccelerationG(S))}</dd></div><div><dt>一斉射</dt><dd>${fTT(catalogStats(S).allGunVolleyTT)}</dd></div><div><dt>超空間</dt><dd>${S.hyperClass?'クラス '+S.hyperClass.toFixed(1):'なし'}</dd></div></dl><p class="tut-note">${warn?`注意点が ${warn} 件あります。画面下の「点検」から該当する部品へ移動できます。`:'大きな問題はありません。'}</p>`;
+ return `<dl class="tut-sum"><div><dt>艦橋</dt><dd>${S.bridges} 基</dd></div><div><dt>計画最大加速</dt><dd>${fG(designAccelerationG(S))}</dd></div><div><dt>一斉射</dt><dd>${fTT(totalVolleyTT(catalogStats(S)))}</dd></div><div><dt>超空間</dt><dd>${S.hyperClass?'クラス '+S.hyperClass.toFixed(1):'なし'}</dd></div></dl><p class="tut-note">${warn?`注意点が ${warn} 件あります。画面下の「点検」から該当する部品へ移動できます。`:'大きな問題はありません。'}</p>`;
 }
 function tutRender(){
  let box=$('#tut');

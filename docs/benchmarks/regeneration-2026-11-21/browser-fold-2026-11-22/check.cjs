@@ -1,0 +1,20 @@
+// Browser check: a folded metrics card stays folded after opening another example, saving with #btnSave, and opening that save. usage: node check.cjs <url> <outdir>
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
+const url=process.argv[2],out=process.argv[3];
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
+const ctx=await b.newContext({viewport:{width:1280,height:900}});const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));page.setDefaultTimeout(600000);
+await page.addInitScript(()=>{try{if(!localStorage.getItem('yard.language'))localStorage.setItem('yard.language','ja')}catch(e){}});
+const settle=async()=>{await page.waitForFunction(()=>{const Y=window.__yard;return Y.ship&&Y.stats&&Y.eng.statsGen>=Y.eng.gen;},null,{timeout:1200000});await page.waitForTimeout(800);};
+const open=async k=>{await page.evaluate(k=>{window.__prevShip=window.__yard.ship;window.__yard.openExample(k)},k);await page.waitForFunction(()=>window.__yard.ship&&window.__yard.ship!==window.__prevShip,null,{timeout:600000});await settle();};
+const state=()=>page.evaluate(()=>{const el=document.querySelector('#designMetrics');return {ship:window.__yard.ship?.name,open:el.dataset.open,expanded:el.querySelector('[data-dmtoggle]')?.getAttribute('aria-expanded'),rows:el.querySelectorAll('dt').length,ls:localStorage.getItem('yard.designMetricsOpen')};});
+await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__yard?.eng.ready,null,{timeout:300000});await page.evaluate(()=>window.__yard.title?.hide?.());
+await open('mc30c');const res={first:await state()};
+await page.locator('#designMetrics [data-dmtoggle]').click();await page.waitForTimeout(300);res.folded=await state();
+await open('cr90');res.afterOtherExample=await state();await page.screenshot({path:path.join(out,'1-other-example.png')});
+await page.evaluate(()=>document.querySelector('#btnSave').click());await page.waitForTimeout(4000);res.afterSave=await state();
+const id=await page.evaluate(()=>window.__yard.ship.saveId);
+await open('mc30c');res.backToMc30c=await state();
+await page.evaluate(async id=>{window.__prevShip=window.__yard.ship;const btn=document.querySelector(`[data-load="${id}"]`);if(btn)btn.click();else throw new Error('no load button '+id);},id);
+await page.waitForFunction(()=>window.__yard.ship&&window.__yard.ship!==window.__prevShip,null,{timeout:600000});await settle();res.afterLoadSaved=await state();await page.screenshot({path:path.join(out,'2-loaded-save.png')});
+await page.locator('#designMetrics [data-dmtoggle]').click();await page.waitForTimeout(300);res.reopened=await state();
+res.errors=errors;fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(res,null,1));console.log(JSON.stringify(res,null,1));await b.close();})().catch(e=>{console.error(e);process.exit(1)});

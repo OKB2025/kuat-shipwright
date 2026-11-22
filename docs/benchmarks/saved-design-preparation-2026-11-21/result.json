@@ -1,0 +1,21 @@
+{
+ "saved": {
+  "id": "ship-bgprep",
+  "savedAt": 1795277856014
+ },
+ "key": "save:ship-bgprep-1795277856014",
+ "preload": {
+  "phase": "preparing",
+  "ready": 1,
+  "failed": 0,
+  "total": 42,
+  "current": "venator"
+ },
+ "request": {
+  "ms": 34,
+  "src": "disk",
+  "profileSrc": "record",
+  "geoCached": true
+ },
+ "errors": []
+}
