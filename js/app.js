@@ -5322,6 +5322,10 @@ async function designUITrialStart(){
  designUIClose();prepareDeferredDraft();await waitStats();return trialStart();
 }
 
+// 2026-11-22 (user: 「点検と同様に性能表も畳めるようにして」): the metrics card folds to its heading like the inspection bar.
+// Open by default; the choice is remembered per viewer (localStorage, optional).
+function designMetricsOpen(){if(typeof st!=='undefined'&&typeof st.metricsOpen==='boolean')return st.metricsOpen;try{return localStorage.getItem('yard.designMetricsOpen')!=='0';}catch(e){return true;}}
+function toggleDesignMetrics(){const open=!designMetricsOpen();st.metricsOpen=open;try{localStorage.setItem('yard.designMetricsOpen',open?'1':'0');}catch(e){}designUIMetrics();}
 function designUIMetrics(){
  designUIInfoPanel();
  const el=$('#designMetrics');if(!el)return;
@@ -5329,7 +5333,10 @@ function designUIMetrics(){
  el.dataset.state=failed?'failed':pending?'pending':'current';
  const M=S?catalogStats(S):null;
  const thermal=C.heatReadoutRates?.(S?.heat),heatTitle=T('各設備の計算済み負荷条件における最大発熱の合計です。'),rejectionTitle=T('設置済み排熱設備と船体表面の定格合計です。熱種と輸送経路により実際の排熱量は変わります。');
- el.innerHTML=`<p role="status">${failed?T('計算失敗'):pending?T('計算中'):T('最新確定')}</p><div><dt>${T('全長')}</dt><dd>${S?.dims?fLen(S.dims[0]):'—'}</dd></div><div><dt>${T('質量')}</dt><dd>${S?fMass(S.mass):'—'}</dd></div><div><dt>${T('出力')}</dt><dd>${M?fW(M.power):'—'}</dd></div><div><dt>${T('最大加速')}</dt><dd>${M?fG(M.accelG):'—'}</dd></div><div data-design-metric="equipment-heat"><dt title="${esc(heatTitle)}" aria-label="${esc(T('設備最大発熱量（1秒あたり）'))}">${T('設備最大発熱 /秒')}</dt><dd>${thermal?.equipmentMaxHeatW!=null?fW(thermal.equipmentMaxHeatW):'—'}</dd></div><div data-design-metric="rejection-capacity"><dt title="${esc(rejectionTitle)}" aria-label="${esc(T('排熱能力（1秒あたり）'))}">${T('排熱能力 /秒')}</dt><dd>${thermal?.rejectionCapacityW!=null?fW(thermal.rejectionCapacityW):'—'}</dd></div><div class="design-power" data-design-metric="power-bar"><dt>${T('戦闘時の電力配分')}</dt><dd>${S?.draw?combatPowerBarHTML(S,{compact:true})+'</div>':'—'}</dd></div>`;
+ const open=designMetricsOpen();el.dataset.open=open?'1':'0';
+ const head=`<p role="status" class="dm-head"><button type="button" data-dmtoggle aria-expanded="${open}" aria-controls="designMetrics" title="${esc(T(open?'性能表を畳む':'性能表を開く'))}"><b>${T('性能表')}</b><span>${failed?T('計算失敗'):pending?T('計算中'):T('最新確定')}</span><i class="dm-car" aria-hidden="true">${open?'▾':'▸'}</i></button></p>`;
+ if(!open){el.innerHTML=head;return;}
+ el.innerHTML=`${head}<div><dt>${T('全長')}</dt><dd>${S?.dims?fLen(S.dims[0]):'—'}</dd></div><div><dt>${T('質量')}</dt><dd>${S?fMass(S.mass):'—'}</dd></div><div><dt>${T('出力')}</dt><dd>${M?fW(M.power):'—'}</dd></div><div><dt>${T('最大加速')}</dt><dd>${M?fG(M.accelG):'—'}</dd></div><div data-design-metric="equipment-heat"><dt title="${esc(heatTitle)}" aria-label="${esc(T('設備最大発熱量（1秒あたり）'))}">${T('設備最大発熱 /秒')}</dt><dd>${thermal?.equipmentMaxHeatW!=null?fW(thermal.equipmentMaxHeatW):'—'}</dd></div><div data-design-metric="rejection-capacity"><dt title="${esc(rejectionTitle)}" aria-label="${esc(T('排熱能力（1秒あたり）'))}">${T('排熱能力 /秒')}</dt><dd>${thermal?.rejectionCapacityW!=null?fW(thermal.rejectionCapacityW):'—'}</dd></div><div class="design-power" data-design-metric="power-bar"><dt>${T('戦闘時の電力配分')}</dt><dd>${S?.draw?combatPowerBarHTML(S,{compact:true})+'</div>':'—'}</dd></div>`;
 }
 function designUISchedulePreview(){
  cancelAnimationFrame(designUI.previewFrame);designUI.previewFrame=requestAnimationFrame(()=>{
@@ -5601,6 +5608,7 @@ function bindDesignUI(){
  const viewport=$('#viewport'),dock=$('#dock');if(!viewport||!dock)return;
  viewport.insertAdjacentHTML('beforeend','<aside id="designInfoWindow" data-design-info class="design-info" hidden aria-label="部品情報"></aside><aside class="design-readouts" id="designReadouts" aria-label="艦艇の諸元と点検"><dl class="design-metrics" id="designMetrics" aria-label="艦艇の主要諸元"></dl><section id="designInspection" class="design-inspection"></section></aside><div class="design-placement-bar" id="designPlacementBar" hidden></div>');
  const inspection=$('#inspBar');if(inspection)$('#designInspection').append(inspection);
+ $('#designMetrics')?.addEventListener('click',e=>{if(e.target.closest?.('[data-dmtoggle]'))toggleDesignMetrics();});
  document.querySelector('.main').insertAdjacentHTML('beforeend','<nav class="design-menu" id="designMenu" aria-label="艦艇設計"><div class="seg" role="group" aria-label="配置する空間"><button type="button" data-design-space="exterior" aria-pressed="true">外装</button><button type="button" data-design-space="interior" aria-pressed="false">内装</button></div><button type="button" class="btn" data-design-open="new">新規配置</button><button type="button" class="btn ghost" data-design-open="list">設置一覧</button><button type="button" class="btn ghost" data-design-open="performance">性能</button></nav>');
  dock.insertAdjacentHTML('beforeend','<div class="design-edit-footer" id="designEditFooter" data-design-edit-footer hidden></div>');
  dock.insertAdjacentHTML('afterbegin','<div class="design-drawer-head"><strong id="designDrawerTitle">新規配置</strong><button type="button" class="btn sm ghost" data-design-action="close" aria-label="取消">取消</button><div class="design-modal-actions" data-design-modal-actions hidden><button type="button" class="btn primary" data-design-action="arm">設置</button></div></div>');
