@@ -75251,7 +75251,7 @@ function ensurePrimaryHull(ship,options={}){
  return p;
 }
 function hullStructureGeometry(ship,p){
- if(p.placement?.materializedGeometry&&!p._placementGeometry)placementRestoreMaterialized(p);
+ if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);
  if(p._placementGeometry){const tris=placementGeometryTriangles(p);if(p._placementHullGeometry?.tris===tris)return p._placementHullGeometry.value;const base=hullGeo(hullStructureShip(ship,p)),value={...base,tris,materialTris:tris,referenceSkin:null,volume:meshVolume(p._placementGeometry.local),area:solidMeshArea(tris),bounds:solidMeshBounds(tris)};p._placementHullGeometry={tris,value};return value;}
  if(p.s.some((v,i)=>v!==p.hullProfile[['L','W','H'][i]]))syncHullStructure(ship,p,false);
  syncHullHatches(ship,p);
@@ -77838,7 +77838,7 @@ function unpiercedStructTriangles(p){
   return liveUnpiercedStructTriangles(p);
 }
 function liveUnpiercedStructTriangles(p){
-  if(p.placement?.materializedGeometry&&!p._placementGeometry)placementRestoreMaterialized(p);
+  if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);
   if(p._placementGeometry)return placementGeometryTriangles(p);
   if(isHullStructure(p))return hullStructureGeometry(p._solidCutShip,p).tris;
   if(p.k==='wing'&&['airfoil','outline','box','trap','chamfer'].includes(p.form))return meshStructTriangles(aeroMeshPart(p,aeroWingMesh(p)));
@@ -77859,7 +77859,7 @@ function liveUnpiercedStructTriangles(p){
   p._shape={key,t:Float32Array.from(out)};return p._shape.t;
 }
 function unpiercedInStruct(p,q){
-  if(p.placement?.materializedGeometry&&!p._placementGeometry)placementRestoreMaterialized(p);
+  if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);
   if(p._placementGeometry)return placementGeometryContains(p,q);
   if(isHullStructure(p)){const local=hullStructureShip(p._solidCutShip,p),v=hullLocalPoint(p,q);return !solidCutsContain(local,v)&&v3InHull(local,v);}
   if(p.k==='wing'&&['airfoil','outline','box','trap','chamfer'].includes(p.form))return inMeshStruct(aeroMeshPart(p,aeroWingMesh(p)),q);
@@ -77897,7 +77897,7 @@ function unclippedPartVolume(p){const canopy=canopyBody(p);if(canopy)return stru
 function unclippedPartArea(p){const canopy=canopyTriangles(p);if(canopy)return solidMeshArea(canopy);const body=superweaponBodyTriangles(p);if(body)return solidMeshArea(body);if(p.boxSize){const [a,b,c]=p.boxSize;return 2*(a*b+b*c+c*a);}if(p.k==='sensor'&&p.skinSize)return unclippedPartArea(sensorShape(p));if(p.room||isShapePart(p)){const t=p.room?structTriangles(roomShape(p)):structTriangles(p);let a=0;for(let i=0;i<t.length;i+=9)a+=len(cross(sub(Array.from(t.slice(i+3,i+6)),Array.from(t.slice(i,i+3))),sub(Array.from(t.slice(i+6,i+9)),Array.from(t.slice(i,i+3)))))/2;return a;}if(p.segments)return p.segments.reduce((a,s)=>a+Math.PI*(s.r0+s.r1)*Math.hypot(s.l,s.r1-s.r0),0);return v3PartArea(p);}
 function unclippedInPart(p,q){const canopy=canopyBody(p);if(canopy)return inStruct(canopy,q);const body=superweaponShape(p);if(body)return inStruct(body,q);if(p.turretRoom)return turretRoomContains(p,q);if(p.k==='sensor'&&p.skinSize)return inStruct(sensorShape(p),q);if(p.room)return inStruct(roomShape(p),q);if(p.segments)return p.segments.some(s=>inRoute(s,q));return v3InPart(p,q);}
 function partAABB(p){const bounds=partBodyAABB(p),support=engineMountSupportGeometry(null,p);return support?[0,1,2].map(i=>Math.min(bounds[i],support.bounds[i])).concat([3,4,5].map(i=>Math.max(bounds[i],support.bounds[i]))):bounds;}
-function partBodyAABB(p){const canopy=canopyTriangles(p);if(canopy)return solidMeshBounds(canopy);if(p.placement?.materializedGeometry&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return solidMeshBounds(placementGeometryTriangles(p));const body=superweaponBodyTriangles(p);if(body)return solidMeshBounds(body);if(p._surfaceAdapter)return p._surfaceAdapter.bounds.slice();if(p._packing)return p._packing.bounds.slice();if(p.k==='sensor'&&p.skinSize)return v3PartAABB(sensorShape(p));if(p.room)return v3PartAABB(roomShape(p));if(p.segments){const b=p.segments.map(seg=>v3PartAABB({...p,segments:null,seg}));return [0,1,2].map(i=>Math.min(...b.map(x=>x[i]))).concat([3,4,5].map(i=>Math.max(...b.map(x=>x[i]))));}return v3PartAABB(p);}
+function partBodyAABB(p){const canopy=canopyTriangles(p);if(canopy)return solidMeshBounds(canopy);if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return solidMeshBounds(placementGeometryTriangles(p));const body=superweaponBodyTriangles(p);if(body)return solidMeshBounds(body);if(p._surfaceAdapter)return p._surfaceAdapter.bounds.slice();if(p._packing)return p._packing.bounds.slice();if(p.k==='sensor'&&p.skinSize)return v3PartAABB(sensorShape(p));if(p.room)return v3PartAABB(roomShape(p));if(p.segments){const b=p.segments.map(seg=>v3PartAABB({...p,segments:null,seg}));return [0,1,2].map(i=>Math.min(...b.map(x=>x[i]))).concat([3,4,5].map(i=>Math.max(...b.map(x=>x[i]))));}return v3PartAABB(p);}
 function unclippedVolSamples(p){const canopy=canopyBody(p);if(canopy)return v3VolSamples(canopy);if(superweaponShape(p))return superweaponSamples(p,true);if(p.k==='sensor'&&p.skinSize)return v3VolSamples(sensorShape(p));if(p.room)return v3VolSamples(roomShape(p));if(p.segments)return p.segments.flatMap(seg=>v3VolSamples({...p,segments:null,seg}));if(isShapePart(p)&&p._apertures?.some(m=>m.slide)){const T=structTriangles(p),b=solidMeshBounds(p._solidGeometry?.material||p._pierced?.material||T);if(!b.every(Number.isFinite))return [];return VOL_S.map(u=>[0,1,2].map(a=>(b[a]+b[a+3])/2+u[a]*(b[a+3]-b[a])/2)).filter(q=>inStruct(p,q));}return v3VolSamples(p);}
 function unclippedSurfSamples(p,e=0){const canopy=canopyBody(p);if(canopy)return v3SurfSamples(canopy,e);if(superweaponShape(p))return superweaponSamples(p,false,e);if(p.k==='sensor'&&p.skinSize)return v3SurfSamples(sensorShape(p),e);if(p.room)return v3SurfSamples(roomShape(p),e);if(p.segments)return p.segments.flatMap(seg=>v3SurfSamples({...p,segments:null,seg},e));return v3SurfSamples(p,e);}
 function rayRouteSegment(o,d,s){
@@ -78011,7 +78011,7 @@ function translatedSlidingPanels(base,b,axis,open){
 const SLIDING_PANEL_CACHE=new WeakMap();
 const SLIDING_HULL_SOURCE_CACHE=new WeakMap();
 function slidingHatchSourceTriangles(ship,p){
- if(!isHullStructure(p)||p._placementGeometry||p.placement?.materializedGeometry)return unpiercedStructTriangles(p);
+ if(!isHullStructure(p)||p._placementGeometry||p.placement?.materializedGeometry||p.bakedMesh)return unpiercedStructTriangles(p);
  // Owned hull geometry already contains its open portals and sill caps. A door
  // must be cut from the original roof, independently of those runtime holes.
  // Keep authored cuts and the owner's transform while omitting only portals in
@@ -79089,6 +79089,84 @@ function decalFrame(d){
 }
 // The decal and, when mirrored, its image across the ship's centre plane (z → −z, the picture itself not reversed).
 function decalInstances(d){const one=[{...d}];if(d.mirror)one.push({...d,c:[d.c[0],d.c[1],-d.c[2]],n:[d.n[0],d.n[1],-d.n[2]],rot:-(d.rot||0),mirrored:true});return one;}
+// ---------- 2026-11-22 Baked cuts (user decision 2026-11-13 「焼き込み、分かれた塊は別の部品にする」, 2026-11-22 「そもそも
+// 船体構造物の削り込みを焼き込もうとしていた」「トレンチの有無に関わらず砲列を配置できるようにして焼き込みを行う」) ----------
+// A cut is used only to cut. When it is confirmed, every structure it reaches (hull structures included) becomes the
+// shape it leaves, a free mesh (form:'mesh') in the structure's own frame, and the cut is not kept. Pieces it separates
+// become structures of their own. A hull structure that is baked first hands its armed trenches to wall batteries
+// (bakeTrenchBatteries) and its hatches to the ship (they open the structure they meet, as other ship hatches do);
+// its section editing ends there (the mesh's points can be edited). Moving or resizing a baked structure moves and
+// resizes its cuts with it, since they are its shape.
+// Cuts leave T-junctions: a point of one face lying on an edge of its neighbour, so the edge is used once on each side
+// and the solid reads as open (its volume only approximate). Each face with such points on its open edges is split at
+// them (a fan from its centre), which closes the seam without moving any point.
+function repairTJunctions(v,f){
+ const key=(a,b)=>a<b?a+','+b:b+','+a;let open=0;
+ for(let pass=0;pass<4;pass++){
+  const use=new Map();for(const t of f)for(let k=0;k<t.length;k++){const e=key(t[k],t[(k+1)%t.length]);use.set(e,(use.get(e)||0)+1);}
+  const edges=new Set();for(const [e,n] of use)if(n===1)edges.add(e);open=edges.size;if(!open)break;
+  const cand=new Set();for(const e of edges){const [a,b]=e.split(',').map(Number);cand.add(a);cand.add(b);}const list=[...cand].sort((a,b)=>v[a][0]-v[b][0]),xs=list.map(i=>v[i][0]);
+  const lower=x=>{let lo=0,hi=xs.length;while(lo<hi){const m=(lo+hi)>>1;if(xs[m]<x)lo=m+1;else hi=m;}return lo;},tol=1e-7;
+  const next=[];let changed=false;
+  for(const t of f){const poly=[];let split=false;
+   for(let k=0;k<t.length;k++){const a=t[k],b=t[(k+1)%t.length];poly.push(a);if(!edges.has(key(a,b)))continue;const A=v[a],B=v[b],d=sub(B,A),L2=dot(d,d);if(!(L2>0))continue;const on=[];
+    for(let i=lower(Math.min(A[0],B[0])-tol);i<list.length&&xs[i]<=Math.max(A[0],B[0])+tol;i++){const c=list[i];if(c===a||c===b)continue;const w=sub(v[c],A),u=dot(w,d)/L2;if(u<=1e-9||u>=1-1e-9)continue;const e=sub(w,mul(d,u));if(dot(e,e)<=tol*tol)on.push([u,c]);}
+    if(on.length){on.sort((p,q)=>p[0]-q[0]);for(const [,c] of on)poly.push(c);split=true;}}
+   if(!split){next.push(t);continue;}changed=true;const c=v.length;v.push([0,1,2].map(k=>poly.reduce((n,i)=>n+v[i][k],0)/poly.length));for(let k=0;k<poly.length;k++)next.push([c,poly[k],poly[(k+1)%poly.length]]);}
+  f.length=0;f.push(...next);if(!changed)break;
+ }
+ return open;
+}
+function bakedMeshFromTriangles(p,T){
+ const sc=meshScale(p),v=[],f=[],index=new Map(),id=w=>{const l=localStruct(p,w).map((x,i)=>x/sc[i]),k=l.map(x=>Math.round(x*1e8)).join(',');let i=index.get(k);if(i==null){i=v.length;index.set(k,i);v.push(l);}return i;};
+ for(let i=0;i+8<T.length;i+=9){const t=[id([T[i],T[i+1],T[i+2]]),id([T[i+3],T[i+4],T[i+5]]),id([T[i+6],T[i+7],T[i+8]])];if(new Set(t).size===3)f.push(t);}
+ repairTJunctions(v,f);
+ const r=normalizeStructMesh({v,f},{primitive:true});return r.mesh?{mesh:primitiveMeshPolygons(r.mesh),issues:r.issues,closed:r.closed}:{mesh:null,issues:r.issues};
+}
+// Faces joined through shared points: the separate pieces of a mesh.
+function meshPieces(m){
+ const n=m.v.length,parent=Array.from({length:n},(_,i)=>i),find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
+ for(const face of m.f)for(let k=1;k<face.length;k++){const a=find(face[0]),b=find(face[k]);if(a!==b)parent[a]=b;}
+ const groups=new Map();for(const face of m.f){const r=find(face[0]);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(face);}
+ const all=[...groups.values()].map(faces=>{const map=new Map(),v=[];const f=faces.map(face=>face.map(i=>{if(!map.has(i)){map.set(i,v.length);v.push(m.v[i].slice());}return map.get(i);}));return {v,f,volume:Math.abs(meshLocalVolume(v,f)),closed:meshTopology(f).closed};}).sort((a,b)=>b.volume-a.volume);
+ /* a piece too small to matter (a millionth of the largest) or an open scrap the cut left is not a structure */
+ return all.filter((q,i)=>i===0||q.closed&&q.f.length>=4&&q.volume>all[0].volume*1e-6).map(({v,f})=>({v,f}));
+}
+// The hull structure's hatches become ship hatches: the handle keeps its place, the baked opening box (cut, in the hull's
+// frame) is carried into the ship's frame (its corners' bounds), and the skin area measured into it (openArea) is kept.
+function detachOwnedHatches(ship,part){
+ for(const h of ship.hatches.filter(q=>q.hullOwner===part.id)){const local=(part.hullData?.hatches||[]).find(q=>q.id===h.hullHatch);delete h.hullOwner;delete h.hullHatch;
+  if(local?.cut){const c=local.cut,corners=[];for(const x of [c[0],c[3]])for(const y of [c[1],c[4]])for(const z of [c[2],c[5]])corners.push(hullWorldPoint(part,[x,y,z]));h.cut=[0,1,2].map(i=>Math.min(...corners.map(q=>q[i]))).concat([0,1,2].map(i=>Math.max(...corners.map(q=>q[i]))),c.length===8?[c[6],c[7]]:[]);}
+  if(Number.isFinite(local?.openArea))h.openArea=local.openArea;}
+}
+// Bakes one structure with every cut that reaches it. Returns {ok, parts:[ids of the pieces], batteries:[ids]}.
+function bakeStructure(ship,part){
+ if(!isShapePart(part)||part.plate)return {ok:false,code:'bake-part',error:'焼き込めない部品です'};
+ part._solidCutShip=ship;let T=unpiercedStructTriangles(part);if(ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))T=applySolidCuts(ship,T,true);
+ const baked=bakedMeshFromTriangles(part,T);if(!baked.mesh)return {ok:false,code:'bake-mesh',error:'削った形を作れません：'+(baked.issues||[]).join('、')};
+ let batteries=[];const pieces=meshPieces(baked.mesh),ids=[part.id];
+ /* A hull structure stays a hull structure (its hull material, framing, hatches and size): only its shape becomes the stored
+    mesh, read where a materialized shape is (placementRestoreMaterialized). Its own cuts, trenches, notches and bevels are
+    in that shape now; the armed trenches become wall batteries first. */
+ if(isHullStructure(part)){batteries=bakeTrenchBatteries(ship,part).map(q=>q.id);part.bakedMesh=pieces[0];for(const k of ['cuts','trenches','solidCuts','subs'])if(part.hullData)part.hullData[k]=[];syncHullStructure(ship,part,false);}
+ else{convertStructToMesh(ship,part,pieces[0]);refitStructMesh(part);}
+ for(let i=1;i<pieces.length;i++){const q=JSON.parse(JSON.stringify(part,(k,v)=>k[0]==='_'?undefined:v));for(const k of ['hullProfile','hullData','primaryHull','hullMirrorZ','bakedMesh'])delete q[k];q.form='mesh';q.id=nid(ship);q.mesh=pieces[i];q.label=(part.label||'構造物')+'（分割 '+(i+1)+'）';delete q.tw;delete q.placement;refitStructMesh(q);ship.parts.push(q);ids.push(q.id);}
+ for(const k of Object.keys(part))if(k[0]==='_'&&k!=='_solidCutShip')delete part[k];return {ok:true,parts:ids,batteries};
+}
+// The structures a cut reaches: hull structures with cuts of their own, and every structure a ship-level cut overlaps.
+function bakeTargets(ship){
+ const ship_cuts=(ship.solidCuts||[]).filter(c=>ship.hull.assembly||c.structures),boxes=ship_cuts.flatMap(c=>compiledSolidCut(c).instances.map(q=>q.bounds)).filter(Boolean),out=[];
+ for(const p of ship.parts){if(!isShapePart(p)||p.plate)continue;if(isHullStructure(p)&&(p.hullData?.solidCuts?.length||0)){out.push(p);continue;}const b=partAABB(p);if(boxes.some(q=>[0,1,2].every(i=>q[i]<=b[i+3]&&q[i+3]>=b[i])))out.push(p);}
+ return out;
+}
+// Bakes every cut of the design and removes them. The part ids of the reached structures are kept (pieces get new ids).
+function bakeAllCuts(ship){
+ const targets=bakeTargets(ship),report={ok:true,parts:[],batteries:[],failed:[]};
+ for(const p of targets){const r=bakeStructure(ship,p);if(!r.ok){report.ok=false;report.failed.push({id:p.id,error:r.error});continue;}report.parts.push(...r.parts);report.batteries.push(...r.batteries);}
+ if(report.ok){if(ship.hull.assembly)ship.solidCuts=[];else ship.solidCuts=(ship.solidCuts||[]).filter(c=>!c.structures);}
+ for(const p of ship.parts)if(isShapePart(p))for(const k of Object.keys(p))if(k[0]==='_'&&k!=='_solidCutShip')delete p[k];delete ship._cache;delete ship._trenchArmamentKey;
+ return report;
+}
 function serialize(ship){for(const scope of trenchArmamentScopes(ship))for(const t of scope.trenches)if(t.armament)normalizeTrenchArmament(t.armament);ship=migrateWeaponDesign(ship);if(ship._surfaceSource)return serialize(ship._surfaceSource);migrateLegacyPropulsion(ship);surfaceSync(ship);const o=v3Serialize(ship);for(const key of ['parts','fits'])for(const p of o[key]){const source=ship[key].find(q=>q.id===p.id);if(source?.placement)p.placement=normalizePlacementMetadata(source.placement,source);if(source?.engineMountSupport)p.engineMountSupport=normalizeEngineMountSupport(source.engineMountSupport);}stripPlacementBodies(o,ship);o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));if(ship.batteries?.length)o.batteries=normalizeBatteries(ship.batteries);if(ship.decals?.length){const z=normalizeDecals(ship.decals,ship.decalImages);o.decals=z.decals;if(Object.keys(z.images).length)o.decalImages=z.images;}const links=normalizeLinks(ship.links);if(links)o.links=persistentEngineFeedLinks(generatedEngineFeedLinks(ship,links));return clearDesignLoadouts(o);}
 // Owned profiles are authored geometry. Validate known fields without widening
 // narrow stations or adding optional defaults from the legacy editor loader.
@@ -79189,6 +79267,7 @@ function deserialize(o,internalOptions=null){
     if((p.bands||p.arcBands||p.stripes)&&/^#[0-9a-f]{6}$/i.test(q.bandPaint))p.bandPaint=q.bandPaint;
     // Editable meshes: cleaned on load; an unusable mesh falls back to a box of the same size.
     if(p.form==='mesh'){const r=normalizeStructMesh(q.mesh);if(r.mesh){p.mesh=r.mesh;if(q.imported===true)p.imported=true;}else{p.form='box';s.meshRepairs=(s.meshRepairs||0)+1;}}
+    /* 2026-11-22 a hull structure's baked shape (bakeStructure): checked as a free mesh; a broken one is refused */if(q.bakedMesh!=null){if(p.k!=='struct'||p.form!=='hull')throw new Error('焼き込んだ形は船体構造物だけが持てます');const r=normalizeStructMesh(q.bakedMesh,{primitive:true});if(!r.mesh)throw new Error('船体構造物の焼き込んだ形が不正です');p.bakedMesh=r.mesh;}else delete p.bakedMesh;
     if(isShapePart(p)&&q.wing){const w=normalizeWing(q.wing);if(w)p.wing=w;}if(isAeroPart(p)){if(p.k==='wing'&&(q.wingTipSide===1||q.wingTipSide===-1))p.wingTipSide=q.wingTipSide;for(const k of ['panelFrame','panelRib','panelFold','panelKnee','panelSparX'])if(Number.isFinite(q[k]))p[k]=q[k];if(['radial','spar','none'].includes(q.panelBracing))p.panelBracing=q.panelBracing;normalizeAeroPart(p);}if((p.k==='sensor'||p.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,q.band)&&q.band!=='multi')p.band=q.band;
     if(p.form==='shell'){p.shellCurve=finite(q.shellCurve,-1,1,1);p.shellThick=finite(q.shellThick,.02,60,3);if(q.shellFlip===true)p.shellFlip=true;}
     if(p.k==='repulsor'&&q.landingEquipment===true)p.landingEquipment=true;if(p.k==='cockpit'&&q.canopy!=null)setCanopyShape(p,q.canopy);
@@ -79315,7 +79394,7 @@ function uncutSolidStructTriangles(p){
   let material=base;const doors=[];for(const m of ms){if(!boxesOverlap(bounds,m.b))continue;const a=subtractBoxMesh(material,m.b),cap=['arc','roundloft','outline','loft','shell','mesh'].includes(p.form)?solidCutCaps(p,m.b):convexCutCaps(base,m.b),out=new Float32Array(a.length+cap.length);out.set(a);out.set(cap,a.length);material=out;doors.push(structDoorSkin(base,m));}
   const T=new Float32Array(material.length+doors.reduce((n,a)=>n+a.length,0));T.set(material);let off=material.length;for(const door of doors){T.set(door,off);off+=door.length;}p._pierced={base,key,t:T,material};return T;
 }
-function inStruct(p,q){if(p.placement?.materializedGeometry&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return !solidPartCutContains(p,q)&&placementGeometryContains(p,q);if(isHullStructure(p))return !solidPartCutContains(p,q)&&inHull(hullStructureShip(p._solidCutShip,p),hullLocalPoint(p,q));return !solidPartCutContains(p,q)&&unpiercedInStruct(p,q)&&!(p._apertures||[]).some(m=>inBox(q,m.b));}
+function inStruct(p,q){if((p.placement?.materializedGeometry||p.bakedMesh)&&!p._placementGeometry)placementRestoreMaterialized(p);if(p._placementGeometry)return !solidPartCutContains(p,q)&&placementGeometryContains(p,q);if(isHullStructure(p))return !solidPartCutContains(p,q)&&inHull(hullStructureShip(p._solidCutShip,p),hullLocalPoint(p,q));return !solidPartCutContains(p,q)&&unpiercedInStruct(p,q)&&!(p._apertures||[]).some(m=>inBox(q,m.b));}
 // 2026-11-21: a rule that counted a space closed in by plates as inside the ship (a grid over the exterior, filled from outside)
 // was added and taken out again the same day. An opening narrower than about two grid cells read as closed: on the rebuilt
 // Mandator II the inside of four nozzle bells counted as inside the ship and those nozzles were reported blocked. The user's
@@ -91629,7 +91708,7 @@ function placementCopyClosure(ship,selection={}){
  return {parts:[...parts],fits:[...fits]};
 }
 function placementRestoreMaterialized(part){
- const mesh=part.placement?.materializedGeometry||part.mesh;if(!mesh)return;const key=publicJSON([mesh,part.s]);if(part._placementMaterializedSourceKey===key&&part._placementGeometry)return;const T=meshStructTriangles({...placementShape(part),form:'mesh',mesh,c:[0,0,0],yaw:0,pitch:0,roll:0,surfaceNormal:undefined}),local=Float64Array.from(T);part._placementGeometry={local,volume:meshVolume(local),area:solidMeshArea(local)};part._placementMaterializedSourceKey=key;
+ const mesh=part.placement?.materializedGeometry||part.bakedMesh||part.mesh;if(!mesh)return;const key=publicJSON([mesh,part.s]);if(part._placementMaterializedSourceKey===key&&part._placementGeometry)return;const T=meshStructTriangles({...placementShape(part),form:'mesh',mesh,c:[0,0,0],yaw:0,pitch:0,roll:0,surfaceNormal:undefined}),local=Float64Array.from(T);part._placementGeometry={local,volume:meshVolume(local),area:solidMeshArea(local)};part._placementMaterializedSourceKey=key;
 }
 // A structure copied without its parent (an older duplicate or paste dropped every parent outside the copy:
 // meta.unresolvedParentId, no parentStructureId) is joined again to a structure of this ship it really touches
@@ -93559,7 +93638,7 @@ function syncAviationSurfaces(ship){
 // structure tools; vertex editing changes only p.mesh. The mesh is a
 // structure only: no engine, reactor or weapon is ever derived from it.
 // Limits are provisional (editor responsiveness on phones).
-const STRUCT_MESH_LIMITS=Object.freeze({verts:6000,tris:12000});
+const STRUCT_MESH_LIMITS=Object.freeze({verts:40000,tris:80000});/* 2026-11-22 raised from 6000 / 12000 for baked cuts: a baked Executor hull has 8,670 points and 14,595 triangles, a Death Star hemisphere 19,483 and 25,317 */
 STRUCT_SHAPES.mesh='自由多面体（頂点編集）';
 const MESH_TRI_CACHE=new WeakMap(),MESH_LOCAL_CACHE=new WeakMap();
 // Topology check of indexed polygon boundaries: every edge must be used once in
@@ -95567,7 +95646,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
   combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,clipCompartmentByMesh,clipCompartmentMesh,interiorConnectedSolid,aviationEnvelope,aviationSkinOverlap,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,PLACEMENT_BODY_KEYS,placementDeriveBody,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportMassRatio, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
-  hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, normalizeBatteries, batteryRail, batteryLayout, bakeTrenchBatteries, configureBattery, BATTERY_LIMITS, normalizeDecals, decalFrame, decalInstances, DECAL_LIMITS, DECAL_KINDS, buildDesign, profile, simulate,
+  hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, normalizeBatteries, batteryRail, batteryLayout, bakeTrenchBatteries, configureBattery, bakeStructure, bakeAllCuts, bakeTargets, BATTERY_LIMITS, normalizeDecals, decalFrame, decalInstances, DECAL_LIMITS, DECAL_KINDS, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();
 if (typeof module !== 'undefined') module.exports = Core;
