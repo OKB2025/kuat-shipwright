@@ -1,0 +1,38 @@
+numeric diffs area 81.4820 → 81.5398
+VS 0.160721 → 0.160606
+hullArea 81.4820 → 81.5398
+mass 11.9855 → 11.9841
+armorMass 0.699115 → 0.699612
+weaponBudget 7.35989e+16 → 2.39360e+16
+rm 0.767173 → 0.756341
+thrust 1.01181e+8 → 8.07641e+7
+aThrust 8441.97 → 6739.26
+aStruct 1.56893e+6 → 1.54620e+6
+aEff 8441.97 → 6739.26
+accelG 860.841 → 687.213
+thrustG 860.841 → 687.213
+structG 159986 → 157668
+MGLT 95.0344 → 95.0464
+shieldP 7.74685e+17 → 8.24348e+17
+shieldPct 0.0237686 → 0.0252744
+shieldTarget 0.0237686 → 0.0252744
+hp 0.0249559 → 0.0249285
+cost 247128 → 247185
+bareStructAccel 1.57114e+6 → 1.54838e+6
+ratedThrustN 4.56058e+8 → 4.56063e+8
+ratedAccelMps2 38104.5 → 38109.2
+maximumAccelMps2 38104.5 → 38109.2
+autoHabitationVolume 8.54500 → 8.56833
+unassignedVolume 8.54500 → 8.56833
+habitableVolume 8.54500 → 8.56833
+dissipatorPower 5.34416e+15 → 5.55144e+15
+dissipatorRatedPower 6.97652e+15 → 7.11221e+15
+wingMass 0.0168648 → 0.0168640
+actualThrustN 1.01181e+8 → 8.07641e+7
+actualInputW 2.30630e+17 → 1.80861e+17
+actualAccelMps2 8441.97 → 6739.26
+freeAccelerationMps2 8441.97 → 6739.26
+draw old {"weapons":167360000000000,"shields":774684743525327400,"engines":1330228839042989300,"hotel":21709240111976376,"systems":13207498900000000,"ray":0,"jump":0,"dissipators":5344158251634422}
+draw new {"weapons":167360000000000,"shields":824347689072774800,"engines":1330228839042989300,"hotel":21916526520114240,"systems":13207498900000000,"ray":0,"jump":0,"dissipators":5551444659772289}
+part 51 [51,"hdis",0.071] → [51,"hdis",0.04]
+part 52 [52,"hdis",0.009] → [52,"hdis",0.043]

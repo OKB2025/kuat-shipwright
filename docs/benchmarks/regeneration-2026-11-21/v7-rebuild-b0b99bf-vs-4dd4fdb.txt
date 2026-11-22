@@ -1,0 +1,30 @@
+acclamator	all 22613 numbers equal
+arquitens	all 14998 numbers equal
+cr90	all 12988 numbers equal
+deathstar	all 50321 numbers equal
+dreadnaught	1966 of 7508 numbers differ; largest relative difference (structure or zero) at p.grid.domains.0.modules.length; next: p.grid.powerPaths.length ∞, p.grid.powerPaths.131.capacityGroup (present on one side) ∞, p.grid.powerPaths.131.groupCap (present on one side) ∞
+executor	all 80734 numbers equal
+gozanti	all 2552 numbers equal
+gr75	all 14802 numbers equal
+hammerhead	all 5068 numbers equal
+heraklon	all 3304 numbers equal
+imperial	all 11577 numbers equal
+imperial2	all 11509 numbers equal
+lh3210	6 of 8434 numbers differ; largest relative difference 4.98e-1 at p.mouths.0.r; next: p.mouths.1.r 4.0e-1, p.mouths.3.r 3.8e-1, p.mouths.2.r 2.7e-1
+lucrehulk	all 10024 numbers equal
+mandator2	all 13708 numbers equal
+mc30c	all 4236 numbers equal
+mc75	1113 of 9030 numbers differ; largest relative difference 6.33e-6 at p.launch; next: p.heat.src.14.sh 4.2e-6, p.grid.powerPaths.77.cap 3.6e-6, p.grid.powerPaths.78.cap 3.6e-6
+mc80home	all 10940 numbers equal
+mc80liberty	3694 of 12750 numbers differ; largest relative difference (structure or zero) at p.grid.domains.0.modules.length; next: p.grid.powerPaths.length ∞, p.grid.powerPaths.270.capacityGroup (present on one side) ∞, p.grid.powerPaths.270.groupCap (present on one side) ∞
+munificent	all 33625 numbers equal
+nebulonb	all 3858 numbers equal
+onager	2240 of 12027 numbers differ; largest relative difference 9.10e-6 at p.launch; next: p.heat.src.16.sh 7.0e-6, p.heat.src.12.sh 5.5e-6, p.grid.powerPaths.58.cap 4.6e-6
+providence	all 15953 numbers equal
+providenceDn	all 24127 numbers equal
+recusant	all 20252 numbers equal
+recusantDn	all 30150 numbers equal
+reptransport	all 2725 numbers equal
+subjugator	2 of 65354 numbers differ; largest relative difference 3.55e-6 at p.launch; next: p.crit 7.0e-9
+venator	2 of 16267 numbers differ; largest relative difference 2.51e-2 at p.mouths.4.r; next: p.launch 1.0e-2
+ships compared 29, identical in every number 22

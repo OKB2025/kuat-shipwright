@@ -83,9 +83,23 @@ test('each heavy lid is a 1 m cylinder whose outer face is at the mouth, the bod
  const f=fit(),g=C.launcherGeometry(f);assert.equal(g.lids.length,8);const L=C.HEAVY_LAUNCHER.lid;assert.equal(L.height,1);assert.equal(g.embedded,true);
  const front=g.frontPoint;for(const m of g.muzzles)near(C.dot(C.sub(m,front),g.axis),.02,'the launch points stay at the mouth');
  near(C.dot(C.sub(C.add(g.bodyCenter,C.mul(g.axis,g.bodySize[0]/2)),front),g.axis),-1,'the body front is 1 m behind the mouth');
- for(let i=0;i<8;i++){const l=g.lids[i],m=g.muzzles[i];near(C.dot(C.sub(l.top,front),g.axis),0,'the outer face is at the mouth');near(C.dot(C.sub(l.top,l.base),g.axis),1.25,'1 m lid, .25 m into the body');near(l.radius,.42*cell);
+ for(let i=0;i<8;i++){const l=g.lids[i],m=g.muzzles[i];near(C.dot(C.sub(l.top,front),g.axis),.02,'the outer face is at the mouth, 2 cm proud of the uncut skin');near(C.dot(C.sub(l.top,l.base),g.axis),1.27,'1 m lid, .25 m into the body, 2 cm proud');near(l.radius,.42*cell);
   for(let k=0;k<3;k++)assert.ok(l.top[k]>=g.bounds[k]-1e-9&&l.top[k]<=g.bounds[k+3]+1e-9,'the lid is in the extent');}
  assert.equal(C.launcherGeometry({k:'shipMsl',launcherCols:2,launcherRows:2,p:[0,0,0],n:[0,1,0],a:2}).lids,undefined,'small cells have no lid cylinder');
  // user decision 2026-11-21「蓋の分は重量を加算しないように」: the lids add no mass; the launcher weighs its cells' rounds and cells only
  near(C.fitSpec(fit()).mass,C.SHIP_TORPEDO.mass*C.HEAVY_LAUNCHER.massK*8,'mass of 8 cells, nothing for the lids');
+});
+// User decision 2026-11-21「ミサイル発射基の穴は作らなくていい。そのサイズの構造物にセルごとに蓋がついてるだけ」: a heavy launcher cuts no
+// recess into its host; a small embedded launcher still does.
+test('a heavy launcher leaves its host surface uncut; a small embedded launcher still opens it',()=>{
+ const T=Float32Array.from([0,0,0, 300,0,0, 0,0,160, 300,0,0, 300,0,160, 0,0,160].map((v,i)=>i%3===1?80:v));
+ for(const [heavy,cut] of [[true,false],[false,true]]){const [s]=structShip('Recess '+heavy);const r=C.placeFit(s,'shipMsl',[150,80,20],[0,1,0],0,false,{launcherCols:2,launcherRows:1,launcherHeavy:heavy,launcherEmbedded:true});const f=s.fits.at(-1);f.host='hull';
+  const out=C.launcherRecessTriangles(s,'hull',T);assert.equal(out===T||out.length===T.length&&out.every((v,i)=>v===T[i]),!cut,heavy?'no recess for a heavy launcher':'a small embedded launcher opens its host');}
+});
+
+// User report 2026-11-21 (「艦艇用発射機の中身が小型のミサイルということになってるがこれは表示ミス？」): the craft magazine table
+// (proton torpedoes, concussion missiles, 0.22 m bore) is not shown for a ship launcher; its cells and rounds are in its own section.
+test('the craft magazine table is not shown for a ship launcher',()=>{
+ const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');assert.match(app,/C\.FITS\[selected\.k\]\?\.store&&!C\.isShipLauncher\?\.\(selected\)/);
+ const small=C.missileLauncherSpec(fit({launcherHeavy:false,launcherCols:1,launcherRows:1}));near(small.tt,C.AIR_ROUNDS.missile.tt);assert.equal(small.ammoPerCell,6,'small cells: six 1 by 4 m missiles a cell');
 });

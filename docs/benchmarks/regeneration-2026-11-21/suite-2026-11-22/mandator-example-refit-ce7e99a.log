@@ -1,0 +1,78 @@
+TAP version 13
+# Subtest: Mandator declared battery is the user dorsal battery plus the filled ventral keel
+ok 1 - Mandator declared battery is the user dorsal battery plus the filled ventral keel
+  ---
+  duration_ms: 1.421402
+  type: 'test'
+  ...
+# Subtest: Mandator II derives its requested output, shield storage and salvo from physical equipment
+not ok 2 - Mandator II derives its requested output, shield storage and salvo from physical equipment
+  ---
+  duration_ms: 367247.888119
+  type: 'test'
+  location: '/tmp/ks-verify/20261121-abc/base/tests/mandator-example-refit.cjs:35:1'
+  failureType: 'testCodeFailure'
+  error: 'full single-volley storage for gun 8649'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/tmp/ks-verify/20261121-abc/base/tests/mandator-example-refit.cjs:47:64)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: Mandator reactor volume and shield dissipation survive saving without reauthoring a custom design
+ok 3 - Mandator reactor volume and shield dissipation survive saving without reauthoring a custom design
+  ---
+  duration_ms: 1187567.171322
+  type: 'test'
+  ...
+# Subtest: explicit finite shield dissipation limits transient release independently of shield charge and capacity
+ok 4 - explicit finite shield dissipation limits transient release independently of shield charge and capacity
+  ---
+  duration_ms: 1.495188
+  type: 'test'
+  ...
+# Subtest: shield processing follows each physical device health, trips and granted input
+not ok 5 - shield processing follows each physical device health, trips and granted input
+  ---
+  duration_ms: 3.286292
+  type: 'test'
+  location: '/tmp/ks-verify/20261121-abc/base/tests/mandator-example-refit.cjs:65:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 999.9999999999999
+    - 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 999.9999999999999
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/tmp/ks-verify/20261121-abc/base/tests/mandator-example-refit.cjs:70:90)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 3
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1556201.04687

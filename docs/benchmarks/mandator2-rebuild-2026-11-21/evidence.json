@@ -1,7 +1,7 @@
 {
  "design": {
-  "sha256": "3dd265831593f13fb6308b0a69b407cc11c514375f76077cbed8d5a70fe48b58",
-  "bytes": 1345603
+  "sha256": "7199d0536af5e1e191a50cc4f4734b7b9e2ae687bf015ef663918a2bfddd0b17",
+  "bytes": 947637
  },
  "source": {
   "sha256": "088416b5b467f130fd5a8335175fd09509052a05e1a96c9f66d73a05a2ffaa33",
@@ -27,21 +27,21 @@
    "automation": 2,
    "hangar": 4,
    "service": 2,
-   "hdis": 4,
+   "hdis": 2,
    "engine": 11,
    "engineCore": 11,
-   "repulsor": 62
+   "repulsor": 127
   },
   "addedStructures": [],
   "cuts": 0,
   "trenches": 0,
   "solidCuts": 0
  },
- "seconds": 537,
+ "seconds": 429,
  "stats": {
-  "mass": 2033406000,
+  "mass": 2033105000,
   "power": 7.7e+26,
-  "cost": 6728144603,
+  "cost": 6751692481,
   "maxAccelG": 0,
   "shieldCapacity": 7.7e+27,
   "floatingFits": 0,
@@ -58,11 +58,11 @@
    ],
    [
     "warn",
-    "自動化装置が持ち場 870,962 名分（全持ち場 916,802 名の 95%）を受け持ち、電力 4.6×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け持ち分が抜け、人と装置を合わせた乗員"
+    "自動化装置が持ち場 875,562 名分（全持ち場 921,644 名の 95%）を受け持ち、電力 4.8×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け持ち分が抜け、人と装置を合わせた乗員"
    ],
    [
     "warn",
-    "戦闘負荷で廃熱 1.67e26 W に対し変換 8.19e25 W、不足 8.53e25 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 33,074,295 m³ 追加すると解消します。その消費電力 1.30"
+    "戦闘負荷で廃熱 1.69e26 W に対し変換 8.40e25 W、不足 8.51e25 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 33,028,661 m³ 追加すると解消します。その消費電力 1.30"
    ],
    [
     "warn",
@@ -82,12 +82,12 @@
   "accelG": 0,
   "thrustG": 0,
   "shieldDissipationW": 184034,
-  "bareStructAccel": 3084.79,
-  "ratedThrustN": 20269520000000000,
-  "ratedAccelMps2": 9968.259,
-  "maximumAccelMps2": 9968.259,
-  "dissipatorPower": 1.22203e+24,
-  "dissipatorRatedPower": 1.229026e+24,
+  "bareStructAccel": 3083.114,
+  "ratedThrustN": 20269800000000000,
+  "ratedAccelMps2": 9969.875,
+  "maximumAccelMps2": 9969.875,
+  "dissipatorPower": 1.253349e+24,
+  "dissipatorRatedPower": 1.260493e+24,
   "actualThrustN": 0,
   "actualAccelMps2": 0,
   "freeAccelerationMps2": 0
@@ -270,7 +270,7 @@
     695,
     75
    ],
-   "volume": 5078146,
+   "volume": 5099122,
    "inside": 1,
    "inHull": 0.5454545,
    "overlap": false
@@ -287,7 +287,7 @@
     390,
     670
    ],
-   "volume": 3550939,
+   "volume": 3573246,
    "inside": 1,
    "inHull": 0.9571984,
    "overlap": false
@@ -304,7 +304,7 @@
     390,
     -550
    ],
-   "volume": 3551063,
+   "volume": 3572453,
    "inside": 1,
    "inHull": 0.9571984,
    "overlap": false
@@ -355,7 +355,7 @@
     425,
     337
    ],
-   "volume": 9779800,
+   "volume": 9880921,
    "inside": 1,
    "inHull": 1,
    "overlap": false
@@ -372,7 +372,7 @@
     425,
     -187
    ],
-   "volume": 9779818,
+   "volume": 9880910,
    "inside": 1,
    "inHull": 1,
    "overlap": false
@@ -491,7 +491,7 @@
     435,
     545
    ],
-   "volume": 2756496,
+   "volume": 2796874,
    "inside": 1,
    "inHull": 0.9545455,
    "overlap": false
@@ -508,7 +508,7 @@
     435,
     -395
    ],
-   "volume": 2764873,
+   "volume": 2796856,
    "inside": 1,
    "inHull": 0.9545455,
    "overlap": false
@@ -559,7 +559,7 @@
     522,
     295
    ],
-   "volume": 9176743,
+   "volume": 9572286,
    "inside": 1,
    "inHull": 0.6636364,
    "overlap": false
@@ -576,7 +576,7 @@
     522,
     -145
    ],
-   "volume": 9239183,
+   "volume": 9575547,
    "inside": 1,
    "inHull": 0.6636364,
    "overlap": false
@@ -593,7 +593,7 @@
     325,
     350
    ],
-   "volume": 0,
+   "volume": 5699922,
    "inside": 1,
    "inHull": 1,
    "overlap": false
@@ -627,7 +627,7 @@
     330,
     350
    ],
-   "volume": 3159655,
+   "volume": 3275075,
    "inside": 1,
    "inHull": 0.9970845,
    "overlap": false
@@ -644,7 +644,7 @@
     325,
     -220
    ],
-   "volume": 0,
+   "volume": 5699545,
    "inside": 1,
    "inHull": 1,
    "overlap": false
@@ -661,7 +661,7 @@
     365,
     -89
    ],
-   "volume": 5054182,
+   "volume": 5277999,
    "inside": 1,
    "inHull": 1,
    "overlap": false
@@ -678,7 +678,7 @@
     330,
     -220
    ],
-   "volume": 3158561,
+   "volume": 3275074,
    "inside": 1,
    "inHull": 0.9970845,
    "overlap": false
@@ -688,14 +688,14 @@
    "k": "hdis",
    "label": "熱エネルギー変換装置（右舷・機関の列の間）",
    "box": [
-    825,
-    313,
+    823,
+    312,
     484,
-    1425,
-    467,
+    1427,
+    468,
     656
    ],
-   "volume": 15637945,
+   "volume": 16046003,
    "inside": 1,
    "inHull": 0.6734694,
    "overlap": false
@@ -705,57 +705,23 @@
    "k": "hdis",
    "label": "熱エネルギー変換装置（左舷・機関の列の間）",
    "box": [
-    825,
-    313,
+    823,
+    312,
     -656,
-    1425,
-    467,
+    1427,
+    468,
     -484
    ],
-   "volume": 15615518,
+   "volume": 16045951,
    "inside": 1,
    "inHull": 0.6734694,
-   "overlap": false
-  },
-  {
-   "id": 8872,
-   "k": "hdis",
-   "label": "艦内高エネルギー散逸区画 1",
-   "box": [
-    2950,
-    363,
-    -13,
-    2976,
-    389,
-    13
-   ],
-   "volume": 18680,
-   "inside": 1,
-   "inHull": 1,
-   "overlap": false
-  },
-  {
-   "id": 8873,
-   "k": "hdis",
-   "label": "艦内高エネルギー散逸区画 2",
-   "box": [
-    5261,
-    339,
-    525,
-    5287,
-    365,
-    552
-   ],
-   "volume": 18681,
-   "inside": 1,
-   "inHull": 0,
    "overlap": false
   }
  ],
  "liftRooms": {
-  "n": 62,
-  "support": 2097168000,
-  "mass": 2033406000
+  "n": 127,
+  "support": 2096873000,
+  "mass": 2033105000
  },
  "engines": [
   {
@@ -1123,12 +1089,12 @@
   }
  ],
  "propulsion": {
-  "ratedThrustN": 20269520000000000,
-  "ratedAccelMps2": 9968.259,
+  "ratedThrustN": 20269800000000000,
+  "ratedAccelMps2": 9969.875,
   "accelerationLimitBasis": "structural",
-  "structuralAccelerationLimitMps2": 40102.27,
+  "structuralAccelerationLimitMps2": 40080.49,
   "inertialFactor": 1,
-  "sumCoreRatedThrustN": 56812290000000000,
+  "sumCoreRatedThrustN": 56813100000000000,
   "sumNormalInputW": 1.071179e+26,
   "sumRatedInputW": 7.7e+26,
   "nozzleShaftCapacityW": 2.378931e+26,
@@ -1140,8 +1106,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 2760783000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 2760822000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1151,8 +1117,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 6554980000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 6555071000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1162,8 +1128,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 13110000000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 13110190000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1173,8 +1139,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 1661211000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 1661234000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1184,8 +1150,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 1328968000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 1328986000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1195,8 +1161,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 5980410000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 5980493000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1206,8 +1172,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 1328968000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 1328986000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1217,8 +1183,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 1661211000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 1661234000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1228,8 +1194,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 13110000000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 13110190000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1239,8 +1205,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 6554980000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 6555071000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    },
    {
@@ -1250,8 +1216,8 @@
     "densityFactor": 7.188342,
     "efficiency": 0.8659446,
     "wasteFraction": 0.1340554,
-    "ratedThrustN": 2760783000000000,
-    "wattsPerNewton": 13553400000,
+    "ratedThrustN": 2760822000000000,
+    "wattsPerNewton": 13553210000,
     "inputLimitModel": "reactor-supply"
    }
   ]
@@ -1259,8 +1225,8 @@
  "chargeWithoutFigure": 0,
  "roundTrip": {
   "parts": [
-   496,
-   496
+   559,
+   559
   ],
   "fits": [
    194,
@@ -1270,18 +1236,18 @@
   "posesOnlyAfter": 0,
   "massEqual": true,
   "mass": [
-   2033406100.8555775,
-   2033406100.8555775
+   2033104807.8880296,
+   2033104807.8880296
   ],
   "floatingAfter": 0,
   "overlapsAfter": 0,
   "ratedThrust": [
-   20269518831068716,
-   20269518831068716
+   20269801569210256,
+   20269801569210256
   ]
  },
  "run": {
-  "commit": "9338cace89ffc0e6c91e6f0e95970c1ac196936e",
-  "coreSha256": "261575c8c9a2a0941f59733fd5293640b9213783703c510f21bca9ec616a8075"
+  "commit": "13dd6b6b021584e846e3b3fec10c3aab580cb611",
+  "coreSha256": "3b645d1d239fbbc5195fb7574c80a61ee3f95d27fe1a90973e94cd9debaf369b"
  }
 }

@@ -1,0 +1,14 @@
+providence #183-#181 around 313.4,140.59,45.45 ±10,3,1.2: 4200 samples
+  none 2768
+  181:hangar 1008
+  24:hangar 336
+  183:hangar 88
+ y 137.59 in183 false in181 false
+ y 138.59 in183 false in181 false
+ y 139.59 in183 false in181 false
+ y 140.09 in183 false in181 false
+ y 140.59 in183 false in181 false
+ y 141.09 in183 false in181 false
+ y 141.59 in183 false in181 false
+ y 142.59 in183 false in181 true
+ y 143.59 in183 false in181 true

@@ -13,7 +13,7 @@ run(`const C=Core,R=Rts,num=v=>String(v),esc=String,ja=String,sci=String,rgb=v=>
  const ship=C.newShip({L:80,W:40,H:20,plan:'rect',sec:'rect'},'Tracking capacity');ship.parts=[];ship.fits=[];
  const before=C.computeStats(ship);ship.parts.push({id:1,k:'sensor',c:[40,11,0],d:2,label:'Tracking sensor'});const after=C.computeStats(ship),profile=C.fleetProfile(after,ship.name,ship);
 `);
-section('function designAccelerationG(', '// v22 Store stations');
+section('function designAccelerationG(', '// v22 Store stations');section('function launcherVolleyTT(', 'function totalVolleyTT(');section('function totalVolleyTT(', '\n');
 
 test('the actual design statistics show the same simultaneous engagement capacity used by combat',()=>{
  assert.ok(run('after.aaChannels>before.aaChannels'),'installed tracking equipment must increase the displayed capacity');

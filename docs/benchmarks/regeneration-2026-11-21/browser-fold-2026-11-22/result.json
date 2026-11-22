@@ -1,0 +1,52 @@
+{
+ "first": {
+  "ship": "MC30cフリゲート",
+  "open": "1",
+  "expanded": "true",
+  "rows": 7,
+  "ls": null
+ },
+ "folded": {
+  "ship": "MC30cフリゲート",
+  "open": "0",
+  "expanded": "false",
+  "rows": 0,
+  "ls": "0"
+ },
+ "afterOtherExample": {
+  "ship": "CR90コルベット",
+  "open": "0",
+  "expanded": "false",
+  "rows": 0,
+  "ls": "0"
+ },
+ "afterSave": {
+  "ship": "CR90コルベット",
+  "open": "0",
+  "expanded": "false",
+  "rows": 0,
+  "ls": "0"
+ },
+ "backToMc30c": {
+  "ship": "MC30cフリゲート",
+  "open": "0",
+  "expanded": "false",
+  "rows": 0,
+  "ls": "0"
+ },
+ "afterLoadSaved": {
+  "ship": "CR90コルベット",
+  "open": "0",
+  "expanded": "false",
+  "rows": 0,
+  "ls": "0"
+ },
+ "reopened": {
+  "ship": "CR90コルベット",
+  "open": "1",
+  "expanded": "true",
+  "rows": 7,
+  "ls": "1"
+ },
+ "errors": []
+}

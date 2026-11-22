@@ -12,3 +12,16 @@ test('unavailable persistent storage stops work; one failed example does not sto
  const b=setup(['bad','cr90']);try{await wait(300);b.workers[0].reply({type:'error'});await wait(300);assert.equal(b.pre.state.failed,1);assert.equal(b.workers[1].jobs[0].key,'cr90');}finally{b.pre.stop();}
 });
 test('startup downloads all distinct blueprints independently with bounded concurrency and continues after a failed download',async()=>{const {preloadAssets}=require('../js/asset-cache.js'),jobs=[],hash='a'.repeat(64),assets=['a','b','c'].map(url=>({url,sha256:hash}));let active=0,max=0;const work=preloadAssets({assets:[...assets,assets[0]],fetchAsset:(url,sha)=>{assert.equal(sha,hash);active++;max=Math.max(max,active);return new Promise((resolve,reject)=>jobs.push({url,resolve:()=>{active--;resolve();},reject:()=>{active--;reject(Error('offline'));}}));}});assert.equal(jobs.length,2);jobs[0].resolve();await wait(0);assert.equal(jobs.length,3);jobs[1].reject();jobs[2].resolve();const done=await work.done;assert.equal(max,2);assert.deepEqual(done,{phase:'complete',total:3,ready:2,failed:1});});
+// User decision 2026-11-21: saved designs are prepared in the background like the examples ({key, load} items send the design itself).
+test('a saved design item sends its design for both variants; a design that cannot be read is skipped',async()=>{
+ let loads=0;const design={name:'Saved',parts:[],fits:[]};
+ const s=setup([{key:'save:a-1',load:async()=>{loads++;return design;}},{key:'save:b-2',load:async()=>null},'cr90']);
+ try{await wait(300);const w=s.workers[0];await wait(10);assert.equal(w.jobs[0].key,undefined);assert.deepEqual(w.jobs[0].design,design);assert.equal(w.jobs[0].prepareOnly,true);assert.equal(w.jobs[0].trial,false);
+  w.reply();await wait(10);assert.equal(w.jobs[1].trial,true);assert.deepEqual(w.jobs[1].design,design);assert.equal(loads,1,'read once for both variants');w.reply();assert.equal(s.pre.state.ready,1);
+  await wait(300);assert.equal(s.pre.state.failed,1,'an unreadable save is skipped');await wait(300);const last=s.workers.at(-1);assert.equal(last.jobs[0].key,'cr90');}finally{s.pre.stop();}
+});
+test('a saved design whose result could not be kept is skipped and the examples behind it are still prepared (regression review 2026-11-21)',async()=>{
+ const design={name:'Saved',parts:[],fits:[]},s=setup([{key:'save:a-1',load:async()=>design},'cr90']);
+ try{await wait(300);await wait(10);s.workers[0].reply({cacheSaved:false});assert.equal(s.pre.state.failed,1);assert.notEqual(s.pre.state.phase,'unavailable');await wait(300);const w=s.workers[1];assert.equal(w.jobs[0].key,'cr90');w.reply();w.reply();assert.equal(s.pre.state.ready,1);assert.equal(s.pre.state.phase,'complete');
+  const t=setup([{key:'save:b-2',load:async()=>design},'cr90']);try{await wait(310);t.workers[0].reply({src:'unavailable'});assert.equal(t.pre.state.phase,'unavailable');}finally{t.pre.stop();}}finally{s.pre.stop();}
+});
