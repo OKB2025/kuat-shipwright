@@ -69,6 +69,11 @@
 // lift rooms took made up, examples regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 2d40f015…).
 // Re-recorded on 43b9ac0 (2026-11-20, same decisions: a lift placement that falls short keeps what was placed; six examples
 // regenerated). Not broken down by field. Two recordings in a row gave the same file (sha256 3be37f71…).
+// Re-recorded on e0dba61 (2026-11-22, version 7 PR: examples regenerated on EXAMPLE_PROFILE_VERSION 7, compartments clipped by
+// joined faces; arquitens, cr90 and hammerhead change mass by 0.00%, −0.01% and +0.02%). The previous recording failed at every
+// tick from 0 already on 4dd4fdb (before the last rebuild) and 0d6476b; it passes on ce7e99a (version 6). First numeric
+// difference with KS_DETERMINISM_ALLOW_FLOAT=1: tick 0, unit 0 (arquitens) digest[2] (position x) 0.06474433168823 against
+// 0.06474433169865 (relative 1.6e-10). Not broken down further. Two recordings in a row gave the same file (sha256 ef3d0ef7…).
 // Every tick must match its full-state hash exactly. Only with
 // KS_DETERMINISM_ALLOW_FLOAT=1 (for a reviewed change of floating-point
 // summation order) may a mismatching tick pass instead with every digest

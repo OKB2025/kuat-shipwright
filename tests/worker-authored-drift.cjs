@@ -25,8 +25,10 @@ const ALLOWED={
  'weapon on a moved structure':E,
  // Phase F (nozzle foundation regeneration). The engine itself no longer follows the turned structure (stage B).
  'engine support under a turned structure':{...E,edit:[['parts',2,'changed','engineMountSupport','']],editSurface:[['parts',2,'changed','engineMountSupport','']]},
- // Phase D (hatches have one owner and fixed values): the hangar's hatch is rewritten by an unrelated edit.
- 'hangar hatch, unrelated structure moved':{...E,edit:[['hatches',4,'changed','a,b,w','']],editSurface:[['hatches',4,'changed','a,b,w','']]},
+ // Phase D (hatches have one owner and fixed values): the hangar's hatch was rewritten by an unrelated edit (a,b,w).
+ // 2026-11-22, version 7 PR: the hatch is where the bay meets the skin, and an unrelated edit no longer rewrites it. The
+ // entry is removed as the header says (the scenario fails with the old entry from 0d6476b on; it passes with it on ce7e99a).
+ 'hangar hatch, unrelated structure moved':E,
 };
 // One row per drifted item: [list, id, kind, keys beyond the noise tolerance, keys within it] (F4: values are
 // compared exactly; differences within Core.AUTHORED_DRIFT_NOISE are listed apart, never dropped).
