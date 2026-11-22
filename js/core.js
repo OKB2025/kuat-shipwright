@@ -75235,7 +75235,10 @@ function ensurePrimaryHull(ship,options={}){
  const used=new Set([...ship.parts,...ship.fits,...ship.hatches,...ship.cuts,...ship.trenches,...ship.subs,...(ship.solidCuts||[])].map(x=>x.id));let id=Math.max(1,ship.nextId||1);while(used.has(id))id++;
  const bounds=shipBounds(ship),dx=(bounds[3]-bounds[0])/120,framingSamples=[];
  if(dx>0)for(let k=0;k<120;k++){const x=bounds[0]+(k+.5)*dx;if(x>=(h.start||0)*h.L&&x<=h.L)framingSamples.push([x/h.L,dx/h.L]);}
- const ownedHatches=ship.hatches.map(a=>{const b=copy(a),cut=openingBounds(ship,a);if(cut){b.cut=cut.slice();delete b.bay;delete b.surface;}return b;});
+ // A bay's surface hatch keeps the area of the skin inside its bay (openArea), as adoptAviationHullHatch does; once baked it no longer
+ // has the bay to measure, and the box of its cut can be much larger (physics review 2026-11-21: the Lucrehulk's side doors 32,640 m²
+ // boxes for 22,555 m² of skin).
+ const ownedHatches=ship.hatches.map(a=>{const b=copy(a),cut=openingBounds(ship,a);if(cut){b.cut=cut.slice();if(a.surface&&a.bay&&!Number.isFinite(b.openArea)){const bay=ship.parts.find(q=>q.id===a.bay&&q.k==='hangar'),c=bay&&aviationContact(ship,bay,a.face);if(c?.mode==='overlap')b.openArea=c.area;}delete b.bay;delete b.surface;}return b;});
  const data={framingSamples,surfaceToken:surfaceTopology(ship,null),hatches:ownedHatches};for(const k of ['cuts','trenches','solidCuts','subs']){data[k]=copy((ship[k]||[]).filter(x=>!x.structures));ship[k]=(ship[k]||[]).filter(x=>x.structures);}
  for(const k of ['hullSkin','hullBands','paint','detail','reference'])if(ship[k]!=null)data[k]=copy(ship[k]);delete ship.hullSkin;delete ship.hullBands;
  const p={id,k:'struct',form:'hull',primaryHull:true,label:'船体構造物',c:[h.L/2,h.H/2,0],s:[h.L,h.W,h.H],taper:0,offsetX:0,offsetZ:0,yaw:0,pitch:0,roll:0,hullProfile:h,hullData:data};
@@ -81136,10 +81139,13 @@ function weaponCapacitors(ship){
  ship._capacitors={key,envelope,parts};return parts;
 }
 function aviationConnected(a,b){
- // 2026-11-21: a packed compartment is made of whole cells, so a gap narrower than one cell on that axis is the packing's rounding, not a wall
- // (Providence: the upper hangar deck's 5.2 m cells stop 4.4 m above the rear hangar deck). Elsewhere 1.5 m, as before.
- const A=partAABB(a),B=partAABB(b),tols=[0,1,2].map(k=>Math.max(1.5,a._packing?.cell?.[k]||0,b._packing?.cell?.[k]||0));
- if([0,1,2].some(k=>A[k]>B[k+3]+tols[k]||B[k]>A[k+3]+tols[k]))return false;
+ // Two compartments connect only if their placed boxes are within 1.5 m of each other. 2026-11-21: a packed compartment is made of
+ // whole cells, so where the placed boxes meet, its cells can stop up to one cell short of the other compartment (packing rounding,
+ // not a wall). Between such a pair, the probe on each axis reaches one cell of that axis instead of 1.5 m (Providence: the upper
+ // hangar deck's placed box overlaps the rear hangar deck, but its 5.2 m cells stop 4.4 m above it).
+ const A=partAABB(a),B=partAABB(b);
+ if([0,1,2].some(k=>A[k]>B[k+3]+1.5||B[k]>A[k+3]+1.5))return false;
+ const tols=[0,1,2].map(k=>Math.max(1.5,a._packing?.cell?.[k]||0,b._packing?.cell?.[k]||0));
  const lo=[0,1,2].map(k=>Math.max(A[k],B[k])),hi=[0,1,2].map(k=>Math.min(A[k+3],B[k+3]));
  const near=(p,q)=>inPart(p,q)||[0,1,2].some(ax=>[-1,1].some(sg=>{const r=q.slice();r[ax]+=sg*tols[ax];return inPart(p,r);}));
  const connected=q=>near(a,q)&&near(b,q);
