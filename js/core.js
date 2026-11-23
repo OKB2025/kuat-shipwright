@@ -245,11 +245,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 17,
- "modelSignature": "s8cdju",
+ "modelSignature": "18ebq2q",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "cnrn4b",
+   "signature": "1fugndw",
    "build": 243666,
    "crew": 3000,
    "total": 246666,
@@ -289,7 +289,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 16.799999999999997,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 661.4035714285715,
+    "laserGasSeconds": 66.14035714285716,
     "landingSupport": 49.384800000000006,
     "landingRatio": 1,
     "landingReady": true
@@ -10331,7 +10331,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "9w2cno",
+   "signature": "13c1ied",
    "build": 164400,
    "crew": 1000,
    "total": 165400,
@@ -10371,7 +10371,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 0.4,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 3292.8000000000006,
+    "laserGasSeconds": 329.2800000000001,
     "landingSupport": 14.0625,
     "landingRatio": 1,
     "landingReady": true
@@ -13760,7 +13760,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1okhkul",
+   "signature": "12kb19a",
    "build": 212524,
    "crew": 2000,
    "total": 214524,
@@ -13800,7 +13800,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 2.4,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 675,
+    "laserGasSeconds": 67.5,
     "landingSupport": 119.3859,
     "landingRatio": 1,
     "landingReady": true
@@ -23848,7 +23848,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1ohfmft",
+   "signature": "wb6rca",
    "build": 178713,
    "crew": 0,
    "total": 178713,
@@ -23886,7 +23886,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 4,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 643.1249999999999,
+    "laserGasSeconds": 64.31249999999999,
     "landingSupport": 39.321600000000004,
     "landingRatio": 1,
     "landingReady": true
@@ -31870,7 +31870,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1s6x8jm",
+   "signature": "1p5l0gr",
    "build": 172949,
    "crew": 1000,
    "total": 173949,
@@ -31910,7 +31910,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 6,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 795.07,
+    "laserGasSeconds": 79.50699999999999,
     "landingSupport": 35.5914,
     "landingRatio": 1,
     "landingReady": true
@@ -37889,7 +37889,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1p2idoz",
+   "signature": "1xytcgc",
    "build": 145855,
    "crew": 1000,
    "total": 146855,
@@ -37929,7 +37929,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 2,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 2385.21,
+    "laserGasSeconds": 238.521,
     "landingSupport": 35.5914,
     "landingRatio": 1,
     "landingReady": true
@@ -42865,7 +42865,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1q55a9u",
+   "signature": "2pc5zv",
    "build": 148520,
    "crew": 1000,
    "total": 149520,
@@ -42905,7 +42905,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 2,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 658.5600000000002,
+    "laserGasSeconds": 65.85600000000002,
     "landingSupport": 66.3552,
     "landingRatio": 1,
     "landingReady": true
@@ -50469,7 +50469,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1rs7mfr",
+   "signature": "ti74ts",
    "build": 142435,
    "crew": 1000,
    "total": 143435,
@@ -50509,7 +50509,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 2,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 658.5600000000002,
+    "laserGasSeconds": 65.85600000000002,
     "landingSupport": 17.7147,
     "landingRatio": 1,
     "landingReady": true
@@ -58563,7 +58563,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "uyiuqc",
+   "signature": "15nta79",
    "build": 121077,
    "crew": 0,
    "total": 121077,
@@ -58601,7 +58601,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 4,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 643.1249999999999,
+    "laserGasSeconds": 64.31249999999999,
     "landingSupport": 12.7776,
     "landingRatio": 1,
     "landingReady": true
@@ -63650,7 +63650,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "s8zgx6",
+   "signature": "139mgbn",
    "build": 247185,
    "crew": 1000,
    "total": 248185,
@@ -63690,7 +63690,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 0.8,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 694.5749999999998,
+    "laserGasSeconds": 69.45749999999998,
     "landingSupport": 12.4416,
     "landingRatio": 1,
     "landingReady": true
@@ -74745,7 +74745,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1q15mvr",
+   "signature": "12n0r1s",
    "build": 175600,
    "crew": 1000,
    "total": 176600,
@@ -74785,7 +74785,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 4,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 643.1249999999999,
+    "laserGasSeconds": 64.31249999999999,
     "landingSupport": 53.387100000000004,
     "landingRatio": 1,
     "landingReady": true
@@ -80811,7 +80811,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1wkij0",
+   "signature": "1c9k7rx",
    "build": 143668,
    "crew": 1000,
    "total": 144668,
@@ -80851,7 +80851,7 @@ const CRAFT_PRICE_CATALOG={
     "laserUnits": 2,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 658.5600000000002,
+    "laserGasSeconds": 65.85600000000002,
     "landingSupport": 29.491200000000006,
     "landingRatio": 1,
     "landingReady": true
@@ -87577,7 +87577,7 @@ addComp('bombBay','爆弾倉','cube',0.1,[170,120,96],'craft','機内の爆弾�
 // Explicit small systems use the same volumes, mass, price, occupancy and hotel heat as ship equipment.
 // Ratings are game assumptions; the solar collectors, batteries, fuel, cooling and foil actuators already
 // have their own shared models and are not counted a second time here.
-const CRAFT_SYSTEMS=Object.freeze({version:1,suitHours:4,lifePeople:1/.035,lifeHours:240,ejectSeats:50,navCapacity:125,targetCapacity:250,maneuverSupport:1000,laserSeconds:30000,landingSupport:300,
+const CRAFT_SYSTEMS=Object.freeze({version:1,suitHours:4,lifePeople:1/.035,lifeHours:240,ejectSeats:50,navCapacity:125,targetCapacity:250,maneuverSupport:1000,laserSeconds:3000/* user decision 2026-11-23「レーザーガスの容量をもっとシビアにして。数十分もいらず、何分間下手したら1分以下とかでいい」: was 30000 (a tenth: an X-wing's gas lasts about a minute of fire) */,landingSupport:300,
  power:Object.freeze({lifeSupport:2e15,ejectSeat:1e14,navComputer:6e16,targetComputer:8e16,maneuver:5e17,laserGas:1e15,landingGear:1e15,droidbrain:8e16})});
 // v24 Navigation demand: a hyperdrive of class c needs unitClass / c units (astromech, droid brain or command 1 each).
 const NAV_MODEL=Object.freeze({version:1,unitClass:1,bridgeShare:.01});
@@ -101307,11 +101307,15 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    u.blocked=null;let blocked=null;for(const q of fleetTargetCandidates(u,targets,reach,priority,false)){const obstruction=fireBlocker(alive,u,q.target);if(obstruction){blocked||=obstruction;continue;}t=q.target;distance=q.distance;F=q.F;raw=F.cost*(F.runtime?1:s.weapon);break;}if(!t&&blocked)u.blocked=blocked.id;
   }
   u.engaging=!!t;
+  // 2026-11-23 A craft's laser gas runs down while its guns fire (p.systems.laserGasSeconds, the seconds of fire its tanks hold);
+  // empty, its guns are silent (its stores still go). Before, only the strategic map's squadrons spent it.
+  if(t&&F&&craftUnit(u)&&Number.isFinite(p.systems?.laserGasSeconds)){if(u.laserGas==null)u.laserGas=Math.max(0,p.systems.laserGasSeconds);if(!(u.laserGas>0)&&F.gun+F.ion>0){F={...F,gun:0,ion:0};raw=0;}}
   const vk=volleyStep(u,dt,!!t&&(F.gun+F.ion>0)),aimBefore=u.aim??AIM_MODEL.start,accounted=F?.runtime||p.energyModel?.version===1;if(accounted)raw*=vk;
   // v24 Holding fire settles the aim; each volley fired throws it off (AIM_MODEL).
   {const prev=u.aimPrev,vel=u.velocity||[0,0,0],yaw=u.yaw||0;let motion=0;if(prev&&dt>0){const dyaw=Math.abs(Math.atan2(Math.sin(yaw-prev.yaw),Math.cos(yaw-prev.yaw)))/dt,acc0=propulsionMotion(u).acc0||0;motion=aimMotion(p.turnRate>0?dyaw/p.turnRate:0,acc0>0?len(sub(vel,prev.vel))/dt/acc0:0);}u.aimPrev={yaw,vel:vel.slice()};
   u.aim=aimAfter(aimBefore,p,dt,vk>0?(volleyMode(u)==='salvo'?1:dt/VOLLEY.T):0,motion);}
   const fire=fleetPowerStep(u,s,t&&byId.get(t.id),raw,dt,vk);u.firingAt=t?t.id:null;
+  if(vk>0&&t&&F&&F.gun+F.ion>0&&u.laserGas>0){u.laserGas=Math.max(0,u.laserGas-dt);if(u.laserGas===0)b.events.push({time:b.time+dt,text:u.name+'：レーザーガス切れ',id:u.id});}
   const boltTarget=!u.manual&&!!t&&!!opts.boltGuns?.has?.(t.id),mslReach=missileMaxRange(u),airShot=b.combat&&!u.out&&!u.manual&&mslReach>0&&t&&distance>mslReach/* physics review 2026-11-19: only a ship that has a target of its own and may fire. Without one (cease fire, every target masked) the launchers stepped and spent their rounds while nothing was launched below. ★ A ship with no ship to fire at does not fire its missiles at craft */?enemies.reduce((best,e)=>{if(!craftUnit(e)||e.dead||e.absent||e.docked)return best;const d=len(sub(e.pos,u.pos));return d<=mslReach&&(!best||d<best.d)?{t:e,d}:best;},null):null/* no ship within the missiles' reach: they are fired at the nearest craft in it */,mT=airShot?airShot.t:t,mD=airShot?airShot.d:distance,missilePackets=fleetMissileStep(u,dt,!!(b.combat&&!u.out&&mT&&((p.msl||0)+(p.imsl||0)>0)),{legacyContinuous:boltTarget/* the trial's flown ship keeps the continuous launch record (mdmg) */,distance:(m)=>m.torp&&mT&&craftUnit(mT)?Infinity/* torpedoes are for ships */:mD});
   const requested=!!b.combat&&!u.out&&o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
   const hatchSeconds=u.hatchTarget?(p.hatchOpenSeconds||4):(p.hatchCloseSeconds||4);u.hatchOpen=sliding?clamp(oldOpen+(u.hatchTarget?1:-1)*dt/hatchSeconds,0,1):0;

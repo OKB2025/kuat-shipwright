@@ -10,7 +10,8 @@ for(const key of examples)test(`${key} carries complete ordinary systems without
  const {ship,stats:S}=fixture(key),sys=S.craftSystems,recipe=C.CRAFT_SYSTEM_RECIPES[key];
  assert.equal(ship.systemsVersion,1);assert.equal(sys.managed,true);assert.equal(sys.navReady,true);
  assert.equal(sys.targetRatio,1);assert.equal(sys.fireK,1);assert.equal(sys.maneuverRatio,1);assert.equal(sys.turnK,1);assert.equal(sys.landingReady,true);
- assert.ok(sys.laserGasSeconds>=600,'ten minutes of laser supply');
+ // 2026-11-23 expectation changed: laser gas is a tenth of what it was (user: 「レーザーガスの容量をもっとシビアにして。数十分もいらず、何分間下手したら1分以下とかでいい」).
+ assert.ok(sys.laserGasSeconds>=55,'about a minute of laser supply');
  assert.equal(sys.ejectionSeats,sys.crew,'one ejection mechanism for each human seat');
  if(sys.crew){assert.ok(sys.ejectionCoverage>=1);if(recipe.suit){assert.equal(sys.lifeSupportCapacity,0);assert.equal(sys.suitSeats,sys.crew);assert.equal(sys.lifeSupportHours,4);}else{assert.ok(sys.lifeSupportCapacity>=sys.crew);assert.ok(sys.lifeSupportHours>=12);}}
  else{assert.equal(ship.parts.some(p=>p.k==='lifeSupport'||p.k==='ejectSeat'),false);assert.equal(sys.lifeSupportHours,null);}
@@ -50,5 +51,5 @@ test('the same opt-in installer supports a user copy without a reference flag an
  const user=C.deserialize(raw);C.installCraftSystems(user,C.CRAFT_SYSTEM_RECIPES.craft_awing);
  const before=JSON.stringify(C.serialize(user));C.installCraftSystems(user,C.CRAFT_SYSTEM_RECIPES.craft_awing);assert.equal(JSON.stringify(C.serialize(user)),before);
  const S=C.computeStats(user);assert.equal(S.craftSystems.navReady,true);assert.equal(S.craftSystems.fireK,1);assert.equal(S.craftSystems.turnK,1);assert.equal(S.craftSystems.landingReady,true);
- assert.ok(S.craftSystems.lifeSupportHours>=12);assert.ok(S.craftSystems.laserGasSeconds>=600);
+ assert.ok(S.craftSystems.lifeSupportHours>=12);assert.ok(S.craftSystems.laserGasSeconds>=55)/* 2026-11-23 expectation changed: laser gas a tenth of before */;
 });
