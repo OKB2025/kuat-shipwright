@@ -18,3 +18,13 @@ test('a turret placed on a structure still stands on that structure',()=>{
  s.parts.push(b);s._cache=null;C.syncCompartments(s);const g=s.fits.find(q=>q.id===f.id);g.p=top.slice();C.remount(s,{keepFitPose:true});
  assert.equal(g.float,false,'seated on the box top');assert.ok(Math.abs(g.base)<1e-3,`flat top: base ${g.base}`);
 });
+
+test('a design saved under the older rule keeps a turret that stood on an overlapping structure where it was',()=>{
+ const s=load('frigate'),f=s.fits.find(q=>q.mountSupport&&!q.float),fr=C.fitFrameOf(f),R=C.fitSpec(f).r;
+ s.parts.push(box(s,C.add(f.p,C.add(C.mul(fr.fw,R*.9),C.mul(fr.up,2))),6));const o=JSON.parse(JSON.stringify(C.serialize(s)));assert.equal(o.turretSupportRule,2);
+ delete o.turretSupportRule;for(const q of o.fits)delete q.supportLift;/* as saved before 2026-11-23 */
+ const old=C.deserialize(o);C.syncCompartments(old);C.remount(old,{keepFitPose:true});const g=old.fits.find(q=>q.id===f.id);
+ assert.equal(g.supportLift,true);assert.ok(Math.abs(g.base-5)<1e-3,`kept on the box top: ${g.base}`);assert.equal(old.fits.filter(q=>q.supportLift).length,1,'only the turret the box lifted');
+ const again=C.deserialize(JSON.parse(JSON.stringify(C.serialize(old))));C.syncCompartments(again);C.remount(again,{keepFitPose:true});assert.ok(Math.abs(again.fits.find(q=>q.id===f.id).base-5)<1e-3,'saved and loaded');
+ const h=again.fits.find(q=>q.id===f.id);delete h.supportLift;C.remount(again,{keepFitPose:true});assert.ok(Math.abs(h.base-f.base)<1e-6,'seated again on its own surface');
+});

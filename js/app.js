@@ -3718,7 +3718,7 @@ function baseFitEditor() {
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
     ${weaponMountIssue(it,C.fitUp(it))?`<p class="note neg" data-weapon-mount-error>${weaponMountIssue(it,C.fitUp(it))}</p>`:''}
     ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}${launcherPitchControls(it)}${craftGunSinkControls(it)}
-    ${fitPedestalControls(it)}<div class="pgroup" data-fit-color><h4>砲の色</h4><label>砲の色 <input type="color" data-fitpaint value="${it.paint||'#b8bec4'}"></label>${it.paint?'<button type="button" class="btn sm ghost" data-fitpaintclear>標準の色に戻す</button>':''}</div></div>`;
+    ${fitPedestalControls(it)}<div class="pgroup" data-fit-color><h4>砲の色</h4><label>砲の色 <input type="color" data-fitpaint value="${it.paint||'#b8bec4'}"></label>${it.paint?'<button type="button" class="btn sm ghost" data-fitpaintclear>標準の色に戻す</button>':''}</div>${it.supportLift?'<div class="pgroup" data-fit-support-lift><p class="note">この砲は以前の仕様で、上に重なった構造物の天面まで台座を上げて据えています。</p><button type="button" class="btn sm ghost" data-fitsupportlower>取り付け面に据え直す</button></div>':''}</div>`;
 }
 function partList() {
   const items = ship.parts.filter(p => !(p.tw && p.id > p.tw));
@@ -4592,7 +4592,7 @@ function fitLinks(f) {
   const out = []; if (tw) out.push({fit: tw, z: true, y: false}); if (vt) out.push({fit: vt, z: false, y: true}); if (vtw && vtw !== tw && vtw !== vt) out.push({fit: vtw, z: true, y: true});
   return out;
 }
-const FIT_SYNC_KEYS = ['paint', 'ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
+const FIT_SYNC_KEYS = ['paint', 'supportLift', 'ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
 function syncFitTwin(from, to, link) {
   if (to.k !== from.k) { to.k = from.k; for (const k of ['skinAsset', 'mountOffset', 'mountAxis']) if (from[k] === undefined) delete to[k]; }
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
@@ -4629,7 +4629,7 @@ function fitPedestalControls(f = null) {
 }
 // Switching from 編集 to 設置 keeps what was just being edited ready to place:
 // the same kind, size and settings, apart from where it sits.
-const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round'];
+const TEMPLATE_SKIP = ['id', 'supportLift', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round'];
 // v21 'scale' is not carried: the player cannot make a turret larger or smaller than its standard.
 const FIT_TEMPLATE_KEYS = ['width', 'sink', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
@@ -4746,6 +4746,7 @@ function bind() {
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
     else if ('desel' in d) { selClear(); xfReset(); renderPanel(); }
     else if ('partpaintclear' in d) { mutate('部品の色を標準に戻す', () => editSel(p => { delete p.paint; }), 'parts'); renderPanel(); }
+    else if ('fitsupportlower' in d) { mutate('砲を取り付け面に据え直す', () => editSel(f => { delete f.supportLift; }), 'fits'); renderPanel(); }
     else if ('fitpaintclear' in d) { mutate('砲の色を標準に戻す', () => editSel(f => { delete f.paint; }), 'fits'); renderPanel(); }
     else if ('fitpair' in d) { st.fitPairEdit = st.fitPairEdit === false; renderPanel(); refreshOverlay(); }
     else if ('delsel' in d) {
