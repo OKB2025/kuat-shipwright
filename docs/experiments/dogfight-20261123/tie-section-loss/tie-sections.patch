@@ -1,0 +1,57 @@
+From 4bab9068f98724efa85334fc78ac3b306755d0b3 Mon Sep 17 00:00:00 2001
+From: Codex <codex@users.noreply.github.com>
+Date: Tue, 24 Nov 2026 00:28:40 +0900
+Subject: [PATCH] Trial: TIE/ln and TIE/in lose a section on a penetrating hull
+ hit
+
+---
+ js/core.js | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/js/core.js b/js/core.js
+index 830f625..330c28b 100644
+--- a/js/core.js
++++ b/js/core.js
+@@ -99630,12 +99630,19 @@ function combatIonRounds(ctx,u,o){
+    (u.ionOff||(u.ionOff=[])).push({i,until:now+BLAST.ionOff,was:u.mods[i]});u.mods[i]=0;ctx.ev(u,`${mods[i].name} イオン魚雷で停止`);}}
+ }
+ function combatBlastAdd(inc,rounds,tt,src,aim=null,aimRange=0){if(inc&&rounds>0&&tt>0)inc.blasts.push({n:rounds,tt,src,...(aim&&aim!=='auto'?{aim,...(aimRange>0?{aimRange}:{})}:{})});}
++function fragileTieHull(u){
++ const key=u.p?.referencePhysicalRevision?.key;
++ return craftUnit(u)&&(u.key==='craft_tie_ln'||u.key==='craft_tie_in'||key==='craft_tie_ln'||key==='craft_tie_in');
++}
+ function combatBlast(ctx,u,o){
+  let hit=false;for(const bl of o.blasts||[]){let n=Math.floor(bl.n);if(ctx.rand()<bl.n-n)n++;
+   for(let i=0;i<n&&!u.dead;i++){const live=u.sec.map((x,si)=>u.secLost.includes(si)?0:x.max);let tot=live.reduce((a,b)=>a+b,0);if(!(tot>0))break;let r=ctx.rand()*tot,si=0,mod=-1;for(let j=0;j<live.length;j++){r-=live[j];if(r<=0){si=j;break;}}
+    // an aimed round (user decision 2026-11-19「エンジン、艦橋、主兵装、ターゲティングポットを狙う」) bursts on a part of that kind still
+    // working: the section is the part's, and the part takes the burst too
+    if(bl.aim&&(!(bl.aimRange>0)||!(aimMark(u.p,bl.aim)>0)||ctx.rand()<aimHold(u,bl.aim,bl.aimRange))/* physics review 2026-11-19: the aim holds as far as the launch range lets it (aimHold), as a gun's does */){const mods=u.p.modules||[],c=[];let w=0;for(let k=0;k<mods.length;k++)if(mods[k].k===bl.aim&&u.mods[k]>0&&!u.secLost.includes(u.secOf[k])&&!mods[k].pd){c.push(k);w+=mods[k].w||1;}if(c.length){let q=ctx.rand()*w;mod=c[0];for(const k of c){q-=mods[k].w||1;if(q<=0){mod=k;break;}}si=u.secOf[mod];}}
++   if(fragileTieHull(u)&&bl.tt>0){
++    combatSectionLost(ctx,u,si);combatStatus(ctx,u);hit=true;continue;
++   }
+    const sec=u.sec[si],mass=blastMassT(u.p,si,bl.tt??BLAST.torpedo.tt),E=PEN.eps*mass,share=Math.min(1,E/Math.max(1e-30,sec.max)),toPart=mod>=0&&u.p.modules[mod].k!=='bridge'/* v30 the bridge is a compartment inside like the others (user decision 2026-11-19「艦橋内部も区画化して他の内部区画と同様に」): a burst aimed at it lands on its section's structure and sets it on fire; no open layer is wrecked at a stroke */?Math.min(E,blastOpenTT(u.p,u.p.modules[mod])*clamp(u.mods[mod],0,1)):0/* physics review 2026-11-19: the part takes what its open layer still needs, the section's structure the rest: the two sum to the burst */;sec.s-=E-toPart;u.fire[si]=Math.max(u.fire[si]||0,BLAST.fire*Math.min(1,share/BLAST.fireAt));u.crew-=(u.p.crewNeed||0)*BLAST.crew*share/u.sec.length;hit=true;if(mod>=0&&toPart>0){const m=u.p.modules[mod],whole=modBreakTT(u.p,m),open=blastOpenTT(u.p,m);combatModuleDamage(ctx,u,mod,toPart*whole/Math.max(1e-30,open),hullBreakTT(u.p)*COMBAT.quantum,'shot');}/* v30 a warhead wrecks what of the part stands open to it (blastOpenTT), not the whole of it */
+    ctx.ev(u,`${SECTION_NAMES[si]||'区画'}に被雷・大火災`);if(sec.s<=0)combatSectionLost(ctx,u,si);combatStatus(ctx,u);}}
+  return hit;
+@@ -99851,6 +99858,19 @@ function combatResolve(ctx,u,o,dt,s){
+   if(pan>0&&all>0){const n=Math.max(1,Math.round(hullHit/shot));let through=0;for(let k=0;k<n;k++){let r=ctx.rand()*all;if(r>=pan){through++;continue;}
+     for(let i=0;i<mods.length;i++){if(!mods[i].panel)continue;r-=mods[i].w||0;if(r<0){if(u.mods[i]>0){u.mods[i]=0;ctx.ev(u,`${mods[i].name}に被弾・脱落`);}break;}}}
+    hullHit*=through/n;}}
++ // Trial: after the shield and detached-panel checks, one physical hull hit breaks its section.
++ if(hullHit>0&&!u.dead&&fragileTieHull(u)){
++  const pointHit=o.hits?.find(h=>h.point&&((h.direct||0)>0||(h.energy||h.hull||0)>(h.ion||0)));
++  let si;
++  if(pointHit)si=Math.floor(combatZoneAt(p,pointHit.point,hullHalf(p))/6);
++  else{
++   const weights=o.zw?.some(w=>w>0)?o.zw:Z.A;
++   let pick=ctx.rand()*weights.reduce((sum,w)=>sum+w,0);
++   const zone=weights.findIndex(w=>(pick-=w)<0);
++   si=Math.floor(Math.max(0,zone)/6);
++  }
++  combatSectionLost(ctx,u,si);combatStatus(ctx,u);return;
++ }
+  const surfaceZones=!!p.surface?.patches?.length;let recs=0;try{
+  if(hullHit>0&&typeof surfaceHit==='function')for(const hit of o.hits||[]){if(!hit.point)continue;const physical=Math.min(Math.max(0,hit.hull??((hit.energy||0)-(hit.ion||0))),Math.max(0,(hit.energy||0)-(hit.ion||0)))*(beamIncoming>0?beamLeak/beamIncoming:0)+Math.max(0,hit.direct||0),budget=Math.min(hullHit,physical);if(!(budget>0))continue;u.surfaceLastHit=null;const remaining=surfaceHit(ctx,u,hit.point,budget,'shot',surfaceZones),local=u.surfaceLastHit;
+   if(local?.handled){hullHit=Math.max(0,hullHit-budget);if(remaining>0){const rec=combatPenetrate(ctx,u,local.section,local.face,remaining,null,Q,shot);if(rec.path.length>0&&recs++<3)combatHitRecord(ctx,u,o,rec,local);}}else hullHit=Math.max(0,hullHit-Math.max(0,budget-remaining));}
+-- 
+2.56.1
+
