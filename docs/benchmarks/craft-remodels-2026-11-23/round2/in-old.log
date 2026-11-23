@@ -1,0 +1,12 @@
+== head-on: 4 x /tmp/ks-verify/20261123-remodel4/x-wing.tube.json (A) vs 4 x /tmp/ks-verify/20261123-remodel4/tie-in.tube.json (B), 10 runs: lost per run A 3.0 B 3.4; A wins 7, B wins 3, both lost 0, undecided in 300 s 0; mean time to decision 42.7 s; nearest 544.4 m; seconds on the other's tail A 0.9 B 0.8; seconds guns bearing A 31.3 B 33.8; greatest height off the start plane 2186.7 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 147, hit 58, spent 11, target lost first 62; rounds {"ptorp":147}; steps flown by guidance {"pursuit":3468}
+0s d=7395 A(279,2,3 hdg 4° 1111m/s) B(7674,3,-5 hdg -175° 1299m/s)
+5s d=2084 A(4978,22,1146 hdg 29° 807m/s) B(2960,150,1649 hdg -171° 920m/s)
+10s d=6578 A(7666,486,855 hdg -71° 457m/s) B(1258,1447,-278 hdg -63° 485m/s)
+15s d=5386 A(7264,1294,-339 hdg -160° 247m/s) B(2238,995,-2251 hdg -72° 427m/s)
+20s d=4411 A(6004,1380,-526 hdg -168° 282m/s) B(2106,1416,-2590 hdg -107° 352m/s)
+25s d=4128 A(4642,1322,-1070 hdg -154° 327m/s) B(1685,980,-3930 hdg -68° 242m/s)
+30s d=2972 A(3445,1154,-2010 hdg -121° 271m/s) B(2243,671,-4685 hdg -24° 186m/s)
+35s d=1777 A(3076,916,-3088 hdg -91° 207m/s) B(3083,396,-4787 hdg 20° 185m/s)
+   run 1: B 39.25 s T-65B Xウイング：後部区画 崩壊 | T-65B Xウイング：撃沈（船体破断）
+exit 0

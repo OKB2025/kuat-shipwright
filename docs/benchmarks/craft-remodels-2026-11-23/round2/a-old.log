@@ -1,0 +1,9 @@
+== head-on: 4 x /tmp/ks-verify/20261123-remodel4/x-wing.tube.json (A) vs 4 x craft_awing (B), 10 runs: lost per run A 4.0 B 0.6; A wins 0, B wins 10, both lost 0, undecided in 300 s 0; mean time to decision 27.1 s; nearest 642.1 m; seconds on the other's tail A 0.0 B 0.6; seconds guns bearing A 12.4 B 37.0; greatest height off the start plane 1667.8 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 89, hit 43, spent 16, target lost first 19; rounds {"cmsl":75,"ptorp":14}; steps flown by guidance {"pn":1013,"pursuit":318}
+0s d=7390 A(279,2,3 hdg 4° 1111m/s) B(7669,4,-6 hdg -175° 1317m/s)
+5s d=2296 A(5041,4,1015 hdg 8° 807m/s) B(2845,170,1662 hdg -172° 946m/s)
+10s d=6377 A(7488,325,-143 hdg -90° 458m/s) B(1252,1655,-254 hdg -61° 491m/s)
+15s d=4471 A(6746,598,-1633 hdg -130° 327m/s) B(4099,225,-5217 hdg -71° 317m/s)
+20s d=2744 A(5653,578,-2472 hdg -165° 227m/s) B(2997,728,-3145 hdg -47° 230m/s)
+   run 1: B 21.75 s T-65B Xウイング：戦闘不能（電源喪失） | T-65B Xウイング：撃沈（船体破断）
+exit 0
