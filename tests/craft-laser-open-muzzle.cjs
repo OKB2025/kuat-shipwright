@@ -12,3 +12,8 @@ test('the remodel\'s sunk chin guns are seated: their muzzles are clear',()=>{
 test('a laser buried with its muzzle inside the hull still counts as unseated',()=>{
  const o=raw(),f=o.fits.find(q=>q.id===404);f.p=[3.06,3.51,-.62];/* the middle of the pod: barrel and muzzle inside */const s=load(o);assert.equal(s.fits.find(q=>q.id===404).float,true);
 });
+
+test('the TIE/D remodel\'s chin lasers (placed directly, sunk 0.23 m into the pod with their muzzles clear) are seated',()=>{
+ const o=JSON.parse(fs.readFileSync(path.join(root,'docs/handoff-2026-11-20/refs/tie-d-remodel-2026-11-23.json'),'utf8')),s=load(o);
+ for(const id of [1008,1009])assert.equal(s.fits.find(f=>f.id===id).float,false,'#'+id);assert.equal(s.fits.filter(f=>f.float).length,0);
+});
