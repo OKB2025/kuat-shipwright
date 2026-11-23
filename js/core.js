@@ -77102,8 +77102,11 @@ for(const [k,name,role,col] of [['podBridge','艦橋ポッド','bridge',[172,223
 // measured from the drum on their fore face (both models have one).
 /* 2026-11-23 the Imperial bridge body (the user's remodel): commands alone, directs two squadrons at once and holds its own
    fire control and navigation computers (user: 「2コ飛行隊の同時管制能力と艦橋の構造物内部空間を射撃管制装置と航法計算装置系をつけこれ一個で指揮統制が可能な形に」) */
-const BRIDGE_BODY_COMMAND={isd_bridge:{role:'bridge',at:[.5,-.0374,0],airSquadrons:2,fireControl:true,navigation:true},isdh_bridge:{role:'bridge',at:[.5,-.025,0]},ven_bridge_stbd:{role:'bridge',at:[.5,-.207,0]},ven_bridge_port:{role:'air',at:[.5,-.207,0]}};
+/* rooms: compartments the body keeps inside itself, as a command pod keeps its command room (user 2026-11-23「内装で実際に中身に区画が出来るようにして」):
+   at and size are fractions of the body's box along its length, height and width */
+const BRIDGE_BODY_COMMAND={isd_bridge:{role:'bridge',at:[.5,-.0374,0],airSquadrons:2,fireControl:true,navigation:true,rooms:[{k:'firecontrol',label:'艦橋・射撃管制区画',at:[.08,-.05,-.12],size:[.26,.18,.16]},{k:'navComputer',label:'艦橋・航法計算区画',at:[.08,-.05,.12],size:[.26,.18,.16]}]},isdh_bridge:{role:'bridge',at:[.5,-.025,0]},ven_bridge_stbd:{role:'bridge',at:[.5,-.207,0]},ven_bridge_port:{role:'air',at:[.5,-.207,0]}};
 function isTractorControl(p){return !!p&&p.k==='sensor'&&(EQUIPMENT[p.equipmentId]?.tractorControl===true||/^isd_tractor_/.test(p.skinAsset||''));}
+function bridgeRoomReady(ship,host,k){const r=commandCompartments(ship).find(p=>p.bridgeRoom&&p.host===host&&p.k===k);return !!r&&partVolume(r)>=.5*r.requiredVolume;}
 function bridgeBodyRole(p){const d=isStructuralPart(p)&&p.form==='reference'&&BRIDGE_BODY_COMMAND[p.skinAsset];if(!d)return null;return ['bridge','air','hangar','combat'].includes(p.commandRole)?p.commandRole:d.role;}
 function podDepth(f){const a=REFERENCE_ASSETS[POD_ASSET];return (f.width||FITS[f.k].fm)*a.size[0]/a.size[2];}
 function podPoint(f,v){const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm;return add(f.p,add(add(mul(fr.up,(v[0]+.5)*podDepth(f)),mul(fr.rt,-v[1]*h)),mul(fr.fw,-v[2]*w)));}
@@ -82474,7 +82477,7 @@ function relocateImperialHangarControl(ship){
 const IMPERIAL_REMODEL_BRIDGE=[578,579,582,583,711,712,713,714,715,716,717,718,721,722],IMPERIAL_REMODEL_ANTENNA={imperial:[726,727,732,733,734,735,736],imperial2:[726,727]};
 function imperialRemodelDesign(key){
  if(typeof IMPERIAL_REMODEL!=='object'||!IMPERIAL_REMODEL)throw new Error('インペリアル級のリモデル設計がありません');
- const ship=deserialize(JSON.parse(JSON.stringify(IMPERIAL_REMODEL[key==='imperial2'?'ii':'i'])));ship.reference=key;
+ const ship=deserialize(JSON.parse(JSON.stringify(IMPERIAL_REMODEL[key==='imperial2'?'ii':'i'])));ship.reference=key;ship.name=(key==='imperial2'?'インペリアルII級':'インペリアルI級')+'｜重砲戦艦';
  const drop=new Set([...IMPERIAL_REMODEL_BRIDGE,...IMPERIAL_REMODEL_ANTENNA[key],724,725]);for(const id of drop)if(!ship.parts.some(p=>p.id===id))throw new Error('インペリアル級のリモデル設計に部品 #'+id+' がありません');
  const body=ship.parts.find(p=>p.id===50);if(!body)throw new Error('インペリアル級のリモデル設計に艦橋本体がありません');
  {const a=REFERENCE_ASSETS.isd_bridge,o=equipmentOptions('isdBridge');for(const k of ['mesh','loft','outline','taper','angles','yaw','pitch','roll','surfaceNormal','imported'])delete body[k];Object.assign(body,o,{c:a.c.slice(),s:[a.size[0],a.size[2],a.size[1]]});}
@@ -92294,16 +92297,18 @@ function replacePart(ship,p,k,mirror=true){
 
 const COMMAND_ROLES={bridge:'航行・艦隊指揮',combat:'戦闘指揮',air:'航空指揮',hangar:'格納庫管制'};
 function commandCompartments(ship){
- const fs=ship.fits.filter(f=>FITS[f.k]?.window&&!f.float&&f.commandEnabled!==false);
- const key=JSON.stringify(fs,(k,v)=>k.startsWith('_')?undefined:v)+JSON.stringify(fs.map(f=>f._wallUp));
+ const fs=ship.fits.filter(f=>FITS[f.k]?.window&&!f.float&&f.commandEnabled!==false),bodies=ship.parts.filter(p=>bridgeBodyRole(p)&&p.commandEnabled!==false&&BRIDGE_BODY_COMMAND[p.skinAsset]?.rooms);
+ const key=JSON.stringify(fs,(k,v)=>k.startsWith('_')?undefined:v)+JSON.stringify(fs.map(f=>f._wallUp))+JSON.stringify(bodies.map(p=>[p.id,p.c,p.s,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset]));
  if(ship._commands?.key===key)return ship._commands.parts;
  const parts=fs.map(f=>{const p=windowBay(f);p.commandRole=FITS[f.k].role;p.host=f.host;p.label=COMMAND_ROLES[p.commandRole]+'区画';p.requiredVolume=p.boxSize.reduce((a,b)=>a*b,1);return p;});
+ /* 2026-11-23 a bridge body's own rooms (BRIDGE_BODY_COMMAND rooms), in its frame and scaled with it */
+ for(const b of bodies){const d=BRIDGE_BODY_COMMAND[b.skinAsset],f=structFrame(b);d.rooms.forEach((r,i)=>{const at=[r.at[0]*b.s[0],r.at[1]*b.s[2],r.at[2]*b.s[1]],size=[r.size[0]*b.s[0],r.size[1]*b.s[2],r.size[2]*b.s[1]];parts.push({id:-110000-b.id*4-i,k:r.k,c:worldStruct(b,at),d:1,boxFrame:{fw:f.fw,up:f.up,rt:f.rt},boxSize:size,host:b.id,label:r.label,requiredVolume:size[0]*size[1]*size[2],bridgeRoom:true,autoFit:false});});}
  ship._commands={key,parts};return parts;
 }
 function commandStatus(ship,invalid=new Set()){
- const byFit={};for(const p of commandCompartments(ship)){const volume=partVolume(p),ratio=invalid.has(p.id)?0:clamp(volume/Math.max(1,p.requiredVolume),0,1);byFit[p.windowId]={id:p.id,volume,required:p.requiredVolume,ratio,host:p.host,role:p.commandRole,blocked:invalid.has(p.id)};}
+ const byFit={};for(const p of commandCompartments(ship)){if(p.bridgeRoom)continue;const volume=partVolume(p),ratio=invalid.has(p.id)?0:clamp(volume/Math.max(1,p.requiredVolume),0,1);byFit[p.windowId]={id:p.id,volume,required:p.requiredVolume,ratio,host:p.host,role:p.commandRole,blocked:invalid.has(p.id)};}
  // A model bridge body is its own command space.
- for(const f of intrinsicCommandFits(ship)){const ok=!invalid.has(f.host);byFit[f.id]={id:f.id,volume:0,required:0,ratio:ok?1:0,host:f.host,role:FITS[f.k].role,blocked:!ok,intrinsic:true,...(f._bodyCommand?.airSquadrons?{air:f._bodyCommand.airSquadrons}:{}),...(f._bodyCommand?.fireControl?{fireControl:true}:{}),...(f._bodyCommand?.navigation?{navigation:true}:{})};}
+ for(const f of intrinsicCommandFits(ship)){const ok=!invalid.has(f.host);byFit[f.id]={id:f.id,volume:0,required:0,ratio:ok?1:0,host:f.host,role:FITS[f.k].role,blocked:!ok,intrinsic:true,...(f._bodyCommand?.airSquadrons?{air:f._bodyCommand.airSquadrons}:{}),...(f._bodyCommand?.fireControl?{fireControl:bridgeRoomReady(ship,f.host,'firecontrol')}:{}),...(f._bodyCommand?.navigation?{navigation:bridgeRoomReady(ship,f.host,'navComputer')}:{})};}
  return byFit;
 }
 
@@ -92838,7 +92843,7 @@ function layoutStats(ship,S){
  S.habit=S.crew?S.crewCapacity/S.crew:1;S.crewAboard=Math.min(S.crew||0,S.crewCapacity);
  S.troopVolume=Math.max(0,S.habitableVolume-S.crewAboard*K);S.troopCapacity=Math.max(0,S.personCapacity-S.crewAboard);S.droidCapacity=Math.floor(S.troopVolume/DROID_STORE_M3);
  S.ground=groundStatus(ship,S);
- S.commandVolume=[...commandCompartments(ship),...ship.parts.filter(p=>p.k==='command')].reduce((n,p)=>n+partVolume(p),0);
+ S.commandVolume=[...commandCompartments(ship).filter(p=>!p.bridgeRoom),...ship.parts.filter(p=>p.k==='command')].reduce((n,p)=>n+partVolume(p),0);
  if(isCraft(ship))craftCrew(ship,S);
  S.warnings=S.warnings.filter(w=>!w.text.startsWith('居住区')&&w.code!=='habitation'&&w.code!=='ground-troops'&&w.code!=='automation'&&w.code!=='ground-vehicles'&&w.code!=='ground-lift');
  if(S.habit<1){const low=S.habit<FLEET_MIN_CREW;S.warnings.push({lv:low?'bad':'warn',code:'habitation',text:`船内の空き容積から武装の配電路 ${Math.round(S.feedVolume).toLocaleString()} m³ を除いた居住容積に乗れるのは ${S.crewCapacity.toLocaleString()} 名（1名あたり ${Math.round(K).toLocaleString()} m³）で、必要な乗員 ${S.crew.toLocaleString()} 名（うち武装 ${(S.weaponCrew||0).toLocaleString()} 名）に ${(S.crew-S.crewCapacity).toLocaleString()} 名足りません（${Math.round(S.habit*100)}%）。${low?'最低限の乗員にも届かず、戦闘では動けません。':'戦闘では射撃と応急が遅れます。'}武装を減らす・小さくするか、砲を反応炉の近くに置くと配電路が細く短くなります。区画を減らすか、船体・構造を大きくして空き容積を増やす方法もあります。`});}

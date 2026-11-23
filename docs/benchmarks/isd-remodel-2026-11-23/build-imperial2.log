@@ -1,0 +1,7 @@
+imperial2 ms 169415 parts 360 fits 50 mass 5.2021e+7 accel 20588 airCtl 0 fireControl true tractorControl true launch 1.241
+ equipment 50:isdBridge:ok 732:isdSensor:ok 733:isdSensor:ok 734:isdTractorII:ok
+ quad70Side 185 float false err 
+ quad70Side 186 float false err 
+ bridge rooms [{"k":"firecontrol","req":23929,"vol":23929,"c":[263,401,-32]},{"k":"navComputer","req":23929,"vol":23929,"c":[263,401,32]}] fireControl true
+ airCtl 3 floatingParts  float fits 153:pd floating parts 
+ warnings ["bad:取り付け面を失った装備が 1 基あります。","info:兵装の充電速度は機械的な最大連射の 30%。余剰電力に応じて再充電します。","warn:航行・艦隊指揮区画 #723 は外殻内の容積が不足しています（有効 94%）。","bad:給電経路のない設備が 2 系統あります（断線）。","warn:接続できない熱輸送路が 3 本あります（相手の設備がありません）。","info:最大出力で廃熱 1.88e24 W に対し変換 1.25e24 W、不足 6.24e23 W（最短 2 秒 で出力制限）。熱エネルギー変換装置を約 242,086 m³ 追加すると","warn:戦闘負荷で熱エネルギー変換装置への給電が 5.15e21 W 不足し、その分の熱を変換できません。"]
