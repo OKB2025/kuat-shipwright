@@ -1,0 +1,5 @@
+== head-on: 1 x craft_xwing (A) vs 1 x craft_tie_ln (B), 20 runs: lost per run A 0.0 B 1.0; A wins 20, B wins 0, both lost 0, undecided in 300 s 0; mean time to decision 3.5 s; nearest 418.0 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 3.0 B 2.3; greatest height off the start plane 231.2 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 20, hit 20, spent 0, target lost first 0; steps flown by guidance {"pn":120}
+0s d=7410 A(294,0,0 hdg 0° 1171m/s) B(7704,0,0 hdg 180° 1177m/s)
+   run 1: A 3.5 s TIE/ln 制宙戦闘機：戦闘不能（電源喪失） | TIE/ln 制宙戦闘機：撃沈（船体破断）
+exit 0

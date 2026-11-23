@@ -1,0 +1,5 @@
+== head-on: 1 x /tmp/ks-verify/20261123-remodel4/x-wing.clean.json (A) vs 1 x /tmp/ks-verify/20261123-remodel4/tie-ln.fix.json (B), 20 runs: lost per run A 1.0 B 1.0; A wins 0, B wins 0, both lost 20, undecided in 300 s 0; mean time to decision 3.3 s; nearest 561.0 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 2.3 B 2.3; greatest height off the start plane 219.4 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 40, hit 40, spent 0, target lost first 0; steps flown by guidance {"pn":200}
+0s d=7360 A(305,0,0 hdg 0° 1212m/s) B(7665,0,0 hdg 180° 1334m/s)
+   run 1: both 3.25 s TIE/ln 制宙戦闘機：艦尾区画 崩壊 | TIE/ln 制宙戦闘機：撃沈（船体破断）
+exit 0

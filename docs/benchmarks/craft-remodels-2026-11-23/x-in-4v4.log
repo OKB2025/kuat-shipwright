@@ -1,0 +1,10 @@
+== head-on: 4 x /tmp/ks-verify/20261123-remodel4/x-wing.clean.json (A) vs 4 x /tmp/ks-verify/20261123-remodel4/tie-in.fix.json (B), 10 runs: lost per run A 1.6 B 4.0; A wins 10, B wins 0, both lost 0, undecided in 300 s 0; mean time to decision 30.9 s; nearest 620.1 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 27.1 B 21.3; greatest height off the start plane 3097.2 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 100, hit 51, spent 21, target lost first 23; steps flown by guidance {"pn":1425}
+0s d=7356 A(299,2,4 hdg 4° 1190m/s) B(7655,4,-6 hdg -175° 1372m/s)
+5s d=2625 A(5253,12,1335 hdg 25° 848m/s) B(2685,71,1872 hdg -178° 965m/s)
+10s d=7131 A(8078,537,1059 hdg -65° 473m/s) B(1279,2686,1160 hdg -34° 468m/s)
+15s d=5677 A(7618,1758,310 hdg 171° 245m/s) B(2057,2828,-86 hdg -99° 325m/s)
+20s d=4480 A(6168,1947,292 hdg -157° 306m/s) B(2079,1773,-1530 hdg -45° 329m/s)
+25s d=2941 A(4795,1753,-469 hdg -144° 286m/s) B(2766,927,-2431 hdg -57° 0m/s)
+   run 1: A 28.75 s TIE/in インターセプター：後部区画 崩壊 | TIE/in インターセプター：撃沈（船体破断）
+exit 0
