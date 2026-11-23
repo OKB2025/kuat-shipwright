@@ -90351,6 +90351,13 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,travel=Math.min(distance,Math.max(0,m.range-m.traveled));if(distance>0)m.pos=add(m.pos,mul(velocity,seconds*travel/distance));m.traveled=Math.min(m.range,m.traveled+travel);};
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=mul(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
   const follow=flightDt-clear;if(follow>0&&m.traveled<m.range){const aim=sub(t.pos,m.pos),r=len(aim);let dir=norm(add(aim,mul(t.velocity||[0,0,0],r/Math.max(300,m.s))));
+   // 2026-11-23 Trial guidance (user: 「魚雷の誘導は単純追尾、ミサイルの誘導は比例誘導 n_c=N'·v_c·λ̇ … で試験環境に実装して」). Opt-in for
+   // the Node simulators only (globalThis.KS_GUIDANCE==='pn'; the game never sets it): a torpedo flies pure pursuit (at where the
+   // target is), a missile proportional navigation: lateral acceleration N'·Vc·λ̇ square to the line of sight, N' = KS_PN_N (3).
+   // Both keep the round's turn limit below (MISSILE_FLIGHT.turn: at most that many rad/s, i.e. turn·speed of lateral acceleration).
+   if(globalThis.KS_GUIDANCE==='pn'&&r>1e-6){const torp=!!m.torp||isTorpedoRound(m.kind);if(torp){dir=norm(aim);m.guide='pursuit';}else{
+    const vm=len(m.vel)>1?m.vel:mul(norm(aim),m.s),vr=sub(t.velocity||[0,0,0],vm),u=mul(aim,1/r),w=mul(cross(aim,vr),1/(r*r))/* λ̇: the line of sight's angular velocity, rad/s */,vc=-dot(vr,u)/* closing speed */,N=Number.isFinite(globalThis.KS_PN_N)?globalThis.KS_PN_N:3,acc=mul(cross(w,u),N*vc)/* n_c = N'·Vc·λ̇, square to the line of sight */;
+    dir=norm(add(vm,mul(acc,follow)));m.guide='pn';m.pnMaxG=Math.max(m.pnMaxG||0,len(acc)/9.80665);}}
    // v30 A round turns only so fast (MISSILE_FLIGHT.turn rad/s): a ship cannot get out of its way, a craft that turns hard inside
    // its circle can (user decision 2026-11-19: concussion missiles may be fired at craft).
    {const was=len(m.vel)>1?norm(m.vel):dir,ang=Math.acos(clamp(dot(was,dir),-1,1)),max=MISSILE_FLIGHT.turn*follow;if(ang>max&&ang>1e-6)dir=norm(add(mul(was,1-max/ang),mul(dir,max/ang)));}

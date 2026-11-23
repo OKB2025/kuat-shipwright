@@ -12,7 +12,7 @@
 // the action up, gives the ships their orders as the fleet battle's AI does (each attacks the nearest effective enemy ship; a
 // fleet that judges it can win presses), and reports. The craft start beside their ship: the launch is not flown. Nobody re-arms.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
-const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
+const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createContext({console:{log(){},warn(){},error:console.error},/* 2026-11-23 trial guidance: KS_GUIDANCE=pn (torpedoes pure pursuit, missiles proportional navigation), KS_PN_N=N' */...(process.env.KS_GUIDANCE?{KS_GUIDANCE:process.env.KS_GUIDANCE}:{}),...(Number.isFinite(+process.env.KS_PN_N)&&process.env.KS_PN_N?{KS_PN_N:+process.env.KS_PN_N}:{})});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx),plain=x=>JSON.parse(JSON.stringify(x));
 const RUNS=+(process.argv[2]||3),WING=+(process.env.KS_WING??1),START=+(process.env.KS_START||80000),LIMIT=+(process.env.KS_LIMIT||900),STEP=.25,PRESSAI=process.env.KS_PRESS!=='0';
