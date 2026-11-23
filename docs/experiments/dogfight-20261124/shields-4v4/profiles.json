@@ -1,0 +1,34 @@
+[
+  {
+    "craft": "craft_xwing",
+    "shieldMaxTT": 1.3964307071647202e-7,
+    "shieldMaxKt": 139.643070716472,
+    "generatorVolumeM3": 0.33303814281195154,
+    "massKg": 32396.123993381436,
+    "missiles": 12
+  },
+  {
+    "craft": "craft_tie_ln",
+    "shieldMaxTT": 0,
+    "shieldMaxKt": 0,
+    "generatorVolumeM3": 0,
+    "massKg": 15182.48952569219,
+    "missiles": 6
+  },
+  {
+    "craft": "craft_tie_in",
+    "shieldMaxTT": 0,
+    "shieldMaxKt": 0,
+    "generatorVolumeM3": 0,
+    "massKg": 19903.58533675694,
+    "missiles": 6
+  },
+  {
+    "craft": "craft_tie_d",
+    "shieldMaxTT": 1.601083488250946e-7,
+    "shieldMaxKt": 160.1083488250946,
+    "generatorVolumeM3": 0.35681790480452386,
+    "massKg": 24100.885330955858,
+    "missiles": 12
+  }
+]

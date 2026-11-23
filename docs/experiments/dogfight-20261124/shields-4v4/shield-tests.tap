@@ -1,0 +1,12 @@
+✔ a generator of the X-wing remodel size gives the X-wing field whatever the hull length (4.684887ms)
+✔ a generator twice as wide stands for a craft twice as long, a smaller one for a shorter craft (0.45321ms)
+✔ without generator modules the hull length is used, and ships of blendLen and over keep their curve (0.434008ms)
+✔ the examples: A-wing above, Z-95 below their length rule, X-wing unchanged (36437.921992ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38873.081773
