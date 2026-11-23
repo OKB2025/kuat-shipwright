@@ -99843,12 +99843,16 @@ function combatResolve(ctx,u,o,dt,s){
  const shot=combatShotTT(o);ctx.shot=shot;let hullHit=beamLeak*(beamIncoming>0?Math.min(beamIncoming,Math.max(0,o.hull||0))/beamIncoming:0)+o.direct;
  // v30 Fire lands in whole shots. When the step's expected fire on the hull is less than one shot, one shot lands with that chance
  // (user decision 2026-11-18: a hit on a TIE's pod destroys it at once; a fraction of a bolt each step must not do it instead).
- if(shot>0&&hullHit>0&&hullHit<shot)hullHit=ctx.rand()<hullHit/shot?shot:0;
+ // 2026-11-23 (user: 「ばらつき度を狭めて」) A craft's chance of a whole shot is carried over between steps (u.shotAcc, started at a
+ // random phase between .3 and .7): a shot lands each time the expected fire adds up to one, so the mean is kept and the spread is a shot at most.
+ if(shot>0&&hullHit>0&&hullHit<shot){if(craftUnit(u)){if(u.shotAcc==null)u.shotAcc=.3+.4*ctx.rand();u.shotAcc+=hullHit/shot;if(u.shotAcc>=1){u.shotAcc-=1;hullHit=shot;}else hullHit=0;}else hullHit=ctx.rand()<hullHit/shot?shot:0;}
  // v30 Panels (user decision 2026-11-19「パネルに当たった場合はパネルの耐久で1発は耐えるようにして」): a craft's panels stand off its hull
  // and make up most of what a shot can strike. A shot that lands on a panel takes that panel and goes no further: the craft lives
  // through it. Where a panel has already gone there is nothing left to hit. Each shot's place is drawn by the modules' sizes.
  if(shot>0&&hullHit>0&&craftUnit(u)){const mods=p.modules||[];let all=0,pan=0;for(const m of mods){if(m.k==='hull')continue;all+=m.w||0;if(m.panel)pan+=m.w||0;}
-  if(pan>0&&all>0){const n=Math.max(1,Math.round(hullHit/shot));let through=0;for(let k=0;k<n;k++){let r=ctx.rand()*all;if(r>=pan){through++;continue;}
+  // 2026-11-23 (user: 「ばらつき度を狭めて」) Whether a shot strikes a panel or goes through is carried over in the same way (u.panelAcc,
+  // the panels' share of the struck area per shot); which panel it strikes is still drawn by their sizes.
+  if(pan>0&&all>0){const n=Math.max(1,Math.round(hullHit/shot));let through=0;for(let k=0;k<n;k++){if(u.panelAcc==null)u.panelAcc=.3+.4*ctx.rand();u.panelAcc+=pan/all;if(u.panelAcc<1){through++;continue;}u.panelAcc-=1;let r=ctx.rand()*pan;
     for(let i=0;i<mods.length;i++){if(!mods[i].panel)continue;r-=mods[i].w||0;if(r<0){if(u.mods[i]>0){u.mods[i]=0;ctx.ev(u,`${mods[i].name}に被弾・脱落`);}break;}}}
    hullHit*=through/n;}}
  const surfaceZones=!!p.surface?.patches?.length;let recs=0;try{

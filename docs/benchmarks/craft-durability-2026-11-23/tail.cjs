@@ -8,4 +8,4 @@ function run(ak,tk,dist,seed){const a=C.fleetUnit('a',ak,P(ak),0),t=C.fleetUnit(
  let tb=null,tk2=null;const sh0=t.shieldMax||0;for(let i=0;i<240;i++){C.fleetTick(B,.25);const T=B.units.find(u=>u.id==='t');if(tb==null&&sh0>0&&T.shield<=sh0*1e-6)tb=B.time;if(T.dead){tk2=B.time;break;}}
  return {tb,tk:tk2};}
 const pairs=[['craft_tie_ln','craft_xwing'],['craft_tie_in','craft_xwing'],['craft_tie_d','craft_xwing'],['craft_xwing','craft_tie_ln'],['craft_xwing','craft_tie_in'],['craft_xwing','craft_tie_d'],['craft_tie_ln','craft_awing'],['craft_awing','craft_tie_ln'],['craft_tie_ln','craft_tie_ln'],['craft_tie_ln','craft_btlb']];
-for(const [a,t] of pairs)for(const d of [150,300,600]){const r=[1,2,3].map(s=>run(a,t,d,s));const f=x=>x==null?'—':x.toFixed(1);console.log(`${a} → ${t} ${d} m: shield breaks ${r.map(x=>f(x.tb)).join('/')} s, lost ${r.map(x=>f(x.tk)).join('/')} s`);}
+for(const [a,t] of pairs)for(const d of [150,300,600]){const r=[1,2,3,4,5].map(s=>run(a,t,d,s));const f=x=>x==null?'—':x.toFixed(1);console.log(`${a} → ${t} ${d} m: shield breaks ${r.map(x=>f(x.tb)).join('/')} s, lost ${r.map(x=>f(x.tk)).join('/')} s`);}
