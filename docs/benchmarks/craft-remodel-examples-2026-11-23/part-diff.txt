@@ -1,4 +1,4 @@
-== craft_xwing (x-wing-remodel-2026-11-23.json): parts 138 → 138, only in reference [], only in example []
+== craft_xwing (x-wing-remodel-2026-11-23b.json): parts 142 → 142, only in reference [], only in example []
   parts changed: []
   fits changed (id, kind before, kind after, position before/after, normal before/after): [(46, 'cpylon', 'ctorp', ([8.84, 1.68, 0.6815752340228829], [8.748, 1.68, 0.2866]), None), (47, 'cpylon', 'ctorp', ([8.84, 1.68, -0.6815752340228829], [8.748, 1.68, -0.2866]), None)]
 == craft_tie_ln (tie-ln-remodel-2026-11-23.json): parts 63 → 63, only in reference [], only in example []

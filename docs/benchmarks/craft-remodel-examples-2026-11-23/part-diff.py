@@ -2,7 +2,7 @@
 # docs/handoff-2026-11-20/refs/: parts by id (k, c, s, form, yaw, pitch, roll; an unset rotation equals 0) and fits by id
 # (k, p, n). usage: python3 docs/benchmarks/craft-remodel-examples-2026-11-23/part-diff.py > part-diff.txt
 import json,gzip
-refs={'craft_xwing':'x-wing-remodel-2026-11-23.json','craft_tie_ln':'tie-ln-remodel-2026-11-23.json','craft_tie_in':'tie-in-remodel-2026-11-23c.json','craft_awing':'a-wing-remodel-2026-11-23.json','craft_tie_d':'tie-d-remodel-2026-11-23c.json'}
+refs={'craft_xwing':'x-wing-remodel-2026-11-23b.json','craft_tie_ln':'tie-ln-remodel-2026-11-23.json','craft_tie_in':'tie-in-remodel-2026-11-23c.json','craft_awing':'a-wing-remodel-2026-11-23.json','craft_tie_d':'tie-d-remodel-2026-11-23c.json'}
 def close(a,b,t=1e-6):
     if a is None and b==0:return True
     if isinstance(a,list) and isinstance(b,list):return len(a)==len(b) and all(close(x,y,t) for x,y in zip(a,b))

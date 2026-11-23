@@ -74689,17 +74689,17 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1q15mvr",
-   "build": 175600,
+   "signature": "ykyhox",
+   "build": 187600,
    "crew": 1000,
-   "total": 176600,
+   "total": 188600,
    "by": {
     "hull": 36,
     "armor": 13,
-    "power": 16748,
-    "drive": 74197,
+    "power": 16749,
+    "drive": 86197,
     "defense": 13502,
-    "command": 20503,
+    "command": 20502,
     "weapons": 33600,
     "systems": 17001,
     "crew": 1000
@@ -74708,7 +74708,7 @@ const CRAFT_PRICE_CATALOG={
    "systems": {
     "v": 1,
     "managed": true,
-    "power": 43723611900000000,
+    "power": 68057611900000000,
     "crew": 1,
     "suitSeats": 0,
     "lifeSupportCapacity": 1,
@@ -74717,13 +74717,13 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.7179404656473949,
+    "navDemand": 0.7169694952149324,
     "navReady": true,
     "targetDemand": 6,
     "targetCapacity": 7.44775,
     "targetRatio": 1,
     "fireK": 1,
-    "maneuverSupport": 80.668,
+    "maneuverSupport": 129.336,
     "maneuverRatio": 1,
     "turnK": 1,
     "laserUnits": 4,
@@ -74736,7 +74736,7 @@ const CRAFT_PRICE_CATALOG={
    },
    "heat": {
     "up": 0,
-    "upS": 1.2373837187013705e-16,
+    "upS": 0,
     "down": 0.01,
     "T": 1
    },
@@ -74890,10 +74890,10 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "核融合炉",
-      "w": 0.6264545316985788,
+      "w": 0.627143884354721,
       "hits": 1,
-      "crew": 0.00009916634999407543,
-      "size": 0.49583174997037716,
+      "crew": 0.00009933007948899126,
+      "size": 0.4966503974449563,
       "at": 0.189,
       "part": 30,
       "y": -0.07,
@@ -74984,7 +74984,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.07,
       "z": 0,
       "r": 0.036,
-      "share": 0.5768082974350828,
+      "share": 0.5598009444679274,
       "domain": "main",
       "port": "p35",
       "powerConnected": true
@@ -75001,7 +75001,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.46,
       "z": 0,
       "r": 0.018,
-      "share": 0.06741432312966829,
+      "share": 0.06542659307514845,
       "domain": "main",
       "port": "p36",
       "powerConnected": true
@@ -75035,7 +75035,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.1,
       "z": 0,
       "r": 0.017,
-      "share": 0.06371756679223047,
+      "share": 0.061838836625791205,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -75077,16 +75077,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "dissipator",
       "name": "熱エネルギー変換装置",
-      "w": 0.07817616000000002,
+      "w": 0.12960000000000002,
       "hits": 1,
-      "crew": 0.0000010929027168000002,
-      "size": 0.021858054336000004,
+      "crew": 0.0000023328,
+      "size": 0.046655999999999996,
       "at": 0.802,
       "part": 41,
       "y": 0.07,
       "z": 0,
-      "r": 0.01,
-      "share": 0.005762384213531343,
+      "r": 0.013,
+      "share": 0.012219917886689613,
       "domain": "main",
       "port": "p41",
       "powerConnected": true
@@ -75103,7 +75103,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.014,
-      "share": 0.03162021153903514,
+      "share": 0.030687880813329838,
       "domain": "main",
       "port": "p68",
       "powerConnected": true
@@ -75120,7 +75120,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.26,
       "z": 0,
       "r": 0.011,
-      "share": 0.015224869982538605,
+      "share": 0.014775960459524637,
       "domain": "main",
       "port": "p69",
       "powerConnected": true
@@ -75137,7 +75137,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.007,
-      "share": 0.004994012048887157,
+      "share": 0.004846762215597078,
       "domain": "main",
       "port": "p70",
       "powerConnected": true
@@ -75154,7 +75154,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.07,
       "z": 0,
       "r": 0.008,
-      "share": 0.006647030037068805,
+      "share": 0.0064510405089597085,
       "domain": "main",
       "port": "p71",
       "powerConnected": true
@@ -75171,7 +75171,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": -0.07,
       "r": 0.012,
-      "share": 0.01859707661854966,
+      "share": 0.018048736645606564,
       "domain": "main",
       "port": "p72",
       "powerConnected": true
@@ -75188,7 +75188,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0.05,
       "r": 0.007,
-      "share": 0.004994012048887157,
+      "share": 0.004846762215597078,
       "domain": "main",
       "port": "p73",
       "powerConnected": true
@@ -75205,7 +75205,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.22,
       "z": 0,
       "r": 0.007,
-      "share": 0.004994012048887157,
+      "share": 0.004846762215597078,
       "domain": "main",
       "port": "p74",
       "powerConnected": true
@@ -75222,7 +75222,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.01,
       "z": 0,
       "r": 0.007,
-      "share": 0.004994012048887157,
+      "share": 0.004846762215597078,
       "domain": "main",
       "port": "p75",
       "powerConnected": true
@@ -75239,7 +75239,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": -0.02,
       "r": 0.007,
-      "share": 0.004994012048887157,
+      "share": 0.004846762215597078,
       "domain": "main",
       "port": "p76",
       "powerConnected": true
@@ -75256,7 +75256,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.013,
-      "share": 0.026764783324504597,
+      "share": 0.025975616249215575,
       "domain": "main",
       "port": "p77",
       "powerConnected": true
@@ -75273,7 +75273,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.32,
       "z": 0,
       "r": 0.013,
-      "share": 0.026764783324504597,
+      "share": 0.025975616249215575,
       "domain": "main",
       "port": "p78",
       "powerConnected": true
@@ -75290,7 +75290,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": -0.05,
       "r": 0.015,
-      "share": 0.03702997509099216,
+      "share": 0.03593813598337538,
       "domain": "main",
       "port": "p79",
       "powerConnected": true
@@ -75307,7 +75307,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0.05,
       "r": 0.015,
-      "share": 0.03702997509099216,
+      "share": 0.03593813598337538,
       "domain": "main",
       "port": "p80",
       "powerConnected": true
@@ -75324,7 +75324,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.35,
       "z": 0,
       "r": 0.015,
-      "share": 0.03702997509099216,
+      "share": 0.03593813598337538,
       "domain": "main",
       "port": "p81",
       "powerConnected": true
@@ -75341,7 +75341,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.017,
-      "share": 0.02549344444684817,
+      "share": 0.025327865541618266,
       "domain": "main",
       "port": "p82",
       "powerConnected": true
@@ -75358,7 +75358,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.17,
       "z": 0,
       "r": 0.017,
-      "share": 0.0254934312047799,
+      "share": 0.025327852385556703,
       "domain": "main",
       "port": "p83",
       "powerConnected": true
@@ -75375,7 +75375,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.17,
       "z": 0,
       "r": 0.017,
-      "share": 0.0254934312047799,
+      "share": 0.025327852385556703,
       "domain": "main",
       "port": "p84",
       "powerConnected": true
@@ -75392,7 +75392,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.14,
       "z": -0.08,
       "r": 0.013,
-      "share": 0.010681245485383267,
+      "share": 0.010611871221829005,
       "domain": "main",
       "port": "p85",
       "powerConnected": true
@@ -75409,7 +75409,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": -0.08,
       "r": 0.009,
-      "share": 0.007595268074851254,
+      "share": 0.0073713194846462046,
       "domain": "main",
       "port": "p158",
       "powerConnected": true
@@ -75426,7 +75426,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0.08,
       "r": 0.009,
-      "share": 0.007595268074851254,
+      "share": 0.0073713194846462046,
       "domain": "main",
       "port": "p159",
       "powerConnected": true
@@ -75443,7 +75443,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": -0.09,
       "r": 0.009,
-      "share": 0.007595268074851254,
+      "share": 0.0073713194846462046,
       "domain": "main",
       "port": "p160",
       "powerConnected": true
@@ -75460,9 +75460,77 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0.09,
       "r": 0.009,
-      "share": 0.007595268074851254,
+      "share": 0.0073713194846462046,
       "domain": "main",
       "port": "p161",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "機首左舷 姿勢制御スラスター",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.834,
+      "part": 168,
+      "y": 0.07,
+      "z": -0.03,
+      "r": 0.009,
+      "share": 0.0073713194846462046,
+      "domain": "main",
+      "port": "p168",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "機首右舷 姿勢制御スラスター",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.834,
+      "part": 169,
+      "y": 0.07,
+      "z": 0.03,
+      "r": 0.009,
+      "share": 0.0073713194846462046,
+      "domain": "main",
+      "port": "p169",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "尾部左舷 姿勢制御スラスター",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.107,
+      "part": 170,
+      "y": -0.07,
+      "z": -0.11,
+      "r": 0.009,
+      "share": 0.0073713194846462046,
+      "domain": "main",
+      "port": "p170",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "尾部右舷 姿勢制御スラスター",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.107,
+      "part": 171,
+      "y": -0.07,
+      "z": 0.11,
+      "r": 0.009,
+      "share": 0.0073713194846462046,
+      "domain": "main",
+      "port": "p171",
       "powerConnected": true
      },
      {
@@ -75550,7 +75618,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.32,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.22676899701760062,
+      "share": 0.2252961414235069,
       "domain": "main",
       "port": "p2",
       "powerConnected": true
@@ -75568,7 +75636,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.32,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.22676899630516556,
+      "share": 0.2252961407156991,
       "domain": "main",
       "port": "p3",
       "powerConnected": true
@@ -75586,7 +75654,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.32,
       "z": 0.53,
       "r": 0.036,
-      "share": 0.22676903337061666,
+      "share": 0.22529617754041156,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -75604,7 +75672,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.32,
       "z": -0.53,
       "r": 0.036,
-      "share": 0.22676903675129467,
+      "share": 0.22529618089913223,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -75612,15 +75680,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 1.1475478285552407,
+      "w": 1.1463055574118408,
       "hits": 1,
       "crew": 0,
-      "size": 21.160177415745743,
-      "at": 0.179,
+      "size": 21.12582647838252,
+      "at": 0.18,
       "y": -0.01,
       "z": 0,
       "r": 0.103,
-      "share": 0.49142401276426007,
+      "share": 0.49141030763084304,
       "domain": "main"
      },
      {
@@ -75634,7 +75702,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.095,
-      "share": 0.3849222177901874,
+      "share": 0.38553735517379145,
       "domain": "main"
      },
      {
@@ -75643,32 +75711,32 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.36829486965882113,
       "hits": 1,
       "crew": 0,
-      "size": 3.8473049846810436,
+      "size": 3.847304984681044,
       "at": 0.614,
       "y": 0.06,
       "z": 0,
       "r": 0.059,
-      "share": 0.08934982050259273,
+      "share": 0.08949260886935677,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.19454912914434305,
+      "w": 0.19152105012258083,
       "hits": 1,
       "crew": 0,
-      "size": 1.4770903066186152,
+      "size": 1.4427393692553916,
       "at": 0.848,
       "y": 0.05,
       "z": 0,
-      "r": 0.043,
-      "share": 0.03430394894295971,
+      "r": 0.042,
+      "share": 0.03355972832600879,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 17.53914142703136,
+      "w": 17.694807132525945,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -75688,8 +75756,8 @@ const CRAFT_PRICE_CATALOG={
      "capacityKnown": true,
      "volumeM3": 0.1583362697409256,
      "massKg": 39.5840674352314,
-     "capacityJ": 4.596533617204676e+22,
-     "specificEnergyJPerKg": 1.1612080099463396e+21,
+     "capacityJ": 4.6039388742222134e+22,
+     "specificEnergyJPerKg": 1.1630787770244461e+21,
      "basis": "installed-reactant-volume"
     },
     "crewCapacity": 1,
@@ -75734,23 +75802,23 @@ const CRAFT_PRICE_CATALOG={
      "version": 3
     },
     "grid": {
-     "P": 2596672714972992500,
-     "fixed": 60104558969729360,
-     "cooling": 9710965270557376,
-     "De": 2596672714972992500,
+     "P": 2600959974835937000,
+     "fixed": 84838228258376590,
+     "cooling": 10110634559204604,
+     "De": 2600959974835937000,
      "Ds": 1576791719299720700,
      "Dw": 2836800000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2596672714972992500,
+       "P": 2600959974835937000,
        "reactors": [
         6
        ],
        "sources": [
         {
          "moduleIndex": 6,
-         "P": 2596672714972992500
+         "P": 2600959974835937000
         }
        ],
        "modules": [
@@ -75806,7 +75874,11 @@ const CRAFT_PRICE_CATALOG={
         49,
         50,
         51,
-        52
+        52,
+        53,
+        54,
+        55,
+        56
        ],
        "protection": 1
       }
@@ -75816,7 +75888,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "hotel",
-       "cap": 50393593699171980,
+       "cap": 74727593699171980,
        "auto": true,
        "ok": true,
        "routeId": "p30>hotel",
@@ -75876,7 +75948,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p35",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p35",
@@ -75888,7 +75960,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p36",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p36",
@@ -75900,7 +75972,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p37",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p37",
@@ -75912,7 +75984,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p38",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p38",
@@ -75924,7 +75996,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p40",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p40",
@@ -75936,7 +76008,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p68",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p68",
@@ -75948,7 +76020,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p69",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p69",
@@ -75960,7 +76032,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p70",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p70",
@@ -75972,7 +76044,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p71",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p71",
@@ -75984,7 +76056,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p72",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p72",
@@ -75996,7 +76068,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p73",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p73",
@@ -76008,7 +76080,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p74",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p74",
@@ -76020,7 +76092,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p75",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p75",
@@ -76032,7 +76104,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p76",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p76",
@@ -76044,7 +76116,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p77",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p77",
@@ -76056,7 +76128,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p78",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p78",
@@ -76068,7 +76140,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p79",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p79",
@@ -76080,7 +76152,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p80",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p80",
@@ -76092,7 +76164,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p81",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p81",
@@ -76104,7 +76176,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p158",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p158",
@@ -76116,7 +76188,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p159",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p159",
@@ -76128,7 +76200,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p160",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p160",
@@ -76140,13 +76212,61 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p161",
-       "cap": 1799771203541856.5,
+       "cap": 2335237303099124.5,
        "auto": true,
        "ok": true,
        "routeId": "p30>p161",
        "model": "source-distance",
        "lengthM": 0.8346256645946135,
        "efficiency": 0.999991653778184
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p168",
+       "cap": 2335237303099124.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p168",
+       "model": "source-distance",
+       "lengthM": 8.63679483373317,
+       "efficiency": 0.9999136357812666
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p169",
+       "cap": 2335237303099124.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p169",
+       "model": "source-distance",
+       "lengthM": 8.63679483373317,
+       "efficiency": 0.9999136357812666
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p170",
+       "cap": 2335237303099124.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p170",
+       "model": "source-distance",
+       "lengthM": 1.287982919141399,
+       "efficiency": 0.9999871202537532
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p171",
+       "cap": 2335237303099124.5,
+       "auto": true,
+       "ok": true,
+       "routeId": "p30>p171",
+       "model": "source-distance",
+       "lengthM": 1.287982919141399,
+       "efficiency": 0.9999871202537532
       },
       {
        "kind": "power",
@@ -76236,7 +76356,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p41",
-       "cap": 858530337661100.9,
+       "cap": 1832532338797655.2,
        "auto": false,
        "ok": true,
        "routeId": "p30>p41",
@@ -76296,11 +76416,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p31",
-       "cap": 3635341800962189300,
+       "cap": 3641343964770311000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p31",
-       "groupCap": 3635341800962189300,
+       "groupCap": 3641343964770311000,
        "routeId": "p30>p31",
        "model": "source-distance",
        "lengthM": 1.9068029601619285,
@@ -76310,11 +76430,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p32",
-       "cap": 3635341800962189300,
+       "cap": 3641343964770311000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p32",
-       "groupCap": 3635341800962189300,
+       "groupCap": 3641343964770311000,
        "routeId": "p30>p32",
        "model": "source-distance",
        "lengthM": 1.9068029601619285,
@@ -76324,11 +76444,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p33",
-       "cap": 3635341800962189300,
+       "cap": 3641343964770311000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p33",
-       "groupCap": 3635341800962189300,
+       "groupCap": 3641343964770311000,
        "routeId": "p30>p33",
        "model": "source-distance",
        "lengthM": 1.7335181163759852,
@@ -76338,11 +76458,11 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p34",
-       "cap": 3635341800962189300,
+       "cap": 3641343964770311000,
        "auto": true,
        "ok": true,
        "capacityGroup": "p30>p34",
-       "groupCap": 3635341800962189300,
+       "groupCap": 3641343964770311000,
        "routeId": "p30>p34",
        "model": "source-distance",
        "lengthM": 1.7335181163759852,
@@ -76354,7 +76474,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 50393593699171980,
+       "weight": 74727593699171980,
        "domain": "main"
       }
      ],
@@ -76362,7 +76482,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "id": "p41",
        "port": "p41",
-       "weight": 858530337661100.9,
+       "weight": 1832532338797655.2,
        "domain": "main"
       },
       {
@@ -76423,23 +76543,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76450,10 +76570,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76461,9 +76581,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76481,11 +76601,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 7,
-       "machineryModuleIndex": 40,
+       "machineryModuleIndex": 44,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500,
+       "pathCapacityW": 2600959974835937000,
        "transmissionRouteIds": [
         "p30>p31"
        ]
@@ -76493,23 +76613,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76520,10 +76640,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76531,9 +76651,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76551,11 +76671,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 8,
-       "machineryModuleIndex": 41,
+       "machineryModuleIndex": 45,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500,
+       "pathCapacityW": 2600959974835937000,
        "transmissionRouteIds": [
         "p30>p32"
        ]
@@ -76563,23 +76683,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76590,10 +76710,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76601,9 +76721,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76621,11 +76741,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 42,
+       "machineryModuleIndex": 46,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500,
+       "pathCapacityW": 2600959974835937000,
        "transmissionRouteIds": [
         "p30>p33"
        ]
@@ -76633,23 +76753,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76660,10 +76780,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76671,9 +76791,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76691,11 +76811,11 @@ const CRAFT_PRICE_CATALOG={
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 43,
+       "machineryModuleIndex": 47,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500,
+       "pathCapacityW": 2600959974835937000,
        "transmissionRouteIds": [
         "p30>p34"
        ]
@@ -76705,23 +76825,23 @@ const CRAFT_PRICE_CATALOG={
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76732,10 +76852,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76743,9 +76863,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76764,7 +76884,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 7,
        "coreModuleIndex": 7,
-       "machineryModuleIndex": 40,
+       "machineryModuleIndex": 44,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 554176944093239500000,
        "shaftCapacityW": 554176944093239500000,
@@ -76773,28 +76893,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500
+       "pathCapacityW": 2600959974835937000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76805,10 +76925,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76816,9 +76936,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76837,7 +76957,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 8,
        "coreModuleIndex": 8,
-       "machineryModuleIndex": 41,
+       "machineryModuleIndex": 45,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 554176944093239500000,
        "shaftCapacityW": 554176944093239500000,
@@ -76846,28 +76966,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500
+       "pathCapacityW": 2600959974835937000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76878,10 +76998,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76889,9 +77009,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76910,7 +77030,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 9,
        "coreModuleIndex": 9,
-       "machineryModuleIndex": 42,
+       "machineryModuleIndex": 46,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 554176944093239500000,
        "shaftCapacityW": 554176944093239500000,
@@ -76919,28 +77039,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500
+       "pathCapacityW": 2600959974835937000
       },
       {
        "thermalModelVersion": 2,
        "normalInputW": 229603424751316160,
-       "densityFactor": 2.8273453649324405,
-       "efficiency": 0.9159264404682952,
-       "wasteFraction": 0.08407355953170481,
-       "profileWattsPerNewton": 2279253977.408534,
-       "shaftWattsPerNewton": 2165291278.5381074,
-       "wattsPerNewton": 2364044952.5957966,
-       "ratedShaftPowerW": 594590299221589200,
-       "ratedWasteHeatW": 54577879521658860,
+       "densityFactor": 2.832013478950761,
+       "efficiency": 0.9158570638890173,
+       "wasteFraction": 0.08414293611098267,
+       "profileWattsPerNewton": 2279544003.164923,
+       "shaftWattsPerNewton": 2165566803.006677,
+       "wattsPerNewton": 2364524867.8991446,
+       "ratedShaftPowerW": 595526891461523300,
+       "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32396.123993381436,
+       "conversionMassKg": 32439.94294031367,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
        "inputLimitModel": "reactor-supply",
-       "availableInputW": 2596672714972992500,
-       "sourceInputLimitW": 2596672714972992500,
+       "availableInputW": 2600959974835937000,
+       "sourceInputLimitW": 2600959974835937000,
        "sourceIds": [
         "p30"
        ],
@@ -76951,10 +77071,10 @@ const CRAFT_PRICE_CATALOG={
        "entityKind": "engine",
        "integrated": true,
        "legacyShared": false,
-       "ratedInputW": 649168178743248100,
+       "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274600606.90912026,
+       "ratedThrustN": 274998162.43705463,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -76962,9 +77082,9 @@ const CRAFT_PRICE_CATALOG={
        "machineryRadiusM": 0.3,
        "machineryDiameterM": 0.6,
        "machineryOffsetM": 0.6,
-       "maxInputW": 2596672714972992500,
-       "maxRatedInputW": 2596672714972992500,
-       "inputDensityWPerM3": 961297424077029800,
+       "maxInputW": 2600959974835937000,
+       "maxRatedInputW": 2600959974835937000,
+       "inputDensityWPerM3": 962884582843258800,
        "allowedInputDensityWPerM3": 3400000000000000000,
        "costBasisInputW": 544107813273900000,
        "cost": 47.57283891551607,
@@ -76983,7 +77103,7 @@ const CRAFT_PRICE_CATALOG={
        "reasons": [],
        "moduleIndex": 10,
        "coreModuleIndex": 10,
-       "machineryModuleIndex": 43,
+       "machineryModuleIndex": 47,
        "shaftModuleIndices": [],
        "nozzleShaftCapacityW": 554176944093239500000,
        "shaftCapacityW": 554176944093239500000,
@@ -76992,22 +77112,22 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2596672714972992500
+       "pathCapacityW": 2600959974835937000
       }
      ],
-     "massKg": 32396.123993381436,
-     "ratedThrustN": 1098383352.6813447,
-     "ratedAccelMps2": 33904.77678458527,
-     "structuralAccelerationLimitMps2": 296806.7920263416,
+     "massKg": 32439.94294031367,
+     "ratedThrustN": 1099973548.0050542,
+     "ratedAccelMps2": 33907.998852800025,
+     "structuralAccelerationLimitMps2": 296807.2875488495,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 33904.77678458527,
+     "accelerationLimitMps2": 33907.998852800025,
      "conversionModelVersion": 1,
-     "conversionMassKg": 32396.123993381436,
+     "conversionMassKg": 32439.94294031367,
      "accelerationLimitBasis": "structural",
-     "sourceBudgetKey": "[2596672714972992500,[[\"main\",2596672714972992500,[[6,2596672714972992500]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.49583174997037716,1]]]"
+     "sourceBudgetKey": "[2600959974835937000,[[\"main\",2600959974835937000,[[6,2600959974835937000]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.4966503974449563,1]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 1631.9611030402502,
+    "maxSpeed": 1616.9921184672814,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -77049,7 +77169,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         7,
-        40
+        44
        ],
        "pc": [],
        "sec": 0,
@@ -77064,7 +77184,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         8,
-        41
+        45
        ],
        "pc": [],
        "sec": 0,
@@ -77079,7 +77199,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         9,
-        42
+        46
        ],
        "pc": [],
        "sec": 0,
@@ -77094,7 +77214,7 @@ const CRAFT_PRICE_CATALOG={
        "sh": 0.25,
        "m": [
         10,
-        43
+        47
        ],
        "pc": [],
        "sec": 0,
@@ -77137,7 +77257,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>hotel",
        "n": "送電損失 p30>hotel",
        "g": "high",
-       "sh": 0.014589,
+       "sh": 0.0214683,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77150,7 +77270,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p2",
        "n": "送電損失 p30>p2",
        "g": "high",
-       "sh": 0.0000225044,
+       "sh": 0.0000215323,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77163,7 +77283,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p3",
        "n": "送電損失 p30>p3",
        "g": "high",
-       "sh": 0.0000230533,
+       "sh": 0.0000220575,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77176,7 +77296,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p16",
        "n": "送電損失 p30>p16",
        "g": "high",
-       "sh": 0.0000226273,
+       "sh": 0.0000216498,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77189,7 +77309,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p17",
        "n": "送電損失 p30>p17",
        "g": "high",
-       "sh": 0.0000220885,
+       "sh": 0.0000211344,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77498,10 +77618,62 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "feed",
+       "id": "feed:p30>p168",
+       "n": "送電損失 p30>p168",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p168"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p169",
+       "n": "送電損失 p30>p169",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p169"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p170",
+       "n": "送電損失 p30>p170",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p170"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p30>p171",
+       "n": "送電損失 p30>p171",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p30>p171"
+      },
+      {
+       "k": "feed",
        "id": "feed:p30>p39",
        "n": "送電損失 p30>p39",
        "g": "high",
-       "sh": 0.834028,
+       "sh": 0.827653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77514,7 +77686,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f42",
        "n": "送電損失 p30>f42",
        "g": "high",
-       "sh": 0.000130651,
+       "sh": 0.000129653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77527,7 +77699,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f43",
        "n": "送電損失 p30>f43",
        "g": "high",
-       "sh": 0.000130651,
+       "sh": 0.000129653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77540,7 +77712,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f44",
        "n": "送電損失 p30>f44",
        "g": "high",
-       "sh": 0.000129619,
+       "sh": 0.000128629,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77553,7 +77725,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f45",
        "n": "送電損失 p30>f45",
        "g": "high",
-       "sh": 0.000129619,
+       "sh": 0.000128629,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77566,10 +77738,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f46",
        "n": "送電損失 p30>f46",
        "g": "high",
-       "sh": 0.000501109,
+       "sh": 0.000497279,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>f46"
@@ -77579,10 +77751,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f47",
        "n": "送電損失 p30>f47",
        "g": "high",
-       "sh": 0.000501109,
+       "sh": 0.000497279,
        "m": [],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1,
        "routeId": "p30>f47"
@@ -77592,7 +77764,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p41",
        "n": "送電損失 p30>p41",
        "g": "high",
-       "sh": 0.000407734,
+       "sh": 0.000832713,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -77605,7 +77777,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p82",
        "n": "送電損失 p30>p82",
        "g": "high",
-       "sh": 0.00125016,
+       "sh": 0.00124061,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77618,7 +77790,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p83",
        "n": "送電損失 p30>p83",
        "g": "high",
-       "sh": 0.000775862,
+       "sh": 0.000769932,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77631,7 +77803,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p84",
        "n": "送電損失 p30>p84",
        "g": "high",
-       "sh": 0.000384544,
+       "sh": 0.000381605,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77644,7 +77816,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p85",
        "n": "送電損失 p30>p85",
        "g": "high",
-       "sh": 0.000378281,
+       "sh": 0.00036194,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77657,7 +77829,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p31",
        "n": "送電損失 p30>p31",
        "g": "high",
-       "sh": 0.0383878,
+       "sh": 0.0381573,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77670,7 +77842,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p32",
        "n": "送電損失 p30>p32",
        "g": "high",
-       "sh": 0.0383878,
+       "sh": 0.0381573,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77683,7 +77855,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p33",
        "n": "送電損失 p30>p33",
        "g": "high",
-       "sh": 0.0348992,
+       "sh": 0.0346896,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77696,7 +77868,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p34",
        "n": "送電損失 p30>p34",
        "g": "high",
-       "sh": 0.0348992,
+       "sh": 0.0346896,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77711,11 +77883,11 @@ const CRAFT_PRICE_CATALOG={
        "n": "熱エネルギー変換装置 #41",
        "k": "hdis",
        "g": "all",
-       "cap": 57235355844073390,
+       "cap": 122168822586510350,
        "m": 17,
        "sec": 4,
        "src": -1,
-       "power": 858530337661100.9
+       "power": 1832532338797655.2
       },
       {
        "id": "p82",
@@ -77767,7 +77939,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "all",
        "cap": 24394301136363636,
-       "m": 44,
+       "m": 48,
        "sec": 0,
        "src": -1,
        "fo": 0,
@@ -77781,7 +77953,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "all",
        "cap": 24989284090909092,
-       "m": 45,
+       "m": 49,
        "sec": 0,
        "src": -1,
        "fo": 1,
@@ -77795,7 +77967,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "all",
        "cap": 24989284090909092,
-       "m": 46,
+       "m": 50,
        "sec": 0,
        "src": -1,
        "fo": 2,
@@ -77809,7 +77981,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "all",
        "cap": 24394301136363636,
-       "m": 47,
+       "m": 51,
        "sec": 0,
        "src": -1,
        "fo": 3,
@@ -77822,2809 +77994,3025 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 0,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 0,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 1,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 2,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 2,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 3,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 3,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 4,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 4,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 4,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 4,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 5,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 5,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 5,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 5,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 5,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 5,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 1,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 2,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 3,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 4,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 4
       },
       {
        "s": 6,
        "d": 5,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 3
       },
       {
        "s": 6,
        "d": 6,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 3
       },
       {
        "s": 6,
        "d": 7,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 3
       },
       {
        "s": 6,
        "d": 8,
-       "cap": 6130450946182532000,
+       "cap": 6520051746637154000,
        "sec": 3
       },
       {
        "s": 7,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 7,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 7,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 7,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 7,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 7,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 7,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 7,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 7,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 8,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 8,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 9,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 9,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 9,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 9,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 9,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 9,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 9,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 9,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 10,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 10,
-       "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 10,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 10,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 10,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 10,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 10,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 10,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 10,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 11,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 11,
        "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 11,
-       "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 11,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 11,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 11,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 11,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 11,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 11,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 11,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 12,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 12,
        "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 12,
-       "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 12,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 12,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 12,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 12,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 12,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 12,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 12,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 0
       },
       {
        "s": 13,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 13,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 13,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 13,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 13,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 13,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 13,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 13,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 13,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 14,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 14,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 14,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 14,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 14,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 14,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 14,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 14,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 14,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 15,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 15,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 15,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 15,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 15,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 15,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 15,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 15,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 15,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 16,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 16,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 16,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 16,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 16,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 16,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 16,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 16,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 16,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 17,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 17,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 17,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 17,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 17,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 17,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 17,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 17,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 17,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 18,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 18,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 18,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 18,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 18,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 18,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 18,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 18,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 18,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 19,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 19,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 19,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 19,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 19,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 19,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 19,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 19,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 19,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 2
       },
       {
        "s": 20,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 20,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 20,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 20,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 20,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 20,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 20,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 20,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 20,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 21,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 21,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 21,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 21,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 21,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 21,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 21,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 21,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 21,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 22,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 22,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 22,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 22,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 22,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 22,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 22,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 22,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 22,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 23,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 23,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 23,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 23,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 23,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 23,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 23,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 23,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 23,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 24,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 24,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 24,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 24,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 24,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 24,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 24,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 24,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 24,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 25,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 25,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 25,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 25,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 25,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 25,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 25,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 25,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 25,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 26,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 26,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 26,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 26,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 26,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 26,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 26,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 26,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 26,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 27,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 27,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 27,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 27,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 27,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 27,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 27,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 27,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 27,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 28,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 28,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 28,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 28,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 28,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 28,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 28,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 28,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 28,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 29,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 29,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 29,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 30,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 30,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 30,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 31,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 31,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 31,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 32,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 32,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 32,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 33,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 33,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 33,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 34,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 34,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 34,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 34,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 34,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 34,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 34,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 34,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 34,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 35,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 35,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 35,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 35,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 35,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 35,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 35,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 35,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 35,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
        "s": 36,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 36,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 36,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 36,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 36,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 36,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 36,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 36,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 36,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 37,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 37,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 37,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 37,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 37,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 37,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 37,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 37,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 37,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 38,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 38,
        "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 38,
        "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 4
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 38,
        "d": 3,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 2
       },
       {
        "s": 38,
        "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 4
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 38,
        "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 38,
        "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 38,
        "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 38,
        "d": 8,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 39,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 39,
        "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 39,
        "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 4
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 39,
        "d": 3,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 2
       },
       {
        "s": 39,
        "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 4
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 39,
        "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 39,
        "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 39,
        "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 39,
        "d": 8,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 0
       },
       {
        "s": 40,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 40,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 40,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 40,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 40,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 40,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 40,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 40,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 40,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 41,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 41,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 41,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 41,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 41,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 41,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 41,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 41,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 41,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 42,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 42,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 42,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 42,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 42,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 42,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 42,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 42,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 42,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 43,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 43,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 43,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 43,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 43,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 43,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 43,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 43,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 43,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 44,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 44,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 44,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 44,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 44,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 44,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 44,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 44,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 44,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 45,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 45,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 45,
        "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 4
       },
       {
        "s": 45,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 45,
        "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 4
       },
       {
        "s": 45,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 45,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 45,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 45,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 46,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 46,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 46,
        "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 4
       },
       {
        "s": 46,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 46,
        "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 3
+       "cap": 1086675291106192400,
+       "sec": 4
       },
       {
        "s": 46,
        "d": 5,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 46,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 46,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 46,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 47,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 47,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 47,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 47,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 47,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 47,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 48,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 48,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 48,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 48,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 48,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 48,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 49,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 49,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 50,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 50,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 50,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 50,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 50,
+       "d": 5,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
-       "s": 46,
+       "s": 50,
        "d": 6,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
-       "s": 46,
+       "s": 50,
        "d": 7,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
-       "s": 46,
+       "s": 50,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 1
       },
       {
-       "s": 47,
-       "d": 0,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 47,
-       "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 47,
-       "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 3,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 47,
-       "d": 8,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 48,
-       "d": 0,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 48,
-       "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 48,
-       "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 48,
-       "d": 3,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 48,
-       "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 48,
-       "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 48,
-       "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 48,
-       "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 48,
-       "d": 8,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 49,
-       "d": 0,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 49,
-       "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 49,
-       "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 49,
-       "d": 3,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 49,
-       "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 49,
-       "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 49,
-       "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 49,
-       "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 49,
-       "d": 8,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 50,
-       "d": 0,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 50,
-       "d": 1,
-       "cap": 1021741824363755400,
-       "sec": 4
-      },
-      {
-       "s": 50,
-       "d": 2,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 50,
-       "d": 3,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 50,
-       "d": 4,
-       "cap": 1021741824363755400,
-       "sec": 3
-      },
-      {
-       "s": 50,
-       "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 50,
-       "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 50,
-       "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
-       "s": 50,
-       "d": 8,
-       "cap": 1021741824363755400,
-       "sec": 0
-      },
-      {
        "s": 51,
        "d": 0,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 51,
        "d": 1,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 4
       },
       {
        "s": 51,
        "d": 2,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 51,
        "d": 3,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 51,
        "d": 4,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
        "sec": 3
       },
       {
        "s": 51,
        "d": 5,
-       "cap": 1021741824363755400,
-       "sec": 0
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 51,
        "d": 6,
-       "cap": 1021741824363755400,
-       "sec": 0
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 51,
        "d": 7,
-       "cap": 1021741824363755400,
-       "sec": 0
+       "cap": 1086675291106192400,
+       "sec": 3
       },
       {
        "s": 51,
        "d": 8,
-       "cap": 1021741824363755400,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 52,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 52,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 52,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 52,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 52,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 52,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 52,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 53,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 53,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 53,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 53,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 53,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 54,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 54,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 54,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 54,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 54,
+       "d": 8,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 0,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 55,
+       "d": 1,
+       "cap": 1086675291106192400,
+       "sec": 4
+      },
+      {
+       "s": 55,
+       "d": 2,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 55,
+       "d": 3,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 55,
+       "d": 4,
+       "cap": 1086675291106192400,
+       "sec": 3
+      },
+      {
+       "s": 55,
+       "d": 5,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 6,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 7,
+       "cap": 1086675291106192400,
+       "sec": 0
+      },
+      {
+       "s": 55,
+       "d": 8,
+       "cap": 1086675291106192400,
        "sec": 0
       }
      ]
@@ -80639,7 +81027,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 81.5980551520125,
+    "mglt": 80.84960592336407,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -94436,7 +94824,7 @@ for(const [key,id] of Object.entries(CRAFT_REMODEL_KEYS)){
  const old=SHIP_EXAMPLES[key],{build,...meta}=old||{};
  registerShipExample({...meta,key,craft:true,...(CRAFT_TYPES[id]?{craftType:id}:{}),physicalRevision:(meta.physicalRevision||0)+1,
   ...(old?{}:{name:'TIE/D ディフェンダー',side:'銀河帝国',role:'制宙戦闘機',length:9.2,author:'ユーザー提供設計'}),
-  source:'docs/handoff-2026-11-20/refs/'+{xwing:'x-wing-remodel-2026-11-23.json',tie_ln:'tie-ln-remodel-2026-11-23.json',tie_in:'tie-in-remodel-2026-11-23c.json',awing:'a-wing-remodel-2026-11-23.json',tie_d:'tie-d-remodel-2026-11-23c.json'}[id],
+  source:'docs/handoff-2026-11-20/refs/'+{xwing:'x-wing-remodel-2026-11-23b.json',tie_ln:'tie-ln-remodel-2026-11-23.json',tie_in:'tie-in-remodel-2026-11-23c.json',awing:'a-wing-remodel-2026-11-23.json',tie_d:'tie-d-remodel-2026-11-23c.json'}[id],
   ...(old?{originalSource:meta.source}:{}),
   note:'ユーザー提供のリモデル設計（2026-11-23）をそのまま使った作例。'+(old?'元の作例：'+(meta.title||meta.name)+'（'+(meta.author||'')+'、'+(meta.license||'')+'）の実測形状をもとにユーザーが改修したもの。':'')+(id==='tie_d'?'':'発射管の中に置かれたパイロンは発射管にし、発射管の構造物の中へ沈めた。'),
   build:()=>craftRemodelDesign(key)});

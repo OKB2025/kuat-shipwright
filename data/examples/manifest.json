@@ -125,9 +125,9 @@
   },
   "craft_xwing": {
    "design": {
-    "sha256": "56e1d23290f1bb8c24fdab89a9e743e99e0fa2da1312edc76a558fbb7f50bc91",
-    "jsonSha256": "547e8d53c55f760449f1b54d5cad260fa2575a34b94e7b14a1a30e3352931a57",
-    "blueprintSha256": "0dc0335731dd723c2b937f7beeb2e0685efe4e10f168c94dec862ad10cfd8a15"
+    "sha256": "6758ab5ec063f89b9f01807ab3c2429a12049c376c35d9ed31edaef27d280f5c",
+    "jsonSha256": "c5bb4b0c74235e2521994fc74ccbad7e6d73bc6758c131badc2010570ba0a5c1",
+    "blueprintSha256": "db60fd91a5964ef0250247bd0d6bbb5a9a926c0a752f4d8f2f48e27565aaeef9"
    }
   },
   "craft_z95": {
