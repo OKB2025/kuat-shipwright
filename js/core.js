@@ -88746,7 +88746,7 @@ function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
  const p=profile({...S,accelG:planningG},name),accel=planningAcceleration*FLEET_RULES.accelScale,dr=S.draw||{},mglt=S.craft?craftSpeed(planningG)/MGLT.ms:sublightMGLT(planningG,engineDepthRatio(ship));   // assumed fallback; published reference speeds are applied below
- const out={...p,profileVersion:FLEET_PROFILE_VERSION,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,planningG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24)*(S.craftSystems?.turnK??1):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
+ const out={...p,profileVersion:FLEET_PROFILE_VERSION,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?(globalThis.KS_TURN_MASS&&S.craftSystems?.managed?craftMassTurnRate(S,p.len):clamp(.11*Math.sqrt(Math.max(1,planningG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24)*(S.craftSystems?.turnK??1)):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  if(ship?._referencePhysicalRevision)out.referencePhysicalRevision={...ship._referencePhysicalRevision};
  if(S.craftSystems)out.systems=cleanCraftSystems(S.craftSystems);
  out.energyModel={version:ship?.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta,unit:ship?.surfaces?.mode==='strict'?'energy':'legacy-effect',assumption:true};
@@ -90236,6 +90236,12 @@ function passFighter(u,t){if(craftUnit(u))return true;const L=u?.p?.len||0;retur
 const TURN_BLEED=Object.freeze({energy:.4});/* share of kinetic energy lost per radian turned */
 function turnRateAt(acc,speed){return acc>0?acc/Math.max(1,speed):0;}
 function turnRadiusAt(acc,speed,maxRate){const w=Math.min(maxRate>0?maxRate:Infinity,turnRateAt(acc,speed));return w>0?Math.max(1,speed)/w:Infinity;}
+// 2026-11-23 Trial (user: 「質量が旋回速度に関係するようにして」). Opt-in for the Node simulators (globalThis.KS_TURN_MASS; the game never
+// sets it): a craft's nose turns as fast as its manoeuvring thrusters can swing its mass. The angular acceleration is
+// torque over moment of inertia, force·length over mass·length², so the rate a bang-bang swing reaches goes as
+// √(manoeuvring capacity ÷ mass) × √(1 ÷ length): 0.24 rad/s for capacity = mass at 12 m (the X-wing's present figure),
+// without the former common cap of 0.24. The lateral-acceleration bound in flight (acceleration ÷ speed) is unchanged.
+function craftMassTurnRate(S,length){const cs=S.craftSystems||{},r=Math.max(0,cs.maneuverSupport||0)/Math.max(1e-9,S.mass||0);return clamp(.24*Math.sqrt(r)*Math.sqrt(12/Math.max(1,length||12)),.015,1);}
 function cornerSpeed(u){const p=u?.p||{},a=p.accel||0,w=p.turnRate||0;return w>0?a/w:0;}
 function craftCruiseSpeed(u){return (u.p?.maxSpeed||0)*CRUISE_SPEED_TARGET.target;}
 function craftPassSpeed(u){return craftCruiseSpeed(u);}

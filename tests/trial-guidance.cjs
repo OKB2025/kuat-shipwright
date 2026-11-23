@@ -18,3 +18,11 @@ test('a torpedo flies pure pursuit and a missile proportional navigation with KS
  assert.ok(Math.abs(L.vc/vc-1)<.05&&Math.abs(L.losRate/w-1)<.05,`inputs Vc ${L.vc} (≈${vc}), λ̇ ${L.losRate} (≈${w}); the target turns in the same step`);
  const N5=step(runtime({KS_GUIDANCE:'pn',KS_PN_N:5}),'cmsl');assert.ok(Math.abs(N5.pnMaxG/m.pnMaxG-5/3)<1e-6,'N\' scales the command');
 });
+
+test('KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (off by default)',()=>{
+ const rate=(C,k)=>{const s=C.buildDesign(k);return C.fleetProfile(C.computeStats(s),s.name,s).turnRate;};
+ const off=runtime();assert.equal(rate(off,'craft_tie_ln'),.24,'the present common cap');
+ const on=runtime({KS_TURN_MASS:true}),ln=rate(on,'craft_tie_ln'),x=rate(on,'craft_xwing'),y=rate(on,'craft_btlb');
+ assert.ok(ln>x&&x>y,`the light TIE turns faster than the X-wing, the Y-wing slower: ${ln} ${x} ${y}`);
+ const s=on.buildDesign('craft_xwing'),S=on.computeStats(s),p=on.fleetProfile(S,s.name,s),r=S.craftSystems.maneuverSupport/S.mass;assert.ok(Math.abs(p.turnRate-.24*Math.sqrt(r)*Math.sqrt(12/p.len))<1e-12);
+});
