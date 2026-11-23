@@ -751,3 +751,4 @@ craft-gas-return 0
 craft-thermal-wings 0
 fighter-interiors 0 (after the recorded remodel expectations, 14 pass)
 source-manifest 0
+mandator-example-refit: base f00cc2a and HEAD both end by SIGKILL after 745 s / 876 s with no assertion reached (environment memory limit); not verifiable here
