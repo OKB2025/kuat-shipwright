@@ -1,0 +1,22 @@
+{
+  "status": "running",
+  "completed_matches": 65,
+  "scheduled_matches": 178,
+  "guidance": "pn",
+  "KS_PN_N": "unset, simulator default",
+  "previous_baseline_rerun": false,
+  "source": {
+    "tested_game": "ea7cb7c",
+    "pre_existing_torpedo_core_removed": "6449fdd",
+    "corrected_core_base": "06c4869",
+    "provided_commits": [
+      "4f97911",
+      "66f2210"
+    ],
+    "provided_additions_identical": true,
+    "core_sha256": "44e1c024ffbda4165ceed97b0ef73270f3a1e4a390cbd3d6f573927e56bcc7b2",
+    "vm_glue_sha256": "2c2839ccb33982a383d514fbb26c818c036ab6c87122d387cfc2ae5d38c6ff06",
+    "node": "v24.22.3"
+  },
+  "updated_utc": "2026-11-23T10:59:23+00:00"
+}

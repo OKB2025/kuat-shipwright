@@ -1,0 +1,6 @@
+kind,scenario,runs,previous_outcomes,previous_losses,previous_duration_median_range_s,pn_outcomes,pn_losses,pn_duration_median_range_s,seeds_with_changed_outcome,seeds_with_changed_loss_tally
+dogfight,figures-duel-xwing-tie_ln-p1,20,4/0/16,0/4,300 (168–300),4/0/16,0/4,300 (168–300),0,0
+dogfight,figures-duel-xwing-tie_in-p1,20,17/0/3,0/17,184 (3.75–300),17/0/3,0/17,184 (3.75–300),0,0
+dogfight,figures-duel-awing-tie_in-p1,20,0/0/20,0/0,300 (300–300),0/0/20,0/0,300 (300–300),0,0
+strike,strike-axis1,3,in action 3,72/36/17,900 (900–900),in action 3,72/36/17,900 (900–900),0,0
+fleet,fleet-standard,2,0/2/0/0,50/177,633.625 (623.25–644),0/2/0/0,52/189,629.375 (613.5–645.25),0,2
