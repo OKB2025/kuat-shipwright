@@ -1,0 +1,13 @@
+== head-on: 4 x craft_awing (A) vs 4 x craft_tie_in (B), 10 runs: lost per run A 2.9 B 3.3; A wins 6, B wins 4, both lost 0, undecided in 300 s 0; mean time to decision 64.0 s; nearest 103.1 m; seconds on the other's tail A 15.8 B 19.2; seconds guns bearing A 43.4 B 57.1; greatest height off the start plane 1119.8 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 117, hit 18, spent 58, target lost first 36; lock warnings 353, guidance lost (launcher lost sight) 17; rounds {"ptorp":63,"cmsl":54}; steps flown by guidance {"pursuit":2023,"pn":415}
+0s d=7358 A(322,4,6 hdg 5° 1280m/s) B(7680,5,-7 hdg -173° 1274m/s)
+5s d=2474 A(5758,96,1149 hdg 43° 896m/s) B(3566,37,2295 hdg 85° 748m/s)
+10s d=807 A(6015,217,4025 hdg 147° 509m/s) B(5254,127,3773 hdg 54° 359m/s)
+15s d=1274 A(4218,-71,4217 hdg -126° 300m/s) B(5452,118,3966 hdg 123° 187m/s)
+20s d=990 A(4333,-266,3241 hdg -38° 186m/s) B(4884,-25,4027 hdg -108° 128m/s)
+25s d=560 A(5147,-195,3121 hdg 19° 174m/s) B(4707,-135,3463 hdg -131° 130m/s)
+30s d=774 A(5827,87,2842 hdg -62° 172m/s) B(5140,-29,2504 hdg 28° 128m/s)
+35s d=655 A(3537,152,2897 hdg -119° 166m/s) B(4081,-63,2602 hdg -127° 86m/s)
+40s d=504 A(3387,71,2102 hdg -75° 170m/s) B(3841,-28,2298 hdg -130° 70m/s)
+45s d=651 A(3846,-162,1448 hdg -31° 173m/s) B(3625,4,2038 hdg -130° 68m/s)
+   run 1: B 50 s RZ-1 Aウィング：艦尾区画 崩壊 | RZ-1 Aウィング：撃沈（船体破断）
