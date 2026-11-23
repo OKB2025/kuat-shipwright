@@ -55,9 +55,9 @@
   },
   "craft_awing": {
    "design": {
-    "sha256": "768050345201c1e0b5f9f61c03d75eeaef809a5f07a8f36feb3e1b539cab7cf1",
-    "jsonSha256": "cbbc0ae84941cfe18327c35b63e0573431b6c85f059068511b9889530ae3544d",
-    "blueprintSha256": "1cd403fbd35596cde54fa3b476d44cd8ba7f2639640945ba6d47dcf06ed7fbb2"
+    "sha256": "653d0a978e1633312dfc864833164059075d401550de05f423af724ff6962dbf",
+    "jsonSha256": "f27ec6e52d2e61f258acbc31bf56a11b2972cd5cd20f2cc46773c07d5e7c2688",
+    "blueprintSha256": "c70a83589d3ccb0d345cb0d88b6022212f90cd36659aaa318c2ea9deb0bdbb29"
    }
   },
   "craft_btlb": {
@@ -83,16 +83,16 @@
   },
   "craft_tie_in": {
    "design": {
-    "sha256": "7d0be63d5d981dff222f56b35f826b4b0189bdd80f5922cd2b6e92696b8a618f",
-    "jsonSha256": "1e9bb996a60460f4ae9008559b77a5428be86a945fe71cc44d16635b69ff6bcf",
-    "blueprintSha256": "35f09ada80a8bcf58b32cdea9395e542a9f72c7520522059132cdbc9563f380e"
+    "sha256": "2c36c53b14ca652c4424e27a5498d001fc58fd663e55616308dac074387049ac",
+    "jsonSha256": "068d5b39ee72b49d1aca0e968daf563b42cdb955c26b856e9de46b9468d035f3",
+    "blueprintSha256": "dca30058ffde8d894f857411fd5081d4d50ec0afcc62e564e7f5286bc3401d05"
    }
   },
   "craft_tie_ln": {
    "design": {
-    "sha256": "e6c987b48fdf62395d51090775be47939cf397bcca1aa769734a32fde2b652dd",
-    "jsonSha256": "0f1b79a0f99df06be5fa7170188f9b39d3c37524d84cee897b7fc2a16369b7f7",
-    "blueprintSha256": "907f082ec0ef9f5d520a77a7700c13077dfdc65a1ab4a8010f5820ab6837d558"
+    "sha256": "b6da07ef6b4081f0b77db0907c20d0b6dd1e3aa434e4d84ed7f0bc682e83e1d0",
+    "jsonSha256": "67218c495019c2ac07140256a7cb437ac84b0819d1d3f044368c0be3f11a8710",
+    "blueprintSha256": "ba51894fe50453e2e94243945cc69e0710c221748f6cd9b8ae9d33c69be98e9a"
    }
   },
   "craft_tie_sa": {
@@ -125,9 +125,9 @@
   },
   "craft_xwing": {
    "design": {
-    "sha256": "df0321e678390b8a8f1b063029f69dfcdd2782482e562a92121414d213377462",
-    "jsonSha256": "cd986b343736e58ad81704b485fc419e8dabe118fb938dbb0a5073d479f60d67",
-    "blueprintSha256": "a4e16163db13c7aa2d8183802dd4dc1c604042e0490adb9c8eea148a2c122e57"
+    "sha256": "56e1d23290f1bb8c24fdab89a9e743e99e0fa2da1312edc76a558fbb7f50bc91",
+    "jsonSha256": "547e8d53c55f760449f1b54d5cad260fa2575a34b94e7b14a1a30e3352931a57",
+    "blueprintSha256": "0dc0335731dd723c2b937f7beeb2e0685efe4e10f168c94dec862ad10cfd8a15"
    }
   },
   "craft_z95": {

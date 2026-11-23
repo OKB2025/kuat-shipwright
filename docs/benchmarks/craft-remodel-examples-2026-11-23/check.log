@@ -1,0 +1,11 @@
+craft_xwing T-65B Xウイング parts 138 (src 138) fits 6 mass 32.40 accelG 1255 len 13.4 stations ctorpx2 float 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_tie_ln TIE/ln 制宙戦闘機 parts 63 (src 63) fits 3 mass 15.17 accelG 1421 len 7.2 stations ctorpx1 float 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+craft_tie_in TIE/in インターセプター parts 75 (src 75) fits 7 mass 19.90 accelG 1555 len 9.6 stations ctorpx1 float 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+craft_awing RZ-1 Aウィング parts 96 (src 96) fits 6 mass 13.60 accelG 1504 len 6.9 stations cmslx4 float 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_tie_d TIE/D parts 85 (src 85) fits 10 mass 24.10 accelG 1862 len 9.2 stations cpylonx2 float 0

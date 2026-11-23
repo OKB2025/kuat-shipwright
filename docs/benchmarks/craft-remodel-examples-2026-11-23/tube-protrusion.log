@@ -1,0 +1,10 @@
+craft_xwing ctorp #46 body 1.4×0.5×0.5 m; outside the solids 38% ; reaches 0.50 m out along its mounting normal; autoSink 0.395
+craft_xwing ctorp #47 body 1.4×0.5×0.5 m; outside the solids 38% ; reaches 0.50 m out along its mounting normal; autoSink 0.395
+craft_tie_ln ctorp #430 body 1.4×0.5×0.5 m; outside the solids 28% ; reaches 0.50 m out along its mounting normal; autoSink 0.435
+craft_tie_in ctorp #430 body 1.4×0.5×0.5 m; outside the solids 28% ; reaches 0.50 m out along its mounting normal; autoSink 0.435
+craft_awing cmsl #27 body 1.2×0.45×0.45 m; outside the solids 34% ; reaches 0.45 m out along its mounting normal; autoSink 0.326
+craft_awing cmsl #28 body 1.2×0.45×0.45 m; outside the solids 34% ; reaches 0.45 m out along its mounting normal; autoSink 0.326
+craft_awing cmsl #47 body 1.2×0.45×0.45 m; outside the solids 30% ; reaches 0.45 m out along its mounting normal; autoSink 0.346
+craft_awing cmsl #48 body 1.2×0.45×0.45 m; outside the solids 30% ; reaches 0.45 m out along its mounting normal; autoSink 0.346
+craft_tie_d cpylon #406 body 1.2×0.16×0.2 m; outside the solids 84% ; reaches 0.20 m out along its mounting normal; autoSink 0.000
+craft_tie_d cpylon #407 body 1.2×0.16×0.2 m; outside the solids 84% ; reaches 0.20 m out along its mounting normal; autoSink 0.000

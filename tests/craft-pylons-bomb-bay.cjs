@@ -39,3 +39,8 @@ test('stock craft carry their canon loads in tubes and bays',()=>{
   assert.equal(C.craftStations(s,S).length,C.CRAFT_LOADOUT[type].st.length,key);
  }
 });
+// 2026-11-23 (regression review): a loadout chosen for the BTL-B's old [bomb bay, pylon] stations keeps its bombs in the bay.
+test('an old [bay, pylon] loadout keeps its bombs in the bay against the tube stations',()=>{
+ const L=C.craftLoadout(C.buildDesign('craft_btlb'));assert.deepEqual(plain(L.stations.map(s=>s.mount)),['tube','bay']);
+ const got=plain(C.craftOrdnance(C.buildDesign('craft_btlb'),[{k:'bomb',n:8},{k:'ptorp',n:3}]));assert.equal(got.find(x=>x.kind==='bomb')?.mount,'bay');assert.equal(got.find(x=>x.kind==='ptorp')?.mount,'tube');
+});

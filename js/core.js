@@ -10327,7 +10327,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "c7rvd",
+   "signature": "9w2cno",
    "build": 164400,
    "crew": 1000,
    "total": 165400,
@@ -10446,12 +10446,12 @@ const CRAFT_PRICE_CATALOG={
       "launchMuzzles": [
        [
         1.9069999762699008,
-        -0.49364520262461153,
+        -0.4536452226517722,
         0.819
        ],
        [
         1.9069999762699008,
-        -0.49364520262461153,
+        -0.4536452226517722,
         0.621
        ]
       ],
@@ -10462,7 +10462,7 @@ const CRAFT_PRICE_CATALOG={
       "ammo0": 6,
       "muzzle": [
        1.9069999762699008,
-       -0.49364520262461153,
+       -0.4536452226517722,
        0.72
       ],
       "launchDir": [
@@ -10474,7 +10474,7 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.688,
       "pd": false,
       "dualPurpose": false,
-      "y": -0.22,
+      "y": -0.19,
       "z": 0.29,
       "r": 0.087,
       "share": 0.25,
@@ -10499,12 +10499,12 @@ const CRAFT_PRICE_CATALOG={
       "launchMuzzles": [
        [
         1.9069999762699008,
-        -0.49364520262461153,
+        -0.4536452226517722,
         -0.621
        ],
        [
         1.9069999762699008,
-        -0.49364520262461153,
+        -0.4536452226517722,
         -0.819
        ]
       ],
@@ -10515,7 +10515,7 @@ const CRAFT_PRICE_CATALOG={
       "ammo0": 6,
       "muzzle": [
        1.9069999762699008,
-       -0.49364520262461153,
+       -0.4536452226517722,
        -0.72
       ],
       "launchDir": [
@@ -10527,7 +10527,7 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.688,
       "pd": false,
       "dualPurpose": false,
-      "y": -0.22,
+      "y": -0.19,
       "z": -0.29,
       "r": 0.087,
       "share": 0.25,
@@ -10552,12 +10552,12 @@ const CRAFT_PRICE_CATALOG={
       "launchMuzzles": [
        [
         1.3369999762699005,
-        -0.4519260043976828,
+        -0.39194522265177223,
         1.299
        ],
        [
         1.3369999762699005,
-        -0.4519260043976828,
+        -0.39194522265177223,
         1.101
        ]
       ],
@@ -10568,7 +10568,7 @@ const CRAFT_PRICE_CATALOG={
       "ammo0": 6,
       "muzzle": [
        1.3369999762699005,
-       -0.4519260043976828,
+       -0.39194522265177223,
        1.2
       ],
       "launchDir": [
@@ -10580,7 +10580,7 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.605,
       "pd": false,
       "dualPurpose": false,
-      "y": -0.19,
+      "y": -0.14,
       "z": 0.48,
       "r": 0.087,
       "share": 0.25,
@@ -10605,12 +10605,12 @@ const CRAFT_PRICE_CATALOG={
       "launchMuzzles": [
        [
         1.3369999762699005,
-        -0.4512542004464194,
+        -0.3912452226517721,
         -1.101
        ],
        [
         1.3369999762699005,
-        -0.4512542004464194,
+        -0.3912452226517721,
         -1.299
        ]
       ],
@@ -10621,7 +10621,7 @@ const CRAFT_PRICE_CATALOG={
       "ammo0": 6,
       "muzzle": [
        1.3369999762699005,
-       -0.4512542004464194,
+       -0.3912452226517721,
        -1.2
       ],
       "launchDir": [
@@ -10633,7 +10633,7 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.605,
       "pd": false,
       "dualPurpose": false,
-      "y": -0.19,
+      "y": -0.14,
       "z": -0.48,
       "r": 0.087,
       "share": 0.25,
@@ -11249,8 +11249,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1303427790620720600,
-     "fixed": 27787592717276224,
-     "cooling": 5935475592455296,
+     "fixed": 27787592717222000,
+     "cooling": 5935475592401072,
      "De": 1303427790620720600,
      "Ds": 815957959928498300,
      "Dw": 83680000000000,
@@ -11611,8 +11611,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p14>f27",
        "model": "source-distance",
-       "lengthM": 2.8520625853489703,
-       "efficiency": 0.9999714797808557
+       "lengthM": 2.849101788283458,
+       "efficiency": 0.9999715093879824
       },
       {
        "kind": "power",
@@ -11623,8 +11623,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p14>f28",
        "model": "source-distance",
-       "lengthM": 2.8520625853489703,
-       "efficiency": 0.9999714797808557
+       "lengthM": 2.849101788283458,
+       "efficiency": 0.9999715093879824
       },
       {
        "kind": "power",
@@ -11671,8 +11671,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p14>f47",
        "model": "source-distance",
-       "lengthM": 2.495641643813939,
-       "efficiency": 0.9999750438949706
+       "lengthM": 2.491810283709416,
+       "efficiency": 0.9999750822076162
       },
       {
        "kind": "power",
@@ -11683,8 +11683,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p14>f48",
        "model": "source-distance",
-       "lengthM": 2.4955907810586133,
-       "efficiency": 0.9999750444035855
+       "lengthM": 2.4917740587782027,
+       "efficiency": 0.9999750825698566
       },
       {
        "kind": "power",
@@ -12093,7 +12093,7 @@ const CRAFT_PRICE_CATALOG={
      "sourceBudgetKey": "[1303427790620720600,[[\"main\",1303427790620720600,[[6,1303427790620720600]]]],[[6,\"reactor\",14,\"p14\",\"main\",0.24888807844627275,1]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 1885.3246087532978,
+    "maxSpeed": 1885.3246089271279,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -12519,7 +12519,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f27",
        "n": "送電損失 p14>f27",
        "g": "high",
-       "sh": 0.0000177177,
+       "sh": 0.0000176993,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -12532,7 +12532,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f28",
        "n": "送電損失 p14>f28",
        "g": "high",
-       "sh": 0.0000177177,
+       "sh": 0.0000176993,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -12584,7 +12584,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f47",
        "n": "送電損失 p14>f47",
        "g": "high",
-       "sh": 0.0000155035,
+       "sh": 0.0000154797,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -12597,7 +12597,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f48",
        "n": "送電損失 p14>f48",
        "g": "high",
-       "sh": 0.0000155032,
+       "sh": 0.0000154795,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -13688,7 +13688,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 94.26623043766489,
+    "mglt": 94.26623044635639,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -31854,7 +31854,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1y39yck",
+   "signature": "1s6x8jm",
    "build": 172949,
    "crew": 1000,
    "total": 173949,
@@ -31900,8 +31900,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 5.035077311474557e-17,
-    "upS": 5.035077311474557e-17,
+    "up": 1.510523193442367e-16,
+    "upS": 1.510523193442367e-16,
     "down": 0.01,
     "T": 0
    },
@@ -32064,11 +32064,11 @@ const CRAFT_PRICE_CATALOG={
       "shotW": 0,
       "bolt": 0,
       "stock": 0,
-      "at": 0.325,
+      "at": 0.342,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
-      "y": -0.44,
+      "y": -0.31,
       "z": 0,
       "r": 0.073,
       "share": 0,
@@ -32807,8 +32807,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2065616901102972700,
-     "fixed": 61690985748069680,
-     "cooling": 3278993450446189.5,
+     "fixed": 61690985691839270,
+     "cooling": 3278993394215787,
      "De": 2065616901102972700,
      "Ds": 0,
      "Dw": 2255200000000000,
@@ -33365,8 +33365,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p252>f430",
        "model": "source-distance",
-       "lengthM": 1.7196818329375287,
-       "efficiency": 0.999982803329535
+       "lengthM": 1.4297878948238179,
+       "efficiency": 0.999985702223266
       },
       {
        "kind": "power",
@@ -33976,7 +33976,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p270",
        "n": "送電損失 p252>p270",
        "g": "high",
-       "sh": 0.000032147,
+       "sh": 0.0000321571,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -33989,7 +33989,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>hotel",
        "n": "送電損失 p252>hotel",
        "g": "high",
-       "sh": 0.0866863,
+       "sh": 0.0867136,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34275,7 +34275,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p259",
        "n": "送電損失 p252>p259",
        "g": "high",
-       "sh": 0.00110929,
+       "sh": 0.00110964,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34288,7 +34288,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p260",
        "n": "送電損失 p252>p260",
        "g": "high",
-       "sh": 0.00109435,
+       "sh": 0.00109469,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34301,7 +34301,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p261",
        "n": "送電損失 p252>p261",
        "g": "high",
-       "sh": 0.000925424,
+       "sh": 0.000925715,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34314,7 +34314,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p262",
        "n": "送電損失 p252>p262",
        "g": "high",
-       "sh": 0.00132968,
+       "sh": 0.0013301,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -34327,7 +34327,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p278",
        "n": "送電損失 p252>p278",
        "g": "high",
-       "sh": 0.00078886,
+       "sh": 0.000789109,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34340,7 +34340,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p279",
        "n": "送電損失 p252>p279",
        "g": "high",
-       "sh": 0.000874621,
+       "sh": 0.000874896,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34353,7 +34353,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p280",
        "n": "送電損失 p252>p280",
        "g": "high",
-       "sh": 0.00122613,
+       "sh": 0.00122652,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -34366,7 +34366,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p281",
        "n": "送電損失 p252>p281",
        "g": "high",
-       "sh": 0.000762609,
+       "sh": 0.000762849,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34379,7 +34379,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f400",
        "n": "送電損失 p252>f400",
        "g": "high",
-       "sh": 0.00161226,
+       "sh": 0.00161277,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -34392,7 +34392,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f401",
        "n": "送電損失 p252>f401",
        "g": "high",
-       "sh": 0.00161226,
+       "sh": 0.00161277,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -34405,7 +34405,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f402",
        "n": "送電損失 p252>f402",
        "g": "high",
-       "sh": 0.00160847,
+       "sh": 0.00160897,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -34418,7 +34418,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f403",
        "n": "送電損失 p252>f403",
        "g": "high",
-       "sh": 0.00160847,
+       "sh": 0.00160897,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -34431,7 +34431,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f404",
        "n": "送電損失 p252>f404",
        "g": "high",
-       "sh": 0.000312334,
+       "sh": 0.000312432,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34444,7 +34444,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f405",
        "n": "送電損失 p252>f405",
        "g": "high",
-       "sh": 0.000312334,
+       "sh": 0.000312432,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34457,7 +34457,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f430",
        "n": "送電損失 p252>f430",
        "g": "high",
-       "sh": 0.0018672,
+       "sh": 0.00155293,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -34470,7 +34470,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p253",
        "n": "送電損失 p252>p253",
        "g": "high",
-       "sh": 0.347061,
+       "sh": 0.347171,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34483,7 +34483,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p254",
        "n": "送電損失 p252>p254",
        "g": "high",
-       "sh": 0.347061,
+       "sh": 0.347171,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -34496,7 +34496,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p253",
        "n": "送電損失 p100>p253",
        "g": "high",
-       "sh": 0.0473413,
+       "sh": 0.0473562,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -34509,7 +34509,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p253",
        "n": "送電損失 p120>p253",
        "g": "high",
-       "sh": 0.053716,
+       "sh": 0.0537329,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -34522,7 +34522,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p254",
        "n": "送電損失 p100>p254",
        "g": "high",
-       "sh": 0.053716,
+       "sh": 0.0537329,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -34535,7 +34535,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p254",
        "n": "送電損失 p120>p254",
        "g": "high",
-       "sh": 0.0473413,
+       "sh": 0.0473562,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -34949,13 +34949,13 @@ const CRAFT_PRICE_CATALOG={
        "s": 5,
        "d": 0,
        "cap": 1800277905439511000,
-       "sec": 1
+       "sec": 2
       },
       {
        "s": 5,
        "d": 1,
        "cap": 1800277905439511000,
-       "sec": 1
+       "sec": 2
       },
       {
        "s": 5,
@@ -37289,7 +37289,7 @@ const CRAFT_PRICE_CATALOG={
        "s": 45,
        "d": 2,
        "cap": 1800277905439511000,
-       "sec": 0
+       "sec": 1
       },
       {
        "s": 45,
@@ -37313,7 +37313,7 @@ const CRAFT_PRICE_CATALOG={
        "s": 45,
        "d": 6,
        "cap": 1800277905439511000,
-       "sec": 1
+       "sec": 2
       },
       {
        "s": 45,
@@ -37857,7 +37857,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1nappm5",
+   "signature": "ie2qmn",
    "build": 145855,
    "crew": 1000,
    "total": 146855,
@@ -37903,8 +37903,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 6.605139323288863e-17,
-    "upS": 6.605139323288863e-17,
+    "up": 3.302569661644431e-17,
+    "upS": 3.302569661644431e-17,
     "down": 0.01,
     "T": 0
    },
@@ -37971,11 +37971,11 @@ const CRAFT_PRICE_CATALOG={
       "shotW": 0,
       "bolt": 0,
       "stock": 0,
-      "at": 0.508,
+      "at": 0.531,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
-      "y": -0.36,
+      "y": -0.26,
       "z": 0,
       "r": 0.097,
       "share": 0,
@@ -38618,8 +38618,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1363568371701615000,
-     "fixed": 35971040160014810,
-     "cooling": 1854453790867220,
+     "fixed": 35971040103895476,
+     "cooling": 1854453734747889.8,
      "De": 1363568371701615000,
      "Ds": 0,
      "Dw": 1418400000000000,
@@ -39070,8 +39070,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p252>f430",
        "model": "source-distance",
-       "lengthM": 1.7196818329375287,
-       "efficiency": 0.999982803329535
+       "lengthM": 1.4297878948238179,
+       "efficiency": 0.999985702223266
       },
       {
        "kind": "power",
@@ -39254,7 +39254,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedWasteHeatW": 123078277589228180,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 15172.441645970075,
+       "conversionMassKg": 15172.441645970077,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -39328,7 +39328,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedWasteHeatW": 123078277589228180,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 15172.441645970075,
+       "conversionMassKg": 15172.441645970077,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -39404,7 +39404,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedWasteHeatW": 123078277589228180,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 15172.441645970075,
+       "conversionMassKg": 15172.441645970077,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -39479,7 +39479,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedWasteHeatW": 123078277589228180,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 15172.441645970075,
+       "conversionMassKg": 15172.441645970077,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -39542,19 +39542,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 1363568371701615000
       }
      ],
-     "massKg": 15172.441645970075,
+     "massKg": 15172.441645970077,
      "ratedThrustN": 554249976.5592842,
      "ratedAccelMps2": 36530.04503111716,
      "structuralAccelerationLimitMps2": 38632692.74690965,
      "inertialFactor": 1,
      "accelerationLimitMps2": 36530.04503111716,
      "conversionModelVersion": 1,
-     "conversionMassKg": 15172.441645970075,
+     "conversionMassKg": 15172.441645970077,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1363568371701615000,[[\"main\",1363568371701615000,[[34,30285964800000000],[35,30285964800000000],[4,1302996442101615000]]]],[[4,\"reactor\",252,\"p252\",\"main\",0.24880571292910844,1],[34,\"dissipator\",100,\"p100\",\"main\",4.038124633679271,0.4610625009789848],[35,\"dissipator\",120,\"p120\",\"main\",4.0381246336792715,0.46106250097898493]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 1788.8938448937895,
+    "maxSpeed": 1788.893844893789,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -39622,14 +39622,14 @@ const CRAFT_PRICE_CATALOG={
       {
        "k": "weapon",
        "id": "f430",
-       "n": "武装（中央区画）",
+       "n": "武装（前部区画）",
        "g": "high",
        "sh": 0.70502,
        "m": [
         2
        ],
        "pc": [],
-       "sec": 2,
+       "sec": 3,
        "sw": -1,
        "gen": -1
       },
@@ -39664,7 +39664,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p270",
        "n": "送電損失 p252>p270",
        "g": "high",
-       "sh": 0.000046269,
+       "sh": 0.0000462899,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -39677,7 +39677,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>hotel",
        "n": "送電損失 p252>hotel",
        "g": "high",
-       "sh": 0.0728562,
+       "sh": 0.0728892,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39911,7 +39911,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p259",
        "n": "送電損失 p252>p259",
        "g": "high",
-       "sh": 0.000889233,
+       "sh": 0.000889636,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39924,7 +39924,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p260",
        "n": "送電損失 p252>p260",
        "g": "high",
-       "sh": 0.000877252,
+       "sh": 0.00087765,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39937,7 +39937,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p261",
        "n": "送電損失 p252>p261",
        "g": "high",
-       "sh": 0.000741841,
+       "sh": 0.000742177,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39950,7 +39950,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p262",
        "n": "送電損失 p252>p262",
        "g": "high",
-       "sh": 0.0010659,
+       "sh": 0.00106638,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39963,7 +39963,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p278",
        "n": "送電損失 p252>p278",
        "g": "high",
-       "sh": 0.000632369,
+       "sh": 0.000632655,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39976,7 +39976,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p279",
        "n": "送電損失 p252>p279",
        "g": "high",
-       "sh": 0.000701116,
+       "sh": 0.000701434,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -39989,7 +39989,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p280",
        "n": "送電損失 p252>p280",
        "g": "high",
-       "sh": 0.000982896,
+       "sh": 0.000983341,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -40002,7 +40002,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p281",
        "n": "送電損失 p252>p281",
        "g": "high",
-       "sh": 0.000611325,
+       "sh": 0.000611602,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40015,7 +40015,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f404",
        "n": "送電損失 p252>f404",
        "g": "high",
-       "sh": 0.000449541,
+       "sh": 0.000449744,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40028,7 +40028,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f405",
        "n": "送電損失 p252>f405",
        "g": "high",
-       "sh": 0.000449541,
+       "sh": 0.000449744,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40041,10 +40041,10 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f430",
        "n": "送電損失 p252>f430",
        "g": "high",
-       "sh": 0.00268745,
+       "sh": 0.00223543,
        "m": [],
        "pc": [],
-       "sec": 0,
+       "sec": 1,
        "sw": -1,
        "gen": -1,
        "routeId": "p252>f430"
@@ -40054,7 +40054,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p253",
        "n": "送電損失 p252>p253",
        "g": "high",
-       "sh": 0.324313,
+       "sh": 0.32446,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40067,7 +40067,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p254",
        "n": "送電損失 p252>p254",
        "g": "high",
-       "sh": 0.324313,
+       "sh": 0.32446,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40080,7 +40080,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p253",
        "n": "送電損失 p100>p253",
        "g": "high",
-       "sh": 0.0609523,
+       "sh": 0.0609799,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40093,7 +40093,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p253",
        "n": "送電損失 p120>p253",
        "g": "high",
-       "sh": 0.0732388,
+       "sh": 0.073272,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40106,7 +40106,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p254",
        "n": "送電損失 p100>p254",
        "g": "high",
-       "sh": 0.0732388,
+       "sh": 0.073272,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40119,7 +40119,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p254",
        "n": "送電損失 p120>p254",
        "g": "high",
-       "sh": 0.0609523,
+       "sh": 0.0609799,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -40485,13 +40485,13 @@ const CRAFT_PRICE_CATALOG={
        "s": 4,
        "d": 0,
        "cap": 1805642275748704800,
-       "sec": 1
+       "sec": 2
       },
       {
        "s": 4,
        "d": 1,
        "cap": 1805642275748704800,
-       "sec": 1
+       "sec": 2
       },
       {
        "s": 4,
@@ -42369,7 +42369,7 @@ const CRAFT_PRICE_CATALOG={
        "s": 36,
        "d": 6,
        "cap": 1805642275748704800,
-       "sec": 1
+       "sec": 2
       },
       {
        "s": 36,
@@ -42761,7 +42761,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 89.44469224468948,
+    "mglt": 89.44469224468945,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -74689,7 +74689,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "14lsvab",
+   "signature": "1q15mvr",
    "build": 175600,
    "crew": 1000,
    "total": 176600,
@@ -74736,7 +74736,7 @@ const CRAFT_PRICE_CATALOG={
    },
    "heat": {
     "up": 0,
-    "upS": 0,
+    "upS": 1.2373837187013705e-16,
     "down": 0.01,
     "T": 1
    },
@@ -74851,12 +74851,12 @@ const CRAFT_PRICE_CATALOG={
       "shotW": 0,
       "bolt": 0,
       "stock": 0,
-      "at": 0.659,
+      "at": 0.652,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": -0.07,
-      "z": 0.12,
+      "z": 0.05,
       "r": 0.052,
       "share": 0,
       "domain": "main",
@@ -74875,12 +74875,12 @@ const CRAFT_PRICE_CATALOG={
       "shotW": 0,
       "bolt": 0,
       "stock": 0,
-      "at": 0.659,
+      "at": 0.652,
       "pd": false,
       "dualPurpose": false,
       "band": "close",
       "y": -0.07,
-      "z": -0.12,
+      "z": -0.05,
       "r": 0.052,
       "share": 0,
       "domain": "main",
@@ -75735,8 +75735,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2596672714972992500,
-     "fixed": 60104559014317650,
-     "cooling": 9710965315145666,
+     "fixed": 60104558969729360,
+     "cooling": 9710965270557376,
      "De": 2596672714972992500,
      "Ds": 1576791719299720700,
      "Dw": 2836800000000000,
@@ -76217,8 +76217,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p30>f46",
        "model": "source-distance",
-       "lengthM": 6.326827388164889,
-       "efficiency": 0.9999367337275133
+       "lengthM": 6.204630815769782,
+       "efficiency": 0.9999379556166746
       },
       {
        "kind": "power",
@@ -76229,8 +76229,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p30>f47",
        "model": "source-distance",
-       "lengthM": 6.326827388164889,
-       "efficiency": 0.9999367337275133
+       "lengthM": 6.204630815769782,
+       "efficiency": 0.9999379556166746
       },
       {
        "kind": "power",
@@ -77137,7 +77137,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>hotel",
        "n": "送電損失 p30>hotel",
        "g": "high",
-       "sh": 0.0145887,
+       "sh": 0.014589,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77150,7 +77150,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p2",
        "n": "送電損失 p30>p2",
        "g": "high",
-       "sh": 0.000022504,
+       "sh": 0.0000225044,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77163,7 +77163,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p3",
        "n": "送電損失 p30>p3",
        "g": "high",
-       "sh": 0.0000230529,
+       "sh": 0.0000230533,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77176,7 +77176,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p16",
        "n": "送電損失 p30>p16",
        "g": "high",
-       "sh": 0.0000226268,
+       "sh": 0.0000226273,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77189,7 +77189,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p17",
        "n": "送電損失 p30>p17",
        "g": "high",
-       "sh": 0.0000220881,
+       "sh": 0.0000220885,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77501,7 +77501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p39",
        "n": "送電損失 p30>p39",
        "g": "high",
-       "sh": 0.834011,
+       "sh": 0.834028,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77514,7 +77514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f42",
        "n": "送電損失 p30>f42",
        "g": "high",
-       "sh": 0.000130649,
+       "sh": 0.000130651,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77527,7 +77527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f43",
        "n": "送電損失 p30>f43",
        "g": "high",
-       "sh": 0.000130649,
+       "sh": 0.000130651,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77540,7 +77540,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f44",
        "n": "送電損失 p30>f44",
        "g": "high",
-       "sh": 0.000129617,
+       "sh": 0.000129619,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77553,7 +77553,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f45",
        "n": "送電損失 p30>f45",
        "g": "high",
-       "sh": 0.000129617,
+       "sh": 0.000129619,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77566,7 +77566,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f46",
        "n": "送電損失 p30>f46",
        "g": "high",
-       "sh": 0.000510968,
+       "sh": 0.000501109,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -77579,7 +77579,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f47",
        "n": "送電損失 p30>f47",
        "g": "high",
-       "sh": 0.000510968,
+       "sh": 0.000501109,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -77592,7 +77592,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p41",
        "n": "送電損失 p30>p41",
        "g": "high",
-       "sh": 0.000407726,
+       "sh": 0.000407734,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -77605,7 +77605,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p82",
        "n": "送電損失 p30>p82",
        "g": "high",
-       "sh": 0.00125014,
+       "sh": 0.00125016,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77618,7 +77618,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p83",
        "n": "送電損失 p30>p83",
        "g": "high",
-       "sh": 0.000775847,
+       "sh": 0.000775862,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77631,7 +77631,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p84",
        "n": "送電損失 p30>p84",
        "g": "high",
-       "sh": 0.000384537,
+       "sh": 0.000384544,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77644,7 +77644,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p85",
        "n": "送電損失 p30>p85",
        "g": "high",
-       "sh": 0.000378273,
+       "sh": 0.000378281,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -77657,7 +77657,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p31",
        "n": "送電損失 p30>p31",
        "g": "high",
-       "sh": 0.038387,
+       "sh": 0.0383878,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77670,7 +77670,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p32",
        "n": "送電損失 p30>p32",
        "g": "high",
-       "sh": 0.038387,
+       "sh": 0.0383878,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77683,7 +77683,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p33",
        "n": "送電損失 p30>p33",
        "g": "high",
-       "sh": 0.0348985,
+       "sh": 0.0348992,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -77696,7 +77696,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p34",
        "n": "送電損失 p30>p34",
        "g": "high",
-       "sh": 0.0348985,
+       "sh": 0.0348992,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -88070,7 +88070,7 @@ function craftGunMuzzle(f){const d=fitSpec(f),fr=fitFrameOf(f);return add(fitOri
 // 2026-11-23 (user: 「パイロンではなく発射装置に戻して案Bに」) A craft's launch tube (torpedo or concussion-missile tube) seated inside the
 // hull or a structure by less than its length counts as seated in the same way, while the stretch ahead of its mouth is open.
 function craftLauncher(k){const d=FITS[typeof k==='string'?k:k?.k];return !!(d?.craft&&d.store?.mount==='tube');}
-function craftGunAutoSink(ship,f,gap){delete f._autoSink;if(!(craftFixedGun(f)||craftLauncher(f))||!(gap<-FIT_SUPPORT_GAP_M))return false;const depth=-gap,d=fitSpec(f);if((craftGunSink(f)||0)+depth>(d.fm||0)+1e-9)/* the barrel still reaches out of the surface: deeper than its length it is buried whole */return false;f._autoSink=depth;if(craftMuzzleBlocked(ship,f)){delete f._autoSink;return false;}return true;}
+function craftGunAutoSink(ship,f,gap){delete f._autoSink;if(!(craftFixedGun(f)||craftLauncher(f)&&isCraft(ship))||!(gap<-FIT_SUPPORT_GAP_M))return false;const depth=-gap,d=fitSpec(f);if((craftGunSink(f)||0)+depth>(d.fm||0)+1e-9)/* the barrel still reaches out of the surface: deeper than its length it is buried whole */return false;f._autoSink=depth;if(craftMuzzleBlocked(ship,f)){delete f._autoSink;return false;}return true;}
 function craftMuzzleBlocked(ship,f){
  if(!(craftFixedGun(f)&&(craftGunSink(f)>0||f._autoSink>0)||craftLauncher(f)&&f._autoSink>0))return false;const d=fitSpec(f),fr=fitFrameOf(f),m=craftGunMuzzle(f);
  for(const t of [0,.05,.1,.15,.2,.25].map(x=>x*d.fm)){const q=add(m,mul(fr.fw,t));if(insideOriginalEnvelope(ship,q))return true;}
@@ -94479,6 +94479,8 @@ const XW_NOZZLE_LENGTH=1.2,XW_ENGINE_BODY=Object.freeze({length:3.0,radius:.3}),
 // 2026-11-23 re-fitted again after the launch tubes came back (a torpedo tube 1 t, a missile tube 0.8 t, a pylon 0.05 t): each
 // tube craft keeps the acceleration it had with pylons (V-19 0.5689: the largest plants near it alternate with ones its
 // interior cannot cool, scripts in docs/benchmarks/craft-tubes-2026-11-23/).
+// craft_xwing, craft_awing, craft_tie_ln and craft_tie_in are now built from the user's remodels (craftRemodelDesign), which skip
+// this refit: their entries here are unused.
 const CRAFT_REACTOR_SCALE=Object.freeze({craft_arc170:0.528021399589,craft_awing:0.568888042235,craft_btlb:0.696745366448,craft_hyena:0.624954478223,craft_tie_in:0.548659070293,craft_tie_ln:1.110735516139,craft_tie_sa:0.852074648110/* user decision 2026-11-19「TIE/saの速度を見直し」: was 0.665521724656 (843 m/s, 56% of the TIE/ln). The published speeds are 90 and 100 MGLT (docs/reference-sublight-speeds.md), so its reactors are sized for 90% of the TIE/ln's speed (1,357 of 1,508 m/s) */,craft_v19:0.568900000000,craft_vulture:0.514217064394,craft_vwing:0.467564116530,craft_xwing:0.469280365388,craft_z95:0.709712991937});
 function refitCraftInterior(ship,key){
  const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
@@ -99561,11 +99563,12 @@ function hullBulk(p){const kg=p?.propulsion?.massKg;return kg>0?kg/1000*K.hpPerT
 // becomes 4.65e-8 TT, eight TIE bolts (6e-9 TT), what a TIE/ln on its tail at 150 to 300 m lands in four to five seconds (it fires
 // 16.7 bolts a second and 7 to 20% of them land there).
 // User decisions 2026-11-23「シールドは3倍にして（TIE/inの火力基準）」「綺麗な曲線で入れて。なのでXより小さいAウィングのシールドはもっと
-// 弱くなるはず」: one smooth curve by length for craft and ships alike, a power of the length through two points: the X-wing
-// (.refLen 13.4 m) keeps .refScale (three times the earlier 1e-6, so the TIE/in remodel's six lasers break its field in about the
-// time a TIE/ln's two took before), and a hull of .fullLen or more has the whole of what the ship rule gives. A smaller craft has
-// less (an A-wing of 9.6 m about 0.37 of the X-wing's), a larger hull more than before (CR90 150 m 3.7e-3, was 1.2e-3).
-const CRAFT_SHIELD=Object.freeze({refLen:13.4,refScale:3e-6,craftLen:20,fullLen:1000,minLen:1});
+// 弱くなるはず」「航空機は曲線、艦は元のまま」: a craft's field follows a power of its length through the X-wing (.refLen 13.4 m keeps
+// .refScale, three times the earlier 1e-6, so the TIE/in remodel's six lasers break it in about the time a TIE/ln's two took before)
+// and 1,000 m; a smaller craft has less (an A-wing of 9.6 m about 0.37 of the X-wing's). Ships keep the earlier curve (1e-6 at
+// .craftLen rising evenly on a log scale to the whole at .fullLen: CR90 1.2e-3, Arquitens 1.9e-2). Between .craftLen and .blendLen
+// the two are joined smoothly (on a log scale, smoothstep), so the field never jumps.
+const CRAFT_SHIELD=Object.freeze({refLen:13.4,refScale:3e-6,scale:1e-6,craftLen:20,blendLen:100,fullLen:1000,minLen:1});
 const CRAFT_SHIELD_EXP=Math.log(CRAFT_SHIELD.refScale)/Math.log(CRAFT_SHIELD.refLen/CRAFT_SHIELD.fullLen);
 // 「小型艦は航空機のシールド低下曲線に併せてシールドを弱くして」(2026-11-18): one curve by length for craft and ships. A hull up to .craftLen
 // long had 1e-6 of what the ship rule gives its generators; from there the field rose evenly on a log scale to the whole of it
@@ -99573,7 +99576,10 @@ const CRAFT_SHIELD_EXP=Math.log(CRAFT_SHIELD.refScale)/Math.log(CRAFT_SHIELD.ref
 // Trial (2026-11-23, user: 「航空機のシールドをもう少しだけ強くしてみて」): KS_CRAFT_SHIELD = k multiplies the field, recharge and heat of a
 // hull up to .craftLen long by k. Set only by the Node simulators (scripts/sim-*.cjs); the game never sets it.
 const craftShieldTrial=()=>{const k=+globalThis.KS_CRAFT_SHIELD;return Number.isFinite(k)&&k>0?k:1;};
-function fieldScale(p){const L=Math.max(CRAFT_SHIELD.minLen,p?.len||CRAFT_SHIELD.refLen);if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(L/CRAFT_SHIELD.fullLen,CRAFT_SHIELD_EXP)*(L<=CRAFT_SHIELD.craftLen?craftShieldTrial():1);}
+function fieldScale(p){const S=CRAFT_SHIELD,L=Math.max(S.minLen,p?.len||S.refLen);if(L>=S.fullLen)return 1;
+ const craft=Math.log(L/S.fullLen)*CRAFT_SHIELD_EXP,ship=Math.log(S.scale)*(1-Math.log(L/S.craftLen)/Math.log(S.fullLen/S.craftLen));
+ if(L<=S.craftLen)return Math.exp(craft)*craftShieldTrial();if(L>=S.blendLen)return Math.exp(ship);
+ const t=Math.log(L/S.craftLen)/Math.log(S.blendLen/S.craftLen),w=t*t*(3-2*t);return Math.exp(craft*(1-w)+ship*w);}
 function craftShieldScale(p){return p;}/* (kept for callers: the scale is applied where the field is used, fieldScale) */
 function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[],shotE:0,shotN:0,blasts:[]};}
 // v30 Torpedoes and missiles (user decisions 2026-11-18「魚雷やミサイルは貫通せず命中した船体を大規模に傷つけ、大きな火災を発生させる。ISDで4〜5発
@@ -100736,9 +100742,9 @@ function craftLockStep(b,u,t,dt,reach){
  return b.time-u.lock.since>=ROUND_TRIAL.lockS-1e-9;
 }
 function craftMissileEvade(b,u){
- if(!globalThis.KS_MISSILE_EVADE||!craftUnit(u)||!b?.missiles?.length)return null;let best=null;
- for(const m of b.missiles){if(!(m.n>0)||m.ballistic||m.target!==u.id||m.team===u.team)continue;const r=sub(u.pos,m.pos),d=len(r);if(!(d>1)||d>MISSILE_EVADE.range)continue;const closing=-dot(sub(u.velocity||[0,0,0],m.vel||[0,0,0]),mul(r,1/d));if(!(closing>1))continue;const tgo=d/closing;if(tgo>MISSILE_EVADE.tgo)continue;if(!best||tgo<best.tgo)best={m,r,d,tgo};}
- if(!best&&globalThis.KS_LOCK_REACT&&u.lockWarn&&b.time-u.lockWarn.at<=1){const L=(b.units||[]).find(x=>x.id===u.lockWarn.from&&!x.dead);if(L){const r=sub(u.pos,L.pos),d=len(r);if(d>1)best={r,d,tgo:Infinity,lock:true};}}
+ if(!globalThis.KS_MISSILE_EVADE||!craftUnit(u)||!(b?.missiles?.length||globalThis.KS_LOCK_REACT&&u.lockWarn))return null;let best=null;
+for(const m of b.missiles||[]){if(!(m.n>0)||m.ballistic||m.target!==u.id||m.team===u.team)continue;const r=sub(u.pos,m.pos),d=len(r);if(!(d>1)||d>MISSILE_EVADE.range)continue;const closing=-dot(sub(u.velocity||[0,0,0],m.vel||[0,0,0]),mul(r,1/d));if(!(closing>1))continue;const tgo=d/closing;if(tgo>MISSILE_EVADE.tgo)continue;if(!best||tgo<best.tgo)best={m,r,d,tgo};}
+ if(!best&&globalThis.KS_LOCK_REACT&&u.lockWarn&&b.time-u.lockWarn.at<=FLEET_AIR.every+.5/* the fleet's air step renews a warning every FLEET_AIR.every s */){const L=(b.units||[]).find(x=>x.id===u.lockWarn.from&&!x.dead);if(L){const r=sub(u.pos,L.pos),d=len(r);if(d>1)best={r,d,tgo:Infinity,lock:true};}}
  if(!best)return null;const los=mul(best.r,1/best.d),v=u.velocity||[0,0,0];let e=sub(v,mul(los,dot(v,los)));if(len(e)<1e-6){e=cross(los,[0,1,0]);if(len(e)<1e-6)e=cross(los,[1,0,0]);}e=norm(e);
  u.evadeT=(u.evadeT||0)+1;return add(u.pos,mul(e,MISSILE_EVADE.lead));
 }
@@ -101052,7 +101058,8 @@ function fleetAirStep(b,dt,opts={}){
    if(w.job==='escort'){const ward=byId.get(w.jobId);if(up(ward)){const th=nearest(ward,EF);f.order=th&&dist(th,ward)<=FLEET_AIR.engage?{...f.order,type:'attack',target:th.id,fire:true,aim:'auto'}:C0?.go&&T&&eff(T)&&suppress?{...f.order,type:'attack',target:T.id,fire:true,aim:'sensor'}/* in with the bombers, ahead of them */:{...f.order,type:'escort',target:ward.id,fire:true};continue;}w.job='sweep';w.jobId=null;}
    const q=byId.get(w.jobId);const tgt=up(q)?q:nearest(f,EF)||nearest(f,EB);f.order=tgt?{...f.order,type:'attack',target:tgt.id,fire:true,aim:'auto'}:up(home)?{...f.order,type:'escort',target:home.id,fire:true}:{...f.order,type:'hold',fire:true};}
   // A fighter's missile at a craft before its bow.
-  for(const f of F){const w=f.sortie;if(!w.stores.length||f.order.type!=='attack'||(w.mslAt||0)>t)continue;const q=byId.get(f.order.target);if(!up(q)||!craftUnit(q)||dist(f,q)>(roundTrialOn()?roundTrialRange('cmsl'):FLEET_AIR.airShot)||!craftGunsBear(f,q)||!craftLockStep(b,f,q,FLEET_AIR.every,roundTrialOn()?roundTrialRange('cmsl'):FLEET_AIR.airShot))continue;fleetAirRelease(b,f,q,'cmsl',1,FLEET_AIR.kinds[1],null);w.stores.pop();w.mslAt=t+FLEET_AIR.airWait;air.log.atCraft[team]++;}
+  for(const f of F){const w=f.sortie;if(lockTrialOn()&&(!w.stores.length||f.order.type!=='attack'||(w.mslAt||0)>t)){const q0=byId.get(f.order?.target);if(w.stores.length&&f.order.type==='attack'&&up(q0)&&craftUnit(q0))craftLockStep(b,f,q0,FLEET_AIR.every,roundTrialOn()?roundTrialRange('cmsl'):FLEET_AIR.airShot);else delete f.lock;}
+   if(!w.stores.length||f.order.type!=='attack'||(w.mslAt||0)>t)continue;const q=byId.get(f.order.target),reach=roundTrialOn()?roundTrialRange('cmsl'):FLEET_AIR.airShot,locked=up(q)&&craftUnit(q)?craftLockStep(b,f,q,FLEET_AIR.every,reach):(delete f.lock,false)/* updated before any other test, so a lock broken while waiting is gone (physics review 2026-11-23) */;if(!up(q)||!craftUnit(q)||dist(f,q)>reach||!craftGunsBear(f,q)||!locked)continue;fleetAirRelease(b,f,q,'cmsl',1,FLEET_AIR.kinds[1],null);w.stores.pop();w.mslAt=t+FLEET_AIR.airWait;air.log.atCraft[team]++;}
   // Bombers.
   for(const y of bombers[team]){if(!up(y))continue;const w=y.sortie,home=byId.get(w.home);
    // 2026-11-20 A bomber that came out after the strike's target was chosen is given it too (it had none, was given no order
@@ -101106,8 +101113,8 @@ function fleetAirStep(b,dt,opts={}){
 }
 function fleetAirRelease(b,u,target,kind,n,r,aim,fall=null){
  const s=fall?len(fall.vel):Math.max(MISSILE_FLIGHT.launch,len(u.velocity||[0,0,0])),dir=fall?norm(fall.vel):norm(sub(target.pos,u.pos)),d=len(sub(target.pos,u.pos));
- const trial=!fall&&roundTrialOn()&&craftUnit(u),torp=isTorpedoRound(kind),R=trial?roundTrialRange(kind):fall?.range??r.range,s0=trial&&torp?len(u.velocity||[0,0,0])+ROUND_TRIAL.torpDv:s;
- (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+kind+'@'+b.time,team:u.team,from:u.id,target:target.id,n,tt:airRound(kind).tt,kind,ion:!!r.ion,...(aim?{aim,aimRange:d}:{}),...(fall?{ballistic:true}:{}),range:R,traveled:0,pos:u.pos.slice(),vel:mul(dir,s0),s:s0,life:fall?.life??(trial?600:r.range/roundSpeed(kind)*1.5+5),...(trial?{profile:torp?{torp:true,v0:s0,dec:s0*s0/(2*R)}:{top:Math.max(s0,roundSpeed(kind))}}:{}),...(!fall&&lockTrialOn()&&craftUnit(u)&&!torp?{semiActive:true}:{})});
+ const trial=!fall&&roundTrialOn()&&craftUnit(u)&&craftUnit(target)/* against craft only: a ship is struck from its release distances (physics review 2026-11-23) */,torp=isTorpedoRound(kind),R=trial?roundTrialRange(kind):fall?.range??r.range,s0=trial&&torp?len(u.velocity||[0,0,0])+ROUND_TRIAL.torpDv:s;
+ (b.missiles||(b.missiles=[])).push({id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+kind+'@'+b.time,team:u.team,from:u.id,target:target.id,n,tt:airRound(kind).tt,kind,ion:!!r.ion,...(aim?{aim,aimRange:d}:{}),...(fall?{ballistic:true}:{}),range:R,traveled:0,pos:u.pos.slice(),vel:mul(dir,s0),s:s0,life:fall?.life??(trial?600:r.range/roundSpeed(kind)*1.5+5),...(trial?{profile:torp?{torp:true,v0:s0,dec:s0*s0/(2*R)}:{top:Math.max(s0,roundSpeed(kind))}}:{}),...(!fall&&lockTrialOn()&&craftUnit(u)&&craftUnit(target)&&!torp?{semiActive:true}:{})});
  if(b.air&&!craftUnit(target))b.air.log.released[u.team]+=n;
 }
 function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),dt,b.time);
@@ -103225,7 +103232,10 @@ function craftLoadout(x){
 // A chosen loadout checked against the stations: each station's kind must fit it and its count is held to what it
 // takes (a station left out falls back to the default; 'auto' or nothing is the default throughout).
 function normalizeLoad(stations,load,base){
- const L=Array.isArray(load)?load:null;
+ let L=Array.isArray(load)?load:null;
+ // 2026-11-23 (regression review) A loadout chosen when a BTL-B or TIE/sa had [bomb bay, pylon] stations is read against
+ // their tube stations [tube, bomb bay]: bombs chosen for the bay go back to the bay instead of into the tube.
+ if(L&&L.length===(stations||[]).length){const bay=stations.findIndex(st=>st?.mount==='bay');if(bay>=0)for(let i=0;i<L.length;i++)if(i!==bay&&L[i]?.k==='bomb'&&stations[i]?.mount!=='bay'&&L[bay]?.k!=='bomb'){L=L.slice();[L[i],L[bay]]=[L[bay],L[i]];break;}}
  return (stations||[]).map((st,i)=>{const s=stationStore(st),b=base?.[i]||{k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]||0},q=L?.[i]&&typeof L[i]==='object'?L[i]:b,k=ORDNANCE[q.k]?q.k:b.k,cap=storeCapacity(s,k);return {k,n:cap>0?clamp(Math.round(+q.n||0),0,cap):0};});
 }
 // v22 What a craft carries, round by round: [{kind, n (per craft), mount, dims: [length, diameter], …}].
@@ -106305,7 +106315,7 @@ deriveAntiAir();
 initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldDebitK,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceShell,fleetPrepareCollision,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- RETIRED_CRAFT_TYPES,isCraftRemodel:k=>Object.hasOwn(CRAFT_REMODEL_KEYS,k),FLEET_AIR,fleetAirRelease,craftLockStep,craftInSight,roundTrialRange,ROUND_TRIAL,fleetAirSetup,fleetAirStep,fleetAirStrikeWeight,fleetAirFirst,FLEET_AIR_FIRST,fleetAirLoad,fleetAirControl,trackingSensor,CRAFT_ENERGY,craftEnergyStep,GRAVITY,planetGravity,potentialEnergyJ,liftStep,liftPowerless,planetFall,ANTI_AIR,antiAirTrack,antiAirChannels,ION_ROUND,ionPowerLoss,ionPowerCut,EXAMPLE_AIR_CONTROL,AIR_ROUNDS,airRound,SHIP_TORPEDO,SHIP_MISSILE,HEAVY_LAUNCHER,launcherHeavy,launcherTorpedo,launcherRound,BRIDGE,bridgeRuns,bridgeLost,ionRestarting,PRESS,fleetPressRange,fleetPressing,fleetFightRange,fleetPressJudge,SHIELD_RECHARGE_K,DOCK,dockState,TURN_BLEED,craftBarrelStep,craftAttitudeStep,dogfightGeometry,dogfightAim,dogfightSpeed,turnRateAt,turnRadiusAt,cornerSpeed,CRAFT_DOGFIGHT,craftGunsBear,SHIELD_SHELL,shieldShellInside,CRAFT_PASS,passFighter,craftUnit,craftPassSpeed,craftCruiseSpeed,craftWantSpeed,ORDNANCE_BASIS,ordnanceBody,SHIP_TORPEDO,AIR_ROUND,BLAST,blastOpenTT,combatIonRounds,blastMassT,combatBlastAdd,combatBlast,ROUND_SPEED,roundSpeed,isTorpedoRound,CRAFT_SHIELD,craftShieldScale,fieldScale,FLAK,POINT_DEFENSE,pointDefenseGuns,PEN,holeArea,modVol,modDens,modBreakTT,hullStructure,hullBreakTT,hullBulk,boreLayer,armorBore,MISSILE_FLIGHT,dockResupplyStep,dockStep,dockNeed,dockWorldToLocal,dockLocalToWorld,engineDesignLimits,giantShip,nozzleShaftCapacity,nominalProfileSources,aviationConnected,surfaceMountState,surfaceCapacitorFactor,engineWasteFraction,CRUISE_SPEED_TARGET,CRUISE_SIZING_MARGIN,shipSustainedCruise,CRUISE_SPEED_TARGET,ENGINE_HEAT_CURVE,outOfAction,fleetActs,hullRadialMap,hullRadialAt,setHullRadial,hullRadialOf,hullRadialDepth,hullRefine,HULL_RADIAL,fleetBoltTT,fleetShotTT,penCrewSurvive,combatShotTT,combatPenetrate,heatRunThrottle,withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swCoolDone,swShipShotTT,exampleFleetHidden,heatRunMode,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
+ RETIRED_CRAFT_TYPES,isCraftRemodel:k=>Object.hasOwn(CRAFT_REMODEL_KEYS,k),FLEET_AIR,fleetAirRelease,craftMissileEvade,craftLockStep,craftInSight,roundTrialRange,ROUND_TRIAL,fleetAirSetup,fleetAirStep,fleetAirStrikeWeight,fleetAirFirst,FLEET_AIR_FIRST,fleetAirLoad,fleetAirControl,trackingSensor,CRAFT_ENERGY,craftEnergyStep,GRAVITY,planetGravity,potentialEnergyJ,liftStep,liftPowerless,planetFall,ANTI_AIR,antiAirTrack,antiAirChannels,ION_ROUND,ionPowerLoss,ionPowerCut,EXAMPLE_AIR_CONTROL,AIR_ROUNDS,airRound,SHIP_TORPEDO,SHIP_MISSILE,HEAVY_LAUNCHER,launcherHeavy,launcherTorpedo,launcherRound,BRIDGE,bridgeRuns,bridgeLost,ionRestarting,PRESS,fleetPressRange,fleetPressing,fleetFightRange,fleetPressJudge,SHIELD_RECHARGE_K,DOCK,dockState,TURN_BLEED,craftBarrelStep,craftAttitudeStep,dogfightGeometry,dogfightAim,dogfightSpeed,turnRateAt,turnRadiusAt,cornerSpeed,CRAFT_DOGFIGHT,craftGunsBear,SHIELD_SHELL,shieldShellInside,CRAFT_PASS,passFighter,craftUnit,craftPassSpeed,craftCruiseSpeed,craftWantSpeed,ORDNANCE_BASIS,ordnanceBody,SHIP_TORPEDO,AIR_ROUND,BLAST,blastOpenTT,combatIonRounds,blastMassT,combatBlastAdd,combatBlast,ROUND_SPEED,roundSpeed,isTorpedoRound,CRAFT_SHIELD,craftShieldScale,fieldScale,FLAK,POINT_DEFENSE,pointDefenseGuns,PEN,holeArea,modVol,modDens,modBreakTT,hullStructure,hullBreakTT,hullBulk,boreLayer,armorBore,MISSILE_FLIGHT,dockResupplyStep,dockStep,dockNeed,dockWorldToLocal,dockLocalToWorld,engineDesignLimits,giantShip,nozzleShaftCapacity,nominalProfileSources,aviationConnected,surfaceMountState,surfaceCapacitorFactor,engineWasteFraction,CRUISE_SPEED_TARGET,CRUISE_SIZING_MARGIN,shipSustainedCruise,CRUISE_SPEED_TARGET,ENGINE_HEAT_CURVE,outOfAction,fleetActs,hullRadialMap,hullRadialAt,setHullRadial,hullRadialOf,hullRadialDepth,hullRefine,HULL_RADIAL,fleetBoltTT,fleetShotTT,penCrewSurvive,combatShotTT,combatPenetrate,heatRunThrottle,withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swCoolDone,swShipShotTT,exampleFleetHidden,heatRunMode,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT, converterPowerW, wingPowerK, converterShortfall, coolingDemandW, towHeatRelief, wingConverterM3, wingDischargeArea, wingDischargeW,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   loadedShipProfile, motionMassKg, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, EXAMPLE_PROFILE_VERSION, profileModelKey, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, launcherStateKey, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,

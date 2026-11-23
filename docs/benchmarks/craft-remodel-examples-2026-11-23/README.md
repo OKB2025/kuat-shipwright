@@ -20,3 +20,19 @@
 
 作例の生成（scripts/update-ship-examples.cjs）は、リモデルではゲームの読み込みと同じく装備の位置を設計のまま保つ（`keepFitPose`、`Core.isCraftRemodel`）。最初の生成では TIE/ln・TIE/in の顎のレーザー #404/#405 が操縦ポッドの下面へ 0.34 m 付け直されていたため修正した。
 照合結果：部品・装備は全機で設計と一致。違いは許可済みの「発射管内のパイロン→発射管」と、TIE/ln・TIE/in の部品 #432 の厚み 0.018 m → 0.02 m（読み込み時の部品寸法の下限）だけ。回転の未設定と 0 の違いは除いた。
+
+## 発射管を構造物の中へ（2026-11-23「構造物の中へ沈める」）
+
+発射管の本体（魚雷発射管 1.4×0.5×0.5 m、ミサイル発射管 1.2×0.45×0.45 m）はパイロン（0.2 m 高）より大きく、パイロンの位置のままでは機体の外へ出ていた（tube-protrusion.cjs：X ウイング 99%、TIE 98%、A ウイング 41〜42%）。
+- X ウイング #46/#47 と TIE/ln・TIE/in #430：本体の中心を魚雷発射管構造物（#162/#165、#431）の軸に合わせ、発射口を構造物の前面の直後（口の前が開く最初の位置、5 mm 刻みで探索）に置いた。案B で取り付く（めり込み 0.395 m・0.435 m、発射管の長さ 1.4 m 未満）。
+- A ウイング #27/#28/#47/#48：管の構造物がないので、口が開いたままの最深まで（さらに 4〜6 cm）沈めた。
+- 外に出ている割合（tube-protrusion.log）：X ウイング 38%、TIE 28%、A ウイング 30〜34%。残りは本体が構造物（直径 0.29〜0.39 m）より太い分。
+- 位置の探索：/tmp/ks-verify/20261123-sink/sink.cjs・sink-awing.cjs（結果は data/imperial2.js の CRAFT_REMODEL に反映、part-diff.txt に前後の位置）。
+
+## 証拠
+
+- part-diff.py・part-diff.txt：ゲームが読む data/examples/<key>/design.json.gz と設計ファイルの部品・装備の比較。違いは発射管への変更とその位置、TIE の #432 の厚み 0.018→0.02 m（読み込み時の部品寸法の下限 0.02 m、js/core.js deserialize の clamp）だけ。
+- check.cjs・check.log：buildDesign の部品数・質量・加速・警告。
+- hashes.txt：設計ファイルと受け取ったファイル（キャッシュを除く前）の SHA-256。
+- 生成：scripts/refresh-examples.cjs --keys craft_xwing,craft_tie_ln,craft_tie_in,craft_awing,craft_tie_d、update-craft-costs.cjs --check、update-asset-manifest.cjs --check（通過）。
+- 未実施：ブラウザでの表示・保存再読込の確認、比較画像。

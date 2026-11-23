@@ -70,3 +70,15 @@ test('KS_MISSILE_LOCK: the lock is held for a second before a missile may go, an
  B.time=.5;assert.equal(C.craftLockStep(B,a,t,.25,1500),false);B.time=1;assert.equal(C.craftLockStep(B,a,t,.25,1500),true);
  t.pos=[0,0,1000];B.time=1.25;assert.equal(C.craftLockStep(B,a,t,.25,1500),false,'out of the sight the lock is gone');
 });
+test('KS_MISSILE_LOCK: a lock broken in between starts again (physics review 2026-11-23)',()=>{
+ const C=runtime({KS_MISSILE_LOCK:true}),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
+ a.pos=[0,0,0];a.yaw=0;t.pos=[1000,0,0];const B=C.fleetBattle([a,t],true);B.time=0;C.craftLockStep(B,a,t,.25,1500);
+ t.pos=[0,0,1000];B.time=.5;C.craftLockStep(B,a,t,.25,1500);t.pos=[1000,0,0];B.time=5;assert.equal(C.craftLockStep(B,a,t,.25,1500),false,'held afresh from 5 s');B.time=6;assert.equal(C.craftLockStep(B,a,t,.25,1500),true);
+});
+test('KS_LOCK_REACT: a warned craft evades with no round in flight, and the trial profile leaves rounds at ships alone',()=>{
+ const C=runtime({KS_MISSILE_EVADE:true,KS_LOCK_REACT:true,KS_ROUND_PROFILE:true}),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),u=C.fleetUnit('a','craft_tie_ln',p,0),e=C.fleetUnit('e','craft_tie_ln',p,1);
+ u.pos=[0,0,0];u.yaw=0;u.velocity=[300,0,0];e.pos=[-1000,0,0];e.yaw=0;const B=C.fleetBattle([u,e],true);B.time=0;u.lockWarn={from:'e',at:0};
+ const dest=C.craftMissileEvade(B,u);assert.ok(dest,'evades the locking craft');
+ const sh=C.buildDesign('cr90'),sp=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(sh),sh.name,sh))),ship=C.fleetUnit('s','cr90',sp,1);ship.pos=[5000,0,0];B.units.push(ship);B.missiles=[];
+ C.fleetAirRelease(B,u,ship,'itorp',1,C.FLEET_AIR.kinds[0],null);assert.equal(B.missiles[0].profile,undefined,'a round at a ship keeps its own reach');
+});
