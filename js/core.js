@@ -86848,12 +86848,16 @@ function deathStarBuild(){
  // ellipsoid (radius A across, B = R − w/2 up from its base plane), not the sphere of radius R a torus assumed, so the torus
  // left most latitudes uncut. Each quarter meridian is a chain of boxes about 3.6 km long, centred on the surface, as wide as
  // the trench (DS.meridianW) and cutting half of it deep (the torus tube's radius); the chain is baked like any cut.
- {const A=base/2,B=rise,depth=DS.meridianW/2,meridians=[];
+ {const A=base/2,B=rise,depth=DS.meridianW/2,meridians=[],cuts=[];
   for(let i=0;i<DS.meridians;i++)for(const side of [0,180]){const yawDeg=22.5+i*180/DS.meridians+side,yaw=yawDeg*rad,h=[Math.cos(yaw),0,-Math.sin(yaw)];if(!side)meridians.push(yawDeg);
    for(const north of [1,-1]){const y0=R+north*w/2,P=t=>[C0[0]+A*Math.cos(t)*h[0],y0+north*B*Math.sin(t),C0[2]+A*Math.cos(t)*h[2]],arc=Math.PI/4*(A+B),n=Math.max(8,Math.ceil(arc/3600));
-    for(let k=0;k<n;k++){const t0=k/n*Math.PI/2,t1=(k+1)/n*Math.PI/2,tm=(t0+t1)/2,run=sub(P(t1),P(t0)),T=norm(run),g=norm([Math.cos(tm)/A*h[0],north*Math.sin(tm)/B,Math.cos(tm)/A*h[2]]),N=norm(sub(g,mul(T,dot(g,T)))),W=cross(T,N);
+    /* the surface itself, found by a ray toward the centre at each segment's ends and middle (the dome's skin stands up to
+       ~200 m outside the half ellipsoid), so each box is centred on it and cuts half the trench's width deep */
+    const surf=t=>{const q=P(t),dir=norm(sub(q,C0)),hit=rayEnv(s,add(C0,mul(dir,R+4000)),mul(dir,-1),{structOnly:true});return hit&&dot(hit.n,dir)>.2?{p:hit.p,n:norm(hit.n)}:{p:q,n:dir};};const pts=Array.from({length:2*n+1},(_,j)=>surf(j/(2*n)*Math.PI/2));
+    for(let k=0;k<n;k++){const a0=pts[2*k].p,a1=pts[2*k+2].p,m=pts[2*k+1],run=sub(a1,a0),T=norm(run),N=norm(sub(m.n,mul(T,dot(m.n,T)))),W=cross(T,N),c=add(mul(add(a0,a1),.5),mul(N,dot(sub(m.p,mul(add(a0,a1),.5)),N)));
      const ry=Math.asin(clamp(-T[2],-1,1)),rz=Math.atan2(T[1],T[0]),rx=Math.atan2(N[2],W[2]);
-     s.solidCuts.push({id:s.nextId++,shape:'box',c:P(tm),s:[len(run)*1.04,2*depth,DS.meridianW],rotation:[rx/rad,ry/rad,rz/rad],mirror:false,structures:true});}}}
+     cuts.push({id:s.nextId++,shape:'box',c,s:[len(run)*1.04,2*depth,DS.meridianW],rotation:[rx/rad,ry/rad,rz/rad],mirror:false,structures:true});}}}
+  s.solidCuts.push(...cuts);
   /* the superlaser's exhaust ports go under a meridian trench's floor (ensureSuperlaserExhaust): the trench's great circle */
   s._meridianTrenches=meridians.map(yawDeg=>({shape:'torus',c:C0.slice(),s:[2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*depth],rotation:[90,yawDeg,0]}));}/* baked with the other examples' cuts at the end of buildDesign: baked earlier, every room placed in a 160 km station tested its points against the meshes (2026-11-22, a build of over 100 minutes) */
  // The reactor core at the centre.
@@ -91051,7 +91055,7 @@ function placementSinkToSurface(ship,part,parent,axis){
 function placementGeometryTriangles(p){const g=p._placementGeometry;if(!g?.local)return null;const key=JSON.stringify([p.c,p.yaw,p.pitch,p.roll,p.surfaceNormal]);if(g.key===key)return g.tris;const T=new Float64Array(g.local.length);for(let i=0;i<T.length;i+=3)T.set(worldStruct(p,Array.from(g.local.slice(i,i+3))),i);g.key=key;return g.tris=T;}
 /* 2026-11-22 the bounds and a BVH are kept with the placed triangles: a baked hull (bakedMesh, 16,000 triangles) is
    tested at every room sample, and the brute-force ray made one room sync take 500 s instead of 8 s */
-function placementGeometryContains(p,q){const T=placementGeometryTriangles(p),g=p._placementGeometry;if(g._containsTris!==T){g._containsTris=T;g._containsBounds=solidMeshBounds(T);g._containsBVH=T.length>=9*64?buildBVH(T):null;}const b=g._containsBounds;if(q.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;let o=q.slice(),hits=0;const d=norm([.937426,.202719,.283022]),bvh=g._containsBVH;for(let i=0;i<128;i++){const h=bvh?rayBVH(bvh,o,d,Infinity):rayTris(T,o,d);if(!h)break;hits++;o=add(h.p,mul(d,1e-5));}return hits%2===1;}
+function placementGeometryContains(p,q){const T=placementGeometryTriangles(p),g=p._placementGeometry;if(g._containsTris!==T){g._containsTris=T;g._containsBounds=solidMeshBounds(T);g._containsBVH=T.length>=9*64?buildBVH(T):null;g._containsGrid=null;}const b=g._containsBounds;if(q.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;const d=norm([.937426,.202719,.283022]),bvh=g._containsBVH,parity=start=>{let o=start.slice(),hits=0;for(let i=0;i<128;i++){const h=bvh?rayBVH(bvh,o,d,Infinity):rayTris(T,o,d);if(!h)break;hits++;o=add(h.p,mul(d,1e-5));}return hits%2===1;};if(T.length>=9*2000){g._containsGrid||=meshCellGrid(T,b,parity);const v=g._containsGrid(q);if(v)return v>0;}return parity(q);}
 function placementRigidVector(parent,v){return worldStruct({...parent,c:[0,0,0]},v);}
 // Nozzle foundations are finite structural hardware behind the nozzle
 // flange. Their material never enters the engine's operating volume/rating.
@@ -93727,11 +93731,23 @@ function meshStructTriangles(p){
  const L=meshLocalTris(p).T,T=new Float32Array(L.length);for(let i=0;i<L.length;i+=3)T.set(worldStruct(p,[L[i],L[i+1],L[i+2]]),i);
  MESH_TRI_CACHE.set(p.mesh,{key,p,T});return T;
 }
+// 2026-11-22 A coarse grid over a closed mesh: cells no triangle's box reaches are wholly inside or wholly outside, decided
+// once per connected run of such cells by a ray. A point in such a cell needs no ray of its own; only points near the
+// surface are cast. Baked structures (a 160 km Death Star hemisphere, a baked hull) are tested at millions of points.
+function meshCellGrid(T,bounds,parity){
+ const N=48,lo=bounds.slice(0,3),size=[0,1,2].map(i=>Math.max(1e-9,bounds[i+3]-bounds[i])),cell=size.map(v=>v/N),idx=(x,y,z)=>(x*N+y)*N+z,state=new Int8Array(N*N*N);
+ const at=(v,i)=>Math.min(N-1,Math.max(0,Math.floor((v-lo[i])/cell[i])));
+ for(let t=0;t+8<T.length;t+=9){const a=[0,1,2].map(i=>at(Math.min(T[t+i],T[t+3+i],T[t+6+i])-cell[i]*.01,i)),b=[0,1,2].map(i=>at(Math.max(T[t+i],T[t+3+i],T[t+6+i])+cell[i]*.01,i));for(let x=a[0];x<=b[0];x++)for(let y=a[1];y<=b[1];y++)for(let z=a[2];z<=b[2];z++)state[idx(x,y,z)]=2;}
+ // label the free cells by connected runs and decide each run once
+ const stack=[];for(let x=0;x<N;x++)for(let y=0;y<N;y++)for(let z=0;z<N;z++){const k=idx(x,y,z);if(state[k])continue;const inside=parity([lo[0]+(x+.5)*cell[0],lo[1]+(y+.5)*cell[1],lo[2]+(z+.5)*cell[2]])?1:-1;state[k]=inside;stack.push(x,y,z);
+  while(stack.length){const cz=stack.pop(),cy=stack.pop(),cx=stack.pop();for(const [dx,dy,dz] of [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]){const nx=cx+dx,ny=cy+dy,nz=cz+dz;if(nx<0||ny<0||nz<0||nx>=N||ny>=N||nz>=N)continue;const j=idx(nx,ny,nz);if(state[j])continue;state[j]=inside;stack.push(nx,ny,nz);}}}
+ return q=>{const x=Math.floor((q[0]-lo[0])/cell[0]),y=Math.floor((q[1]-lo[1])/cell[1]),z=Math.floor((q[2]-lo[2])/cell[2]);if(x<0||y<0||z<0||x>=N||y>=N||z>=N)return 0;const v=state[idx(x,y,z)];return v===2?0:v;};
+}
 function inMeshStruct(p,q){
  if(!p.mesh?.v?.length)return v3InStruct({...p,form:'box'},q);
  const c=meshLocalTris(p),l=localStruct(p,q),b=c.bounds;if(l.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;
- c.bvh||=buildBVH(c.T);let o=l.slice(),hits=0,dist=0;const d=[.937426,.202719,.283022],max=len(meshScale(p))*3;
- for(let i=0;i<64;i++){const h=rayBVH(c.bvh,o,d);if(!h||dist>max)break;hits++;dist+=h.t+1e-4;o=add(h.p,mul(d,1e-4));}return hits%2===1;
+ c.bvh||=buildBVH(c.T);const d=[.937426,.202719,.283022],max=len(meshScale(p))*3,parity=start=>{let o=start.slice(),hits=0,dist=0;for(let i=0;i<64;i++){const h=rayBVH(c.bvh,o,d);if(!h||dist>max)break;hits++;dist+=h.t+1e-4;o=add(h.p,mul(d,1e-4));}return hits%2===1;};
+ if(c.T.length>=9*2000){c.grid||=meshCellGrid(c.T,b,parity);const v=c.grid(l);if(v)return v>0;}return parity(l);
 }
 // Mirror across the structure's own Z (left-right): negate z, reverse winding.
 function mirrorStructMesh(m){return m?{v:m.v.map(p=>[p[0],p[1],-p[2]]),f:m.f.map(t=>[t[0],...t.slice(1).reverse()]),...meshCellSelection(m,m.f.map((_,i)=>i))}:m;}
