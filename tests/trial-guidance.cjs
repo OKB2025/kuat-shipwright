@@ -42,3 +42,31 @@ test('KS_MISSILE_EVADE: a craft with a round closing on it turns onto the beam (
  assert.ok(!setup({}).evading,'no evasion without the switch');
  const u=setup({KS_MISSILE_EVADE:true});assert.equal(u.evading,true);const f=u.att?.f||[Math.cos(u.yaw),0,Math.sin(u.yaw)];assert.ok(Math.abs(f[0])<.999,'the nose leaves the line of the round');
 });
+
+// 2026-11-23 KS_ROUND_PROFILE / KS_MISSILE_LOCK (user: 「ミサイルは当たるまで敵をカーソル内に…」「魚雷は…減速を続けて最大到達距離で停止、爆発」).
+function flyOut(flags,kind,{launcherFaces=[1,0,0],target=[50000,0,30000]}={}){
+ const C=runtime(flags),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
+ a.pos=[0,0,0];a.yaw=Math.atan2(launcherFaces[2],launcherFaces[0]);a.velocity=[500,0,0];t.pos=target;t.velocity=[0,0,0];const B=C.fleetBattle([a,t],true);a.order={type:'hold',fire:false};t.order={type:'hold',fire:false};
+ C.fleetAirRelease(B,a,t,kind,1,C.FLEET_AIR.kinds[1],null);const m=B.missiles[0],speeds=[];let last=m;
+ for(let i=0;i<400&&B.missiles.length;i++){C.fleetTick(B,.05);const q=B.missiles.find(x=>x.id===m.id);if(!q)break;speeds.push(q.s);last=q;}
+ return {C,m:last,speeds,gone:!B.missiles.some(x=>x.id===m.id)};}
+test('KS_ROUND_PROFILE: a torpedo leaves a little faster than its craft and slows to a stop at its reach, where it bursts',()=>{
+ const r=flyOut({KS_ROUND_PROFILE:true},'ptorp');assert.ok(Math.abs(r.speeds[0]-(500+150))<40,`launched at ${r.speeds[0]} m/s`);
+ for(let i=1;i<r.speeds.length;i++)assert.ok(r.speeds[i]<=r.speeds[i-1]+1e-9,'it only slows');assert.ok(r.gone&&r.m.lost==='spent');assert.ok(Math.abs(r.m.traveled-2000)<1,`burst after ${r.m.traveled} m`);
+});
+test('KS_ROUND_PROFILE: a missile boosts, then slows, and bursts at its reach',()=>{
+ const r=flyOut({KS_ROUND_PROFILE:true},'cmsl'),top=Math.max(...r.speeds),k=r.speeds.indexOf(top);assert.ok(k>0&&k<r.speeds.length-1,'it speeds up first and slows after');
+ assert.ok(r.speeds.at(-1)<top*.6,`ends at ${r.speeds.at(-1)} of ${top} m/s`);assert.ok(r.gone&&r.m.lost==='spent'&&Math.abs(r.m.traveled-1500)<1,`burst after ${r.m.traveled} m`);
+ const far=flyOut({KS_ROUND_PROFILE:true,KS_MSL_RANGE:2500},'cmsl');assert.ok(Math.abs(far.m.traveled-2500)<1,'KS_MSL_RANGE sets the reach');
+});
+test('KS_MISSILE_LOCK: a missile stays guided only while its launcher keeps the target in its sight',()=>{
+ const inSight=flyOut({KS_MISSILE_LOCK:true,KS_GUIDANCE:'pn'},'cmsl',{target:[3000,0,0]}),away=flyOut({KS_MISSILE_LOCK:true,KS_GUIDANCE:'pn'},'cmsl',{launcherFaces:[-1,0,0],target:[3000,0,0]});
+ assert.notEqual(inSight.m.unguided,true);assert.equal(away.m.unguided,true,'the launcher looks the other way');
+ const off=flyOut({KS_GUIDANCE:'pn'},'cmsl',{launcherFaces:[-1,0,0],target:[3000,0,0]});assert.notEqual(off.m.unguided,true,'off by default');
+});
+test('KS_MISSILE_LOCK: the lock is held for a second before a missile may go, and the target is warned at once',()=>{
+ const C=runtime({KS_MISSILE_LOCK:true}),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
+ a.pos=[0,0,0];a.yaw=0;t.pos=[1000,0,0];const B=C.fleetBattle([a,t],true);B.time=0;assert.equal(C.craftLockStep(B,a,t,.25,1500),false);assert.equal(t.lockWarn.from,'a');
+ B.time=.5;assert.equal(C.craftLockStep(B,a,t,.25,1500),false);B.time=1;assert.equal(C.craftLockStep(B,a,t,.25,1500),true);
+ t.pos=[0,0,1000];B.time=1.25;assert.equal(C.craftLockStep(B,a,t,.25,1500),false,'out of the sight the lock is gone');
+});
