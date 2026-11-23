@@ -1,18 +1,20 @@
-== craft_arc170: 8 differences
+== craft_arc170: 10 differences
   parts#67.hullData.paint: "#d7d5ca" -> "neutral"
   parts#7.bandPaint: "#905050" -> null
   parts#8.bandPaint: "#905050" -> null
   fits#43.k: "cpylon" -> "ctorp"
+  fits#43.p[1]: 0.59 -> 0.95
   fits#68.k: "cpylon" -> "ctorp"
+  fits#68.p[1]: 0.59 -> 0.95
   credits: {"author": "DrEgguin", "source": "https://sketchfab.com/3d-models/arc-170-starfi -> null
   hullLocked: false -> true
   turretSupportRule: null -> 2
 == craft_btlb: 8 differences
   parts#52.hullData.paint: "#cdcac0" -> "neutral"
-  fits#25.p[1]: 0.33370451 -> 0.1737
   fits#25.k: "cpylon" -> "ctorp"
-  fits#26.p[1]: 0.33370451 -> 0.1737
+  fits#25.p[1]: 0.33370451 -> 0.5737
   fits#26.k: "cpylon" -> "ctorp"
+  fits#26.p[1]: 0.33370451 -> 0.5737
   credits: {"author": "A308 Digital", "source": "https://sketchfab.com/3d-models/btl-b-y-wi -> null
   hullLocked: false -> true
   turretSupportRule: null -> 2
@@ -23,7 +25,7 @@
   parts#111.s[0]: 0.012 -> 0.02
   parts#144.s[0]: 0.012 -> 0.02
   parts#148.s[0]: 0.012 -> 0.02
-  fits#22.p[1]: 0.00124647 -> -0.2788
+  fits#22.p[1]: 0.00124647 -> 0.5012
   fits#22.k: "cpylon" -> "ctorp"
   credits: {"author": "Daniel", "source": "https://sketchfab.com/3d-models/star-wars-tiesa- -> null
   detail: null -> 1
@@ -32,14 +34,14 @@
   turretSupportRule: null -> 2
 == craft_hyena: 13 differences
   parts#47.hullData.paint: "#626f77" -> "neutral"
-  fits#29.p[1]: 1.9507685986743124 -> 1.6908
   fits#29.k: "cpylon" -> "ctorp"
-  fits#30.p[1]: 1.9507685986743124 -> 1.6908
+  fits#29.p[1]: 1.9507685986743124 -> 1.6908
   fits#30.k: "cpylon" -> "ctorp"
-  fits#31.p[1]: 1.8951473560811674 -> 1.4451
+  fits#30.p[1]: 1.9507685986743124 -> 1.6908
   fits#31.k: "cpylon" -> "cmsl"
-  fits#32.p[1]: 1.8951473560811674 -> 1.4451
+  fits#31.p[1]: 1.8951473560811674 -> 1.6851
   fits#32.k: "cpylon" -> "cmsl"
+  fits#32.p[1]: 1.8951473560811674 -> 1.6851
   credits: {"source": "\"Hyena Bomber\" by Dakata_123 (https://sketchfab.com/Dakata_123), C -> null
   groups[13].parts: length 12 -> 11
   hullLocked: false -> true
@@ -52,12 +54,12 @@
   turretSupportRule: null -> 2
 == craft_vulture: 11 differences
   parts#41.hullData.paint: "#858c96" -> "neutral"
-  fits#23.p[1]: 1.0372571292777173 -> 0.5373
   fits#23.k: "cpylon" -> "ctorp"
-  fits#24.p[1]: 1.0372571292777173 -> 0.5373
+  fits#23.p[1]: 1.0372571292777173 -> 0.6173
   fits#24.k: "cpylon" -> "ctorp"
-  fits#25.p[1]: 0.7579961258902803 -> 0.998
+  fits#24.p[1]: 1.0372571292777173 -> 0.6173
   fits#25.k: "cpylon" -> "cmsl"
+  fits#25.p[1]: 0.7579961258902803 -> 0.998
   credits: {"source": "\"Vulture Droid\" by DrEgguin (https://sketchfab.com/DrEgguin), CC B -> null
   groups[13].parts: length 8 -> 5
   hullLocked: false -> true
@@ -66,31 +68,31 @@
   parts#47.hullData.paint: "#d2d1c7" -> "neutral"
   parts#61.s[0]: 0.017 -> 0.02
   parts#74.s[0]: 0.017 -> 0.02
-  fits#27.p[1]: 1.0625 -> 0.7225
   fits#27.k: "cpylon" -> "cmsl"
-  fits#28.p[1]: 1.0625 -> 0.7225
+  fits#27.p[1]: 1.0625 -> 0.7625
   fits#28.k: "cpylon" -> "cmsl"
+  fits#28.p[1]: 1.0625 -> 0.7625
   credits: {"source": "\"V-19 Torrent Starfighter\" by A308 Digital (https://sketchfab.com/ -> null
   hullLocked: false -> true
   turretSupportRule: null -> 2
 == craft_z95: 11 differences
   parts#50.hullData.paint: "#d2d1c7" -> "neutral"
-  fits#31.p[1]: 0.2899999916553498 -> 0.51
-  fits#31.label: "右舷胴体プロトン魚雷発射管" -> null
   fits#31.k: "cpylon" -> "cmsl"
-  fits#32.p[1]: 0.2899999916553498 -> 0.51
-  fits#32.label: "左舷胴体プロトン魚雷発射管" -> null
+  fits#31.label: "右舷胴体プロトン魚雷発射管" -> null
+  fits#31.p[1]: 0.2899999916553498 -> 0.45
   fits#32.k: "cpylon" -> "cmsl"
+  fits#32.label: "左舷胴体プロトン魚雷発射管" -> null
+  fits#32.p[1]: 0.2899999916553498 -> 0.45
   credits: {"source": "This work is based on \"Z-95 Headhunter\" (https://sketchfab.com/3d- -> null
   groups[2].parts: length 4 -> 2
   hullLocked: false -> true
   turretSupportRule: null -> 2
 == craft_ywing: 9 differences
   parts#52.hullData.paint: "#c8c7ba" -> "neutral"
-  fits#25.p[1]: 0.33370451 -> 0.1737
   fits#25.k: "cpylon" -> "ctorp"
-  fits#26.p[1]: 0.33370451 -> 0.1737
+  fits#25.p[1]: 0.33370451 -> 0.5737
   fits#26.k: "cpylon" -> "ctorp"
+  fits#26.p[1]: 0.33370451 -> 0.5737
   credits: {"author": "A308 Digital", "source": "https://sketchfab.com/3d-models/btl-b-y-wi -> null
   hullLocked: false -> true
   reference: "craft_btlb" -> "craft_ywing"
