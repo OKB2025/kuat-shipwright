@@ -9676,7 +9676,7 @@ async function trialSpawnShip(){
  const live=trial.battle?trial.battle.b.units.filter(u=>!u.dead).length:1+(trial.escorts?.length||0);
  if(live>=C.FLEET_RULES.maxShips){toast(`同時に出せる艦は自艦を含めて ${C.FLEET_RULES.maxShips} 隻までです`);return;}
  const role=S.role,want={f:S.f,r:S.r,u:S.u},gen=trial.resetGen,started=trial.startedAt;S.busy=true;trialSpawnRender();let a=null;
- try{a=await fleetAsset(S.source);}catch(e){console.error(e);toast('艦を出せません：'+esc(e.message||e));}finally{S.busy=false;trialSpawnRender();}
+ try{a=await fleetAsset(S.source,fleetExampleOptions(S.source));}catch(e){console.error(e);toast('艦を出せません：'+esc(e.message||e));}finally{S.busy=false;trialSpawnRender();}
  // The flight this was asked in is gone (ended, restarted) or jumping: the ship is not put out into another one.
  if(!a||!trial.on||!trialCanSpawn()||trial.battle?.result||trial.resetGen!==gen||trial.startedAt!==started||trialSpawnJumping())return;
  if(!a.p||a.p.catalogOnly){toast('この艦は性能表だけのため出せません');return;}
@@ -10775,6 +10775,10 @@ async function fleetAsset(source,opts={}){
 }
 const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof YardFleetData!=='undefined'&&Object.hasOwn(YardFleetData.designs||{},b)?YardFleetData.designs[b]:null;};
 const fleetPending=new Map();
+// 2026-11-23 (user: 「性能値をあらかじめ計算して持たせて」) An example put out in a trial or added to a fleet takes the profile
+// prepared with it (data/fleet.js, made from the same design by scripts/refresh-examples.cjs): the engine loads its model
+// without computing its figures again (the Imperial II's took 44 s). A catalogue-only row is not a fighting profile.
+const fleetExampleOptions=source=>{const ex=fleetExampleData(source);return ex?.p&&!ex.p.catalogOnly?{lite:true}:{};};
 async function fleetAssetLoad(source,opts={}){
  const cached=fleet.assets.get(source);
  if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}}
@@ -10812,7 +10816,7 @@ async function fleetAdd(source=fleet.source,team=fleet.team){
  if(C.exampleFleetHidden(source)){toast('この作例はまだ艦隊に編成できません');return;}
  if(fleet.busy||!fleetCanRefit())return;if(fleetUnits().length>=C.FLEET_RULES.maxShips){toast('一度に並べられるのは12隻までです');return;}
  fleet.busy=true;fleetRender();await new Promise(r=>setTimeout(r,25));
- try{const a=await fleetAsset(source),u=C.fleetUnit('fleet-'+fleet.next++,a.key,a.p,fleet.mode==='review'?0:team);fleetUnits().push(u);fleet.selected=u.id;fleetArrange();fleetFit();}catch(e){console.error(e);toast('艦を追加できません：'+esc(e.message));}finally{fleet.busy=false;fleetRender();requestDraw();}
+ try{const a=await fleetAsset(source,fleetExampleOptions(source)),u=C.fleetUnit('fleet-'+fleet.next++,a.key,a.p,fleet.mode==='review'?0:team);fleetUnits().push(u);fleet.selected=u.id;fleetArrange();fleetFit();}catch(e){console.error(e);toast('艦を追加できません：'+esc(e.message));}finally{fleet.busy=false;fleetRender();requestDraw();}
 }
 async function fleetSetMode(mode){
  if(!['design','tactical','review'].includes(mode)||fleet.busy)return;const prior=fleet.mode;if(prior===mode)return;const token=fleet.modeToken=(fleet.modeToken||0)+1;
