@@ -2990,7 +2990,7 @@ function hintText() {
       const size=C.PARTS[k].shape==='cube'?(st.roomSize||[120,60,24]).map(v=>num(v,2)).join('×')+' m':fmtM(pSize(k));return `面をタップして${nm}（${size}・${C.partPlacementMode(k)==='inside'?'内蔵':'露出'}）を置く`;
     }
     case 'select': return st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
-    case 'fit': return (C.weaponWallOnly?.(curFit())?`左右の舷側面をタップして${C.FITS[curFit()].short}を設置`:C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${!fitPedestalAllowed(curFit())?'面に直接設置':weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
+    case 'fit': return (C.weaponWallOnly?.(curFit())?`垂直に近い壁面をタップして${C.FITS[curFit()].short}を設置`:C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${!fitPedestalAllowed(curFit())?'面に直接設置':weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
     case 'unfit': return '撤去する装備をタップ';
     case 'adjust': return st.sel?.list === 'fits' ? '選択中の装備はドラッグで面に沿って移動・別の装備はタップで選択' : '装備をタップして選択・選ぶとドラッグで移動';
     case 'notch': return `外面をタップして ${st.notch.l}×${st.notch.w}×深さ${st.notch.d} m を切り欠く`;
@@ -7092,7 +7092,7 @@ function turretHeadingLines(ls,f,col){
 function weaponTiltMode(k,mode=st.weaponMount){if(C.isShipLauncher?.(k)&&st.launcherEmbedded)return true;const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&mode==='auto';}
 function weaponLocalMount(hit){return C.isShipLauncher?.(curFit())&&st.launcherEmbedded||st.weaponMount==='trench'||hit?.part?.sponson===true;}
 function weaponPlacementNormal(k,n,mode=st.weaponMount){if(C.isShipLauncher?.(k)&&st.launcherEmbedded)return n;return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(mode)?(mode==='bottom'?[0,-1,0]:[0,1,0]):n;}
-function weaponMountIssue(k,n){return C.weaponMountAllowed?.(k,n)===false?'この砲は左右の舷側面に配置してください':'';}
+function weaponMountIssue(k,n){return C.weaponMountAllowed?.(k,n)===false?'この砲は垂直に近い壁面に配置してください':'';}
 // Retired UI hooks stay inert for older integrations; imported batteries are
 // converted to spherical turrets by Core before the editor receives them.
 function broadsidePlacementFit(){return {k:'monCal80'};}
@@ -7110,7 +7110,7 @@ function weaponMountControls(){
 }
 function chooseWeaponMount(face){
  if(!['auto','top','bottom','trench'].includes(face))return;
- if(C.weaponWallOnly?.(curFit())&&['top','bottom'].includes(face)){toast('この砲は左右の舷側面に配置してください');return;}
+ if(C.weaponWallOnly?.(curFit())&&['top','bottom'].includes(face)){toast('この砲は垂直に近い壁面に配置してください');return;}
  st.weaponMount=face;st.fitTool='place';st.sel=null;
  if(['top','bottom'].includes(face)){st.view='normal';if(view){const c=CAMS[face];view.cam.ortho=true;view.cam.th=c[0];view.cam.ph=c[1];view.cam.target=[0,0,0];}syncHud();requestDraw();}
  renderPanel();

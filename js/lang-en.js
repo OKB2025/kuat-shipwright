@@ -10077,6 +10077,7 @@ Object.assign(root.KS_EN.terms,{
  "追加装置": "Additional Banks",
  "船内占有": "Interior Occupancy",
  "面に直接設置": "Mount Directly on Surface",
+ "この砲は垂直に近い壁面に配置してください": "Place this weapon on a near-vertical wall.",
  "この砲は左右の舷側面に配置してください": "Place this weapon on a port or starboard side wall.",
  "左右の舷側面に直接取り付けます。艦首・艦尾・甲板・船底には配置できません。砲室は壁に固定され、砲身と揺架だけが射界内で動きます。": "Mount directly on a port or starboard side wall. Bow, stern, deck and underside mounting is unavailable. The gunhouse remains fixed while the barrels and cradle move within their firing arc.",
  "砲室全体を武装区画として使い、不足分だけ船内に装置を追加します。船体・構造物に埋まる砲室も船内の占有容積に含め、他の区画と重複利用しません。容量密度": "Use the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density",
@@ -10168,7 +10169,8 @@ Object.assign(root.KS_EN.terms,{
  "40TT 3連装と共通の砲室を使う連装砲。完全な円形砲基部と砲身を、ケースの左右の外側へ1門ずつ取り付ける。2門×40 TT。": "A 40 TT twin using the same gunhouse as the 40 TT triple. One complete circular gun base and barrel mount fully outside each side of the case. 2 × 40 TT.",
  "40 TTの3連装砲。8連装の片側ユニットを3門へ組み替え、後部ケースと大きな円形砲基部ごと、器材ケースの後方上面へ載せる。": "A 40 TT triple made from one four-gun unit of the octuple, including its rear casing and large circular gun base, mounted on the rear upper surface of the machinery case.",
  "DBY-827と同じ長さの砲身3門と円形砲基部を、前方が幅広い低い軍艦型の六角砲室へ収める。3門×70 TT、合計210 TT。俯角10度・仰角20度まで照準する。": "Three barrels with the same length as the DBY-827 and a circular cradle, enclosed in a low battleship-style hexagonal gunhouse that is widest toward the front. 3 × 70 TT, 210 TT total. Elevation: −10° to +20°.",
- "左右の舷側面に配置する4連装砲。DBY-827と同じ長さの砲身4門と四角い砲基部が、一体で左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。": "A broadside-only quad with four full-length DBY-827 barrels and one square gun base moving together through ±65° traverse and ±20° elevation. 4 × 70 TT, 280 TT total."
+ "左右の舷側面に配置する4連装砲。DBY-827と同じ長さの砲身4門と四角い砲基部が、一体で左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。": "A broadside-only quad with four full-length DBY-827 barrels and one square gun base moving together through ±65° traverse and ±20° elevation. 4 × 70 TT, 280 TT total.",
+ "垂直に近い壁面に配置する4連装砲（舷側でも、前や後ろを向いた段の壁でもよい）。DBY-827と同じ長さの砲身4門と四角い砲基部が、一体で左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。": "A quad for a near-vertical wall (a side, or a wall facing forward or aft) with four full-length DBY-827 barrels and one square gun base moving together through ±65° traverse and ±20° elevation. 4 × 70 TT, 280 TT total."
 });
 Object.assign(root.KS_EN.terms,{
  "40TT 3連装を基に中央の砲室を左右の基部間まで広げ、前面を傾斜装甲でつないだ連装砲。完全な円形砲基部と砲身を、ケースの左右の外側へ1門ずつ取り付ける。2門×40 TT。": "A 40 TT triple-derived twin with an enlarged central gunhouse between the side bases and a sloped armored front. One complete circular gun base and barrel mount fully outside each side. 2 × 40 TT.",

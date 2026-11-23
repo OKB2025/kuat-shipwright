@@ -75886,7 +75886,7 @@ function isBallTurret(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:
 function ballTurretPitch(f){return isBallTurret(f)&&(!isSurfaceBattery(f)||FITS[f.k]?.exposedSurfaceTurret)&&Number.isFinite(f?.assetPitch)?clamp(f.assetPitch,-90,90):0;}
 function fitHasPedestal(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||d.broadsideBattery||typeof f==='object'&&isSurfaceBattery(f)));}
 function weaponWallOnly(f){return !!FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.wallOnly;}
-function weaponMountAllowed(f,normal){if(!weaponWallOnly(f))return true;if(!Array.isArray(normal)||normal.length!==3||!normal.every(Number.isFinite)||len(normal)<1e-8)return false;const n=norm(normal);return isBroadsideBattery(f)?Math.abs(n[1])<.65:Math.abs(n[2])>=.65&&Math.abs(n[1])<=.35;}
+function weaponMountAllowed(f,normal){if(!weaponWallOnly(f))return true;if(!Array.isArray(normal)||normal.length!==3||!normal.every(Number.isFinite)||len(normal)<1e-8)return false;const n=norm(normal);/* 2026-11-23 a wall facing any way, not only the ship's sides (user: the Imperial remodel's 70TT×4 on the walls facing forward 「このような角度でエラーを出さずに取り付けれるなら埋め込みは必要ない」) */return isBroadsideBattery(f)?Math.abs(n[1])<.65:Math.abs(n[1])<=.35;}
 function weaponBodyFrame(f){const fw=fitUp(f);let up=sub([0,1,0],mul(fw,fw[1]));if(len(up)<1e-8)up=sub([1,0,0],mul(fw,fw[0]));up=norm(up);return {fw,up,rt:cross(fw,up)};}
 function normalizeFitMount(f){
  f=migrateWeaponFit(f);if(weaponWallOnly(f)){delete f.assetYaw;const n=f.tilt||f.n||AXES[f.mountAxis??f.a];if(!weaponMountAllowed(f,n)){f.float=true;f.wallMountInvalid=true;}else delete f.wallMountInvalid;}if(isConcussionLauncher(f)&&f.legacyMissileMount==='vls-orphan'){f.float=true;f.surfaceUnplaced=true;}
@@ -76607,10 +76607,10 @@ function baseComputeStats(ship,options={}) {
   // v21.2 Target-tracking domes and sensor arrays (the ISD's globes over its bridge) work like a modern warship's
   // fire-control radar: each one lets the ship engage more targets at once, by its size against the ISD's globe
   // (a communications antenna alone does not count).
-  for(const p of ship.parts)if(p.k==='sensor'&&!invalid.has(p.id)&&!detached.has(p.id)){const lb=p.label||'';if(/通信/.test(lb)&&!/センサー|標的|追跡|走査|索敵/.test(lb))continue;const V=partVolume(p);if(!(V>0))continue;aaCh+=AA_CHANNELS.pod*(p._surfaceAdapter?.tracking??clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2));}
+  for(const p of ship.parts)if(p.k==='sensor'&&!isTractorControl(p)&&!invalid.has(p.id)&&!detached.has(p.id)){const lb=p.label||'';if(/通信/.test(lb)&&!/センサー|標的|追跡|走査|索敵/.test(lb))continue;const V=partVolume(p);if(!(V>0))continue;aaCh+=AA_CHANNELS.pod*(p._surfaceAdapter?.tracking??clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2));}
   // v23 Air control (AIR_CTL): the squadrons the ship can direct in the air at once.
-  let airCtl=AIR_CTL.base;for(const c of Object.values(commandInfo))airCtl+=(AIR_CTL.w[c.role]||0)*clamp(c.ratio||0,0,1);
-  for(const p of ship.parts){if(invalid.has(p.id)||detached.has(p.id)||(p.k!=='command'&&p.k!=='sensor'))continue;const V=partVolume(p);if(!(V>0))continue;const r=clamp(V/Math.max(1,unclippedPartVolume(p)),0,1);
+  let airCtl=AIR_CTL.base;for(const c of Object.values(commandInfo))airCtl+=(c.air??(AIR_CTL.w[c.role]||0))*clamp(c.ratio||0,0,1);
+  for(const p of ship.parts){if(invalid.has(p.id)||detached.has(p.id)||(p.k!=='command'&&p.k!=='sensor')||isTractorControl(p))continue;const V=partVolume(p);if(!(V>0))continue;const r=clamp(V/Math.max(1,unclippedPartVolume(p)),0,1);
    if(p.k==='sensor')airCtl+=AIR_CTL.pod*(p._surfaceAdapter?.channels??clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2));else if(AIR_CTL.droidRe.test(p.label||''))airCtl+=V/AIR_CTL.droidRef;else airCtl+=AIR_CTL.room*clamp(Math.cbrt(V/AIR_CTL.roomRef),.3,3)*r;}
   // armour
   // The exposed skin is also binned along the length and by facing (bow, stern,
@@ -76697,7 +76697,7 @@ function baseComputeStats(ship,options={}) {
     slots, aviation, deployableSlots:aviation.combatDeployable, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
     allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
-    commandInfo, bridges, view, accuracy, fireControl:ship.parts.some(p=>p.k==='firecontrol'&&!p.surfaceUnplaced&&!info[p.id]?.overlap),fireControlVolume:ship.parts.filter(p=>['firecontrol','targetComputer'].includes(p.k)&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),bridgeVolume:ship.parts.filter(p=>(equipmentSpec(p)?.group==='bridge'||['bridge','command'].includes(p.k))&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0)+commandCompartments(ship).reduce((n,p)=>n+partVolume(p),0),aimGuns:ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w'&&!FITS[f.k].msl&&!FITS[f.k].craft).reduce((n,f)=>n+(f.aggregateCount||1),0), sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Number.isFinite(ship.airControl)?Math.max(1,Math.round(ship.airControl))/* the design states its air control (EXAMPLE_AIR_CONTROL) */:Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
+    commandInfo, bridges, view, accuracy, fireControl:ship.parts.some(p=>p.k==='firecontrol'&&!p.surfaceUnplaced&&!info[p.id]?.overlap)||Object.values(commandInfo).some(c=>c.fireControl&&c.ratio>0),tractorControl:ship.parts.some(p=>isTractorControl(p)&&!info[p.id]?.overlap&&!info[p.id]?.detached),fireControlVolume:ship.parts.filter(p=>['firecontrol','targetComputer'].includes(p.k)&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),bridgeVolume:ship.parts.filter(p=>(equipmentSpec(p)?.group==='bridge'||['bridge','command'].includes(p.k))&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0)+commandCompartments(ship).reduce((n,p)=>n+partVolume(p),0),aimGuns:ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w'&&!FITS[f.k].msl&&!FITS[f.k].craft).reduce((n,f)=>n+(f.aggregateCount||1),0), sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Number.isFinite(ship.airControl)?Math.max(1,Math.round(ship.airControl))/* the design states its air control (EXAMPLE_AIR_CONTROL) */:Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost:Math.round(cost), costBy:costBreakdown(cost,costBy),
     floating, floatFits, plateFits, clashFits, clashFitIds, overlap, info, fitInfo, hatchInfo, pedVol, engineSupportVolume:nozzleFoundations.reduce((n,e)=>n+e.volume,0),engineSupportMass:nozzleFoundations.reduce((n,e)=>n+e.volume*.3,0),
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
@@ -77100,14 +77100,17 @@ for(const [k,name,role,col] of [['podBridge','艦橋ポッド','bridge',[172,223
 }
 // Model bridge bodies carry their command role themselves; the view is
 // measured from the drum on their fore face (both models have one).
-const BRIDGE_BODY_COMMAND={isd_bridge:{role:'bridge',at:[.5,-.0374,0]},isdh_bridge:{role:'bridge',at:[.5,-.025,0]},ven_bridge_stbd:{role:'bridge',at:[.5,-.207,0]},ven_bridge_port:{role:'air',at:[.5,-.207,0]}};
+/* 2026-11-23 the Imperial bridge body (the user's remodel): commands alone, directs two squadrons at once and holds its own
+   fire control and navigation computers (user: 「2コ飛行隊の同時管制能力と艦橋の構造物内部空間を射撃管制装置と航法計算装置系をつけこれ一個で指揮統制が可能な形に」) */
+const BRIDGE_BODY_COMMAND={isd_bridge:{role:'bridge',at:[.5,-.0374,0],airSquadrons:2,fireControl:true,navigation:true},isdh_bridge:{role:'bridge',at:[.5,-.025,0]},ven_bridge_stbd:{role:'bridge',at:[.5,-.207,0]},ven_bridge_port:{role:'air',at:[.5,-.207,0]}};
+function isTractorControl(p){return !!p&&p.k==='sensor'&&(EQUIPMENT[p.equipmentId]?.tractorControl===true||/^isd_tractor_/.test(p.skinAsset||''));}
 function bridgeBodyRole(p){const d=isStructuralPart(p)&&p.form==='reference'&&BRIDGE_BODY_COMMAND[p.skinAsset];if(!d)return null;return ['bridge','air','hangar','combat'].includes(p.commandRole)?p.commandRole:d.role;}
 function podDepth(f){const a=REFERENCE_ASSETS[POD_ASSET];return (f.width||FITS[f.k].fm)*a.size[0]/a.size[2];}
 function podPoint(f,v){const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm;return add(f.p,add(add(mul(fr.up,(v[0]+.5)*podDepth(f)),mul(fr.rt,-v[1]*h)),mul(fr.fw,-v[2]*w)));}
 function intrinsicCommandFits(ship){
  const out=[];
  for(const p of ship.parts){const role=bridgeBodyRole(p);if(!role||p.commandEnabled===false)continue;const d=BRIDGE_BODY_COMMAND[p.skinAsset],at=[d.at[0]*p.s[0],d.at[1]*p.s[2],d.at[2]*p.s[1]],q=worldStruct(p,at),n=norm(sub(worldStruct(p,add(at,[1,0,0])),q)),k=POD_KEYS[role],scale=p.s[1]/REFERENCE_ASSETS[p.skinAsset].size[2];
-  out.push({id:-300000-p.id,k,p:q,n,a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),ped:0,base:0,low:0,width:15.3*scale,height:6.2*scale,host:p.id,intrinsic:true,_wallUp:structFrame(p).up});}
+  out.push({id:-300000-p.id,k,p:q,n,a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),ped:0,base:0,low:0,width:15.3*scale,height:6.2*scale,host:p.id,intrinsic:true,_wallUp:structFrame(p).up,_bodyCommand:d});}
  return out;
 }
 function isReactor(p){return p.k==='gen'||p.k==='aux';}
@@ -77650,7 +77653,7 @@ function placeFit(ship,k,p,n,ped,mirror,options={}){
     if(pending.float)return {err:'側面砲列区画は装甲外板ではない構造物の側壁に貼り付けてください'};
     options={...options,localMount:true,host:pending.host,batteryCaliber:pending.batteryCaliber,batteryGuns:pending.batteryGuns,...(legacyBroadside?{batteryLegacyHull:true}:{})};
   }
-  if(weaponWallOnly(k)){if(!weaponMountAllowed(k,n))return {err:'この砲は左右の舷側面に配置してください'};options={...options,localMount:true};}
+  if(weaponWallOnly(k)){if(!weaponMountAllowed(k,n))return {err:'この砲は垂直に近い壁面に配置してください'};options={...options,localMount:true};}
   if(FITS[k]?.casemate){if(Math.abs(n[1])>.65)return {err:'ケースメイト砲はトレンチ内壁・船体や構造の側壁に配置してください'};options={...options,localMount:true};}
   if(!FITS[k]?.window)return basePlaceFit(ship,k,p,n,ped,mirror,options);
   if(ship.fits.length+(mirror?2:1)>DESIGN_LIMITS.fits)return {err:'装備数の上限は'+DESIGN_LIMITS.fits+'基です'};
@@ -77705,7 +77708,7 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 // (v25 the Executor is the user's whole design: its machinery, reactors and engines are kept as built, not refitted)
-const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar','imperial','imperial2','venator','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems */'venator','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
 // v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
 // a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
@@ -78930,7 +78933,7 @@ function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const wo
  surfaceSync(ship);
  clearDesignLoadouts(ship);syncCompartments(ship);ship._lockedCache=cache(ship);ship._boundsPass={};
  try{
-  const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>(p.k==='sensor'||p.k==='scanner')&&!p.surfaceUnplaced&&!s.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0);
+  const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>(p.k==='sensor'&&!isTractorControl(p)||p.k==='scanner')&&!p.surfaceUnplaced&&!s.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0);
   for(const stage of [outfittingStats,superweaponStats,groundingStats,layoutStats,hatchMotionStats,solarStats,craftSystemsStats,heatStats,wingStats,sensorSuite,shapeStats,surfaceStats])stage(ship,s);
   s.propulsion=propulsionPreview(ship,s,'combat');s.actualThrustN=s.propulsion.actualThrustN;s.actualInputW=s.propulsion.actualInputW;s.actualAccelMps2=s.propulsion.actualAccelMps2;s.freeAccelerationMps2=s.propulsion.freeAccelerationMps2;
   const draftStatus=placementDraftStatus(ship);if(!draftStatus.ok){s.placementDraftStatus=draftStatus;s.provisional=true;}
@@ -79242,7 +79245,7 @@ function deserialize(o,internalOptions=null){
   const cells=Array.isArray(o?.parts)?o.parts.filter(p=>p?.k==='battery').length:0;if(cells)o={...o,parts:o.parts.map(p=>p?.k==='battery'?{...p,k:'hdis',label:'熱エネルギー変換装置'}:p)};
   // v24 Retired command equipment (the Executor-only bridge and domes, the hammerhead ISD-I bridge, domes and
   // antenna) becomes the one Imperial-class set in place: 大型統合艦橋, ISD-72x複合センサドーム, 外装式指向性通信装置.
-  {const RETIRED={exe_bridge:['isd_bridge','isdBridge'],isdh_bridge:['isd_bridge','isdBridge'],exe_sensor_port:['isd_sensor_port','isdSensor'],exe_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_sensor_port:['isd_sensor_port','isdSensor'],isdh_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_mast:['isd_mast','isdMast']};
+  {const RETIRED={exe_bridge:['isd_bridge','isdBridge'],isdh_bridge:['isd_bridge','isdBridge'],exe_sensor_port:['isd_sensor_port','isdSensor'],exe_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_sensor_port:['isd_sensor_port','isdSensor'],isdh_sensor_stbd:['isd_sensor_stbd','isdSensor'],isdh_mast:['isd_tractor_i','isdTractorI'],isd_mast:['isd_tractor_i','isdTractorI']};
    if(Array.isArray(o?.parts)&&o.parts.some(p=>Object.hasOwn(RETIRED,p?.skinAsset||'')))o={...o,parts:o.parts.map(p=>{const r=RETIRED[p?.skinAsset];if(!r)return p;const [k,id]=r,e=equipmentOptions(id);
     if(e.k==='struct')return {...p,skinAsset:k,equipmentId:id,s:e.s.slice(),label:e.label};const a=REFERENCE_ASSETS[k];return {...p,skinAsset:k,equipmentId:id,skinSize:a.size.slice(),d:Math.max(...a.size),label:e.label};})};}
   o=migrateRetiredHabitatRefs(migrateRetiredRadiators(migratePropulsionDistribution(migrateWeaponDesign(migrateAeroParts(migrateExternalDissipators(o))))));
@@ -80777,7 +80780,7 @@ const TURRET_FAMILY_DESCRIPTIONS={
  oct40:'既存のISD 8連装モデルの形状を保ち、参考画像を基準に寸法だけを調整。8門×40 TT、合計320 TT。',
  refVen:'既存のDBY-827モデルの形状を保ち、参考画像を基準に寸法だけを調整。2門×70 TT、合計140 TT。',
  triple70:'DBY-827と同じ長さの砲身3門を中央へまとめ、大きな砲基部ごと六角砲室の前へ張り出す。高さはDBY-827とほぼ同じ。3門×70 TT、合計210 TT。',
- quad70Side:'左右の舷側面に配置する4連装砲。DBY-827と同じ長さの砲身4門と四角い砲基部が、一体で左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。'
+ quad70Side:'垂直に近い壁面に配置する4連装砲（舷側でも、前や後ろを向いた段の壁でもよい）。DBY-827と同じ長さの砲身4門と四角い砲基部が、一体で左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。'
 };
 for(const [key,asset,name,barrels,boltTT,mass,crew,cost,type]of TURRET_FAMILY_MODELS){
  const a=REFERENCE_ASSETS[asset],ionGun=type==='ion',base=FITS[key]||(ionGun?FITS.ion:FITS.refVen),wallOnly=key==='quad70Side',volleyTT=barrels*boltTT;
@@ -80911,7 +80914,12 @@ const EQUIPMENT = {
  venAirBridge:{name:'分散式艦橋航空',k:'struct',group:'bridge',assets:['ven_bridge_port'],mirror:'venNavBridge',oldNames:['ヴェネター 航空指揮艦橋本体']},
  venNavBridge:{name:'分散式艦橋航行',k:'struct',group:'bridge',assets:['ven_bridge_stbd'],mirror:'venAirBridge',oldNames:['ヴェネター 航行艦橋本体']},
  isdSensor:{name:'ISD-72x複合センサドーム',k:'sensor',group:'support',assets:['isd_sensor_port','isd_sensor_stbd'],oldNames:['ISD 球形センサー','インペリアルI級 標的追跡ドーム']},
- isdMast:{name:'外装式指向性通信装置',k:'sensor',group:'support',assets:['isd_mast'],oldNames:['ISD 通信マスト','インペリアルI級 通信アンテナ']},
+ // 2026-11-23 The centre antenna over an Imperial bridge is a tractor beam control unit, not a communications mast (user:
+ // 「中央のアンテナは通信システムではなくトラクタービーム管制装置」), in the shapes of the user's Imperial I and II remodels.
+ // It counts as no sensor, communications or air control; a ship carrying one may use its tractor beams to hold a target
+ // (the capture itself is the combat PR's; without one, tractor beams only assist launch and recovery).
+ isdTractorI:{name:'トラクタービーム管制装置（ISD I 型）',k:'sensor',group:'support',tractorControl:true,assets:['isd_tractor_i'],oldNames:['外装式指向性通信装置','ISD 通信マスト','インペリアルI級 通信アンテナ']},
+ isdTractorII:{name:'トラクタービーム管制装置（ISD II 型）',k:'sensor',group:'support',tractorControl:true,assets:['isd_tractor_ii']},
  // v24 The Executor-only bridge and domes are retired; saved parts load as the Imperial-class ones.
 };
 const EQUIPMENT_MIRRORS={isd_engine_0:'isd_engine_2',isd_engine_2:'isd_engine_0',isd_engine_3:'isd_engine_5',isd_engine_5:'isd_engine_3',isd_engine_4:'isd_engine_6',isd_engine_6:'isd_engine_4'};
@@ -82458,34 +82466,27 @@ function relocateImperialHangarControl(ship){
  if(pod.float||pod.host!==host.id)throw new Error('インペリアル級の格納庫管制ポッドを壁に固定できません');
  return pod;
 }
-function imperialUserLayoutDesign(key){
- if(typeof IMPERIAL_USER_LAYOUT!=='object'||!IMPERIAL_USER_LAYOUT)throw new Error('インペリアル級の配置図面がありません');
- const ship=deserialize(JSON.parse(JSON.stringify(IMPERIAL_USER_LAYOUT)));
- // Join the upper and lower engine openings: their old one-centimetre gap
- // left a horizontal sheet through the nozzle mouths. Keep the upper edge.
- const engineOpening=ship.parts.find(p=>p.id===178)?.hullData?.solidCuts?.find(c=>c.id===2);
- if(!engineOpening)throw new Error('インペリアル級の機関開口がありません');
- engineOpening.c[1]=202.52;engineOpening.s[2]=127.07;
- ship.reference=key;ship.name=(key==='imperial2'?'インペリアルII級':'インペリアルI級')+'｜重砲戦艦';
- if(key==='imperial')for(const f of ship.fits)if(f.id>=107&&f.id<=114)f.k=f.id<=108?'ion':'stl';
- // The eight main turrets hold three salvos (user decision 2026-11-18「インペリアル I / IIは主砲塔充電量を上げてもいい」「砲そのものは
- // 変えずに設置設定で弄れる斉射回数の方を変えて充電区画を大きくする」): larger charge compartments, the guns themselves unchanged.
- for(const f of ship.fits)if(f.id>=107&&f.id<=114)f.chargeSalvos=3;
- ship.parts=ship.parts.filter(p=>p.k!=='engineCore');
- for(const p of ship.parts)if(p.k==='engine'){delete p.machineryId;delete p.nozzleShare;}
- ship.links=[];
- relocateImperialHangarControl(ship);
- // Clear the enlarged ordinary main-engine room without changing the
- // supplied structure, gun stations, nozzle skins or reactor generation.
- for(const [id,at]of [[59,[550,215,0]],[60,[550,245,70]],[177,[550,215,-90]]]){const p=ship.parts.find(p=>p.id===id);if(p)p.c=at;}
- // The eight changed guns need supports for their own actual footprint before
- // the systems refit measures mass and reserves their charging equipment.
- if(key==='imperial')for(const f of ship.fits)if(f.id>=107&&f.id<=114)mountFit(ship,f);
+// 2026-11-23 The Imperial I and II are the user's 1,600 m remodels (IMPERIAL_REMODEL in data/imperial2.js), taken as they are
+// (user: 「これをベースにインペリアル2艦を変更」「そのままパーツを部品化して」), with the command equipment made parts:
+// the bridge body and its own armour, windows, bulkheads, rear panels, mast plinth, pod mount and dome mounts become the
+// 大型統合艦橋 (isd_bridge, the body part keeping its id), the domes the ISD-72x, the centre antenna the tractor beam
+// control unit of its class. The designs carry their systems already, so no systems refit follows.
+const IMPERIAL_REMODEL_BRIDGE=[578,579,582,583,711,712,713,714,715,716,717,718,721,722],IMPERIAL_REMODEL_ANTENNA={imperial:[726,727,732,733,734,735,736],imperial2:[726,727]};
+function imperialRemodelDesign(key){
+ if(typeof IMPERIAL_REMODEL!=='object'||!IMPERIAL_REMODEL)throw new Error('インペリアル級のリモデル設計がありません');
+ const ship=deserialize(JSON.parse(JSON.stringify(IMPERIAL_REMODEL[key==='imperial2'?'ii':'i'])));ship.reference=key;
+ const drop=new Set([...IMPERIAL_REMODEL_BRIDGE,...IMPERIAL_REMODEL_ANTENNA[key],724,725]);for(const id of drop)if(!ship.parts.some(p=>p.id===id))throw new Error('インペリアル級のリモデル設計に部品 #'+id+' がありません');
+ const body=ship.parts.find(p=>p.id===50);if(!body)throw new Error('インペリアル級のリモデル設計に艦橋本体がありません');
+ {const a=REFERENCE_ASSETS.isd_bridge,o=equipmentOptions('isdBridge');for(const k of ['mesh','loft','outline','taper','angles','yaw','pitch','roll','surfaceNormal','imported'])delete body[k];Object.assign(body,o,{c:a.c.slice(),s:[a.size[0],a.size[2],a.size[1]]});}
+ ship.parts=ship.parts.filter(p=>!drop.has(p.id));
+ const oldBuilding=ship._building;ship._building=true;
+ try{for(const [id,asset] of [['isdSensor','isd_sensor_port'],['isdSensor','isd_sensor_stbd'],[key==='imperial2'?'isdTractorII':'isdTractorI',key==='imperial2'?'isd_tractor_ii':'isd_tractor_i']]){const a=REFERENCE_ASSETS[asset],o=equipmentOptions(id);placePart(ship,'sensor',a.c.slice(),Math.max(...a.size),{label:a.title,equipmentId:id,skinAsset:asset,skinSize:a.size.slice()});void o;}}
+ finally{ship._building=oldBuilding;}
  return ship;
 }
 for(const [key,name]of [['imperial','インペリアルI級'],['imperial2','インペリアルII級']])registerShipExample({
- key,name,side:'銀河帝国',role:'重砲戦艦',length:1600,author:'ユーザー提供図面',source:'assets/source/imperial-ii-user-layout/imperial-ii-upload.json',
- note:'提供されたインペリアルII級の船体・構造物・砲配置を保持。I級は同じ8砲座を175TT連装6基・175TT連装イオン2基に変更し、両級の推進・配電・排熱は現在の物理モデルで構築します。',build:()=>imperialUserLayoutDesign(key)
+ key,name,side:'銀河帝国',role:'重砲戦艦',length:1600,author:'ユーザー提供図面',source:'docs/handoff-2026-11-20/refs/imperial-'+(key==='imperial2'?'ii':'i')+'-1600m-remodel-2026-11-23.json.gz',
+ note:'ユーザー提供のインペリアル'+(key==='imperial2'?'II':'I')+'級 1,600 m リモデルの設計をそのまま使い、艦橋本体・ISD-72x・トラクタービーム管制装置を部品にしたもの。',build:()=>imperialRemodelDesign(key)
 });
 // Measured-section helpers for those builders (absolute metres, x bow, y up,
 // z starboard). Rows are [x, zMin, zMax, yMin, yMax]; the bounding box of the
@@ -90235,7 +90236,7 @@ const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.5/* user decision 202
 const ANTI_AIR=Object.freeze({close:1500});
 // The tracking sensors are the sensor modules that are not communications gear (the same test computeStats uses for a ship's
 // sensors: a label with 通信 and no word for sensing is a communications mast).
-const trackingSensor=m=>m.k==='sensor'&&!(/通信/.test(m.name||'')&&!/センサー|標的|追跡|走査|索敵/.test(m.name||''));
+const trackingSensor=m=>m.k==='sensor'&&!/トラクタービーム管制/.test(m.name||'')&&!(/通信/.test(m.name||'')&&!/センサー|標的|追跡|走査|索敵/.test(m.name||''));
 function antiAirTrack(x){const mods=x.p?.modules||[];let all=0,up=0;for(let i=0;i<mods.length;i++){if(!trackingSensor(mods[i]))continue;const w=mods[i].share||1;all+=w;up+=w*clamp(x.mods?.[i]??1,0,1)*powerFactor(x,'sensor',i);}return all>0?clamp(up/all,0,1):0;}
 // The guns' fire at craft (the bursts): a ship that carries tracking sensors lays it through them, so it goes with the share of
 // them still working; a ship that carries none fires at craft with the channels it fights ships with, as it is.
@@ -92302,7 +92303,7 @@ function commandCompartments(ship){
 function commandStatus(ship,invalid=new Set()){
  const byFit={};for(const p of commandCompartments(ship)){const volume=partVolume(p),ratio=invalid.has(p.id)?0:clamp(volume/Math.max(1,p.requiredVolume),0,1);byFit[p.windowId]={id:p.id,volume,required:p.requiredVolume,ratio,host:p.host,role:p.commandRole,blocked:invalid.has(p.id)};}
  // A model bridge body is its own command space.
- for(const f of intrinsicCommandFits(ship)){const ok=!invalid.has(f.host);byFit[f.id]={id:f.id,volume:0,required:0,ratio:ok?1:0,host:f.host,role:FITS[f.k].role,blocked:!ok,intrinsic:true};}
+ for(const f of intrinsicCommandFits(ship)){const ok=!invalid.has(f.host);byFit[f.id]={id:f.id,volume:0,required:0,ratio:ok?1:0,host:f.host,role:FITS[f.k].role,blocked:!ok,intrinsic:true,...(f._bodyCommand?.airSquadrons?{air:f._bodyCommand.airSquadrons}:{}),...(f._bodyCommand?.fireControl?{fireControl:true}:{}),...(f._bodyCommand?.navigation?{navigation:true}:{})};}
  return byFit;
 }
 
@@ -95702,7 +95703,7 @@ return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPoin
   solveFitPlacement,acceptFitPlacementResult,refreshFitPlacementAttachments,fitPlacementShapeKey,normalizeFitPlacementMetadata,placementFitContact,rehostFitPlacement,remapFitPlacementCopy,
   combatModuleDamage, convertArmorPlates, PLACEMENT_MODEL_VERSION, PLACEMENT_TOLERANCES,placementCapability,interiorAnchorHostId,clipCompartmentByMesh,clipCompartmentMesh,interiorConnectedSolid,aviationEnvelope,aviationSkinOverlap,interiorEnvelopeHostIds,placementFailureRecord,convertStructToMesh,PLACEMENT_BODY_KEYS,placementDeriveBody,preparePlacementDraft,placementPendingInputKey,placementDraftStatus,authoredStateDrift,AUTHORED_DRIFT_NOISE,AUTHORED_SOLVE_KEYS,placementSinkToSurface,placementSameShape,placementEquipmentContact,placementEquipmentAnyContact,PLACEMENT_FIT_KEEP_CODES,hullMirrorIsWorldMirror,solidCutWorldPieces,sameSolidCut,mergeHullMirrorHalves,solidCutMirrorPartner,solidCutMirrorOf,structuralConnectivity,severingCuts,structuralJoinBoundary,structuralMeshVolume,solidCutScope,setSolidCutScope,solidCutEquipmentHits,placementSeveredByCut,placementLocalParentHash,placementPositionKey,placementCachedGeometryInputCurrent,placementCachedGeometryCurrent,resizeStructureHeightAtContact,solvePlacement,commitPlacement,acceptPlacementResult,placementDiagnostics,placementContact,updatePlacementChildren,refreshPlacementGeometry,solveInteriorPlacement,normalizePlacementMetadata,remapPlacementCopy,placementCopyClosure,removeParts,syncEngineMountSupports,buildEngineMountSupport,engineMountSupportGeometry,engineMountSupportContact,normalizeEngineMountSupport,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportFootprint, turretSupportMassRatio, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
-  hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, normalizeBatteries, batteryRail, batteryLayout, bakeTrenchBatteries, configureBattery, bakeStructure, bakeAllCuts, bakeTargets, BATTERY_LIMITS, normalizeDecals, decalFrame, decalInstances, DECAL_LIMITS, DECAL_KINDS, buildDesign, profile, simulate,
+  hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, isTractorControl, normalizeBatteries, batteryRail, batteryLayout, bakeTrenchBatteries, configureBattery, bakeStructure, bakeAllCuts, bakeTargets, BATTERY_LIMITS, normalizeDecals, decalFrame, decalInstances, DECAL_LIMITS, DECAL_KINDS, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();
 if (typeof module !== 'undefined') module.exports = Core;
