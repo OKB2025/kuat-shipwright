@@ -76122,10 +76122,10 @@ function turretSupportGeometry(f){
  const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<triangles.length;i++){const a=i%3;bounds[a]=Math.min(bounds[a],triangles[i]);bounds[a+3]=Math.max(bounds[a+3],triangles[i]);}const geometry={triangles,bounds,volume};TURRET_SUPPORT_GEOMETRY.set(s,{key,geometry});return geometry;
 }
 function baseMountFit(ship,f){
- normalizeFitMount(f);const d=fitSpec(f),fr=fitFrameOf(f),R=d.r,gun=d.cat==='w',flush=gun&&!fitHasPedestal(f),big=f.localMount||d.casemate||flush?Math.max(2,Math.min(6,R*.25)):Math.max(ship.hull.H,ship.hull.W,200)*2,keepLocal=!isAnchoredFit(f)&&ship._keepFitPose,h0=isAnchoredFit(f)?fitAttachmentHit(ship,f):keepLocal?rayEnv(ship,add(f.p,mul(fr.up,2*FIT_SUPPORT_GAP_M)),mul(fr.up,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true}):rayEnv(ship,add(f.p,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});/* stage C review H3: a kept pose probes only its own seat, so a roof above it is not mistaken for its support */
+ normalizeFitMount(f);const d=fitSpec(f),fr=fitFrameOf(f),R=d.r,gun=d.cat==='w',flush=gun&&!fitHasPedestal(f),big=f.localMount||d.casemate||flush?Math.max(2,Math.min(6,R*.25)):Math.max(ship.hull.H,ship.hull.W,200)*2,keepLocal=!isAnchoredFit(f)&&ship._keepFitPose,h0=isAnchoredFit(f)?fitAttachmentHit(ship,f):keepLocal?rayEnv(ship,add(f.p,mul(fr.up,2*FIT_SUPPORT_GAP_M+R)),mul(fr.up,-1),{maxT:4*FIT_SUPPORT_GAP_M+2*R,structOnly:true}):rayEnv(ship,add(f.p,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});/* stage C review H3: a kept pose probes only its own seat, so a roof above it is not mistaken for its support */
  delete f._onPlate;if(!h0){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}if(h0.part?.plate){f.float=true;f._onPlate=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
  // Stage C: p is kept; the surface below must lie within FIT_SUPPORT_GAP_M of it along the fitting's up axis.
- if(!isAnchoredFit(f)&&ship._keepFitPose){if(Math.abs(dot(sub(h0.p,f.p),fr.up))>FIT_SUPPORT_GAP_M){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
+ if(!isAnchoredFit(f)&&ship._keepFitPose){if(Math.abs(dot(sub(h0.p,f.p),fr.up))>fitSlopeAllowance(f,h0.n||fr.up,fr.up)){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
  f.float=false;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
  // High review 5 (H-C): the kept measurement equals the seating one except for what lies above open air: from just
  // above the seat, a sample inside solid (the footprint surface is higher there) measures up to where that solid
@@ -76395,6 +76395,8 @@ function removeItem(ship, listName, id, mirror) {
   if(listName==='hatches')for(const h of list.filter(q=>ids.has(q.id))){const owner=ship.parts.find(p=>p.id===h.hullOwner&&isHullStructure(p));if(owner){owner.hullData.hatches=owner.hullData.hatches.filter(q=>q.id!==h.hullHatch);invalidateHullHatchGeometry(ship,owner);}const bay=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar');if(bay&&Object.hasOwn(AVIATION_SURFACE_FACES,h.face)&&!ship.hatches.some(q=>q.bay===h.bay&&q.face===h.face))bay.aviationSurfaces={...bay.aviationSurfaces,[h.face]:'none'};}
   if(listName==='parts')for(const h of ship.hatches.filter(h=>ids.has(h.bay)||ids.has(h.hullOwner)))removeItem(ship,'hatches',h.id,false);
   for (const q of ship[listName]) { if (ids.has(q.tw)) delete q.tw; if (ids.has(q.vt)) delete q.vt; }
+  // 2026-11-23 A removed part or gun takes its designer power and heat lines with it (they were left behind as "断線").
+  if((listName==='parts'||listName==='fits')&&Array.isArray(ship.links)){const gone=new Set([...ids].map(i=>(listName==='parts'?'p':'f')+i));ship.links=ship.links.filter(l=>!gone.has(l.from)&&!gone.has(l.to));if(!ship.links.length)delete ship.links;}
 }
 // pack cubes into the free interior (自動充填)
 function fillHangars(ship, size, x0f, x1f, mirror, ylimit) {
@@ -77576,7 +77578,7 @@ function mountEmbeddedLauncher(ship,f){
  const host=f.host==='hull'?null:ship.parts.find(p=>p.id===f.host),up=fitUp(f);let p=f.p.slice(),n=up.slice(),h;
  // Stage C review H2: on a load/Worker remount an embedded launcher keeps its pose and host; it is only checked against
  // the surface at its own seat (within FIT_SUPPORT_GAP_M along its normal).
- if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up;h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true});if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
+ if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up,R=Math.max(0,fitSpec(f)?.r||0);h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M+R)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M+2*R,structOnly:true});if(h&&Math.abs(h.t-(2*FIT_SUPPORT_GAP_M+R))>fitSlopeAllowance(f,h.n,nn))h=null;/* a sloped seat (fitSlopeAllowance) */if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
   // High review H-A: the kept pose is still judged as a whole (the body inside the wall it meets, its axis out of the wall,
   // the clearance), exactly as the seating path does, only without moving it.
   {const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>(h.part&&inPart(h.part,q))||insideOriginalEnvelope(ship,q)/* user decision 2026-11-20 (asked: 「埋め込み式ランチャーはそれでいい」;「外装は構造物パーツが違くても繋がってるなら同じ船体」): the body may reach past the part it is set in, as long as it stays inside the hull and structures */;let valid=dot(g.axis,nn)>.05;for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
@@ -82482,6 +82484,9 @@ function imperialRemodelDesign(key){
  const body=ship.parts.find(p=>p.id===50);if(!body)throw new Error('インペリアル級のリモデル設計に艦橋本体がありません');
  {const a=REFERENCE_ASSETS.isd_bridge,o=equipmentOptions('isdBridge');for(const k of ['mesh','loft','outline','taper','angles','yaw','pitch','roll','surfaceNormal','imported'])delete body[k];Object.assign(body,o,{c:a.c.slice(),s:[a.size[0],a.size[2],a.size[1]]});}
  ship.parts=ship.parts.filter(p=>!drop.has(p.id));
+ // Lines to the parts made into equipment go with them; the designs also hold one line to a gun that is in neither design
+ // (p65 → f39: left behind when that gun was deleted, removeItem did not drop lines then).
+ {const nodes=new Set([...ship.parts.map(p=>'p'+p.id),...ship.fits.map(f=>'f'+f.id)]);if(ship.links){ship.links=ship.links.filter(l=>nodes.has(l.from)&&nodes.has(l.to));if(!ship.links.length)delete ship.links;}}
  const oldBuilding=ship._building;ship._building=true;
  try{for(const [id,asset] of [['isdSensor','isd_sensor_port'],['isdSensor','isd_sensor_stbd'],[key==='imperial2'?'isdTractorII':'isdTractorI',key==='imperial2'?'isd_tractor_ii':'isd_tractor_i']]){const a=REFERENCE_ASSETS[asset],o=equipmentOptions(id);placePart(ship,'sensor',a.c.slice(),Math.max(...a.size),{label:a.title,equipmentId:id,skinAsset:asset,skinSize:a.size.slice()});void o;}}
  finally{ship._building=oldBuilding;}
@@ -91894,6 +91899,9 @@ function reflectPlacementMetadata(source,out,ship,axis){
 // position); a real gap is not contact (the few-cm gap rule was withdrawn by the user on 2026-11-13). Anchored fittings
 // (placement.mode 'direct') never take their pose from the host; other fittings keep it under remount(ship,{keepFitPose}).
 const FIT_SUPPORT_GAP_M=1e-3;
+/* 2026-11-23 on a face sloping under the mount, its rim touches while its centre stands off the face by up to its radius × the
+   slope's tangent: that much is a seat, not a gap (the Imperial remodel's ventral point defence #153, 0.49 m off a 12° bottom) */
+function fitSlopeAllowance(f,n,up){const c=Math.abs(dot(norm(n),norm(up)));if(!(c>.5))return FIT_SUPPORT_GAP_M;return FIT_SUPPORT_GAP_M+Math.max(0,fitSpec(f)?.r||0)*Math.sqrt(Math.max(0,1-c*c))/c;}
 function fitPoseValid(f){return Array.isArray(f?.p)&&f.p.length===3&&f.p.every(Number.isFinite)&&Array.isArray(f.n)&&f.n.length===3&&f.n.every(Number.isFinite)&&len(f.n)>1e-8;}
 function isAnchoredFit(f){return !!(f?.placement&&FITS[f.k]&&f.placement.mode==='direct'&&f.placement.modelVersion===PLACEMENT_MODEL_VERSION);}
 function fitAttachmentLocal(host,point){const q=localStruct(host,point);return [q[0]/host.s[0],q[1]/host.s[2],q[2]/host.s[1]];}
@@ -91956,7 +91964,10 @@ function fitAttachmentSurface(ship,host,point,normal,surfaceId,storedSurfaceId){
 }
 // Audit 2026-11-14 (no parent relation, as for unanchored fittings): when the recorded body no longer carries the seat,
 // any structure directly under the fitting's own seat supports it. The host record is only where it was placed.
-function fitSeatAnyStructure(ship,f){if(!fitPoseValid(f))return null;const up=norm(fitUp(f)||[0,1,0]),h=rayEnv(ship,add(f.p,mul(up,2*FIT_SUPPORT_GAP_M)),mul(up,-1),{maxT:4*FIT_SUPPORT_GAP_M,structOnly:true});return h?.part&&isShapePart(h.part)&&!h.part.plate?{p:f.p.slice(),n:(f.n||up).slice(),part:h.part}:null;}
+/* 2026-11-23 a seat on a sloping face: the mount's rim touches the face while its centre stands off it by up to its radius
+   (the Imperial remodel's ventral point defence #153, 0.49 m off a 12° bottom); the search reaches that far, and the face
+   must face the mount's way. It reached 2 mm, so such a gun was left floating on every load. */
+function fitSeatAnyStructure(ship,f){if(!fitPoseValid(f))return null;const up=norm(fitUp(f)||[0,1,0]),reach=2*FIT_SUPPORT_GAP_M+Math.max(0,fitSpec(f)?.r||0),h=rayEnv(ship,add(f.p,mul(up,reach)),mul(up,-1),{maxT:2*reach,structOnly:true});return h?.part&&isShapePart(h.part)&&!h.part.plate&&Math.abs(dot(norm(h.n),up))>.5?{p:f.p.slice(),n:(f.n||up).slice(),part:h.part}:null;}
 function fitAttachmentHit(ship,f){
  if(f.placement?.supportAttachment){const parent=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),contact=parent&&placementFitContact(ship,f,parent);if(contact?.connected){delete f._fitPlacementError;delete f._placementFailure;return {p:f.p.slice(),n:(f.n||fitUp(f)).slice(),part:parent};}const any=fitSeatAnyStructure(ship,f);if(any){delete f._fitPlacementError;delete f._placementFailure;return any;}f._fitPlacementError={code:'contact-zero',error:'装備の実支持面と取付先の接触が失われています'};return null;}
  const host=ship.parts.find(p=>p.id===f.host&&isShapePart(p)),r=host?fitAttachmentSurface(ship,host,f.p,f.n||AXES[f.a],f.placement?.hostSurfaceId,f.placement?.hostSurfaceId):{ok:false,code:'parent-missing',error:'装備の取付先が失われています'};
