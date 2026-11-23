@@ -2,5 +2,13 @@ kind,scenario,runs,previous_outcomes,previous_losses,previous_duration_median_ra
 dogfight,figures-duel-xwing-tie_ln-p1,20,4/0/16,0/4,300 (168–300),4/0/16,0/4,300 (168–300),0,0
 dogfight,figures-duel-xwing-tie_in-p1,20,17/0/3,0/17,184 (3.75–300),17/0/3,0/17,184 (3.75–300),0,0
 dogfight,figures-duel-awing-tie_in-p1,20,0/0/20,0/0,300 (300–300),0/0/20,0/0,300 (300–300),0,0
+dogfight,group-p1,12,11/0/1,2/19,300 (184–300),11/0/1,2/19,300 (184–300),0,0
+dogfight,figures-duel-xwing-tie_ln-p0,20,15/4/1,4/15,149.25 (73.75–300),15/4/1,4/15,149.25 (73.75–300),0,0
+dogfight,figures-duel-xwing-tie_in-p0,20,19/0/1,0/19,144.5 (3.75–300),19/0/1,0/19,144.5 (3.75–300),0,0
+dogfight,figures-duel-awing-tie_in-p0,20,17/1/2,2/18,226.75 (137.75–300),17/1/2,2/18,226.75 (137.75–300),0,0
+dogfight,group-p0,12,11/0/1,0/31,300 (192–300),11/0/1,0/31,300 (192–300),0,0
 strike,strike-axis1,3,in action 3,72/36/17,900 (900–900),in action 3,72/36/17,900 (900–900),0,0
-fleet,fleet-standard,2,0/2/0/0,50/177,633.625 (623.25–644),0/2/0/0,52/189,629.375 (613.5–645.25),0,2
+strike,strike-axis2,3,in action 3,72/36/17,900 (900–900),in action 3,72/36/16,900 (900–900),0,1
+strike,strike-axis3,3,in action 3,72/36/12,900 (900–900),in action 3,72/36/12,900 (900–900),0,0
+fleet,fleet-standard,5,0/5/0/0,125/445,641.75 (578.25–745.75),0/5/0/0,127/429,614.5 (602.25–645.25),0,5
+fleet,fleet-ships,5,0/5/0/0,0/0,496.5 (496.5–496.75),0/5/0/0,0/0,496.5 (496.5–496.75),0,0

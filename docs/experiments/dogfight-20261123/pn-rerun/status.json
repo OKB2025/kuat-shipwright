@@ -1,6 +1,6 @@
 {
   "status": "running",
-  "completed_matches": 65,
+  "completed_matches": 163,
   "scheduled_matches": 178,
   "guidance": "pn",
   "KS_PN_N": "unset, simulator default",
@@ -18,5 +18,5 @@
     "vm_glue_sha256": "2c2839ccb33982a383d514fbb26c818c036ab6c87122d387cfc2ae5d38c6ff06",
     "node": "v24.22.3"
   },
-  "updated_utc": "2026-11-23T10:59:23+00:00"
+  "updated_utc": "2026-11-23T11:05:17+00:00"
 }
