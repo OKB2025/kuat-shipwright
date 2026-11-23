@@ -84203,6 +84203,9 @@ const liftRoomBad=(info,p,ship)=>!!info?.[p.id]?.overlap||(!ship||shipHasHullPro
 function shipRefitAddVolume(ship,k,volume,label,extraRounds=0){
  if(!(volume>1e-6))return [];
  if(['aux','pump','integrity','hdis','inertial','repulsor'].includes(k)){
+  /* 2026-11-23 (user: 「内部区画が無理に分割されすぎてて重くなってるものが散見される。入り込むのであれば各区画は基本一まとめにして」)
+     A system that fits whole in one room takes one room; only one that does not is spread over several. */
+  {const whole=shipRefitWholeRoom(ship,k,volume,label,k==='repulsor'&&shipHasHullProper(ship)&&!ship._liftAnywhere);if(whole)return [whole];}
   const hullOnly=k==='repulsor'&&shipHasHullProper(ship)&&!ship._liftAnywhere,coarse=shipRefitAnchors(ship).filter(q=>!hullOnly||v3InHull(ship,q)),fine=hullOnly&&coarse.length<12/* a thin hull has few of the coarse points in it (MC30c, Acclamator); a hull with enough of them keeps them: the fine ones lie near its edges, where a room is cut down to a sliver */,anchors=fine?shipRefitAnchors(ship,true).filter(q=>v3InHull(ship,q)):coarse/* user decision 2026-11-20「リフトは船体内で。むしろ他のシステム系は構造物内でもいい」 */,b=shipBounds(ship);if(!anchors.length)throw new Error(ship.name+'：'+label+' の船内容積が不足しています（置き場所がありません）');const count=Math.max(2,Math.min(8,Math.ceil(Math.cbrt(volume)/Math.max(1,(b[4]-b[1])*.35)))),made=[],used=[];
   const anchor=()=>{let best=null,score=-Infinity;for(const q of anchors){const distance=used.length?Math.min(...used.map(p=>len(sub(q,p)))):-len(sub(q,[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2]));if(distance>score){score=distance;best=q;}}used.push(best);return best;};
   /* 2026-11-21 (PR #122): extraRounds more rounds, only when the usual ones end beyond the allowance. Only the final systems
@@ -84224,6 +84227,22 @@ function shipRefitAddVolume(ship,k,volume,label,extraRounds=0){
  }
  if(remaining>Math.max(.001,volume*1e-5))throw new Error(ship.name+'：'+label+' の船内容積が不足しています（'+Math.round(remaining)+' m³）');
  return made;
+}
+// One box room of the whole volume where it fits uncut: inside the ship (the hull proper for a lift), clear of the fixed
+// equipment and of the other rooms. The box is tried as a cube and in flatter and longer proportions (x along the ship),
+// at the refit anchors (the largest structures' centres first). null when no proportion fits anywhere.
+const SHIP_REFIT_WHOLE_ASPECTS=[[1,1,1],[2,1,1],[2,2,1],[4,2,1],[4,1,1],[8,2,1],[8,1,1],[1,2,1],[2,4,1]];
+function shipRefitWholeRoom(ship,k,volume,label,hullOnly){
+ if(!(volume>1e-6))return null;const inside=q=>hullOnly?v3InHull(ship,q)&&!solidCutsContain(ship,q):insideOriginalEnvelope(ship,q);
+ const anchors=shipRefitAnchors(ship).filter(inside),occupied=allOccupied(ship).filter(p=>!isShapePart(p)),bounds=occupied.map(p=>partAABB(p));
+ for(const aspect of SHIP_REFIT_WHOLE_ASPECTS){const unit=Math.cbrt(volume/(aspect[0]*aspect[1]*aspect[2])),room=aspect.map(v=>v*unit),candidate={id:-999998,k,c:[0,0,0],d:Math.cbrt(volume),room,autoFit:false};
+  for(const c of anchors){candidate.c=c;const bb=partAABB(candidate);if(occupied.some((p,i)=>boxesOverlap(bb,bounds[i],.01)&&overlapParts(candidate,p)))continue;
+   const g=[-.5,-.25,0,.25,.5],pts=[];for(const a of g)for(const b of g)for(const e of g)pts.push([c[0]+a*room[0],c[1]+e*room[2],c[2]+b*room[1]]);if(!pts.every(inside)||!unclippedSurfSamples(candidate).concat(unclippedVolSamples(candidate)).every(inside))continue;
+   const p=placePart(ship,k,c.slice(),Math.cbrt(volume),{label,room:room.slice(),autoFit:false,...(k==='repulsor'?{landingEquipment:true}:{})});syncCompartments(ship);
+   if(Math.abs(partVolume(p)-volume)<=Math.max(1e-6,volume*1e-4))return p;ship.parts=ship.parts.filter(q=>q!==p);syncCompartments(ship);
+  }
+ }
+ return null;
 }
 // Turn accepted packing cells into ordinary editable, fixed compartment banks.
 // Their union, volume and density are unchanged; future edits do not rerun a
