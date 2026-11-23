@@ -36,3 +36,8 @@
 - hashes.txt：設計ファイルと受け取ったファイル（キャッシュを除く前）の SHA-256。
 - 生成：scripts/refresh-examples.cjs --keys craft_xwing,craft_tie_ln,craft_tie_in,craft_awing,craft_tie_d、update-craft-costs.cjs --check、update-asset-manifest.cjs --check（通過）。
 - 未実施：ブラウザでの表示・保存再読込の確認、比較画像。
+
+## ユーザー決定（2026-11-23）
+
+- 「TIE/dはこのままでいい。原作準拠。」：TIE/D は X ウイングに対して圧倒的に強いまま（別 AI の試験 docs/experiments/dogfight-20261123/current-remodel-7e18104/ でも 0〜1 勝 19〜20 敗）。
+- 「TIE/lnがだいぶ強いので今テストを回してから少し変えるかもしれない」：TIE/ln の調整はユーザーの試験待ち。
