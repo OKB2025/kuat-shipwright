@@ -81261,7 +81261,7 @@ function normalizeBatteries(raw){
  for(const q of raw){if(!q||!Number.isSafeInteger(q.id)||q.id<1||ids.has(q.id))fail('番号');ids.add(q.id);if(!Array.isArray(q.pts)||q.pts.length<2||q.pts.length>64||!q.pts.every(vec)||!vec(q.n)||len(q.n)<1e-9)fail('位置・向き');
   if(![q.height,q.depth].every(v=>Number.isFinite(v)&&v>0&&v<=DESIGN_LIMITS.coordinate))fail('高さ・奥行き');
   const b={id:q.id,pts:q.pts.map(p=>p.slice()),n:q.n.slice(),height:q.height,depth:q.depth};if(q.host!=null){if(!Number.isSafeInteger(q.host))fail('取付先');b.host=q.host;}
-  if(q.armament!=null)b.armament=normalizeTrenchArmament(q.armament);if(typeof q.label==='string'&&q.label)b.label=q.label.slice(0,40);out.push(b);}
+  if(q.along!=null){if(q.along!=='x')fail('測り方');b.along='x';}if(q.armament!=null)b.armament=normalizeTrenchArmament(q.armament);if(typeof q.label==='string'&&q.label)b.label=q.label.slice(0,40);out.push(b);}
  return out;
 }
 // The world line of a battery: its points, its length, and at a distance x along it the point and the along (u), up and
@@ -81269,9 +81269,12 @@ function normalizeBatteries(raw){
 function batteryRail(ship,q){
  const host=q.host!=null?ship.parts.find(p=>p.id===q.host&&isShapePart(p)):null;if(q.host!=null&&!host)return {ok:false,code:'battery-host',error:'砲列の取付先の構造物がありません'};
  const P=q.pts.map(p=>host?fitAttachmentPoint(host,{local:p}):p.slice()),n0=host?fitAttachmentWorldNormal(host,{localNormal:q.n}):norm(q.n),segs=[];let span=0;
- for(let i=0;i+1<P.length;i++){const run=sub(P[i+1],P[i]),l=len(run);if(!(l>1e-6))continue;const u=mul(run,1/l),n1=sub(n0,mul(u,dot(n0,u)));if(!(len(n1)>1e-6))return {ok:false,code:'battery-opening',error:'砲列の向きが壁に沿っていません'};/* the guns face the authored direction (a trench's face straight out to its side, wherever its wall slants); the band's up is square to the run */segs.push({a:P[i],u,n:n0,up:norm(cross(norm(n1),u)),from:span,l});span+=l;}
+ /* 2026-11-23 along:'x' (a trench's battery made a wall battery when its hull is baked): positions along the band are
+    measured on the host's length axis, as the trench's were, so the guns are packed where the trench packed them */
+ const axis=q.along==='x'?norm(host?fitAttachmentWorldNormal(host,{localNormal:[1,0,0]}):[1,0,0]):null;
+ for(let i=0;i+1<P.length;i++){const run=sub(P[i+1],P[i]),arc=len(run);if(!(arc>1e-6))continue;const u=mul(run,1/arc),k=axis?dot(u,axis):1;if(!(k>1e-6))return {ok:false,code:'battery-opening',error:'砲列の線が船体の前後方向に進んでいません'};const l=arc*k,n1=sub(n0,mul(u,dot(n0,u)));if(!(len(n1)>1e-6))return {ok:false,code:'battery-opening',error:'砲列の向きが壁に沿っていません'};/* the guns face the authored direction (a trench's face straight out to its side, wherever its wall slants); the band's up is square to the run */let up=norm(cross(norm(n1),u));/* 2026-11-23 the band's up faces the world's up (the cross product flipped it on a port wall, so port rows were packed top first and starboard rows bottom first); on a deck or ceiling band it faces the bow */if(Math.abs(up[1])>1e-6?up[1]<0:up[0]<0)up=mul(up,-1);segs.push({a:P[i],u,n:n0,up,from:span,l,k});span+=l;}
  if(!segs.length)return {ok:false,code:'battery-opening',error:'砲列の長さがありません'};
- const at=x=>{let g=segs[segs.length-1];for(const q of segs)if(x<=q.from+q.l){g=q;break;}return g;},point=(x,yoff=0)=>{const g=at(x);return add(add(g.a,mul(g.u,clamp(x-g.from,0,g.l))),mul(g.up,yoff));};
+ const at=x=>{let g=segs[segs.length-1];for(const q of segs)if(x<=q.from+q.l){g=q;break;}return g;},point=(x,yoff=0)=>{const g=at(x);return add(add(g.a,mul(g.u,clamp(x-g.from,0,g.l)/g.k)),mul(g.up,yoff));};
  const mid=at(span/2);return {ok:true,host,pts:P,a:P[0],b:P[P.length-1],u:mid.u,n:mid.n,up:mid.up,frame:x=>at(x),span,height:q.height,depth:q.depth,point};
 }
 // The wall under a requested point of the band: within a quarter of the band's height or depth of the line, facing out,
@@ -81310,7 +81313,7 @@ function bakeTrenchBatteries(ship,hullPart){
   const counts=t.armament.counts.map(q=>({kind:q.kind,count:t.side==='both'?(side==='port'?Math.ceil(q.count/2):Math.floor(q.count/2)):q.count})).filter(q=>q.count);if(!counts.length)continue;
   const layout=trenchArmamentLayout(ship,scope,t,side);if(!layout.ok||layout.points.length<2)continue;const local=layout.points.length>64?layout.points.filter((p,i,a)=>i%Math.ceil(a.length/63)===0||i===a.length-1):layout.points;
   const pts=local.map(p=>trenchArmamentPoint(scope,p)),n=trenchArmamentVector(scope,[0,0,side==='port'?-1:1]),depth=Math.max(t.depth,Math.min(...local.map(p=>Math.abs(p[2])))-.1),host=hullPart&&isShapePart(hullPart)?hullPart:null;
-  const q={id:nid(ship),...(host?{host:host.id,pts:pts.map(p=>fitAttachmentLocal(host,p)),n:fitAttachmentNormal(host,n)}:{pts,n}),height:t.height,depth,armament:{version:1,counts:counts.sort((p,q)=>p.kind.localeCompare(q.kind))},label:(t.name||'トレンチ')+' '+(side==='port'?'左舷':'右舷')};
+  const q={id:nid(ship),...(host?{host:host.id,pts:pts.map(p=>fitAttachmentLocal(host,p)),n:fitAttachmentNormal(host,n)}:{pts,n}),height:t.height,depth,armament:{version:1,counts:counts.sort((p,q)=>p.kind.localeCompare(q.kind))},label:(t.name||'トレンチ')+' '+(side==='port'?'左舷':'右舷'),along:'x'};
   ship.batteries.push(q);out.push(q);}
   delete t.armament;}
  delete ship._trenchArmamentKey;return out;

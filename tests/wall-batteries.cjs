@@ -32,9 +32,14 @@ test('broken battery data is refused on load',()=>{
 
 test('the Executor trench batteries become wall batteries with the same groups',{timeout:3600000},()=>{
  const s=load('executor'),sum=()=>C.bulkTrenchGroups(s).map(f=>({k:f.k,n:f.aggregateCount,side:Math.sign(f.p[2]),valid:f.valid,charge:f.chargeVolume||0}));
- const before=sum();assert.ok(before.length>=40);let made=[];for(const hull of s.parts.filter(p=>C.isHullStructure(p)&&(p.hullData?.trenches||[]).some(t=>t.armament)))made=made.concat(C.bakeTrenchBatteries(s,hull));
- assert.equal(made.length,16);assert.ok(s.parts.every(p=>!(p.hullData?.trenches||[]).some(t=>t.armament)),'the trench armament moved to the batteries');
+ const before=sum();assert.ok(before.length>=40);const muzzles=()=>new Map(C.bulkTrenchGroups(s).map(f=>[f.k+':'+f.aggregateCount+':'+Math.sign(f.p[2]),f.trenchMuzzles.map(m=>m.p.map(v=>+v.toFixed(3)))]));const muzzlesBefore=muzzles();
+ /* 2026-11-23: the regenerated example already has the trenches of its baked hulls as batteries (2 of 16); the rest are converted here */
+ const armed=s.parts.filter(p=>C.isHullStructure(p)).reduce((n,p)=>n+(p.hullData?.trenches||[]).filter(t=>t.armament).reduce((m,t)=>m+(t.side==='both'?2:1),0),0);let made=[];for(const hull of s.parts.filter(p=>C.isHullStructure(p)&&(p.hullData?.trenches||[]).some(t=>t.armament)))made=made.concat(C.bakeTrenchBatteries(s,hull));
+ assert.ok(armed>0);assert.equal(made.length,armed);assert.ok(made.every(q=>q.along==='x'),'a converted battery is measured on the hull length axis, as its trench was');assert.ok(s.parts.every(p=>!(p.hullData?.trenches||[]).some(t=>t.armament)),'the trench armament moved to the batteries');
  C.syncCompartments(s);const after=sum(),key=f=>f.k+':'+f.n+':'+f.side,rest=after.slice();
  for(const f of before){const i=rest.findIndex(g=>key(g)===key(f));assert.ok(i>=0,key(f));const g=rest.splice(i,1)[0];assert.equal(g.valid,f.valid,key(f));assert.ok(Math.abs(g.charge-f.charge)<=1e-6*Math.max(1,f.charge),key(f)+' charge');}
  assert.equal(rest.length,0);assert.equal(after.reduce((n,f)=>n+f.n,0),before.reduce((n,f)=>n+f.n,0));
+ /* 2026-11-23 the guns stand where the trench packed them (before: the band was measured along the slanted wall and its up
+    flipped on the port side, so the rows moved up to 1 km and the Executor's forward firepower fell by 20%) */
+ const muzzlesAfter=muzzles();for(const [key,list] of muzzlesBefore){const got=muzzlesAfter.get(key);assert.ok(got,key);for(let i=0;i<list.length;i++)assert.ok(Math.hypot(...list[i].map((v,j)=>v-got[i][j]))<.05,key+' muzzle '+i+': '+list[i]+' → '+got[i]);}
 });
