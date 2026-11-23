@@ -100701,7 +100701,7 @@ function passFighter(u,t){if(craftUnit(u))return true;const L=u?.p?.len||0;retur
 // What it has is its engines' thrust over its mass (the acceleration its propulsion gives now), so r = m·v²/F = v²/a and its
 // turn rate is a/v, never more than the rate it can swing its bow (the profile's turn rate). Fast, it turns wide; at its corner
 // speed (a over its bow's rate) it turns at its best.
-const TURN_BLEED=Object.freeze({energy:.4});/* share of kinetic energy lost per radian turned */
+const TURN_BLEED=Object.freeze({energy:.4,craft:.25/* user decision 2026-11-23「旋回の速度減少ももう少し下げよう」: was .4 for craft as for ships */});/* share of kinetic energy lost per radian turned */
 function turnRateAt(acc,speed){return acc>0?acc/Math.max(1,speed):0;}
 function turnRadiusAt(acc,speed,maxRate){const w=Math.min(maxRate>0?maxRate:Infinity,turnRateAt(acc,speed));return w>0?Math.max(1,speed)/w:Infinity;}
 // 2026-11-23 Trial (user: 「質量が旋回速度に関係するようにして」). Opt-in for the Node simulators (globalThis.KS_TURN_MASS; the game never
@@ -101190,7 +101190,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
   // v30 Turning costs way (user decision 2026-11-19「慣性エネルギーは旋回により失われる形に」): each radian turned takes TURN_BLEED.energy of
   // the hull's kinetic energy; its engines have to win the speed back.
-  let accLeft=acc;{const dy=u.turned3??Math.abs(fleetAngle(u.yaw-old.yaw));if(dy>0){const side=len(v0)*dy/dt;accLeft=Math.sqrt(Math.max(0,acc*acc-side*side));/* the thrust that holds the turn is not there to win speed back */const k=Math.exp(-.5*TURN_BLEED.energy*dy);v0[0]*=k;v0[1]*=k;v0[2]*=k;}}
+  let accLeft=acc;{const dy=u.turned3??Math.abs(fleetAngle(u.yaw-old.yaw));if(dy>0){const side=len(v0)*dy/dt;accLeft=Math.sqrt(Math.max(0,acc*acc-side*side));/* the thrust that holds the turn is not there to win speed back */const k=Math.exp(-.5*(craftUnit(u)?TURN_BLEED.craft:TURN_BLEED.energy)*dy);v0[0]*=k;v0[1]*=k;v0[2]*=k;}}
   want=hullAvoid(old,before,want,x=>fleetDockingPair(old,x)/* v29 a docking ship and its host do not steer clear of each other (as on the strategic map) */);
   if(craftUnit(u)&&!u.att&&len(want)>1){const f=norm(want),r=cross(f,[0,1,0]);u.att={f,up:len(r)>1e-6?norm(cross(norm(r),f)):[0,1,0]};}/* v30 physics review 2026-11-19: outside the fight and the dash too (an attack run over a ship, a climb to a station) a craft's way follows the pitch it steers at, not the level heading */
   // 2026-11-23 Trial (user: 「旋回に必要なのは質量、全長で、推力と姿勢制御スラスタの動きで迎角が変わり加速方向が変わりさらに旋回速度が上がる」):
