@@ -249,7 +249,7 @@ const CRAFT_PRICE_CATALOG={
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1x1shc2",
+   "signature": "102pvof",
    "build": 236723,
    "crew": 3000,
    "total": 239723,
@@ -10327,7 +10327,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "16vc4kl",
+   "signature": "1igqw2o",
    "build": 150608,
    "crew": 1000,
    "total": 151608,
@@ -13150,7 +13150,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1vu5wi2",
+   "signature": "11yceav",
    "build": 200840,
    "crew": 2000,
    "total": 202840,
@@ -22404,7 +22404,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "wpmqe2",
+   "signature": "1uf1j2v",
    "build": 159865,
    "crew": 0,
    "total": 159865,
@@ -29527,7 +29527,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1oo3771",
+   "signature": "nmtl4",
    "build": 101004,
    "crew": 1000,
    "total": 102004,
@@ -32955,7 +32955,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1t61ydv",
+   "signature": "h5om8e",
    "build": 88832,
    "crew": 1000,
    "total": 89832,
@@ -35862,7 +35862,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1gahlev",
+   "signature": "1rs7rh6",
    "build": 141597,
    "crew": 1000,
    "total": 142597,
@@ -43462,7 +43462,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1fx1snv",
+   "signature": "oaz21i",
    "build": 133509,
    "crew": 1000,
    "total": 134509,
@@ -50098,7 +50098,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "2jxvyb",
+   "signature": "6j4qvy",
    "build": 102563,
    "crew": 0,
    "total": 102563,
@@ -54084,7 +54084,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1x9pc47",
+   "signature": "s8zgx6",
    "build": 247185,
    "crew": 1000,
    "total": 248185,
@@ -65175,7 +65175,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "bjaeb8",
+   "signature": "1bevb5d",
    "build": 152699,
    "crew": 1000,
    "total": 153699,
@@ -70845,7 +70845,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1e9u0b1",
+   "signature": "1xureeg",
    "build": 134698,
    "crew": 1000,
    "total": 135698,
@@ -82500,8 +82500,16 @@ function imperialRemodelDesign(key){
  // Lines to the parts made into equipment go with them; the designs also hold one line to a gun that is in neither design
  // (p65 → f39: left behind when that gun was deleted, removeItem did not drop lines then).
  {const nodes=new Set([...ship.parts.map(p=>'p'+p.id),...ship.fits.map(f=>'f'+f.id)]);if(ship.links){ship.links=ship.links.filter(l=>nodes.has(l.from)&&nodes.has(l.to));if(!ship.links.length)delete ship.links;}}
+ // 2026-11-23 The designs carry the older example's lift split over 189 pieces (「分散リパルサーリフト」, a refit's packing cells,
+ // the user's own rooms otherwise kept as they are). The same lift volume is put back as whole rooms (user: 「内部区画が無理に分割
+ // されすぎてて重くなってるものが散見される。入り込むのであれば各区画は基本一まとめにして」).
+ syncCompartments(ship);const liftPieces=ship.parts.filter(p=>p.k==='repulsor'&&/^分散リパルサーリフト/.test(p.label||'')),liftVolume=liftPieces.reduce((n,p)=>n+partVolume(p),0);
  const oldBuilding=ship._building;ship._building=true;
- try{for(const [id,asset] of [['isdSensor','isd_sensor_port'],['isdSensor','isd_sensor_stbd'],[key==='imperial2'?'isdTractorII':'isdTractorI',key==='imperial2'?'isd_tractor_ii':'isd_tractor_i']]){const a=REFERENCE_ASSETS[asset],o=equipmentOptions(id);placePart(ship,'sensor',a.c.slice(),Math.max(...a.size),{label:a.title,equipmentId:id,skinAsset:asset,skinSize:a.size.slice()});void o;}}
+ try{if(liftPieces.length>1){const gone=new Set(liftPieces);ship.parts=ship.parts.filter(p=>!gone.has(p));syncCompartments(ship);const made=shipRefitAddVolume(ship,'repulsor',liftVolume,'分散リパルサーリフト'),pieceIds=new Set(liftPieces.map(p=>'p'+p.id)),total=made.reduce((n,p)=>n+partVolume(p),0);
+  /* the designer's lines to the pieces go to the new rooms, each taking its share of their summed capacity by volume */
+  if(ship.links){const into=new Map();ship.links=ship.links.filter(l=>{const a=pieceIds.has(l.from),b=pieceIds.has(l.to);if(!a&&!b)return true;if(a&&b)return false;const key=l.kind+'|'+(a?'to:'+l.to:'from:'+l.from),q=into.get(key)||{kind:l.kind,end:a?l.to:l.from,out:a,cap:0,capped:true};if(Number.isFinite(l.cap))q.cap+=l.cap;else q.capped=false;into.set(key,q);return false;});
+   for(const q of into.values())for(const p of made){const share=partVolume(p)/Math.max(1e-9,total),l={kind:q.kind,from:q.out?'p'+p.id:q.end,to:q.out?q.end:'p'+p.id};if(q.capped)l.cap=q.cap*share;ship.links.push(l);}}}
+ for(const [id,asset] of [['isdSensor','isd_sensor_port'],['isdSensor','isd_sensor_stbd'],[key==='imperial2'?'isdTractorII':'isdTractorI',key==='imperial2'?'isd_tractor_ii':'isd_tractor_i']]){const a=REFERENCE_ASSETS[asset],o=equipmentOptions(id);placePart(ship,'sensor',a.c.slice(),Math.max(...a.size),{label:a.title,equipmentId:id,skinAsset:asset,skinSize:a.size.slice()});void o;}}
  finally{ship._building=oldBuilding;}
  return ship;
 }
