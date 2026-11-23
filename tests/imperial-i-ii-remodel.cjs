@@ -1,86 +1,19 @@
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{test}=require('node:test');
-const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..'));
-function runtime(withLayout=true){
- const cx=vm.createContext({console,performance});
- for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js']){
-  let code=fs.readFileSync(path.join(root,file),'utf8');
-  if(!withLayout&&file==='data/imperial2.js'){const start=code.indexOf('const IMPERIAL_USER_LAYOUT=');assert.ok(start>0);code=code.slice(0,start);}
-  vm.runInContext(code,cx,{filename:file});
- }
- return {C:vm.runInContext('Core',cx),source:withLayout?vm.runInContext('IMPERIAL_USER_LAYOUT',cx):null};
-}
-const {C,source}=runtime(),plain=value=>value===undefined?undefined:JSON.parse(C.publicJSON(value)),normalized=C.deserialize(plain(source));
-const shapes=ship=>plain(ship.parts.filter(C.isShapePart)),near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-8,`${a} != ${b}`);
-const layoutFields=['hull','cuts','trenches','solidCuts','subs','hatches','armor','shieldTarget','surfaces','designEnvelope'];
-// The only authorized structural correction removes the one-centimetre
-// engine-bay sheet while keeping the upper opening boundary unchanged.
-function expectedShapes(){const out=shapes(normalized),cut=out.find(p=>p.id===178).hullData.solidCuts.find(c=>c.id===2);assert.equal(cut.c[1],202.53);assert.equal(cut.s[2],127.05);cut.c[1]=202.52;cut.s[2]=127.07;return out;}
-
-test('Imperial I and II are distinct selectable examples with the same explicit military complement',()=>{
- for(const [key,name]of [['imperial','インペリアルI級'],['imperial2','インペリアルII級']]){
-  assert.equal(C.DESIGNS[key].name,name);assert.equal(C.SHIP_EXAMPLES[key].name,name);assert.equal(C.SHIP_EXAMPLES[key].side,'銀河帝国');assert.equal(C.SHIP_EXAMPLES[key].role,'重砲戦艦');assert.ok(C.SHIP_SYSTEM_REFIT_KEYS.includes(key));
-  assert.equal(C.SHIP_EXAMPLES[key].build().reference,key);assert.equal(C.SHIP_EXAMPLES[key].build().name,name+'｜重砲戦艦');
- }
- assert.deepEqual(plain(C.builtinComplement('imperial2')),plain(C.builtinComplement('imperial')));
-});
-
-test('both recipes preserve the supplied structures with only the declared engine-bay seam correction',()=>{
- assert.equal(shapes(normalized).length,26);
- for(const key of ['imperial','imperial2']){
-  const ship=C.SHIP_EXAMPLES[key].build();assert.deepEqual(shapes(ship),expectedShapes());
-  for(const field of layoutFields)assert.deepEqual(plain(ship[field]),plain(normalized[field]),key+' keeps '+field);
-  const hull=ship.parts.find(p=>p.primaryHull);assert.equal(hull.id,178);assert.equal(hull.form,'hull');
-  assert.ok(!ship.parts.some(p=>[21,22,23,24,25,31,32,33,34,35].includes(p.id)),'removed gun-deck edge structures stay removed');
- }
-});
-
-test('all fifty-one supplied fitting poses are retained while only the eight I-class main gun kinds change',()=>{
- for(const key of ['imperial','imperial2']){
-  const ship=C.SHIP_EXAMPLES[key].build(),expected=plain(normalized.fits);assert.equal(ship.fits.length,51);
-  if(key==='imperial')for(const f of expected)if(f.id>=107&&f.id<=114)f.k=f.id<=108?'ion':'stl';
-  // 2026-11-18, user decision「インペリアル I / IIは主砲塔充電量を上げてもいい」「砲そのものは変えずに設置設定で弄れる斉射回数の方を
-  // 変えて充電区画を大きくする」: the eight main turrets of both classes hold three salvos (docs/weapon-heat-share.md). Nothing else
-  // of the supplied fitting settings may differ.
-  for(const f of expected)if(f.id>=107&&f.id<=114)f.chargeSalvos=3;
-  const authored=list=>plain(list).map(f=>{if(key==='imperial'&&f.id>=107&&f.id<=114){const old=expected.find(q=>q.id===f.id);f.p=f.p.map((v,i)=>{assert.ok(Math.abs(v-old.p[i])<1e-7,'only floating-point surface projection may adjust the mount centre');return old.p[i];});for(const field of ['base','low','slope','float','mountSupport'])delete f[field];}return f;});
-  assert.deepEqual(authored(ship.fits),authored(expected),key+' keeps every authored fitting pose while refreshing changed automatic supports');
-  const counts=Object.fromEntries([...new Set(ship.fits.map(f=>f.k))].map(k=>[k,ship.fits.filter(f=>f.k===k).length]));
-  assert.deepEqual(counts,key==='imperial'?{podHangar:1,ion:2,stl:6,podAir:1,triple40:9,pd:20,trc:10,quad70Side:2}:{podHangar:1,oct40:8,podAir:1,triple40:9,pd:20,trc:10,quad70Side:2});
-  for(const id of [179,180,181,182,183,184,185,186])assert.ok(ship.fits.some(f=>f.id===id));
- }
-});
-
-test('changed I-class main guns have current physical supports before the engineering refit starts',()=>{
- const ship=C.SHIP_EXAMPLES.imperial.build();
- for(const f of ship.fits.filter(f=>f.id>=107&&f.id<=114)){
-  const old=normalized.fits.find(q=>q.id===f.id),geometry=C.turretSupportGeometry(f);assert.equal(f.float,false);assert.ok(geometry?.volume>0);assert.notDeepEqual(plain(f.mountSupport),plain(old.mountSupport),'the octuple support cannot be reused for '+f.k);
-  const clean=plain(f);delete clean.mountSupport;clean.base=clean.low=clean.slope=0;C.mountFit(ship,clean);
-  assert.equal(f.mountSupport.version,clean.mountSupport.version);near(f.mountSupport.top,clean.mountSupport.top);assert.deepEqual(plain(f.mountSupport.polys.map(p=>p.length)),plain(clean.mountSupport.polys.map(p=>p.length)));
-  f.mountSupport.polys.forEach((poly,i)=>poly.forEach((point,j)=>point.forEach((v,a)=>assert.ok(Math.abs(v-clean.mountSupport.polys[i][j][a])<1e-7,'the constructor support matches a fresh actual mount'))));near(f.base,clean.base);near(f.low,clean.low);near(f.slope,clean.slope);f.p.forEach((v,i)=>assert.ok(Math.abs(v-old.p[i])<1e-7));
- }
-});
-
-test('old individual machinery and stale circuits are retired only in the new stock recipe while nozzle mouths and plants stay authored',()=>{
- const appearance=p=>plain(Object.fromEntries(['id','c','d','dir','nozzleLength','skinAsset','skinAnchor','skinDiameter','bodyLength','bodyRadius'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]]))),power=s=>s.parts.filter(C.isReactor).reduce((n,p)=>n+C.reactorPower(p),0),shield=s=>s.parts.filter(p=>p.k==='shield'||p.k==='localShield').reduce((n,p)=>n+C.shieldLoad(p),0);
- assert.equal(normalized.parts.filter(p=>p.k==='engineCore').length,7);assert.ok(normalized.links.length>0);
- for(const key of ['imperial','imperial2']){
-  const ship=C.SHIP_EXAMPLES[key].build();assert.equal(ship.parts.filter(p=>p.k==='engineCore').length,0,'current stock refit must create the three shared bodies');assert.deepEqual(plain(ship.links),[]);
-  assert.deepEqual(plain(ship.parts.filter(p=>p.k==='engine').map(appearance)),plain(normalized.parts.filter(p=>p.k==='engine').map(appearance)));
-  assert.ok(ship.parts.filter(p=>p.k==='engine').every(p=>p.machineryId==null&&p.nozzleShare==null));near(power(ship),power(normalized));near(shield(ship),shield(normalized));near(power(ship),1e25);near(shield(ship),1e26);
-  const reactorHardware=p=>{const q=plain(p);if(q.id===59)delete q.c;return q;};
-  assert.deepEqual(plain(ship.parts.filter(C.isReactor).map(reactorHardware)),plain(normalized.parts.filter(C.isReactor).map(reactorHardware)),'the enlarged engine may relocate reserve reactor59 while keeping every reactor and its generating hardware');
-  const reserve=ship.parts.find(p=>p.id===59);assert.equal(C.insideOriginalEnvelope(ship,reserve.c),true,'the relocated reserve reactor remains inside the real ship');
-  assert.deepEqual(plain(ship.airWings),[]);assert.deepEqual(plain(ship.groundForces),[]);
- }
- // This is a new-stock construction policy, never a migration of user saves.
- const loaded=C.deserialize(plain(source));assert.equal(loaded.parts.filter(p=>p.k==='engineCore').length,7);assert.deepEqual(plain(loaded.links),plain(normalized.links));
-});
-
-test('creating either variant cannot mutate the immutable common source or another fresh recipe',()=>{
- const before=JSON.stringify(source),a=C.SHIP_EXAMPLES.imperial.build(),b=C.SHIP_EXAMPLES.imperial2.build();a.parts[0].c[0]+=100;a.fits[0].p[0]+=100;
- assert.equal(JSON.stringify(source),before);assert.deepEqual(shapes(b),expectedShapes());assert.deepEqual(plain(b.fits),plain(normalized.fits).map(f=>f.id>=107&&f.id<=114?{...f,chargeSalvos:3}:f)/* 2026-11-18: three salvos on the main turrets, as above */);assert.deepEqual(shapes(C.SHIP_EXAMPLES.imperial.build()),expectedShapes());
-});
-
-test('missing supplied data fails explicitly instead of reviving the obsolete Imperial II builder',()=>{
- const {C:missing}=runtime(false);for(const key of ['imperial','imperial2'])assert.throws(()=>missing.SHIP_EXAMPLES[key].build(),/配置図面がありません/);
+// 2026-11-23 The Imperial I / II examples are the user's 1,600 m remodels (docs/handoff-2026-11-20/refs/), replacing the
+// earlier supplied layout (IMPERIAL_USER_LAYOUT; this file was tests/imperial-i-ii-layout.cjs and checked that layout's 26
+// structures and 51 fitting poses, which no longer exist — an expectation change for review). User: 「そのままパーツを部品化
+// して」: the design is taken as it is; only the bridge body, the ISD-72x domes with their posts and the centre antenna
+// (now a tractor beam control unit, I and II types) become equipment parts, and lines to removed nodes are dropped.
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),{C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+const source=k=>JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'docs/handoff-2026-11-20/refs/imperial-'+k+'-1600m-remodel-2026-11-23.json.gz'))));
+const BRIDGE=[578,579,582,583,711,712,713,714,715,716,717,718,721,722],ANTENNA={imperial:[726,727,732,733,734,735,736],imperial2:[726,727]};
+for(const [key,k,name,tractor] of [['imperial','i','インペリアルI級','isdTractorI'],['imperial2','ii','インペリアルII級','isdTractorII']])test(name+' is the user remodel with the bridge, sensors and tractor control made into parts',()=>{
+ const raw=source(k),ship=C.SHIP_EXAMPLES[key].build(),drop=new Set([...BRIDGE,...ANTENNA[key],724,725]);
+ assert.equal(C.SHIP_EXAMPLES[key].name,name);assert.equal(ship.name,name+'｜重砲戦艦');assert.equal(ship.reference,key);assert.ok(!C.SHIP_SYSTEM_REFIT_KEYS.includes(key),'the design is used as given, without the system refit');
+ const eq=[...ship.parts.filter(p=>p.equipmentId).map(p=>p.equipmentId+':'+p.skinAsset)].sort();assert.deepEqual(eq.slice(),['isdBridge:isd_bridge','isdSensor:isd_sensor_port','isdSensor:isd_sensor_stbd',tractor+':'+(key==='imperial'?'isd_tractor_i':'isd_tractor_ii')].sort());
+ assert.equal(ship.parts.find(p=>p.id===50).equipmentId,'isdBridge','the bridge body keeps its id');
+ const kept=raw.parts.filter(p=>!drop.has(p.id)&&p.id!==50).map(p=>p.id),ids=new Set(ship.parts.map(p=>p.id));for(const id of kept)assert.ok(ids.has(id),'part #'+id+' is kept');for(const id of drop)assert.ok(!ids.has(id),'part #'+id+' became equipment');
+ assert.deepEqual([...ship.fits.map(f=>f.id)].sort((a,b)=>a-b),raw.fits.map(f=>f.id).sort((a,b)=>a-b),'every gun and fitting is kept');
+ const nodes=new Set([...ship.parts.map(p=>'p'+p.id),...ship.fits.map(f=>'f'+f.id)]);assert.equal((ship.links||[]).filter(l=>!nodes.has(l.from)||!nodes.has(l.to)).length,0,'no line to a missing node (the source has p65 → f39)');
+ assert.equal(ship.links.length,raw.links.length-1);
 });
