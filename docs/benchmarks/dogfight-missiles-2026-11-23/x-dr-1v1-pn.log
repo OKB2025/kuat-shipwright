@@ -1,0 +1,5 @@
+== head-on: 1 x craft_xwing (A) vs 1 x /home/user/kuat-shipwright/docs/handoff-2026-11-20/refs/tie-d-remodel-2026-11-23.json (B), 20 runs: lost per run A 1.0 B 1.0; A wins 0, B wins 0, both lost 20, undecided in 300 s 0; mean time to decision 3.3 s; nearest 165.4 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 3.0 B 3.0; greatest height off the start plane 0.0 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 40, hit 40, spent 0, target lost first 0
+0s d=7389 A(294,0,0 hdg 0° 1171m/s) B(7683,0,0 hdg 180° 1262m/s)
+   run 1: both 3.25 s TIE/D：中央区画 崩壊 | TIE/D：撃沈（船体破断）
+exit 0
