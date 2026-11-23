@@ -1,0 +1,91 @@
+✔ the examples state 3 for the Imperial class and 4 for the Venator (0.735318ms)
+✔ a design that states its air control has that many, through saving and loading; one that does not is worked out as before (889.538599ms)
+✔ the built Venator directs four squadrons (48181.077246ms)
+✔ automatic fighter interception prioritizes an inbound bomber over a closer passing fighter (46.926466ms)
+✔ spare fighter wings split their interception effort between simultaneous incoming attacks (14.580596ms)
+✔ air superiority pursues a distant enemy formation instead of orbiting the mother ship (8.637616ms)
+✔ an automatic strike escort actually flies with outbound bombers and answers threats near them (76.089782ms)
+✔ with the air clear an odd-numbered fighter wing attacks a ship, then finishes its pass before changing task (8.094656ms)
+✔ a departed auto-strike target is replaced by an enemy still in the fighter home system (7.955919ms)
+✔ an actual interception closes the range and fires nose guns while both formations keep flying (123.634148ms)
+✔ an automatic fighter anti-ship sortie skims the hull at speed and returns after its finite passes (521.29975ms)
+✔ fixed dogfight damage follows the attacker heading, and merely taking fire does not trigger a victim laser (2.042186ms)
+✔ each squadron directs its firepower at one valid enemy and keeps a valid target between ticks (0.299136ms)
+✔ rear and side enemies cannot draw a nose laser, while an in-arc target can replace an invalid old lock (0.173118ms)
+✔ kill-credit source is the strongest actual attacker rather than the victim own outgoing target (0.131646ms)
+✔ dense dogfights bound directional queries and do not multiply one battery damage by every nearby enemy (1.750571ms)
+✔ the real squad copy button retains custom model, count and loadout as independent configuration (7.062997ms)
+✔ a wing copy keeps its own group and copies every squad, with a free wing number and fresh runtime IDs (26.151853ms)
+✔ copy limits reject the whole operation without losing rows or overflowing normalized storage (2.908921ms)
+✔ copied developed craft keep one model identity through fleet JSON while cost and occupied space grow (20330.717697ms)
+✔ the rendered air editor exposes squad and whole-wing copy at the correct hierarchy level (4.755461ms)
+✔ a battle mission is applied to one selected wing and recall immediately clears its prior firing (11.259756ms)
+✔ invalid wing mission targets and nonfinite CAP cannot mutate an existing valid order (6.848097ms)
+✔ the direct battle-list buttons select the intended wing for a mission without issuing one to its sibling (10.188515ms)
+✔ the fleet keeps control free: the strike groups go up with their escort in them, the other fighters stay aboard (35.989856ms)
+✔ craft with no use in the air land: bombers without stores, fighters with no strike to escort and no enemy craft near (2947.817417ms)
+✔ craft in use stay up: bombers with stores and a ship to strike (1255.047165ms)
+✖ craft come out of the hangar mouths at the rate the mouths give, and appear just outside a mouth (42.577029ms)
+✔ a ship with no mouth the craft fits does not launch them (108.310138ms)
+✔ a squadron that has landed is re-armed and can go up again, bombers too (4159.74299ms)
+✔ two fleets of which neither holds it can win with its craft fly no strike (91.201023ms)
+✔ an enemy strike brings the fighters up to meet it far out; when it is over the counter-strike goes (1244.618584ms)
+✔ a fleet that arrives with its craft in the air: the hyperdrive craft are out at once and it strikes; craft without a hyperdrive are not (276.283695ms)
+✔ the side that holds it can win with its craft strikes first: by faction, as given, or by what the craft carry (68.468808ms)
+✔ a group that goes up together can mix craft types: as given, and as made from wings given by type (12684.030157ms)
+✔ with opts.mixed false the wings fly as squadrons of one type (3.105716ms)
+✖ the Imperial class passes twelve craft through its hangar mouths in two to three seconds (0.282412ms)
+✔ a craft pointing straight down (out of a ventral hangar mouth) pulls out towards a point level with it (1.261197ms)
+✔ straight up likewise, and a craft already level is left as it was (0.811548ms)
+✔ a craft whose stored lift vector lies along its bow gets one square to it, whatever the bow (0.273967ms)
+✔ a bomber that comes out after the strike's target was chosen is sent at it too (22340.728743ms)
+✔ the real RTS aircraft clock obeys OFF and ON without borrowing ordinary gun tracking (979.129186ms)
+✔ actual aircraft interception still requires electricity when automatic defence is enabled (4.17381ms)
+✔ the actual tactical fleet aircraft-loss path honors the automatic-defence policy (8.703296ms)
+✔ the actual tactical missile attenuation path honors OFF while preserving each finite launch (39.341949ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 43
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145518.439084
+
+✖ failing tests:
+
+test at tests/fleet-air-restraint.cjs:57:1
+✖ craft come out of the hangar mouths at the rate the mouths give, and appear just outside a mouth (42.577029ms)
+  AssertionError [ERR_ASSERTION]: the first craft is out
+      at TestContext.<anonymous> (/workspace/scratch/3211a178c1b4/figures/tests/fleet-air-restraint.cjs:64:158)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/fleet-air-restraint.cjs:140:1
+✖ the Imperial class passes twelve craft through its hangar mouths in two to three seconds (0.282412ms)
+  AssertionError [ERR_ASSERTION]: its mouths are open bays
+      at TestContext.<anonymous> (/workspace/scratch/3211a178c1b4/figures/tests/fleet-air-restraint.cjs:143:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
