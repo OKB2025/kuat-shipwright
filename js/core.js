@@ -90250,6 +90250,18 @@ function turnRadiusAt(acc,speed,maxRate){const w=Math.min(maxRate>0?maxRate:Infi
 function craftMassTurnRate(S,length){const cs=S.craftSystems||{},r=Math.max(0,cs.maneuverSupport||0)/Math.max(1e-9,S.mass||0);return clamp(.24*Math.sqrt(r)*Math.sqrt(12/Math.max(1,length||12)),.015,1);}
 // Opt-in for the Node simulators (globalThis.KS_TURN_VECTOR; the game never sets it): a craft turns by pointing its thrust.
 function craftVectorTurn(u){return !!globalThis.KS_TURN_VECTOR&&craftUnit(u);}
+// 2026-11-23 Trial (user: 「ミサイルが飛んでくると回避運動を行うようにしよう」). Opt-in for the Node simulators (globalThis.KS_MISSILE_EVADE; the
+// game never sets it): a craft with a guided round closing on it (aimed at it, within MISSILE_EVADE.range, arriving within
+// MISSILE_EVADE.tgo seconds) turns hard onto the beam: square to the line of sight from the round, on the side its way already
+// leans to, so the round's line of sight swings as fast as the craft can make it (a round turns at most MISSILE_FLIGHT.turn).
+// Returns the point to steer for, or null. The craft's own attack resumes when no round is closing.
+const MISSILE_EVADE=Object.freeze({range:4500,tgo:5,lead:2500});
+function craftMissileEvade(b,u){
+ if(!globalThis.KS_MISSILE_EVADE||!craftUnit(u)||!b?.missiles?.length)return null;let best=null;
+ for(const m of b.missiles){if(!(m.n>0)||m.ballistic||m.target!==u.id||m.team===u.team)continue;const r=sub(u.pos,m.pos),d=len(r);if(!(d>1)||d>MISSILE_EVADE.range)continue;const closing=-dot(sub(u.velocity||[0,0,0],m.vel||[0,0,0]),mul(r,1/d));if(!(closing>1))continue;const tgo=d/closing;if(tgo>MISSILE_EVADE.tgo)continue;if(!best||tgo<best.tgo)best={m,r,d,tgo};}
+ if(!best)return null;const los=mul(best.r,1/best.d),v=u.velocity||[0,0,0];let e=sub(v,mul(los,dot(v,los)));if(len(e)<1e-6){e=cross(los,[0,1,0]);if(len(e)<1e-6)e=cross(los,[1,0,0]);}e=norm(e);
+ u.evadeT=(u.evadeT||0)+1;return add(u.pos,mul(e,MISSILE_EVADE.lead));
+}
 function cornerSpeed(u){const p=u?.p||{},a=p.accel||0,w=p.turnRate||0;return w>0?a/w:0;}
 function craftCruiseSpeed(u){return (u.p?.maxSpeed||0)*CRUISE_SPEED_TARGET.target;}
 function craftPassSpeed(u){return craftCruiseSpeed(u);}
@@ -90666,11 +90678,13 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    // でロール、ピッチアップ、ピッチダウン」「ヨーはスティックによらない艦の旋回」). It rolls its lift vector onto the point it wants and
    // pulls; it does not yaw round. The pull is bounded as every turn is (its thrust over its mass at its speed, and the rate it
    // can swing its bow).
+   {const ev=craftMissileEvade(b,old);if(ev){dest=ev;pass.barrel=0;u.evading=true;}else delete u.evading;}
    const pullRate=craftVectorTurn(u)?nominalTurn*turn:Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=pass.barrel>0?craftBarrelStep(old,pullRate,pass.barrelDir||1,dt):craftAttitudeStep(u,old,dest,pullRate,dt),d=len(sub(dest,old.pos));u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);
    want=mul(A.f,dogfightSpeed(old,t,0,d));
   }else if(dest&&craftUnit(u)&&o.type==='move'&&o.dash){
    // v30 A craft ordered to make for a point at full speed flies straight at it in three dimensions, climbing or diving as the
    // point lies (its bow follows by roll and pitch, as in a fight): the climb to a dive's start and the dive itself.
+   {const ev=craftMissileEvade(b,old);if(ev){dest=ev;u.evading=true;}else delete u.evading;}
    const pullRate=craftVectorTurn(u)?nominalTurn*turn:Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=craftAttitudeStep(u,old,dest,pullRate,dt);u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);want=mul(A.f,craftWantSpeed(old,null));
   }else if(dest&&pass){const delta=sub(dest,old.pos),d=len(delta),yaw=Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);turnToward(yaw);
    // (off its heading it slows, so the turn back is tighter than the run in)
