@@ -1,0 +1,17 @@
+== head-on: 4 x /tmp/ks-verify/20261123-remodel4/x-wing.tube.json (A) vs 4 x /tmp/ks-verify/20261123-remodel5/tie-d.clean.json (B), 10 runs: lost per run A 4.0 B 1.6; A wins 0, B wins 10, both lost 0, undecided in 300 s 0; mean time to decision 58.4 s; nearest 240.0 m; seconds on the other's tail A 9.8 B 15.2; seconds guns bearing A 29.4 B 74.1; greatest height off the start plane 2262.8 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 131, hit 26, spent 80, target lost first 22; lock warnings 253, guidance lost (launcher lost sight) 44; rounds {"cmsl":78,"ptorp":53}; steps flown by guidance {"pn":570,"pursuit":1680}
+0s d=7377 A(279,2,3 hdg 4° 1111m/s) B(7657,5,-8 hdg -173° 1367m/s)
+5s d=2387 A(4938,34,1105 hdg 13° 786m/s) B(2730,-23,2010 hdg 170° 931m/s)
+10s d=5480 A(7444,1136,1114 hdg -68° 434m/s) B(2344,795,-862 hdg -58° 463m/s)
+15s d=4830 A(6928,2246,377 hdg -159° 234m/s) B(3700,-1128,1608 hdg -20° 433m/s)
+20s d=2213 A(6097,1881,320 hdg 149° 189m/s) B(4856,210,1071 hdg -31° 312m/s)
+25s d=705 A(2620,-146,-4941 hdg 139° 235m/s) B(2138,-225,-4432 hdg 76° 132m/s)
+30s d=275 A(2327,-336,-4110 hdg 80° 185m/s) B(2601,-349,-4121 hdg -2° 128m/s)
+35s d=1021 A(2490,-637,-3302 hdg 76° 167m/s) B(2354,-376,-2325 hdg 91° 217m/s)
+40s d=767 A(2641,-915,-2577 hdg 76° 151m/s) B(2255,-1034,-1924 hdg -71° 152m/s)
+45s d=2629 A(3070,-214,-4655 hdg 47° 184m/s) B(2641,-1309,-2304 hdg -41° 128m/s)
+50s d=1333 A(3235,-471,-3858 hdg 98° 188m/s) B(3086,-1108,-2696 hdg -39° 124m/s)
+55s d=811 A(3299,-926,-3070 hdg 65° 188m/s) B(2893,-439,-2564 hdg -34° 138m/s)
+60s d=622 A(3404,-1454,-2343 hdg 86° 0m/s) B(3246,-949,-2672 hdg 62° 168m/s)
+   run 1: B 60.25 s T-65B Xウイング：前部区画 崩壊 | T-65B Xウイング：撃沈（反応物誘爆）
+exit 0

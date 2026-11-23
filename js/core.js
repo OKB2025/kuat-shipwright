@@ -95522,7 +95522,7 @@ function dockStep(units,b,dt){
 // .pdRange (plus half its length) for as long as they are there, at .pdKill rounds per second per point of anti-air (the
 // strategic map's rate), as far as its fire-control channels reach (AA_CHANNELS.salvo rounds launched together by one ship
 // are one target) and its point defence is funded. Nothing is taken at the launch or as a share on arrival any more.
-const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:5000/* user decision 2026-11-19「点防御の射程を少し下げる」: was 6000 (★ the figure is ours) */,pdKill:.012,turn:.6,craftFuse:40});
+const MISSILE_FLIGHT=Object.freeze({launch:220,speed:2600,accel:650,clearance:.35,legacyLife:45,pdRange:5000/* user decision 2026-11-19「点防御の射程を少し下げる」: was 6000 (★ the figure is ours) */,pdKill:.012,turn:.6,craftFuse:10/* user decision 2026-11-23「近接信管は10mに」: was 40 */});
 // v30 Point defence against craft flying as ships (user decision 2026-11-19「点防御レーザーは航空機の固定レーザーと同じ計算にして」): its
 // lasers are guns like a craft's fixed lasers. What they put out is their own power (the point-defence and dual-purpose weapon
 // modules still working, as far as the weapon charge funds them); what lands is the common gun hit chance at that range against
