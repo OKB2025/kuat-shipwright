@@ -1,0 +1,16 @@
+== head-on: 1 x /tmp/ks-verify/20261123-tiein/tie_in_remodel_seated.json (A) vs 1 x /tmp/ks-verify/20261123-tied/tie_d.json (B), 20 runs: lost per run A 0.1 B 0.8; A wins 17, B wins 3, both lost 0, undecided in 300 s 0; mean time to decision 114.1 s; nearest 63.9 m; seconds on the other's tail A 17.9 B 0.0; seconds guns bearing A 52.6 B 21.8; greatest height off the start plane 8541.4 m; first shot at 0.0 s
+0s d=7304 A(337,0,0 hdg 0° 1346m/s) B(7641,0,0 hdg 180° 1436m/s)
+5s d=5462 A(6463,16,-123 hdg -8° 1057m/s) B(1002,44,-23 hdg -179° 1169m/s)
+10s d=14992 A(10829,109,-1467 hdg -32° 795m/s) B(-4096,761,-199 hdg -173° 897m/s)
+15s d=20915 A(13301,622,-3692 hdg -59° 576m/s) B(-7356,2489,-999 hdg -150° 639m/s)
+20s d=22758 A(13927,1822,-5576 hdg -102° 380m/s) B(-8433,4446,-2246 hdg -83° 417m/s)
+25s d=21253 A(13244,3016,-6156 hdg -177° 295m/s) B(-7654,5492,-3189 hdg -20° 318m/s)
+30s d=17484 A(11502,3368,-5983 hdg 172° 489m/s) B(-5695,5385,-3557 hdg -8° 551m/s)
+35s d=10927 A(8463,3725,-5554 hdg 172° 738m/s) B(-2285,4985,-4038 hdg -8° 827m/s)
+40s d=2094 A(4355,4207,-4975 hdg 172° 830m/s) B(2295,4448,-4684 hdg -8° 931m/s)
+45s d=4924 A(1310,4563,-4248 hdg 148° 519m/s) B(6114,4043,-5191 hdg -7° 668m/s)
+50s d=9498 A(-65,4536,-2652 hdg 99° 359m/s) B(8963,4417,-5599 hdg -8° 503m/s)
+55s d=11408 A(361,4437,-1258 hdg 37° 299m/s) B(10791,5460,-5765 hdg 6° 352m/s)
+60s d=10980 A(1756,4637,-1041 hdg -29° 303m/s) B(11614,6700,-5413 hdg 59° 288m/s)
+   run 1: A 108.75 s TIE/D：艦尾区画 崩壊 | TIE/D：撃沈（船体破断）
+exit 0

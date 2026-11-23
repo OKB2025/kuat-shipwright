@@ -1,0 +1,16 @@
+== head-on: 4 x craft_xwing (A) vs 4 x /tmp/ks-verify/20261123-tiein/tie_in_remodel_seated.json (B), 20 runs: lost per run A 3.0 B 2.8; A wins 8, B wins 10, both lost 0, undecided in 300 s 2; mean time to decision 187.2 s; nearest 172.6 m; seconds on the other's tail A 25.6 B 33.9; seconds guns bearing A 114.8 B 110.1; greatest height off the start plane 6851.1 m; first shot at 0.0 s
+0s d=7373 A(293,0,1 hdg 1° 1168m/s) B(7666,0,-1 hdg -179° 1329m/s)
+5s d=2628 A(5292,1,444 hdg 4° 835m/s) B(2869,21,1459 hdg 175° 951m/s)
+10s d=10105 A(8857,-50,121 hdg -23° 620m/s) B(-1199,109,1100 hdg -158° 708m/s)
+15s d=14626 A(10971,10,-1381 hdg -60° 443m/s) B(-3633,225,-599 hdg -122° 509m/s)
+20s d=15478 A(11354,185,-3100 hdg -113° 296m/s) B(-4115,305,-2589 hdg -70° 346m/s)
+25s d=13365 A(10382,326,-3873 hdg 179° 267m/s) B(-2982,288,-3676 hdg -26° 409m/s)
+30s d=9045 A(8400,316,-3943 hdg -174° 514m/s) B(-586,183,-4961 hdg -32° 666m/s)
+35s d=4770 A(6228,263,-4718 hdg -153° 506m/s) B(2034,-1,-6976 hdg -40° 513m/s)
+40s d=1719 A(4493,85,-6114 hdg -133° 309m/s) B(2784,-33,-5977 hdg 25° 301m/s)
+45s d=857 A(3442,-17,-6950 hdg -147° 262m/s) B(4107,-43,-6410 hdg 47° 300m/s)
+50s d=3076 A(2283,-42,-7417 hdg -173° 247m/s) B(-335,-289,-5821 hdg -170° 286m/s)
+55s d=3235 A(1067,-115,-7351 hdg 161° 246m/s) B(-1699,-308,-5685 hdg 156° 296m/s)
+60s d=3189 A(-12,-285,-6809 hdg 147° 249m/s) B(-2638,-1335,-5337 hdg -180° 298m/s)
+   run 1: none 300 s TIE/in インターセプター：左舷・前縁切欠き付き折曲集光翼に被弾・脱落 | TIE/in インターセプター：艦首区画の火災を鎮火
+exit 0
