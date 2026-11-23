@@ -28,7 +28,9 @@ test('a craft type sums every laser barrel of its fire-arc snapshot at its defin
  for(const [type,entry]of Object.entries(E)){if(!Array.isArray(entry.fireArcs))continue;
   const expected=entry.fireArcs.reduce((n,a)=>{const d=C.FITS[a.k];return n+(d?.craft&&d.tt>0&&!d.store?d.barrels*d.barrelTTs:0);},0);near(C.craftLaserRate(type),expected,type);}
  near(C.craftLaserRate('tie_ln'),2*50*KT,'TIE/ln: two medium lasers');near(C.craftLaserRate('xwing'),4*50*KT,'X-wing: four medium lasers');
- near(C.craftLaserRate('arc170'),2*400*KT+2*2*10*KT,'ARC-170: two heavy lasers and two light twin turrets');
+ // 2026-11-24 expectation changed: the ARC-170 example is the user's remodel, armed with two medium and two light fixed lasers
+ // (claser #39/#40, claserL #41/#42) where the old example had two heavy lasers and two light twin turrets (2*400+2*2*10).
+ near(C.craftLaserRate('arc170'),2*50*KT+2*10*KT,'ARC-170: two medium and two light fixed lasers');
  near(C.craftLaserRate('vwing'),2*2*10*KT,'V-wing: two light twin turrets');
  assert.equal(C.craftLaserRate('no-such-craft'),null);assert.equal(C.craftLaserRate(undefined),null);
  near(C.FLEET_AIR_GUN_DEFAULT,2*50*KT,'unknown types fly as a standard two-medium-laser fighter');
@@ -38,7 +40,7 @@ test('fleet profile per-craft air attack averages the deployable combat craft by
  const wings=[{type:'tie_ln',deployable:24},{type:'arc170',deployable:6},{type:'lambda',deployable:2},{type:'tie_adv',deployable:2},{kind:'ship',type:'tie_ln',deployable:5},{type:'xwing',deployable:0}];
  const S={dims:[100,40,30],alphaRate:Array(6).fill(0),ionRate:Array(6).fill(0),aviation:{wings}},p=C.fleetProfile(S,'Carrier');
  // Shuttles, carried ships and craft that cannot launch do not join the attack; tie_adv has no snapshot and flies as the standard fighter.
- near(p.airGun,(24*2*50*KT+6*(2*400*KT+2*2*10*KT)+2*C.FLEET_AIR_GUN_DEFAULT)/32,'mixed wing average');
+ near(p.airGun,(24*2*50*KT+6*(2*50*KT+2*10*KT)+2*C.FLEET_AIR_GUN_DEFAULT)/32,'mixed wing average');// 2026-11-24 ARC-170 as above
  assert.equal(C.fleetProfile({...S,aviation:{wings:[]}},'Empty').airGun,undefined,'no combat craft, no airGun');
 });
 
@@ -86,8 +88,13 @@ test('fleet airGun per craft equals the RTS squadron energy per second for a cus
  const rts=key=>R.squadLaserEnergy({craft:key,pos:[0,0,0],h:[1,0,0],laserGas:100},[1000,0,0],1);
  const key=R.registerDesignCraft({name:'Twin heavy',dims:[8,6,3],craft});assert.ok(key);
  near(one({dims:[8,6,3],design:{craft}}),rts(key),'custom design: same arcs, same rule');near(one({dims:[8,6,3],design:{craft}}),2*400*KT,'two heavy lasers');
- for(const type of ['ywing','xwing','arc170']){assert.ok(R.CRAFT[type],type);near(one({type}),rts(type),type);}
- near(one({type:'ywing'}),Math.max(1,Math.round(R.CRAFT.ywing.aa*2))*50*KT,'table-only ywing: round(aa × 2) medium lasers as the RTS estimates');/* was eta2, taken out of the catalogue 2026-11-16 */
+ for(const type of ['ywing','xwing']){assert.ok(R.CRAFT[type],type);near(one({type}),rts(type),type);}
+ // 2026-11-24 expectation changed: the ARC-170 remodel's two light lasers are fixed tail guns (claserL #41/#42, dir [-1,0,0]), so a
+ // target ahead meets only the nose pair. The fleet figure sums every barrel; it equals the RTS energy ahead plus astern.
+ assert.ok(R.CRAFT.arc170);near(one({type:'arc170'}),rts('arc170')+R.squadLaserEnergy({craft:'arc170',pos:[0,0,0],h:[1,0,0],laserGas:100},[-1000,0,0],1),'arc170 ahead and astern');
+ // 2026-11-24 expectation changed: the BTL-A4 Y-wing is now a modelled example (craft_ywing, its own fire-arc snapshot), so the
+ // table-only estimate is checked on the B-wing, which still has no example.
+ near(one({type:'bwing'}),Math.max(1,Math.round(R.CRAFT.bwing.aa*2))*50*KT,'table-only bwing: round(aa × 2) medium lasers as the RTS estimates');near(one({type:'bwing'}),rts('bwing'),'bwing');/* was eta2, taken out of the catalogue 2026-11-16 */
  near(one({type:'tie_adv'}),C.FLEET_AIR_GUN_DEFAULT,'a type neither table knows is a standard fighter');
 });
 

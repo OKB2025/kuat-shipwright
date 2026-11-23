@@ -2,13 +2,15 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
 const C=vm.runInContext('Core',context),plain=v=>JSON.parse(C.publicJSON(v)),fixtures=new Map();
+// 2026-11-24 expectation changed: the Hyena, V-19, Vulture and V-wing examples are the user's remodels; their thermal wing
+// panels carry the remodel's labels (V-19: the two main S-foils and the ventral foil, ids 7-9; the old example split them into 5).
 const expected={
  craft_arc170:{ids:[9,10,11,12,13,14,15,16],labels:/主翼（|Sフォイル（放熱板）/},
  craft_btlb:{ids:[3,4],labels:/^主翼（ナセル支持）$/},
- craft_hyena:{ids:[3,4,5,6],labels:/^(上翼|下翼)$/},
- craft_v19:{ids:[5,6,7,8,9],labels:/主翼（Sフォイル|腹部Sフォイル/},
- craft_vulture:{ids:[4,5,6,7],labels:/^(上翼|下翼)$/},
- craft_vwing:{ids:[1,2,3,4],labels:/部翼（放熱板）/},
+ craft_hyena:{ids:[3,4,5,6],labels:/^[右左]舷[上下]側・分割式翼脚外板$/},
+ craft_v19:{ids:[7,8,9],labels:/^[右左]舷主Sフォイル$|^中央可動Sフォイル・腹面安定翼$/},
+ craft_vulture:{ids:[4,5,6,7],labels:/^[右左]舷[上下]側・分割式翼脚外板$/},
+ craft_vwing:{ids:[1,2,3,4],labels:/^[右左]舷[上下]部・放熱翼$/},
  craft_xwing:{ids:[2,3,16,17],labels:/[上下]翼（Sフォイル）$/},
  craft_z95:{ids:[7,8],labels:/主翼$/}
 };
