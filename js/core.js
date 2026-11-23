@@ -76138,7 +76138,7 @@ function baseMountFit(ship,f){
  normalizeFitMount(f);const d=fitSpec(f),fr=fitFrameOf(f),R=d.r,gun=d.cat==='w',flush=gun&&!fitHasPedestal(f),big=f.localMount||d.casemate||flush?Math.max(2,Math.min(6,R*.25)):Math.max(ship.hull.H,ship.hull.W,200)*2,keepLocal=!isAnchoredFit(f)&&ship._keepFitPose,h0=isAnchoredFit(f)?fitAttachmentHit(ship,f):keepLocal?rayEnv(ship,add(f.p,mul(fr.up,2*FIT_SUPPORT_GAP_M+R)),mul(fr.up,-1),{maxT:4*FIT_SUPPORT_GAP_M+2*R,structOnly:true}):rayEnv(ship,add(f.p,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});/* stage C review H3: a kept pose probes only its own seat, so a roof above it is not mistaken for its support */
  delete f._onPlate;if(!h0){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}if(h0.part?.plate){f.float=true;f._onPlate=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
  // Stage C: p is kept; the surface below must lie within FIT_SUPPORT_GAP_M of it along the fitting's up axis.
- if(!isAnchoredFit(f)&&ship._keepFitPose){if(!fitSeatWithin(f,-dot(sub(h0.p,f.p),fr.up),h0.n||fr.up,fr.up)){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
+ if(!isAnchoredFit(f)&&ship._keepFitPose){if(!craftGunAutoSink(ship,f,-dot(sub(h0.p,f.p),fr.up))&&!fitSeatWithin(f,-dot(sub(h0.p,f.p),fr.up),h0.n||fr.up,fr.up)){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}}else f.p=h0.p;
  f.float=false;if(isAnchoredFit(f)&&f.placement.supportAttachment)return normalizeFitMount(f);if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
  // High review 5 (H-C): the kept measurement equals the seating one except for what lies above open air: from just
  // above the seat, a sample inside solid (the footprint surface is higher there) measures up to where that solid
@@ -77597,7 +77597,7 @@ function mountEmbeddedLauncher(ship,f){
  const host=f.host==='hull'?null:ship.parts.find(p=>p.id===f.host),up=fitUp(f);let p=f.p.slice(),n=up.slice(),h;
  // Stage C review H2: on a load/Worker remount an embedded launcher keeps its pose and host; it is only checked against
  // the surface at its own seat (within FIT_SUPPORT_GAP_M along its normal).
- if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up,R=Math.max(0,fitSpec(f)?.r||0);h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M+R)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M+2*R,structOnly:true});if(h&&!fitSeatWithin(f,h.t-(2*FIT_SUPPORT_GAP_M+R),h.n,nn))h=null;/* a sloped seat (fitSlopeAllowance) */if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
+ if(!isAnchoredFit(f)&&ship._keepFitPose&&fitPoseValid(f)){const nn=f.n?norm(f.n):up,R=Math.max(0,fitSpec(f)?.r||0);h=rayEnv(ship,add(f.p,mul(nn,2*FIT_SUPPORT_GAP_M+R)),mul(nn,-1),{maxT:4*FIT_SUPPORT_GAP_M+2*R,structOnly:true});if(h&&craftGunAutoSink(ship,f,h.t-(2*FIT_SUPPORT_GAP_M+R)))h={...h,t:2*FIT_SUPPORT_GAP_M+R};if(h&&!fitSeatWithin(f,h.t-(2*FIT_SUPPORT_GAP_M+R),h.n,nn))h=null;/* a sloped seat (fitSlopeAllowance) */if(!h||h.part?.plate){f.float=true;f._onPlate=!!h?.part?.plate;return f;}
   // High review H-A: the kept pose is still judged as a whole (the body inside the wall it meets, its axis out of the wall,
   // the clearance), exactly as the seating path does, only without moving it.
   {const g=launcherGeometry(f),[L,H,W]=g.bodySize,inside=q=>(h.part&&inPart(h.part,q))||insideOriginalEnvelope(ship,q)/* user decision 2026-11-20 (asked: 「埋め込み式ランチャーはそれでいい」;「外装は構造物パーツが違くても繋がってるなら同じ船体」): the body may reach past the part it is set in, as long as it stays inside the hull and structures */;let valid=dot(g.axis,nn)>.05;for(const y of [-H/2+.03,H/2-.03])for(const z of [-W/2+.03,W/2-.03]){const q=add(g.bodyCenter,add(mul(g.bodyFrame.fw,-L/2+.04),add(mul(g.bodyFrame.up,y),mul(g.bodyFrame.rt,z))));if(!inside(q))valid=false;}
@@ -77639,8 +77639,14 @@ function craftGunSinkMax(k){const d=FITS[k];return d?d.hm:0;}
 function craftGunMuzzle(f){const d=fitSpec(f),fr=fitFrameOf(f);return add(fitOrigin(f),add(mul(fr.up,d.hm*.5),mul(fr.fw,d.fm*.53)));}
 // A sunk barrel's muzzle and the first stretch ahead of it (a quarter of the barrel's length) must be in open
 // space. Guns standing on their face keep the authored barrel extensions some models carry ahead of them.
+// 2026-11-23 (user: 「航空機のレーザー砲は砲口が開いてるなら撃てるようにして」) A craft's fixed laser whose seat lies inside the hull or a
+// structure (the surface above its mounting point along its up, with any sink it is given, by less than the barrel's
+// length) is a sunk barrel where it stands: it keeps its pose and counts as seated while its muzzle and the stretch ahead of
+// it are in open space (craftMuzzleBlocked). Before, such a gun counted as having lost its seat and did not fire. gap is the
+// seat's height off the surface along up (negative: sunk). The depth is kept for the muzzle check (f._autoSink, not saved).
+function craftGunAutoSink(ship,f,gap){delete f._autoSink;if(!craftFixedGun(f)||!(gap<-FIT_SUPPORT_GAP_M))return false;const depth=-gap,d=fitSpec(f);if((craftGunSink(f)||0)+depth>(d.fm||0)+1e-9)/* the barrel still reaches out of the surface: deeper than its length it is buried whole */return false;f._autoSink=depth;if(craftMuzzleBlocked(ship,f)){delete f._autoSink;return false;}return true;}
 function craftMuzzleBlocked(ship,f){
- if(!craftFixedGun(f)||!(craftGunSink(f)>0))return false;const d=fitSpec(f),fr=fitFrameOf(f),m=craftGunMuzzle(f);
+ if(!craftFixedGun(f)||!(craftGunSink(f)>0||f._autoSink>0))return false;const d=fitSpec(f),fr=fitFrameOf(f),m=craftGunMuzzle(f);
  for(const t of [0,.05,.1,.15,.2,.25].map(x=>x*d.fm)){const q=add(m,mul(fr.fw,t));if(insideOriginalEnvelope(ship,q))return true;}
  return false;
 }
