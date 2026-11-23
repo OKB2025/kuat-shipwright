@@ -90248,6 +90248,8 @@ function turnRadiusAt(acc,speed,maxRate){const w=Math.min(maxRate>0?maxRate:Infi
 // √(manoeuvring capacity ÷ mass) × √(1 ÷ length): 0.24 rad/s for capacity = mass at 12 m (the X-wing's present figure),
 // without the former common cap of 0.24. The lateral-acceleration bound in flight (acceleration ÷ speed) is unchanged.
 function craftMassTurnRate(S,length){const cs=S.craftSystems||{},r=Math.max(0,cs.maneuverSupport||0)/Math.max(1e-9,S.mass||0);return clamp(.24*Math.sqrt(r)*Math.sqrt(12/Math.max(1,length||12)),.015,1);}
+// Opt-in for the Node simulators (globalThis.KS_TURN_VECTOR; the game never sets it): a craft turns by pointing its thrust.
+function craftVectorTurn(u){return !!globalThis.KS_TURN_VECTOR&&craftUnit(u);}
 function cornerSpeed(u){const p=u?.p||{},a=p.accel||0,w=p.turnRate||0;return w>0?a/w:0;}
 function craftCruiseSpeed(u){return (u.p?.maxSpeed||0)*CRUISE_SPEED_TARGET.target;}
 function craftPassSpeed(u){return craftCruiseSpeed(u);}
@@ -90664,12 +90666,12 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    // でロール、ピッチアップ、ピッチダウン」「ヨーはスティックによらない艦の旋回」). It rolls its lift vector onto the point it wants and
    // pulls; it does not yaw round. The pull is bounded as every turn is (its thrust over its mass at its speed, and the rate it
    // can swing its bow).
-   const pullRate=Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=pass.barrel>0?craftBarrelStep(old,pullRate,pass.barrelDir||1,dt):craftAttitudeStep(u,old,dest,pullRate,dt),d=len(sub(dest,old.pos));u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);
+   const pullRate=craftVectorTurn(u)?nominalTurn*turn:Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=pass.barrel>0?craftBarrelStep(old,pullRate,pass.barrelDir||1,dt):craftAttitudeStep(u,old,dest,pullRate,dt),d=len(sub(dest,old.pos));u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);
    want=mul(A.f,dogfightSpeed(old,t,0,d));
   }else if(dest&&craftUnit(u)&&o.type==='move'&&o.dash){
    // v30 A craft ordered to make for a point at full speed flies straight at it in three dimensions, climbing or diving as the
    // point lies (its bow follows by roll and pitch, as in a fight): the climb to a dive's start and the dive itself.
-   const pullRate=Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=craftAttitudeStep(u,old,dest,pullRate,dt);u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);want=mul(A.f,craftWantSpeed(old,null));
+   const pullRate=craftVectorTurn(u)?nominalTurn*turn:Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=craftAttitudeStep(u,old,dest,pullRate,dt);u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);want=mul(A.f,craftWantSpeed(old,null));
   }else if(dest&&pass){const delta=sub(dest,old.pos),d=len(delta),yaw=Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);turnToward(yaw);
    // (off its heading it slows, so the turn back is tighter than the run in)
    if(d>1){want=mul(norm(delta),pass.phase==='dogfight'?dogfightSpeed(old,t,err,d):craftWantSpeed(old,t)*Math.max(CRAFT_PASS.slow,Math.cos(err)));const hor=Math.hypot(want[0],want[2]);want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}
@@ -90684,7 +90686,13 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   let accLeft=acc;{const dy=u.turned3??Math.abs(fleetAngle(u.yaw-old.yaw));if(dy>0){const side=len(v0)*dy/dt;accLeft=Math.sqrt(Math.max(0,acc*acc-side*side));/* the thrust that holds the turn is not there to win speed back */const k=Math.exp(-.5*TURN_BLEED.energy*dy);v0[0]*=k;v0[1]*=k;v0[2]*=k;}}
   want=hullAvoid(old,before,want,x=>fleetDockingPair(old,x)/* v29 a docking ship and its host do not steer clear of each other (as on the strategic map) */);
   if(craftUnit(u)&&!u.att&&len(want)>1){const f=norm(want),r=cross(f,[0,1,0]);u.att={f,up:len(r)>1e-6?norm(cross(norm(r),f)):[0,1,0]};}/* v30 physics review 2026-11-19: outside the fight and the dash too (an attack run over a ship, a climb to a station) a craft's way follows the pitch it steers at, not the level heading */
-  const required=propulsionTargetAcceleration(u,v0,want,dt),need=len(required),applied=mul(required,Math.min(1,accLeft/Math.max(1e-12,need))),motion=integratePropulsionMotion(u,v0,applied,dt);u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);
+  // 2026-11-23 Trial (user: 「旋回に必要なのは質量、全長で、推力と姿勢制御スラスタの動きで迎角が変わり加速方向が変わりさらに旋回速度が上がる」):
+  // with KS_TURN_VECTOR a craft's main thrust acts along its nose. The nose swings as fast as its thrusters turn its mass and
+  // length (above, KS_TURN_MASS), not bounded by acc/speed; the way follows the nose by the directional inertia as before
+  // (INERTIA_MOVEMENT, by mass) and the thrust, pointed off the way (angle of attack), bends it further. Turning still costs
+  // way (TURN_BLEED). The engines give what holds the speed asked for along the nose, never thrust astern.
+  const vectored=craftVectorTurn(u)&&u.att;
+  const required=vectored?mul(u.att.f,clamp((len(want)-dot(v0,u.att.f))/Math.max(1e-6,dt),0,accLeft)/* what the turn leaves of the thrust (accLeft), as in the plain model */):propulsionTargetAcceleration(u,v0,want,dt),need=len(required),applied=vectored?required:mul(required,Math.min(1,accLeft/Math.max(1e-12,need))),motion=integratePropulsionMotion(u,v0,applied,dt);if(vectored){u.aoa=Math.acos(clamp(dot(norm(len(v0)>1?v0:u.att.f),u.att.f),-1,1));}u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);
   u.maneuver=acc0>0?clamp(Math.max(need/acc0,turnNeed),0,1):0;
  }
  };

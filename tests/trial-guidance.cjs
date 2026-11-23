@@ -26,3 +26,10 @@ test('KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (o
  assert.ok(ln>x&&x>y,`the light TIE turns faster than the X-wing, the Y-wing slower: ${ln} ${x} ${y}`);
  const s=on.buildDesign('craft_xwing'),S=on.computeStats(s),p=on.fleetProfile(S,s.name,s),r=S.craftSystems.maneuverSupport/S.mass;assert.ok(Math.abs(p.turnRate-.24*Math.sqrt(r)*Math.sqrt(12/p.len))<1e-12);
 });
+
+test('KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed off its way (off by default)',()=>{
+ const reverse=flags=>{const C=runtime(flags),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),u=C.fleetUnit('a','craft_tie_ln',p,0);u.pos=[0,0,0];u.yaw=0;u.velocity=[400,0,0];const B=C.fleetBattle([u],true);u.order={type:'move',point:[-20000,0,1],dash:true};
+  let aoa=false;for(let t=0;t<30;t+=.25){C.fleetTick(B,.25);const x=B.units[0];if(x.aoa!=null)aoa=true;if(x.velocity[0]<0)return {t,aoa};}return {t:Infinity,aoa};};
+ const mass=reverse({KS_TURN_MASS:true}),vec=reverse({KS_TURN_MASS:true,KS_TURN_VECTOR:true});
+ assert.equal(mass.aoa,false,'the plain model has no angle of attack');assert.equal(vec.aoa,true);assert.ok(vec.t<mass.t,`reversed in ${vec.t} s against ${mass.t} s`);
+});
