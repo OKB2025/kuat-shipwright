@@ -1,0 +1,8 @@
+== head-on: 4 x /tmp/ks-verify/20261123-remodel4/x-wing.tube.json (A) vs 4 x /tmp/ks-verify/20261123-remodel5/tie-d.clean.json (B), 10 runs: lost per run A 4.0 B 0.0; A wins 0, B wins 10, both lost 0, undecided in 300 s 0; mean time to decision 17.5 s; nearest 592.0 m; seconds on the other's tail A 0.0 B 0.5; seconds guns bearing A 5.7 B 27.5; greatest height off the start plane 934.1 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 72, hit 46, spent 12, target lost first 12; rounds {"cmsl":70,"ptorp":2}; steps flown by guidance {"pn":871,"pursuit":22}
+0s d=7377 A(279,2,3 hdg 4° 1111m/s) B(7657,5,-8 hdg -173° 1367m/s)
+5s d=2330 A(4921,15,1208 hdg 49° 787m/s) B(2734,-17,2012 hdg 176° 930m/s)
+10s d=5092 A(5231,-104,3825 hdg 149° 454m/s) B(1520,-888,427 hdg -7° 425m/s)
+15s d=2710 A(3659,-559,3852 hdg -171° 282m/s) B(2693,-800,1331 hdg 68° 303m/s)
+   run 1: B 16 s T-65B Xウイング：艦首区画 崩壊 | T-65B Xウイング：撃沈（船体破断）
+exit 0
