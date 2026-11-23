@@ -82953,7 +82953,7 @@ function bridgeLooseStructures(ship){
 }
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild,previousSupportLift=legacySupportLiftBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');legacySupportLiftBuild=true;/* the builders were authored under the older turret lift */try{
-  const finish=s=>{seatIsdCommandAssets(s);dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
+  const finish=s=>{seatIsdCommandAssets(s);dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);if(!s._craftRemodel)settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key]&&!s._craftRemodel)installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -89179,6 +89179,24 @@ registerShipExample({key:'craft_z95',physicalRevision:1,name:'Z-95 ヘッドハ�
 // The new examples carry explicit ordinary components. These recipe figures are engineering
 // allowances, not canonical blueprints: supports have 25% mass margin and stores cover ten minutes
 // of laser fire. Existing solar wings, cooling, cells and S-foil actuators stay in their own models.
+// 2026-11-23 The user's craft remodels (data/imperial2.js CRAFT_REMODEL; user: 「リモデルで作例を揃える」): the X-wing, TIE/ln,
+// TIE/in and A-wing examples are built from them as they are, and the TIE/D is a new example. They carry their own systems,
+// reactors and stores, so neither the interior refit (refitCraftInterior, CRAFT_REACTOR_SCALE) nor the craft system recipe
+// (installCraftSystems) runs on them, and their cockpits stay where the designer put them.
+const CRAFT_REMODEL_KEYS=Object.freeze({craft_xwing:'xwing',craft_tie_ln:'tie_ln',craft_tie_in:'tie_in',craft_awing:'awing',craft_tie_d:'tie_d'});
+function craftRemodelDesign(key){
+ const id=CRAFT_REMODEL_KEYS[key];if(typeof CRAFT_REMODEL!=='object'||!CRAFT_REMODEL?.[id])throw new Error(key+': 航空機のリモデル設計がありません');
+ const ship=deserialize(JSON.parse(JSON.stringify(CRAFT_REMODEL[id])));ship.reference=key;ship._craftInteriorRefit=true;ship._craftRemodel=true;return ship;
+}
+for(const [key,id] of Object.entries(CRAFT_REMODEL_KEYS)){
+ const old=SHIP_EXAMPLES[key],{build,...meta}=old||{};
+ registerShipExample({...meta,key,craft:true,...(CRAFT_TYPES[id]?{craftType:id}:{}),physicalRevision:(meta.physicalRevision||0)+1,
+  ...(old?{}:{name:'TIE/D ディフェンダー',side:'銀河帝国',role:'制宙戦闘機',length:9.2,author:'ユーザー提供設計'}),
+  source:'docs/handoff-2026-11-20/refs/'+{xwing:'x-wing-remodel-2026-11-23.json',tie_ln:'tie-ln-remodel-2026-11-23.json',tie_in:'tie-in-remodel-2026-11-23c.json',awing:'a-wing-remodel-2026-11-23.json',tie_d:'tie-d-remodel-2026-11-23c.json'}[id],
+  ...(old?{originalSource:meta.source}:{}),
+  note:'ユーザー提供のリモデル設計（2026-11-23）をそのまま使った作例。'+(old?'元の作例：'+(meta.title||meta.name)+'（'+(meta.author||'')+'、'+(meta.license||'')+'）の実測形状をもとにユーザーが改修したもの。':'')+(id==='tie_d'?'':'発射管の中に置かれたパイロンは発射管にした。'),
+  build:()=>craftRemodelDesign(key)});
+}
 const CRAFT_SYSTEM_RECIPES=Object.freeze({
  craft_arc170:{mass:37.5/* 2026-11-14: was 34.51; the denser craft needs more maneuver and landing support */,anchors:[[7,1.2,0],[10.7,1.4,0],[4.7,2.25,0],[3.4,2.6,0]],landing:3},
  craft_awing:{mass:10.23,anchors:[[4.8,1.3,0],[3.1,1,0],[2.6,1.1,0],[5.6,1,0]],landing:3},
