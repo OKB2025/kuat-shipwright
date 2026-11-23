@@ -94302,7 +94302,10 @@ const CRAFT_SHIELD=Object.freeze({scale:1e-6,craftLen:20,fullLen:1000});
 // 「小型艦は航空機のシールド低下曲線に併せてシールドを弱くして」(2026-11-18): one curve by length for craft and ships. A hull up to .craftLen
 // long has .scale of what the ship rule gives its generators; from there the field rises evenly on a log scale to the whole of it
 // at .fullLen. A CR90 (150 m) keeps 1.2e-3 (0.057 TT), an Arquitens (326 m) 1.9e-2, a ship of 1 km or more all of it.
-function fieldScale(p){const L=p?.len||0;if(!(L>CRAFT_SHIELD.craftLen))return CRAFT_SHIELD.scale;if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(CRAFT_SHIELD.scale,1-Math.log(L/CRAFT_SHIELD.craftLen)/Math.log(CRAFT_SHIELD.fullLen/CRAFT_SHIELD.craftLen));}
+// Trial (2026-11-23, user: 「航空機のシールドをもう少しだけ強くしてみて」): KS_CRAFT_SHIELD = k multiplies the field, recharge and heat of a
+// hull up to .craftLen long by k. Set only by the Node simulators (scripts/sim-*.cjs); the game never sets it.
+const craftShieldTrial=()=>{const k=+globalThis.KS_CRAFT_SHIELD;return Number.isFinite(k)&&k>0?k:1;};
+function fieldScale(p){const L=p?.len||0;if(!(L>CRAFT_SHIELD.craftLen))return CRAFT_SHIELD.scale*craftShieldTrial();if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(CRAFT_SHIELD.scale,1-Math.log(L/CRAFT_SHIELD.craftLen)/Math.log(CRAFT_SHIELD.fullLen/CRAFT_SHIELD.craftLen));}
 function craftShieldScale(p){return p;}/* (kept for callers: the scale is applied where the field is used, fieldScale) */
 function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[],shotE:0,shotN:0,blasts:[]};}
 // v30 Torpedoes and missiles (user decisions 2026-11-18「魚雷やミサイルは貫通せず命中した船体を大規模に傷つけ、大きな火災を発生させる。ISDで4〜5発
