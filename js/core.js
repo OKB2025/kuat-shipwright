@@ -94298,17 +94298,20 @@ function hullBulk(p){const kg=p?.propulsion?.massKg;return kg>0?kg/1000*K.hpPerT
 // it sheds alike). 「Xウィング対TIEはTIEが後方を取れれば4〜5秒間レーザーをあてつずければシールドが破れて撃墜できる形に」: the X-wing's field
 // becomes 4.65e-8 TT, eight TIE bolts (6e-9 TT), what a TIE/ln on its tail at 150 to 300 m lands in four to five seconds (it fires
 // 16.7 bolts a second and 7 to 20% of them land there).
-// User decision 2026-11-23「シールドは3倍にして（TIE/inの火力基準）」: a craft (up to .craftLen long) has .craft times that field, so the
-// TIE/in remodel (six lasers, three times a TIE/ln's two) breaks an X-wing's field in the four to five seconds a TIE/ln took
-// before (24 TIE/ln bolts). Hulls above .craftLen keep the curve from .scale as before (CR90, Arquitens… unchanged).
-const CRAFT_SHIELD=Object.freeze({scale:1e-6,craft:3,craftLen:20,fullLen:1000});
+// User decisions 2026-11-23「シールドは3倍にして（TIE/inの火力基準）」「綺麗な曲線で入れて。なのでXより小さいAウィングのシールドはもっと
+// 弱くなるはず」: one smooth curve by length for craft and ships alike, a power of the length through two points: the X-wing
+// (.refLen 13.4 m) keeps .refScale (three times the earlier 1e-6, so the TIE/in remodel's six lasers break its field in about the
+// time a TIE/ln's two took before), and a hull of .fullLen or more has the whole of what the ship rule gives. A smaller craft has
+// less (an A-wing of 9.6 m about 0.37 of the X-wing's), a larger hull more than before (CR90 150 m 3.7e-3, was 1.2e-3).
+const CRAFT_SHIELD=Object.freeze({refLen:13.4,refScale:3e-6,craftLen:20,fullLen:1000,minLen:1});
+const CRAFT_SHIELD_EXP=Math.log(CRAFT_SHIELD.refScale)/Math.log(CRAFT_SHIELD.refLen/CRAFT_SHIELD.fullLen);
 // 「小型艦は航空機のシールド低下曲線に併せてシールドを弱くして」(2026-11-18): one curve by length for craft and ships. A hull up to .craftLen
-// long has .scale of what the ship rule gives its generators; from there the field rises evenly on a log scale to the whole of it
-// at .fullLen. A CR90 (150 m) keeps 1.2e-3 (0.057 TT), an Arquitens (326 m) 1.9e-2, a ship of 1 km or more all of it.
+// long had 1e-6 of what the ship rule gives its generators; from there the field rose evenly on a log scale to the whole of it
+// at .fullLen (CR90 1.2e-3, Arquitens 1.9e-2). Since 2026-11-23 the curve is the single power above (CRAFT_SHIELD_EXP).
 // Trial (2026-11-23, user: 「航空機のシールドをもう少しだけ強くしてみて」): KS_CRAFT_SHIELD = k multiplies the field, recharge and heat of a
 // hull up to .craftLen long by k. Set only by the Node simulators (scripts/sim-*.cjs); the game never sets it.
 const craftShieldTrial=()=>{const k=+globalThis.KS_CRAFT_SHIELD;return Number.isFinite(k)&&k>0?k:1;};
-function fieldScale(p){const L=p?.len||0;if(!(L>CRAFT_SHIELD.craftLen))return CRAFT_SHIELD.scale*CRAFT_SHIELD.craft*craftShieldTrial();if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(CRAFT_SHIELD.scale,1-Math.log(L/CRAFT_SHIELD.craftLen)/Math.log(CRAFT_SHIELD.fullLen/CRAFT_SHIELD.craftLen));}
+function fieldScale(p){const L=Math.max(CRAFT_SHIELD.minLen,p?.len||CRAFT_SHIELD.refLen);if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(L/CRAFT_SHIELD.fullLen,CRAFT_SHIELD_EXP)*(L<=CRAFT_SHIELD.craftLen?craftShieldTrial():1);}
 function craftShieldScale(p){return p;}/* (kept for callers: the scale is applied where the field is used, fieldScale) */
 function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[],shotE:0,shotN:0,blasts:[]};}
 // v30 Torpedoes and missiles (user decisions 2026-11-18「魚雷やミサイルは貫通せず命中した船体を大規模に傷つけ、大きな火災を発生させる。ISDで4〜5発
