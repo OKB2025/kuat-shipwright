@@ -18,7 +18,7 @@ test('a craft whose stored lift vector lies along its bow gets one square to it,
  for(const f of [[1,0,0],[-1,0,0],[0,0,1],[0,1,0],[0,-1,0]])for(const yaw of [0,Math.PI,1]){const A=C.craftAttitudeStep({},{pos:[0,0,0],yaw,att:{f,up:f}},[300,400,500],.5,.25);assert.ok(Math.abs(C.len(A.up)-1)<1e-9,'unit lift vector for bow '+f+' yaw '+yaw);assert.ok(Math.abs(C.dot(A.f,A.up))<1e-9);}
 });
 test('a bomber that comes out after the strike\'s target was chosen is sent at it too',()=>{
- const profiles={};for(const k of ['craft_tie_ln','craft_xwing','craft_btlb']){const xs=C.buildDesign(k),S=C.computeStats(xs);profiles[k]={p:C.fleetProfile(S,xs.name,xs),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
+ const profiles={};for(const k of ['craft_tie_ln','craft_xwing',C.FLEET_AIR.roles.ywing.key/* 2026-11-24 the ywing role flies craft_ywing (the BTL-A4 example), was craft_btlb */]){const xs=C.buildDesign(k),S=C.computeStats(xs);profiles[k]={p:C.fleetProfile(S,xs.name,xs),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
  const isd=C.fleetUnit('isd','imperial',plain(F.designs.imperial.p),1),foe=C.fleetUnit('foe','mc75',plain(F.designs.mc75.p),0);isd.pos=[40000,0,0];isd.yaw=Math.PI;foe.pos=[-40000,0,0];
  for(const u of [isd,foe])u.order={...u.order,type:'hold',fire:false};
  const B=C.fleetBattle([foe,isd],true);B.seed=5;C.fleetAirSetup(B,[{home:'foe',type:'ywing',count:12},{home:'foe',type:'xwing',count:12},{home:'isd',type:'tie_ln',count:12}],profiles,{});B.air.posture[0].strike=true;
