@@ -20,11 +20,41 @@ FORM = {'tie_ln': 'TIE/ln', 'tie_in': 'TIE/in', 'tie_d': 'TIE/D'}
 JP = '/usr/share/fonts/opentype/noto/NotoSansCJK-'
 fonts = {}
 
+ENGLISH = {
+    '開始高度': 'Starting altitude',
+    'ミサイル追跡': 'Missile track',
+    '飛翔中のミサイルなし': 'No missiles in flight',
+    '飛翔中 {active}    累計発射 {launched}': 'In flight {active}    Total launched {launched}',
+    'Xウィング': 'X-wing',
+    '撃墜': 'Lost',
+    'なし': 'None',
+    'Xウィング  対  {op}': 'X-wing vs. {op}',
+    '4 対 4  ／  8 km 対向  ／  シード 24': '4v4   /   8 km head-on start   /   Seed 24',
+    '経過 {time:05.1f} 秒': 'Elapsed {time:.1f} s',
+    '終了': 'Final',
+    '再生 ×{rate}': 'Playback {rate}×',
+    '上面からの航跡': 'Top view',
+    '▲  Xウィング': '▲  X-wing',
+    '◆  ミサイル': '◆  Missile',
+    '側面からの航跡': 'Side view',
+    '高度は開始地点からの差': 'Altitude relative to start',
+    '3D 追尾カメラ': '3D chase camera',
+    '各機のシールド残量': 'Shield remaining per fighter',
+    '相討ち': 'Mutual destruction',
+    '引き分け': 'Draw',
+    '{team} 勝利': '{team} wins',
+    '生存   Xウィング {x} 機   ／   {op} {tie} 機': 'Survivors   X-wing {x}   /   {op} {tie}',
+}
+translations = {}
+
+def caption(template, **fields):
+    return translations.get(template, template).format(**fields)
+
 def label(draw, xy, value, size=16, color=WHITE, bold=False, anchor=None):
     key = (size, bold)
     if key not in fonts:
         fonts[key] = ImageFont.truetype(JP + ('Bold' if bold else 'Regular') + '.ttc', size, index=0)
-    draw.text(xy, str(value), font=fonts[key], fill=color, anchor=anchor, stroke_width=0)
+    draw.text(xy, str(translations.get(value, value)), font=fonts[key], fill=color, anchor=anchor, stroke_width=0)
 
 def unit(v):
     return v / max(1e-9, np.linalg.norm(v))
@@ -235,7 +265,7 @@ def missile_panel(draw, pos, active, launched):
         if len(pts)>2:draw.line(list(map(tuple,pts[:-1])),fill=GOLD,width=3)
         a,b=pts[-2];draw.ellipse((a-4,b-4,a+4,b+4),fill=GOLD)
         a,b=pts[-1];draw.rectangle((a-5,b-5,a+5,b+5),outline=TEAMS[int(m['target']>=4)],width=2)
-    label(draw,(x,y+128),f'飛翔中 {len(active)}    累計発射 {launched}',14,MUTED)
+    label(draw,(x,y+128),caption('飛翔中 {active}    累計発射 {launched}',active=len(active),launched=launched),14,MUTED)
 
 def status(draw,state):
     for team,heading in enumerate(('Xウィング','TIE')):
@@ -257,7 +287,10 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('trace',type=Path);parser.add_argument('assets',type=Path)
     parser.add_argument('output',type=Path)
+    parser.add_argument('--language', choices=['ja','en'], default='ja', help='language of on-screen labels')
     args=parser.parse_args()
+    if args.language == 'en':
+        translations.update(ENGLISH)
     trace=data_json(args.trace);rec=Recording(trace)
     chase=Chase(args.assets,[trace['a'],trace['b']])
     tie=trace['b'].removeprefix('craft_');op=FORM[tie]
@@ -271,11 +304,11 @@ def main():
             i,s,missiles,view=rec.sample(time)
             rate=1 if rec.first_launch-1 <= time < rec.first_launch+4 else 4
             im=Image.new('RGB',(W,H),BG);d=ImageDraw.Draw(im)
-            label(d,(22,13),f'Xウィング  対  {op}',32,WHITE,True)
+            label(d,(22,13),caption('Xウィング  対  {op}',op=op),32,WHITE,True)
             label(d,(24,65),'4 対 4  ／  8 km 対向  ／  シード 24',16,MUTED)
-            label(d,(810,26),f'経過 {time:05.1f} 秒',23,WHITE,True,anchor='ra')
+            label(d,(810,26),caption('経過 {time:05.1f} 秒',time=time),23,WHITE,True,anchor='ra')
             label(d,(1258,21),f'X  {sum(s[:4,4]==0)}/4     {op}  {sum(s[4:,4]==0)}/4',23,WHITE,True,anchor='ra')
-            label(d,(1258,64),'終了' if time>=rec.end else f'再生 ×{rate}',15,MUTED,anchor='ra')
+            label(d,(1258,64),'終了' if time>=rec.end else caption('再生 ×{rate}',rate=rate),15,MUTED,anchor='ra')
             d.rectangle((22,102,816,133),fill=GRID);label(d,(32,103),'上面からの航跡',16,WHITE,True)
             label(d,(799,104),'▲  Xウィング',15,BLUE,anchor='ra')
             label(d,(645,104),'▲  '+op,15,RED,anchor='ra')
@@ -288,7 +321,7 @@ def main():
             d.rectangle((832,102,1259,403),fill=PANEL)
             sub=rec.encounters[i]
             label(d,(847,110),'3D 追尾カメラ',18,WHITE,True)
-            label(d,(1246,111),readable_id(sub)+'   '+('Xウィング' if sub<4 else op),16,TEAMS[int(sub>=4)],anchor='ra')
+            label(d,(1246,111),readable_id(sub)+'   '+(caption('Xウィング') if sub<4 else op),16,TEAMS[int(sub>=4)],anchor='ra')
             im.paste(chase.frame(s,sub,rec.teams,missiles),(838,152))
             d.rectangle((832,412,1259,575),fill=PANEL)
             launches=sum(track['first']<=i for track in rec.missiles.values())
@@ -297,9 +330,9 @@ def main():
             status(d,s);label(d,(846,683),'各機のシールド残量',14,MUTED)
             if time>=rec.end:
                 lost=trace['result'];surv_x=4-lost['lostA'];surv_t=4-lost['lostB']
-                winner='相討ち' if surv_x==surv_t==0 else '引き分け' if surv_x==surv_t else ('Xウィング' if surv_x>surv_t else op)+' 勝利'
+                winner='相討ち' if surv_x==surv_t==0 else '引き分け' if surv_x==surv_t else caption('{team} 勝利',team=caption('Xウィング') if surv_x>surv_t else op)
                 d.rounded_rectangle((51,179,444,279),radius=8,fill='#101e2b',outline='#7390a5',width=2)
-                label(d,(70,188),winner,27,WHITE,True);label(d,(70,238),f'生存   Xウィング {surv_x} 機   ／   {op} {surv_t} 機',16,MUTED)
+                label(d,(70,188),winner,27,WHITE,True);label(d,(70,238),caption('生存   Xウィング {x} 機   ／   {op} {tie} 機',x=surv_x,op=op,tie=surv_t),16,MUTED)
                 finished+=1
             pipe.stdin.write(im.tobytes())
             time=min(rec.end,time+rate/FPS)
