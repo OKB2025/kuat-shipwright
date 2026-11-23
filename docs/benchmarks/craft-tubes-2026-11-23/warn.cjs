@@ -1,0 +1,2 @@
+const fs=require('fs'),path=require('path'),zlib=require('zlib');const root=process.argv[2];const {C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+for(const k of process.argv.slice(3)){const s=C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples',k,'design.json.gz')))));C.syncCompartments(s);C.remount(s,{keepFitPose:true});C.syncCompartments(s);const S=C.computeStats(s);console.log(k);for(const w of S.warnings)console.log('  ',(w.text||w).slice(0,160));}

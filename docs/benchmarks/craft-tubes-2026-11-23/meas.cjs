@@ -1,0 +1,1 @@
+const W=process.argv[2];const {C}=require(W+'/scripts/update-ship-examples.cjs').loadRuntime(W);const o={};for(const k of process.argv.slice(3)){try{const s=C.buildDesign(k),S=C.computeStats(s);o[k]=S.accelG;}catch(e){o[k]='ERR '+e.message.slice(0,200);}}console.log(JSON.stringify(o));
