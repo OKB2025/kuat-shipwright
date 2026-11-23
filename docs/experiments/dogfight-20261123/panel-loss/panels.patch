@@ -1,0 +1,50 @@
+--- a/js/core.js
++++ b/js/core.js
+@@ -99090,6 +99090,15 @@
+   for(const q of hab.points){const z=zones[clamp(Math.floor((q[0]-X0)/L*4),0,3)];z.n++;z.c[0]+=q[0];z.c[1]+=q[1];z.c[2]+=q[2];}
+   zones.forEach((z,i)=>{if(!z.n)return;const V=z.n*dv*(hab.freeVolume??hab.volume)/Math.max(1e-30,hab.volume),c=z.c.map(v=>v/z.n);if(!(V>0))return;mods.push(place({k:'quarters',name:'居住空間（'+['後部','中央後部','中央前部','前部'][i]+'）',w:Math.pow(V,2/3)*QUARTERS_WEIGHT,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:0,size:V,at:+clamp((c[0]-X0)/L,0,1).toFixed(3)},c,Math.cbrt(V)/2));});}
+  const total={};for(const m of mods)total[m.k]=(total[m.k]||0)+m.size;for(const m of mods)m.share=total[m.k]>0?m.size/total[m.k]:0;
++ // The TIE/in remodel's wingtip guns and outboard manoeuvring units are separate fittings.
++ if(ship.reference==='craft_tie_in'){
++  for(const m of mods){
++   const panel=[400,402].includes(m.fit)||[9602,9603].includes(m.part)?100:
++               [401,403].includes(m.fit)||[9604,9605].includes(m.part)?120:null;
++   if(panel!==null)m.panelOwner=panel;
++   if(ship.parts.some(p=>p.id===m.part&&p.k==='maneuver'))m.turnSupport=m.size;
++  }
++ }
+  const rest=mods.reduce((n,m)=>n+m.w,0);mods.push({k:'hull',name:MODULE_LABEL.hull,w:Math.max(1,rest*.6),hits:Infinity,crew:0,size:1,share:1});
+  return mods;
+ }
+@@ -99630,6 +99639,13 @@
+    (u.ionOff||(u.ionOff=[])).push({i,until:now+BLAST.ionOff,was:u.mods[i]});u.mods[i]=0;ctx.ev(u,`${mods[i].name} イオン魚雷で停止`);}}
+ }
+ function combatBlastAdd(inc,rounds,tt,src,aim=null,aimRange=0){if(inc&&rounds>0&&tt>0)inc.blasts.push({n:rounds,tt,src,...(aim&&aim!=='auto'?{aim,...(aimRange>0?{aimRange}:{})}:{})});}
++function livePanelTurn(u){
++ const mods=u.p.modules||[];let total=0,lost=0;
++ for(let i=0;i<mods.length;i++){const m=mods[i];if(!m.turnSupport)continue;
++  total+=m.turnSupport;if(m.panelOwner!=null&&u.mods[i]<=0)lost+=m.turnSupport;
++ }
++ return total>0?Math.sqrt(Math.max(0,1-lost/total)):1;
++}
+ function fragileTieHull(u){
+  const key=u.p?.referencePhysicalRevision?.key;
+  return craftUnit(u)&&(u.key==='craft_tie_ln'||u.key==='craft_tie_in'||key==='craft_tie_ln'||key==='craft_tie_in');
+@@ -99856,7 +99872,7 @@
+  // through it. Where a panel has already gone there is nothing left to hit. Each shot's place is drawn by the modules' sizes.
+  if(shot>0&&hullHit>0&&craftUnit(u)){const mods=p.modules||[];let all=0,pan=0;for(const m of mods){if(m.k==='hull')continue;all+=m.w||0;if(m.panel)pan+=m.w||0;}
+   if(pan>0&&all>0){const n=Math.max(1,Math.round(hullHit/shot));let through=0;for(let k=0;k<n;k++){let r=ctx.rand()*all;if(r>=pan){through++;continue;}
+-    for(let i=0;i<mods.length;i++){if(!mods[i].panel)continue;r-=mods[i].w||0;if(r<0){if(u.mods[i]>0){u.mods[i]=0;ctx.ev(u,`${mods[i].name}に被弾・脱落`);}break;}}}
++    for(let i=0;i<mods.length;i++){if(!mods[i].panel)continue;r-=mods[i].w||0;if(r<0){if(u.mods[i]>0){u.mods[i]=0;for(let j=0;j<mods.length;j++)if(mods[j].panelOwner===mods[i].part&&mods[i].part!=null)u.mods[j]=0;ctx.ev(u,`${mods[i].name}に被弾・脱落`);}break;}}}
+    hullHit*=through/n;}}
+  // Trial: after the shield and detached-panel checks, one physical hull hit breaks its section.
+  if(hullHit>0&&!u.dead&&fragileTieHull(u)){
+@@ -101154,7 +101170,7 @@
+   if(u.out&&opts.planet){u.velocity=[...old.velocity];u.pos=[...old.pos];const down=planetFall(u,dt,opts.planet,()=>fleetRandom(b));if(!down&&!u.fall){const motion=integratePropulsionMotion(u,old.velocity,[0,0,0],dt);u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);}/* held by its lift: it drifts on and slows, as without a planet (reviews 2026-11-19: it stood still with its speed) */if(!u.dead&&(down||u.lift<=0)){u.dead=true;u.fate='fall';u.fire=(u.fire||[]).map(()=>0);b.events.push({time:b.time+dt,text:down?crashText(u):`${u.name}：リパルサーリフトを失い撃墜（惑星へ落下）`,id:u.id,sunk:true});}u.maneuver=0;continue;}
+   if(u.out){if(opts.gravity){u.velocity=[...old.velocity];u.pos=[...old.pos];if(hullFall(u,dt,()=>fleetRandom(b))&&!u.dead){u.dead=true;u.fate='fall';u.fire=(u.fire||[]).map(()=>0);b.events.push({time:b.time+dt,text:`${u.name}：大気圏に落下して喪失`,id:u.id,sunk:true});}}else{const motion=integratePropulsionMotion(u,old.velocity,[0,0,0],dt);u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);}u.maneuver=0;continue;}
+   if(powerFactor(u,'engine')<=0||powerFactor(u,'reactor')<=0){const motion=integratePropulsionMotion(u,old.velocity,[0,0,0],dt);u.engF=0;u.maneuver=0;u.velocity=motion.velocity;u.pos=add(old.pos,motion.displacement);continue;}
+-  const {acc0,acc,turn}=propulsionMotion(u),nominalTurn=u.p.turnRate||0,turnRate=Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity)));/* v30 the turn is bounded by what its engines can do for its mass at its speed */let turnNeed=0,dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];const v0=[...old.velocity],turnToward=yaw=>{const err=fleetAngle(yaw-u.yaw);turnNeed=Math.max(turnNeed,Math.abs(err)/Math.max(1e-9,nominalTurn*dt));u.yaw+=clamp(err,-turnRate*dt,turnRate*dt);};
++  const {acc0,acc,turn}=propulsionMotion(u),nominalTurn=(u.p.turnRate||0)*livePanelTurn(u),turnRate=Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity)));/* v30 the turn is bounded by what its engines can do for its mass at its speed */let turnNeed=0,dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];const v0=[...old.velocity],turnToward=yaw=>{const err=fleetAngle(yaw-u.yaw);turnNeed=Math.max(turnNeed,Math.abs(err)/Math.max(1e-9,nominalTurn*dt));u.yaw+=clamp(err,-turnRate*dt,turnRate*dt);};
+   // v21.1 Escort: keep station on the threat side of the guarded ship; there, keep its pace, bow on the threat.
+   let escHold=false;const G=o.type==='escort'?byId.get(o.target):null;
+   if(G&&!G.dead&&G.team===u.team&&G!==old){const foes=before.filter(x=>x.team!==u.team&&!x.dead),th=escortThreat(G,foes),mates=before.filter(x=>x.order?.type==='escort'&&x.order.target===G.id&&!x.dead&&!x.out).sort((a,z)=>String(a.id).localeCompare(String(z.id)));

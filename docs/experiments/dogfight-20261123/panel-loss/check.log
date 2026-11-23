@@ -1,0 +1,28 @@
+live weapon modules [
+  [ 401, 'レーザー砲' ],
+  [ 403, 'レーザー砲' ],
+  [ 404, 'レーザー砲' ],
+  [ 405, 'レーザー砲' ]
+] detached [
+  [ 400, undefined, undefined ],
+  [ 402, undefined, undefined ],
+  [ undefined, 9602, 0.012167 ],
+  [ undefined, 9603, 0.012167 ]
+]
+craft_tie_in 100 guns 4 thrusters lost 2 turn factor 0.8660254037844386 solar W 0 removed cooling W 7160753405403076
+live weapon modules [
+  [ 400, 'レーザー砲' ],
+  [ 402, 'レーザー砲' ],
+  [ 404, 'レーザー砲' ],
+  [ 405, 'レーザー砲' ]
+] detached [
+  [ 401, undefined, undefined ],
+  [ 403, undefined, undefined ],
+  [ undefined, 9604, 0.012167 ],
+  [ undefined, 9605, 0.012167 ]
+]
+craft_tie_in 120 guns 4 thrusters lost 2 turn factor 0.8660254037844386 solar W 0 removed cooling W 7160753405403076
+live weapon modules [ [ 404, 'レーザー砲' ], [ 405, 'レーザー砲' ] ] detached []
+craft_tie_ln 100 guns 2 thrusters lost 0 turn factor 1 solar W 0 removed cooling W 9842938560000000
+live weapon modules [ [ 404, 'レーザー砲' ], [ 405, 'レーザー砲' ] ] detached []
+craft_tie_ln 120 guns 2 thrusters lost 0 turn factor 1 solar W 0 removed cooling W 9842938560000000
