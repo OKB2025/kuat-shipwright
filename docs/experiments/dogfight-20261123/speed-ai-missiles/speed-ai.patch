@@ -1,0 +1,16 @@
+--- a/js/core.js
++++ b/js/core.js
+@@ -100689,8 +100689,11 @@
+  return [t.pos[0],t.pos[1],t.pos[2]];
+ }
+ function dogfightSpeed(u,t,err,d){const g=dogfightGeometry(u,t),cruise=craftCruiseSpeed(u),corner=Math.min(cruise,Math.max(CRAFT_PASS.fightMin,cornerSpeed(u))),vt=len(t.velocity||[0,0,0]);
+- if(g.hca<=CRAFT_DOGFIGHT.match*Math.PI/180&&g.aspect<Math.PI/2&&Math.abs(g.ata)<Math.PI/2)return Math.min(cruise,Math.max(CRAFT_PASS.fightMin,vt+(g.range-CRAFT_DOGFIGHT.hold)/CRAFT_DOGFIGHT.closeS));/* in its rear quarter on a like heading: its speed, plus what closes to .hold m */
+- if(g.range>CRAFT_DOGFIGHT.outside&&Math.abs(g.ata)<Math.PI/6)return cruise;return corner;}
++ // Keep the design's cruise-speed advantage in the requested dogfight speed.
++ // The ordinary thrust, heat and turn losses still determine achieved speed.
++ const speedEdge=craftUnit(u)&&craftUnit(t)?Math.max(0,cruise-craftCruiseSpeed(t)):0;
++ if(g.hca<=CRAFT_DOGFIGHT.match*Math.PI/180&&g.aspect<Math.PI/2&&Math.abs(g.ata)<Math.PI/2)return Math.min(cruise,Math.max(CRAFT_PASS.fightMin,vt+speedEdge+(g.range-CRAFT_DOGFIGHT.hold)/CRAFT_DOGFIGHT.closeS));/* in its rear quarter on a like heading: its speed, plus what closes to .hold m */
++ if(g.range>CRAFT_DOGFIGHT.outside&&Math.abs(g.ata)<Math.PI/6)return cruise;return Math.min(cruise,corner+speedEdge);}
+ function passClear(u){return CRAFT_PASS.clear;}/* just off the hull: inside the field */
+ function passFighter(u,t){if(craftUnit(u))return true;const L=u?.p?.len||0;return L>0&&L<=COMBAT.smallShip&&!!t?.p&&(t.p.len||0)<=COMBAT.smallShip&&!(u.p.sw?.length);}
+ // User decision 2026-11-18「航過の速度はその機体の巡航速度、また排熱の許す範囲の最高速度」「常に巡航、必要時だけ最高速度」: a craft flies at
