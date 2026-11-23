@@ -94298,14 +94298,17 @@ function hullBulk(p){const kg=p?.propulsion?.massKg;return kg>0?kg/1000*K.hpPerT
 // it sheds alike). 「Xウィング対TIEはTIEが後方を取れれば4〜5秒間レーザーをあてつずければシールドが破れて撃墜できる形に」: the X-wing's field
 // becomes 4.65e-8 TT, eight TIE bolts (6e-9 TT), what a TIE/ln on its tail at 150 to 300 m lands in four to five seconds (it fires
 // 16.7 bolts a second and 7 to 20% of them land there).
-const CRAFT_SHIELD=Object.freeze({scale:1e-6,craftLen:20,fullLen:1000});
+// User decision 2026-11-23「シールドは3倍にして（TIE/inの火力基準）」: a craft (up to .craftLen long) has .craft times that field, so the
+// TIE/in remodel (six lasers, three times a TIE/ln's two) breaks an X-wing's field in the four to five seconds a TIE/ln took
+// before (24 TIE/ln bolts). Hulls above .craftLen keep the curve from .scale as before (CR90, Arquitens… unchanged).
+const CRAFT_SHIELD=Object.freeze({scale:1e-6,craft:3,craftLen:20,fullLen:1000});
 // 「小型艦は航空機のシールド低下曲線に併せてシールドを弱くして」(2026-11-18): one curve by length for craft and ships. A hull up to .craftLen
 // long has .scale of what the ship rule gives its generators; from there the field rises evenly on a log scale to the whole of it
 // at .fullLen. A CR90 (150 m) keeps 1.2e-3 (0.057 TT), an Arquitens (326 m) 1.9e-2, a ship of 1 km or more all of it.
 // Trial (2026-11-23, user: 「航空機のシールドをもう少しだけ強くしてみて」): KS_CRAFT_SHIELD = k multiplies the field, recharge and heat of a
 // hull up to .craftLen long by k. Set only by the Node simulators (scripts/sim-*.cjs); the game never sets it.
 const craftShieldTrial=()=>{const k=+globalThis.KS_CRAFT_SHIELD;return Number.isFinite(k)&&k>0?k:1;};
-function fieldScale(p){const L=p?.len||0;if(!(L>CRAFT_SHIELD.craftLen))return CRAFT_SHIELD.scale*craftShieldTrial();if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(CRAFT_SHIELD.scale,1-Math.log(L/CRAFT_SHIELD.craftLen)/Math.log(CRAFT_SHIELD.fullLen/CRAFT_SHIELD.craftLen));}
+function fieldScale(p){const L=p?.len||0;if(!(L>CRAFT_SHIELD.craftLen))return CRAFT_SHIELD.scale*CRAFT_SHIELD.craft*craftShieldTrial();if(L>=CRAFT_SHIELD.fullLen)return 1;return Math.pow(CRAFT_SHIELD.scale,1-Math.log(L/CRAFT_SHIELD.craftLen)/Math.log(CRAFT_SHIELD.fullLen/CRAFT_SHIELD.craftLen));}
 function craftShieldScale(p){return p;}/* (kept for callers: the scale is applied where the field is used, fieldScale) */
 function combatIncoming(){return {sf:0,hull:0,direct:0,ion:0,ionDirect:0,aim:{},snipe:{},face:[0,0,0,0,0,0],by:{},zw:null,hits:[],shotE:0,shotN:0,blasts:[]};}
 // v30 Torpedoes and missiles (user decisions 2026-11-18「魚雷やミサイルは貫通せず命中した船体を大規模に傷つけ、大きな火災を発生させる。ISDで4〜5発
