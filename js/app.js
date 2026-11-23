@@ -10776,9 +10776,10 @@ async function fleetAsset(source,opts={}){
 const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof YardFleetData!=='undefined'&&Object.hasOwn(YardFleetData.designs||{},b)?YardFleetData.designs[b]:null;};
 const fleetPending=new Map();
 // 2026-11-23 (user: 「性能値をあらかじめ計算して持たせて」) An example put out in a trial or added to a fleet takes the profile
-// prepared with it (data/fleet.js, made from the same design by scripts/refresh-examples.cjs): the engine loads its model
-// without computing its figures again (the Imperial II's took 44 s). A catalogue-only row is not a fighting profile.
-const fleetExampleOptions=source=>{const ex=fleetExampleData(source);return ex?.p&&!ex.p.catalogOnly?{lite:true}:{};};
+// prepared with it (data/fleet.js, made from the same design by scripts/refresh-examples.cjs) while the row's model key is
+// the engine's: the engine loads its model without computing its figures again (the Imperial II's took 44 s); with another
+// key, or a surface design, the figures are computed as before.
+const fleetExampleOptions=source=>fleetExampleData(source)?{lite:true}:{};
 async function fleetAssetLoad(source,opts={}){
  const cached=fleet.assets.get(source);
  if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}}
@@ -10802,8 +10803,10 @@ async function fleetAssetLoad(source,opts={}){
  let asset=fleet.assets.get(key);
  if(!asset){
   // Stats and meshes for fleet ships are prepared by the engine in the background.
-  const ex=opts.lite&&payload?.key?fleetExampleData(key):null;if(ex)payload.lite=!ex.p?.catalogOnly;
-  const r=await YardEngineClient.request('fleet',payload),profile=r.profile||(ex?.p?.catalogOnly?null:ex?.p);
+  const ex=opts.lite&&payload?.key?fleetExampleData(key):null;if(ex)payload.lite=true;
+  const r=await YardEngineClient.request('fleet',payload);let profile=r.profile||(ex?.p?.catalogOnly?null:ex?.p);
+  /* the engine had no current prepared profile for it (another model key, a surface design): its figures are computed */
+  if(!profile&&ex){const full=await YardEngineClient.request('fleet',{...payload,lite:false,statsOnly:true});profile=full.profile;r.stats=full.stats;}
   if(profile?.catalogOnly||ex?.p?.catalogOnly&&!r.profile)throw new Error('catalogue-only fleet profile');
   asset={key,design:r.design,stats:r.stats||null,p:profile,geometry:r.geometry,payload,radial:r.radial||null};C.setHullRadial?.(key,asset.radial);if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
  }else if(!asset.stats&&!opts.lite)await fleetAssetStats(asset);

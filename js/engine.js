@@ -775,6 +775,7 @@ async function handleTrenchArmament(job) {
 // tool for scripts/refresh-examples.cjs): a missing or damaged file is an error the page shows.
 // The bytes come from the verified asset cache in the browser, or from KS_READ_ASSET (a function
 // url -> Blob/bytes) where a host supplies one (Node tools and tests).
+function exampleRow(key){const data=typeof YardFleetData==='undefined'?null:YardFleetData,base=String(key||'').split('#')[0];return data&&Object.hasOwn(data.designs||{},base)?data.designs[base]:null;}
 function exampleAsset(key){
  const data=typeof YardFleetData==='undefined'?null:YardFleetData,base=String(key||'').split('#')[0];
  const asset=data&&(Object.hasOwn(data.blueprints||{},base)?data.blueprints[base]:Object.hasOwn(data.designs||{},base)?data.designs[base]?.model?.preparedBlueprint:null);
@@ -952,6 +953,12 @@ async function fleetJob(job) {
     const big = rec.d ? rec.d.parts.length + rec.d.fits.length >= 3000 : rec.state.length > 4e6;
     if (!big) fleetKeep([dkey, rec.alias], rec);
   }
+  // 2026-11-23 (user: 「データそのものにどのバージョンで作ったかを表示するようにして、現行のバージョンでなければ再生成、現行のバージョンならそのまま」)
+  // An example's prepared profile (its catalogue row, made from this design by scripts/refresh-examples.cjs) is the ship's
+  // profile while the row's whole model key is the current one; otherwise the figures are computed as for any design. The
+  // row leaves out the surface meshes, so a surface design (or a repainted example) computes its own.
+  let exampleProfile = false;
+  if (!rec.profile && job.key && !job.paint && !rec.surfaces) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey && !row.model.surface && row.model.modelKey === C.profileModelKey()) { const {catalogOnly, ...p} = row.p; rec.profile = p; exampleProfile = true; } }
   const lite = !!job.lite && !rec.surfaces;
   // Figures and profile: the derived-data cache (design content + model key) before computing them.
   let derived = null, profileSrc = lite ? null : 'record';
@@ -998,7 +1005,7 @@ async function fleetJob(job) {
   else {
   // Not for a preparation (a save prepares both models and discards the reply). The cache keeps the most recent models.
   let radial = null; if (geometry && gid && !job.prepareOnly) { radial = radialCache.get(gid); if (radial === undefined) { radial = geometryRadial(geometry, (profile || rec.profile)?.len); radialCache.set(gid, radial); while (radialCache.size > RADIAL_CACHE_MAX) radialCache.delete(radialCache.keys().next().value); } else { radialCache.delete(gid); radialCache.set(gid, radial); } }
-  post({type: 'fleet', id: job.id, radial, stats: job.statsKnown ? null : displayStats, profile: lite || job.profileKnown ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved, profileSrc}, transfer); }
+  post({type: 'fleet', id: job.id, radial, stats: job.statsKnown ? null : displayStats, profile: lite && !exampleProfile || job.profileKnown ? null : profile, exampleProfile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored, cacheSaved, profileSrc}, transfer); }
   // A trial also reuses its cached machinery graph for its turret-ray context.
   if (job.trial && !job.statsOnly && !job.prepareOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
   // Release the live ship graph and the full statistics (the display figures and
