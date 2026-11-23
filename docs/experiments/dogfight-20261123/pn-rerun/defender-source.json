@@ -1,0 +1,55 @@
+{
+  "source": {
+    "source_sha": "1bd68e05374386e401e3caf447b66f51285eb16f",
+    "source_path": "docs/handoff-2026-11-20/refs/tie-d-2026-11-23.json",
+    "design_sha256": "df3fc94aa7f9b76fb193fa6d66ddeac5c2dba61045165872f896edb2dccb91aa",
+    "design_bytes": 52668,
+    "logical_key": "craft_tie_d",
+    "loader_source": "docs/benchmarks/tie-d-2026-11-23/sim-dogfight-file.cjs",
+    "adapter_sha256": "e168df36bf4dbe5d99e609af7336243931937b0a219c48754f612fe9c8294521"
+  },
+  "profiles": [
+    {
+      "key": "craft_xwing",
+      "name": "T-65B Xウイング",
+      "craft": true,
+      "massT": null,
+      "profileAcceleration": 69.46700370852949,
+      "maxSpeedMps": 1689.9115239532596,
+      "unitMaxSpeedMps": null,
+      "profileTurnRate": 0.24,
+      "unitTurnRate": null,
+      "shield": 4.654769023882401e-08,
+      "gunBest": 1.3333333333333334e-08,
+      "gunRangeM": null
+    },
+    {
+      "key": "craft_tie_in",
+      "name": "TIE/in インターセプター",
+      "craft": true,
+      "massT": null,
+      "profileAcceleration": 63.15525387238529,
+      "maxSpeedMps": 1563.738047445399,
+      "unitMaxSpeedMps": null,
+      "profileTurnRate": 0.24,
+      "unitTurnRate": null,
+      "shield": 0,
+      "gunBest": 1.5999999999999998e-08,
+      "gunRangeM": null
+    },
+    {
+      "key": "craft_tie_d",
+      "name": "TIE/D",
+      "craft": true,
+      "massT": null,
+      "profileAcceleration": 83.45360572852994,
+      "maxSpeedMps": 2051.9854242908023,
+      "unitMaxSpeedMps": null,
+      "profileTurnRate": 0.24,
+      "unitTurnRate": null,
+      "shield": 4.987131252976447e-08,
+      "gunBest": 2.3999999999999997e-08,
+      "gunRangeM": null
+    }
+  ]
+}

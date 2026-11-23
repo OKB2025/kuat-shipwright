@@ -1,0 +1,87 @@
+diff --git a/js/core.js b/js/core.js
+index d00be41..5f93b35 100644
+--- a/js/core.js
++++ b/js/core.js
+@@ -90695,7 +90695,9 @@ function fleetTick(b,dt,opts={}){globalThis.ksMeasure?.before(b);observeMotion((
+     u.trialFigureNow=figure.name;u.trialFigureSlot=figure.slot;u.trialFigureTick=b.time;
+     dest=add(old.pos,mul(figure.direction,1000));
+    }
+-   const pullRate=pullShare*turnRate,A=!figure&&!recovering&&pass.barrel>0?craftBarrelStep(old,pullRate,pass.barrelDir||1,dt):craftAttitudeStep(u,old,dest,pullRate,dt);u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);
++   const repeatPoint=globalThis.ksRepeatPass?.(u,old,t,b.time);
++   if(repeatPoint)dest=repeatPoint;
++   const pullRate=pullShare*turnRate,A=!repeatPoint&&!figure&&!recovering&&pass.barrel>0?craftBarrelStep(old,pullRate,pass.barrelDir||1,dt):craftAttitudeStep(u,old,dest,pullRate,dt);u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);
+    const command=recovering?u.p.maxSpeed:dogfightSpeed(old,t,0,aimDistance);
+    // The interceptor trial keeps a larger share of its own cruise speed when its existing AI commands a turn.
+    // Its actual thrust, power, energy ledger, weapon output and gun cone still determine the outcome.
+diff --git a/scripts/craft-trial.cjs b/scripts/craft-trial.cjs
+index 925046c..402350e 100644
+--- a/scripts/craft-trial.cjs
++++ b/scripts/craft-trial.cjs
+@@ -28,6 +28,7 @@ if(!['off','observe','arcade'].includes(angleMode))throw Error('KS_CRAFT_MISSILE
+ const torpedoPath=process.env.KS_CRAFT_TORPEDO_PATH||'existing';
+ if(!['existing','current'].includes(torpedoPath))throw Error('KS_CRAFT_TORPEDO_PATH must be existing or current');
+ const settings={
++ ...(process.env.KS_REPEAT_PASS==='avoid'?{ksRepeatPass:require('./trial-repeat-pass.cjs').repeatPass}:{}),
+  KS_CRAFT_TORPEDO_PATH:torpedoPath,
+  ksMapHit:angleMode==='off'?null:require('./trial-map-hit.cjs').mapHitScore,
+  KS_CRAFT_MISSILE_ANGLE:angleMode,
+@@ -42,7 +43,9 @@ function evidence(dir) {
+  return {
+   start(b) {
+    figuresLog=figurePilot?figures.recorder():null;
+-   seed=b.seed; row={seed,meters,turnGain,phaseMode,period,recoverCap,glideSteer,drive:[],driveShots:[],interceptorFloor,fast:process.env.KS_IN_FAST==='1',planet:process.env.KS_PLANET!=='0',craft:{},gun:{},firstFight:null,firstGun:null,rounds:[],jobs:[],escortDistance:{},launch:[],dive:{},bumps:0,flags:{},choices:{},kills:[]};
++   seed=b.seed;
++   if(process.env.KS_REPEAT_PASS==='avoid')for(const u of b.units)u.trialPassSeed=seed;
++   row={seed,meters,turnGain,phaseMode,period,recoverCap,glideSteer,drive:[],driveShots:[],interceptorFloor,fast:process.env.KS_IN_FAST==='1',planet:process.env.KS_PLANET!=='0',craft:{},gun:{},firstFight:null,firstGun:null,rounds:[],jobs:[],escortDistance:{},launch:[],dive:{},bumps:0,flags:{},choices:{},kills:[]};
+    if(torpedoPath!=='existing')row.torpedoPath=torpedoPath;
+    if(angleMode!=='off')row.missileAngleMode=angleMode;
+    if(figuresLog)row.figureSelection=process.env.KS_BFM;
+diff --git a/scripts/trial-repeat-pass.cjs b/scripts/trial-repeat-pass.cjs
+new file mode 100644
+index 0000000..f84ea0a
+--- /dev/null
++++ b/scripts/trial-repeat-pass.cjs
+@@ -0,0 +1,43 @@
++// Optional arcade pilot. Each pair remembers its own preceding frontal encounter.
++function durability(unit) {
++  const sections = unit.sec || [];
++  const capacity = sections.reduce((n, part) => n + part.max, 0);
++  const hull = capacity ? sections.reduce((n, part) => n + Math.max(0, part.s), 0) / capacity : 0;
++  return hull + (unit.shieldMax > 0 ? unit.shield / unit.shieldMax : 0);
++}
++
++function faces(unit, direction) {
++  const f = unit.att?.f || [Math.cos(unit.yaw), 0, Math.sin(unit.yaw)];
++  return f.reduce((sum, n, i) => sum + n * direction[i], 0) > 0.5;
++}
++
++function repeatPass(u, old, target, time) {
++  const pairs = u.trialPairHistory ||= new Map();
++  const delta = target.pos.map((x, i) => x - old.pos[i]);
++  const distance = Math.hypot(...delta);
++  const direction = delta.map(x => x / (distance || 1));
++  let pair = pairs.get(target.id);
++  if (!pair) {
++    pair = {count: 0, active: false, ownLoss: 0, otherLoss: 0};
++    pairs.set(target.id, pair);
++  }
++  if (pair.active && distance > 3000) pair.active = false;
++  if (!pair.active && distance <= 3000 && faces(old, direction) && faces(target, direction.map(x => -x))) {
++    pair.active = true;
++    pair.count++;
++    pair.dodge = pair.count > 1 && pair.ownLoss > pair.otherLoss;
++    if (process.env.KS_PASS_LOG) require('node:fs').appendFileSync(process.env.KS_PASS_LOG,
++      JSON.stringify({seed:u.trialPassSeed, time, unit:u.id, target:target.id, encounter:pair.count, dodge:pair.dodge,
++        ownLoss:pair.ownLoss, otherLoss:pair.otherLoss})+'\n');
++    pair.until = time + 3;
++    pair.own = durability(old);
++    pair.other = durability(target);
++    pair.ownLoss = pair.otherLoss = 0;
++  }
++  if (!pair.active) return null;
++  pair.ownLoss = Math.max(pair.ownLoss, pair.own - durability(old));
++  pair.otherLoss = Math.max(pair.otherLoss, pair.other - durability(target));
++  if (!pair.dodge || time >= pair.until) return null;
++  return [old.pos[0] - 1000 * Math.sin(old.yaw), old.pos[1], old.pos[2] + 1000 * Math.cos(old.yaw)];
++}
++module.exports = {repeatPass};

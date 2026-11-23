@@ -1,7 +1,13 @@
 {
-  "status": "running",
-  "completed_matches": 163,
+  "status": "complete",
   "scheduled_matches": 178,
+  "completed_matches": 178,
+  "entry_point_invocations": 42,
+  "additional_observed_replays": 3,
+  "game_regressions": {
+    "pass": 43,
+    "fail": 2
+  },
   "guidance": "pn",
   "KS_PN_N": "unset, simulator default",
   "previous_baseline_rerun": false,
@@ -18,5 +24,25 @@
     "vm_glue_sha256": "2c2839ccb33982a383d514fbb26c818c036ab6c87122d387cfc2ae5d38c6ff06",
     "node": "v24.22.3"
   },
-  "updated_utc": "2026-11-23T11:05:17+00:00"
+  "guide_labels_in_three_observed_replays": {
+    "figures-duel-xwing-tie_ln-p1": [],
+    "fleet-standard-1": [
+      "pn",
+      "pursuit"
+    ],
+    "strike-axis1-1": [
+      "pn"
+    ]
+  },
+  "updated_utc": "2026-11-23T11:15:27+00:00",
+  "completed_matches_including_defender": 274,
+  "additional_matches": {
+    "tie_d": 80,
+    "tie_in_extra_controls": 16
+  },
+  "matched_defender_comparison_games": 160,
+  "total_comparison_runs": 374,
+  "repeat_pass_additional": 100,
+  "repeat_pass_trace_replays": 2,
+  "repeat_pass_local_commit": "973195d"
 }
