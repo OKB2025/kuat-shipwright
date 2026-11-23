@@ -1,0 +1,9 @@
+✔ KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (off by default) (36594.236649ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36745.688429
