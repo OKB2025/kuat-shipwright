@@ -76084,20 +76084,25 @@ function mountTurretSupport(ship,f,big){
  // 2026-11-17: with the circle alone turrets dropped by up to 87 m on the Recusant dreadnought).
  const fr=fitFrameOf(f),footRing=turretSupportFootprint(f),footOutline=turretSupportFootprint(f,true),corners=[];for(const q of footOutline.concat(footRing))for(const h of [-big,big])corners.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,h))));
  const bounds=[0,1,2].map(a=>Math.min(...corners.map(p=>p[a]))-1e-5).concat([0,1,2].map(a=>Math.max(...corners.map(p=>p[a]))+1e-5)),overlap=b=>[0,1,2].every(a=>b[a]<=bounds[a+3]&&b[a+3]>=bounds[a]);
+ // 2026-11-23 (user: 「構造物が上に重なる時に砲塔の取り付け面まで上に上がってしまう仕様も改善して」) A structure laid over the
+ // turret's seat does not lift it: the faces that support the base are the seat's own body (the hull, all its hull pieces,
+ // or the structure the turret stands on); another structure counts only where its face lies at or below the seat.
+ const seatHit=rayEnv(ship,add(f.p,mul(fr.up,2*FIT_SUPPORT_GAP_M)),mul(fr.up,-1),{maxT:2*FIT_SUPPORT_GAP_M+Math.max(FIT_SUPPORT_GAP_M,fitSpec(f)?.r||0),structOnly:true}),seatPart=seatHit?.part&&isShapePart(seatHit.part)?seatHit.part:null,onHull=!seatPart||isHullStructure(seatPart),seatBody=p=>p===seatPart||onHull&&isHullStructure(p),seatLevel=FIT_SUPPORT_GAP_M;
  const solve=foot=>{const candidates=[];
- const collect=(T,bvh)=>{
+ const collect=(T,bvh,below=false)=>{
   if(!T?.length)return;if(!bvh){bvh=TURRET_SUPPORT_BVH.get(T);if(!bvh){bvh=buildBVH(T);TURRET_SUPPORT_BVH.set(T,bvh);}}
   const stack=[0];while(stack.length){const nd=stack.pop(),b=Array.from(bvh.B.subarray(nd*6,nd*6+6));if(!overlap(b))continue;if(!bvh.C[nd]){stack.push(bvh.L[nd],bvh.R[nd]);continue;}
    for(let k=bvh.S[nd];k<bvh.S[nd]+bvh.C[nd];k++){const i=bvh.idx[k]*9,P=[0,3,6].map(j=>{const p=sub(Array.from(T.subarray?T.subarray(i+j,i+j+3):T.slice(i+j,i+j+3)),f.p);return [dot(p,fr.fw),dot(p,fr.rt),dot(p,fr.up)];}),det=(P[1][0]-P[0][0])*(P[2][1]-P[0][1])-(P[1][1]-P[0][1])*(P[2][0]-P[0][0]);
     // fw x rt points opposite up. Keep outward-facing support faces only.
-    if(det>=-1e-9)continue;const poly=supportIntersection(foot,[P[0],P[2],P[1]]);if(poly.length<3||Math.abs(supportArea(poly))<1e-7)continue;
+    if(det>=-1e-9)continue;let poly=supportIntersection(foot,[P[0],P[2],P[1]]);if(poly.length<3||Math.abs(supportArea(poly))<1e-7)continue;
     const A=((P[1][2]-P[0][2])*(P[2][1]-P[0][1])-(P[2][2]-P[0][2])*(P[1][1]-P[0][1]))/det,B=((P[1][0]-P[0][0])*(P[2][2]-P[0][2])-(P[2][0]-P[0][0])*(P[1][2]-P[0][2]))/det,D=P[0][2]-A*P[0][0]-B*P[0][1];
+    if(below){poly=supportClip(poly,-A,-B,seatLevel-D);if(poly.length<3||Math.abs(supportArea(poly))<1e-7)continue;}
     if(poly.every(q=>Math.abs(A*q[0]+B*q[1]+D)>big))continue;candidates.push({poly,A,B,D});
    }
   }
  };
- const g=ship._rayLock?.env||referenceHullGeometry(ship)||hullGeo(ship);collect(g.tris,g.bvh);
- for(const p of ship.parts){if(!isShapePart(p)||p.plate||!overlap(partAABB(p)))continue;let T=ship._rayLock?.tris.get(p);if(!T){T=lockedRayTris(p);ship._rayLock?.tris.set(p,T);}collect(T);}
+ const g=ship._rayLock?.env||referenceHullGeometry(ship)||hullGeo(ship);collect(g.tris,g.bvh,!onHull);
+ for(const p of ship.parts){if(!isShapePart(p)||p.plate||!overlap(partAABB(p)))continue;let T=ship._rayLock?.tris.get(p);if(!T){T=lockedRayTris(p);ship._rayLock?.tris.set(p,T);}collect(T,null,!seatBody(p));}
  let top=0;const polys=[];for(let i=0;i<candidates.length;i++){const own=candidates[i];let pieces=[own.poly];for(let j=0;j<candidates.length&&pieces.length;j++){if(i===j)continue;const other=candidates[j],da=other.A-own.A,db=other.B-own.B,dd=other.D-own.D,coplanar=Math.abs(da)+Math.abs(db)+Math.abs(dd)<1e-7;if(coplanar&&j>i)continue;const cover=coplanar?other.poly:supportClip(other.poly,da,db,dd-1e-7);if(cover.length<3||Math.abs(supportArea(cover))<1e-7)continue;pieces=pieces.flatMap(p=>supportSubtract(p,cover));}
   for(const poly of pieces){const p=poly.map(q=>[q[0],q[1],own.A*q[0]+own.B*q[1]+own.D]);for(const q of p)top=Math.max(top,q[2]);polys.push(p);}
  }
