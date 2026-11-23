@@ -1,0 +1,4 @@
+const fs=require('fs'),path=require('path'),zlib=require('zlib');const root=process.cwd();const {C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+const load=k=>k.endsWith('.json')?C.deserialize(JSON.parse(fs.readFileSync(k,'utf8'))):C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples',k,'design.json.gz')))));
+for(const k of process.argv.slice(2)){const s=load(k);C.syncCompartments(s);C.remount(s,{keepFitPose:true});C.syncCompartments(s);const S=C.computeStats(s),p=C.fleetProfile(S,s.name,s);
+ console.log(JSON.stringify({k:path.basename(k),name:s.name,massT:+S.mass.toFixed(1),len:+p.len?.toFixed?.(1),accel:+p.accel?.toFixed?.(1),maxSpeed:+p.maxSpeed?.toFixed?.(0),turnRate:+p.turnRate?.toFixed?.(3),hp:+p.hp?.toPrecision?.(4),shield:+(S.shieldCapacity||0).toPrecision(4),gunBest:+(p.gunBest||0).toPrecision(4),msl:p.msl,warnings:(S.warnings||S.warn||[]).length,float:s.fits.filter(f=>f.float).length}));}
