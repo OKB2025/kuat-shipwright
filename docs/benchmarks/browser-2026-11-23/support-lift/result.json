@@ -1,0 +1,34 @@
+{
+ "lifted": [
+  [
+   73,
+   "pd",
+   18.35
+  ],
+  [
+   74,
+   "pd",
+   18.35
+  ]
+ ],
+ "id": 73,
+ "note": "この砲は以前の仕様で、上に重なった構造物の天面まで台座を上げて据えています。取り付け面に据え直す",
+ "before": {
+  "supportLift": true,
+  "base": 18.348
+ },
+ "after": {
+  "supportLift": false,
+  "base": 2.378
+ },
+ "noteAfter": false,
+ "saveId": "ship-8e653ce7-611f-44e8-aa57-4d96e02a433a",
+ "afterLoad": {
+  "supportLift": false,
+  "base": 2.378
+ },
+ "otherLifted": [
+  74
+ ],
+ "errors": []
+}

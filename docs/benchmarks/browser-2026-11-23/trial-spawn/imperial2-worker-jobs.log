@@ -1,0 +1,9 @@
+23.3s trial entered {"mode":"trial","sandbox":false,"battle":false,"result":null,"targets":4,"exit":"公試終了","where":"公試 · コルサント低軌道","selfCard":false,"units":[]}
+24.0s example picked ["imperial2","インペリアルII級"]
+130.6s spawned after {"ms":98686,"jobs":[{"type":"fleet","lite":false,"wall":1210,"ms":1147,"src":"editor","profileSrc":"record","geo":true,"stats":true},{"type":"trialRays","wall":391,"ms":0,"geo":false,"stats":false},{"type":"trialRays","wall":303,"ms":0,"geo":false,"stats":false},{"type":"trialRays","wall":352,"ms":0
+130.7s target imperial2 ["アークワイテンス級軽クルーザー","インペリアルII級"]
+150.9s sim rate with imperial2 target {"sim":9.25,"wall":20.079}
+156.3s spawned after {"ms":223,"jobs":[{"type":"trialRays","wall":120,"ms":0,"geo":false,"stats":false},{"type":"trialRays","wall":119,"ms":0,"geo":false,"stats":false},{"type":"trialRays","wall":103,"ms":0,"geo":false,"stats":false},{"type":"trialRays","wall":103,"ms":0,"geo":false,"stats":false},{"type":"trialRays","w
+156.4s foe imperial2 ["アークワイテンス級軽クルーザー:hold:null","インペリアルII級:hold:null","インペリアルII級:attack:me"]
+176.8s sim rate with imperial2 foe {"sim":8.000000000000007,"wall":20.321}
+DONE []

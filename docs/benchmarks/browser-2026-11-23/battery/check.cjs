@@ -1,0 +1,37 @@
+// Browser check: 砲列 — draw a wall battery on the Acclamator's flat side with two taps, create it through the Worker,
+// change its count, undo, save and load, and remove it.
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
+const url=process.argv[2],out=process.argv[3];
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
+const ctx=await b.newContext({viewport:{width:1280,height:900}});const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));page.setDefaultTimeout(600000);
+await page.addInitScript(()=>{try{if(!localStorage.getItem('yard.language'))localStorage.setItem('yard.language','ja')}catch(e){}});
+const settle=async()=>{await page.waitForFunction(()=>{const Y=window.__yard;return Y.ship&&Y.stats&&Y.eng.statsGen>=Y.eng.gen;},null,{timeout:1200000});await page.waitForTimeout(2000);};
+const open=async k=>{await page.evaluate(k=>{window.__prevShip=window.__yard.ship;window.__yard.openExample(k)},k);await page.waitForFunction(()=>window.__yard.ship&&window.__yard.ship!==window.__prevShip,null,{timeout:600000});await settle();};
+await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__yard?.eng.ready,null,{timeout:300000});await page.evaluate(()=>window.__yard.title?.hide?.());
+await open('acclamator');const res={};const shot=async n=>page.screenshot({path:path.join(out,n)});
+await page.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='横');b&&b.click();});await page.waitForTimeout(1500);
+await page.evaluate(()=>{const Y=window.__yard,C=Y.C;const p=Y.ship.parts.find(p=>p.id===2);Y.st.sel={list:'parts',id:p.id};Y.designUIOpen('edit');Y.renderPanel();});await page.waitForTimeout(400);
+res.context=await page.evaluate(()=>{const b=document.querySelector('[data-design-context="battery"]');if(!b)return false;b.click();return true;});await page.waitForTimeout(400);
+res.panel=await page.evaluate(()=>!!document.querySelector('[data-battery-panel]'));res.session=await page.evaluate(()=>{const d=window.__yard.designUI;return {session:!!d.editSession,src:d.editSession?.source===window.__yard.ship,sel:window.__yard.st.sel,ctx:d.context,layout:d.layout,drawer:d.drawer};});console.log('SES',JSON.stringify(res.session));
+// the two wall points as screen positions
+const screen=await page.evaluate(()=>{const Y=window.__yard,v=Y.view(),r=v.canvas.getBoundingClientRect(),found=[];for(let fy=.3;fy<.75;fy+=.01)for(let fx=.25;fx<.8;fx+=.01){const h=Y.pick(r.width*fx,r.height*fy,{parts:true,fits:false});if(h?.n&&Math.abs(h.n[2])>.97)found.push({x:r.width*fx,y:r.height*fy,p:h.p,n:h.n});}
+ // the longest run along one screen row
+ let best=null;const rows={};for(const f of found)(rows[f.y.toFixed(1)]||(rows[f.y.toFixed(1)]=[])).push(f);for(const row of Object.values(rows)){row.sort((a,b)=>a.x-b.x);for(let i=0;i<row.length;i++)for(let j=i+1;j<row.length;j++){if(Math.abs(row[i].p[2]-row[j].p[2])>.05)continue;const d=row[j].x-row[i].x;if(!best||d>best.d)best={d,a:row[i],b:row[j]};}}
+ return best?[[best.a.x+r.left,best.a.y+r.top],[best.b.x+r.left,best.b.y+r.top],best.a.p,best.b.p]:[[0,0],[0,0]];});res.screen=screen;
+// set the gun and band before drawing
+await page.click('[data-battery-draw]');res.armed=await page.evaluate(()=>!!document.querySelector('[data-battery-armed]'));
+const tap=async s=>page.evaluate(s=>{const r=window.__yard.view().canvas.getBoundingClientRect();window.__yard.onTap(s[0]-r.left,s[1]-r.top);},s);
+res.pickProbe=await page.evaluate(s=>{const r=window.__yard.view().canvas.getBoundingClientRect();const h=window.__yard.pick(s[0]-r.left,s[1]-r.top,{parts:true,fits:false});return h?{keys:Object.keys(h),p:h.p,n:h.n,part:h.part?.id}:null;},screen[0]);console.log(JSON.stringify(res.pickProbe));await tap(screen[0]);await tap(screen[1]);await page.waitForTimeout(300);
+res.editor=await page.evaluate(()=>!!document.querySelector('[data-battery-editor]'));res.toast=await page.evaluate(()=>document.querySelector('.toast,#toast')?.textContent);res.armedText=await page.evaluate(()=>document.querySelector('[data-battery-armed]')?.textContent);console.log(JSON.stringify(res));await shot('0-taps.png');
+await page.evaluate(()=>{const set=(sel,v)=>{const el=document.querySelector(sel);el.value=v;el.dispatchEvent(new Event('change',{bubbles:true}));};set('[data-battery-kind="0"]','pd');set('[data-battery-count="0"]','4');set('[data-battery-height]','6');set('[data-battery-depth]','20');});
+await page.click('[data-battery-apply]');await page.waitForTimeout(200);res.justAfter=await page.evaluate(()=>({status:document.querySelector('[data-battery-status]')?.textContent,toast:document.querySelector('.toast,#toast')?.textContent,disabled:document.querySelector('[data-battery-apply]')?.disabled,tab:window.__yard.st.tab}));console.log('JA',JSON.stringify(res.justAfter));await page.waitForFunction(()=>!document.querySelector('[data-battery-apply]')?.disabled,null,{timeout:600000});await settle();
+res.afterCreate=await page.evaluate(()=>{const s=window.__yard.ship;return {batteries:(s.batteries||[]).map(q=>({id:q.id,host:q.host,h:q.height,counts:q.armament?.counts})),groups:s.fits.filter(f=>f.trenchRef?.hostId==='battery').map(f=>({k:f.k,n:f.aggregateCount,valid:f.trenchValid,err:f.trenchError})),status:document.querySelector('[data-battery-status]')?.textContent};});
+await shot('1-created.png');
+await page.evaluate(()=>{const el=document.querySelector('[data-battery-count="0"]');el.value='6';el.dispatchEvent(new Event('change',{bubbles:true}));});await page.click('[data-battery-apply]');await page.waitForFunction(()=>!document.querySelector('[data-battery-apply]')?.disabled,null,{timeout:600000});await settle();
+res.afterChange=await page.evaluate(()=>({n:window.__yard.ship.fits.filter(f=>f.trenchRef?.hostId==='battery').map(f=>f.aggregateCount),status:document.querySelector('[data-battery-status]')?.textContent,toast:document.querySelector('.toast,#toast')?.textContent,bats:JSON.stringify(window.__yard.ship.batteries),count:document.querySelector('[data-battery-count="0"]')?.value,editor:!!document.querySelector('[data-battery-editor]')}));
+await page.evaluate(()=>document.querySelector('#btnUndo').click());await settle();res.afterUndo=await page.evaluate(()=>window.__yard.ship.fits.filter(f=>f.trenchRef?.hostId==='battery').map(f=>f.aggregateCount));
+await page.evaluate(()=>window.__yard.designUIClose());await settle();
+await page.evaluate(()=>document.querySelector('#btnSave').click());await page.waitForTimeout(4000);const id=await page.evaluate(()=>window.__yard.ship.saveId);
+await open('cr90');await page.evaluate(async id=>{window.__prevShip=window.__yard.ship;document.querySelector(`[data-load="${id}"]`).click();},id);await page.waitForFunction(()=>window.__yard.ship&&window.__yard.ship!==window.__prevShip,null,{timeout:600000});await settle();
+res.afterLoad=await page.evaluate(()=>{const s=window.__yard.ship;return {batteries:(s.batteries||[]).length,groups:s.fits.filter(f=>f.trenchRef?.hostId==='battery').map(f=>({n:f.aggregateCount,valid:f.trenchValid}))};});
+res.errors=errors;fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(res,null,1));console.log(JSON.stringify(res,null,1));await b.close();})().catch(e=>{console.error(e);process.exit(1)});

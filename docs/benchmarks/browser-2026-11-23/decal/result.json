@@ -1,0 +1,99 @@
+{
+ "sel": 1,
+ "contextButton": true,
+ "panel": true,
+ "armed": true,
+ "afterCircle": [
+  {
+   "id": 1,
+   "kind": "circle",
+   "c": [
+    50.58332197098994,
+    17.459899262751605,
+    5.985255546075145
+   ],
+   "n": [
+    -0.7930744867982068,
+    0.6091209758346217,
+    -0.0021201858501800515
+   ],
+   "w": 12,
+   "h": 12,
+   "rot": 0,
+   "color": "#c8322b"
+  }
+ ],
+ "dbg": {
+  "tab": "paint",
+  "tool": "decal",
+  "arm": null,
+  "panel": true,
+  "toast": "塗装・エンブレムを追加"
+ },
+ "afterImage": {
+  "decals": [
+   {
+    "id": 1,
+    "kind": "circle",
+    "c": [
+     50.58332197098994,
+     17.459899262751605,
+     5.985255546075145
+    ],
+    "n": [
+     -0.7930744867982068,
+     0.6091209758346217,
+     -0.0021201858501800515
+    ],
+    "w": 12,
+    "h": 12,
+    "rot": 0,
+    "color": "#ffcc00",
+    "mirror": true
+   },
+   {
+    "id": 2,
+    "kind": "image",
+    "c": [
+     90.25689161210323,
+     18.77977938784494,
+     5.9860474742183545
+    ],
+    "n": [
+     -0.003436578863570408,
+     0.9373846991101858,
+     0.3482787903387469
+    ],
+    "w": 12,
+    "h": 7.5,
+    "rot": 0,
+    "color": "#ffffff",
+    "image": "img1"
+   }
+  ],
+  "images": {
+   "img1": "data:image/jpeg;base64,/9j/4AA… 2447"
+  }
+ },
+ "decalMesh": {
+  "count": 738,
+  "tex": true
+ },
+ "afterClose": 2,
+ "afterLoad": {
+  "n": 2,
+  "images": [
+   "img1"
+  ],
+  "mesh": 738
+ },
+ "undoCheck": {
+  "after": 30,
+  "undone": 12
+ },
+ "errors": [
+  "console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+  "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+  "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+ ]
+}
