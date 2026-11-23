@@ -1,0 +1,1 @@
+TIE/ln の既存スラスター4基を左右の翼へ2基ずつ移設した。8bf82e1 に tie-section-loss、panel-loss の順で前回の試験差分を適用し、ln-thrusters.patch を適用する。KS_TEST_ROOT を試験版のルートに設定し node check.cjs で左右個別の脱落を再現できる。片側脱落で2基停止、旋回補正は0.7071、胴体レーザーは2門稼働。今回の確認は配置と局所被弾試験。

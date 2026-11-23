@@ -1,0 +1,34 @@
+--- a/js/core.js
++++ b/js/core.js
+@@ -94432,3 +94432,17 @@
+  const id=CRAFT_REMODEL_KEYS[key];if(typeof CRAFT_REMODEL!=='object'||!CRAFT_REMODEL?.[id])throw new Error(key+': 航空機のリモデル設計がありません');
+- const ship=deserialize(JSON.parse(JSON.stringify(CRAFT_REMODEL[id])));ship.reference=key;ship._craftInteriorRefit=true;ship._craftRemodel=true;return ship;
++ const design=JSON.parse(JSON.stringify(CRAFT_REMODEL[id]));
++ if(key==='craft_tie_ln'){
++  for(const [panelId,ids] of [[100,[272,274]],[120,[273,275]]]){
++   const panel=design.parts.find(p=>p.id===panelId);
++   const wing=design.groups.find(g=>g.parts.includes(panelId));
++   for(const [position,thrusterId] of ids.entries()){
++    const part=design.parts.find(p=>p.id===thrusterId);
++    part.c=[panel.c[0]+(position===0?.32:-.32),panel.c[1],panel.c[2]-Math.sign(panel.c[2])*.14];
++    part.label=(panelId===100?'左舷':'右舷')+(position===0?'前側':'後側')+'姿勢制御スラスター';
++    for(const group of design.groups)group.parts=group.parts.filter(id=>id!==thrusterId);
++    wing.parts.push(thrusterId);
++   }
++  }
++ }
++ const ship=deserialize(design);ship.reference=key;ship._craftInteriorRefit=true;ship._craftRemodel=true;return ship;
+ }
+@@ -99100,2 +99114,12 @@
+   }
++ }
++ if(ship.reference==='craft_tie_ln'){
++  for(const group of ship.groups||[]){
++   const panel=mods.find(m=>m.panel&&group.parts.includes(m.part));
++   if(!panel)continue;
++   for(const part of ship.parts.filter(p=>p.k==='maneuver'&&group.parts.includes(p.id))){
++    const m=mods.find(m=>m.part===part.id);
++    if(m){m.panelOwner=panel.part;m.turnSupport=m.size;}
++   }
++  }
+  }
