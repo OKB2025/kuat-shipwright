@@ -94438,7 +94438,7 @@ for(const [key,id] of Object.entries(CRAFT_REMODEL_KEYS)){
   ...(old?{}:{name:'TIE/D ディフェンダー',side:'銀河帝国',role:'制宙戦闘機',length:9.2,author:'ユーザー提供設計'}),
   source:'docs/handoff-2026-11-20/refs/'+{xwing:'x-wing-remodel-2026-11-23.json',tie_ln:'tie-ln-remodel-2026-11-23.json',tie_in:'tie-in-remodel-2026-11-23c.json',awing:'a-wing-remodel-2026-11-23.json',tie_d:'tie-d-remodel-2026-11-23c.json'}[id],
   ...(old?{originalSource:meta.source}:{}),
-  note:'ユーザー提供のリモデル設計（2026-11-23）をそのまま使った作例。'+(old?'元の作例：'+(meta.title||meta.name)+'（'+(meta.author||'')+'、'+(meta.license||'')+'）の実測形状をもとにユーザーが改修したもの。':'')+(id==='tie_d'?'':'発射管の中に置かれたパイロンは発射管にした。'),
+  note:'ユーザー提供のリモデル設計（2026-11-23）をそのまま使った作例。'+(old?'元の作例：'+(meta.title||meta.name)+'（'+(meta.author||'')+'、'+(meta.license||'')+'）の実測形状をもとにユーザーが改修したもの。':'')+(id==='tie_d'?'':'発射管の中に置かれたパイロンは発射管にし、発射管の構造物の中へ沈めた。'),
   build:()=>craftRemodelDesign(key)});
 }
 const CRAFT_SYSTEM_RECIPES=Object.freeze({

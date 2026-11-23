@@ -101,6 +101,7 @@ test('a version-1 design craft snapshot with aircraft lasers is rebuilt once wit
  assert.equal(rebuilt.weaponProfileVersion,C.WEAPON_PROFILE_VERSION,'the 2 kt-era snapshot is recalculated');
  assert.deepEqual(JSON.parse(JSON.stringify(rebuilt.craft.powerProfile)),JSON.parse(JSON.stringify(forced.craft.powerProfile)),'power profile follows the current lasers');
  near(rebuilt.craft.systems.laserUnits,forced.craft.systems.laserUnits,'laser units');near(rebuilt.craft.systems.laserUnits,2,'two medium lasers are two laser units');
- const weaponW=q=>(q.craft.powerProfile.modules||[]).reduce((n,m)=>n+(m.weaponPowerW||0),0);near(weaponW(rebuilt),2*C.FITS.claser.power,'weapon power is two medium lasers');
+ const weaponW=q=>(q.craft.powerProfile.modules||[]).reduce((n,m)=>n+(m.weaponPowerW||0),0);// 2026-11-23 expectation changed: the TIE/ln example is the user's remodel, which also carries a torpedo tube (its 1e15 W draw).
+ near(weaponW(rebuilt),2*C.FITS.claser.power+C.FITS.ctorp.pw,'weapon power is two medium lasers and the torpedo tube');
  assert.equal(C.cleanDesignCraft(fresh).weaponProfileVersion,C.WEAPON_PROFILE_VERSION);
 });
