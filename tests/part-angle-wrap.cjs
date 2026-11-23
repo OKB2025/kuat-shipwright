@@ -6,12 +6,13 @@ for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core
 const C=vm.runInContext('Core',cx);
 function ship(angles){const s=C.newShip({L:40,W:20,H:10,assembly:true},'Angles');s.parts=[];s.fits=[];s.nextId=1;
  angles.forEach(([pitch,roll],i)=>{const p=C.placePart(s,'struct',[10+i*3,5,0],[1,.6,.1],{form:'box'});p.pitch=pitch;p.roll=roll;});return s;}
+// In range (±180 inclusive) a stored angle loads exactly as stored (no float drift; -180 as the vertical mirror writes it).
 test('pitch and roll outside ±180 load as the same pose, inside it unchanged; a save and reload keeps them',()=>{
- const cases=[[0,225,-135],[0,315,-45],[0,-180,180],[0,180,180],[0,-200,160],[0,540,180],[0,-8,-8],[0,8,8]];
+ const cases=[[0,225,-135],[0,315,-45],[0,-180,-180],[0,180,180],[0,30.1,30.1],[0,-179.999999,-179.999999],[0,-200,160],[0,540,180],[0,-8,-8],[0,8,8]];
  const s=ship(cases.map(([p,r])=>[p,r]));const raw=JSON.parse(JSON.stringify(C.serialize(s)));
  raw.parts.forEach((p,i)=>{p.roll=cases[i][1];p.pitch=i===0?370:p.pitch;});
  const a=C.deserialize(JSON.parse(JSON.stringify(raw)));
- a.parts.forEach((p,i)=>assert.equal(p.roll,cases[i][2],'roll '+cases[i][1]));assert.equal(a.parts[0].pitch,10,'pitch 370');
+ a.parts.forEach((p,i)=>assert.strictEqual(p.roll,cases[i][2],'roll '+cases[i][1]));assert.equal(a.parts[0].pitch,10,'pitch 370');
  const b=C.deserialize(JSON.parse(JSON.stringify(C.serialize(a))));assert.deepEqual(b.parts.map(p=>[p.pitch,p.roll]),a.parts.map(p=>[p.pitch,p.roll]),'round trip');
 });
 test('a non-finite stored angle loads as 0',()=>{

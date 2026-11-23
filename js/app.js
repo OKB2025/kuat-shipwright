@@ -14534,7 +14534,7 @@ function voyPilotInit() {
 // passes, droids swarm, bombers hold steady. All of it is drawing: where each squadron is, whom it fights, what it
 // hits and what it loses stay the battle's.
 const VOY_NEAR = 26000;
-const VOY_CRAFT_MODEL = {tie_ln: 'craft_tie_ln', tie_in: 'craft_tie_in', tie_sa: 'craft_tie_sa', xwing: 'craft_xwing', awing: 'craft_awing', ywing: 'craft_btlb', btlb: 'craft_btlb', z95: 'craft_z95', vulture: 'craft_vulture', hyena: 'craft_hyena', vwing: 'craft_vwing', arc170: 'craft_arc170', v19: 'craft_v19'};
+const VOY_CRAFT_MODEL = {tie_ln: 'craft_tie_ln', tie_in: 'craft_tie_in', tie_sa: 'craft_tie_sa', xwing: 'craft_xwing', awing: 'craft_awing', ywing: 'craft_ywing'/* 2026-11-24 the BTL-A4 example (was craft_btlb) */, btlb: 'craft_btlb', z95: 'craft_z95', vulture: 'craft_vulture', hyena: 'craft_hyena', vwing: 'craft_vwing', arc170: 'craft_arc170', v19: 'craft_v19'};
 // Bolt colours by faction: the Empire's green (its costlier blaster gas), the Rebellion's red, the clone-era
 // Republic's blue and the Separatists' red-orange, as on screen.
 const VOY_BOLT = {empire: [120, 255, 130], rebel: [255, 85, 65], republic: [120, 175, 255], cis: [255, 125, 70], neutral: [255, 200, 120]};

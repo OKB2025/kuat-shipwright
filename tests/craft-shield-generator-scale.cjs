@@ -31,3 +31,14 @@ test('the examples: A-wing above, Z-95 below their length rule, X-wing unchanged
  const a=p('craft_awing');assert.ok(C.fieldScale(a)>C.fieldScale({len:a.len}),'A-wing two 0.46 m generators on a 6.9 m hull');
  const z=p('craft_z95');assert.ok(C.fieldScale(z)<C.fieldScale({len:z.len}),'Z-95 one 0.51 m generator on a 16.8 m hull');
 });
+
+test('a strategic-map squad flies its craft with the generator rule, the same figure as a fleet unit',()=>{
+ // 2026-11-24 (high-effort review): the squad's drive unit is built from the catalogue power profile, which has no class; Rts marks it
+ // craftShield so fieldScale reads the generator. Before this the Z-95 squad kept the length figure (5.8e-6 for 6.4e-7).
+ const {R}=require('../scripts/update-ship-examples.cjs').loadRuntime(root);
+ for(const [type,key] of [['ywing','craft_ywing'],['z95','craft_z95'],['awing','craft_awing']]){
+  const sq={id:'t-'+type,craft:type,side:0,pos:[0,0,0],h:[1,0,0],laserGas:100};R.squadPropulsion(sq,1,.5,true);
+  const s=C.buildDesign(key),S=C.computeStats(s),fleet=C.fleetProfile(S,s.name,s);
+  assert.ok(Math.abs(C.fieldScale(sq.drive.p)/C.fieldScale(fleet)-1)<1e-3,type+': '+C.fieldScale(sq.drive.p)+' / '+C.fieldScale(fleet));
+ }
+});

@@ -108250,7 +108250,7 @@ function deserialize(o,internalOptions=null){
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   // 2026-11-24 an angle outside ±180 is the same pose turned once more, so it wraps rather than clamps (the user's BTL-A4 remodel
   // stores ring braces at roll 225 and 315, which the clamp turned to 180).
-  const wrapAngle=v=>{if(!Number.isFinite(v))return 0;const a=((v+180)%360+360)%360-180;return a===-180?180:a;};
+  const wrapAngle=v=>{if(!Number.isFinite(v))return 0;if(v>=-180&&v<=180)return v;/* in range: unchanged (no float drift; -180 stays as the vertical mirror writes it; high-effort review) */const a=((v+180)%360+360)%360-180;return a===-180?180:a;};
   if(cells)s.retiredCells=cells;
   if(internalOptions?.hullLocal){s._hullLocalBlueprint=true;s._aviationMigrated=true;}
   for(const h of s.hatches){const q=o.hatches?.find(q=>q.id===h.id),owner=o.parts.find(p=>p.id===q?.hullOwner&&p.k==='struct'&&p.form==='hull');if(owner&&Number.isInteger(q.hullHatch)&&owner.hullData?.hatches?.some(a=>a.id===q.hullHatch)){h.hullOwner=owner.id;h.hullHatch=q.hullHatch;}}
@@ -118148,7 +118148,7 @@ const craftShieldTrial=()=>{const k=+globalThis.KS_CRAFT_SHIELD;return Number.is
 function shieldGeneratorLength(p){const S=CRAFT_SHIELD,mods=Array.isArray(p?.modules)?p.modules.filter(m=>m&&(m.k==='shield'||m.k==='localShield')):[];
  const V=mods.reduce((n,m)=>n+(Number.isFinite(m.size)&&m.size>0?m.size:0),0);return V>0?Math.max(S.minLen,S.refLen*Math.cbrt(V/S.refGenV)):null;}
 function fieldScale(p){const S=CRAFT_SHIELD,L=Math.max(S.minLen,p?.len||S.refLen);if(L>=S.fullLen)return 1;
- const G=L<S.blendLen&&p?.cls?.craft?shieldGeneratorLength(p)??L:L,craft=Math.min(0,Math.log(G/S.fullLen))*CRAFT_SHIELD_EXP,ship=Math.log(S.scale)*(1-Math.log(L/S.craftLen)/Math.log(S.fullLen/S.craftLen));
+ const G=L<S.blendLen&&(p?.cls?.craft||p?.craftShield===true)?shieldGeneratorLength(p)??L:L,craft=Math.min(0,Math.log(G/S.fullLen))*CRAFT_SHIELD_EXP,ship=Math.log(S.scale)*(1-Math.log(L/S.craftLen)/Math.log(S.fullLen/S.craftLen));
  if(L<=S.craftLen)return Math.exp(craft)*craftShieldTrial();if(L>=S.blendLen)return Math.exp(ship);
  const t=Math.log(L/S.craftLen)/Math.log(S.blendLen/S.craftLen),w=t*t*(3-2*t);return Math.exp(craft*(1-w)+ship*w);}
 function craftShieldScale(p){return p;}/* (kept for callers: the scale is applied where the field is used, fieldScale) */
@@ -119517,7 +119517,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
 // names them. A craft's own state for this is u.sortie (copied with the unit by combatClone); the battle's is b.air.
 const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,reserveShare:.5,land:600,exit:60,clear:3,lane:600,look:15000/* far enough ahead for a craft to climb over the lane at its shallow climb (at 6 km it met the lane before it had risen 100 m) */,rearm:DOCK.refillS*3,intercept:40000,runIn:15000,engage:3000,airShot:4000,airWait:4,axes:2,spread:2.1,capital:1000,hold:45000,handoff:3500,diveAlt:8000,diveBack:4000,bombRel:3000,
  kinds:Object.freeze([Object.freeze({kind:'itorp',ion:true,release:4000,range:8000}),Object.freeze({kind:'cmsl',ion:false,release:6000,range:10000}),Object.freeze({kind:'bomb',ion:false,release:700,range:1500})]),aims:Object.freeze(['engine','bridge','weapon','sensor']),
- roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_btlb',job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
+ roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_ywing'/* 2026-11-24 the BTL-A4 example (was craft_btlb) */,job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
 // The rounds a craft of spare lift (t) carries: the kinds in turn while they fit by mass.
 function fleetAirLoad(liftSpare,kinds=FLEET_AIR.kinds){const out=[];let used=0;for(let i=0,miss=0;miss<kinds.length&&out.length<400;i++){const k=kinds[i%kinds.length],m=airRound(k.kind).mass;if(used+m<=(liftSpare||0)+1e-9){out.push({kind:k.kind,ion:!!k.ion,release:k.release,range:k.range});used+=m;miss=0;}else miss++;}return out;}
 // A ship's air control: how many squadrons it directs in the air at once (the strategic map's rule, Rts airCtlCap).
@@ -125643,9 +125643,9 @@ function squadPowerLossState(s,u){
 const SQUAD_POWER_TICKS=new WeakMap();
 function squadPropulsion(s,throttle,dt,prepare=false){
  const craft=CRAFT[s.craft],profile=craftPowerOf(craft);if(!profile){s.propulsion=null;s.weaponPowerK=0;return {acc:0,acc0:0,turn:0};}
- let u=s.drive;if(!u||u._profile!==profile){u=s.drive=C.fleetUnit(s.id+':drive',s.craft,profile,s.side);u._profile=profile;}u.hyperClass=Number(craft?.hyper)||0;/* v27 a drive known by class charges too */
+ let u=s.drive;if(!u||u._profile!==profile){u=s.drive=C.fleetUnit(s.id+':drive',s.craft,{...profile,craftShield:true/* 2026-11-24 the generator-size shield rule (fieldScale) for a strategic-map squad's craft; its catalogue profile carries no class (high-effort review) */},s.side);u._profile=profile;}u.hyperClass=Number(craft?.hyper)||0;/* v27 a drive known by class charges too */
  const reference=C.calibrateMotionResistance(profile),left=(s.ldg||[]).reduce((n,x,i)=>n+(s.ammo?.[i]||0)*(x.mass||0),0),massKg=profile.propulsion.massKg+left*1000;
- if(u.p===profile||u.p.propulsion.massKg!==massKg){const descriptor={...profile.propulsion,massKg,ratedAccelMps2:massKg>0?profile.propulsion.ratedThrustN/massKg:0};u.p={...profile,...(reference?{motionResistance:reference}:{}),propulsion:descriptor};}
+ if(u.p===profile||u.p.propulsion.massKg!==massKg){const descriptor={...profile.propulsion,massKg,ratedAccelMps2:massKg>0?profile.propulsion.ratedThrustN/massKg:0};u.p={...profile,craftShield:true,...(reference?{motionResistance:reference}:{}),propulsion:descriptor};}
  // v27 The squad keeps its hyperdrive charge (s.hyperE) across drive rebuilds; craft leave the hangar charged.
  if(!Number.isFinite(u.hyperE))u.hyperE=Number.isFinite(s.hyperE)?s.hyperE:C.hyperUnitNeedJ(u);s.hyperE=u.hyperE;
  u.pos=s.pos;u.yaw=Math.atan2(s.h[2],s.h[0]);u.velocity=s.vel||[0,0,0];u.maneuver=Number.isFinite(throttle)?clamp(throttle,0,1):0;u.out=s.disabled||null;if(s.powerLossDisabled)u.powerLossDisabled=true;C.syncPowerLossDisabled(u);squadPowerLossState(s,u);
