@@ -81092,7 +81092,16 @@ function arcTriangles(p){
 }
 // A concave solid cannot be capped by intersecting all face planes. Sample the
 // cut plane against actual occupancy instead, retaining ring holes and gaps.
+// 2026-11-22 For a free mesh (a baked structure or hull) the cap is exact: the box's faces, turned into the box, kept where
+// they are inside the mesh (structuralClipBoundary). The sampled cap below cast up to ~400,000 rays per hatch mouth on a
+// baked Death Star hemisphere.
+function meshCutCaps(base,b){
+ const c=[[b[0],b[1],b[2]],[b[3],b[1],b[2]],[b[3],b[4],b[2]],[b[0],b[4],b[2]],[b[0],b[1],b[5]],[b[3],b[1],b[5]],[b[3],b[4],b[5]],[b[0],b[4],b[5]]],mid=[0,1,2].map(i=>(b[i]+b[i+3])/2),T=[];
+ for(const f of [[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]]){let q=f.map(i=>c[i]);const n=cross(sub(q[1],q[0]),sub(q[2],q[0])),fc=mul(q.reduce(add,[0,0,0]),1/4);if(dot(n,sub(mid,fc))<0)q=q.slice().reverse();T.push(...q[0],...q[1],...q[2],...q[0],...q[2],...q[3]);}
+ return Float32Array.from(structuralClipBoundary(Float64Array.from(T),Float64Array.from(base),false,false,true));
+}
 function solidCutCaps(p,b){
+ if(p.form==='mesh'||p.bakedMesh){const base=unpiercedStructTriangles(p);if(base?.length)return meshCutCaps(base,b);}
  const bounds=partAABB({...p,_apertures:null}),out=[],inside=q=>unpiercedInStruct(p,q);
  for(let ax=0;ax<3;ax++)for(const end of [0,1]){const plane=b[ax+end*3];if(plane<bounds[ax]||plane>bounds[ax+3])continue;const u=(ax+1)%3,v=(ax+2)%3,lo=[Math.max(b[u],bounds[u]),Math.max(b[v],bounds[v])],hi=[Math.min(b[u+3],bounds[u+3]),Math.min(b[v+3],bounds[v+3])];if(hi.some((n,i)=>n<=lo[i]))continue;const nx=Math.min(64,Math.max(2,Math.ceil((hi[0]-lo[0])/12))),ny=Math.min(64,Math.max(2,Math.ceil((hi[1]-lo[1])/12))),point=(x,y)=>{const q=[0,0,0];q[ax]=plane;q[u]=lerp(lo[0],hi[0],x/nx);q[v]=lerp(lo[1],hi[1],y/ny);return q;};
  for(let x=0;x<nx;x++)for(let y=0;y<ny;y++){const q=[point(x,y),point(x+1,y),point(x+1,y+1),point(x,y+1)];for(const ids of [[0,1,2],[0,2,3]]){const poly=ids.map(i=>q[i]),cut=[];for(let j=0;j<3;j++){const a=poly[j],c=poly[(j+1)%3],ia=inside(a);if(ia)cut.push(a);if(ia!==inside(c)){let l=0,h=1;for(let k=0;k<15;k++){const t=(l+h)/2;if(inside(a.map((v,i)=>lerp(v,c[i],t)))===ia)l=t;else h=t;}cut.push(a.map((v,i)=>lerp(v,c[i],(l+h)/2)));}}if(cut.length>2){if(cross(sub(cut[1],cut[0]),sub(cut[2],cut[0]))[ax]*(end?-1:1)<0)cut.reverse();triangulateFan(cut,out);}}}
@@ -86858,6 +86867,8 @@ function deathStarBuild(){
      const ry=Math.asin(clamp(-T[2],-1,1)),rz=Math.atan2(T[1],T[0]),rx=Math.atan2(N[2],W[2]);
      cuts.push({id:s.nextId++,shape:'box',c,s:[len(run)*1.04,2*depth,DS.meridianW],rotation:[rx/rad,ry/rad,rz/rad],mirror:false,structures:true});}}}
   s.solidCuts.push(...cuts);
+  /* baked at once: some 560 cut records kept through the build made it take 104 minutes (2026-11-22); the baked domes are
+     tested through their inside/outside grid (meshCellGrid) */{const r=bakeAllCuts(s);if(!r.ok)throw new Error('deathstar: 削りを焼き込めません '+JSON.stringify(r.failed));}
   /* the superlaser's exhaust ports go under a meridian trench's floor (ensureSuperlaserExhaust): the trench's great circle */
   s._meridianTrenches=meridians.map(yawDeg=>({shape:'torus',c:C0.slice(),s:[2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*Math.hypot(A*Math.cos(Math.PI/4),B*Math.sin(Math.PI/4)+w/2),2*depth],rotation:[90,yawDeg,0]}));}/* baked with the other examples' cuts at the end of buildDesign: baked earlier, every room placed in a 160 km station tested its points against the meshes (2026-11-22, a build of over 100 minutes) */
  // The reactor core at the centre.
