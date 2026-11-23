@@ -31,7 +31,8 @@ test('the placement catalogue offers the craft weapons with the app weapon lists
  for(const prefix of ['const WEAPONS =','const CRAFT_WEAPONS =','const craftDesign =','const weaponKeys ='])run(app.split('\n').find(line=>line.startsWith(prefix)));
  run(fn('paletteItems'));
  const keys=JSON.parse(run('JSON.stringify(paletteItems().filter(i=>i.type==="fit").map(i=>i.key))'));
- for(const k of ['claser','claserH','cturret','cpylon'])assert.ok(keys.includes(k),k+' is offered');
- for(const k of ['ctorp','cbomb'])assert.equal(keys.includes(k),false,k+' is retired (pylons and bomb-bay compartments)');
+ // 2026-11-23 expectation changed: launch tubes are back (user: 「パイロンではなく発射装置に戻して」「発射管を復活」); the bomb-bay fitting stays retired.
+ for(const k of ['claser','claserH','cturret','ctorp','cpylon'])assert.ok(keys.includes(k),k+' is offered');
+ for(const k of ['cbomb'])assert.equal(keys.includes(k),false,k+' is retired (bomb-bay compartments)');
  assert.ok(keys.includes('pd')&&keys.includes('stl'));
 });

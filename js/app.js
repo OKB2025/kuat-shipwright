@@ -2023,9 +2023,9 @@ const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
 // v24 Craft carry ordnance on pylons (launch tubes retired) and in bomb-bay compartments (an interior part).
-const CRAFT_WEAPONS = ['claserL', 'claser', 'claserH', 'cturret', 'cpylon'];
+const CRAFT_WEAPONS = ['claserL', 'claser', 'claserH', 'cturret', 'ctorp', 'cmsl', 'cpylon'];/* 2026-11-23 launch tubes are back (user: 「発射管を復活」) */
 const craftDesign = () => !!ship && editorCraftDesign();
-const weaponKeys = () => [...new Set((craftDesign() ? [...CRAFT_WEAPONS,...WEAPONS] : [...WEAPONS,...CRAFT_WEAPONS]).map(k=>C.canonicalWeaponKind?.(k)||k))].filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden&&!(k==='cmsl'&&craftDesign()));
+const weaponKeys = () => [...new Set((craftDesign() ? [...CRAFT_WEAPONS,...WEAPONS] : [...WEAPONS,...CRAFT_WEAPONS]).map(k=>C.canonicalWeaponKind?.(k)||k))].filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden);
 const weaponReplacementKeys = f => {const keys=weaponKeys();return f&&C.FITS[f.k]&&!keys.includes(f.k)?[f.k,...keys]:keys;};
 const partOffered = k => !!C.PARTS[k]&&!C.PARTS[k].catalogHidden&&!['machinery','capacitor','vls'].includes(k);
 const smallPartSize = k => C.PARTS[k]?.group==='craft'||craftDesign()&&C.craftPart(k);
