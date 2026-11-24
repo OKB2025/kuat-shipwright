@@ -42,3 +42,4 @@ fleet-air-restraint.cjs の #4・#13 は変更前（f00cc2a）から失敗して
 | point-defense-toggle.cjs #2 | 対空交戦枠を使うと枠の数より減る | 枠 0 の艦は至近の 1 枠を持つので、その 1 枠より減る | ユーザー「枠は対空交戦枠と同一」「対空交戦枠もセンサー外容積で」（2026-11-24） |
 | point-defense-toggle-aircraft.cjs #4（設定） | 撃つ艦はセンサーなしで 12 km から撃てた | 撃つ艦に ISD-72x と同じ容積のドーム | 同上・艦のミサイルのレーダー誘導 |
 | ship-missile-guidance.cjs（設定） | — | 試験用の性能表を新しい規則の版（trackModel）にした | 古い性能表は保存した対空交戦枠をそのまま使うため |
+| craft-loadout-store-default.cjs #1・ion-power-cut.cjs #3・missile-launcher-geometry.cjs #4 | 航空機の発射管 1 基にミサイル 6 発・魚雷 3 発（X ウイング 6、Y ウイング 8、TIE/sa 4、A ウイング 12） | 1 基にミサイル 3 発・魚雷 2 発（X ウイング 4、Y ウイング 4、TIE/sa 2、A ウイング 6）。艦の発射機は 1 セル 6 発のまま | ユーザー「魚雷は発射機あたりに2発、ミサイルは発射機あたりに3発」（2026-11-24）。艦の発射機に誤って同じ規則がかかっていたのを直した（craftTube の印） |

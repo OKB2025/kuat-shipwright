@@ -104277,8 +104277,8 @@ const FITS = {
   // v22 Ordnance is carried as stores (ORDNANCE): these fittings are the stations that hold it — launch tubes with
   // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
   // are chosen in the order of battle (the default is the craft's canon loadout).
-  ctorp: {cat: 'w', craft: true, fixed: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: .32, len: 1.4}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 0.32 m：プロトン魚雷・イオン魚雷・震盪ミサイル・爆弾を装填できる。'},
-  cmsl: {cat: 'w', craft: true, fixed: true, msl:.0471/* ORDNANCE.cmsl.tt (2026-11-19; was 25) */, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .22, len: 1.1}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発0.047 TT。'},
+  ctorp: {cat: 'w', craft: true, fixed: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: .32, len: 1.4, craftTube: true}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 0.32 m：プロトン魚雷・イオン魚雷・震盪ミサイル・爆弾を装填できる。'},
+  cmsl: {cat: 'w', craft: true, fixed: true, msl:.0471/* ORDNANCE.cmsl.tt (2026-11-19; was 25) */, missileSalvo:1, missileCycle:1.2, ordnance:'cmsl', name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .22, len: 1.1, craftTube: true}, desc: '航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発0.047 TT。'},
   shipMsl: {cat:'w',fixed:true,msl:.0471/* ORDNANCE.cmsl.tt (2026-11-19; was 25) */,missileSalvo:1,missileCycle:1.2,ordnance:'cmsl',name:'艦艇用ミサイル発射機',short:'艦艇ミサイル発射機',fm:2.4,wm:.9,hm:.9,pw:1e15,mass:6.4,crew:0,cost:8000,store:{mount:'tube',slots:6,bore:.22,len:1.1},desc:'航空機用発射管の2倍の寸法を持つ艦艇用セル。横・縦セル数で幅・高さ、弾数、質量と費用が変わります。1セル6発、1発0.047 TT、射程10 km。大型セル（12.1 m角、7×50 mの弾を1セル1発）は対艦魚雷54.8 TTまたは大型ミサイル28.9 TT、射程60 km。外付けと構造物への埋め込みに対応します。'},
   cbomb: {cat: 'w', craft: true, fixed: true, catalogHidden: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
   cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', thin: 6, heavy: 3, maxMass: .4}, desc: '機外の懸架1か所（パイロン本体だけの形）。ミサイル・魚雷・爆弾を吊る。細いミサイルなら6発、魚雷なら3発、爆弾なら2発まで（1か所 0.4 t まで）。何を何発積むかは編成画面で選び、積んだ分だけ重くなって加速と機動性が落ちる。設計の質量には含めない。'},
@@ -118075,7 +118075,7 @@ function fleetProfile(S,name,ship){
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
  if(ship){const blank=()=>({gunBands:Object.fromEntries(Object.keys(GUN_BANDS).map(k=>[k,Array(6).fill(0)])),gunArcs:Array(6).fill(0),aaArcs:Array(6).fill(0),aa:0}),dp=blank(),tiers=AA_MODEL.tiers.map(blank).concat([blank()]);for(const f of ship.fits){const d=fitSpec(f);if(f.float||!weaponRoles(d).dualPurpose)continue;const arc=S.fitInfo?.[f.id];if(!Array.isArray(arc))continue;const cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,rate=(d.tt||0)*cr/(d.cycle||K.cycle),band=fitBand(d),aa=(d.aa||0)*Math.min(1,arc.reduce((a,b)=>a+b,0)/6*1.6);for(const g of [dp,tiers[antiAirTier(d)]]){for(let i=0;i<6;i++){g.gunBands[band][i]+=rate*arc[i];g.gunArcs[i]+=rate*arc[i];g.aaArcs[i]+=(d.aa||0)*arc[i];}g.aa+=aa;}}if(dp.aa>0){dp.tiers=tiers;out.dualPurpose=dp;}}
- if(ship){out.modules=fleetModules(ship,S);attachShipPowerProfile(out,ship,S);if(!S.cls?.craft){out.trackModel=1;out.aaCh=shipTrackSlots({p:out})/* 2026-11-24 user「枠は対空交戦枠と同一」「対空交戦枠もセンサー外容積で」: a ship's anti-air channels are its tracking slots */;}const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
+ if(ship){out.modules=fleetModules(ship,S);attachShipPowerProfile(out,ship,S);if(S.cls?.craft)out.stations=JSON.parse(JSON.stringify(craftStations(ship)))/* 2026-11-24 a craft's launch stations, for the load of its mission at launch (missionOrdnance) */;if(!S.cls?.craft){out.trackModel=1;out.aaCh=shipTrackSlots({p:out})/* 2026-11-24 user「枠は対空交戦枠と同一」「対空交戦枠もセンサー外容積で」: a ship's anti-air channels are its tracking slots */;}const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
   // Armour zones: the exposed skin of each section and face with its thickness
   // (hull armour plus any plating over it).
   if(S.skin){const cuts=hs.cuts,sk=S.skin,n=HULL_SECTIONS*6,zA=new Array(n).fill(0),zT=new Array(n).fill(0);for(let i=0;i<sk.n;i++){const x=(i+.5)/sk.n;let si=0;while(si<cuts.length&&x>=cuts[si])si++;for(let f=0;f<6;f++){zA[si*6+f]+=sk.a[i*6+f];zT[si*6+f]+=sk.t[i*6+f];}}out.zA=zA.map(a=>Math.round(a));out.zT=zT.map((t,z)=>+((S.armorHull||0)+(zA[z]>0?t/zA[z]:0)).toFixed(2));}
@@ -119947,7 +119947,7 @@ function fleetAirCraft(b,q,home,pos,vel,yaw,x){
  c.pos=pos;c.yaw=yaw;c.velocity=vel;
  // 2026-11-24 the mission is given before launch and decides the load (missionLoad): a bomber strikes; with the fleet's strike on, every
  // other fighter of a squadron goes up for sensor suppression; the rest for air superiority. Within the craft's spare lift.
- const mission=x.bomber?'strike':air.posture?.[home.team]?.strike&&i%2===0?'sead':'air',spec=k=>FLEET_AIR.kinds[isTorpedoRound(k)?0:/bomb/i.test(k)?2:1],design=(air.designs||(air.designs={}))[x.key]??=(SHIP_EXAMPLES[x.key]?buildDesign(x.key):null),src=design||x.key,ord=missionOrdnance(src,mission);
+ const mission=x.bomber?'strike':air.posture?.[home.team]?.strike&&i%2===0?'sead':'air',spec=k=>FLEET_AIR.kinds[isTorpedoRound(k)?0:/bomb/i.test(k)?2:1],src=Array.isArray(P.p?.stations)&&P.p.stations.length?{stations:P.p.stations}:x.key/* the craft's stations as its profile holds them (no example is built at run time) */,ord=missionOrdnance(src,mission,unitHasSensor({p:P.p}));
  let lift=P.liftSpare||0;const stores=ord.length?ord.flatMap(o=>Array(o.n).fill(o.kind)).filter(k=>{const m=airRound(k).mass;if(m>lift+1e-9)return false;lift-=m;return true;}).map(k=>({kind:k,ion:!!ORDNANCE[k]?.ion,release:spec(k).release,range:spec(k).range})):fleetAirLoad(P.liftSpare,x.bomber?FLEET_AIR.kinds:[FLEET_AIR.kinds[1]]);
  c.sortie={home:home.id,type:x.type,key:x.key,bomber:x.bomber,mission,stores,aimAt:FLEET_AIR.aims[(bombers+i)%FLEET_AIR.aims.length],routeN:(bombers+i)%FLEET_AIR.axes,job:null,sead:false};c.sortie.carried=c.sortie.stores.length;
  c.order={...c.order,type:'hold',fire:!x.bomber};b.units.push(c);q.members.push(c.id);air.log.launched[home.team]++;if(typeof fleetPrepareCollision==='function')fleetPrepareCollision([c]);return c;
@@ -122162,7 +122162,8 @@ function storeCapacity(store,kind){
  const o=ORDNANCE[kind];if(!store||!o)return 0;const [L,D]=o.dims,e=1e-9;
  // User decision 2026-11-24「魚雷は発射機あたりに2発、ミサイルは発射機あたりに3発で同じ発射機を使う」: a craft's launch tube (ctorp or cmsl
  // alike) holds LAUNCHER_ROUNDS.torpedo torpedoes or LAUNCHER_ROUNDS.missile missiles, whatever its bore; it takes no bombs.
- if(store.mount==='tube'){if(o.bomb)return 0;return isTorpedoRound(kind)?LAUNCHER_ROUNDS.torpedo:LAUNCHER_ROUNDS.missile;}
+ if(store.mount==='tube'&&store.craftTube){if(o.bomb)return 0;return isTorpedoRound(kind)?LAUNCHER_ROUNDS.torpedo:LAUNCHER_ROUNDS.missile;}/* a craft's tube only (craftTube); a ship's launcher keeps its cells */
+ if(store.mount==='tube')return D<=store.bore+e&&L<=store.len+e?store.slots:0;
  if(store.mount==='bay'){const b=store.box;return Math.floor(b[0]/L+e)*Math.floor(b[1]/D+e)*Math.floor(b[2]/D+e);}
  if(store.mount==='wing')return Math.max(0,Math.min(D<=.22+e?(store.thin??store.slots??2):(store.heavy??1),Math.floor(store.maxMass/o.mass+e)));
  return 0;
@@ -122258,7 +122259,7 @@ function normalizeLoad(stations,load,base){
 // (LAUNCHER_ROUNDS.missile a tube), pylons heat missiles, bomb bays empty. 'sead' (sensor suppression): radar-guided missiles
 // everywhere, to fire passive at the sensors. 'strike': tubes torpedoes (LAUNCHER_ROUNDS.torpedo; the station's own torpedo where it
 // carries one), pylons as loaded, bays bombs. null when the craft has no stations known.
-function missionLoad(x,mission){const L=craftLoadout(x);if(!L?.stations?.length)return null;const sensor=Array.isArray(x?.parts)&&x.parts.some(p=>p.k==='sensor'||p.k==='scanner');let tube=sensor?1:0/* a station's tubes take one kind; stations alternate, a craft with a sensor (a radar lock) starting with radar-guided missiles */;
+function missionLoad(x,mission,hasSensor){const L=craftLoadout(x);if(!L?.stations?.length)return null;const sensor=hasSensor??(Array.isArray(x?.parts)&&x.parts.some(p=>p.k==='sensor'||p.k==='scanner'));let tube=sensor?1:0/* a station's tubes take one kind; stations alternate, a craft with a sensor (a radar lock) starting with radar-guided missiles */;
  return L.stations.map((st,i)=>{const s=stationStore(st),cap=k=>storeCapacity(s,k),own=L.load?.[i]||{k:storeDefault(st.fit,s)[0],n:storeDefault(st.fit,s)[1]||0};
   if(mission==='strike'){if(s.mount==='tube'){const k=isTorpedoRound(own.k)?own.k:'ptorp';return {k,n:cap(k)};}if(s.mount==='bay')return {k:'bomb',n:cap('bomb')};return own;}
   if(s.mount==='bay')return {k:'bomb',n:0};
@@ -122268,8 +122269,8 @@ function missionLoad(x,mission){const L=craftLoadout(x);if(!L?.stations?.length)
 // the room of LAUNCHER_ROUNDS.missile/LAUNCHER_ROUNDS.torpedo = 1.5 missiles, so the two fit a tube that holds 3 missiles), the missile
 // heat-seeking (「自衛用のミサイルは基本熱源」); pylons keep their load and bays take bombs. Other missions are
 // missionLoad's.
-function missionOrdnance(x,mission){if(mission!=='strike')return craftOrdnance(x,missionLoad(x,mission));const L=craftLoadout(x);if(!L?.stations?.length)return craftOrdnance(x);
- const guard='cmsl'/* 2026-11-24 user「自衛用のミサイルは基本熱源」 */,base=craftOrdnance(x,missionLoad(x,'strike')),out=[];
+function missionOrdnance(x,mission,hasSensor){if(mission!=='strike')return craftOrdnance(x,missionLoad(x,mission,hasSensor));const L=craftLoadout(x);if(!L?.stations?.length)return craftOrdnance(x);
+ const guard='cmsl'/* 2026-11-24 user「自衛用のミサイルは基本熱源」 */,base=craftOrdnance(x,missionLoad(x,'strike',hasSensor)),out=[];
  L.stations.forEach((st,i)=>{const s=stationStore(st),row=base[i];if(!row)return;if(s.mount==='tube'){const tubes=Math.max(1,st.count||1);out.push({...row,n:tubes},{...row,kind:guard,n:tubes,dims:ORDNANCE[guard].dims.slice(),mass:ORDNANCE[guard].mass});}else out.push(row);});
  return out.filter(o=>o.n>0);}
 function craftOrdnance(x,load){

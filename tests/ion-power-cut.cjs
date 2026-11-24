@@ -34,7 +34,7 @@ test('the old ordnance table carries the air rounds; stations hold as many as be
  assert.ok(Math.abs(C.ORDNANCE.ptorp.tt-.0895)<1e-4);assert.ok(Math.abs(C.ORDNANCE.cmsl.tt-.0471)<1e-4);assert.ok(Math.abs(C.ORDNANCE.bomb.tt-.1885)<1e-4);
  assert.equal(C.ORDNANCE.itorp.ion,true);
  const n=k=>C.craftOrdnance(k).map(o=>o.kind+'x'+o.n).join(',');
- assert.equal(n('xwing'),'ptorpx6');assert.equal(n('ywing'),'ptorpx8');/* 2026-11-23 expectation changed: the TIE/sa's launch tube is back with its canon 4 rounds (user: 「発射管を復活」; v24 pylon: 3) */assert.equal(n('tie_sa'),'ptorpx4,bombx8');assert.equal(n('awing'),'cmslx12');
+ /* 2026-11-24 expectation changed: an aircraft's tube holds 2 torpedoes or 3 missiles (user「魚雷は発射機あたりに2発、ミサイルは発射機あたりに3発」): X-wing 6 → 4, Y-wing 8 → 4, TIE/sa 4 → 2, A-wing 12 → 6 */assert.equal(n('xwing'),'ptorpx4');assert.equal(n('ywing'),'ptorpx4');/* 2026-11-23 expectation changed: the TIE/sa's launch tube is back with its canon 4 rounds (user: 「発射管を復活」; v24 pylon: 3) */assert.equal(n('tie_sa'),'ptorpx2,bombx8');assert.equal(n('awing'),'cmslx6');
 });
 // Regression review 2026-11-19 (FAIL): the ship being flown gets its power in js/app.js (trialPowerStep), not in fleetPowerStep, so
 // the cut and its heat never reached it and u.ionCut only grew. The app now calls C.ionPowerCut on what it was delivered.
