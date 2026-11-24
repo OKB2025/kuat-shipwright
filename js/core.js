@@ -111526,7 +111526,7 @@ function gunModelBarrels(d){
   const bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*GUN_RULES.borrowedBore:null;
   return {bore,outer:b.outerRadiusM>0?2*b.outerRadiusM:bore,length,full:full(b)/* a laser's barrel: root to muzzle as drawn */};});
 }
-function gunRuleKind(k,d){if((d.ion||0)>0)return 'ion';return /^pd$|^monCalPD$|^single6MT$|^twin6MT$/.test(k)?'laser':'turbolaser';}
+function gunRuleKind(k,d){if((d.ion||0)>0)return 'ion';return /^pd$|^monCalPD$|^single6MT$|^twin6MT$|^quad500MT$|^twin500MT$|^single500MT$|^sphyrnaTwin500MT$/.test(k)?'laser':'turbolaser';/* 2026-11-24 (user「500MT系は変えずに、『重レーザー』に変更。この口径通りのレーザーにして」): the corvettes' 500MT guns are heavy lasers by their drawn bores */}
 function applyGunRules(){
  for(const [k,d] of Object.entries(FITS)){
   if(d.cat!=='w'||d.craft||d.fixed&&!d.asset||d.msl||!(d.barrels>0)||!((d.tt||0)+(d.ion||0)>0)||!d.asset)continue;
@@ -111556,6 +111556,11 @@ const GUN_RULE_LABELS={
  pd:{name:'800kt 2連装点防御レーザー',short:'800kt 点防御2連装',desc:'中央の機器ケースの左右に、円形の俯仰軸とレーザー砲身を1門ずつ取り付けた2連装PD。砲身 0.40 m・長さ 6 m で1発800 kt、射程5 km。艦載機・ミサイル迎撃と対艦射撃を兼ねる。'},
  monCalPD:{name:'133kt 3連装球状点防御レーザー',short:'133kt 球状PD 3連装',desc:'図の寸法に合わせた小型球状砲塔に点防御レーザー3門を収める。砲身 0.178 m で1発133 kt、射程1.7 km。球体全体が旋回・俯仰し、対艦射撃と艦載機・ミサイル迎撃を兼ねる。'},
  single6MT:{name:'117kt 単装中レーザー砲',short:'117kt 中レーザー',desc:'CR90標準型の小型単装の中レーザー砲。砲身 0.169 m で1発117 kt、射程1.7 km。提供されたSTLを船体と同じ縮尺で使用する。'},
+ // The corvettes' 500MT guns are heavy lasers at their drawn bores (user 2026-11-24); their models are not changed.
+ quad500MT:{name:'279kt 4連装重レーザー',short:'重レーザー4連装',desc:'CR90型の4連装の重レーザー砲。砲身 0.245 m・長さ 5.5 m で1発279 kt、射程4.0 km。提供されたSTLを船体と同じ縮尺で使用する。'},
+ twin500MT:{name:'285kt 2連装重レーザー（CR90型）',short:'重レーザー2連装（CR90型）',desc:'CR90型の2連装の重レーザー砲。砲身 0.247 m・長さ 5.5 m で1発285 kt、射程4.1 km。'},
+ single500MT:{name:'613kt 単装重レーザー',short:'重レーザー単装',desc:'単装の重レーザー砲。砲身 0.352 m・長さ 11.1 m で1発613 kt、射程9.0 km。'},
+ sphyrnaTwin500MT:{name:'261kt 2連装重レーザー（スフィルナ型）',short:'重レーザー2連装（スフィルナ型）',desc:'スフィルナ型の2連装の重レーザー砲。砲身 0.237 m・長さ 5.1 m で1発261 kt、射程3.7 km。'},
  twin6MT:{name:'2連装重レーザー砲（658kt・1.57MT）',short:'重レーザー2連装',desc:'スフィルナ型船体の艦首側面にある上下2本の砲身。細い砲身（0.364 m）は1発658 kt・射程3.9 km、太い砲身（0.554 m）は1発1.57 MT・射程7.9 km（ターボレーザーではなくレーザーとして扱う）。'}
 };
 // The point defence twin's barrels thickened to 0.40 m outside (user 2026-11-24; 800 kt by the laser rule): from 0.231 m.
@@ -111570,7 +111575,7 @@ function reshapeGunBarrels(id,{radius=1,exposedTarget=null}={}){const a=REFERENC
  if(ka!==1&&Array.isArray(a.muzzlePoints))a.muzzlePoints=a.barrelCenters.map(b=>b.muzzle.slice());}
 reshapeGunBarrels('pd_twin_side_laser',{radius:.20/.1155});
 {const MC={moncal_single34:1.0,moncal_single80:1.55,moncal_single200:1.75,moncal_triple200:1.45,moncal_single150_ion:1.5},MCK={moncal_single34:'monCal34',moncal_single80:'monCal80',moncal_single200:'monCal200',moncal_triple200:'monCal200Triple',moncal_single150_ion:'monCal150Ion'};
- for(const id of ['light_quad200','light_twin200','light_single200','light_twin200_fast','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion','cr90_light_quad500mt','cr90_light_twin500mt','cr90_light_single500mt','sphyrna_light_twin500mt']){const a=REFERENCE_ASSETS[id],b=a?.barrelCenters?.[0];if(!b)continue;
+ for(const id of ['light_quad200','light_twin200','light_single200','light_twin200_fast','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion']){const a=REFERENCE_ASSETS[id],b=a?.barrelCenters?.[0];if(!b)continue;
   const ion=id==='moncal_single150_ion',bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*.6:null,radius=!ion&&bore>0&&bore<.45?.45/bore:1,d=MCK[id]?FITS[MCK[id]]:null;
   reshapeGunBarrels(id,{radius,exposedTarget:MC[id]&&d?MC[id]*d.wm:null});}}
 applyGunRules();
