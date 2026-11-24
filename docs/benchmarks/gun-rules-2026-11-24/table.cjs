@@ -1,7 +1,7 @@
 // The gun table as the game computes it (Core.FITS[k].gunRule). usage: node table.cjs <repo> > table.md
 const path=require('path');const {C}=require(path.join(process.argv[2],'scripts/update-ship-examples.cjs')).loadRuntime(process.argv[2]);
 const f=x=>x>=1e3?(+(x/1e3).toPrecision(3))+' PT':x>=1?(+x.toPrecision(3))+' TT':x>=1e-3?(+(x*1e3).toPrecision(3))+' GT':x>=1e-6?(+(x*1e6).toPrecision(3))+' MT':(+(x*1e9).toPrecision(3))+' kt',km=m=>(m/1e3).toFixed(1)+' km',sec=x=>x>=10?x.toFixed(0)+' s':x.toFixed(2)+' s';
-const rows=Object.entries(C.FITS).filter(([,d])=>d.gunRule).map(([k,d])=>({k,d,r:d.gunRule})).sort((a,b)=>(b.d.boltTT||0)-(a.d.boltTT||0));
+const rows=Object.entries(C.FITS).filter(([,d])=>d.gunRule&&!d.craft).map(([k,d])=>({k,d,r:d.gunRule})).sort((a,b)=>(b.d.boltTT||0)-(a.d.boltTT||0));
 const kinds={laser:'レーザー',turbolaser:'ターボレーザー',ion:'イオン砲'};
 console.log('| 砲 | 種類 | 門 | 1 発 | 口径 | 砲身 | 最低コイル | 100% 距離 | 射程 | 1 門の間隔 | 一斉射の間隔 | 火力/秒 | 前の火力/秒 | 発射熱（入力の割合） |');
 console.log('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
