@@ -38,7 +38,7 @@
   },
   "cr90": {
    "combat": {
-    "sha256": "4732535835c305a19b8ef10c86e8527c943bded5b87c75b83a3f93042a2cc04f"
+    "sha256": "f0b112064f045b9ea3b96acede3e854431d1758a350b25329683db8b312aeb3d"
    },
    "design": {
     "sha256": "742b7dc215f03cab4e89306a2c6e457aa1e5b0685513041ed36b0af1b17ddff0",
@@ -200,7 +200,7 @@
   },
   "gr75": {
    "combat": {
-    "sha256": "0c5fb3f68d6a00aabdf939b20b16c74916de73494d90a0a93844a3a298d2dd88"
+    "sha256": "918522503ebadb10a25878b948111ec5ea3d71667bd91993b6a4c1ca5f52b288"
    },
    "design": {
     "sha256": "9b5df6888e4d228f99a1a1913d483f24ff76b84ca04313681da491b789e6efd0",

@@ -47,7 +47,7 @@ function tacticalFixture(enabled,mode){
  const u=C.fleetUnit('defender','own',p,0),enemy=C.fleetUnit('attacker','enemy',q,1);u.pos=[0,0,0];enemy.pos=[12000,0,0];u.yaw=0;enemy.yaw=Math.PI;u.order.fire=false;C.setAutomaticPointDefense(u,enabled);
  if(mode==='air')enemy.air=8;
  else{
-  enemy.p.msl=80;enemy.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1},{k:'launcher',fit:3,port:'f3',domain:'main',name:'Finite missile cell',size:1,share:1,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]}];enemy.mods=[1,1];enemy.ammo=[0,6];enemy.p.grid.fixed=1e15;enemy.p.grid.fixedLoads=[{id:'f3',port:'f3',domain:'main',weight:1e15}];enemy.p.grid.powerPaths=[{from:'p1',to:'f3',cap:enemy.p.grid.P,ok:true}];
+  /* 2026-11-24 fixture changed: the attacker fires from 12 km, beyond the 10 km heat seeker, so it carries an ISD-72x-sized dome (a tracking slot; user「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」) */enemy.p.msl=80;enemy.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1},{k:'launcher',fit:3,port:'f3',domain:'main',name:'Finite missile cell',size:1,share:1,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]},{k:'sensor',name:'ISD-72x-sized dome (test fixture)',size:31527,trackVol:30340,share:1,at:.5,domain:'main'}];enemy.mods=[1,1];enemy.ammo=[0,6];enemy.p.grid.fixed=1e15;enemy.p.grid.fixedLoads=[{id:'f3',port:'f3',domain:'main',weight:1e15}];enemy.p.grid.powerPaths=[{from:'p1',to:'f3',cap:enemy.p.grid.P,ok:true}];
  }
  return {u,enemy,battle:C.fleetBattle([u,enemy],true)};
 }

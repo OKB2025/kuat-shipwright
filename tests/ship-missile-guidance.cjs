@@ -6,16 +6,16 @@ const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),G=C.SHIP_MSL_GUIDE;
 function profile(dome=0){const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',missileRange:10000,salvo:1,cycle:1.2,tt:25,launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:[[0,0,0]],launchDir:[1,0,0]};
- return {name:'Guide fixture',profileVersion:5,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:25*20/1.2,imsl:0,
+ return {name:'Guide fixture',profileVersion:5,trackModel:1/* a profile made under the 2026-11-24 rule */,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:25*20/1.2,imsl:0,
   modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher,...(dome?[{k:'sensor',name:'dome',size:dome,trackVol:dome,share:1,at:.5,domain:'main'}]:[])],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};}
 function target(){const p=profile();p.msl=0;p.modules=p.modules.slice(0,1);p.grid.fixed=0;p.grid.fixedLoads=[];return p;}
 function launch(dome,dist){const u=C.fleetUnit('s','s',profile(dome),0),t=C.fleetUnit('t','t',target(),1);u.pos=[0,1000,0];t.pos=[dist,1000,0];u.order={...u.order,type:'attack',target:'t'};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);
  for(let i=0;i<20&&!(b.missiles||[]).length;i++)C.fleetTick(b,.1,{collide:false});return {b,u,m:(b.missiles||[])[0]};}
 
-test('tracking slots: 1 for each 5,000 m³ of working sensor volume outside the structure, rounded down; none without a dome (user「5000m3あたり1枠として」)',()=>{
+test('tracking slots (= anti-air channels, user「枠は対空交戦枠と同一」): 1 for each 5,000 m³ of working sensor volume outside the structure, rounded down; none without a dome (user「5000m3あたり1枠として」)',()=>{
  assert.equal(G.refVol,5000);assert.equal(C.shipTrackSlots({p:profile(30340)}),6,'an ISD-72x as mounted');assert.equal(C.shipTrackSlots({p:profile(9999)}),1);assert.equal(C.shipTrackSlots({p:profile(4999)}),0);assert.equal(C.shipTrackSlots({p:profile()}),0);
  const u=C.fleetUnit('s','s',profile(G.refVol),0);u.mods[2]=0;assert.equal(C.shipTrackSlots(u),0,'a destroyed dome gives none');
- const d=C.buildDesign('imperial'),P=C.fleetProfile(C.computeStats(d),d.name,d);assert.equal(C.shipTrackSlots({p:P}),12,'the ISD: two ISD-72x domes; its tractor-beam control does not count (user「トラクタービーム管制装置は含まない」)');
+ const d=C.buildDesign('imperial'),P=C.fleetProfile(C.computeStats(d),d.name,d);assert.equal(P.aaCh,12,'the ISD\'s anti-air channels are its tracking slots');assert.equal(C.shipTrackSlots({p:P}),12,'the ISD: two ISD-72x domes; its tractor-beam control does not count (user「トラクタービーム管制装置は含まない」)');
 });
 test('beyond 10 km a ship launches only radar-guided, out to 50 km, with a slot; within 10 km heat-seeking without one',()=>{
  const far=launch(0,20000);assert.equal(far.m,undefined,'no dome: nothing at 20 km');

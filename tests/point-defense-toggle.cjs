@@ -28,7 +28,7 @@ test('OFF stops actual missile interception for both installed PD families witho
 });
 test('reenabling automatic interception uses the existing unit and resumes actual defence on the next step',()=>{
  const f=battle(),m=incoming(f);C.setAutomaticPointDefense(f.u,false);f.u.order.fire=false;R.tick(f.w,.25);near(m.n,8,'disabled interception');
- C.setAutomaticPointDefense(f.u,true);R.tick(f.w,.25);assert.ok(m.n<8&&m.n>0);assert.equal(f.u.dualDefense,true);assert.ok(f.u.aaLeft<f.u.p.aaCh);
+ C.setAutomaticPointDefense(f.u,true);R.tick(f.w,.25);assert.ok(m.n<8&&m.n>0);assert.equal(f.u.dualDefense,true);assert.ok(f.u.aaLeft<Math.max(1,f.u.p.aaCh))/* 2026-11-24 expectation changed: a ship without sensor domes has 0 tracking channels and keeps the one close-in channel (user「対空交戦枠もセンサー外容積で」) */;
 });
 test('an OFF incoming threat adds no shot, capacitor debit, generation or weapon heat over the same idle ship',()=>{
  const plain=battle(),threatened=battle();for(const f of [plain,threatened]){C.setAutomaticPointDefense(f.u,false);f.u.order.fire=false;}incoming(threatened);
