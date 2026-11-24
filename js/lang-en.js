@@ -10943,7 +10943,15 @@ Object.assign(root.KS_EN.terms,{
  "中レーザー": "Medium Laser",
  "中レーザー砲": "Medium Laser Cannon",
  "口径": "Bore",
- "連射速度": "Rate of Fire"
+ "連射速度": "Rate of Fire",
+ "800kt 点防御2連装": "Twin 800 kt PD",
+ "133kt 球状PD 3連装": "Triple 133 kt Spherical PD",
+ "117kt 中レーザー": "117 kt Medium Laser",
+ "中レーザー4連装": "Quad Medium Laser",
+ "中レーザー2連装（CR90型）": "Twin Medium Laser (CR90)",
+ "中レーザー2連装（スフィルナ型）": "Twin Medium Laser (Sphyrna)",
+ "重レーザー単装": "Single Heavy Laser",
+ "重レーザー2連装": "Twin Heavy Laser"
 });
 Object.assign(root.KS_EN.messages,{
  "800kt 2連装点防御レーザー": "Twin 800 kt Point-Defense Laser",
