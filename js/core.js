@@ -105182,7 +105182,7 @@ function normalizeFitMount(f){
 function fitFrameOf(f) {
   f=migrateWeaponFit(f);
   // 2026-11-24 (user「正面に向けてのみの配置」): an aircraft laser always points ahead (+X), its up the mounting normal less any forward part.
-  if(CRAFT_LASER_GEOMETRY[f.k]){const base=fitFrame(f.a),n=f.tilt||base.up;let up=[0,n[1],n[2]];if(len(up)<1e-3)up=[0,1,0];up=norm(up);const fw=[1,0,0];return {up,fw,rt:cross(fw,up)};}
+  if(CRAFT_LASER_GEOMETRY[f.k]&&FITS[f.k]?.fixed/* the turret (cturret) turns as before */){const base=fitFrame(f.a),n=f.tilt||base.up;let up=[0,n[1],n[2]];if(len(up)<1e-3)up=[0,1,0];up=norm(up);const fw=[1,0,0];return {up,fw,rt:cross(fw,up)};}
   const surface=isSurfaceBattery(f)||isBroadsideBattery(f),base=fitFrame(f.a),up=surface?fitUp(f):f.tilt||base.up;
   let fw=f.tilt||surface?sub(base.fw,mul(up,dot(base.fw,up))):base.fw;
   if (len(fw) < 1e-3) fw = sub(base.rt, mul(up, dot(base.rt, up)));
@@ -117281,8 +117281,8 @@ const GUN_BOLT_MPS=4500,GUN_TRACK_S=10;
 function observeMotion(units,dt,now){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const k=u._track||(u._track=[]);if(u.warp||u.docked||Number.isFinite(now)&&Number.isFinite(u._trackAt)&&Math.abs(now-u._trackAt)>dt*1.5+1e-9)k.length=0;if(Number.isFinite(now))u._trackAt=now;const T=u._trackT=(u._trackT||0)+dt;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
 // Where the target is now relative to where a shot fired a time of flight ago was aimed.
 function gunAimOffset(t,d){const k=t?._track;if(!k?.length||!(d>0))return null;const T=t._trackT,want=T-d/GUN_BOLT_MPS;let s=k[0];for(let i=k.length-1;i>=0;i--)if(k[i].t<=want+1e-9){s=k[i];break;}const e=T-s.t;if(!(e>0))return null;return sub(t.pos,add(s.pos,mul(s.vel,e)));}
-function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
- if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),state=fireState??(u.p?.modules?fleetSystems(u).fire:1),sigma=d*gunDispersion(u.p||u,range,state)*aimFactor(u),off=gunAimOffset(t,d);
+function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState,spreadRange/* 2026-11-24 the range the spread is set by, when it is not the gun's own reach (an aircraft's short laser) */){
+ if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),state=fireState??(u.p?.modules?fleetSystems(u).fire:1),sigma=d*gunDispersion(u.p||u,spreadRange>0?spreadRange:range,state)*aimFactor(u),off=gunAimOffset(t,d);
  if(off){const n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right),ox=dot(off,right),oy=dot(off,up);
   if(Math.hypot(ox,oy)>1e-6*Math.max(1,t.p?.len||1)){
    // The hull's shadow across the line of fire is the ellipse q.M^-1.q<=1 in (right, up), M=[[A,B],[B,C]]. The spread is integrated in
@@ -117338,7 +117338,7 @@ function gunRulesShare(rows,d){if(!rows?.length)return 1;let w=0,v=0;for(const x
 function fleetFire(u,t,d){
  if(u.p.surface?.mounts&&typeof surfaceFleetFire==='function')return surfaceFleetFire(u,t,d);
  const p=u.p,B=p.gunBands,control=fleetSystems(u).fire;let gun=0,ion=0,cost=0,gunLanded=0,ionLanded=0,rawGun=0,rawIon=0;
- if(B){for(const k in GUN_BANDS){const rows=p.gunBandRules?.[k],reach=gunRulesReach(rows,GUN_BANDS[k].range);if(d>reach||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunBands?.[k]||[]):0)),share=gunRulesShare(rows,d);rawGun+=g;gun+=g*share;gunLanded+=g*share*gunHitChance(u,t,d,reach,control);cost+=g*COMBAT.bandCost[k];}}
+ if(B){for(const k in GUN_BANDS){const rows=p.gunBandRules?.[k],reach=gunRulesReach(rows,GUN_BANDS[k].range);if(d>reach||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunBands?.[k]||[]):0)),share=gunRulesShare(rows,d);rawGun+=g;gun+=g*share;gunLanded+=g*share*gunHitChance(u,t,d,reach,control,craftUnit(u)?Math.max(reach,GUN_BANDS[k].range):reach/* an aircraft's laser reaches a few km: its aim is not that much worse than a ship's at the same distance */);cost+=g*COMBAT.bandCost[k];}}
  else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunArcs||[]):0));cost=gun;rawGun=gun;gunLanded=gun*gunHitChance(u,t,d,GUN_BANDS.long.range,control);}
  const ionReach=gunRulesReach(p.ionRules,GUN_BANDS.long.range);if(d<=ionReach){const raw=fleetArc(u,t,p.ionArcs);ion=raw*gunRulesShare(p.ionRules,d);ionLanded=ion*gunHitChance(u,t,d,ionReach,control);cost+=raw;rawIon=raw;}
  if(p.energyModel?.version===1)cost=(rawGun+rawIon)*weaponInputFactor(p)/* the input is drawn whatever share of the bolt arrives */;

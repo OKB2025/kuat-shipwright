@@ -199,3 +199,63 @@ js/lang-en.js の末尾に `<gun-rules-2026-11-24-catalog>` の区画を足し�
 8. **ion-barrel-style.cjs テスト 1（150TT イオン単装球の砲身の先細り）**。砲身を図面の比に伸ばす処理（decodeReference、js/core.js 109975 行付近）は「砲室を出た先の輪を前へ送る」形で、ターボレーザーでは最初の直筒が伸びるが、イオン砲身は砲室を出た所から先細りが始まるので、先細りの区間そのものが 5.39 m → 16.07 m に伸びる（太い根元から砲口まで全体が長い円錐になる）。記録の taperEndXM（9.749）は伸ばす前のままで、描いた形（20.43）と合わない。先細りを保って直筒だけ伸ばすのか、今の形でよいのかは原本照合（reference-fidelity）の判断が要る。テストは変更していない。
 9. **fighter-interiors.cjs テスト 12（Z-95 の加速 3,406 G が建造目標 3,330 G を超える）**。Z-95 のレーザーが口径 0.10 m・長さ 1.04 m の円柱になり、質量が容積比で 1 門 1.2 t → 0.152 t になった（js/core.js craftLaserSpec）。機体が 30.81 t → 28.71 t に軽くなり、定格加速が 3,152 G → 3,406 G。テストの上限（目標 × 1.001）は「機関の曲線では目標を超えない」という前提で、砲の質量の変化は想定していない。作例の調整か上限の見直しかの判断が要る。テストは変更していない。
 10. **mandator-battery-layout.cjs テスト 2・4**。scripts/mandator-layout-evidence.cjs 92 行の `pdVolley: Math.abs(pdVolleyTT - .00005) < 1e-12`（点防御 500 門 × 100 kt）が旧い値のまま。新しい合計は 160 × pd.tt + 60 × monCalPD.tt = 約 0.00028 TT。scripts/ は今回の編集範囲の外なので変更していない（テスト 1 は tests/ 側で新しい値に直した）。
+
+### 再実行の結果（2 回目、最終。7ec9626 の作業ツリー + js/lang-en.js の追記、1 ファイルずつ）
+
+ログ：/tmp/ks-verify/20261124-testfix/final/。基準側（main 8c4bcab）の件数は /tmp/ks-verify/20261124-final-tests/compare.txt と、同じ worktree で実行し直した /tmp/ks-verify/20261124-testfix/base/。
+
+| ファイル | 依頼時（候補／main の失敗数） | 最終（通過／失敗） | 残る失敗 |
+| --- | --- | --- | --- |
+| arquitens-turret | 1／0 | 5／0 | なし |
+| authored-render-budget | 1／0 | 5／0 | なし（変更なしで通過） |
+| broadside-battery-gfx | 1／0 | 2／0 | なし |
+| capital-turret-models | 2／0 | 18／0 | なし |
+| capital-turret-trial | 3／0 | 6／0 | なし |
+| combat-point-defense-targeting | 1／0 | 8／0 | なし |
+| craft-shield-generator-scale | 5／0 | 5／0 | なし（テスト 5 は航空機の価格表の作り直し後に通過） |
+| craft-systems-localization | 2／0 | 6／0 | なし |
+| design-placement-catalog-ui | 2／0 | 10／0 | なし |
+| equipment-taxonomy | 2／0 | 9／0 | なし |
+| example-weapon-families | 6／4 | 11／4 | main と同じ 4 件（既存） |
+| fighter-laser-arcs | 1／0 | 10／0 | なし |
+| fighter-laser-visuals | 2／0 | 8／0 | なし |
+| fighter-pilot-damage | 3／0 | 3／0 | なし |
+| fighter-pilot-guns | 6／0 | 8／1 | テスト 2（疑わしい不具合 5） |
+| gunnery-accuracy | 3／2 | 6／2 | main と同じ 2 件（既存） |
+| heavy-laser-aa-trial | 3／0 | 4／0 | なし |
+| mandator-battery-layout | 3／0 | 4／2 | テスト 2・4（疑わしい不具合 10、scripts/ 側の値） |
+| moncal-turret-models | 1／0 | 3／0 | なし（変更なしで通過） |
+| moncal-weapons-ui | 2／0 | 5／0 | なし |
+| point-defense-minimum-render | 2／0 | 4／0 | なし |
+| point-defense-toggle | 1／0 | 6／0 | なし |
+| shield-deflection | 1／0 | 5／0 | なし |
+| small-weapons-ui | 3／0 | 5／0 | なし |
+| solo-shield-recharge | 7／0 | 5／3 | テスト 2・3・8（疑わしい不具合 4） |
+| surface-energy-review | 2／0 | 10／0 | なし |
+| trench-armament-combat | 5／1 | 8／1 | main と同じ 1 件（既存） |
+| twin40-turret | 1／0 | 5／0 | なし |
+| venator-side70 | 1／0 | 3／0 | なし |
+| weapon-catalog-migration | 1／0 | 8／0 | なし |
+| weapon-family-models | 4／3 | 9／3 | main と同じ 3 件（既存） |
+| weapon-family-retirement | 3／0 | 5／0 | なし |
+| weapon-support-preview | 7／0 | 8／0 | なし |
+| craft-as-ships | 1／0 | 8／1 | テスト 8（疑わしい不具合 3）。変更していない |
+| fighter-interiors | 1／0 | 13／1 | テスト 12（疑わしい不具合 9）。変更していない |
+| ion-barrel-style | 1／0 | 2／1 | テスト 1（疑わしい不具合 8）。変更していない |
+| turret-rotation-core | 1／0 | 4／1 | テスト 2（疑わしい不具合 6）。変更していない |
+| turret-rotation-transform | 4／3 | 1／4 | テスト 1（疑わしい不具合 6）＋ main と同じ 3 件。変更していない |
+| weapon-snapshot-migration | 5／3 | 2／5 | テスト 1・2（疑わしい不具合 7）＋ main と同じ 3 件。変更していない |
+| craft-cost-parity | 8／0 | 22／0 | なし（価格表の作り直し後。変更していない） |
+| fighter-air-superiority | 2／0 | 8／0 | なし（同上） |
+| fighter-attack-runs | 5／0 | 8／0 | なし（同上） |
+| fighter-follow-integration | 4／0 | 4／0 | なし（同上） |
+| fighter-hyper-retreat | 2／0 | 8／0 | なし（同上） |
+| raid-regressions | 3／0 | 5／0 | なし（同上） |
+| reference-sublight-speeds | 2／1 | 9／1 | main と同じ 1 件（既存。もう 1 件は価格表の作り直しで解消） |
+| fleet-loadout-separation | 時間切れ／0 | 10／0 | なし（5dbafe0 の作業ツリーで 20 分 20 秒。7ec9626 では実行し直していない） |
+| hull-outer-surface-contact | 時間切れ／0 | 4／0 | なし（7ec9626 の作業ツリーで 19 分 9 秒。変更していない） |
+| example-figures-regression | 時間切れ／強制終了 | 未完了 | 作業ツリーで 50 分の上限まで結果が出なかった（途中の使用メモリ 5.1 GB）。main 側の「1 件失敗」は 19 分でメモリ不足により強制終了されたもの（SIGKILL）で、検査の失敗ではない。どちらの側も有効な結果がない |
+
+補足：
+- 候補側の失敗数が main 以下だった 154 ファイル（compare.txt）は、失敗するテスト名が両側で同じことを確認し、触っていない。そのうち失敗の文言だけが変わっていたのは capital-turret-core（`pd.boltTT` 1e-7 → 8e-7、前回記録済み）、fleet-localization（上の英語の追記で main と同じ文言に戻った）、weapon-flush-bounds-core（main は「頂点が箱の外」、候補は航空レーザーの箱の幅 0.2688 ≠ 0.32。件数は同じ 1 件で、触っていない）。
+- 航空機の価格表が古いこと（`profile is out of date … model 26, current 27`）で失敗していたテストは、7ec9626 の作り直しの後に上の表のとおり通過した。作り直しの前には、価格表だけを作り直した js/core.js の写し（/tmp/ks-verify/20261124-testfix/regenroot、リポジトリのファイルは変更なし）でも同じ結果を確認した。

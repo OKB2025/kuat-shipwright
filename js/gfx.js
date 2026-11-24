@@ -3784,7 +3784,7 @@ function turretPose(f){
  const bay=C.broadsideBatteryGeometry?.(f);if(bay)return {pivot:bay.pivot,axis:bay.v,fw:bay.normal};
  const embedded=C.surfaceBatteryGeometry?.(f);if(embedded)return {pivot:embedded.pivot,axis:embedded.v,fw:embedded.normal};
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
- if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:fr.fw};
+ if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.CRAFT_LASER_GEOMETRY?.[f.k]?fr.up:C.fitUp(f)/* 2026-11-24 an aircraft laser points forward whatever face it sits on: the face normal can be its own forward */,fw:fr.fw};
  if(d.casemate)return {pivot:C.fitOrigin(f),axis:[0,1,0],fw:C.AXES[f.a]};
  if(d.asset){const y=(f.assetYaw||0)*Math.PI/180;return {pivot:C.fitOrigin(f),axis:fr.up,fw:C.norm(C.add(C.mul(fr.fw,Math.cos(y)),C.mul(fr.rt,Math.sin(y))))};}
  return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};

@@ -89,7 +89,7 @@ function layoutEvidence(C,ship,stats,options={}){
  const checks={
   batteryCounts:countCorrect,
   mainIonVolley:Math.abs(mainIonVolleyTT-317520)<1e-7,
-  pdVolley:Math.abs(pdVolleyTT-.00005)<1e-12,
+  pdVolley:Math.abs(pdVolleyTT-((counts.pd||0)*(C.FITS.pd.tt||0)+(counts.monCalPD||0)*(C.FITS.monCalPD?.tt||0)))<1e-12/* 2026-11-24 the point-defence guns' own shot (gun rules); it was the fixed 500 x 100 kt */,
   allPhysicallyAttached:rows.every(r=>!r.float),
   allGunGeometrySurveyed:rows.length===499&&rows.every(r=>r.sampledPoints>0&&r.muzzles>0),
   visibleBodiesOutsideStructure:rows.every(r=>r.buriedAbovePlane===0),
