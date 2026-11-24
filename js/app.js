@@ -8923,9 +8923,9 @@ function trialMarkers(){
  // Every bracket is drawn; the names go to the nearest and the marked ones
  // first, each on the right or else the left of its bracket, and a name that
  // would lie over another is left out (its bracket stays).
- const vis=[],follow=B?.spectate?B.follow:null,small=rect.width<720||rect.height<480,fs=small?9.5:11,maxLab=small?8:16;
+ const vis=[],arrows=[],follow=B?.spectate?B.follow:null,small=rect.width<720||rect.height<480,fs=small?9.5:11,maxLab=small?8:16;
  for(const it of items){let el=box.querySelector(`[data-tmark="${it.id}"]`);if(!el){el=document.createElement('div');el.className='th-tmark';el.dataset.tmark=it.id;el.innerHTML='<i></i><b></b><s><em class="sh"></em></s>';box.append(el);}
-  seen.add(it.id);const rel=tv.sub(it.pos,trial.P),q=view.project(rel),on=q[2]>-1&&q[2]<1&&q[0]>rect.left&&q[0]<rect.right&&q[1]>rect.top&&q[1]<rect.bottom;el.hidden=!on;if(!on)continue;
+  seen.add(it.id);const rel=tv.sub(it.pos,trial.P),q=view.project(rel),on=q[2]>-1&&q[2]<1&&q[0]>rect.left&&q[0]<rect.right&&q[1]>rect.top&&q[1]<rect.bottom;el.hidden=!on;if(!on){if(it.cls==='foe'||!it.u&&it.t)arrows.push({it,q,d:tv.len(tv.sub(rel,eye))});continue;}
   const x=q[0]-hr.left,y=q[1]-hr.top,d=tv.len(tv.sub(rel,eye)),u=it.u,km=d/1000,dist=km<10?km.toFixed(1):Math.round(km)+'',lock=!!(it.t&&(trial.aim?.lock===it.t||trial.heldLock===it.t));
   const lab=it.lab?it.lab(dist):u?`${u.team?'敵':'友'} ${shipTag(u.name)} · ${dist} km${u.out==='電源喪失'?' · 電源喪失':u.out?' · 戦闘不能':''}${u.boarding?' · 移乗戦':u.tractor?.mode==='capture'&&u.tractor.lock?' · 接舷':''}`:`標的 ${dist} km${it.t.hits?' · '+Math.round(it.t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`;
   vis.push({el,it,x,y,lab,lock,pri:lock||(u&&u.id===follow&&B?.followSq==null)?-1:it.sq?d*2+1:d});}
@@ -8937,6 +8937,17 @@ function trialMarkers(){
   const lb=el.querySelector('b');if(sourceText(lb) !== String(lab))lb.textContent=lab;
   if(u){const sh=el.querySelector('.sh');sh.style.width=(u.shieldMax>0?C.clamp(u.shield/u.shieldMax,0,1)*100:0).toFixed(0)+'%';}}
  for(const el of box.querySelectorAll('[data-tmark]'))if(!seen.has(el.dataset.tmark))el.hidden=true;
+ trialEnemyArrows(box,arrows,rect,hr,small);
+}
+// 2026-11-24 (user「敵の方向に矢印が表示されるようにして」): an enemy off the screen (or behind the camera) gets an arrow at the
+// screen's edge pointing the way to it, with its distance; the nearest six are shown.
+function trialEnemyArrows(box,arrows,rect,hr,small){
+ const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2,margin=small?22:30,shown=new Set();arrows.sort((a,b)=>a.d-b.d);
+ for(const a of arrows.slice(0,6)){const id='a'+a.it.id;shown.add(id);let el=box.querySelector(`[data-tarrow="${id}"]`);if(!el){el=document.createElement('div');el.className='th-tarrow';el.dataset.tarrow=id;el.innerHTML='<i></i><b></b>';box.append(el);}
+  let dx=a.q[0]-cx,dy=a.q[1]-cy;if(!(a.q[2]>-1&&a.q[2]<1)){dx=-dx;dy=-dy;}/* behind the camera the projection is mirrored */if(Math.hypot(dx,dy)<1e-3){dx=0;dy=1;}
+  const hw=rect.width/2-margin,hh=rect.height/2-margin,k=Math.min(hw/Math.max(1e-6,Math.abs(dx)),hh/Math.max(1e-6,Math.abs(dy))),x=cx+dx*k-hr.left,y=cy+dy*k-hr.top,ang=Math.atan2(dy,dx)*180/Math.PI,km=a.d/1000;
+  el.hidden=false;el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;el.querySelector('i').style.transform=`rotate(${ang.toFixed(1)}deg)`;const t=(km<10?km.toFixed(1):Math.round(km))+' km';const b=el.querySelector('b');if(b.textContent!==t)b.textContent=t;}
+ for(const el of box.querySelectorAll('[data-tarrow]'))if(!shown.has(el.dataset.tarrow))el.hidden=true;
 }
 // A ship's name as a bracket label: the class without its type ("ドレッドノート級 8").
 const shipTag=n=>shipShort(n).replace(/級[^\s\d]+(?=\s*\d)/,'級');
