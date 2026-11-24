@@ -119319,7 +119319,7 @@ const MISSILE_EVADE=Object.freeze({range:4500,tgo:5,lead:2500});
 //   mslRange 1,500 → 3,000 m (KS_MSL_RANGE overrides) and turn .3 rad/s for a missile on the trial profile (was MISSILE_FLIGHT.turn
 //   .6; KS_MSL_TURN overrides): it reaches twice as far but turns half as fast, so one fired head-on that overshoots cannot come back.
 //   KS_MSL_FF=1: a missile bursts on any craft that comes within its proximity fuse (MISSILE_FLIGHT.craftFuse) along its path,
-//   friend or foe, other than its launcher while it clears it: in a melee a round can be lost on a wingman.
+//   friend or foe, other than its launcher: in a melee a round can be lost on a wingman.
 const ROUND_TRIAL=Object.freeze({lockS:2.5,reloadS:8,turn:.3,lineClear:60,boost:.35,endSpeed:.4,torpDv:150,mslRange:3000,torpRange:2000});
 const trialNum=(k,d)=>{const v=+globalThis[k];return Number.isFinite(v)&&v>0?v:d;};
 // With KS_MSL_FF a launcher also holds fire while a friendly craft is near its line to the target (within ROUND_TRIAL.lineClear m of
@@ -119482,8 +119482,8 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   // across the target's reach lands instead of circling it: at 2600 m/s a 0.25 s step is 650 m against a reach of 300 m, and
   // judged at the step's start a third of an MC75's rounds flew past a 600 m ship until their motors ran out (2026-11-18).
   const seg=sub(m.pos,from),sl=dot(seg,seg),k=sl>0?clamp(dot(sub(t.pos,from),seg)/sl,0,1):0,d=len(sub(t.pos,add(from,mul(seg,k))));
-  if(!(m.launchClearance>0)&&roundTrialFF()&&craftUnit(t)){/* trial friendly-fire risk (KS_MSL_FF): the first other craft whose fuse the path crosses before the target's */const tk=k;let hit=null,best=Infinity;for(const x of alive){if(x===t||x.dead||!craftUnit(x)||x.id===m.from&&(m.traveled||0)<200)continue;const kx=sl>0?clamp(dot(sub(x.pos,from),seg)/sl,0,1):0;if(kx<best&&kx<=tk&&len(sub(x.pos,add(from,mul(seg,kx))))<Math.max(MISSILE_FLIGHT.craftFuse,x.p.len*.4)){best=kx;hit=x;}}
-   if(hit){const lg=log();lg.ff=(lg.ff||0)+(hit.team===m.team?m.n:0);lg.stray=(lg.stray||0)+(hit.team===m.team?0:m.n);m.ffHit=hit.team===m.team;arrived.push({m,t:hit,from});continue;}}
+  if(!(m.launchClearance>0)&&roundTrialFF()&&craftUnit(t)){/* trial friendly-fire risk (KS_MSL_FF): the first other craft whose fuse the path crosses before the target's */const tk=k;let hit=null,best=Infinity;for(const x of alive){if(x===t||x.dead||!craftUnit(x)||x.id===m.from)continue;/* never its own launcher: the first 4v4 runs had craft flying into their own torpedo, which launches only ROUND_TRIAL.torpDv faster and keeps slowing */const kx=sl>0?clamp(dot(sub(x.pos,from),seg)/sl,0,1):0;if(kx<best&&kx<=tk&&len(sub(x.pos,add(from,mul(seg,kx))))<Math.max(MISSILE_FLIGHT.craftFuse,x.p.len*.4)){best=kx;hit=x;}}
+   if(hit){const lg=log();lg.ff=(lg.ff||0)+(hit.team===m.team?m.n:0);if(hit.team===m.team&&(lg.ffList||(lg.ffList=[])).length<200)lg.ffList.push({from:m.from,hit:hit.id,self:hit.id===m.from,kind:m.kind,traveled:Math.round(m.traveled||0),t:+(b.time||0).toFixed(2)});lg.stray=(lg.stray||0)+(hit.team===m.team?0:m.n);m.ffHit=hit.team===m.team;arrived.push({m,t:hit,from});continue;}}
   if(!(m.launchClearance>0)&&d<Math.max(craftUnit(t)?MISSILE_FLIGHT.craftFuse:300,t.p.len*.4))arrived.push({m,t,from});
   /* trial profile: it bursts at its reach (a target within its fuse there is struck above) */else if(m.profile&&(m.traveled>=m.range-1e-6||!(m.life>0))){m.life=0;m.n=0;m.lost='spent';}
  }

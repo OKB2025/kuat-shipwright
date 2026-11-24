@@ -215,6 +215,6 @@
 - ロックまでの時間：1 → 2.5 秒（`KS_MISSILE_LOCK=1` のとき。`KS_LOCK_S` で変更）。照準の内に目標を入れ続けた時間。
 - 発射後の再装填：次のミサイルまで 8 秒（`KS_MISSILE_LOCK=1` か `KS_ROUND_PROFILE=1` のとき。`KS_MSL_RELOAD` で変更。前は 4 秒）。
 - 射程と旋回：3,000 m、旋回 0.3 rad/s（`KS_ROUND_PROFILE=1` のとき。前は 1,500 m・0.6 rad/s。`KS_MSL_RANGE`・`KS_MSL_TURN` で変更）。遠くからヘッドオンで撃つと、すれ違ったあと戻れない。
-- 乱戦の誤射（FF）：`KS_MSL_FF=1` で、ミサイルは通り道で近接信管（10 m）に入った機体に当たる。味方でも、狙っていない敵でも。発射した機体は 200 m までは除く。`sim-dogfight.cjs` は味方への命中と他の敵への命中を数える。
+- 乱戦の誤射（FF）：`KS_MSL_FF=1` で、ミサイルは通り道で近接信管（10 m）に入った機体に当たる。味方でも、狙っていない敵でも。発射した機体には当たらない（遅い魚雷に自機が追いついて当たっていたため）。`sim-dogfight.cjs` は味方への命中と他の敵への命中を数える。
 - 前の規則で比べる：`KS_LOCK_S=1 KS_MSL_RELOAD=4 KS_MSL_TURN=0.6 KS_MSL_RANGE=1500`、`KS_MSL_FF` なし。
 - 試験：`tests/craft-missile-trial-rules.cjs`。4 対 4 の比較：`docs/benchmarks/missile-rules-2026-11-24/`。
