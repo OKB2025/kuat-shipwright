@@ -12,13 +12,13 @@ let REFF=9000;{const u=C.fleetUnit('u','craft_tie_in',prof('craft_tie_in'),0),v=
 const PLANET={center:[0,-(6.12e6+160000),0],radius:6.12e6};
 function run(seed){const mk=(id,k,team)=>{const u=C.fleetUnit(id,k,prof(k),team);for(const x of u.sec||[]){x.max*=1e9;x.s=x.max;}u.hp=1e12;return u;};
  const as=[],bs=[];for(let i=0;i<+NA;i++)as.push(mk('a'+i,A,0));for(let i=0;i<+NB;i++)bs.push(mk('b'+i,Bk,1));
- const a=as[0],b=bs[0];b.pos=[8000,0,0];b.yaw=Math.PI;a.velocity=[C.craftCruiseSpeed(a),0,0];b.velocity=[-C.craftCruiseSpeed(b),0,0];
+ const a=as[0],b=bs[0],S0=+(process.env.START||8000),v0=w=>process.env.START?Math.min(C.craftCruiseSpeed(w),Math.max(5,C.cornerSpeed(w))):C.craftCruiseSpeed(w)/* START: already in the fight, at its fight speed */;b.pos=[S0,0,0];b.yaw=Math.PI;a.velocity=[v0(a),0,0];b.velocity=[-v0(b),0,0];
  bs.forEach((w,i)=>{if(i){w.pos=[b.pos[0]+300*i,0,b.pos[2]+300*i];w.yaw=b.yaw;w.velocity=b.velocity.slice();}w.order={...w.order,type:'attack',target:'a0',fire:true};});
  as.forEach((w,i)=>{if(i){w.pos=[-300*i,0,-300*i];w.yaw=a.yaw;w.velocity=a.velocity.slice();}w.order={...w.order,type:'attack',target:'b0',fire:true};});
  const all=[...as,...bs],B=C.fleetBattle(all,true);B.seed=seed;const byId=new Map(all.map(u=>[u.id,u])),near=(u,L)=>L.slice().sort((x,y)=>C.len(C.sub(x.pos,u.pos))-C.len(C.sub(y.pos,u.pos)))[0];
  const st={};for(const k of [A,Bk])st[k]={bearS:0,inS:0,shots:0,hits:0,kt:0,dShot:0,dHit:0,hist:{},dead:0,minD:1e9,sep:0,sepN:0};
  for(let t=0;t<+T;t+=.25){for(const w of as){const q=near(w,bs);w.order={...w.order,target:q.id};}for(const w of bs){const q=near(w,as);w.order={...w.order,target:q.id};}
-  const sh=C.fleetTick(B,.25,{planet:PLANET,rules:{range:40000,engagementDistance:12000,step:.25,damage:1e-12}});for(const u of all){if(u.dead){u.dead=false;st[u.key].dead++;}for(const x of u.sec||[])x.s=x.max;if(u.shieldMax>0)u.shield=u.shieldMax;u.out=false;}
+  const sh=C.fleetTick(B,.25,{planet:PLANET,collide:process.env.NOCOLLIDE?false:undefined/* study only: craft pass through each other */,rules:{range:40000,engagementDistance:12000,step:.25,damage:1e-12}});for(const u of all){if(u.dead){u.dead=false;st[u.key].dead++;}for(const x of u.sec||[])x.s=x.max;if(u.shieldMax>0)u.shield=u.shieldMax;u.out=false;}
   const d0=C.len(C.sub(a.pos,near(a,bs).pos));for(const k of [A,Bk]){st[k].sep+=d0;st[k].sepN++;st[k].minD=Math.min(st[k].minD,d0);}
   for(const q of sh){if(!(q.gun>0)||typeof q.to!=='string')continue;const u=byId.get(q.from),v=byId.get(q.to),L=LAS[u.key];if(!u||!v||!L)continue;const [n,E,R]=L,d=C.len(C.sub(v.pos,u.pos)),S=st[u.key];S.bearS+=.25;if(d>R)continue;S.inS+=.25;
    const p=C.gunHitChance(u,v,d,REFF,C.fleetSystems(u).fire),shots=n*.25,hits=shots*p,lam=R/Math.log(E);S.shots+=shots;S.hits+=hits;S.kt+=hits*E*Math.exp(-d/lam);S.dShot+=shots*d;S.dHit+=hits*d;const bin=Math.floor(d/100)*100;S.hist[bin]=(S.hist[bin]||0)+hits;}}
