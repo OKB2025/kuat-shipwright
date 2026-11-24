@@ -1,0 +1,15 @@
+fleet action with craft: Rebel mc75, mc80liberty, nebulonb, nebulonb, cr90 against Imperial imperial, imperial; 80 km apart at the start; the ships attack the nearest effective enemy ship and a fleet that judges it can win presses to 3000 m; 160 km above a planet of 6,120 km
+craft (the ships' stored wings x 0, commanded by Core.fleetAirStep; in the air beside their ship as its air control allows; the launch is not flown; nobody re-arms): Rebel 0 xwing (fighter, 6 rounds each), 0 ywing (bomber, 15 rounds each), 0 awing (fighter, 0 rounds each); Imperial 0 tie_ln (fighter, 6 rounds each), 0 tie_in (fighter, 4 rounds each), 0 tie_sa (bomber, 6 rounds each)
+rounds: itorp 0.0895 TT (3.14 t), cmsl 0.0471 TT (3.14 t), bomb 0.1885 TT (6.28 t); tactic {} (suppression and dive bombing are used when they apply unless switched off); 1 runs, limit 900 s
+
+run 1: ended 900s (7 units, 69 s to compute) | undecided at the limit; effective ships left: Rebel 1/5, Imperial 2/2 | ships' guns first fired on a ship at 37.25s, 42.4 km
+ Rebel craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 72 (first at 533.5s) (hit 57.7), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 14.3, lost with their craft 0
+   mc75 in action; lift 100%; sections lost 0; out of action: engines 0/14, bridge 0/2, guns 0/34, sensors 0/0
+   mc80liberty OUT (電源喪失) at 476.25s; lift 31%; sections lost 1; out of action: engines 0/11, bridge 1/2, guns 9/18, sensors 0/0
+   nebulonb OUT (電源喪失) at 476.5s; lift 31%; sections lost 1; out of action: engines 0/14, bridge 1/1, guns 2/5, sensors 0/0
+   nebulonb OUT (電源喪失) at 477s; lift 32%; sections lost 1; out of action: engines 0/14, bridge 1/1, guns 2/5, sensors 0/0
+   cr90 LOST at 38.75s; lift 0%; sections lost 2; out of action: engines 14/22, bridge 1/1, guns 2/6, sensors 0/0
+ Imperial craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 0 (hit 0.0), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+ pressing for a decision: 0s Imperial presses for a decision
