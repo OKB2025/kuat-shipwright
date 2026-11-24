@@ -53,12 +53,12 @@ test('KS_MSL_FF: a launcher holds fire while a wingman is in its line to the tar
 });
 
 // 2026-11-24 user decision「魚雷は対艦専門。近接も持たず、誘導は重く、戦闘機に追いつける速度を持たない」.
-test('a torpedo is anti-ship: no proximity fuse against a craft, a quarter of a missile\'s turn, never faster than 600 m/s',()=>{
+test('a torpedo is anti-ship: no proximity fuse against a craft, a quarter of a missile\'s turn, launched at its craft\'s speed',()=>{
  const {C}=core({KS_ROUND_PROFILE:true});assert.equal(C.TORPEDO_TURN,.15);assert.equal(C.ROUND_SPEED.torpedo,600);
  const p=craft(C,'craft_xwing'),q=craft(C,'craft_tie_ln');
  const fly=(off,turnTest)=>{const a=C.fleetUnit('a','craft_xwing',plain(p),0),t=C.fleetUnit('t','craft_tie_ln',plain(q),1);a.pos=[0,0,0];a.yaw=0;a.velocity=[1500,0,0];t.pos=[1500,0,0];t.velocity=[0,0,0];
   for(const x of [a,t])x.order={...x.order,type:'hold',fire:false};const b=C.fleetBattle([a,t],true);b.seed=1;C.fleetAirRelease(b,a,t,'ptorp',1,{...C.FLEET_AIR.kinds[1],range:2000},null);const m=b.missiles[0];
-  assert.ok(m.s<=600+1e-9,'launch speed '+m.s+' from a craft at 1,500 m/s');if(!turnTest){m.unguided=true;m.launchDir=C.norm([1500,0,off]);m.vel=C.mul(m.launchDir,m.s);}
+  /* 2026-11-24 expectation changed (user「基本的に発射機の慣性で進み（航空機は航空機の速度…）」): was "never faster than 600 m/s" */assert.ok(Math.abs(m.s-1500)<1e-6,'launch speed '+m.s+' = its craft\'s 1,500 m/s');assert.ok(m.inertial);if(!turnTest){m.unguided=true;m.launchDir=C.norm([1500,0,off]);m.vel=C.mul(m.launchDir,m.s);}
   else{C.fleetTick(b,.25,{});t.pos=[-1500,0,0];}let prev=C.norm(m.vel),rate=0;for(let i=0;i<24&&b.missiles.includes(m)&&m.n>0;i++){C.fleetTick(b,.25,{});if(b.missiles.includes(m)){const v=C.norm(m.vel);rate=Math.max(rate,Math.acos(Math.max(-1,Math.min(1,C.dot(prev,v))))/.25);prev=v;}}
   return {log:b.missileLog||{},rate};};
  const beside=fly(8);assert.ok(!(beside.log.hit>0),'passing 8 m beside a TIE it does not burst: '+JSON.stringify(beside.log));
