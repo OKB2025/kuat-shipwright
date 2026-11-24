@@ -105836,8 +105836,8 @@ function baseComputeStats(ship,options={}) {
   let Vacc = 0; for (const H of hangars) { info[H.pt.id].acc = H.acc; info[H.pt.id].doors = [...H.doors].map(id => hatchInfo[id]?.opening).filter(Boolean); if (H.acc&&H.pt.k==='hangar') Vacc += partVolume(H.pt); }
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid),vlsInfo=missileStatus(ship,invalid);
   // fittings
-  const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]};
-  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, clashFits = 0, pedVol = 0, clashFitIds = [], weaponCrew = 0;
+  const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},bandRules={long:{},mid:{},close:{}},ionRules={}/* 2026-11-24 the gun rules in each band, weighted by rate (gunRuleRows) */;
+  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, wWaste = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, clashFits = 0, pedVol = 0, clashFitIds = [], weaponCrew = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};let aaCh=AA_CHANNELS.base;
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
@@ -105851,13 +105851,14 @@ function baseComputeStats(ship,options={}) {
     bins[binOf(f.p[0])] += m;
     if (d.cat === 'w') {
       if(f.float)continue;
-      if(isConcussionLauncher(f))bPower+=d.power;else wPower+=d.power;
+      if(isConcussionLauncher(f))bPower+=d.power;else{wPower+=d.power;wWaste+=(d.power||0)*weaponWasteFrac(d);}
       if (d.tt || d.ion || d.aa) {
         // Stock engineering passes need the same physical mass and loads but
         // no firing survey. The final editor/fleet calculation always surveys.
         const arc = options.engineeringOnly ? [0,0,0,0,0,0] : fireArcs(ship, f, hf, obst); fitInfo[f.id] = arc;
         const mean = arc.reduce((a, b) => a + b, 0) / 6;
         const br = bandRate[fitBand(FITS[f.k] || d)];
+        if(d.gunRule&&(d.tt||d.ion)){const rows=d.ion?ionRules:bandRules[fitBand(FITS[f.k]||d)],w=(d.tt||d.ion)/(d.cycle||K.cycle),r=rows[f.k]||(rows[f.k]={w:0,kind:d.gunRule.kind,holdM:d.gunRule.holdM,rangeM:d.gunRule.rangeM,fadeM:d.gunRule.fadeM||0});r.w+=w;}
         const automaticAA=weaponRoles(d).pointDefense?d.aa||0:0;
         for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);br[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);}if (automaticAA) aaArc[k] += automaticAA * arc[k]; }
         if (d.tt) alphaTot += d.tt; if (d.ion) ionTot += d.ion; if (automaticAA) aa += automaticAA * Math.min(1, mean * 1.6);
@@ -105964,7 +105965,7 @@ function baseComputeStats(ship,options={}) {
     engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
     shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate,...(shieldDissipationW!=null?{shieldDissipationW}:{}), shieldTarget:ship.shieldTarget||1, armorHull:ship.surfaces?surfaceArmor.average:ship.armor.hull,armorCit:cit,armorAvg:surfaceArmor.average+(area>0?plateAT/area:0),armorPlate:plateA>0?plateAT/plateA:0,plateArea:plateA,plateShare:area>0?Math.min(1,plateA/area):0,plateMass:plateM,
     slots, aviation, deployableSlots:aviation.combatDeployable, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
-    allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
+    weaponWasteFrac:wPower>0?wWaste/wPower:HEAT.waste.weapon,allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,gunBandRules:Object.fromEntries(Object.entries(bandRules).map(([k,v])=>[k,Object.values(v)])),ionRules:Object.values(ionRules),alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, fireControl:ship.parts.some(p=>p.k==='firecontrol'&&!p.surfaceUnplaced&&!info[p.id]?.overlap)||Object.values(commandInfo).some(c=>c.fireControl&&c.ratio>0),tractorControl:ship.parts.some(p=>isTractorControl(p)&&!info[p.id]?.overlap&&!info[p.id]?.detached),fireControlVolume:ship.parts.filter(p=>['firecontrol','targetComputer'].includes(p.k)&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),bridgeVolume:ship.parts.filter(p=>(equipmentSpec(p)?.group==='bridge'||['bridge','command'].includes(p.k))&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0)+commandCompartments(ship).reduce((n,p)=>n+partVolume(p),0),aimGuns:ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w'&&!FITS[f.k].msl&&!FITS[f.k].craft).reduce((n,f)=>n+(f.aggregateCount||1),0), sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Number.isFinite(ship.airControl)?Math.max(1,Math.round(ship.airControl))/* the design states its air control (EXAMPLE_AIR_CONTROL) */:Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost:Math.round(cost), costBy:costBreakdown(cost,costBy),
@@ -107971,7 +107972,7 @@ function surfaceProfile(ship,S,p){
  // The collision shell is the exposed patches' triangles in patch order. It is
  // not stored on the profile (it doubled every profile message and cache record);
  // surfaceShell derives the identical array where a battle needs it.
- for(const f of ship.fits){const d=fitSpec(f);if(FITS[f.k]?.cat!=='w'||f.float||!((d.tt||0)+(d.ion||0)+(d.aa||0)+(d.msl||0)>0))continue;const mi=(p.modules||[]).findIndex(m=>m.fit===f.id),cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,capacity=needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(d.tt||d.ion||d.aa||0),mount={id:f.id,module:mi,patch:f.surfacePatch||null,cell:f.surfaceCell||null,name:d.short||d.name,volleyTT:(d.tt||0)+(d.ion||0),boltTT:((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1),...(isTrenchBatteryGroup(f)?{}:surfaceWeaponGeometry(f,offset)),center:local(f.surfacePoint||f.p),normal:(f.n||AXES[f.a]||[0,1,0]).slice(),footprint:f.surfaceFootprint?.slice()||[d.fm,d.wm],arcs:Array.isArray(S.fitInfo?.[f.id])?S.fitInfo[f.id].slice():[0,0,0,0,0,0],gun:(d.tt||0)*cr/(d.cycle||K.cycle),ion:(d.ion||0)*cr/(d.cycle||K.cycle),capacity:Math.max(0,capacity),housingCapacity:needsCapacitor(f)?Math.max(0,(S.chargeInfo?.[f.id]?.housingUsed||0)*CHARGE_TT_M3):undefined/* user report 2026-11-16「武装の充電ができない」: a weapon without a charging plant (a craft laser) held 0 in its housing, so its whole charge counted as an internal capacitor that does not exist (蓄電設備破壊) and it never charged */,power:Math.max(0,d.power||0)*weaponInputFactor(p),barrels:Math.max(1,d.barrels||1),crewNeed:(d.crew||0)*WEAPON_CREW_K,crew:(d.crew||0)*WEAPON_CREW_K,cycle:d.cycle||K.cycle,band:fitBand(d),dualPurpose:weaponRoles(d).dualPurpose,aaTier:antiAirTier(d),missile:!!d.msl,roundKind:d.roundKind||null};if(isTrenchBatteryGroup(f))trenchProfileMount(ship,S,p,mount,f,groups.get(f.id));p.surface.mounts.push(mount);if(f.surfacePatch&&!isTrenchBatteryGroup(f)){const port=surfaceBatteryGeometry(f);p.surface.devices.push({...mount,...(port?{center:local(port.mouth),wallPoint:local(port.wallPoint),wallOffset:port.armorOffset,footprint:[port.width,port.height],u:port.u.slice(),v:port.v.slice(),normal:port.normal.slice(),lip:port.lip}:{}),kind:'weapon',external:true});}}
+ for(const f of ship.fits){const d=fitSpec(f);if(FITS[f.k]?.cat!=='w'||f.float||!((d.tt||0)+(d.ion||0)+(d.aa||0)+(d.msl||0)>0))continue;const mi=(p.modules||[]).findIndex(m=>m.fit===f.id),cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,capacity=needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(d.tt||d.ion||d.aa||0),mount={id:f.id,module:mi,patch:f.surfacePatch||null,cell:f.surfaceCell||null,name:d.short||d.name,volleyTT:(d.tt||0)+(d.ion||0),boltTT:((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1),...(isTrenchBatteryGroup(f)?{}:surfaceWeaponGeometry(f,offset)),center:local(f.surfacePoint||f.p),normal:(f.n||AXES[f.a]||[0,1,0]).slice(),footprint:f.surfaceFootprint?.slice()||[d.fm,d.wm],arcs:Array.isArray(S.fitInfo?.[f.id])?S.fitInfo[f.id].slice():[0,0,0,0,0,0],gun:(d.tt||0)*cr/(d.cycle||K.cycle),ion:(d.ion||0)*cr/(d.cycle||K.cycle),capacity:Math.max(0,capacity),housingCapacity:needsCapacitor(f)?Math.max(0,(S.chargeInfo?.[f.id]?.housingUsed||0)*CHARGE_TT_M3):undefined/* user report 2026-11-16「武装の充電ができない」: a weapon without a charging plant (a craft laser) held 0 in its housing, so its whole charge counted as an internal capacitor that does not exist (蓄電設備破壊) and it never charged */,power:Math.max(0,d.power||0)*weaponInputFactor(p),barrels:Math.max(1,d.barrels||1),crewNeed:(d.crew||0)*WEAPON_CREW_K,crew:(d.crew||0)*WEAPON_CREW_K,cycle:d.cycle||K.cycle,band:fitBand(d),...(d.gunRule?{rule:{kind:d.gunRule.kind,holdM:d.gunRule.holdM,rangeM:d.gunRule.rangeM,fadeM:d.gunRule.fadeM||0}}:{}),dualPurpose:weaponRoles(d).dualPurpose,aaTier:antiAirTier(d),missile:!!d.msl,roundKind:d.roundKind||null};if(isTrenchBatteryGroup(f))trenchProfileMount(ship,S,p,mount,f,groups.get(f.id));p.surface.mounts.push(mount);if(f.surfacePatch&&!isTrenchBatteryGroup(f)){const port=surfaceBatteryGeometry(f);p.surface.devices.push({...mount,...(port?{center:local(port.mouth),wallPoint:local(port.wallPoint),wallOffset:port.armorOffset,footprint:[port.width,port.height],u:port.u.slice(),v:port.v.slice(),normal:port.normal.slice(),lip:port.lip}:{}),kind:'weapon',external:true});}}
  for(const q of ship.parts)if(q.surfacePatch&&!q.surfaceUnplaced){const mi=(p.modules||[]).findIndex(m=>m.part===q.id);if(q._surfaceAdapter){for(const r of q._surfaceAdapter.cells)if(r[3]===0)p.surface.devices.push({id:r[0],module:mi,patch:q.surfacePatch,cell:r[26],center:local(r.slice(14,17)),normal:r.slice(10,13),footprint:r.slice(17,19),kind:q.k,external:q.k!=='hdis'});}else p.surface.devices.push({id:q.id,module:mi,patch:q.surfacePatch,cell:q.surfaceCell,center:local(q.surfacePoint||q.c),normal:q.surfaceNormal?.slice()||[0,1,0],footprint:q.surfaceFootprint?.slice()||[q.d,q.d],kind:q.k,external:q.k!=='hdis'});}
  if(p.zT&&p.zA){
   const cuts=[0,...(p.sectionCuts||[.2,.4,.6,.8]),1],L=Math.max(1,span[1]-span[0]);p.zT=p.zT.map(t=>Math.max(0,t-(S.armorHull||0)));p.armorHull=0;
@@ -108085,7 +108086,7 @@ function surfaceMountArc(u,t,m,d,query){
   return total>0?visible/total:0;
  }
  const q=query||surfaceFireQuery(u,t),band=GUN_BANDS[m.band]||GUN_BANDS.mid,origin=m.muzzle||m.center||[0,0,0],vx=q.x-origin[0],vy=q.y-origin[1],vz=q.z-origin[2],distance=Math.hypot(vx,vy,vz);
- if(distance>band.range&&m.gun>0&&!m.ion||distance>GUN_BANDS.long.range)return 0;const inverse=distance>1e-12?1/distance:0;let dir=[vx*inverse,vy*inverse,vz*inverse];
+ if(m.rule?distance>m.rule.rangeM:distance>band.range&&m.gun>0&&!m.ion||distance>GUN_BANDS.long.range)return 0;const inverse=distance>1e-12?1/distance:0;let dir=[vx*inverse,vy*inverse,vz*inverse];
  if(m.embedded&&m.casemate&&!surfaceBatteryInArc({normal:m.normal||m.dir,v:m.v},dir,m.trenchArc?TRENCH_BATTERY_ARC.yawDeg:65))return 0;
  if(m.fixed){const fixed=norm(m.dir||[1,0,0]),gate=Math.cos(CRAFT_FIRE.fixedCone*Math.PI/180);if(dot(fixed,dir)<gate){const world=[u.pos[0]+origin[0]*q.c-origin[2]*q.s,u.pos[1]+origin[1],u.pos[2]+origin[0]*q.s+origin[2]*q.c],forward=[fixed[0]*q.c-fixed[2]*q.s,fixed[1],fixed[0]*q.s+fixed[2]*q.c];if(!hullSegment(t,world,surfaceAdd(world,forward,distance+Math.max(t.p.len||1,t.p.width||1)),.98))return 0;}dir=fixed;}
  const shell=surfaceShellBVH(u.p);if(m.authored){const want=sub([q.x,q.y,q.z],m.authored.elevationPivot);if(!authoredTurretInArc(m.authored,want))return 0;const pose=aimAuthoredTurretAt(m.authored,want);if(shell&&pose.muzzles.some(p=>surfaceCachedRay(shell,surfaceAdd(p,pose.fw,.02),pose.fw,Math.max(.1,len(sub([q.x,q.y,q.z],p))-.1),true,m)!=null))return 0;}else if(shell&&surfaceCachedRay(shell,surfaceAdd(origin,dir,m.embedded?.001:.05),dir,Math.max(.1,distance-.1),true,m)!=null)return 0;
@@ -108093,9 +108094,10 @@ function surfaceMountArc(u,t,m,d,query){
 }
 function surfaceFleetFire(u,t,d){
  const query=surfaceFireQuery(u,t),control=fleetSystems(u).fire,hits={},shared={};let gun=0,ion=0,gunLanded=0,ionLanded=0;
- const chance=band=>hits[band]??(hits[band]=gunHitChance(u,t,d,GUN_BANDS[band]?.range||GUN_BANDS.long.range,control));
- for(const m of u.p.surface.mounts){if(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose&&(u.dualWeights?.[m.aaTier??0]??1)>=.5)continue;const state=surfaceMountState(u,m,shared),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),g=m.gun*a*k,i=m.ion*a*k;gun+=g;ion+=i;gunLanded+=g*chance(m.band||'mid');ionLanded+=i*chance('long');}
- return {gun,ion,cost:(gun+ion)*weaponInputFactor(u.p),gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0,runtime:true};
+ const chance=band=>hits[band]??(hits[band]=gunHitChance(u,t,d,GUN_BANDS[band]?.range||GUN_BANDS.long.range,control)),ruleChance=r=>hits['r'+r]??(hits['r'+r]=gunHitChance(u,t,d,r,control));let raw=0;
+ // 2026-11-24 A mount with gun rules lands the share of its bolt still there at d, with the scatter of a gun of its own reach.
+ for(const m of u.p.surface.mounts){if(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose&&(u.dualWeights?.[m.aaTier??0]??1)>=.5)continue;const state=surfaceMountState(u,m,shared),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),share=m.rule?gunShotShare(m.rule,d):1,g=m.gun*a*k*share,i=m.ion*a*k*share;raw+=(m.gun+m.ion)*a*k;gun+=g;ion+=i;const p=m.rule?ruleChance(m.rule.rangeM):null;gunLanded+=g*(p??chance(m.band||'mid'));ionLanded+=i*(p??chance('long'));}
+ return {gun,ion,cost:raw*weaponInputFactor(u.p),gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0,runtime:true};
 }
 function surfacePowerStep(u,s,t,raw,dt,chargingW,volley=1){
  surfaceCapacitorSync(u);
@@ -110657,9 +110659,9 @@ function weaponPreviewStats(value,options={}){
  const f=migrateWeaponFit({...part}),definition=FITS[f.k];if(!definition||definition.cat!=='w')return null;
  const d=fitSpec(f),missile=!!d.msl||isConcussionLauncher(f),payload=!!d.store&&!isConcussionLauncher(f),energy=(d.tt||0)+(d.ion||0)>0,q=weaponChargeSpec(f),
   factor=weaponInputFactor({energyModel:{version:strict?1:0,eta:ENERGY_MODEL.eta}}),maxPowerW=Math.max(0,d.power||0)*factor,
-  maxHeatW=heatWaste({draw:maxPowerW,weapon:maxPowerW,shield:0,engine:0,fixed:0,sw:[],swShot:[]}).weapon,
+  maxHeatW=heatWaste({draw:maxPowerW,weapon:maxPowerW,shield:0,engine:0,fixed:0,sw:[],swShot:[],weaponWaste:weaponWasteFrac(d)}).weapon,
   round=payload&&ORDNANCE[f._store?.k],outputTT=payload?(round?.tt??null):isConcussionLauncher(f)?launcherRound(f).tt:missile?(d.msl||0)/8:q.boltTT,
-  rangeM=payload?(Number.isFinite(round?.range)?round.range:null):missile?(launcherHeavy(f)?HEAVY_LAUNCHER.range:missileRange(isShipLauncher(f)?'shipMsl':isConcussionLauncher(f)?'cmsl':d)):energy?GUN_BANDS[fitBand(d)].range:null;
+  rangeM=payload?(Number.isFinite(round?.range)?round.range:null):missile?(launcherHeavy(f)?HEAVY_LAUNCHER.range:missileRange(isShipLauncher(f)?'shipMsl':isConcussionLauncher(f)?'cmsl':d)):energy?(d.gunRule?.rangeM??GUN_BANDS[fitBand(d)].range):null;
  return {kind:payload?'payload':missile?'missile':energy?'energy':'utility',barrels:payload||missile?isShipLauncher(f)?shipLauncherConfig(f).cells:1:q.barrels,outputTT,
   traverseDegS:energy?weaponTraverseDegS(d):0,rangeM,maxPowerW,maxHeatW,variableReason:payload?'payload':null};
 }
@@ -111452,6 +111454,76 @@ function initializeWeaponSizing(){
  }
 }
 initializeWeaponSizing();
+// 2026-11-24 Gun rules (user decisions; docs/handoff-2026-11-20/gun-energy-model-2026-11-24.md). Each ship gun's numbers come from
+// its barrels (bore and length, read from its model) instead of per-family settings:
+//  - Laser (below 1 MT a shot): a shot = 20 kt + 780 kt × (bore² − 0.10²) ÷ (0.40² − 0.10²), each barrel by its own bore (the
+//    Sphyrna's 0.554 m barrel stays a laser above 800 kt, user 2026-11-24). It fades from the muzzle and is gone at 1 kt; the
+//    range is 0.86 km at the 1 m barrel (where a 1 MT, 1 m laser is gone) and grows 125 m per metre of barrel per ln(kt).
+//    About one shot a second a barrel.
+//  - Turbolaser (1 MT a shot and up, bore at least 0.45 m): compressed so it holds all its energy to a distance set by its
+//    coil (the whole barrel). Least coil = 1 m × (1 + 0.5 × ln((laser bore for that energy ÷ bore)²)); held to 0.86 km +
+//    25.3 km × ln(1 + (barrel − least coil) ÷ 4.51 m) (ISD 40TT 30 km, 175TT 40 km); past it the bolt falls about 25 dB a
+//    kilometre and is gone at 1 MT. A shot is charged with E × (1 + barrel ÷ 19.0 m); the charging rate is the default
+//    charge volume × 0.0631 TT/s/m³ (the CIS 1TT rapid gun charges 2 TT a second); barrels fire one at a time, each when
+//    its charge is in. No turret cooling: 5% of the compression energy (E × barrel ÷ 19.0 m) goes into the ship as heat.
+//  - Ion gun: charged and held as a turbolaser; past the hold it disperses at once. Charging rate = (turret volume + default
+//    charge volume) × 0.00062 TT/s/m³ (twice the Subjugator's rate per volume).
+// Barrel length: fixed mounts 2/3 of the body, ball turrets the exposed barrel + 3/4 of the body inside, the Mon Calamari
+// ball guns from the user's drawings (exposed barrel = ratio × ball diameter), the ISD octuple root to muzzle (19.0 m).
+const GUN_RULES=Object.freeze({
+ laser:Object.freeze({minBore:.10,refBore:.40,minKt:20,refKt:800,minBarrel:1,floor:860,perMetre:125,goneKt:1,shotsPerBarrel:1}),
+ turbolaser:Object.freeze({minKt:1e3,minBore:.45,coilBase:1,coilK:.5,hold0:860,holdA:25300,holdX:4.51,fadeM:171,chargeLen:19.0,chargePerM3:.06313782219884272,heat:.05}),
+ ion:Object.freeze({chargePerM3:.00062}),
+ monCalRatio:Object.freeze({monCal200Triple:1.45,monCal200:1.75,monCal150Ion:1.5,monCal80:1.55,monCal34:1.0}),
+ borrowedBore:.6/* a model barrel without a bore: 0.6 of its outer diameter */,
+ laserBore:Object.freeze({pd:.40})
+});
+const laserShotKt=bore=>{const L=GUN_RULES.laser,b=Math.max(L.minBore,bore||0);return L.minKt+(L.refKt-L.minKt)*(b*b-L.minBore**2)/(L.refBore**2-L.minBore**2);};
+const laserBoreFor=kt=>{const L=GUN_RULES.laser;return Math.sqrt(L.minBore**2+Math.max(0,kt-L.minKt)*(L.refBore**2-L.minBore**2)/(L.refKt-L.minKt));};
+const laserRangeM=(kt,barrel)=>{const L=GUN_RULES.laser;return L.floor+L.perMetre*Math.max(0,(barrel||0)-L.minBarrel)*Math.log(Math.max(1,kt/L.goneKt));};
+function turbolaserCoil(kt,bore){const R=GUN_RULES.turbolaser;return R.coilBase*(1+R.coilK*Math.log((laserBoreFor(kt)/Math.max(R.minBore,bore))**2));}
+function turbolaserHoldM(kt,bore,barrel){const R=GUN_RULES.turbolaser,least=turbolaserCoil(kt,bore);return barrel>=least?R.hold0+R.holdA*Math.log(1+(barrel-least)/R.holdX):0;}
+// The share of a shot left at distance d (1 within the hold): what decides the damage a bolt does where it lands.
+function gunShotShare(rule,d){if(!rule)return 1;if(rule.kind==='laser')return d>=rule.rangeM?0:Math.exp(-Math.max(0,d)/rule.fadeM);
+ if(d<=rule.holdM)return 1;if(rule.kind==='ion'||d>=rule.rangeM)return 0;return Math.exp(-(d-rule.holdM)/GUN_RULES.turbolaser.fadeM);}
+// The barrels of a gun as its model has them: [{bore, length}] in metres.
+function gunModelBarrels(d){
+ const a=REFERENCE_ASSETS[d.asset],bs=a?.barrelCenters||[];if(!bs.length)return null;
+ const front=b=>b.exposedStartX??b.root[0],body=b=>front(b)-(a.bounds?.[0]?.[0]??front(b)),full=b=>b.fullLengthM??Math.hypot(...b.muzzle.map((v,i)=>v-b.root[i])),seen=b=>b.photoVisibleReachM??(b.muzzle[0]-front(b));
+ const ion=(d.ion||0)>0,ball=isBallTurret(d.key),mc=GUN_RULES.monCalRatio[d.key];
+ return bs.map(b=>{let length;
+  if(d.key==='oct40')length=GUN_RULES.turbolaser.chargeLen;
+  else if(mc)length=mc*d.wm+.75*body(b);
+  else if(ball)length=(b.muzzle[0]-front(b))+.75*body(b);
+  else if(!ion&&Math.abs(seen(b)-full(b))<.01)length=d.fm*2/3;
+  else length=full(b);
+  const bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*GUN_RULES.borrowedBore:null;
+  return {bore,outer:b.outerRadiusM>0?2*b.outerRadiusM:bore,length,full:full(b)/* a laser's barrel: root to muzzle as drawn */};});
+}
+function gunRuleKind(k,d){if((d.ion||0)>0)return 'ion';return /^pd$|^monCalPD$|^single6MT$|^twin6MT$/.test(k)?'laser':'turbolaser';}
+function applyGunRules(){
+ for(const [k,d] of Object.entries(FITS)){
+  if(d.cat!=='w'||d.craft||d.fixed&&!d.asset||d.msl||!(d.barrels>0)||!((d.tt||0)+(d.ion||0)>0)||!d.asset)continue;
+  const barrels=gunModelBarrels(d);if(!barrels)continue;const kind=gunRuleKind(k,d),n=d.barrels,legacy=Object.freeze({tt:d.tt,ion:d.ion,boltTT:d.boltTT,cycle:d.cycle,power:d.power,name:d.name,short:d.short});
+  let rule;
+  if(kind==='laser'){
+   // A laser's bore is its barrel's outer diameter as measured (2026-11-24: CR-90 0.169 m, ball PD 0.178 m, Sphyrna 0.364 / 0.554 m);
+   // the point defence twin's barrels are thickened to 0.40 m (800 kt, user 2026-11-24 「点防御の砲身を太くする」).
+   const per=barrels.slice(0,n).map(b=>{const bore=Math.max(GUN_RULES.laser.minBore,GUN_RULES.laserBore[k]??b.outer??b.bore??GUN_RULES.laser.minBore),kt=laserShotKt(bore),length=Math.max(GUN_RULES.laser.minBarrel,b.full);return {bore,length,kt,rangeM:laserRangeM(kt,length)};});
+   while(per.length<n)per.push(per[per.length-1]);
+   const volleyKt=per.reduce((t,b)=>t+b.kt,0),rangeM=Math.max(...per.map(b=>b.rangeM)),best=per.reduce((x,b)=>b.rangeM>x.rangeM?b:x,per[0]),cycle=1/GUN_RULES.laser.shotsPerBarrel;
+   rule={kind,perBarrel:Object.freeze(per.map(Object.freeze)),boreM:best.bore,barrelM:best.length,shotKt:volleyKt/n,rangeM,holdM:0,fadeM:best.rangeM/Math.log(Math.max(1.0001,best.kt/GUN_RULES.laser.goneKt)),intervalS:cycle/n,cycle,heatFrac:null/* the usual waste of the weapon input (HEAT.waste.weapon) */};
+   d.tt=volleyKt/KT_PER_TT;d.boltTT=d.tt/n;d.cycle=cycle;d.power=d.tt*TT/cycle;
+  }else{
+   const R=GUN_RULES.turbolaser,bolt=d.boltTT??((d.tt||d.ion)/n),kt=bolt*KT_PER_TT,b=barrels.reduce((x,y)=>y.length>x.length?y:x,barrels[0]),bore=Math.max(R.minBore,b.bore||R.minBore),length=b.length,least=turbolaserCoil(kt,bore),holdM=turbolaserHoldM(kt,bore,length);
+   const c=length/R.chargeLen,shotCharge=bolt*(1+c),defaultVolume=bolt*n/CHARGE_TT_M3,rate=kind==='ion'?GUN_RULES.ion.chargePerM3*(d.fm*d.wm*d.hm+defaultVolume):R.chargePerM3*defaultVolume,interval=shotCharge/rate;
+   rule={kind,boreM:bore,barrelM:length,leastCoilM:least,shotKt:kt,holdM,rangeM:kind==='ion'?holdM:holdM+R.fadeM*Math.log(Math.max(1,kt/R.minKt)),shotChargeTT:shotCharge,chargeRateTT:rate,intervalS:interval,cycle:interval*n,heatFrac:R.heat*c/(1+c)};
+   d.cycle=rule.cycle;d.power=rate*TT;
+  }
+  d.gunRule=Object.freeze(rule);d.gunLegacy=legacy;
+ }
+}
+applyGunRules();
 // Keep internal recipes readable while the editor exposes one canonical entry.
 for(const key of ['mtl','htl','ltl','casemate40','casemateMid','casemateLight','casemateIon','casemateIonL'])Object.defineProperty(FITS,key,{enumerable:false,configurable:true,get:()=>FITS[canonicalWeaponKind(key)]});
 // Where a casemate's barrels end: model casemates by their asset, the others at their muzzles.
@@ -114305,6 +114377,7 @@ function refitShipThermal(ship,key,options={}){
  // so its reserved charging input cannot disappear from the cooling budget.
  if(ship.parts.some(isSuperweapon))superweaponStats(ship,S);
  const sw=(S.superweapons||[]).filter(w=>w.ok),E=positive(options.engineInputW??options.E,S.draw?.engines),W=positive(options.weaponInputW??options.W,S.draw?.weapons),Q=positive(options.shieldInputW??options.S,S.draw?.shields),H=positive(options.fixedInputW??options.H,(S.draw?.hotel||0)+(S.draw?.ray||0)-(S.dissipatorPower||0)),SW=positive(options.superweaponInputW,sw.reduce((n,w)=>n+Math.max(0,w.chargeW||0),0));
+ const WW=S.weaponWasteFrac;
  const modes=Object.values(HEAT_PRESETS),weaponFactor=Math.max(1,...modes.map(p=>(POWER_MODES[p.mode]?.weapons||1)*(p.wpn||0))),shieldFactor=Math.max(1,...modes.map(p=>p.sh||0)),reactorFactor=Math.max(1,...modes.map(p=>POWER_MODES[p.mode]?.max||1));
  // The installed plant limits the operating load. A ship cannot turn the
  // sum of every engine, gun and shield nameplate into simultaneous output.
@@ -114319,7 +114392,7 @@ function refitShipThermal(ship,key,options={}){
   // Converter input follows the heat converted (user decision 2026-11-12): the peak load, not the rating.
   const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0,peakBase=0;
   for(const pr of HEAT_SIZING){
-   const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
+   const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true,weaponWaste:WW},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
    const feedHeatW=load.engine>0?Math.min(feedBound.heatW,load.engine*feedBound.maxFraction/Math.max(1e-12,1-feedBound.maxFraction)):0,generatedW=waste.reactor+waste.engine+waste.weapon+waste.shield+waste.hotel+feedHeatW+(HEAT.waste.reactor+HEAT.waste.sw)*chargeW;
    // A superweapon that fires gives up its firing loss while it burns or cools (it is not charging then): the
    // converters are sized for whichever is larger (user decision 2026-11-15「発射の熱も排熱」).
@@ -114385,7 +114458,7 @@ function refitShipThermal(ship,key,options={}){
   else if(p.k==='shield'||p.k==='localShield')put('p'+p.id,HEAT.waste.shield*shieldLoad(p)*shieldFactor);
   else if(p.k==='engine'){const e=resolveEngineSpec(p,ship);if(e.valid)put(e.heatNode,e.ratedWasteHeatW);}
  }
- for(const f of ship.fits)if(!f.float&&FITS[f.k]?.cat==='w')put('f'+f.id,HEAT.waste.weapon*(fitSpec(f).power||0)*weaponFactor/ENERGY_MODEL.eta);
+ for(const f of ship.fits)if(!f.float&&FITS[f.k]?.cat==='w')put('f'+f.id,weaponWasteFrac(fitSpec(f))*(fitSpec(f).power||0)*weaponFactor/ENERGY_MODEL.eta);
  for(const w of sw)put('p'+w.id,HEAT.waste.sw*Math.max(0,w.chargeW||0));
  // Manual heat paths replace automatic ones for their source. Every new path
  // has a finite watt rating, and the bank split lets shared sources use the
@@ -117174,13 +117247,17 @@ function combatAddWeapons(incoming,target,u,amount,gun,ion,seconds,aim){
  const shot=fleetShotTT(u);for(const p of packets){const a={sf:(p.gun+COMBAT.ionShield*p.ion)*seconds,hull:(p.gun+COMBAT.ionHull*p.ion)*seconds,ion:p.ion*seconds};for(const k of Object.keys(a))used[k]+=a[k];combatAdd(incoming,target,p.point,{...a,shot},aim,u.id);}
  const rest=Object.fromEntries(['sf','hull','direct','ion','ionDirect'].map(k=>[k,Math.max(0,(amount[k]||0)-(used[k]||0))]));if(Object.values(rest).some(v=>v>0))combatAdd(incoming,target,u.pos,{...rest,shot,...(amount.directShot>0?{directShot:amount.directShot}:{})},aim,u.id);return packets;
 }
+// 2026-11-24 Gun rules in battle: how far a band's (or the ion guns') rules reach, and the share of their energy that is
+// still there at d (rate-weighted over the guns in it). A profile made before the rules has none: the band's range, all of it.
+function gunRulesReach(rows,fallback){if(!rows?.length)return fallback;let r=0;for(const x of rows)if(x.w>0)r=Math.max(r,x.rangeM||0);return r||fallback;}
+function gunRulesShare(rows,d){if(!rows?.length)return 1;let w=0,v=0;for(const x of rows){if(!(x.w>0))continue;w+=x.w;v+=x.w*gunShotShare(x,d);}return w>0?v/w:1;}
 function fleetFire(u,t,d){
  if(u.p.surface?.mounts&&typeof surfaceFleetFire==='function')return surfaceFleetFire(u,t,d);
- const p=u.p,B=p.gunBands,control=fleetSystems(u).fire;let gun=0,ion=0,cost=0,gunLanded=0,ionLanded=0;
- if(B){for(const k in GUN_BANDS){if(d>GUN_BANDS[k].range||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunBands?.[k]||[]):0));gun+=g;gunLanded+=g*gunHitChance(u,t,d,GUN_BANDS[k].range,control);cost+=g*COMBAT.bandCost[k];}}
- else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunArcs||[]):0));cost=gun;gunLanded=gun*gunHitChance(u,t,d,GUN_BANDS.long.range,control);}
- if(d<=GUN_BANDS.long.range){ion=fleetArc(u,t,p.ionArcs);ionLanded=ion*gunHitChance(u,t,d,GUN_BANDS.long.range,control);cost+=ion;}
- if(p.energyModel?.version===1)cost=(gun+ion)*weaponInputFactor(p);
+ const p=u.p,B=p.gunBands,control=fleetSystems(u).fire;let gun=0,ion=0,cost=0,gunLanded=0,ionLanded=0,rawGun=0,rawIon=0;
+ if(B){for(const k in GUN_BANDS){const rows=p.gunBandRules?.[k],reach=gunRulesReach(rows,GUN_BANDS[k].range);if(d>reach||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunBands?.[k]||[]):0)),share=gunRulesShare(rows,d);rawGun+=g;gun+=g*share;gunLanded+=g*share*gunHitChance(u,t,d,reach,control);cost+=g*COMBAT.bandCost[k];}}
+ else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunArcs||[]):0));cost=gun;rawGun=gun;gunLanded=gun*gunHitChance(u,t,d,GUN_BANDS.long.range,control);}
+ const ionReach=gunRulesReach(p.ionRules,GUN_BANDS.long.range);if(d<=ionReach){const raw=fleetArc(u,t,p.ionArcs);ion=raw*gunRulesShare(p.ionRules,d);ionLanded=ion*gunHitChance(u,t,d,ionReach,control);cost+=raw;rawIon=raw;}
+ if(p.energyModel?.version===1)cost=(rawGun+rawIon)*weaponInputFactor(p)/* the input is drawn whatever share of the bolt arrives */;
  return {gun,ion,cost,gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0};
 }
 // Fire control is independent of the course being steered. An assigned target
@@ -117192,13 +117269,13 @@ function fleetTargetCandidates(u,pool,reach,priority,requireGun=true){
  rows.sort((a,b)=>(b.target===priority)-(a.target===priority)||((b.F.cost>0)-(a.F.cost>0))||(b.ahead-a.ahead)||a.score-b.score);return rows;
 }
 // The longest reach among the bands a ship actually carries.
-function fleetReach(p){const B=p.gunBands;if(!B)return GUN_BANDS.long.range;let r=0;for(const k in GUN_BANDS)if(B[k]&&B[k].some(v=>v>0))r=Math.max(r,GUN_BANDS[k].range);if((p.ionArcs||[]).some(v=>v>0))r=Math.max(r,GUN_BANDS.long.range);return r||GUN_BANDS.mid.range;}
+function fleetReach(p){const B=p.gunBands;if(!B)return GUN_BANDS.long.range;let r=0;for(const k in GUN_BANDS)if(B[k]&&B[k].some(v=>v>0))r=Math.max(r,gunRulesReach(p.gunBandRules?.[k],GUN_BANDS[k].range));if((p.ionArcs||[]).some(v=>v>0))r=Math.max(r,gunRulesReach(p.ionRules,GUN_BANDS.long.range));return r||GUN_BANDS.mid.range;}
 // Best-arc fire a profile lands at a distance (TT/s), as far as its reactor can
 // feed the guns in reach (for choosing where to fight).
 function bandFireAt(p,d){
  const B=p.gunBands,best=a=>a?Math.max(...a):0,source={p,pos:[0,0,0]},target={p:GUN_ACCURACY.reference,pos:[0,0,d],yaw:0},chance=range=>gunHitChance(source,target,d,range,1);let gun=0,cost=0;
- if(B){for(const k in GUN_BANDS)if(d<=GUN_BANDS[k].range){const g=best(B[k]);gun+=g*chance(GUN_BANDS[k].range);cost+=g*COMBAT.bandCost[k];}}else if(d<=GUN_BANDS.long.range){const g=best(p.gunArcs);gun=g*chance(GUN_BANDS.long.range);cost=g;}
- if(d<=GUN_BANDS.long.range){const i=best(p.ionArcs);gun+=i*chance(GUN_BANDS.long.range);cost+=i;}
+ if(B){for(const k in GUN_BANDS){const rows=p.gunBandRules?.[k],reach=gunRulesReach(rows,GUN_BANDS[k].range);if(d<=reach){const g=best(B[k]);gun+=g*gunRulesShare(rows,d)*chance(reach);cost+=g*COMBAT.bandCost[k];}}}else if(d<=GUN_BANDS.long.range){const g=best(p.gunArcs);gun=g*chance(GUN_BANDS.long.range);cost=g;}
+ {const reach=gunRulesReach(p.ionRules,GUN_BANDS.long.range);if(d<=reach){const i=best(p.ionArcs);gun+=i*gunRulesShare(p.ionRules,d)*chance(reach);cost+=i;}}
  const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity,fed=cost>0?Math.min(1,budget/cost):0;return gun*fed;
 }
 // Where u wants to fight t: the distance that best weighs its own fire against
@@ -117238,7 +117315,7 @@ function fleetPressJudge(own,foes,was=false){
 // A ship that lands more fire with its beam than with its bow at its fighting
 // distance (as far as its reactor can feed the guns that bear) turns its side
 // to the enemy there: +1 starboard, -1 port, 0 bow-on.
-function arcFireAt(p,k,d){const B=p.gunBands;let gun=0,cost=0;if(B){for(const b in GUN_BANDS)if(d<=GUN_BANDS[b].range){const g=B[b][k]||0;gun+=g;cost+=g*COMBAT.bandCost[b];}}else if(d<=GUN_BANDS.long.range){gun=p.gunArcs?.[k]||0;cost=gun;}if(d<=GUN_BANDS.long.range){const i=p.ionArcs?.[k]||0;gun+=i;cost+=i;}const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity;return cost>0?gun*Math.min(1,budget/cost):0;}
+function arcFireAt(p,k,d){const B=p.gunBands;let gun=0,cost=0;if(B){for(const b in GUN_BANDS){const rows=p.gunBandRules?.[b];if(d<=gunRulesReach(rows,GUN_BANDS[b].range)){const g=B[b][k]||0;gun+=g*gunRulesShare(rows,d);cost+=g*COMBAT.bandCost[b];}}}else if(d<=GUN_BANDS.long.range){gun=p.gunArcs?.[k]||0;cost=gun;}if(d<=gunRulesReach(p.ionRules,GUN_BANDS.long.range)){const i=p.ionArcs?.[k]||0;gun+=i*gunRulesShare(p.ionRules,d);cost+=i;}const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity;return cost>0?gun*Math.min(1,budget/cost):0;}
 const broadsideCache=new WeakMap();
 function fleetBroadside(p,d=GUN_BANDS.close.range*.75){if(!p.gunBands)return 0;let m=broadsideCache.get(p);if(!m)broadsideCache.set(p,m=new Map());const k=Math.round(d/250);if(m.has(k))return m.get(k);const fore=arcFireAt(p,0,d),st=arcFireAt(p,2,d),po=arcFireAt(p,3,d),side=Math.max(st,po),r=side>fore*1.1&&side>0?(st>=po?1:-1):0;m.set(k,r);return r;}
 // The heading for u fighting t at distance d with standoff sd: bow-on while
@@ -117461,7 +117538,7 @@ function hyperChargeHeatCapW(u,dt){
  // The governor as read at the start of this step (u.heatGov, as for the engines and weapons): read after the step's heat is
  // booked but before any of it is rejected, a coarse step looks full (a 20 s step of a CR90's services is five stores).
  const gov=u.heatGov||heatGovernor(u),k=clamp(gov.weapon??1,0,1);if(!(k>0))return 0;if(gov.mode!=='balance'||!Number.isFinite(gov.roomJ))return Infinity;
- const De=Math.max(0,u.p.grid?.De||0),hb=engineHeatThrottleCap(u,gov,dt),x=De>0?clamp(Math.max(0,u.propulsion?.actualInputW??(u.maneuver||0)*De)/De,0,1):0,wpnW=Math.max(0,u.pw?.wpn||0)*(HEAT.waste.weapon+HEAT.waste.reactor);
+ const De=Math.max(0,u.p.grid?.De||0),hb=engineHeatThrottleCap(u,gov,dt),x=De>0?clamp(Math.max(0,u.propulsion?.actualInputW??(u.maneuver||0)*De)/De,0,1):0,wpnW=Math.max(0,u.pw?.wpn||0)*((u.p.weaponWaste??HEAT.waste.weapon)+HEAT.waste.reactor);
  const rej=Math.max(0,heatDeliverableRejectionW(u)),covered=Number.isFinite(h.cap)?clamp(h.cap,0,rej):0,spareW=Math.max(0,hb.spareW-(rej-covered));
  // The engines' and weapons' heat take the covered rejection first; the covered rejection is a reading
  // of the last heat solve, extrapolated over at most one heat interval.
@@ -117519,7 +117596,7 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // step; without the spare rejection a ship with ample converters was held to its store's room, propulsion-surface-power).
  const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
   weaponHeatW=hb?Math.max(0,hb.budget-hb.heatAt(throttle)):Infinity;
- const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),shieldGovernor:gov.shield,weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
+ const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),shieldGovernor:gov.shield,weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/((u.p.weaponWaste??HEAT.waste.weapon)+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
  const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);ionPowerCut(u,got,dt);if(u.propulsion)u._engineHeatLast={x:want.throttle,wasteW:Math.max(0,u.propulsion.wasteHeatW||0),inputW:Math.max(0,u.propulsion.actualInputW||0)};let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
@@ -118073,7 +118150,7 @@ function fleetProfile(S,name,ship){
  {let n=0,G=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0))continue;n+=r.deployable;G+=r.deployable*airWingGunRate(r);}if(n>0)out.airGun=G/n;}
  out.aaCh=S.aaChannels||AA_CHANNELS.base;out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewCapacity=Math.max(0,S.crew||0);out.fuel=fuelProfileFromStats(S);out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);out.autoCrew=S.autoCrew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
- if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
+ if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};if(S.gunBandRules)out.gunBandRules=JSON.parse(JSON.stringify(S.gunBandRules));if(Number.isFinite(S.weaponWasteFrac))out.weaponWaste=S.weaponWasteFrac;if(S.ionRules)out.ionRules=JSON.parse(JSON.stringify(S.ionRules));
  if(ship){const blank=()=>({gunBands:Object.fromEntries(Object.keys(GUN_BANDS).map(k=>[k,Array(6).fill(0)])),gunArcs:Array(6).fill(0),aaArcs:Array(6).fill(0),aa:0}),dp=blank(),tiers=AA_MODEL.tiers.map(blank).concat([blank()]);for(const f of ship.fits){const d=fitSpec(f);if(f.float||!weaponRoles(d).dualPurpose)continue;const arc=S.fitInfo?.[f.id];if(!Array.isArray(arc))continue;const cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,rate=(d.tt||0)*cr/(d.cycle||K.cycle),band=fitBand(d),aa=(d.aa||0)*Math.min(1,arc.reduce((a,b)=>a+b,0)/6*1.6);for(const g of [dp,tiers[antiAirTier(d)]]){for(let i=0;i<6;i++){g.gunBands[band][i]+=rate*arc[i];g.gunArcs[i]+=rate*arc[i];g.aaArcs[i]+=(d.aa||0)*arc[i];}g.aa+=aa;}}if(dp.aa>0){dp.tiers=tiers;out.dualPurpose=dp;}}
  if(ship){out.modules=fleetModules(ship,S);attachShipPowerProfile(out,ship,S);if(S.cls?.craft)out.stations=JSON.parse(JSON.stringify(craftStations(ship)))/* 2026-11-24 a craft's launch stations, for the load of its mission at launch (missionOrdnance) */;if(!S.cls?.craft){out.trackModel=1;out.aaCh=shipTrackSlots({p:out})/* 2026-11-24 user「枠は対空交戦枠と同一」「対空交戦枠もセンサー外容積で」: a ship's anti-air channels are its tracking slots */;}const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
   // Armour zones: the exposed skin of each section and face with its thickness
@@ -124187,10 +124264,12 @@ function heatLoads(g,pr,sw=[]){
  const X=pr&&typeof pr==='object'?pr:HEAT_PRESETS[pr]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],P0=Math.max(0,g.P||0),swDraw=sw.map(w=>{if(!X.sw)return 0;const share=SW_COMBAT[w.k].share*(w.Pshare||0)*P0/Math.max(1,w.n||1);/* never more than the weapon actually draws (a superlaser charges for 24 hours: physics review 2026-11-15) */return w.chargeW>0?Math.min(share,w.chargeW):share;}),swk=swDraw.reduce((a,b)=>a+b,0);
  const P=Math.max(0,P0-swk),want={engines:Math.max(0,g.De||0)*X.eng,shields:(g.Ds||0)*X.sh,weapons:(g.Dw||0)*M.weapons*X.wpn},got=powerSplit(P,g.fixed||0,want,X.mode);
  const shot=sw.map(w=>!g.strict&&X.sw&&w.chargeT>0&&Number.isFinite(w.chargeT)?HEAT.swShot*(w.E||0)*TT/(w.chargeT+SW_COMBAT[w.k].over.T):0);
- return {P,draw:got.draw,weapon:got.weapons,shield:got.shields,engine:got.engines,fixed:Math.min(g.fixed||0,got.draw),sw:swDraw,swShot:shot,want};
+ return {P,draw:got.draw,weapon:got.weapons,shield:got.shields,engine:got.engines,fixed:Math.min(g.fixed||0,got.draw),sw:swDraw,swShot:shot,want,weaponWaste:g.weaponWaste};
 }
 // Waste heat (W) of each kind at a load: what the drawn power leaves aboard.
-function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon:W.weapon*L.weapon,shield:W.shield*L.shield,engine:W.engine*L.engine,feed:Number.isFinite(L.feedLossW)?Math.max(0,L.feedLossW):0,hotel:W.hotel*L.fixed,sw:L.sw.map((d,i)=>W.sw*d+(L.swShot[i]||0))};}
+// 2026-11-24 A gun's firing heat is 5% of its compression energy (gunRule.heatFrac of its input); other weapons keep HEAT.waste.weapon.
+function weaponWasteFrac(d){return d?.gunRule?.heatFrac??HEAT.waste.weapon;}
+function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon:(Number.isFinite(L.weaponWaste)?L.weaponWaste:W.weapon)*L.weapon,shield:W.shield*L.shield,engine:W.engine*L.engine,feed:Number.isFinite(L.feedLossW)?Math.max(0,L.feedLossW):0,hotel:W.hotel*L.fixed,sw:L.sw.map((d,i)=>W.sw*d+(L.swShot[i]||0))};}
 // The flow through the heat network: sources with a demand D (W), dissipators with a capacity, links s→d
 // with their own capacity. Each source offers what is left of its demand over its open paths (in proportion to
 // what each can still take), each dissipator accepts as much of what is offered as it has room for (the same
@@ -124238,7 +124317,7 @@ function heatNetwork(ship,S){
  const sws=(S.superweapons||[]).filter(w=>w.ok),swIn=sws.map(w=>({k:w.k,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),n:sws.filter(x=>x.reactor===w.reactor).length,E:w.k==='hion'?w.Emax:w.E,chargeT:w.chargeT,chargeW:w.chargeW}));
  // S.draw.hotel carries the converters' own input once the statistics are complete; the presets below
  // charge that input from the heat each preset actually converts, so it is taken out of the fixed load here.
- const g={P:S.power||0,fixed:Math.max(0,(S.draw?.hotel||0)+(S.draw?.ray||0)-Math.max(0,S.dissipatorPower||0)),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict};
+ const g={P:S.power||0,fixed:Math.max(0,(S.draw?.hotel||0)+(S.draw?.ray||0)-Math.max(0,S.dissipatorPower||0)),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict,weaponWaste:S.weaponWasteFrac};
  const W={},presetLoads={};for(const pr in HEAT_PRESETS){presetLoads[pr]=heatLoads(g,pr,swIn);W[pr]=heatWaste(presetLoads[pr]);}
  const addSrc=(k,id,name,at,w,extra={})=>src.push({k,id,name,at,w,grade:HEAT.grade[k],sec:sec(at),...extra});
  for(const p of ship.parts){if(bad(p.id))continue;
@@ -124326,9 +124405,9 @@ function heatNetwork(ship,S){
   // ledger, but its input is still low-grade heat aboard the ship. Size the
   // hotel paths/stores for that real connected input as well as ordinary
   // fixed loads, matching heatTick's cooling.inputJ/heatJ accounting.
-  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,feedLossW:power.feedLossW,fixed:power.fixed+power.cooling,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0)});
+  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,feedLossW:power.feedLossW,fixed:power.fixed+power.cooling,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0),weaponWaste:S.weaponWasteFrac});
   W[pr].engine=[...engineHeat.values()].reduce((n,w)=>n+w,0);const generatedElectricalW=power.sources.reduce((n,r)=>n+(ship.parts.some(p=>'p'+p.id===r.id&&isReactor(p))?Math.max(0,r.drawW||0):0),0);fuelPresets[pr]=fuelOperatingSummary(fuelProfileFromStats(S),generatedElectricalW,HEAT.waste.reactor*generatedElectricalW);
-  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='feed')s.rated[pr]=feedHeat.get(s.routeId)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=HEAT.waste.weapon*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*((power.granted['fixed:'+s.id]||0)+power.cooling*s.w/Math.max(1e-30,tot.hotel||1));}
+  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='feed')s.rated[pr]=feedHeat.get(s.routeId)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=weaponWasteFrac(fitSpec(ship.fits.find(f=>'f'+f.id===s.id)||{}))*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*((power.granted['fixed:'+s.id]||0)+power.cooling*s.w/Math.max(1e-30,tot.hotel||1));}
   presetPower[pr]={supplyW:Math.max(0,power.P||0),drawW:Math.max(0,power.draw||0),coolingW:Math.max(0,power.cooling||0),coolingRequestedW:loads.filter(l=>l.kind==='cooling').reduce((n,l)=>n+l.requestedInputW,0),fixedW:Math.max(0,power.fixed||0),shieldsW:Math.max(0,power.shields||0),weaponsW:Math.max(0,power.weapons||0),enginesW:Math.max(0,power.engines||0),enginesRequestedW:Math.max(0,propulsion.totalRequestedInputW||0)};
  }
  if(pass===0){
