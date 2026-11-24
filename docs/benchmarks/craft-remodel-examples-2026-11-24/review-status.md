@@ -8,7 +8,9 @@
 | physics-reviewer（2 回目） | dd96e9c | FAIL（対空の枠が戻らない、公試の再装填） | 8b21468・523a1e8 で直した |
 | physics-reviewer（3 回目） | 523a1e8 | PASS | 注意 3 件は下に記録 |
 | regression-reviewer | 0930978 → dd96e9c | UNVERIFIED → UNVERIFIED | FLEET_PROFILE_VERSION 26、作例 49 隻の組み直し、公試のリセットの不具合を直した。追加の Opus/high を実施 |
-| 追加（Opus/high） | 88f2ea3 | A（保存・キャッシュ互換）PASS、B（公試の非同期）FAIL | B1〜B6 を 523a1e8 で直し、ブラウザで確認（trial-jump-check.cjs）。確認のレビューを依頼中 |
+| 追加（Opus/high） | 88f2ea3 | A（保存・キャッシュ互換）PASS、B（公試の非同期）FAIL | B1〜B6 を 523a1e8 で直した |
+| 追加（Opus/high）2〜3 回目 | 523a1e8、1e62253 | FAIL（操縦中の機体、ジャンプで全快、拒否・取り消しで標的が戻らない／到着直後の次のジャンプ、座標系の傾き） | 1e62253、db74683 で直した（戦闘を引き継ぎ、標的は超空間に入るとき外す、到着点に座標系を置き直す） |
+| 追加（Opus/high）4 回目 | db74683 | PASS（指摘 3 件：取り消しで随伴艦が消えたまま、到着時の隊形の向き、無視されるジャンプ命令の表示） | 3 件とも直した（この次のコミット。ブラウザで再確認、trial-jump-check.log） |
 | reference-fidelity-reviewer | 0930978 → dd96e9c | evidenceValidity FAIL → partConstraints FAIL（ヴェネターの mesh） | 証拠を最終コミットで作り直した（final-1edc033）。ユーザー「進めて」でヴェネターの mesh を §2 の例外に追加（8b21468）。ven_* はカタログの機関「タービン露出型エンジン」の見た目で通常の装備 |
 
 ## 残した項目（理由）
