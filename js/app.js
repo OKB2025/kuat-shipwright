@@ -8278,7 +8278,8 @@ function trialTargetsWanted(started=true){return (trial.on||!started)&&!trial.rt
 async function trialTargetsBattle(){
  if(!trialTargetsWanted(false))return/* called from the reset, before the flight is on */;const gen=trial.resetGen;let a=null;
  try{a=await fleetAsset(TRIAL_TARGET.key,fleetExampleOptions(TRIAL_TARGET.key));}catch(e){console.error(e);toast('標的艦を出せません：'+esc(e.message||e));return;}
- for(let i=0;i<200&&!trial.on&&trial.resetGen===gen;i++)await new Promise(r=>setTimeout(r,50))/* the flight comes on once the reset has finished */;if(!a?.p||!trialTargetsWanted()||trial.resetGen!==gen||trial.jump)return;
+ for(let i=0;i<2400&&(!trial.on||trial.jump)&&trial.resetGen===gen;i++)await new Promise(r=>setTimeout(r,50))/* the flight comes on once the reset has finished; a jump begun meanwhile is waited out (high-effort review 2026-11-24: the targets never came) */;if(!a?.p||!trialTargetsWanted()||trial.resetGen!==gen||trial.jump)return;
+ if(trial.battle?.plan?.targets&&trial.battle.b.units.some(u=>u.trialTarget!=null&&!u.trialGone))return/* already put out (one call per flight) */;
  if(!trial.battle){const esc0=(trial.escorts||[]).map(e=>({key:e.key,p:e.p,name:e.name,order:{}}));trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true,targets:true};trial.escorts=[];spaceBattleInit(trial.battlePlan);trialHudRemount();}
  trial.targetAsset=a;for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();trialHudUpdate?.(true);
 }
@@ -8288,7 +8289,13 @@ function trialTargetPut(i,first){
  B.b.units.push(u);C.fleetPrepareCollision?.([u]);return u;
 }
 // A target sunk or put out of action comes back at a new place after TRIAL_TARGET.respawn seconds.
-function trialTargetsRespawn(dt){const B=trial.battle;if(!B?.plan?.targets||B.result)return;for(const u of B.b.units){if(u.trialTarget==null||u.trialGone)continue;if(u.dead||C.outOfAction(u)){if(u.trialBack==null)trial.gun.kills=(trial.gun.kills||0)+1;u.trialBack=(u.trialBack??TRIAL_TARGET.respawn)-dt;if(u.trialBack<=0){u.trialGone=true;u.dead=true;u.hidden=true;trialTargetPut(u.trialTarget,false);}}}}
+// A trial battle holding only the flown ship, its escorts and its target ships (nothing put out with 「艦を出す」).
+function trialTargetsOnly(){const B=trial.battle;return !!B?.plan?.targets&&!B.result&&B.b.units.every(u=>u.manual||u.trialTarget!=null||u.team===0&&!u.trialSpawned&&!u.wing)/* craft launched from the ship keep the battle */;}
+// Before a jump from such a trial its target battle is put away (the escorts fly as escorts again and jump along); the targets are put
+// out again where the ship arrives (trialTargetsBattle from the arrival). High-effort review 2026-11-24: the target battle had made
+// the jump unavailable in the trial.
+function trialTargetsLeave(){if(!trialTargetsOnly())return false;trial.battle=null;trial.battlePlan=null;trial.mode='trial';trial.targets=[];trial.vbolts=[];escortsInit();trialHudRemount();return true;}
+function trialTargetsRespawn(dt){const B=trial.battle;if(!B?.plan?.targets||B.result)return;for(const u of B.b.units){if(u.trialTarget==null||u.trialGone)continue;if(u.dead||C.outOfAction(u)){if(u.trialBack==null)trial.gun.kills=(trial.gun.kills||0)+1;u.trialBack=(u.trialBack??TRIAL_TARGET.respawn)-dt;if(u.trialBack<=0){u.trialGone=true;u.dead=true;u.hidden=true;trialTargetPut(u.trialTarget,false);}}}B.b.units=B.b.units.filter(u=>!u.trialGone)/* retired targets leave the battle (high-effort review 2026-11-24: the list grew without end) */;}
 function trialSpawnTarget(i,first){
  const up=tv.norm(trial.P),f=trialCol(trial.R,0);let fh=tv.add(f,up,-tv.dot(f,up));fh=tv.len(fh)>.2?tv.norm(fh):tv.norm(tv.cross(up,[0,0,1]));const rt=tv.cross(fh,up);
  const L=trial.p.len,bearing=first?[-.6,.25,-.15,.55][i%4]:(Math.random()*2-1)*1.2,dist=first?[9000,14000,20000,27000][i%4]+L*.6:8000+L*.6+Math.random()*20000,rise=(Math.random()*2-1)*1500;
@@ -8719,7 +8726,7 @@ function trialBattleMissiles(dt,lock){
 function spaceMissileView(){const B=trial.battle;if(!B?.b?.missiles)return [];const out=[];for(const m of B.b.missiles){if(!(m.n>0))continue;const v=C.len(m.vel||[0,0,0])>1?m.vel:[1,0,0];out.push({pos:tv.add(B.O,trialApply(B.E,m.pos)),h:tv.norm(trialApply(B.E,v)),ion:!!m.ion});}return out;}
 function trialMissiles(dt,lock){
  if(!(dt>0)||!Number.isFinite(dt))return;
- if(trial.battle?.b&&trial.battle.me&&!trial.craft)return trialBattleMissiles(dt,lock);
+ if(trial.battle?.b&&trial.battle.me&&!trial.craft&&!(lock?.alive&&!lock.unit))trialBattleMissiles(dt,lock)/* a ship in the battle; a locked drone (point-defence practice, no battle unit) still takes the trial's own rounds below (high-effort review 2026-11-24) */;
  // Without a battle (the drone range) the launch reach follows the fleet's rule for a ship's missile at a craft: heat-seeking within
  // the seeker's 10 km, beyond it only a large missile radar-guided with a tracking slot (C.SHIP_MSL_GUIDE).
  const shipReach=l=>{const row=trialLauncherModule(l),m=row?.module,G=C.SHIP_MSL_GUIDE;if(!m||trial.craft||m.torp||!G)return C.missileRange(l);return Math.max(Math.min(C.missileRange(l),G.heatRange),m.heavy&&C.shipTrackSlots(row.unit)>0?G.radarRange:0);};
@@ -9225,7 +9232,7 @@ function trialCommand(cmd){
  else if(cmd.startsWith('swfire:'))trialSwFire(Number(cmd.slice(7)));
  else if(cmd==='swarc'){trial.swArc=trial.swArc===false;toast(trial.swArc?'超兵器の射界（射程と射角）を表示します':'超兵器の射界を隠しました');}
  else if(cmd==='map'){if(trial.rts){toast('ジャンプは戦術図の「離脱」「増援」で命じます');return;}trialMapShow();return;}
- else if(cmd.startsWith('jump:')){if(trialSandbox()){toast('艦を出している間はジャンプできません。「再開始」で片づけてください');return;}trialJump(cmd.slice(5));}
+ else if(cmd.startsWith('jump:')){if(trialSandbox()&&!trialTargetsLeave()){toast('艦を出している間はジャンプできません。「再開始」で片づけてください');return;}trialJump(cmd.slice(5));}
  else if(cmd==='retry'){if(trial.rts)return;const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;if(trialSandbox()){trialSandboxEnd();return;}trialReset();}
  else if(cmd==='resultClose'){const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;return;}
  else if(cmd==='exit'){trialStop();return;}
@@ -9678,7 +9685,7 @@ const trialSpawnJumping=()=>!!trial.jump;
 function trialHudRemount(){const hud=$('#trialHud');if(!hud||!trial.on||trial.spectate)return;
  // The controls being held belong to the elements that go away: their release would never arrive.
  trial.stick={x:0,y:0};trial.fire=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
-function trialSandboxEnd(){trial.mode='trial';trial.battlePlan=null;trial.hitcam=null;trialReset();trialHudRemount();toast('出した艦を片づけ、公試を再開始しました');}
+function trialSandboxEnd(){const put=!trialTargetsOnly();trial.mode='trial';trial.battlePlan=null;trial.hitcam=null;trialReset();trialHudRemount();toast(put?'出した艦を片づけ、公試を再開始しました':'公試を再開始しました');}
 // A stationary target holds still and fires nothing: guns, launchers, superweapons (which Core fires and turns the
 // bow for unless order.sw is false) and automatic point defence.
 function trialStaticOrder(u){u.order={...u.order,type:'hold',target:null,fire:false,launch:false,sw:false};if(u.order.autoPointDefense!==false)C.setAutomaticPointDefense(u,false);}
@@ -9721,10 +9728,10 @@ async function trialSpawnShip(){
  if(!trial.battle){
   // The flight becomes a battle with no ending where it is; escorts already flying join it as fleet units.
   const esc0=(trial.escorts||[]).map(e=>({key:e.key,p:e.p,name:e.name,order:{}}));
-  trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true};trial.escorts=[];trial.drones=[];spaceBattleInit(trial.battlePlan);trialHudRemount();
+  trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true,targets:true/* the trial's target ships still come (high-effort review 2026-11-24: a ship put out before they loaded left the trial without them) */};trial.escorts=[];spaceBattleInit(trial.battlePlan);trialHudRemount();
   const c=$('#thSpawn');if(c){c.hidden=false;trialSpawnRender();}
  }
- const B=trial.battle,b=B.b,name=String(a.design?.name||a.p.name||'艦').split('｜')[0],u=C.fleetUnit('x'+(++S.n),a.key,a.p,role==='escort'?0:1),loc=w=>trialApplyT(B.E,w);
+ const B=trial.battle,b=B.b,name=String(a.design?.name||a.p.name||'艦').split('｜')[0],u=C.fleetUnit('x'+(++S.n),a.key,a.p,role==='escort'?0:1),loc=w=>trialApplyT(B.E,w);u.trialSpawned=true;
  spaceSync();
  const f=loc(trialCol(trial.R,0)),yaw=Math.atan2(f[2],f[0]);u.name=name;u.pos=loc(tv.sub(world,B.O));u.yaw=role==='foe'?yaw+Math.PI:yaw;u.velocity=role==='escort'?loc(trial.V):[0,0,0];
  if(role==='target'){u.trialStatic=true;u.trialAt={pos:u.pos.slice(),yaw:u.yaw};trialStaticOrder(u);}
@@ -9763,7 +9770,7 @@ async function trialWingLaunch(){
  if(!a.p||a.p.catalogOnly){toast('この機体は性能表だけのため発艦できません');return;}
  if(!trial.battle){
   const esc0=(trial.escorts||[]).map(e=>({key:e.key,p:e.p,name:e.name,order:{}}));
-  trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true};trial.escorts=[];trial.drones=[];spaceBattleInit(trial.battlePlan);trialHudRemount();
+  trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true,targets:true/* the trial's target ships still come (high-effort review 2026-11-24: a ship put out before they loaded left the trial without them) */};trial.escorts=[];spaceBattleInit(trial.battlePlan);trialHudRemount();
  }
  const B=trial.battle,b=B.b,name=String(a.design?.name||a.p.name||'小型機').split('｜')[0],u=C.fleetUnit('w'+(++W.n),a.key,a.p,B.me.team);
  u.name=`${name} ${W.n}`;u.wing={home:B.me.id,recall:false,aboard:null,clear:0};W.recall=false;
