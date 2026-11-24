@@ -117919,7 +117919,7 @@ function fleetModules(ship,S){
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
   // v23 External dissipators stand out of the hull: they present more to fire and are as fragile as a turret.
   const ext=(isWing(p)||DISSIPATORS[p.k]?.ext)&&(S.info?.[p.id]?.exposed||0)>.2;if(ext)w*=1+2*(S.info[p.id].exposed||0);
-  const credited=k==='quarters'?(commonHab.explicitByPart?.[p.id]??0):V;const m={k,name:partLabel(p),w:k==='quarters'?Math.pow(credited,2/3)*QUARTERS_WEIGHT:w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:credited,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};if(p.k==='solarPanel')m.panel=true;/* v30 a panel standing off the hull: a shot on it takes the panel, not the craft */if(k==='sensor'&&(S.info?.[p.id]?.exposed||0)>=.5)m.trackVol=V/* 2026-11-24 an exterior sensor dome: its volume gives the ship's tracking slots (shipTrackSlots) */;
+  const credited=k==='quarters'?(commonHab.explicitByPart?.[p.id]??0):V;const m={k,name:partLabel(p),w:k==='quarters'?Math.pow(credited,2/3)*QUARTERS_WEIGHT:w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:credited,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};if(p.k==='solarPanel')m.panel=true;/* v30 a panel standing off the hull: a shot on it takes the panel, not the craft */if(k==='sensor'&&(S.info?.[p.id]?.exposed||0)>0)m.trackVol=V*S.info[p.id].exposed/* 2026-11-24 (user「構造物の外に出てるドーム容積で出すのはどうか」) the sensor's volume standing outside the structure gives the ship's tracking slots (shipTrackSlots) */;
   if(k==='shield'&&Number.isFinite(p.shieldDissipationW)&&p.shieldDissipationW>=0)m.shieldDissipationW=p.shieldDissipationW;if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(k==='capacitor'&&Array.isArray(p.weaponIds))m.links=p.weaponIds.map(id=>byFit.get(id)).filter(id=>Number.isInteger(id));if(p.id>0||p.k==='machinery'&&p.id<0||p.trenchChargeRow)m.part=p.id;if(p.k==='machinery'&&!p.transmission&&!p.drivetrain)m.machineryOwner=-p.id;if(p.drivetrain){m.k='drivetrain';m.routeId=p.routeId;m.coreId=p.coreId;m.nozzleId=p.nozzleId;m.capacityW=p.capacityW;}if(p.transmission){m.k='conduit';m.routeId=p.routeId;m.capacityW=p.capacityW;}if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
  // v19: the crew and troops live in the free volume; hits through it kill people
  // (living zones by quarter length, weighted lightly against the systems).
@@ -119650,13 +119650,13 @@ const unitHasSensor=u=>(u?.p?.modules||[]).some(m=>m.k==='sensor');
 // User decisions 2026-11-24 for a ship's launchers「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）。近距離だと熱源誘導が
 // 可能…熱源シーカーは10km、遠距離は50km」, with「センサー装置がある艦だけ」「ISD-72xのサイズ（容積）で4枠。通常のドームはサイズ可変なのでその容積に
 // より能力が変わる」「基本はレーダーで、航空対象などで外さないといけない時だけ熱源（ただ別の艦をロックしてしまう可能性やロックに失敗する可能性がある）」:
-//   a ship's tracking slots are SHIP_MSL_GUIDE.slotsPerRef for each SHIP_MSL_GUIDE.refVol m³ of its working exterior sensor domes (the
-//   ISD-72x, 31,527 m³, gives 4), rounded down; each target its radar-guided missiles fly at takes one. Beyond SHIP_MSL_GUIDE.heatRange
+//   a ship's tracking slots are SHIP_MSL_GUIDE.slotsPerRef for each SHIP_MSL_GUIDE.refVol m³ of its working sensors' volume outside the
+//   structure (an ISD-72x as mounted, 30,340 m³ outside, gives 4; a dome half sunk counts half), rounded down; each target its radar-guided missiles fly at takes one. Beyond SHIP_MSL_GUIDE.heatRange
 //   a ship launches only radar-guided, up to SHIP_MSL_GUIDE.radarRange, and only with a slot free; within it, heat-seeking from the start.
 //   A radar-guided round is guided while its ship lives and keeps a slot on that target; at a ship it flies radar to the end, at a craft
 //   it hands over to heat at SHIP_MSL_GUIDE.heatRange, and the heat seeker then takes the hottest thing in its cone (SHIP_MSL_GUIDE.cone),
 //   which may be another ship, or fails (a craft's aspect, MISSILE_SEEK.heatBase…1).
-const SHIP_MSL_GUIDE=Object.freeze({refVol:31527,slotsPerRef:4,heatRange:10000,radarRange:50000,cone:30});
+const SHIP_MSL_GUIDE=Object.freeze({refVol:30340/* the exterior volume of an ISD-72x as the Imperial class carries it: 31,527 m³ × 0.962 outside the hull */,slotsPerRef:4,heatRange:10000,radarRange:50000,cone:30});
 function shipTrackSlots(u){let v=0;const ms=u?.p?.modules||[];for(let i=0;i<ms.length;i++)if(ms[i].trackVol>0&&!(u.mods&&u.mods[i]!=null&&!(u.mods[i]>0)))v+=ms[i].trackVol;return Math.floor(v/SHIP_MSL_GUIDE.refVol*SHIP_MSL_GUIDE.slotsPerRef+1e-9);}
 function shipTracked(b,u){const set=new Set();for(const m of b.missiles||[])if(m.from===u.id&&m.shipGuide==='radar'&&!m.unguided&&m.n>0)set.add(m.target);return set;}
 // The heat seeker's pick: within SHIP_MSL_GUIDE.cone of the round's way and SHIP_MSL_GUIDE.heatRange, weighted by heat (mass^(2/3)); for a
