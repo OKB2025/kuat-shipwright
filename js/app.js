@@ -8295,11 +8295,15 @@ function trialTargetsOnly(){const B=trial.battle;return !!B?.plan?.targets&&!B.r
 // putting the battle away and building it again repaired and resupplied the ship): the targets are taken away for the jump, the
 // escorts keep their places about the ship, and the targets come again where it arrives. A jump refused or cancelled puts them back.
 function trialTargetsCarry(){if(!trialTargetsOnly())return false;const B=trial.battle;spaceSync();const me=B.me,offsets=new Map();
- for(const u of B.b.units)if(u!==me&&u.trialTarget==null&&!u.dead)offsets.set(u.id,tv.sub(u.pos,me.pos));
- for(const u of B.b.units)if(u.trialTarget!=null){u.dead=true;u.hidden=true;u.trialGone=true;}B.b.units=B.b.units.filter(u=>!u.trialGone);B.jumpCarry={offsets};trial.targets=[];return true;}
-function trialTargetsRestore(arrived){const B=trial.battle;if(!B?.jumpCarry)return;spaceSync();
- if(arrived){const me=B.me;for(const u of B.b.units){const off=B.jumpCarry.offsets.get(u.id);if(off&&!u.dead){u.pos=tv.add(me.pos,off);u.velocity=(me.velocity||[0,0,0]).slice();}}}
- B.jumpCarry=null;for(const u of B.b.units)if(u.trialTarget!=null&&!u.trialGone){u.dead=true;u.hidden=true;u.trialGone=true;}B.b.units=B.b.units.filter(u=>!u.trialGone);for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();}
+ for(const u of B.b.units)if(u!==me&&u.trialTarget==null&&!u.dead)offsets.set(u.id,tv.sub(u.pos,me.pos));B.jumpCarry={offsets,E:B.E.slice(),taken:false};return true;}
+// The targets are taken away as the ship enters hyperspace (they stay while the drive charges; high-effort review 2026-11-24).
+function trialTargetsTake(){const B=trial.battle;if(!B?.jumpCarry||B.jumpCarry.taken)return;B.jumpCarry.taken=true;for(const u of B.b.units)if(u.trialTarget!=null){u.dead=true;u.hidden=true;u.trialGone=true;}B.b.units=B.b.units.filter(u=>!u.trialGone);B.b.missiles=[];trial.targets=[];}
+// Refused or cancelled before the ship left: nothing was taken. Arrived: the battle's frame is set at the arrival point (its axes
+// follow the new place: high-effort review 2026-11-24), the escorts come out about the ship and the targets anew.
+function trialTargetsRestore(arrived){const B=trial.battle;if(!B?.jumpCarry)return;const c=B.jumpCarry;B.jumpCarry=null;if(!arrived||!c.taken)return;
+ B.O=[...trial.P];B.E=trialFrame(trialCol(trial.R,0),tv.norm(trial.P));B.b.missiles=[];spaceSync();const me=B.me;
+ for(const u of B.b.units){const off=c.offsets.get(u.id);if(!off||u.dead)continue;u.pos=tv.add(me.pos,trialApplyT(B.E,trialApply(c.E,off)));u.velocity=(me.velocity||[0,0,0]).slice();u.yaw=me.yaw;u.absent=false;u.hidden=false;delete u.depart;}
+ for(const u of B.b.units)if(u.trialTarget!=null&&!u.trialGone){u.dead=true;u.hidden=true;u.trialGone=true;}B.b.units=B.b.units.filter(u=>!u.trialGone);for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();}
 function trialTargetsRespawn(dt){const B=trial.battle;if(!B?.plan?.targets||B.result)return;for(const u of B.b.units){if(u.trialTarget==null||u.trialGone)continue;if(u.dead||C.outOfAction(u)){if(u.trialBack==null)trial.gun.kills=(trial.gun.kills||0)+1;u.trialBack=(u.trialBack??TRIAL_TARGET.respawn)-dt;if(u.trialBack<=0){u.trialGone=true;u.dead=true;u.hidden=true;trialTargetPut(u.trialTarget,false);}}}B.b.units=B.b.units.filter(u=>!u.trialGone)/* retired targets leave the battle (high-effort review 2026-11-24: the list grew without end) */;}
 function trialSpawnTarget(i,first){
  const up=tv.norm(trial.P),f=trialCol(trial.R,0);let fh=tv.add(f,up,-tv.dot(f,up));fh=tv.len(fh)>.2?tv.norm(fh):tv.norm(tv.cross(up,[0,0,1]));const rt=tv.cross(fh,up);
@@ -9237,7 +9241,7 @@ function trialCommand(cmd){
  else if(cmd.startsWith('swfire:'))trialSwFire(Number(cmd.slice(7)));
  else if(cmd==='swarc'){trial.swArc=trial.swArc===false;toast(trial.swArc?'超兵器の射界（射程と射角）を表示します':'超兵器の射界を隠しました');}
  else if(cmd==='map'){if(trial.rts){toast('ジャンプは戦術図の「離脱」「増援」で命じます');return;}trialMapShow();return;}
- else if(cmd.startsWith('jump:')){const carry=trialSandbox()&&trialTargetsCarry();if(trialSandbox()&&!carry){toast('艦や機体を出している間はジャンプできません。「再開始」で片づけてください');return;}trialJump(cmd.slice(5));if(carry&&!trial.jump)trialTargetsRestore(false)/* the jump was refused: the targets come back */;}
+ else if(cmd.startsWith('jump:')){if(trial.jump){trialJump(cmd.slice(5));return;}/* already jumping: nothing is carried again (high-effort review 2026-11-24) */const carry=trialSandbox()&&trialTargetsCarry();if(trialSandbox()&&!carry){toast('艦や機体を出している間はジャンプできません。「再開始」で片づけてください');return;}trialJump(cmd.slice(5));if(carry&&!trial.jump)trialTargetsRestore(false)/* the jump was refused: the targets come back */;}
  else if(cmd==='retry'){if(trial.rts)return;const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;if(trialSandbox()){trialSandboxEnd();return;}trialReset();}
  else if(cmd==='resultClose'){const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;return;}
  else if(cmd==='exit'){trialStop();return;}
@@ -9446,7 +9450,7 @@ function trialJumpStep(dt){
  else if(j.phase==='enter'){
   if(!j.follow&&!j.burst){next('spool');return;}
   if(bursting&&!C.hyperspaceReadiness(unit,trial.V,j.dir,{forwardDirection:trialCol(trial.R,0),hyperClass:trialHyperClass()}).powerReady){trialCancelJump(true);return;}
-  if(j.follow?j.t>=JUMP.enter:j.burst.t>=j.burst.duration&&(trial.escorts||[]).every(e=>e.burst?.t>=e.burst?.duration)){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{if(unit)unit.hyperE=0;for(const e of trial.escorts||[]){const eu=escortSystemsUnit(e);if(eu)eu.hyperE=0;}j.end=j.tunnel;if(trial.battle&&!trial.battle.result&&!trial.battle.jumpCarry)spaceWithdraw()/* a trial's target battle goes along (trialTargetsCarry) */;}}
+  if(j.follow?j.t>=JUMP.enter:j.burst.t>=j.burst.duration&&(trial.escorts||[]).every(e=>e.burst?.t>=e.burst?.duration)){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{if(unit)unit.hyperE=0;for(const e of trial.escorts||[]){const eu=escortSystemsUnit(e);if(eu)eu.hyperE=0;}j.end=j.tunnel;if(trial.battle?.jumpCarry)trialTargetsTake()/* a trial's target battle goes along (trialTargetsCarry) */;else if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
  }
  else if(j.phase==='tunnel'){
   if(!j.arrived&&!j.follow&&trialTunnelLeft(j)<=JUMP.close){j.arrived=true;trialArrive(j.dest);}
