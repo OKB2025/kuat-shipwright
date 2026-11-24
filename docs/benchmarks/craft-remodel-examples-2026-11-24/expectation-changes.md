@@ -17,3 +17,14 @@ CLAUDE.md の「期待値の変更はレビュー対象」に従う一覧。ど�
 新しいテスト：craft-gas-return.cjs、craft-shield-generator-scale.cjs、part-angle-wrap.cjs。
 
 物理レビュー（physics-reviewer、2026-11-24）：ARC-170 の射撃範囲と B ウイングへの移し替えは妥当と判定。fighter-interiors の 3 点は、その後の変更のため再レビューの対象。
+
+## 追加（Y ウイングの機種を BTL-A4 にしたあと）
+
+| テスト | 変更 | 根拠 |
+| --- | --- | --- |
+| fleet-air-strike-flown.cjs・stray-fire-craft.cjs・fleet-air-restraint.cjs | Y ウイングの性能表を `'craft_btlb'` の文字ではなく `C.FLEET_AIR.roles.ywing.key` で作る | 高負荷レビューの指摘で FLEET_AIR.roles.ywing を craft_ywing（BTL-A4）にした。文字のままだと Y ウイングの性能表がなく、爆撃機が出ない |
+| fleet-air-restraint.cjs #6（再武装） | 反乱側の格納庫の飛行隊も空にする（設定の変更） | BTL-A4 では反乱側の第 2 の Y ウイング飛行隊（6 機）が再武装の間に出撃し、帝国側は 2026-11-19 のユーザー決定（広域防空）どおり戦闘機で応じて爆撃機を出さない。規則の働きどおりで、このケースは再武装の確認 |
+| part-angle-wrap.cjs | ±180 の内側（-180 を含む）は保存値のまま（30.1、-180、-179.999999） | 高負荷レビューの指摘：剰余の計算で範囲内の小数が 1e-14 ずれ、-180 が 180 になっていた |
+| craft-shield-generator-scale.cjs | 戦略画面の飛行隊の機体も発生器の大きさで読む | 高負荷レビューの指摘：カタログの性能表に分類がなく、長さで読んでいた |
+
+fleet-air-restraint.cjs の #4・#13 は変更前（f00cc2a）から失敗している（suite-comparison.txt）。
