@@ -27,3 +27,8 @@ ad91c6bb6e433eb24d7cd184c4291e234c7cf39dab59e892ed8e1fc8c626c677  docs/handoff-2
 efc207e7fd43abf38501463c679be36d74d4ed7fe3ca1c578fba57850a6fba12  docs/handoff-2026-11-20/refs/vwing-remodel-rev2-2026-11-24.json
 7fa7825f36bce2035f4b82a1860d6f453a02a50fb40e99f27f92dc06f28929b3  docs/handoff-2026-11-20/refs/x-wing-remodel-rev2-2026-11-24.json
 502c9608cc079641aeb966caed3dc7bf2fa930ea04e1e8e4c337a1eae6164ddf  docs/handoff-2026-11-20/refs/z95-remodel-rev2-2026-11-24.json
+ca2d0e833a7a395515eedbcd1892cad62510c7e3c5524a81894511a8b9c0dd5f  upload-rev3/Vulture_Droid_Remodel.json
+918a8e84ba0df326eba254c4f53dfc6e766942b30302bc961fbb6073fb670130  upload-rev3/Hyena_Bomber_Remodel.json
+e153f04ca61e5f2dbc2eb662e3f8ebd9dc00b8ec568fe854268b417fa67dbbee  upload-rev3/KUAT_14_Starfighter_Specs_Rev3.csv
+918a8e84ba0df326eba254c4f53dfc6e766942b30302bc961fbb6073fb670130  docs/handoff-2026-11-20/refs/hyena-remodel-rev3-2026-11-24.json
+ca2d0e833a7a395515eedbcd1892cad62510c7e3c5524a81894511a8b9c0dd5f  docs/handoff-2026-11-20/refs/vulture-remodel-rev3-2026-11-24.json

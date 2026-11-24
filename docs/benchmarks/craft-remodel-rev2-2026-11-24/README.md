@@ -9,3 +9,8 @@
 - 全項目の比較（full-diff.txt）：違いは発射管の種別と位置、読み込み時の既存の規則（credits・hullData.paint・帯のない bandPaint・装備の label・重複したグループの部品・既定値・厚みの下限 0.02 m）、生成時の既存の処理（削りを船体の断面に焼き込む `bakedSections`、機関の支持を機関外筒に付け直す `engineMountSupport`。どちらも前の作例と同じ）だけ。
 - 規則：パッシブ（対レーダー）の発射にもセンサーが要る（`craftMissileChoice`）。センサーを持つ機体：X ウイング、TIE/D、ARC-170、Z-95。持たない機体：TIE/ln、TIE/in ほか。
 - 試験の期待値：TIE/ln がセンサーを持たなくなったので、ロック・パッシブの試験の機体を TIE/D に替えた（missile-seekers-torpedo-flight.cjs・craft-missile-trial-rules.cjs・trial-guidance.cjs、理由は各試験のコメント）。任務の搭載：TIE/ln の制空は熱源 3、X ウイングの制空はレーダー誘導 6。
+
+## Rev3（2026-11-24）
+
+ユーザー：KUAT_14_Starfighters_Rev3.zip「ヴァルチャーとハイエナの速度を修正」。Rev2 と違うのはこの 2 機の反応炉の大きさだけ（ヴァルチャー #16 0.919→0.813 m、#99/#100 0.521→0.461 m。ハイエナ #17/#18 0.964→0.942 m、#23/#24 0.373→0.365 m）。ほかの 12 機は Rev2 と同じ。設計は refs の vulture・hyena-remodel-rev3-2026-11-24.json。
+- 作例：ヴァルチャー 10.71 t・1,813 G → 10.54 t・1,308 G、ハイエナ 27.32 t・804 G → 27.28 t・745 G（check.cjs）。浮いた装備なし。

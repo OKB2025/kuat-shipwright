@@ -38,7 +38,7 @@
   },
   "cr90": {
    "combat": {
-    "sha256": "1db8a9ed4a0641f17eeae36f8a3915bd32cda09a76100caea8703a0c747e9435"
+    "sha256": "4732535835c305a19b8ef10c86e8527c943bded5b87c75b83a3f93042a2cc04f"
    },
    "design": {
     "sha256": "742b7dc215f03cab4e89306a2c6e457aa1e5b0685513041ed36b0af1b17ddff0",
@@ -69,9 +69,9 @@
   },
   "craft_hyena": {
    "design": {
-    "sha256": "ba49d2b449d86fcbbc82ccda337a7e9c492c6b8a302e956305b90093a5ad49e6",
-    "jsonSha256": "95a668f072021a97d0f81b39534f63d0b24d5906ebf767b8b18c0343e50aad90",
-    "blueprintSha256": "384d1edef75f0033eb00ecd3d414dca81dea625cdff66afd18a25edf20918f2b"
+    "sha256": "fac4b3854ec667553c651bcb9f2857f61248045a74964aea9d207a6ca19ed711",
+    "jsonSha256": "0ad90b0e23beaa45a3be2a6870288ccd6e76d2b2e1c606acece82ba312ed9aef",
+    "blueprintSha256": "6c05fcff32f997c02b9e517219b9be96d8c336506f8318435f60dad234f13827"
    }
   },
   "craft_tie_d": {
@@ -111,9 +111,9 @@
   },
   "craft_vulture": {
    "design": {
-    "sha256": "92051b51213d73e2e92dc06473eec94b8ce4efaec9349dbe1686222bd5a24194",
-    "jsonSha256": "6f8e6c17b073ca0e75be31030b83cc853896b790cde62e076cad40008e9145c2",
-    "blueprintSha256": "a1c03f8fd17c645bd045528d8f598500a8be44b6deddd5ab3237b6197114b43c"
+    "sha256": "48a96585c884c1487d9177cb92db824830c59f0edb16944b932fd2f477a7472c",
+    "jsonSha256": "3ce82f67bdbcce27ae355a6f9111ad8c17288f75266d6e8d1625d45ac3fa34bc",
+    "blueprintSha256": "abf27b46ee6ce70692c8a18ad415c317ac14b2afcbaa798993b35b1e1b751e40"
    }
   },
   "craft_vwing": {
@@ -200,7 +200,7 @@
   },
   "gr75": {
    "combat": {
-    "sha256": "cc9e5b086310212499e2e18ba65a3723a345e5a23d18806cbb760d1dbee509a4"
+    "sha256": "0c5fb3f68d6a00aabdf939b20b16c74916de73494d90a0a93844a3a298d2dd88"
    },
    "design": {
     "sha256": "9b5df6888e4d228f99a1a1913d483f24ff76b84ca04313681da491b789e6efd0",
