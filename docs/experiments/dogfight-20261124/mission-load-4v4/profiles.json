@@ -1,0 +1,50 @@
+[
+  {
+    "craft": "craft_xwing",
+    "sensors": 1,
+    "shield_kt": 139.643070716472,
+    "rounds": [
+      {
+        "kind": "rmsl",
+        "count": 6,
+        "mount": "tube"
+      }
+    ]
+  },
+  {
+    "craft": "craft_tie_ln",
+    "sensors": 0,
+    "shield_kt": 0,
+    "rounds": [
+      {
+        "kind": "cmsl",
+        "count": 3,
+        "mount": "tube"
+      }
+    ]
+  },
+  {
+    "craft": "craft_tie_in",
+    "sensors": 0,
+    "shield_kt": 0,
+    "rounds": [
+      {
+        "kind": "cmsl",
+        "count": 3,
+        "mount": "tube"
+      }
+    ]
+  },
+  {
+    "craft": "craft_tie_d",
+    "sensors": 1,
+    "shield_kt": 160.1083488250946,
+    "rounds": [
+      {
+        "kind": "cmsl",
+        "count": 12,
+        "mount": "wing"
+      }
+    ]
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+    {
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "r_frame_rate": "30/1",
+      "nb_frames": "1853",
+      "nb_read_frames": "1853"
+    }
+  ],
+  "chapters": [
+    {
+      "start_time": "0.000000",
+      "end_time": "19.767000",
+      "tags": {
+        "title": "X\u30a6\u30a4\u30f3\u30b0 \u5bfe TIE/ln"
+      }
+    },
+    {
+      "start_time": "19.767000",
+      "end_time": "42.600000",
+      "tags": {
+        "title": "X\u30a6\u30a4\u30f3\u30b0 \u5bfe TIE/in"
+      }
+    },
+    {
+      "start_time": "42.600000",
+      "end_time": "61.767000",
+      "tags": {
+        "title": "X\u30a6\u30a4\u30f3\u30b0 \u5bfe TIE/D"
+      }
+    }
+  ],
+  "format": {
+    "duration": "61.767000"
+  },
+  "sha256": "c647fbddaa6694b8237e38dc95fed44b2c9f7290b90a2e0140d405c48bbcf46c"
+}

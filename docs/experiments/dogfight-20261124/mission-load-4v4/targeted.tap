@@ -1,0 +1,238 @@
+TAP version 13
+# Subtest: the defaults: a 2.5 s lock, an 8 s reload, a 3,000 m reach and half the turn of a ship round
+ok 1 - the defaults: a 2.5 s lock, an 8 s reload, a 3,000 m reach and half the turn of a ship round
+  ---
+  duration_ms: 29866.789701
+  type: 'test'
+  ...
+# Subtest: a lock is ready only after the target has been held in the sight for the lock time
+ok 2 - a lock is ready only after the target has been held in the sight for the lock time
+  ---
+  duration_ms: 105161.117381
+  type: 'test'
+  ...
+# Subtest: KS_MSL_FF: a missile bursts on a wingman that crosses its path before the target
+ok 3 - KS_MSL_FF: a missile bursts on a wingman that crosses its path before the target
+  ---
+  duration_ms: 38446.601916
+  type: 'test'
+  ...
+# Subtest: a trial missile turns at most ROUND_TRIAL.turn: fired head-on and passed, it cannot come back within its reach
+ok 4 - a trial missile turns at most ROUND_TRIAL.turn: fired head-on and passed, it cannot come back within its reach
+  ---
+  duration_ms: 48792.106238
+  type: 'test'
+  ...
+# Subtest: KS_MSL_FF: a launcher holds fire while a wingman is in its line to the target
+ok 5 - KS_MSL_FF: a launcher holds fire while a wingman is in its line to the target
+  ---
+  duration_ms: 20382.288355
+  type: 'test'
+  ...
+# Subtest: a torpedo is anti-ship: no proximity fuse against a craft, a quarter of a missile's turn, launched at its craft's speed
+ok 6 - a torpedo is anti-ship: no proximity fuse against a craft, a quarter of a missile's turn, launched at its craft's speed
+  ---
+  duration_ms: 57253.025612
+  type: 'test'
+  ...
+# Subtest: the body radius: half the mean of length and span
+ok 7 - the body radius: half the mean of length and span
+  ---
+  duration_ms: 3.582665
+  type: 'test'
+  ...
+# Subtest: a burst 8 m beside a shielded X-wing is taken by its field: no section is lost
+ok 8 - a burst 8 m beside a shielded X-wing is taken by its field: no section is lost
+  ---
+  duration_ms: 128.67083
+  type: 'test'
+  ...
+# Subtest: the fuse fires before contact: a round aimed at the centre also bursts beside the craft and meets its field
+ok 9 - the fuse fires before contact: a round aimed at the centre also bursts beside the craft and meets its field
+  ---
+  duration_ms: 77771.017735
+  type: 'test'
+  ...
+# Subtest: a craft larger than its fuse reach is struck: the round passes its field
+ok 10 - a craft larger than its fuse reach is struck: the round passes its field
+  ---
+  duration_ms: 2.766486
+  type: 'test'
+  ...
+# Subtest: a burst beside an unshielded craft goes on whole as a warhead burst
+ok 11 - a burst beside an unshielded craft goes on whole as a warhead burst
+  ---
+  duration_ms: 32.357812
+  type: 'test'
+  ...
+# Subtest: a generator of the X-wing remodel size gives the X-wing field whatever the hull length
+ok 12 - a generator of the X-wing remodel size gives the X-wing field whatever the hull length
+  ---
+  duration_ms: 1.346068
+  type: 'test'
+  ...
+# Subtest: a generator twice as wide stands for a craft twice as long, a smaller one for a shorter craft
+ok 13 - a generator twice as wide stands for a craft twice as long, a smaller one for a shorter craft
+  ---
+  duration_ms: 0.448152
+  type: 'test'
+  ...
+# Subtest: without generator modules the hull length is used, and ships of blendLen and over keep their curve
+ok 14 - without generator modules the hull length is used, and ships of blendLen and over keep their curve
+  ---
+  duration_ms: 0.473281
+  type: 'test'
+  ...
+# Subtest: the examples: A-wing above, Z-95 below their length rule, X-wing unchanged
+ok 15 - the examples: A-wing above, Z-95 below their length rule, X-wing unchanged
+  ---
+  duration_ms: 18139.255026
+  type: 'test'
+  ...
+# Subtest: a strategic-map squad flies its craft with the generator rule, the same figure as a fleet unit
+ok 16 - a strategic-map squad flies its craft with the generator rule, the same figure as a fleet unit
+  ---
+  duration_ms: 30604.01565
+  type: 'test'
+  ...
+# Subtest: two missiles to choose from: heat (cmsl) and anti-radiation (rmsl), the same body, both fit a missile tube
+ok 17 - two missiles to choose from: heat (cmsl) and anti-radiation (rmsl), the same body, both fit a missile tube
+  ---
+  duration_ms: 1.987021
+  type: 'test'
+  ...
+# Subtest: seeker aims: heat goes for structure, an engine or a weapon of a ship and an engine of a craft; radar for a sensor or a point-defence mount
+ok 18 - seeker aims: heat goes for structure, an engine or a weapon of a ship and an engine of a craft; radar for a sensor or a point-defence mount
+  ---
+  duration_ms: 22185.56241
+  type: 'test'
+  ...
+# Subtest: a heat missile that bursts on a TIE takes the section of one of its engines; a blind anti-radiation round flies straight
+ok 19 - a heat missile that bursts on a TIE takes the section of one of its engines; a blind anti-radiation round flies straight
+  ---
+  duration_ms: 33447.013116
+  type: 'test'
+  ...
+# Subtest: a ship's torpedo leaves at a craft's speed, slows with distance and turning, steers by proportional navigation at a ship and flies straight at a craft
+ok 20 - a ship's torpedo leaves at a craft's speed, slows with distance and turning, steers by proportional navigation at a ship and flies straight at a craft
+  ---
+  duration_ms: 8886.401175
+  type: 'test'
+  ...
+# Subtest: craftMissileChoice: passive at whatever tracks us (any direction), heat within 60° of the nose, radar fixed to the nose for a craft with a sensor
+ok 21 - craftMissileChoice: passive at whatever tracks us (any direction), heat within 60° of the nose, radar fixed to the nose for a craft with a sensor
+  ---
+  duration_ms: 33130.371685
+  type: 'test'
+  ...
+# Subtest: a ship engaging a craft tracks it with its sensors: the craft may fire a passive round at that ship's sensor
+ok 22 - a ship engaging a craft tracks it with its sensors: the craft may fire a passive round at that ship's sensor
+  ---
+  duration_ms: 10431.468613
+  type: 'test'
+  ...
+# Subtest: a passive round is guided only while the track on its launcher stands
+ok 23 - a passive round is guided only while the track on its launcher stands
+  ---
+  duration_ms: 18077.239083
+  type: 'test'
+  ...
+# Subtest: a radar-locked round is guided while the launcher keeps the target in its 30° cone and bursts on the structure; a passive one homes on the locker's sensor
+ok 24 - a radar-locked round is guided while the launcher keeps the target in its 30° cone and bursts on the structure; a passive one homes on the locker's sensor
+  ---
+  duration_ms: 9423.388469
+  type: 'test'
+  ...
+# Subtest: a heat round holds to its target with 1 from dead astern and MISSILE_SEEK.heatBase head-on
+ok 25 - a heat round holds to its target with 1 from dead astern and MISSILE_SEEK.heatBase head-on
+  ---
+  duration_ms: 6164.505425
+  type: 'test'
+  ...
+# Subtest: the load follows the mission: air superiority missiles (radar-guided first on a craft with a sensor), sensor suppression radar-guided, strike torpedoes and bombs
+ok 26 - the load follows the mission: air superiority missiles (radar-guided first on a craft with a sensor), sensor suppression radar-guided, strike torpedoes and bombs
+  ---
+  duration_ms: 14902.772859
+  type: 'test'
+  ...
+# Subtest: a strike carries one torpedo and one self-defence missile a tube (user「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載」)
+ok 27 - a strike carries one torpedo and one self-defence missile a tube (user「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載」)
+  ---
+  duration_ms: 3631.22291
+  type: 'test'
+  ...
+# Subtest: without the switch neither guidance runs (the game is unchanged)
+ok 28 - without the switch neither guidance runs (the game is unchanged)
+  ---
+  duration_ms: 8297.921097
+  type: 'test'
+  ...
+# Subtest: a torpedo flies pure pursuit and a missile proportional navigation with KS_GUIDANCE=pn
+ok 29 - a torpedo flies pure pursuit and a missile proportional navigation with KS_GUIDANCE=pn
+  ---
+  duration_ms: 20788.03589
+  type: 'test'
+  ...
+# Subtest: KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (off by default)
+ok 30 - KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (off by default)
+  ---
+  duration_ms: 51563.738662
+  type: 'test'
+  ...
+# Subtest: KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed off its way (off by default)
+ok 31 - KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed off its way (off by default)
+  ---
+  duration_ms: 15490.954947
+  type: 'test'
+  ...
+# Subtest: KS_MISSILE_EVADE: a craft with a round closing on it turns onto the beam (off by default)
+ok 32 - KS_MISSILE_EVADE: a craft with a round closing on it turns onto the beam (off by default)
+  ---
+  duration_ms: 13583.674994
+  type: 'test'
+  ...
+# Subtest: a torpedo leaves at its craft's speed, only slows with distance, and flies straight at a craft
+ok 33 - a torpedo leaves at its craft's speed, only slows with distance, and flies straight at a craft
+  ---
+  duration_ms: 7389.749416
+  type: 'test'
+  ...
+# Subtest: KS_ROUND_PROFILE: a missile boosts, then slows, and bursts at its reach
+ok 34 - KS_ROUND_PROFILE: a missile boosts, then slows, and bursts at its reach
+  ---
+  duration_ms: 14740.221129
+  type: 'test'
+  ...
+# Subtest: KS_MISSILE_LOCK: a missile stays guided only while its launcher keeps the target in its sight
+ok 35 - KS_MISSILE_LOCK: a missile stays guided only while its launcher keeps the target in its sight
+  ---
+  duration_ms: 20237.077265
+  type: 'test'
+  ...
+# Subtest: KS_MISSILE_LOCK: the lock is held for a second before a missile may go, and the target is warned at once
+ok 36 - KS_MISSILE_LOCK: the lock is held for a second before a missile may go, and the target is warned at once
+  ---
+  duration_ms: 9258.420556
+  type: 'test'
+  ...
+# Subtest: KS_MISSILE_LOCK: a lock broken in between starts again (physics review 2026-11-23)
+ok 37 - KS_MISSILE_LOCK: a lock broken in between starts again (physics review 2026-11-23)
+  ---
+  duration_ms: 9042.517185
+  type: 'test'
+  ...
+# Subtest: KS_LOCK_REACT: a warned craft evades with no round in flight, and the trial profile leaves rounds at ships alone
+ok 38 - KS_LOCK_REACT: a warned craft evades with no round in flight, and the trial profile leaves rounds at ships alone
+  ---
+  duration_ms: 33512.591617
+  type: 'test'
+  ...
+1..38
+# tests 38
+# suites 0
+# pass 38
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 839380.702527

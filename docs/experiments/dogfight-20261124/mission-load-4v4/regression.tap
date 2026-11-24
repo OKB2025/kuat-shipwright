@@ -1,0 +1,311 @@
+TAP version 13
+# Subtest: the examples state 3 for the Imperial class and 4 for the Venator
+ok 1 - the examples state 3 for the Imperial class and 4 for the Venator
+  ---
+  duration_ms: 2.420698
+  type: 'test'
+  ...
+# Subtest: a design that states its air control has that many, through saving and loading; one that does not is worked out as before
+ok 2 - a design that states its air control has that many, through saving and loading; one that does not is worked out as before
+  ---
+  duration_ms: 2305.457184
+  type: 'test'
+  ...
+# Subtest: the built Venator directs four squadrons
+ok 3 - the built Venator directs four squadrons
+  ---
+  duration_ms: 181660.754911
+  type: 'test'
+  ...
+# Subtest: automatic fighter interception prioritizes an inbound bomber over a closer passing fighter
+ok 4 - automatic fighter interception prioritizes an inbound bomber over a closer passing fighter
+  ---
+  duration_ms: 64.623159
+  type: 'test'
+  ...
+# Subtest: spare fighter wings split their interception effort between simultaneous incoming attacks
+ok 5 - spare fighter wings split their interception effort between simultaneous incoming attacks
+  ---
+  duration_ms: 30.769585
+  type: 'test'
+  ...
+# Subtest: air superiority pursues a distant enemy formation instead of orbiting the mother ship
+ok 6 - air superiority pursues a distant enemy formation instead of orbiting the mother ship
+  ---
+  duration_ms: 33.190215
+  type: 'test'
+  ...
+# Subtest: an automatic strike escort actually flies with outbound bombers and answers threats near them
+ok 7 - an automatic strike escort actually flies with outbound bombers and answers threats near them
+  ---
+  duration_ms: 282.943821
+  type: 'test'
+  ...
+# Subtest: with the air clear an odd-numbered fighter wing attacks a ship, then finishes its pass before changing task
+ok 8 - with the air clear an odd-numbered fighter wing attacks a ship, then finishes its pass before changing task
+  ---
+  duration_ms: 22.041258
+  type: 'test'
+  ...
+# Subtest: a departed auto-strike target is replaced by an enemy still in the fighter home system
+ok 9 - a departed auto-strike target is replaced by an enemy still in the fighter home system
+  ---
+  duration_ms: 17.530352
+  type: 'test'
+  ...
+# Subtest: an actual interception closes the range and fires nose guns while both formations keep flying
+ok 10 - an actual interception closes the range and fires nose guns while both formations keep flying
+  ---
+  duration_ms: 290.49093
+  type: 'test'
+  ...
+# Subtest: an automatic fighter anti-ship sortie skims the hull at speed and returns after its finite passes
+ok 11 - an automatic fighter anti-ship sortie skims the hull at speed and returns after its finite passes
+  ---
+  duration_ms: 1561.87434
+  type: 'test'
+  ...
+# Subtest: fixed dogfight damage follows the attacker heading, and merely taking fire does not trigger a victim laser
+ok 12 - fixed dogfight damage follows the attacker heading, and merely taking fire does not trigger a victim laser
+  ---
+  duration_ms: 4.374162
+  type: 'test'
+  ...
+# Subtest: each squadron directs its firepower at one valid enemy and keeps a valid target between ticks
+ok 13 - each squadron directs its firepower at one valid enemy and keeps a valid target between ticks
+  ---
+  duration_ms: 0.639375
+  type: 'test'
+  ...
+# Subtest: rear and side enemies cannot draw a nose laser, while an in-arc target can replace an invalid old lock
+ok 14 - rear and side enemies cannot draw a nose laser, while an in-arc target can replace an invalid old lock
+  ---
+  duration_ms: 0.56396
+  type: 'test'
+  ...
+# Subtest: kill-credit source is the strongest actual attacker rather than the victim own outgoing target
+ok 15 - kill-credit source is the strongest actual attacker rather than the victim own outgoing target
+  ---
+  duration_ms: 0.373471
+  type: 'test'
+  ...
+# Subtest: dense dogfights bound directional queries and do not multiply one battery damage by every nearby enemy
+ok 16 - dense dogfights bound directional queries and do not multiply one battery damage by every nearby enemy
+  ---
+  duration_ms: 4.501792
+  type: 'test'
+  ...
+# Subtest: the real squad copy button retains custom model, count and loadout as independent configuration
+ok 17 - the real squad copy button retains custom model, count and loadout as independent configuration
+  ---
+  duration_ms: 15.49643
+  type: 'test'
+  ...
+# Subtest: a wing copy keeps its own group and copies every squad, with a free wing number and fresh runtime IDs
+ok 18 - a wing copy keeps its own group and copies every squad, with a free wing number and fresh runtime IDs
+  ---
+  duration_ms: 48.779336
+  type: 'test'
+  ...
+# Subtest: copy limits reject the whole operation without losing rows or overflowing normalized storage
+ok 19 - copy limits reject the whole operation without losing rows or overflowing normalized storage
+  ---
+  duration_ms: 5.219755
+  type: 'test'
+  ...
+# Subtest: copied developed craft keep one model identity through fleet JSON while cost and occupied space grow
+ok 20 - copied developed craft keep one model identity through fleet JSON while cost and occupied space grow
+  ---
+  duration_ms: 58099.953816
+  type: 'test'
+  ...
+# Subtest: the rendered air editor exposes squad and whole-wing copy at the correct hierarchy level
+ok 21 - the rendered air editor exposes squad and whole-wing copy at the correct hierarchy level
+  ---
+  duration_ms: 43.543471
+  type: 'test'
+  ...
+# Subtest: a battle mission is applied to one selected wing and recall immediately clears its prior firing
+ok 22 - a battle mission is applied to one selected wing and recall immediately clears its prior firing
+  ---
+  duration_ms: 33.720637
+  type: 'test'
+  ...
+# Subtest: invalid wing mission targets and nonfinite CAP cannot mutate an existing valid order
+ok 23 - invalid wing mission targets and nonfinite CAP cannot mutate an existing valid order
+  ---
+  duration_ms: 77.459344
+  type: 'test'
+  ...
+# Subtest: the direct battle-list buttons select the intended wing for a mission without issuing one to its sibling
+ok 24 - the direct battle-list buttons select the intended wing for a mission without issuing one to its sibling
+  ---
+  duration_ms: 103.517889
+  type: 'test'
+  ...
+# Subtest: the fleet keeps control free: the strike groups go up with their escort in them, the other fighters stay aboard
+ok 25 - the fleet keeps control free: the strike groups go up with their escort in them, the other fighters stay aboard
+  ---
+  duration_ms: 53.904669
+  type: 'test'
+  ...
+# Subtest: craft with no use in the air land: bombers without stores, fighters with no strike to escort and no enemy craft near
+ok 26 - craft with no use in the air land: bombers without stores, fighters with no strike to escort and no enemy craft near
+  ---
+  duration_ms: 10270.197729
+  type: 'test'
+  ...
+# Subtest: craft in use stay up: bombers with stores and a ship to strike
+ok 27 - craft in use stay up: bombers with stores and a ship to strike
+  ---
+  duration_ms: 6739.273043
+  type: 'test'
+  ...
+# Subtest: craft come out of the hangar mouths at the rate the mouths give, and appear just outside a mouth
+not ok 28 - craft come out of the hangar mouths at the rate the mouths give, and appear just outside a mouth
+  ---
+  duration_ms: 1100.929769
+  type: 'test'
+  location: '/tmp/ks-verify/20261124T022242Z-mission-air4-t3AIKZ/source/tests/fleet-air-restraint.cjs:57:1'
+  failureType: 'testCodeFailure'
+  error: 'the first craft is out'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/tmp/ks-verify/20261124T022242Z-mission-air4-t3AIKZ/source/tests/fleet-air-restraint.cjs:64:158)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a ship with no mouth the craft fits does not launch them
+ok 29 - a ship with no mouth the craft fits does not launch them
+  ---
+  duration_ms: 1168.30179
+  type: 'test'
+  ...
+# Subtest: a squadron that has landed is re-armed and can go up again, bombers too
+ok 30 - a squadron that has landed is re-armed and can go up again, bombers too
+  ---
+  duration_ms: 9745.366601
+  type: 'test'
+  ...
+# Subtest: two fleets of which neither holds it can win with its craft fly no strike
+ok 31 - two fleets of which neither holds it can win with its craft fly no strike
+  ---
+  duration_ms: 129.310414
+  type: 'test'
+  ...
+# Subtest: an enemy strike brings the fighters up to meet it far out; when it is over the counter-strike goes
+ok 32 - an enemy strike brings the fighters up to meet it far out; when it is over the counter-strike goes
+  ---
+  duration_ms: 7403.457151
+  type: 'test'
+  ...
+# Subtest: a fleet that arrives with its craft in the air: the hyperdrive craft are out at once and it strikes; craft without a hyperdrive are not
+ok 33 - a fleet that arrives with its craft in the air: the hyperdrive craft are out at once and it strikes; craft without a hyperdrive are not
+  ---
+  duration_ms: 3837.612538
+  type: 'test'
+  ...
+# Subtest: the side that holds it can win with its craft strikes first: by faction, as given, or by what the craft carry
+ok 34 - the side that holds it can win with its craft strikes first: by faction, as given, or by what the craft carry
+  ---
+  duration_ms: 2325.301515
+  type: 'test'
+  ...
+# Subtest: a group that goes up together can mix craft types: as given, and as made from wings given by type
+ok 35 - a group that goes up together can mix craft types: as given, and as made from wings given by type
+  ---
+  duration_ms: 27058.48991
+  type: 'test'
+  ...
+# Subtest: with opts.mixed false the wings fly as squadrons of one type
+ok 36 - with opts.mixed false the wings fly as squadrons of one type
+  ---
+  duration_ms: 6.910456
+  type: 'test'
+  ...
+# Subtest: the Imperial class passes twelve craft through its hangar mouths in two to three seconds
+not ok 37 - the Imperial class passes twelve craft through its hangar mouths in two to three seconds
+  ---
+  duration_ms: 1.825054
+  type: 'test'
+  location: '/tmp/ks-verify/20261124T022242Z-mission-air4-t3AIKZ/source/tests/fleet-air-restraint.cjs:140:1'
+  failureType: 'testCodeFailure'
+  error: 'its mouths are open bays'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/tmp/ks-verify/20261124T022242Z-mission-air4-t3AIKZ/source/tests/fleet-air-restraint.cjs:143:9)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: a craft pointing straight down (out of a ventral hangar mouth) pulls out towards a point level with it
+ok 38 - a craft pointing straight down (out of a ventral hangar mouth) pulls out towards a point level with it
+  ---
+  duration_ms: 2.040587
+  type: 'test'
+  ...
+# Subtest: straight up likewise, and a craft already level is left as it was
+ok 39 - straight up likewise, and a craft already level is left as it was
+  ---
+  duration_ms: 1.425935
+  type: 'test'
+  ...
+# Subtest: a craft whose stored lift vector lies along its bow gets one square to it, whatever the bow
+ok 40 - a craft whose stored lift vector lies along its bow gets one square to it, whatever the bow
+  ---
+  duration_ms: 0.455651
+  type: 'test'
+  ...
+# Subtest: a bomber that comes out after the strike's target was chosen is sent at it too
+ok 41 - a bomber that comes out after the strike's target was chosen is sent at it too
+  ---
+  duration_ms: 45156.054325
+  type: 'test'
+  ...
+# Subtest: the real RTS aircraft clock obeys OFF and ON without borrowing ordinary gun tracking
+ok 42 - the real RTS aircraft clock obeys OFF and ON without borrowing ordinary gun tracking
+  ---
+  duration_ms: 1295.364702
+  type: 'test'
+  ...
+# Subtest: actual aircraft interception still requires electricity when automatic defence is enabled
+ok 43 - actual aircraft interception still requires electricity when automatic defence is enabled
+  ---
+  duration_ms: 8.658846
+  type: 'test'
+  ...
+# Subtest: the actual tactical fleet aircraft-loss path honors the automatic-defence policy
+ok 44 - the actual tactical fleet aircraft-loss path honors the automatic-defence policy
+  ---
+  duration_ms: 18.307784
+  type: 'test'
+  ...
+# Subtest: the actual tactical missile attenuation path honors OFF while preserving each finite launch
+ok 45 - the actual tactical missile attenuation path honors OFF while preserving each finite launch
+  ---
+  duration_ms: 74.453108
+  type: 'test'
+  ...
+1..45
+# tests 45
+# suites 0
+# pass 43
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 436095.573717

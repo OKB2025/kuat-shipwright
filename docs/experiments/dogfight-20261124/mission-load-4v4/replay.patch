@@ -1,0 +1,22 @@
+--- a/replay.py
++++ b/replay.py
+@@ -24,0 +25,2 @@
++    '熱源':'Heat', 'レーダー':'Radar', '受動':'Passive',
++    '近接炸裂 {p}  ／  味方命中 {f}':'Proximity {p}  /  Friendly hits {f}',
+@@ -32 +34 @@
+-    '4 対 4  ／  8 km 対向  ／  シード 24': '4v4   /   8 km head-on start   /   Seed 24',
++    '制空任務  ／  4 対 4  ／  8 km 対向  ／  シード 24': 'Air superiority   /   4v4   /   8 km head-on   /   Seed 24',
+@@ -90 +92 @@
+-                                                              source=self.ids.index(m['a'])))
++                                                              source=self.ids.index(m['a']), mode=m['mode']))
+@@ -259 +261,2 @@
+-        label(draw,(x,y+33),f"{mid.upper()}   {readable_id(m['source'])} → {readable_id(m['target'])}     {np.linalg.norm(target-head):,.0f} m",16)
++        mode=caption({'heat':'熱源','radar':'レーダー','passive':'受動'}[m['mode']])
++        label(draw,(x,y+33),f"{mid.upper()}  {mode}   {readable_id(m['source'])} → {readable_id(m['target'])}     {np.linalg.norm(target-head):,.0f} m",16)
+@@ -308 +311 @@
+-            label(d,(24,65),'4 対 4  ／  8 km 対向  ／  シード 24',16,MUTED)
++            label(d,(24,65),'制空任務  ／  4 対 4  ／  8 km 対向  ／  シード 24',16,MUTED)
+@@ -328,0 +332 @@
++            label(d,(1246,426),caption('近接炸裂 {p}  ／  味方命中 {f}',p=rec.frames[i]['prox'],f=rec.frames[i]['ff']),14,MUTED,anchor='ra')
+@@ -344 +347,0 @@
+-
