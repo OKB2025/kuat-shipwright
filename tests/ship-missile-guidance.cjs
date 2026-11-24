@@ -12,10 +12,10 @@ function target(){const p=profile();p.msl=0;p.modules=p.modules.slice(0,1);p.gri
 function launch(dome,dist){const u=C.fleetUnit('s','s',profile(dome),0),t=C.fleetUnit('t','t',target(),1);u.pos=[0,1000,0];t.pos=[dist,1000,0];u.order={...u.order,type:'attack',target:'t'};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);
  for(let i=0;i<20&&!(b.missiles||[]).length;i++)C.fleetTick(b,.1,{collide:false});return {b,u,m:(b.missiles||[])[0]};}
 
-test('tracking slots: 4 for each ISD-72x volume of working exterior sensor domes, rounded down; none without a dome',()=>{
- assert.equal(C.shipTrackSlots({p:profile(G.refVol)}),4);assert.equal(C.shipTrackSlots({p:profile(G.refVol/2)}),2);assert.equal(C.shipTrackSlots({p:profile(G.refVol/5)}),0);assert.equal(C.shipTrackSlots({p:profile()}),0);
+test('tracking slots: 1 for each 5,000 m³ of working sensor volume outside the structure, rounded down; none without a dome (user「5000m3あたり1枠として」)',()=>{
+ assert.equal(G.refVol,5000);assert.equal(C.shipTrackSlots({p:profile(30340)}),6,'an ISD-72x as mounted');assert.equal(C.shipTrackSlots({p:profile(9999)}),1);assert.equal(C.shipTrackSlots({p:profile(4999)}),0);assert.equal(C.shipTrackSlots({p:profile()}),0);
  const u=C.fleetUnit('s','s',profile(G.refVol),0);u.mods[2]=0;assert.equal(C.shipTrackSlots(u),0,'a destroyed dome gives none');
- const d=C.buildDesign('imperial'),P=C.fleetProfile(C.computeStats(d),d.name,d);assert.equal(C.shipTrackSlots({p:P}),13,'the ISD: two ISD-72x domes and its exterior tractor-beam control');
+ const d=C.buildDesign('imperial'),P=C.fleetProfile(C.computeStats(d),d.name,d);assert.equal(C.shipTrackSlots({p:P}),12,'the ISD: two ISD-72x domes; its tractor-beam control does not count (user「トラクタービーム管制装置は含まない」)');
 });
 test('beyond 10 km a ship launches only radar-guided, out to 50 km, with a slot; within 10 km heat-seeking without one',()=>{
  const far=launch(0,20000);assert.equal(far.m,undefined,'no dome: nothing at 20 km');
