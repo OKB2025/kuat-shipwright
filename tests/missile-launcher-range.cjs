@@ -10,7 +10,7 @@ function profile(kind='cmsl',cells=1){
  const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6*cells,missileKind:kind,missileRange:range,salvo:cells,cycle:1.2,tt:25,launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:Array.from({length:cells},(_,i)=>[0,0,i]),launchDir:[1,0,0]};
  return {name:'Range fixture',profileVersion:5,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,
  gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:native?25*cells*20/1.2:0,imsl:0,
- modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};
+ modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher,...(kind==='shipMsl'?[{k:'sensor',name:'ISD-72x-sized dome (test fixture)',size:31527,trackVol:31527,share:1,at:.5,domain:'main'}]:[])/* 2026-11-24 fixture changed: a ship's missiles beyond 10 km are radar-guided and need a tracking slot (user「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」「ISD-72xのサイズで4枠」); the firing ship is given one ISD-72x-sized dome so this case still tests its own subject */],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};
 }
 function targetProfile(){const p=profile();p.msl=0;p.modules=p.modules.slice(0,1);p.grid.fixed=0;p.grid.fixedLoads=[];return p;}
 function unit(kind='cmsl',cells=1){return C.fleetUnit('launcher','launcher',profile(kind,cells),0);}
@@ -83,7 +83,7 @@ test('an already spent guided round cannot score an impact inside its final-step
 });
 
 test('aircraft store descriptors propagate the round range without changing their warhead',()=>{
- const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
+ const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),6)/* 2026-11-24 expectation changed 12 → 6: the A-wing's two tubes hold 3 missiles each (user「ミサイルは発射機あたりに3発」) */;
  const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==C.ORDNANCE.cmsl.tt));
 });
 

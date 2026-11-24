@@ -37,3 +37,5 @@ fleet-air-restraint.cjs の #4・#13 は変更前（f00cc2a）から失敗して
 | missile-seekers-torpedo-flight.cjs（選び方・艦へのパッシブ） | 熱源は砲の照準（15°）、パッシブは 60° の内、艦へは探知ドームか点防御 | 熱源は 60°、パッシブは全方向、艦へは自機を捕捉しているセンサー | ユーザー「熱源は自分の中心から60°範囲…対レーダーは360°…自機を捕捉してるセンサーにパッシブ」（2026-11-24） |
 | craft-missile-trial-rules.cjs ロック | ロックする機体は X ウイング | TIE/ln | レーダーロックはセンサーを持つ機体だけ（同上）。X ウイングはセンサーを持たない |
 | missile-seekers-torpedo-flight.cjs・craft-missile-trial-rules.cjs・trial-guidance.cjs（ロック・パッシブ） | ロック・パッシブの機体は TIE/ln、センサーのない機体は X ウイング | ロック・パッシブの機体は TIE/D、センサーのない機体は TIE/ln・TIE/in。X ウイングの制空はレーダー誘導 6 | ユーザーの Rev2「むしろTIE/lnとinのセンサーを外した」、X ウイングに前方捕捉センサー追加、「レーダーパッシブにもセンサーが必要になるように」（2026-11-24） |
+| missile-launcher-runtime.cjs #12・missile-launcher-range.cjs #11 | 航空機の発射管 1 基にミサイル 6 発、A ウイング計 12 発 | 1 基 3 発、A ウイング 6 発 | ユーザー「ミサイルは発射機あたりに3発」（2026-11-24） |
+| fleet-missiles-arrive.cjs #8・missile-launcher-range.cjs #5・dual-purpose-weapons.cjs #11/#13（設定） | 撃つ艦はセンサーなしで 12〜30 km から撃てた | 撃つ艦に ISD-72x と同じ容積のドームを持たせた（捕捉枠 4） | ユーザー「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」「ISD-72xのサイズで4枠」（2026-11-24）。各試験の主題（届く距離・着弾・防空の割り振り）はそのまま |

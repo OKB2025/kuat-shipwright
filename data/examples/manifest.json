@@ -76,9 +76,9 @@
   },
   "craft_tie_d": {
    "design": {
-    "sha256": "738a3de4895f88369bac2e618f03b57e3a83bf0bba39495156601cf18297f456",
-    "jsonSha256": "30701786a3990fbbc5387d1f087c30f989a5c8d9dfb4a2fc38301e816865740d",
-    "blueprintSha256": "287f7cfd51bd105771816813a1cba3c841f8ff25c9134d31c2726486e9d8e9e4"
+    "sha256": "09dbf1cf7d75560adb7d7bb01dfadb78704c0eb9213b80ce8419ee3ae39a20ec",
+    "jsonSha256": "34ff67c5aa69a0436534816956bf19017bc40b13147ab95a975adfa76da3bf14",
+    "blueprintSha256": "23b3c0219db81d85ded0cece56716da4b41b41f7c905f9a37599b75dc7824ea2"
    }
   },
   "craft_tie_in": {
