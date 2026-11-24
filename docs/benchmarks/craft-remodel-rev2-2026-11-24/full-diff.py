@@ -1,6 +1,7 @@
 # Full comparison of each game-loaded example (data/examples/<key>/design.json.gz) with the user's design: every part and fit
 # field (both directions, ids both ways); numbers to 1e-6 relative, angles modulo 360. Known loader normalisations are listed.
-# usage: python3 docs/benchmarks/craft-remodel-rev2-2026-11-24/full-diff.py > full-diff.txt
+# usage: python3 docs/benchmarks/craft-remodel-rev2-2026-11-24/full-diff.py > OUT.txt
+# 2026-11-24 (fidelity review): the Vulture and Hyena are compared with their Rev3 files, the Venator with the user's 1,137 m Lite file.
 import json,gzip
 refs={'craft_xwing':'x-wing','craft_tie_ln':'tie-ln','craft_tie_in':'tie-in','craft_awing':'a-wing','craft_tie_d':'tie-d','craft_arc170':'arc170','craft_btlb':'btlb','craft_tie_sa':'tie-sa','craft_hyena':'hyena','craft_vwing':'vwing','craft_vulture':'vulture','craft_v19':'v19','craft_z95':'z95','craft_ywing':'btl-a4'}
 ANG={'yaw','pitch','roll'}
@@ -20,8 +21,13 @@ def diff(a,b,at,out,key=None):
         elif abs(a-b)<=1e-6*max(1,abs(a),abs(b)):return
     if str(a)==str(b):return
     out.append(f'{at}: {json.dumps(a,ensure_ascii=False)[:80]} -> {json.dumps(b,ensure_ascii=False)[:80]}')
-for k,f in refs.items():
-    R=json.load(open(f'docs/handoff-2026-11-20/refs/{f}-remodel-rev2-2026-11-24.json'));E=json.loads(gzip.decompress(open(f'data/examples/{k}/design.json.gz','rb').read()))
+SRC={k:None for k in refs}
+SRC['venator']='docs/handoff-2026-11-20/refs/venator-1137m-lite-2026-11-24.json.gz'
+for k,f in list(refs.items())+[('venator',None)]:
+    if f is None:
+        R=json.loads(gzip.decompress(open(SRC[k],'rb').read()));E=json.loads(gzip.decompress(open(f'data/examples/{k}/design.json.gz','rb').read()))
+    rev='rev3' if k in ('craft_vulture','craft_hyena') else 'rev2'
+    if f is not None:R=json.load(open(f'docs/handoff-2026-11-20/refs/{f}-remodel-{rev}-2026-11-24.json'));E=json.loads(gzip.decompress(open(f'data/examples/{k}/design.json.gz','rb').read()))
     out=[]
     for coll in ('parts','fits'):
         r={str(x['id']):x for x in R[coll]};e={str(x['id']):x for x in E[coll]}

@@ -24,11 +24,27 @@ test('beyond 10 km only a large missile goes, radar-guided out to 50 km with a s
  // small missiles only within 10 km
  assert.equal(launch(G.refVol,20000,false,false).m,undefined,'small missiles: not at 20 km');assert.equal(launch(G.refVol,20000,true,false).m,undefined,'not at a craft 20 km off either');
  const radar=launch(G.refVol,20000);assert.equal(radar.m?.shipGuide,'radar','a large missile at a ship 20 km off');assert.ok(radar.m.range>=G.radarRange);assert.equal(launch(G.refVol,20000,true).m?.shipGuide,'radar','and at a craft');
- assert.equal(launch(G.refVol,8000,false,false).m?.shipGuide,'heat','small missiles within 10 km: heat');
+ /* 2026-11-24 expectation changed (physics review; user「基本はレーダーで、航空対象などで外さないといけない時だけ熱源」): within 10 km a ship target with a slot free is engaged radar-guided, heat at a craft (was: heat within 10 km whatever the target) */assert.equal(launch(G.refVol,8000,false,false).m?.shipGuide,'radar','small missiles at a ship within 10 km, a slot free: radar');assert.equal(launch(G.refVol,8000,true,false).m?.shipGuide,'heat','at a craft: heat');
  assert.equal(C.missileMaxRange({p:profile(G.refVol,true)}),G.radarRange);assert.equal(C.missileMaxRange({p:profile(G.refVol)}),10000,'cell launchers keep 10 km');assert.equal(C.missileMaxRange({p:profile()}),10000);
 });
 test("a radar-guided round loses guidance with its ship's domes; at a craft it hands over to heat at 10 km",()=>{
  const r=launch(G.refVol,20000,true);r.u.mods[2]=0;C.fleetTick(r.b,.1,{collide:false});assert.equal(r.m.unguided,true,'the dome is gone');
  const m={pos:[0,0,0],vel:[1000,0,0],from:'s'},big={id:'big',pos:[5000,0,200],p:{propulsion:{massKg:1e9}}},small={id:'f',pos:[5000,0,-200],p:{propulsion:{massKg:1e4},cls:{craft:true}},yaw:0};
  let other=0;for(let i=0;i<200;i++){const pick=C.heatSeekerPick({seed:i+1},m,[big,small],small);if(pick===big)other++;}assert.ok(other>150,'beside a ship the heat seeker mostly takes the ship: '+other+'/200');
+});
+
+// 2026-11-24 physics review of the ship missile rules (FAIL items 1-4): a cell launcher throws its round up out of the hull, so
+// the round's heading at launch is square to its target; the large missile's own 60 km is not its launch reach; the step's
+// point-defence output is shared once over every salvo, close-in or tracked.
+test('a cell round thrown up still finds its target: the heat seeker is cued at the target\'s bearing, a torpedo turns at it first',()=>{
+ const t={id:'t',pos:[8000,0,0],p:{propulsion:{massKg:1e9}}},m={pos:[0,0,0],vel:[0,220,0],from:'s'};
+ let got=0;for(let i=0;i<50;i++)if(C.heatSeekerPick({seed:i+1},m,[t],t)===t)got++;assert.equal(got,50,'a ship 90° off the round\'s heading');
+ const ship=C.fleetUnit('a','a',profile(),0),foe=C.fleetUnit('t','t',target(),1);ship.pos=[0,0,0];foe.pos=[30000,0,0];foe.order={...foe.order,fire:false};const b=C.fleetBattle([ship,foe],true);
+ const r={id:'r',salvo:'s',team:0,from:'a',target:'t',n:1,tt:1,kind:'ptorp',torp:true,inertial:true,torpLen:50,ion:false,range:400000,traveled:0,pos:[0,0,0],vel:[0,1200,0],s:1200,life:120,launchClearance:0,launchDir:[0,1,0]};b.missiles=[r];
+ for(let i=0;i<200&&b.missiles.includes(r);i++)C.fleetTick(b,.25,{collide:false});
+ assert.ok(!b.missiles.includes(r)||C.len(C.sub(foe.pos,r.pos))<5000,'it went at the ship (was: straight up, Vc = 0)');assert.ok(foe.hp<foe.p.hp||b.missileLog?.hit>0||C.len(C.sub(foe.pos,r.pos))<5000,'it reached it: '+JSON.stringify(b.missileLog));
+});
+test('the large missile launches radar-guided out to 50 km, not its round\'s 60 km; heat-seeking within 10 km',()=>{
+ const p=profile(G.refVol,true);p.modules[1].missileRange=60000;assert.equal(C.missileMaxRange({p}),G.radarRange);
+ const q=profile(0,true);q.modules[1].missileRange=60000;assert.equal(C.missileMaxRange({p:q}),G.heatRange,'no slot: the seeker\'s 10 km');
 });

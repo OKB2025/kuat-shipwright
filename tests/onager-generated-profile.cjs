@@ -13,7 +13,7 @@ test('generated Onager has two actual125PT profiles, a finite Venator plant and 
  // 2026-11-24 expectation changed: the Venator example is now the user's Venator_1137m_Lite design (「ヴェネターはこの作例を使って」),
  // whose plant is 3.5467e24 W and shield input 4.24e23 W. The Onager was rated against the stock Venator, so its comparison uses the
  // stock Venator figures of f00cc2a (grid.P 3.6e24, grid.Ds 2.1685e23); the current Venator plant need only be finite.
- const stockVenator={P:3.6e24,Ds:2.1684686261745473e23};assert.ok(Number.isFinite(venator.grid.P)&&venator.grid.P>0,'a finite Venator plant');
+ const stockVenator={P:3.6e24,Ds:2.1684686261745473e23};near(venator.grid.P,3.546714808148381e24,1e-6)/* the user's Venator plant (physics review: held to its value, not only finite) */;
  for(const key of ['shieldBuffer'])assert.ok(profile[key]/venator[key]>.9&&profile[key]/venator[key]<1.1,key+' is approximately the Venator rating');assert.ok(profile.grid.Ds/stockVenator.Ds>.9&&profile.grid.Ds/stockVenator.Ds<1.1,'the physical shield input follows the Venator design');
  for(const weapon of profile.sw){assert.equal(weapon.k,'sbeam');assert.equal(weapon.Emax,125000);assert.equal(C.SW_COMBAT[weapon.k].beamT,10);assert.deepEqual(weapon.axis,[1,0,0]);assert.ok(weapon.chargeT>800&&weapon.chargeT<900,'the actual main-reactor feed needs approximately fourteen minutes to refill each125PT store');near(weapon.chargeT*weapon.chargeW*weapon.efficiency,weapon.Emax*C.TT);}
  assert.ok(profile.sw.reduce((sum,weapon)=>sum+weapon.chargeW,0)<=profile.grid.P*.60000001);assert.ok(profile.sw[0].mz[2]*profile.sw[1].mz[2]<0,'two separate central barrel mouths');

@@ -3431,7 +3431,7 @@ function catalogStats(stats,design=ship){
 function superweaponCatalogHTML(S){
  const beams=(S.superweapons||[]).filter(w=>w.k==='sbeam');if(!beams.length)return '';const fmt=E=>E>=1000?`${ja(E/1000)} PT`:`${ja(E)} TT`,groups=new Map();for(const w of beams){const E=C.swEnergyTT(w);groups.set(E,(groups.get(E)||0)+1);}const each=[...groups].map(([E,n])=>`${fmt(E)} × ${n}`).join('・'),total=beams.reduce((n,w)=>n+C.swEnergyTT(w),0);return `<div data-superweapon-specs><dt>超兵器（照射全体）</dt><dd>${each}<small>合計 ${fmt(total)} / ${C.SW_COMBAT.sbeam.beamT} 秒間照射 · 砲軸固定</small></dd></div>`;
 }
-function engagementCapacityHTML(S){return `<div data-aa-capacity><dt>同時交戦数（対空・迎撃）</dt><dd>${num(Math.max(1,Math.round(S?.aaChannels||1)))} 枠<small>航空機4機の小隊、またはミサイル8発の斉射で1枠</small></dd></div>`;}
+function engagementCapacityHTML(S){return `<div data-aa-capacity><dt>同時交戦数（対空・迎撃）</dt><dd>${num(Number.isFinite(S?.trackSlots)?S.trackSlots/* 2026-11-24 a ship: its tracking slots (sensor volume outside the structure); close-in interception needs none */:Math.max(1,Math.round(S?.aaChannels||1)))} 枠<small>航空機4機の小隊、またはミサイル8発の斉射で1枠</small></dd></div>`;}
 // 3a The combat power shares of the 性能 bar and the compact bar in the metrics. Display only, no physics:
 // 機関 keeps the long-standing display factor 0.35 × d.engines (the propulsion load assumed in combat), and
 // 冷却設備 — the rated draw of the heat dissipators, S.draw.dissipators, which Core counts inside S.draw.hotel —
