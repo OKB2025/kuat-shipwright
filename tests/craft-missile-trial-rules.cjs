@@ -15,8 +15,8 @@ test('the defaults: a 2.5 s lock, an 8 s reload, a 3,000 m reach and half the tu
 
 test('a lock is ready only after the target has been held in the sight for the lock time',()=>{
  for(const [flags,need] of [[{KS_MISSILE_LOCK:true},2.5],[{KS_MISSILE_LOCK:true,KS_LOCK_S:1},1]]){
-  /* 2026-11-24 the locker is a TIE/ln: a radar lock needs a sensor, which the X-wing has none of */const {C}=core(flags),p=craft(C,'craft_tie_ln'),q=craft(C,'craft_tie_ln');
-  const u=C.fleetUnit('u','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',q,1);u.pos=[0,0,0];u.yaw=0;t.pos=[1000,0,0];const b=C.fleetBattle([u,t],true);
+  /* 2026-11-24 expectation changed: the user's Rev2 TIE/ln and TIE/in carry no sensor (「むしろTIE/lnとinのセンサーを外した」) and a radar lock or passive shot needs one; the sensor craft here is the TIE/D */const {C}=core(flags),p=craft(C,'craft_tie_d'),q=craft(C,'craft_tie_ln');
+  const u=C.fleetUnit('u','craft_tie_d',p,0),t=C.fleetUnit('t','craft_tie_ln',q,1);u.pos=[0,0,0];u.yaw=0;t.pos=[1000,0,0];const b=C.fleetBattle([u,t],true);
   let ready=null;for(let s=0;s<=4;s+=.25){b.time=s;if(C.craftLockStep(b,u,t,.25,3000)&&ready==null)ready=s;}
   assert.equal(ready,need,'ready at '+ready+' s');assert.ok(t.lockWarn,'the target is warned from the first moment');
  }

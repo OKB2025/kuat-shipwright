@@ -36,3 +36,4 @@ fleet-air-restraint.cjs の #4・#13 は変更前（f00cc2a）から失敗して
 | craft-missile-trial-rules.cjs 魚雷 | 600 m/s を超えない | 機体の速さで出る | 同上（発射機の慣性で進む） |
 | missile-seekers-torpedo-flight.cjs（選び方・艦へのパッシブ） | 熱源は砲の照準（15°）、パッシブは 60° の内、艦へは探知ドームか点防御 | 熱源は 60°、パッシブは全方向、艦へは自機を捕捉しているセンサー | ユーザー「熱源は自分の中心から60°範囲…対レーダーは360°…自機を捕捉してるセンサーにパッシブ」（2026-11-24） |
 | craft-missile-trial-rules.cjs ロック | ロックする機体は X ウイング | TIE/ln | レーダーロックはセンサーを持つ機体だけ（同上）。X ウイングはセンサーを持たない |
+| missile-seekers-torpedo-flight.cjs・craft-missile-trial-rules.cjs・trial-guidance.cjs（ロック・パッシブ） | ロック・パッシブの機体は TIE/ln、センサーのない機体は X ウイング | ロック・パッシブの機体は TIE/D、センサーのない機体は TIE/ln・TIE/in。X ウイングの制空はレーダー誘導 6 | ユーザーの Rev2「むしろTIE/lnとinのセンサーを外した」、X ウイングに前方捕捉センサー追加、「レーダーパッシブにもセンサーが必要になるように」（2026-11-24） |

@@ -74,13 +74,13 @@ test('KS_MISSILE_LOCK: a missile stays guided only while its launcher keeps the 
 });
 test('KS_MISSILE_LOCK: the lock is held for a second before a missile may go, and the target is warned at once',()=>{
  /* 2026-11-24 the default lock is 2.5 s (user 「ミサイルロックまでの時間を作る」); this case pins the second with KS_LOCK_S */
- const C=runtime({KS_MISSILE_LOCK:true,KS_LOCK_S:1}),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
+ /* 2026-11-24 expectation changed: the user's Rev2 TIE/ln and TIE/in carry no sensor (「むしろTIE/lnとinのセンサーを外した」) and a radar lock or passive shot needs one; the sensor craft here is the TIE/D */const C=runtime({KS_MISSILE_LOCK:true,KS_LOCK_S:1}),s=C.buildDesign('craft_tie_d'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_d',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
  a.pos=[0,0,0];a.yaw=0;t.pos=[1000,0,0];const B=C.fleetBattle([a,t],true);B.time=0;assert.equal(C.craftLockStep(B,a,t,.25,1500),false);assert.equal(t.lockWarn.from,'a');
  B.time=.5;assert.equal(C.craftLockStep(B,a,t,.25,1500),false);B.time=1;assert.equal(C.craftLockStep(B,a,t,.25,1500),true);
  t.pos=[0,0,1000];B.time=1.25;assert.equal(C.craftLockStep(B,a,t,.25,1500),false,'out of the sight the lock is gone');
 });
 test('KS_MISSILE_LOCK: a lock broken in between starts again (physics review 2026-11-23)',()=>{
- const C=runtime({KS_MISSILE_LOCK:true,KS_LOCK_S:1}),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
+ /* 2026-11-24 expectation changed: the user's Rev2 TIE/ln and TIE/in carry no sensor (「むしろTIE/lnとinのセンサーを外した」) and a radar lock or passive shot needs one; the sensor craft here is the TIE/D */const C=runtime({KS_MISSILE_LOCK:true,KS_LOCK_S:1}),s=C.buildDesign('craft_tie_d'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_d',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
  a.pos=[0,0,0];a.yaw=0;t.pos=[1000,0,0];const B=C.fleetBattle([a,t],true);B.time=0;C.craftLockStep(B,a,t,.25,1500);
  t.pos=[0,0,1000];B.time=.5;C.craftLockStep(B,a,t,.25,1500);t.pos=[1000,0,0];B.time=5;assert.equal(C.craftLockStep(B,a,t,.25,1500),false,'held afresh from 5 s');B.time=6;assert.equal(C.craftLockStep(B,a,t,.25,1500),true);
 });
