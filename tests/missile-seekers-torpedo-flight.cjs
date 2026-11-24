@@ -88,3 +88,9 @@ test('the load follows the mission: air superiority missiles (radar-guided first
  assert.deepEqual(load('craft_tie_ln','air'),['cmslx3'],'the Rev2 TIE/ln has no sensor');assert.deepEqual(load('craft_hyena','air'),['cmslx6','rmslx6'],'stations alternate');
  assert.deepEqual(load('craft_ywing','strike'),['ptorpx4','bombx16']);assert.ok(/レーダー誘導/.test(C.ORDNANCE.rmsl.name),'one missile, radar-guided or passive');
 });
+test('a strike carries one torpedo and one self-defence missile a tube (user「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載」)',()=>{
+ const ord=k=>plain(C.missionOrdnance(C.buildDesign(k),'strike').map(o=>o.kind+'x'+o.n));
+ assert.deepEqual(ord('craft_xwing'),['ptorpx2','rmslx2'],'two tubes; the X-wing has a sensor');assert.deepEqual(ord('craft_tie_ln'),['ptorpx1','cmslx1'],'one tube; no sensor: heat');
+ assert.deepEqual(ord('craft_ywing'),['ptorpx2','cmslx2','bombx16'],'bombs stay in the bay');
+ assert.ok(1/C.LAUNCHER_ROUNDS.torpedo+1/C.LAUNCHER_ROUNDS.missile<=1+1e-9,'a torpedo and a missile fit one tube');
+});
