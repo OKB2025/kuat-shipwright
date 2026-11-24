@@ -119962,7 +119962,7 @@ const FLAK=Object.freeze({radius:60,couple:2e-10});/* a burst of an Imperial-cla
 // 「点防御の威力を下げた分さらに連射速度とばら撒きを増やしてミサイルは落とせるようにする」(2026-11-19): the same output in .split times as many bolts,
 // each a .split-th of the energy, laid in a pattern .barrage times a round's size across: a round is downed by any bolt of the
 // pattern that covers it. Against craft the pattern does not add energy: what lands is still the common hit chance on the craft.
-const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.5/* user decision 2026-11-19「点防御をナーフ。命中率を下げて」: was .85 (★ the figure is ours) */,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
+const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.85/* user decision 2026-11-24「点防御の命中率を強化する形で」: back to .85 from the .5 of 2026-11-19「点防御をナーフ。命中率を下げて」 (★ the figure is ours) */,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 // v30 Anti-air fire and the ship's sensors (user decisions 2026-11-19「Xウィングなどでセンサー類を破壊して対空能力を落とせないか」
 // 「超近距離の対ミサイル、対魚雷は自動迎撃、対航空機と近中距離にISD72xセンサーが必要という形にしよう」):
 // - against missiles and torpedoes within ANTI_AIR.close m of the hull (plus half its length from its centre), point defence
