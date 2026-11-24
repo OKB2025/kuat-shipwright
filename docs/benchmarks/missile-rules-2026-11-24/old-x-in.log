@@ -1,0 +1,11 @@
+== head-on: 4 x craft_xwing (A) vs 4 x craft_tie_in (B), 20 runs: lost per run A 1.6 B 3.9; A wins 18, B wins 1, both lost 0, undecided in 300 s 1; mean time to decision 42.7 s; nearest 246.1 m; seconds on the other's tail A 8.1 B 29.0; seconds guns bearing A 26.9 B 70.9; greatest height off the start plane 2548.0 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 205, hit 29, spent 61, target lost first 77; lock warnings 588, guidance lost (launcher lost sight) 0; friendly craft struck (KS_MSL_FF) 0, other enemy craft struck 0; rounds {"ptorp":205}; steps flown by guidance {"pursuit":4834}
+0s d=7395 A(281,2,3 hdg 4° 1118m/s) B(7676,5,-7 hdg -173° 1288m/s)
+5s d=2333 A(5190,35,1045 hdg 8° 863m/s) B(2937,218,1621 hdg -162° 941m/s)
+10s d=5554 A(7890,807,-265 hdg -92° 555m/s) B(2406,1619,-610 hdg -57° 548m/s)
+15s d=3174 A(6770,1871,-1479 hdg 168° 348m/s) B(4178,2060,344 hdg -34° 392m/s)
+20s d=4385 A(5507,1972,-798 hdg 168° 248m/s) B(3053,169,-3954 hdg -10° 261m/s)
+25s d=3427 A(4685,1647,-1098 hdg -122° 189m/s) B(3226,-431,-3399 hdg 118° 174m/s)
+30s d=1825 A(4392,1267,-1889 hdg -114° 187m/s) B(2792,849,-2658 hdg 83° 186m/s)
+35s d=415 A(3683,1156,-2367 hdg -167° 177m/s) B(3270,1186,-2371 hdg 32° 135m/s)
+   run 1: A 35.5 s TIE/in インターセプター：艦尾区画 崩壊 | TIE/in インターセプター：撃沈（船体破断）
