@@ -90,7 +90,7 @@ test('the load follows the mission: air superiority missiles (radar-guided first
 });
 test('a strike carries one torpedo and one self-defence missile a tube (user「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載」)',()=>{
  const ord=k=>plain(C.missionOrdnance(C.buildDesign(k),'strike').map(o=>o.kind+'x'+o.n));
- assert.deepEqual(ord('craft_xwing'),['ptorpx2','rmslx2'],'two tubes; the X-wing has a sensor');assert.deepEqual(ord('craft_tie_ln'),['ptorpx1','cmslx1'],'one tube; no sensor: heat');
+ assert.deepEqual(ord('craft_xwing'),['ptorpx2','cmslx2'],'two tubes; the self-defence missile is heat-seeking (「自衛用のミサイルは基本熱源」)');assert.deepEqual(ord('craft_tie_ln'),['ptorpx1','cmslx1'],'one tube; no sensor: heat');
  assert.deepEqual(ord('craft_ywing'),['ptorpx2','cmslx2','bombx16'],'bombs stay in the bay');
  assert.ok(1/C.LAUNCHER_ROUNDS.torpedo+1/C.LAUNCHER_ROUNDS.missile<=1+1e-9,'a torpedo and a missile fit one tube');
 });

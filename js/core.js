@@ -122227,10 +122227,10 @@ function missionLoad(x,mission){const L=craftLoadout(x);if(!L?.stations?.length)
 // User decision 2026-11-24「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載するようにして」: what a craft carries for its mission, as
 // craftOrdnance's [{kind, n, …}]. For a strike every launch tube holds one torpedo and one missile for self-defence (a torpedo takes
 // the room of LAUNCHER_ROUNDS.missile/LAUNCHER_ROUNDS.torpedo = 1.5 missiles, so the two fit a tube that holds 3 missiles), the missile
-// radar-guided on a craft with a sensor and heat-seeking otherwise; pylons keep their load and bays take bombs. Other missions are
+// heat-seeking (「自衛用のミサイルは基本熱源」); pylons keep their load and bays take bombs. Other missions are
 // missionLoad's.
 function missionOrdnance(x,mission){if(mission!=='strike')return craftOrdnance(x,missionLoad(x,mission));const L=craftLoadout(x);if(!L?.stations?.length)return craftOrdnance(x);
- const sensor=Array.isArray(x?.parts)&&x.parts.some(p=>p.k==='sensor'||p.k==='scanner'),guard=sensor?'rmsl':'cmsl',base=craftOrdnance(x,missionLoad(x,'strike')),out=[];
+ const guard='cmsl'/* 2026-11-24 user「自衛用のミサイルは基本熱源」 */,base=craftOrdnance(x,missionLoad(x,'strike')),out=[];
  L.stations.forEach((st,i)=>{const s=stationStore(st),row=base[i];if(!row)return;if(s.mount==='tube'){const tubes=Math.max(1,st.count||1);out.push({...row,n:tubes},{...row,kind:guard,n:tubes,dims:ORDNANCE[guard].dims.slice(),mass:ORDNANCE[guard].mass});}else out.push(row);});
  return out.filter(o=>o.n>0);}
 function craftOrdnance(x,load){
