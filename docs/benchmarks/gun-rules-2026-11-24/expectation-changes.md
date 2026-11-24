@@ -83,3 +83,13 @@
 | gunnery-accuracy | 6/2 | 6/2 | 6/2 | 既存 2 件（main と同じ値、触っていない） |
 | dual-purpose-weapons | 15/1 | 16/0 | 16/0 | なし |
 | trial-guidance | 9/2 | 11/0 | 11/0 | なし |
+
+## 主担当の追加（2026-11-24）
+
+| テスト | 旧期待値 | 新期待値 | 理由 | main で失敗 |
+| --- | --- | --- | --- | --- |
+| light-turret-family：decoded visible shaft lengths and separate shaft/muzzle diameters follow the controlling full-sheet photograph | 砲身・砲口の直径 = 写真の画素 × m/px | 写真の値 × 資産の barrelRadiusScale（口径 0.45 m まで太くした倍率） | ユーザー決定「口径 0.45 m 未満のターボレーザーを太くする」。砲身の長さは写真のまま | いいえ |
+
+不具合の修正（期待値は変えていない）：
+- craftLaserRate／RTS の編隊の射撃が作例機の実測砲身（CRAFT_LASER_EXAMPLES、キー craft_xwing 形式）を引けていなかった → craftLaserRate と craftLaserArcs が 'craft_'+型名で引く。RTS の 1 発も craftLaserRule（口径・砲身・連射）で数える。craft-laser-output 10/10。
+- 太く・長くした砲身が砲の箱（referenceFitAABB）からはみ出していた → 資産の描いた範囲（drawnExtent）で箱を作る。light-turret-family test 8 通過。
