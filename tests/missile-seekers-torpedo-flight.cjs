@@ -85,7 +85,7 @@ test('a heat round holds to its target with 1 from dead astern and MISSILE_SEEK.
 test('the load follows the mission: air superiority missiles (radar-guided first on a craft with a sensor), sensor suppression radar-guided, strike torpedoes and bombs',()=>{
  const load=(k,m)=>plain(C.craftOrdnance(C.buildDesign(k),C.missionLoad(C.buildDesign(k),m)).map(o=>o.kind+'x'+o.n));
  assert.deepEqual(load('craft_xwing','air'),['rmslx6'],'the Rev2 X-wing has a forward targeting sensor');assert.deepEqual(load('craft_xwing','sead'),['rmslx6']);assert.deepEqual(load('craft_xwing','strike'),['ptorpx4']);
- assert.deepEqual(load('craft_tie_ln','air'),['cmslx3'],'the Rev2 TIE/ln has no sensor');assert.deepEqual(load('craft_hyena','air'),['cmslx6','rmslx6'],'stations alternate');
+ assert.deepEqual(load('craft_tie_ln','air'),['cmslx3'],'the Rev2 TIE/ln has no sensor');/* 2026-11-24 expectation changed (physics review): a craft without a sensor carries no radar-guided missile it could not fire (was: stations alternate cmsl, rmsl) */assert.deepEqual(load('craft_hyena','air'),['cmslx6','cmslx6'],'no sensor: heat-seeking throughout');assert.deepEqual(load('craft_hyena','sead'),['cmslx6','cmslx6'],'nor sensor suppression');
  assert.deepEqual(load('craft_ywing','strike'),['ptorpx4','bombx16']);assert.ok(/レーダー誘導/.test(C.ORDNANCE.rmsl.name),'one missile, radar-guided or passive');
 });
 test('a strike carries one torpedo and one self-defence missile a tube (user「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載」)',()=>{
