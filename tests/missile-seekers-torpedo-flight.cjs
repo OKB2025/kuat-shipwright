@@ -80,3 +80,11 @@ test('a heat round holds to its target with 1 from dead astern and MISSILE_SEEK.
  const p=prof('craft_tie_ln'),heat=(tYaw)=>{const a=unit('a','craft_tie_ln',p,0),t=unit('t','craft_tie_ln',p,1);a.pos=[0,0,0];a.yaw=0;t.pos=[2000,0,0];t.yaw=tYaw;const b=C.fleetBattle([a,t],true);C.fleetAirRelease(b,a,t,'cmsl',1,C.FLEET_AIR.kinds[1],null);return b.missiles[0].heatP;};
  assert.ok(Math.abs(heat(0)-1)<1e-9,'astern');assert.ok(Math.abs(heat(Math.PI)-C.MISSILE_SEEK.heatBase)<1e-9,'head-on');assert.ok(Math.abs(heat(Math.PI/2)-(C.MISSILE_SEEK.heatBase+(1-C.MISSILE_SEEK.heatBase)/2))<1e-9,'beam');
 });
+
+// 2026-11-24 user decisions「発艦前に付与された任務によって搭載が変わる」「レーダーと対レーダーは同じミサイルで誘導方式を選べる」.
+test('the load follows the mission: air superiority missiles (radar-guided first on a craft with a sensor), sensor suppression radar-guided, strike torpedoes and bombs',()=>{
+ const load=(k,m)=>plain(C.craftOrdnance(C.buildDesign(k),C.missionLoad(C.buildDesign(k),m)).map(o=>o.kind+'x'+o.n));
+ assert.deepEqual(load('craft_xwing','air'),['cmslx6']);assert.deepEqual(load('craft_xwing','sead'),['rmslx6']);assert.deepEqual(load('craft_xwing','strike'),['ptorpx4']);
+ assert.deepEqual(load('craft_tie_ln','air'),['rmslx3'],'the TIE/ln has a sensor');assert.deepEqual(load('craft_hyena','air'),['cmslx6','rmslx6'],'stations alternate');
+ assert.deepEqual(load('craft_ywing','strike'),['ptorpx4','bombx16']);assert.ok(/レーダー誘導/.test(C.ORDNANCE.rmsl.name),'one missile, radar-guided or passive');
+});
