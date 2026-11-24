@@ -1,0 +1,19 @@
+--- a/replay.py
++++ b/replay.py
+@@ -29,7 +29,7 @@
+     '撃墜': 'Lost',
+     'なし': 'None',
+     'Xウィング  対  {op}': 'X-wing vs. {op}',
+-    '4 対 4  ／  8 km 対向  ／  シード 24': '4v4   /   8 km head-on start   /   Seed 24',
++    '4 対 4  ／  8 km 対向  ／  シード 24': '4v4   /   8 km head-on start   /   Seed 24   /   Proximity-fuse update',
+     '経過 {time:05.1f} 秒': 'Elapsed {time:.1f} s',
+     '終了': 'Final',
+     '再生 ×{rate}': 'Playback {rate}×',
+@@ -326,6 +326,7 @@
+             d.rectangle((832,412,1259,575),fill=PANEL)
+             launches=sum(track['first']<=i for track in rec.missiles.values())
+             missile_panel(d,s,missiles,launches)
++            label(d,(1246,426),f"Proximity bursts {rec.frames[i]['prox']}    Friendly hits {rec.frames[i]['ff']}",14,MUTED,anchor='ra')
+             d.rectangle((832,582,1259,713),fill=PANEL)
+             status(d,s);label(d,(846,683),'各機のシールド残量',14,MUTED)
+             if time>=rec.end:

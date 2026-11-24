@@ -1,0 +1,41 @@
+{
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+    {
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "r_frame_rate": "30/1",
+      "nb_frames": "1646",
+      "nb_read_frames": "1646"
+    }
+  ],
+  "chapters": [
+    {
+      "start_time": "0.000000",
+      "end_time": "19.667000",
+      "tags": {
+        "title": "X-wing vs. TIE/ln"
+      }
+    },
+    {
+      "start_time": "19.667000",
+      "end_time": "35.200000",
+      "tags": {
+        "title": "X-wing vs. TIE/in"
+      }
+    },
+    {
+      "start_time": "35.200000",
+      "end_time": "54.867000",
+      "tags": {
+        "title": "X-wing vs. TIE/D"
+      }
+    }
+  ],
+  "format": {
+    "duration": "54.867000"
+  },
+  "sha256": "318a4b4354b04c74923549e557dcafefea67712877e4f5365944d963374447ce"
+}

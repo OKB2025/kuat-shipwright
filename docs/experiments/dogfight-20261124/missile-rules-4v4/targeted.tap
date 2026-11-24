@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: the defaults: a 2.5 s lock, an 8 s reload, a 3,000 m reach and half the turn of a ship round
+ok 1 - the defaults: a 2.5 s lock, an 8 s reload, a 3,000 m reach and half the turn of a ship round
+  ---
+  duration_ms: 1864.976383
+  type: 'test'
+  ...
+# Subtest: a lock is ready only after the target has been held in the sight for the lock time
+ok 2 - a lock is ready only after the target has been held in the sight for the lock time
+  ---
+  duration_ms: 38149.068275
+  type: 'test'
+  ...
+# Subtest: KS_MSL_FF: a missile bursts on a wingman that crosses its path before the target
+ok 3 - KS_MSL_FF: a missile bursts on a wingman that crosses its path before the target
+  ---
+  duration_ms: 50989.688067
+  type: 'test'
+  ...
+# Subtest: a trial missile turns at most ROUND_TRIAL.turn: fired head-on and passed, it cannot come back within its reach
+ok 4 - a trial missile turns at most ROUND_TRIAL.turn: fired head-on and passed, it cannot come back within its reach
+  ---
+  duration_ms: 25324.927928
+  type: 'test'
+  ...
+# Subtest: KS_MSL_FF: a launcher holds fire while a wingman is in its line to the target
+ok 5 - KS_MSL_FF: a launcher holds fire while a wingman is in its line to the target
+  ---
+  duration_ms: 25512.200645
+  type: 'test'
+  ...
+# Subtest: the body radius: half the mean of length and span
+ok 6 - the body radius: half the mean of length and span
+  ---
+  duration_ms: 1.672172
+  type: 'test'
+  ...
+# Subtest: a burst 8 m beside a shielded X-wing is taken by its field: no section is lost
+ok 7 - a burst 8 m beside a shielded X-wing is taken by its field: no section is lost
+  ---
+  duration_ms: 55.100957
+  type: 'test'
+  ...
+# Subtest: the fuse fires before contact: a round aimed at the centre also bursts beside the craft and meets its field
+ok 8 - the fuse fires before contact: a round aimed at the centre also bursts beside the craft and meets its field
+  ---
+  duration_ms: 53222.749996
+  type: 'test'
+  ...
+# Subtest: a craft larger than its fuse reach is struck: the round passes its field
+ok 9 - a craft larger than its fuse reach is struck: the round passes its field
+  ---
+  duration_ms: 2.046966
+  type: 'test'
+  ...
+# Subtest: a burst beside an unshielded craft goes on whole as a warhead burst
+ok 10 - a burst beside an unshielded craft goes on whole as a warhead burst
+  ---
+  duration_ms: 31.565785
+  type: 'test'
+  ...
+# Subtest: a generator of the X-wing remodel size gives the X-wing field whatever the hull length
+ok 11 - a generator of the X-wing remodel size gives the X-wing field whatever the hull length
+  ---
+  duration_ms: 1.230057
+  type: 'test'
+  ...
+# Subtest: a generator twice as wide stands for a craft twice as long, a smaller one for a shorter craft
+ok 12 - a generator twice as wide stands for a craft twice as long, a smaller one for a shorter craft
+  ---
+  duration_ms: 0.234965
+  type: 'test'
+  ...
+# Subtest: without generator modules the hull length is used, and ships of blendLen and over keep their curve
+ok 13 - without generator modules the hull length is used, and ships of blendLen and over keep their curve
+  ---
+  duration_ms: 0.48203
+  type: 'test'
+  ...
+# Subtest: the examples: A-wing above, Z-95 below their length rule, X-wing unchanged
+ok 14 - the examples: A-wing above, Z-95 below their length rule, X-wing unchanged
+  ---
+  duration_ms: 17016.513452
+  type: 'test'
+  ...
+# Subtest: a strategic-map squad flies its craft with the generator rule, the same figure as a fleet unit
+ok 15 - a strategic-map squad flies its craft with the generator rule, the same figure as a fleet unit
+  ---
+  duration_ms: 33330.646857
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 274622.177633

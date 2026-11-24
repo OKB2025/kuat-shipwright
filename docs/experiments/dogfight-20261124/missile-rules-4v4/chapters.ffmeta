@@ -1,0 +1,17 @@
+;FFMETADATA1
+title=KUAT SHIPWRIGHT | Revised missiles and shields | 4v4
+[CHAPTER]
+TIMEBASE=1/30
+START=0
+END=590
+title=X-wing vs. TIE/ln
+[CHAPTER]
+TIMEBASE=1/30
+START=590
+END=1056
+title=X-wing vs. TIE/in
+[CHAPTER]
+TIMEBASE=1/30
+START=1056
+END=1646
+title=X-wing vs. TIE/D
