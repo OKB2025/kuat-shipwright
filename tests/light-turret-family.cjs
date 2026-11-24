@@ -37,8 +37,14 @@ function measuredBarrelProfile(a,m,row,stationFraction=.65){
 // These checks count decoded geometry and compare native/game transforms. They
 // do not infer physical barrel count, usable room or centering from a label.
 test('six light weapons use their requested per-barrel energies and native photo calibration',()=>{
- const ids=[];for(const[k,id,n,tt]of FAMILY){const{d,a}=data(k);ids.push(id);assert.equal(d.asset,id);assert.equal(d.barrels,n);near(d.boltTT,tt,1e-12);near(d.tt,n*tt,1e-12);near(d.power*d.cycle/C.TT,n*tt,1e-10);assert.equal(a.catalogKind,k);vector([d.fm,d.hm,d.wm],a.size,.001);near(C.weaponModelScale(k),1,1e-12);assert.ok(C.weaponSizing(k).calibration);assert.equal(a.noSupportPedestal,true);near(a.supportStandHeightM,0,1e-12);vector(a.forward,[1,0,0],1e-12);vector(a.up,[0,1,0],1e-12);}
- assert.equal(new Set(ids).size,6);assert.ok(C.FITS.twin200Fast.cycle<C.FITS.twin200.cycle,'the explicitly rapid vertical twin has a shorter firing interval');
+ const ids=[];for(const[k,id,n,tt]of FAMILY){const{d,a}=data(k);ids.push(id);assert.equal(d.asset,id);assert.equal(d.barrels,n);near(d.boltTT,tt,1e-12);near(d.tt,n*tt,1e-12);/* 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): a cycle charges each barrel's shot with its confinement, gunRule.shotChargeTT = E × (1 + barrel ÷ 19 m), at the charging rate (was power × cycle = n × E) */const r=d.gunRule;assert.equal(d.cycle,r.cycle);near(d.power,r.chargeRateTT*C.TT,d.power*1e-12);near(r.shotChargeTT,tt*(1+r.barrelM/C.GUN_RULES.turbolaser.chargeLen),1e-12);near(d.power*d.cycle/C.TT,n*r.shotChargeTT,1e-10);assert.equal(a.catalogKind,k);vector([d.fm,d.hm,d.wm],a.size,.001);near(C.weaponModelScale(k),1,1e-12);assert.ok(C.weaponSizing(k).calibration);assert.equal(a.noSupportPedestal,true);near(a.supportStandHeightM,0,1e-12);vector(a.forward,[1,0,0],1e-12);vector(a.up,[0,1,0],1e-12);}
+ assert.equal(new Set(ids).size,6);
+ // 2026-11-24 expectation changed (gun rules; user「武装の表の新規則化を進めて。これにより中ターボレーザーの発射速度の話は解決で」): every
+ // cycle is the charging time of its own shot, so the rapid twin no longer fires faster by a family figure (1.45 s against 1.40 s;
+ // was twin200Fast.cycle < twin200.cycle). What stays: both twins charge at the same default-volume rate per shot, and each cycle
+ // is its two shots' charge (with the longer barrel's confinement) over that rate.
+ for(const k of ['twin200','twin200Fast']){const d=C.FITS[k],r=d.gunRule;near(r.cycle,2*r.shotChargeTT/r.chargeRateTT,1e-9);}
+ near(C.FITS.twin200Fast.gunRule.chargeRateTT,C.FITS.twin200.gunRule.chargeRateTT,1e-12);
  assert.ok(C.FITS.quad500.fm>C.FITS.quad200.fm,'the photographed medium quad remains physically larger than the light quad');assert.ok(C.FITS.single500.fm<C.FITS.quad500.fm,'the ball single remains compact');
 });
 

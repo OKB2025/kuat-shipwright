@@ -65,11 +65,14 @@ test('a newly arrived missile takes priority over a farther craft without resett
 });
 
 test('switching automatic interception ON shares one reload and one energy debit; switching it OFF returns the gun to ship fire',()=>{
+ // 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): the pd's cycle is 1 s
+ // (one 800 kt shot a second a barrel; was 0.2 s), so the 22 steps of 0.01 s (one old cycle and two steps) are now one cycle and two steps.
+ run('var STEPS=Math.ceil(C.FITS.pd.cycle/.01)+2');
  run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trialGunnery(.01);var firstEnergy=trial.energy.E,firstShots=trial.gun.shots;C.setAutomaticPointDefense(trial.systemsUnit,true);threat();trialGunnery(.01)');
  assert.equal(run('trial.turrets[0].pd'),true);assert.equal(run('trial.gun.pd||0'),0,'switching modes cannot reset the barrel reload');near(run('trial.energy.E'),run('firstEnergy'));
- run('for(let i=0;i<22;i++)trialGunnery(.01);var pdShots=trial.gun.pd||0,pdEnergy=trial.energy.E;trial.foeMissiles=[];trialGunnery(.01)');
+ run('for(let i=0;i<STEPS;i++)trialGunnery(.01);var pdShots=trial.gun.pd||0,pdEnergy=trial.energy.E;trial.foeMissiles=[];trialGunnery(.01)');
  assert.ok(run('pdShots')>0);assert.equal(run('trial.turrets[0].pd'),true,'still ON: kept for interception with no threat');assert.equal(run('trial.gun.shots'),run('firstShots'));near(run('trial.energy.E'),run('pdEnergy'));
- run('C.setAutomaticPointDefense(trial.systemsUnit,false);for(let i=0;i<22;i++)trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots>firstShots'));
+ run('C.setAutomaticPointDefense(trial.systemsUnit,false);for(let i=0;i<STEPS;i++)trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots>firstShots'));
  const volleys=run('(trial.gun.shots+(trial.gun.pd||0))/trial.turrets[0].barrels'),cost=run('trial.turrets[0].power*trial.turrets[0].cycle*trial.turrets[0].costK/TT_J');near(1000-run('trial.energy.E'),volleys*cost);
 });
 

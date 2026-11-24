@@ -5,7 +5,9 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),{C}=require('../scripts/update-ship-examples.cjs').loadRuntime(root),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 const near=(a,b)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=Math.max(1,Math.abs(b))*1e-10,`${a} != ${b}`),plain=v=>JSON.parse(JSON.stringify(v));
 function fn(name){const start=new RegExp('function '+name+'\\s*\\(').exec(app);assert.ok(start,name);for(let end=app.indexOf('}',start.index);end>=0;end=app.indexOf('}',end+1)){const text=app.slice(start.index,end+1);try{new vm.Script(text);return text;}catch{}}assert.fail(name);}
-function ui(){const cx=vm.createContext({C});vm.runInContext(`const T=x=>x,esc=String,fTT=v=>v+' TT',fW=v=>v+' W',num=(v,n=0)=>Number(v).toFixed(n);const ship={surfaces:{mode:'strict'}},st={tab:'edit'},eng={gen:2,statsGen:2};let S=null;${fn('designWeaponOutput')}\n${fn('designWeaponPreviewHTML')}`,cx);return code=>vm.runInContext(code,cx);}
+// 2026-11-24 harness changed (gun rules): designWeaponPreviewHTML now adds the aircraft laser's cylinder settings (craftLaserHTML,
+// js/app.js), so the sandbox also carries craftLaserHTML, craftLaserOptions and craftLaserSummary with no selection (selItem, curFit).
+function ui(){const cx=vm.createContext({C});vm.runInContext(`const T=x=>x,esc=String,fTT=v=>v+' TT',fW=v=>v+' W',num=(v,n=0)=>Number(v).toFixed(n);const ship={surfaces:{mode:'strict'}},st={tab:'edit'},eng={gen:2,statsGen:2},selItem=()=>null,curFit=()=>null;let S=null;${fn('designWeaponOutput')}\n${fn('craftLaserOptions')}\n${fn('craftLaserSummary')}\n${fn('craftLaserHTML')}\n${fn('designWeaponPreviewHTML')}`,cx);return code=>vm.runInContext(code,cx);}
 
 test('40TT and70TT categories use each physical barrel across single, multiple and spherical variants',()=>{
  const run=ui();for(const [output,keys]of [[40,['single40','quad40Ion','twin40Dome','twin40','triple40','oct40']],[70,['refVen','triple70','quad70Side','venSide70']]])for(const k of keys){
@@ -16,13 +18,19 @@ test('40TT and70TT categories use each physical barrel across single, multiple a
 
 test('maximum input and local heat match the existing shot-energy ledger at full sustained cadence',()=>{
  for(const k of ['single40','oct40','refVen','quad40Ion','pd','monCalPD','claser','cturret']){
-  const d=C.fitSpec({k}),q=C.weaponChargeSpec({k}),rating=C.weaponPreviewStats(k),energy=C.weaponEnergy(d,q.volleyTT),cycle=d.cycle||C.K.cycle;
-  near(rating.maxPowerW,energy.inputJ/cycle);near(rating.maxHeatW,energy.lossJ/cycle);near(rating.traverseDegS,C.weaponTraverseDegS(d));near(rating.rangeM,C.GUN_BANDS[C.fitBand(d)].range);
+  // 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): a turbolaser or ion
+  // gun charges each shot with its confinement (gunRule.shotChargeTT = E × (1 + barrel ÷ 19 m); was the salvo's own energy), its
+  // heat is gunRule.heatFrac of the input (5% of the compression share; was the conversion loss) and every gun's range is its
+  // gunRule.rangeM (was its band's). Lasers keep their shots and the usual waste.
+  const d=C.fitSpec({k}),q=C.weaponChargeSpec({k}),rating=C.weaponPreviewStats(k),r=d.gunRule,charged=r&&r.kind!=='laser',energy=C.weaponEnergy(d,charged?d.barrels*r.shotChargeTT:q.volleyTT),cycle=d.cycle||C.K.cycle;
+  near(rating.maxPowerW,energy.inputJ/cycle);near(rating.maxHeatW,charged?r.heatFrac*energy.inputJ/cycle:energy.lossJ/cycle);near(rating.traverseDegS,C.weaponTraverseDegS(d));near(rating.rangeM,r?r.rangeM:C.GUN_BANDS[C.fitBand(d)].range);
+  if(charged)near(r.heatFrac,C.GUN_RULES.turbolaser.heat*(r.barrelM/C.GUN_RULES.turbolaser.chargeLen)/(1+r.barrelM/C.GUN_RULES.turbolaser.chargeLen));
  }
 });
 
 test('displaying a legacy electrical model retains its actual nameplate and waste-heat path',()=>{
- const f={k:'twin40'},rating=C.weaponPreviewStats(f,{strict:false}),d=C.fitSpec(f);near(rating.maxPowerW,d.power);near(rating.maxHeatW,d.power*C.HEAT.waste.weapon);
+ // 2026-11-24 expectation changed (gun rules): the turbolaser's heat path is its gunRule.heatFrac (was HEAT.waste.weapon).
+ const f={k:'twin40'},rating=C.weaponPreviewStats(f,{strict:false}),d=C.fitSpec(f);near(rating.maxPowerW,d.power);near(rating.maxHeatW,d.power*C.weaponWasteFrac(d));assert.equal(C.weaponWasteFrac(d),d.gunRule.heatFrac);
 });
 
 test('scaled weapons, broadside rows and trench aggregates retain per-barrel output but sum mount electricity',()=>{

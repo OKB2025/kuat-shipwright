@@ -25,7 +25,11 @@ test('nine capital entries use physical native models and exact per-barrel gun o
  for(const [k,id,n,bolt,ion]of MODELS){
   const d=C.fitSpec({k}),a=C.REFERENCE_ASSETS[id];assert.ok(a,k+' model must be registered');
   assert.equal(d.asset,id);assert.equal(d.barrels,n);assert.equal(d.boltTT,bolt);
-  near(d.tt||0,ion?0:n*bolt);near(d.ion||0,ion?n*bolt:0);near(d.power,n*bolt*C.TT/d.cycle,1e9);
+  near(d.tt||0,ion?0:n*bolt);near(d.ion||0,ion?n*bolt:0);
+  // 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): power is the charging
+  // rate (gunRule.chargeRateTT × TT) and a cycle charges every barrel's shot with its confinement, E × (1 + barrel ÷ 19 m)
+  // (was power = n × bolt × TT ÷ cycle).
+  assert.equal(d.cycle,d.gunRule.cycle);near(d.power,d.gunRule.chargeRateTT*C.TT,d.power*1e-12);near(d.power,n*d.gunRule.shotChargeTT*C.TT/d.cycle,d.power*1e-12);near(d.gunRule.shotChargeTT,bolt*(1+d.gunRule.barrelM/C.GUN_RULES.turbolaser.chargeLen),1e-9);
   near(C.weaponModelScale(k),1);assert.equal(C.weaponSizing(k).calibration,'capital-photo-family');
   vector([d.fm,d.hm,d.wm],a.size);assert.equal(d.casemate,false);assert.equal(d.fixed,false);assert.equal(C.fitCanRotate(k),true);
  }
@@ -163,7 +167,9 @@ test('pitched native ball guns carry their physical joint, energy, electrical de
  const s=C.newShip({assembly:true,L:200,W:200,H:100},'Pitched sphere runtime profile');s.parts=[];s.fits=[];
  C.placePart(s,'struct',[100,-50,0],[180,180,100],{form:'box'},false);const f=fit('ball720',{id:s.nextId++,p:[100,0,0],assetYaw:33,assetPitch:42});s.fits=[f];C.placePart(s,'gen',[45,-45,0],60,{},false);assert.ok(C.enableSurfaceMode(s,true).ok);
  const S=C.computeStats(s),p=C.fleetProfile(S,s.name,s),m=p.surface.mounts.find(m=>m.id===f.id),g=C.authoredTurretGeometry(f);assert.ok(m?.authored);assert.equal(m.patch,null,'the posed ball remains a normal exterior fitting');
- near(S.alphaTot,720);near(p.wCap,720);near(m.gun,720);near(m.ion,0);near(m.capacity,720);near(m.boltTT,720);near(m.power,720*C.TT/C.ENERGY_MODEL.eta,1e9);near(p.grid.Dw,m.power,1e9);vector(m.normal,[0,1,0],1e-8);vector(m.dir,g.fw,1e-8);vector(m.authored.axis,[0,1,0],1e-8);near(m.authored.restElevation,42*Math.PI/180);
+ // 2026-11-24 expectation changed (gun rules): the 720 TT shot comes once a charging cycle (gunRule.cycle 2.48 s, was 1 s), so the
+ // mount's sustained rate is 720 ÷ cycle and the electrical demand is the charging rate (was 720 TT/s and 720 × TT ÷ eta).
+ const d720=C.FITS.ball720;near(S.alphaTot,720/* the salvo energy, unchanged */);near(p.wCap,720);near(m.gun,720/d720.cycle);near(m.ion,0);near(m.capacity,720);near(m.boltTT,720);near(m.power,d720.gunRule.chargeRateTT*C.TT/C.ENERGY_MODEL.eta,1e9);near(p.grid.Dw,m.power,1e9);vector(m.normal,[0,1,0],1e-8);vector(m.dir,g.fw,1e-8);vector(m.authored.axis,[0,1,0],1e-8);near(m.authored.restElevation,42*Math.PI/180);
  g.muzzles.forEach((q,i)=>vector(C.add(m.authored.muzzles[i],p.surface.offset),q,1e-6));const direction=C.aimAuthoredTurret(g,.27,.3).fw;vector(C.aimAuthoredTurretAt(m.authored,direction).fw,direction,1e-7);
  const cleaned=C.cleanCraftPowerProfile(plain(p),C.serialize(s));assert.ok(cleaned?.surface);const restored=cleaned.surface.mounts.find(q=>q.id===f.id);near(restored.authored.restElevation,m.authored.restElevation);vector(restored.authored.yawForward,m.authored.yawForward,1e-8);vector(C.aimAuthoredTurretAt(restored.authored,direction).fw,direction,1e-7);
  const source=S.heat.net.src.find(q=>q.fit===f.id),runtime=p.heat.src.find(q=>q.k==='weapon'&&q.m.includes(m.module));assert.ok(source&&runtime);near(source.powerWeight,720*C.TT,1e9);assert.ok(source.rated.combat>0&&source.rated.combat<m.power,'actual heat follows the supplied electrical branch');
