@@ -4,10 +4,11 @@
 // the target is within the proposed laser's range, its barrels fire at 1 shot a second each; a shot hits with Core.gunHitChance at
 // that distance (range = the laser's). Energy on target = shot × exp(−d/λ), λ = range ÷ ln(shot ÷ 1 kt).
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');const [root,A='craft_tie_in',Bk='craft_xwing',N='10',NA='1',NB='1',T='120']=process.argv.slice(2);
-const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const cx=vm.createContext({console:{log(){},warn(){},error:console.error}});const FIGHT=+(process.env.FIGHT||1000);for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js']){let src=fs.readFileSync(path.join(root,f),'utf8');if(f==='js/core.js'){const a='fightRange:3000';if(!src.includes(a))throw Error('fightRange not found');src=src.replace(a,'fightRange:'+FIGHT)/* study only: the dogfight begins at about 1 km (user 2026-11-24) */;}vm.runInContext(src,cx,{filename:f});}
 const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x)),pc={},prof=k=>plain(pc[k]||(pc[k]=(()=>{const s=C.buildDesign(k),S=C.computeStats(s);return C.fleetProfile(S,s.name,s);})()));
 // proposed lasers: [barrels, shot kt, range m]
 const LAS={craft_tie_in:[6,118,861],craft_tie_ln:[2,118,861],craft_xwing:[4,136,2390],craft_arc170:[2,176,1530],craft_z95:[2,20,880],craft_tie_d:[8,118,861]};
+let REFF=9000;{const u=C.fleetUnit('u','craft_tie_in',prof('craft_tie_in'),0),v=C.fleetUnit('v','craft_xwing',prof('craft_xwing'),1);u.pos=[0,0,0];v.pos=[300,0,0];u.velocity=[300,0,0];v.velocity=[300,0,0];let lo=1e3,hi=1e7;for(let i=0;i<60;i++){const m=Math.sqrt(lo*hi);if(C.gunHitChance(u,v,300,m,C.fleetSystems(u).fire)<+(process.env.P300||.5))lo=m;else hi=m;}REFF=Math.sqrt(lo*hi);console.log('dispersion as of a '+Math.round(REFF)+' m gun: '+[50,100,200,300,500,800,1500].map(d=>{v.pos=[d,0,0];return d+' m '+(100*C.gunHitChance(u,v,d,REFF,C.fleetSystems(u).fire)).toFixed(0)+'%';}).join(', '));}
 const PLANET={center:[0,-(6.12e6+160000),0],radius:6.12e6};
 function run(seed){const mk=(id,k,team)=>{const u=C.fleetUnit(id,k,prof(k),team);for(const x of u.sec||[]){x.max*=1e9;x.s=x.max;}u.hp=1e12;return u;};
  const as=[],bs=[];for(let i=0;i<+NA;i++)as.push(mk('a'+i,A,0));for(let i=0;i<+NB;i++)bs.push(mk('b'+i,Bk,1));
@@ -17,10 +18,10 @@ function run(seed){const mk=(id,k,team)=>{const u=C.fleetUnit(id,k,prof(k),team)
  const all=[...as,...bs],B=C.fleetBattle(all,true);B.seed=seed;const byId=new Map(all.map(u=>[u.id,u])),near=(u,L)=>L.slice().sort((x,y)=>C.len(C.sub(x.pos,u.pos))-C.len(C.sub(y.pos,u.pos)))[0];
  const st={};for(const k of [A,Bk])st[k]={bearS:0,inS:0,shots:0,hits:0,kt:0,dShot:0,dHit:0,hist:{},dead:0,minD:1e9,sep:0,sepN:0};
  for(let t=0;t<+T;t+=.25){for(const w of as){const q=near(w,bs);w.order={...w.order,target:q.id};}for(const w of bs){const q=near(w,as);w.order={...w.order,target:q.id};}
-  const sh=C.fleetTick(B,.25,{planet:PLANET});for(const u of all){if(u.dead){u.dead=false;st[u.key].dead++;}for(const x of u.sec||[])x.s=x.max;if(u.shieldMax>0)u.shield=u.shieldMax;u.out=false;}
+  const sh=C.fleetTick(B,.25,{planet:PLANET,rules:{range:40000,engagementDistance:12000,step:.25,damage:1e-12}});for(const u of all){if(u.dead){u.dead=false;st[u.key].dead++;}for(const x of u.sec||[])x.s=x.max;if(u.shieldMax>0)u.shield=u.shieldMax;u.out=false;}
   const d0=C.len(C.sub(a.pos,near(a,bs).pos));for(const k of [A,Bk]){st[k].sep+=d0;st[k].sepN++;st[k].minD=Math.min(st[k].minD,d0);}
   for(const q of sh){if(!(q.gun>0)||typeof q.to!=='string')continue;const u=byId.get(q.from),v=byId.get(q.to),L=LAS[u.key];if(!u||!v||!L)continue;const [n,E,R]=L,d=C.len(C.sub(v.pos,u.pos)),S=st[u.key];S.bearS+=.25;if(d>R)continue;S.inS+=.25;
-   const p=C.gunHitChance(u,v,d,R,C.fleetSystems(u).fire),shots=n*.25,hits=shots*p,lam=R/Math.log(E);S.shots+=shots;S.hits+=hits;S.kt+=hits*E*Math.exp(-d/lam);S.dShot+=shots*d;S.dHit+=hits*d;const bin=Math.floor(d/100)*100;S.hist[bin]=(S.hist[bin]||0)+hits;}}
+   const p=C.gunHitChance(u,v,d,REFF,C.fleetSystems(u).fire),shots=n*.25,hits=shots*p,lam=R/Math.log(E);S.shots+=shots;S.hits+=hits;S.kt+=hits*E*Math.exp(-d/lam);S.dShot+=shots*d;S.dHit+=hits*d;const bin=Math.floor(d/100)*100;S.hist[bin]=(S.hist[bin]||0)+hits;}}
  return st;}
 const tot={};for(let s=1;s<=+N;s++){const r=run(s);for(const k in r){const T0=tot[k]||(tot[k]={bearS:0,inS:0,shots:0,hits:0,kt:0,dShot:0,dHit:0,hist:{},dead:0,minD:0,sep:0,sepN:0});for(const f of ['bearS','inS','shots','hits','kt','dShot','dHit','dead','sep','sepN'])T0[f]+=r[k][f];T0.minD+=r[k].minD;for(const b in r[k].hist)T0.hist[b]=(T0.hist[b]||0)+r[k].hist[b];}}
 console.log(`== ${NA} x ${A} vs ${NB} x ${Bk}, ${N} runs of ${T} s (craft cannot be lost)`);
