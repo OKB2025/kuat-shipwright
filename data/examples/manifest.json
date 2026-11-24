@@ -424,12 +424,12 @@
   },
   "venator": {
    "combat": {
-    "sha256": "ec48b5e12b5aabe9692e26b3981b5866a01dd03dd5cae16e7e5b28c1d8c67d2c"
+    "sha256": "84d12d951773b602649f1a711e82abdbd642149e2f383254ecd088bdd2a2aefe"
    },
    "design": {
-    "sha256": "e5a06dd389bb4a6991b5f96311e64af2356c9046809c1b0f9a71a7e9d2ee71f7",
-    "jsonSha256": "bf022dfd40317298a4ade3280a236f1e0893ca70764994d9639011add4d4533f",
-    "blueprintSha256": "b6a4db9606d002c9e9de491d54b398043bbe839f5f81e266459982390f1f6617"
+    "sha256": "6d2b51200ddbd9a2516d200718e684a49d272edd7bf009e753222dd9bcbc1c91",
+    "jsonSha256": "00b72bae0b6c22c7e080466f4ce85796fa01e23b1f04f992ecca4a6f4c43c612",
+    "blueprintSha256": "f6563e281dae2f1fc6c5a5ee25ee26d8a60bf5dba266b8c3d8a60565ea0e95db"
    }
   }
  }

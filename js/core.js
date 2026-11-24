@@ -106989,7 +106989,7 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 // (v25 the Executor is the user's whole design: its machinery, reactors and engines are kept as built, not refitted)
-const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems */'venator','acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems; 2026-11-24 the Venator is the user's design too */'acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
 // v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
 // a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
@@ -111783,6 +111783,14 @@ function imperialRemodelDesign(key){
  finally{ship._building=oldBuilding;}
  return ship;
 }
+// 2026-11-24 The Venator is the user's 1,137 m design (VENATOR_REMODEL in data/imperial2.js; user「ヴェネターはこの作例を使って」), taken as
+// it is: it carries its own systems, so no systems refit follows, and the older reference build (referenceDesign) is not used.
+function venatorRemodelDesign(){
+ if(typeof VENATOR_REMODEL!=='object'||!VENATOR_REMODEL)throw new Error('ヴェネター級の設計がありません');
+ const ship=deserialize(JSON.parse(JSON.stringify(VENATOR_REMODEL)));ship.reference='venator';return ship;
+}
+registerShipExample({key:'venator',name:'ヴェネター級',side:'銀河共和国',role:'スター・デストロイヤー／艦載機母艦',length:1137,author:'ユーザー提供設計',source:'docs/handoff-2026-11-20/refs/venator-1137m-lite-2026-11-24.json.gz',
+ note:'ユーザー提供のヴェネター級 1,137 m（軽量版）の設計をそのまま使った作例。',build:()=>venatorRemodelDesign()});
 for(const [key,name]of [['imperial','インペリアルI級'],['imperial2','インペリアルII級']])registerShipExample({
  key,name,side:'銀河帝国',role:'重砲戦艦',length:1600,author:'ユーザー提供図面',source:'docs/handoff-2026-11-20/refs/imperial-'+(key==='imperial2'?'ii':'i')+'-1600m-remodel-2026-11-23.json.gz',
  note:'ユーザー提供のインペリアル'+(key==='imperial2'?'II':'I')+'級 1,600 m リモデルの設計をそのまま使い、艦橋本体・ISD-72x・トラクタービーム管制装置を部品にしたもの。',build:()=>imperialRemodelDesign(key)
