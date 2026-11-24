@@ -69,3 +69,13 @@ test('the flown ship (公試) launches by the fleet\'s rule: reach, guidance and
  const f=fire(G.refVol,20000);for(let i=0;i<4;i++)C.fleetTick(f.b,.25,{collide:false});assert.ok(f.b.missiles[0].traveled>0,'the round flies in the battle');
  f.u.aaUsed=1;C.fleetTick(f.b,.25,{collide:false});assert.equal(f.b.missiles[0].unguided,true,'and loses its guidance when its slot goes to anti-air work, as a fleet ship\'s does');
 });
+// 2026-11-24 physics review (second): anti-air slot counts are taken afresh each step; the flown ship's launchers reload with time.
+test('slots anti-air work took are free again once it is over; the flown ship reloads and fires again',()=>{
+ const r=launch(G.refVol,20000);r.u.aaUsed=1;r.u.aaUsedCraft=1;C.fleetTick(r.b,.1,{collide:false});
+ assert.equal(r.u.aaUsed,0,'no rounds were engaged this step');assert.equal(r.u.aaUsedCraft,0,'nor craft');
+ r.b.missiles=[];C.fleetTick(r.b,.1,{collide:false});assert.equal(C.shipMissileMode(r.b,r.u,r.b.units.find(x=>x.id==='t'),20000),'radar','with nothing in flight the slot is free for a radar launch');
+ const u=C.fleetUnit('me','me',profile(G.refVol,false),0),t=C.fleetUnit('t','t',target(),1);u.manual=true;u.pos=[0,1000,0];t.pos=[8000,1000,0];t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);
+ const first=C.manualMissileFire(b,u,t,.1);assert.ok(first.rounds.length>0,'first launch');
+ const again=C.manualMissileFire(b,u,t,.1);assert.equal(again.rounds.length,0,'reloading');
+ for(let i=0;i<40;i++)C.fleetTick(b,.1,{collide:false});const third=C.manualMissileFire(b,u,t,.1);assert.ok(third.rounds.length>0,'after its cycle it fires again: '+third.reason);
+});
