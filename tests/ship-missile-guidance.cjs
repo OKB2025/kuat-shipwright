@@ -58,3 +58,14 @@ test('a radar-guided round loses its guidance when its slot is wanted for anti-a
  assert.equal(near.m.shipGuide,'heat','8 km out: heat-seeking');
  const kept=launch(2*G.refVol,20000);kept.u.aaUsed=1;C.fleetTick(kept.b,.1,{collide:false});assert.equal(kept.m.shipGuide,'radar','with a second slot it keeps its guidance');assert.ok(!kept.m.unguided);
 });
+// 2026-11-24 user「設計画面の試験も艦隊戦の仕様に合わせて。公試＝艦隊戦のプレイヤー操作」: the flown ship fires by the fleet's rules.
+test('the flown ship (公試) launches by the fleet\'s rule: reach, guidance and slots, its rounds flying in the battle',()=>{
+ const fire=(dome,dist,craft=false,heavy=true)=>{const u=C.fleetUnit('me','me',profile(dome,heavy),0),t=C.fleetUnit('t','t',target(craft),1);u.manual=true;u.pos=[0,1000,0];t.pos=[dist,1000,0];t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);
+  C.allocateShipPower?.(u,C.fleetSystems(u),{throttle:0,weapons:1,shields:0},0,'balanced');return {b,u,t,r:C.manualMissileFire(b,u,t,.1)};};
+ assert.equal(fire(0,20000).r.reason,'range','no dome: nothing at 20 km');
+ const radar=fire(G.refVol,20000);assert.equal(radar.r.mode,'radar');assert.equal(radar.r.rounds.length,1);assert.equal(radar.b.missiles[0].shipGuide,'radar');assert.equal(radar.b.missiles[0].from,'me');
+ assert.equal(fire(G.refVol,20000,false,false).r.rounds.length,0,'small missiles: not at 20 km');
+ assert.equal(fire(G.refVol,8000,true).r.mode,'heat','at a craft within 10 km: heat');
+ const f=fire(G.refVol,20000);for(let i=0;i<4;i++)C.fleetTick(f.b,.25,{collide:false});assert.ok(f.b.missiles[0].traveled>0,'the round flies in the battle');
+ f.u.aaUsed=1;C.fleetTick(f.b,.25,{collide:false});assert.equal(f.b.missiles[0].unguided,true,'and loses its guidance when its slot goes to anti-air work, as a fleet ship\'s does');
+});

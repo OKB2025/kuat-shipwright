@@ -8,7 +8,7 @@ const {C,R}=vm.runInContext('({C:Core,R:Rts})',context),plain=q=>JSON.parse(JSON
 function profile(kind='cmsl',cells=1){
  const native=kind==='cmsl'||kind==='shipMsl',range=kind==='shipMsl'?60000:10000;
  const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6*cells,missileKind:kind,missileRange:range,salvo:cells,cycle:1.2,tt:25,launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:Array.from({length:cells},(_,i)=>[0,0,i]),launchDir:[1,0,0],...(kind==='shipMsl'?{heavy:true}/* 2026-11-24 fixture changed: only a large missile launches beyond 10 km (user「50kmのレーダー発射は大型ミサイルのみ」) */:{})};
- return {name:'Range fixture',profileVersion:5,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,
+ return {name:'Range fixture',profileVersion:5,trackModel:1/* 2026-11-24 a profile under the tracking-slot rule (an older one keeps its stored channels) */,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,
  gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:native?25*cells*20/1.2:0,imsl:0,
  modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher,...(kind==='shipMsl'?[{k:'sensor',name:'ISD-72x-sized dome (test fixture)',size:31527,trackVol:30340,share:1,at:.5,domain:'main'}]:[])/* 2026-11-24 fixture changed: a ship's missiles beyond 10 km are radar-guided and need a tracking slot (user「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」「ISD-72xのサイズで4枠」); the firing ship is given one ISD-72x-sized dome so this case still tests its own subject */],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};
 }
@@ -98,7 +98,7 @@ function trialSetup(kind='cmsl',cells=1){
 }
 
 test('manual trial range checks its locked target before committing a round',()=>{
- for(const distance of [20000,60000])for(const kind of ['cmsl','shipMsl']){const {run}=trialSetup(kind);run(`target.pos=[${distance},1000,0];fire(target)`);if(kind==='cmsl'){assert.equal(run('trial.gun.missiles'),0);assert.equal(run('unit.ammo[1]'),6);assert.equal(run('launcher.queue'),0);}else{assert.equal(run('trial.gun.missiles'),1);assert.equal(run('unit.ammo[1]'),5);assert.equal(run('trial.missiles[0].range'),60000);}}
+ for(const distance of [20000,50000]/* 2026-11-24 expectation changed: the trial launches by the fleet's rule, radar-guided to 50 km (user「設計画面の試験も艦隊戦の仕様に合わせて」; was 60 km) */)for(const kind of ['cmsl','shipMsl']){const {run}=trialSetup(kind);run(`target.pos=[${distance},1000,0];fire(target)`);if(kind==='cmsl'){assert.equal(run('trial.gun.missiles'),0);assert.equal(run('unit.ammo[1]'),6);assert.equal(run('launcher.queue'),0);}else{assert.equal(run('trial.gun.missiles'),1);assert.equal(run('unit.ammo[1]'),5);assert.equal(run('trial.missiles[0].range'),60000);}}
 });
 
 test('manual trial exact range expiry counts the actual path including inherited ship velocity',()=>{
