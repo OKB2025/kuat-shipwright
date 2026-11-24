@@ -119676,7 +119676,7 @@ function shipTrackSlots(u){const P=u?.p;if(P&&!P.trackModel&&!(P.modules||[]).so
 // The targets whose radar-guided missiles keep a slot this step: the slots left after anti-air engagement (u.aaUsed, u.aaUsedCraft, the
 // last step), given to the targets in the order they were first fired at; a missile whose target is left out loses its guidance
 // (user 2026-11-24「対空戦闘などでセンサーが別の目標を優先しないといけない時も誘導が切れる」).
-function shipTrackKeep(b,u){if(u._trackKeep?.at===b.time)return u._trackKeep.set;const free=Math.max(0,shipTrackSlots(u)-(u.aaPrev??u.aaUsed??0)-(u.aaCraftPrev??u.aaUsedCraft??0)),set=new Set();for(const m of b.missiles||[]){if(set.size>=free)break;if(m.from===u.id&&m.shipGuide==='radar'&&!m.unguided&&m.n>0)set.add(m.target);}u._trackKeep={at:b.time,set};return set;}
+function shipTrackKeep(b,u){if(u._trackKeep?.at===b.time)return u._trackKeep.set;const after=b._aaReset===b.time/* the step's counts were reset: the last step's are kept in aaPrev */,free=Math.max(0,shipTrackSlots(u)-(after?u.aaPrev||0:u.aaUsed||0)-(after?u.aaCraftPrev||0:u.aaUsedCraft||0)),set=new Set();for(const m of b.missiles||[]){if(set.size>=free)break;if(m.from===u.id&&m.shipGuide==='radar'&&!m.unguided&&m.n>0)set.add(m.target);}u._trackKeep={at:b.time,set};return set;}
 // The guidance a ship's launch takes at target t, distance m away (2026-11-24 user decisions above): beyond the heat seeker's reach
 // radar-guided with a slot free (else none); within it radar at a ship with a slot free, heat at a craft or with no slot. The pool is
 // shared with anti-air engagement (u.aaUsed, u.aaUsedCraft, the last step). One rule for the fleet's ships and the ship a player flies
@@ -119690,7 +119690,7 @@ function shipMissileModeFor(mode,m,distance){return !m.heavy&&mode==='radar'&&di
 function shipMissileRelease(b,u,t,packet,{mode=null,aim=null,distance=0}={}){
  const launch=missileLaunchWorld(u,packet,t),native=isConcussionLauncher(packet.kind),range=missileRange(packet);
  const tl=!!packet.torp/* 2026-11-24 a ship's launcher throws its torpedo at a craft's speed; it has no motor */,m={id:'m'+(b.missileN=(b.missileN||0)+1),salvo:u.id+'@'+b.time,team:u.team,from:u.id,target:t.id,n:packet.n,tt:packet.tt,kind:packet.kind,...(packet.torp?{torp:true,inertial:true,torpLen:50}:{}),...(!tl&&mode?{shipGuide:mode}:{}),ion:!!packet.ion,range:tl?Math.max(range,400000):!tl&&mode==='radar'?Math.max(range,SHIP_MSL_GUIDE.radarRange):range,traveled:0,pos:launch.origin.slice(),vel:mul(launch.axis,tl?TORPEDO_FLIGHT.shipLaunch:MISSILE_FLIGHT.launch),s:tl?TORPEDO_FLIGHT.shipLaunch:MISSILE_FLIGHT.launch,life:native?missileFlightLife(range,roundSpeed(packet)):Math.max(MISSILE_FLIGHT.legacyLife,missileFlightLife(range,roundSpeed(packet))),...(aim?{aim,aimRange:distance}:{})/* the part the ship aims at and the range it aimed from, as the launch-time damage carried them */,...(native?{launchDir:launch.axis.slice(),launchClearance:MISSILE_FLIGHT.clearance}:{})};
- (b.missiles||(b.missiles=[])).push(m);return m;}
+ (b.missiles||(b.missiles=[])).push(m);if(u._trackKeep)u._trackKeep=null/* a new round: the slots are shared out again (shipTrackKeep) */;return m;}
 // The flown ship's launchers on the player's order (the trial, 公試): the fleet's launch step and rules (reach, guidance, slots, reload,
 // cells, power) at target t, its rounds put into the battle. aim: a module kind the rounds go for ('weapon', 'engine', 'bridge') or null.
 // Returns {rounds, mode, reason} — reason when nothing could go: 'range', 'mode' (no guidance at that distance), 'none'.
@@ -120323,7 +120323,7 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
  moveFleet();
  if(opts.planet)for(const u of alive)if(craftUnit(u)){const old=byId.get(u.id);if(old)craftEnergyStep(u,old.pos,opts.planet,dt);}/* v30 height for speed in the craft's fights: after they have moved (it stood before the move at first and did nothing: found 2026-11-19) */
  dockStep(alive,b,dt);
- for(const u of alive){u.aaPrev=u.aaUsed||0;u.aaCraftPrev=u.aaUsedCraft||0;u.aaUsed=0;u.aaUsedCraft=0;}/* physics review 2026-11-24: the slots anti-air work took are counted afresh each step (they stayed taken once the craft or rounds were gone); the guidance and point defence of this step read the last step's (aaPrev, aaCraftPrev) */
+ for(const u of alive){u.aaPrev=u.aaUsed||0;u.aaCraftPrev=u.aaUsedCraft||0;u.aaUsed=0;u.aaUsedCraft=0;u._trackKeep=null;}b._aaReset=b.time;/* physics review 2026-11-24: the slots anti-air work took are counted afresh each step (they stayed taken once the craft or rounds were gone); the guidance and point defence of this step read the last step's (aaPrev, aaCraftPrev) */
  if(b.missiles?.length)fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys);
  fleetCraftCasualties(b,alive,incoming,dt,DMG,pdStep,sys);
  // Outer-surface maps only where the caller asks (the trial, whose ships each have their map before they appear): a fleet
