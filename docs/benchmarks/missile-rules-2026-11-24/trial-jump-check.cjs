@@ -7,10 +7,12 @@ const server=http.createServer((req,res)=>{const pn=decodeURIComponent(new URL(r
  const key=process.env.K||'venator';await pg.evaluate(k=>window.__yard.openExample(k),key);await pg.waitForFunction(()=>window.__yard.stats,null,{timeout:300000});
  await pg.evaluate(()=>window.__yard.trialStart());await pg.waitForFunction(()=>window.__yard.trial.on&&window.__yard.trial.asset,null,{timeout:300000});
  await pg.waitForFunction(()=>window.__yard.trial.battle?.b?.units?.some(u=>u.trialTarget!=null),null,{timeout:300000});
- const st=()=>pg.evaluate(()=>{const t=window.__yard.trial;return {mode:t.mode,battle:!!t.battle,targets:t.battle?t.battle.b.units.filter(u=>u.trialTarget!=null&&!u.dead).length:0,units:t.battle?t.battle.b.units.length:0,jump:t.jump?.phase||null,sys:t.sysKey,escorts:(t.escorts||[]).length,toast:[...document.querySelectorAll('.toast,#toast')].map(e=>e.textContent).slice(-1)[0]||''};});
+ const st=()=>pg.evaluate(()=>{const t=window.__yard.trial,me=t.battle?.me;return {meId:me?.id,meMods0:me?.mods?.[0],meAmmo:(me?.ammo||[]).reduce((a,b)=>a+b,0),mode:t.mode,battle:!!t.battle,targets:t.battle?t.battle.b.units.filter(u=>u.trialTarget!=null&&!u.dead).length:0,units:t.battle?t.battle.b.units.length:0,jump:t.jump?.phase||null,sys:t.sysKey,escorts:(t.escorts||[]).length,toast:[...document.querySelectorAll('.toast,#toast')].map(e=>e.textContent).slice(-1)[0]||''};});
  const log=[];log.push(['start',await st()]);
  await pg.evaluate(()=>window.__yard.trialCommand('reset'));await pg.waitForTimeout(500);log.push(['reset',await st()]);
  await pg.waitForFunction(()=>window.__yard.trial.battle?.b?.units?.some(u=>u.trialTarget!=null&&!u.dead),null,{timeout:300000});
+ await pg.evaluate(()=>{const me=window.__yard.trial.battle.me;me.mods[0]=0;me.ammo=me.ammo.map(()=>0);});log.push(['damaged',await st()]);
+ const here=await pg.evaluate(()=>window.__yard.trial.sysKey);await pg.evaluate(h=>window.__yard.trialCommand('jump:'+h),here);await pg.waitForTimeout(1500);log.push(['jump to here (refused)',await st()]);
  const dest=process.env.DEST||'kuat';await pg.evaluate(d=>window.__yard.trialCommand('jump:'+d),dest);await pg.waitForTimeout(1500);log.push(['jump ordered',await st()]);
  for(let i=0;i<60;i++){await pg.waitForTimeout(5000);const x=await st();if(i%6===0)log.push(['t'+(i*5),x]);if(!x.jump&&x.sys===dest&&x.targets>0){log.push(['arrived',x]);break;}}
  log.push(['end',await st()]);console.log(JSON.stringify(log,null,0));await pg.screenshot({path:out+'/jump.png'});await br.close();server.close();return;
