@@ -16,7 +16,7 @@ for(const [k,d] of Object.entries(C.FITS)){const e=(d.tt||0)+(d.ion||0);if(!(e>0
  else if(ball){L=(b.muzzle[0]-front)+.75*body;how='球 3/4';}
  else if(Math.abs(ex-full)<.01){L=d.fm*2/3;how='固定 2/3';}else{L=full;how='全長';}
  let bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*.6:0.74;bore=Math.max(bore,0.45);
- const Ekt=bolt*1e9,minCoil=1+KC*Math.log((dl(Ekt)/bore)**2),extra=L-minCoil,c=L/Lref,V=C.weaponChargeSpec({k,p:[0,0,0]}).targetVolume,charge=bolt*(1+c)/(kV*V),cool=Math.sqrt(bolt)*A0/(L*bore)*(ball?.5:1),gap=process.env.COOL_EQ?charge:ion?charge:Math.max(charge,cool/n);
+ const Ekt=bolt*1e9,minCoil=1+KC*Math.log((dl(Ekt)/bore)**2),extra=L-minCoil,c=L/Lref,V=process.env.SUBJ?d.fm*d.wm*d.hm:C.weaponChargeSpec({k,p:[0,0,0]}).targetVolume,charge=bolt*(1+c)/((process.env.SUBJ?3.1027e-4:kV)*V),cool=Math.sqrt(bolt)*A0/(L*bore)*(ball?.5:1),gap=process.env.COOL_EQ?charge:ion?charge:Math.max(charge,cool/n);
  const hold=extra<0?null:R0+Ak*Math.log(1+extra/x0),rng=hold==null?null:hold+tail*Math.log(Ekt/1e3);
  rows.push({name:d.short||d.name,n,bolt,L,how,bore,minCoil,extra,hold,rng,charge,cool,gap,ps:bolt/gap,old:e/d.cycle});}
 rows.sort((a,b)=>b.bolt-a.bolt||b.ps-a.ps);const s=x=>x==null?'—':x>=100?x.toFixed(0):x>=10?x.toFixed(1):x.toFixed(2);
