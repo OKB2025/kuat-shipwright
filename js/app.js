@@ -8274,11 +8274,11 @@ function trialReset(){
 // targets were, so every round, missile and hit is the battle's. A target that is sunk or put out of action is put back after
 // TRIAL_TARGET.respawn seconds at a new place.
 const TRIAL_TARGET={key:'cr90',n:TRIAL_GUN.targets,respawn:6};
-function trialTargetsWanted(){return trial.on&&!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!=='title'&&(trial.mode==='trial'||!!trial.battlePlan?.targets);}
+function trialTargetsWanted(started=true){return (trial.on||!started)&&!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!=='title'&&(trial.mode==='trial'||!!trial.battlePlan?.targets);}
 async function trialTargetsBattle(){
- if(!trialTargetsWanted())return;const gen=trial.resetGen,started=trial.startedAt;let a=null;
+ if(!trialTargetsWanted(false))return/* called from the reset, before the flight is on */;const gen=trial.resetGen;let a=null;
  try{a=await fleetAsset(TRIAL_TARGET.key,fleetExampleOptions(TRIAL_TARGET.key));}catch(e){console.error(e);toast('標的艦を出せません：'+esc(e.message||e));return;}
- if(!a?.p||!trialTargetsWanted()||trial.resetGen!==gen||trial.startedAt!==started||trial.jump)return;
+ for(let i=0;i<200&&!trial.on&&trial.resetGen===gen;i++)await new Promise(r=>setTimeout(r,50))/* the flight comes on once the reset has finished */;if(!a?.p||!trialTargetsWanted()||trial.resetGen!==gen||trial.jump)return;
  if(!trial.battle){const esc0=(trial.escorts||[]).map(e=>({key:e.key,p:e.p,name:e.name,order:{}}));trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true,targets:true};trial.escorts=[];spaceBattleInit(trial.battlePlan);trialHudRemount();}
  trial.targetAsset=a;for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();trialHudUpdate?.(true);
 }

@@ -7,10 +7,11 @@ const server=http.createServer((req,res)=>{const pn=decodeURIComponent(new URL(r
  const key=process.env.K||'venator';await pg.evaluate(k=>window.__yard.openExample(k),key);await pg.waitForFunction(()=>window.__yard.stats,null,{timeout:300000});
  await pg.evaluate(()=>window.__yard.trialStart());await pg.waitForFunction(()=>window.__yard.trial.on&&window.__yard.trial.asset,null,{timeout:300000});
  const dist=+(process.env.D||8);
- await pg.evaluate(d=>{const y=window.__yard;y.trialCommand('spawn');Object.assign(y.trial.spawn,{source:'current',role:'foe',f:d,r:0,u:0});y.trialCommand('spawn-go');},dist);
+ if(!process.env.NOSPAWN)await pg.evaluate(d=>{const y=window.__yard;y.trialCommand('spawn');Object.assign(y.trial.spawn,{source:'current',role:'foe',f:d,r:0,u:0});y.trialCommand('spawn-go');},dist);
+ if(process.env.DEBUG){await pg.waitForTimeout(20000);console.log(JSON.stringify(await pg.evaluate(()=>{const t=window.__yard.trial;return {mode:t.mode,on:t.on,rts:!!t.rts,pat:!!t.pat,spectate:!!t.spectate,returnTo:t.returnTo,battle:!!t.battle,plan:t.battlePlan,targets:(t.targets||[]).length,drones:(t.drones||[]).length,ta:!!t.targetAsset};})),logs);await br.close();server.close();return;}
  await pg.waitForFunction(()=>window.__yard.trial.battle?.b?.units?.some(u=>u.team===1),null,{timeout:300000});
  await pg.evaluate(()=>{const y=window.__yard;y.trialCommand('gun:enemy');});await pg.waitForTimeout(1500);
- const before=await pg.evaluate(()=>{const t=window.__yard.trial;return {missiles:(t.battle.b.missiles||[]).filter(m=>m.from===t.battle.me.id).length,launchers:t.launchers.length,lock:!!t.heldLock};});
+ const before=await pg.evaluate(()=>{const t=window.__yard.trial;return {mode:t.mode,targets:t.battle.b.units.filter(u=>u.trialTarget!=null&&!u.dead).map(u=>u.name+'@'+Math.round(Math.hypot(...u.pos.map((v,i)=>v-t.battle.me.pos[i]))/100)/10+'km'),drones:(t.drones||[]).length,records:document.querySelector('[data-th="records"],#thRecords')?.textContent||null,missiles:(t.battle.b.missiles||[]).filter(m=>m.from===t.battle.me.id).length,launchers:t.launchers.length,lock:!!t.heldLock};});
  await pg.evaluate(()=>window.__yard.trialCommand('missile'));
  const fired=[];for(let i=0;i<12;i++){await pg.waitForTimeout(500);fired.push(await pg.evaluate(()=>{const t=window.__yard.trial,B=t.battle,ms=(B.b.missiles||[]).filter(m=>m.from===B.me.id);return {t:+B.b.time.toFixed(1),mine:ms.length,guide:[...new Set(ms.map(m=>m.shipGuide||(m.torp?'torp':'-')))].join(','),flown:ms.length?Math.round(Math.max(...ms.map(m=>m.traveled))):0,trialMissiles:t.missiles.length,gun:t.gun.missiles||0,log:B.b.missileLog||null};}));}
  await pg.screenshot({path:out+'/'+key+'-'+dist+'km.png'});
