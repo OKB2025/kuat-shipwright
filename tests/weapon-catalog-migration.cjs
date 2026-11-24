@@ -37,7 +37,11 @@ test('one canonical catalog describes the heavy twin, octuple and generic ion gu
     assert.equal(d.boltTT, boltTT, k);
     assert.equal(d.tt, tt, k);
     assert.equal(d.asset, asset, k);
-    assert.equal(d.power, tt*C.TT/d.cycle, k);
+    // 2026-11-24 gun rules: power is the charging rate; a volley's charge is tt x (1 + barrel / 19 m) (was tt a cycle)
+    assert.equal(d.cycle, d.gunRule.cycle, k);
+    assert.equal(d.power, d.gunRule.chargeRateTT*C.TT, k);
+    assert.ok(Math.abs(d.gunRule.shotChargeTT-boltTT*(1+d.gunRule.barrelM/19))<1e-9, k);
+    assert.ok(Math.abs(d.power*d.cycle/C.TT-barrels*d.gunRule.shotChargeTT)<1e-9*tt, k);
     assert.equal(!!d.casemate, false, k);
     assert.equal(C.fitCanRotate(k), true, k);
   }

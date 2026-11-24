@@ -32,7 +32,11 @@ function unit(profile, id = 'attacker', team = 0) {
   u.order = {...u.order, type: 'hold', power: 'weapons', fire: true};
   return u;
 }
-function target(profile, z = 8000) {const t = unit(profile, 'target', 1); t.pos = [0, 0, z]; t.order.fire = false; return t;}
+// 2026-11-24 gun rules: each gun reaches its own range. The 34 TT ball gun of these rows holds its bolt to 4.4 km and is gone at
+// 7.4 km (its 10.3 m barrel is barely over its least coil), so the targets stand 4 km off the centre line (they stood at 8 km,
+// inside the old 40 km band) and the bow target, which tests the arc and not the range, at 7 km.
+const RANGE = 4000, BOW_RANGE = 7000;
+function target(profile, z = RANGE) {const t = unit(profile, 'target', 1); t.pos = [0, 0, z]; t.order.fire = false; return t;}
 
 test('100 to 10000 mounts retain bounded groups, physical rows and runtime modules while totals scale exactly once', () => {
   const {small: a, large: b} = fixtures();
@@ -71,11 +75,12 @@ test('odd mixed totals share one actual capacitor per side without duplicating i
 
 test('port and starboard rows use the real opening, range and bounded per-muzzle obstruction rather than one center ray', () => {
   const {small: x} = fixtures(), u = unit(x.profile), mounts = x.profile.surface.mounts;
-  const port = target(x.profile, -8000), stbd = target(x.profile, 8000), fore = target(x.profile); fore.pos = [12000, 0, 0];
-  assert.ok(C.fleetFire(u, port, 8000).gun > 0); assert.ok(C.fleetFire(u, stbd, 8000).gun > 0);
-  assert.equal(C.fleetFire(u, fore, 12000).gun, 0);
+  const port = target(x.profile, -RANGE), stbd = target(x.profile, RANGE), fore = target(x.profile); fore.pos = [BOW_RANGE, 0, 0];
+  for (const kind of ['monCal34']) {const r = C.FITS[kind].gunRule; assert.ok(RANGE < r.holdM && BOW_RANGE < r.rangeM && r.rangeM < 8000, kind + ' reach');}
+  assert.ok(C.fleetFire(u, port, RANGE).gun > 0); assert.ok(C.fleetFire(u, stbd, RANGE).gun > 0); assert.equal(C.fleetFire(u, stbd, 8000).gun, 0, 'beyond the gun\'s own range nothing is fired');
+  assert.equal(C.fleetFire(u, fore, BOW_RANGE).gun, 0);
   assert.equal(C.fleetFire(u, target(x.profile, 100000), 100000).gun, 0);
-  const mount = mounts.find(m => m.normal[2] > 0), probe = {...u, p: {...x.profile, surface: {...x.profile.surface, mounts: [mount]}}}, open = C.fleetFire(probe, stbd, 8000).gun;
+  const mount = mounts.find(m => m.normal[2] > 0), probe = {...u, p: {...x.profile, surface: {...x.profile.surface, mounts: [mount]}}}, open = C.fleetFire(probe, stbd, RANGE).gun;
   assert.ok(open > 0);
   // Four sample bins are moved inside the opposite wall. Their integer
   // populations differ because eight bins represent fifty actual mounts.
@@ -84,7 +89,7 @@ test('port and starboard rows use the real opening, range and bounded per-muzzle
   const totalWeight = mount.muzzleWeights.reduce((n, weight) => n + weight, 0);
   const openWeight = mount.muzzleWeights.reduce((n, weight, i) => n + (i % 2 ? 0 : weight), 0);
   near(totalWeight, 1); near(mount.aggregateCount, 50); near(openWeight * mount.aggregateCount, 24);
-  const reduced = C.fleetFire(probe, stbd, 8000); near(reduced.gun, open * openWeight / totalWeight);
+  const reduced = C.fleetFire(probe, stbd, RANGE); near(reduced.gun, open * openWeight / totalWeight);
   C.fleetPowerStep(probe, C.fleetSystems(probe), stbd, reduced.cost, .25);
   const fired = probe.surfaceLastFire.gun; assert.ok(fired > 0);
   for (let serial = 0; serial < 8; serial++) {
@@ -98,12 +103,15 @@ test('port and starboard rows use the real opening, range and bounded per-muzzle
 test('actual reactor input charges empty shared banks and funds firing and weapon waste heat through one ledger', () => {
   const {small: x} = fixtures(), u = unit(x.profile), t = target(x.profile), dt = .25;
   u.energy = 0; u.surfaceBanks = Object.fromEntries(x.profile.surface.mounts.map(m => [m.id, 0]));
-  const beforeFuel = C.shipFuelAvailableEnergyJ(u), F = C.fleetFire(u, t, 8000);
+  const beforeFuel = C.shipFuelAvailableEnergyJ(u), F = C.fleetFire(u, t, RANGE);
   assert.ok(F.gun > 0 && F.runtime); C.fleetPowerStep(u, C.fleetSystems(u), t, F.cost, dt);
   assert.ok(u.pw.wpn > 0); assert.ok(u.surfaceLastFire.spent > 0); assert.ok(u.surfaceLastFire.charged > 0);
   near(u.surfaceLastFire.charged * C.weaponInputFactor(x.profile) * C.TT / dt, u.pw.wpn);
   near(u.energy, u.surfaceLastFire.charged - u.surfaceLastFire.spent);
-  near(u.ht.e.weapon, C.HEAT.waste.weapon * u.pw.wpn * dt);
+  // 2026-11-24 (user「艦内に行く熱は圧縮分のエネルギーの5%で」): a turbolaser's firing heat is 5% of the confinement's share of its
+  // input, 0.05 x c / (1 + c) with c = barrel / 19 m, carried by the profile as weaponWaste (was HEAT.waste.weapon, 5% of the input).
+  {const r = C.FITS.monCal34.gunRule, c = r.barrelM / C.GUN_RULES.turbolaser.chargeLen; near(r.heatFrac, C.GUN_RULES.turbolaser.heat * c / (1 + c)); near(x.profile.weaponWaste, r.heatFrac); assert.ok(x.profile.weaponWaste < C.HEAT.waste.weapon);}
+  near(u.ht.e.weapon, x.profile.weaponWaste * u.pw.wpn * dt);
   assert.ok(C.shipFuelAvailableEnergyJ(u) < beforeFuel);
   const depleted = unit(x.profile); depleted.energy = 0; depleted.surfaceBanks = Object.fromEntries(x.profile.surface.mounts.map(m => [m.id, 0]));
   for (const fuel of depleted.fuel?.sources || []) fuel.remainingJ = 0;
@@ -140,7 +148,7 @@ test('actual trench patch hits damage its shared logical weapon module without a
 });
 
 test('bounded actual trench-origin packets conserve gun and ion totals in direct damage routing and fleet combat', () => {
-  const {small: x} = fixtures(), u = unit(x.profile), t = target(x.profile), F = C.fleetFire(u, t, 8000), dt = .25;
+  const {small: x} = fixtures(), u = unit(x.profile), t = target(x.profile), F = C.fleetFire(u, t, RANGE), dt = .25;
   C.fleetPowerStep(u, C.fleetSystems(u), t, F.cost, dt);
   const packets = C.fleetWeaponPackets(u, 17, 3);
   assert.ok(packets.length <= x.profile.surface.mounts.length + 1);
@@ -164,7 +172,7 @@ test('RTS battle uses the same compact firing and profile-local muzzle packets a
   const {small: x} = fixtures(), designOf = key => ({key, p: x.profile, info: {mass: x.stats.mass, hyper: null, capital: true, sensor: 0}});
   const a = designOf('trench-a'), b = designOf('trench-b'), w = R.createWorld({mode: 'test', sensors: false, convoyMode: false, designs: [a, b], sides: [{faction: 'empire', ai: false}, {faction: 'rebel', ai: false}], fleets: [[{design: a.key}], [{design: b.key}]]});
   const u = [...w.units.values()].find(q => q.side === 0), t = [...w.units.values()].find(q => q.side === 1);
-  t.sys = u.sys; w.groups.get(t.group).sys = u.sys; u.pos = [0, 0, 0]; t.pos = [0, 0, 8000]; u.yaw = 0;
+  t.sys = u.sys; w.groups.get(t.group).sys = u.sys; u.pos = [0, 0, 0]; t.pos = [0, 0, RANGE]; u.yaw = 0;
   u.crew = x.profile.crewNeed; t.crew = x.profile.crewNeed;
   u.order = {...u.order, type: 'attack', target: t.id, power: 'weapons'}; t.order = {...t.order, type: 'hold', fire: false};
   R.battleTick(w, u.sys, .25);

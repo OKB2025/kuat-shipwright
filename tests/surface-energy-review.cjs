@@ -5,7 +5,7 @@ const {C,D}=vm.runInContext('({C:Core,D:YardFleetData.designs})',cx),plain=x=>JS
 // Use the real fleet clock with a measured baseline profile, replacing only its
 // two mounts and electrical connections to isolate the energy being tested.
 function battle(salvo=false){
- const p=plain(D.cr90.p);p.grid={P:100*C.TT,fixed:0,Dw:0,Ds:0,De:0,domains:[{id:'main',P:100*C.TT,modules:[0,1]}]};
+ const p=plain(D.cr90.p);delete p.gunBandRules;delete p.ionRules;/* 2026-11-24 fixture changed: the copied CR90 profile now carries its real lasers' rules (they are gone at 1.7-4 km), which set how far the unit looks for a target; the two synthetic mounts below have no rule, so the profile goes by the band ranges like one made before the rules and the 5 km target is in reach as before */p.grid={P:100*C.TT,fixed:0,Dw:0,Ds:0,De:0,domains:[{id:'main',P:100*C.TT,modules:[0,1]}]};
  p.modules=[0,1].map((_,i)=>({k:'weapon',fit:101+i,domain:'main',powerConnected:true,name:i?'Ion':'Laser',share:.5,size:1,hits:1,w:1,at:.5,y:0,z:0}));
  Object.assign(p,{crewNeed:0,crewMax:0,autoCrew:0,acc:1,aa:0,aaArcs:[0,0,0,0,0,0],msl:0,imsl:0,slots:0,wCap:20,heat:{v:1,src:[],dis:[],ln:[]},energyModel:{version:1,eta:.75}});
  p.surface={patches:[],shell:[],devices:[],mounts:[0,1].map((_,i)=>({id:101+i,module:i,patch:null,arcs:[1,1,1,1,1,1],gun:i?0:1,ion:i?1:0,capacity:10,power:C.TT,barrels:1,crewNeed:0,cycle:1,band:'mid'}))};
