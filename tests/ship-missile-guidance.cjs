@@ -28,7 +28,9 @@ test('beyond 10 km only a large missile goes, radar-guided out to 50 km with a s
  assert.equal(C.missileMaxRange({p:profile(G.refVol,true)}),G.radarRange);assert.equal(C.missileMaxRange({p:profile(G.refVol)}),10000,'cell launchers keep 10 km');assert.equal(C.missileMaxRange({p:profile()}),10000);
 });
 test("a radar-guided round loses guidance with its ship's domes; at a craft it hands over to heat at 10 km",()=>{
- const r=launch(G.refVol,20000,true);r.u.mods[2]=0;C.fleetTick(r.b,.1,{collide:false});assert.equal(r.m.unguided,true,'the dome is gone');
+ const r=launch(G.refVol,20000,true);r.u.mods[2]=0;C.fleetTick(r.b,.1,{collide:false});assert.equal(r.m.unguided,true,'the dome is gone 20 km out: unguided');
+ // 2026-11-24 user「艦の発射機のミサイルは同一、誘導が10km範囲で切れると熱源に変わる」
+ const n=launch(G.refVol,8000);assert.equal(n.m?.shipGuide,'radar');n.u.mods[2]=0;C.fleetTick(n.b,.1,{collide:false});assert.equal(n.m.shipGuide,'heat','lost within 10 km: heat-seeking');assert.ok(!n.m.unguided,'it still homes (the ship ahead is in its cone)');
  const m={pos:[0,0,0],vel:[1000,0,0],from:'s'},big={id:'big',pos:[5000,0,200],p:{propulsion:{massKg:1e9}}},small={id:'f',pos:[5000,0,-200],p:{propulsion:{massKg:1e4},cls:{craft:true}},yaw:0};
  let other=0;for(let i=0;i<200;i++){const pick=C.heatSeekerPick({seed:i+1},m,[big,small],small);if(pick===big)other++;}assert.ok(other>150,'beside a ship the heat seeker mostly takes the ship: '+other+'/200');
 });

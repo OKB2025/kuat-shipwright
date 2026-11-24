@@ -119830,7 +119830,7 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
   // 2026-11-24 a ship's missile: radar-guided while its ship lives and holds a tracking slot (to the end at a ship; at a craft it hands
   // over to heat at SHIP_MSL_GUIDE.heatRange); heat-seeking, it locks what its seeker picks (heatSeekerPick), which may not be its target.
   if(m.shipGuide&&!m.unguided){const lg=()=>b.lockLog||(b.lockLog={warned:0,broken:0,guidedLost:0});
-   if(m.shipGuide==='radar'){const L=live.get(m.from);if(!L||!(shipTrackSlots(L)>0)){m.unguided=true;lg().radarLost=(lg().radarLost||0)+m.n;}
+   if(m.shipGuide==='radar'){const L=live.get(m.from);if(!L||!(shipTrackSlots(L)>0)){if(len(sub(t.pos,m.pos))<=SHIP_MSL_GUIDE.heatRange){m.shipGuide='heat';m.heatPicked=false;lg().radarToHeat=(lg().radarToHeat||0)+m.n;}else{m.unguided=true;lg().radarLost=(lg().radarLost||0)+m.n;}}/* 2026-11-24 user「艦の発射機のミサイルは同一、誘導が10km範囲で切れると熱源に変わる」: one missile; radar guidance lost within the seeker's 10 km turns it heat-seeking, farther out it flies on unguided */
     else if(craftUnit(t)&&len(sub(t.pos,m.pos))<=SHIP_MSL_GUIDE.heatRange){m.shipGuide='heat';m.heatPicked=false;}}
    if(m.shipGuide==='heat'&&!m.heatPicked&&!m.unguided){m.heatPicked=true;const pick=heatSeekerPick(b,m,alive,t);if(!pick){m.unguided=true;lg().heatNoLock=(lg().heatNoLock||0)+m.n;}else if(pick.id!==m.target){lg().heatOther=(lg().heatOther||0)+m.n;m.target=pick.id;t=pick;}}}
   if(m.seekMode==='passive'&&!m.unguided&&!m.ballistic){const L=live.get(m.from),w=L?.lockWarn;if(!w||w.from!==m.target||b.time-w.at>MISSILE_SEEK.warnS){m.unguided=true;const lg=b.lockLog||(b.lockLog={warned:0,broken:0,guidedLost:0});lg.passiveLost=(lg.passiveLost||0)+m.n;}}
