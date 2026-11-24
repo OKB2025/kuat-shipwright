@@ -44,7 +44,7 @@ for(const [key,counts] of Object.entries(plans))test(`${key} preserves its curat
 
 test('curated CIS model-cut gun yields, cadences and native variant branches are retained',()=>{
  for(const [key,barrels,boltTT,cycle] of [['recProw',1,2000,15],['recTwin',2,360,15],['recKeel',2,360,15],['munBow',2,2500,1.6],['munTwin',2,.3,.2]]){
-  const d=C.FITS[key];assert.equal(d.barrels,barrels,key);assert.equal(d.boltTT,boltTT,key);assert.equal(d.cycle,cycle,key);assert.equal(d.tt,barrels*boltTT,key);assert.equal(C.weaponModelScale({k:key}),1,key+' retains the source-model scale');
+  const d=C.FITS[key];assert.equal(d.barrels,barrels,key);assert.equal(d.boltTT,boltTT,key);/* 2026-11-24 gun rules: the interval is the charging time of the shots (the table's 15 / 15 / 15 / 1.6 / 0.2 s are kept as gunLegacy.cycle) */assert.equal(d.gunLegacy.cycle,cycle,key);assert.equal(d.cycle,d.gunRule.cycle,key);assert.ok(Math.abs(d.cycle-barrels*d.gunRule.shotChargeTT/d.gunRule.chargeRateTT)<=1e-12*d.cycle,key+' fires as fast as it charges');assert.ok(Math.abs(d.gunRule.shotChargeTT-boltTT*(1+d.gunRule.barrelM/19))<=1e-9*boltTT,key);assert.equal(d.tt,barrels*boltTT,key);assert.equal(C.weaponModelScale({k:key}),1,key+' retains the source-model scale');
  }
  const rec=ship('recusant');assert.equal(rec.fits.filter(f=>f.k==='monCal34'&&f.batteryZone.startsWith('flank-ball')).length,16);assert.equal(rec.fits.filter(f=>f.k==='monCal34'&&/^(port|stbd)-side$/.test(f.batteryZone)).length,10);
  const dn=ship('recusantDn');assert.equal(dn.fits.filter(f=>['recProw','recTwin','recKeel'].includes(f.k)).length,0,'the existing dreadnought branch keeps its separate armament');
@@ -61,9 +61,12 @@ test('Lucrehulk rapid quads use the full CIS model and the LH-3210 freighter rem
 });
 // v25 (PR #112): the Dreadnaught's armament is the user's design (34 TT spherical turbolasers in the blisters,
 // triple spherical PD lasers, 6 MT single heavy lasers), replacing the v22 Legends roster (quad200/twin200/pd).
+// The mean shot of a laser's barrels by the laser rule (20 + 780 x (bore^2 - 0.01) / 0.15 kt), in TT.
+const sameTT=(a,b,label,rel=1e-12)=>assert.ok(Math.abs(a-b)<=rel*Math.abs(b),`${label}: ${a} != ${b}`);
+function laserBolt(k){const r=C.FITS[k].gunRule;assert.equal(r.kind,'laser',k);for(const b of r.perBarrel)sameTT(b.kt,C.laserShotKt(b.bore),k+' barrel');return r.perBarrel.reduce((n,b)=>n+b.kt,0)/r.perBarrel.length/C.KT_PER_TT;}
 test('CR90 native light/heavy guns and the Dreadnaught armament from the user design retain their distinct rosters',()=>{
  const cr=ship('cr90');for(const [k,n] of Object.entries({twin500MT:2,single6MT:4}))assert.equal(cr.fits.filter(f=>f.k===k).length,n,k);
- const native=cr.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(native.length,6);assert.ok(native.every(f=>['twin500MT','single6MT'].includes(f.k)));for(const f of native)assert.equal(C.fitSpec(f).boltTT,f.k==='twin500MT'?.0005:.000006);
+ const native=cr.fits.filter(f=>C.FITS[f.k]?.cat==='w');assert.equal(native.length,6);assert.ok(native.every(f=>['twin500MT','single6MT'].includes(f.k)));/* 2026-11-24: both are lasers by their drawn bores (twin500MT 285 kt, single6MT 117 kt); were 500 MT and 6 MT */for(const f of native)sameTT(C.fitSpec(f).boltTT,laserBolt(f.k),f.k);sameTT(laserBolt('twin500MT'),C.laserShotKt(.2468)/C.KT_PER_TT,'twin500MT',.01);sameTT(laserBolt('single6MT'),C.laserShotKt(.1692)/C.KT_PER_TT,'single6MT',.01);
  const dn=ship('dreadnaught');for(const [k,n] of Object.entries({monCal34:10,monCalPD:20,single6MT:10}))assert.equal(dn.fits.filter(f=>f.k===k).length,n,k);assert.equal(dn.fits.length,40);
  assert.equal(cr.fits.filter(f=>f.k.startsWith('monCal')||f.k.startsWith('casemate')).length,0);
  for(const s of [cr,dn])assert.equal(s.fits.filter(f=>f.float).length,0);
@@ -75,5 +78,5 @@ test('GR-75 carries exactly two small turrets from the user design',()=>{
 });
 
 test('Sphyrna uses two native bow twin heavy lasers and one aft twin light turbolaser',()=>{
- const s=ship('hammerhead'),guns=s.fits.filter(f=>C.FITS[f.k]?.cat==='w'),bow=guns.filter(f=>f.k==='twin6MT'),aft=guns.filter(f=>f.k==='sphyrnaTwin500MT');assert.equal(s.name,'スフィルナ級コルベット');assert.equal(guns.length,3);assert.equal(bow.length,2);assert.equal(aft.length,1);assert.ok(bow.some(f=>f.p[2]<0)&&bow.some(f=>f.p[2]>0));assert.ok(bow.every(f=>f.p[0]>aft[0].p[0]));for(const f of bow){assert.equal(C.fitSpec(f).barrels,2);assert.equal(C.fitSpec(f).boltTT,.000006);}assert.equal(C.fitSpec(aft[0]).barrels,2);assert.equal(C.fitSpec(aft[0]).boltTT,.0005);assert.ok(guns.every(f=>f.float===false));
+ const s=ship('hammerhead'),guns=s.fits.filter(f=>C.FITS[f.k]?.cat==='w'),bow=guns.filter(f=>f.k==='twin6MT'),aft=guns.filter(f=>f.k==='sphyrnaTwin500MT');assert.equal(s.name,'スフィルナ級コルベット');assert.equal(guns.length,3);assert.equal(bow.length,2);assert.equal(aft.length,1);assert.ok(bow.some(f=>f.p[2]<0)&&bow.some(f=>f.p[2]>0));assert.ok(bow.every(f=>f.p[0]>aft[0].p[0]));/* 2026-11-24: lasers by bore. The bow twin's two barrels differ (0.364 m 658 kt, 0.554 m 1.57 MT); boltTT is their mean. The aft twin is a 261 kt medium laser. */for(const f of bow){assert.equal(C.fitSpec(f).barrels,2);sameTT(C.fitSpec(f).boltTT,laserBolt('twin6MT'),'twin6MT');}assert.deepEqual(Array.from(C.FITS.twin6MT.gunRule.perBarrel,b=>Math.round(b.kt)),[658,1566]);assert.equal(C.fitSpec(aft[0]).barrels,2);sameTT(C.fitSpec(aft[0]).boltTT,laserBolt('sphyrnaTwin500MT'),'sphyrnaTwin500MT');assert.equal(Math.round(laserBolt('sphyrnaTwin500MT')*C.KT_PER_TT),261);assert.ok(guns.every(f=>f.float===false));
 });

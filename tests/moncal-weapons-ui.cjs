@@ -12,7 +12,7 @@ function setup(){
  const renderPanel=()=>{},syncHud=()=>{},requestDraw=()=>{},updateHint=()=>{},toast=s=>notes.push(s);
  const fitPairHTML=()=>'',fitPositionSliders=()=>'',fitPedestalControls=()=>'';
  `);
- for(const [a,b]of [['const PART_KEYS =','const partOffered ='],['function seg(','function silhouette('],['function fitBtn(','const fmtM ='],['function baseFitEditor()','function partList('],['function weaponYawControls(','function turretHeadingLines('],['function weaponMountIssue(','function turretCompartmentHTML('],['function weaponMountControls(','function aviationNumbers('],['function designWeaponPreviewHTML(','function designUIPlacementHTML(']])run(section(a,b));
+ for(const [a,b]of [['const PART_KEYS =','const partOffered ='],['function seg(','function silhouette('],['function fitBtn(','const fmtM ='],['function baseFitEditor()','function partList('],['function weaponYawControls(','function turretHeadingLines('],['function weaponMountIssue(','function turretCompartmentHTML('],['function weaponMountControls(','function aviationNumbers('],['function craftLaserOptions(','function changeCraftLaser('/* 2026-11-24 the weapon preview calls the craft laser's cylinder card (craftLaserHTML) */],['function designWeaponPreviewHTML(','function designUIPlacementHTML(']])run(section(a,b));
  run('function editorCraftDesign(){return !!C.shipClassFor(ship.hull.L,ship.shipClass).craft;}');
  return run;
 }

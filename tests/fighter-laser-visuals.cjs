@@ -26,12 +26,19 @@ test('custom gun muzzles and fixed axes follow the displayed model frame and its
  assert.equal(run("craftVisualGunGate(craftVisualGuns(q,craft,'gun')[0],[1000,32,50])"),false);
 });
 
+// The default nose pair of craftVisualGuns with a 0.12 s period on each arc (a laser set to about eight shots a second).
+const RAPID_PAIR="craft.fireArcs=[-1,1].map(sign=>({fixed:true,dir:[1,0,0],up:[0,1,0],pos:[12*.45,0,10*.45*sign],centered:true,k:'claser',gun:1,aa:1,cycle:.12}));";
 test('fixed fighter lasers stream along their barrels, without snapping toward an offset target',()=>{
- const run=setup();run('for(let i=0;i<60;i++)df(1/60)');const bolts=plain(run('trial.cbolts'));
- assert.ok(bolts.length>=15&&bolts.length<=18,`forward nose pair emitted ${bolts.length} rounds in one second`);
+ // 2026-11-24 gun rules: one shot a second a barrel by default (C.CRAFT_FIRE.cycles, was 0.12 s: 15-18 rounds a second from the pair).
+ const run=setup();run('for(let i=0;i<60;i++)df(1/60)');const bolts=plain(run('trial.cbolts'));assert.equal(C.CRAFT_FIRE.cycles.claser,1);
+ assert.equal(bolts.length,2,`forward nose pair emitted ${bolts.length} rounds in one second`);
  for(const b of bolts)vec(b.vel,[5200,0,60]);
  const other=setup();other('for(let i=0;i<30;i++)df(1/30)');assert.equal(other('trial.cbolts.length'),bolts.length,'cadence is independent of render frame rate');
- assert.ok(new Set(plain(run('trial.cbolts.map(b=>b.life.toFixed(4))'))).size>8,'the rounds form a stream rather than one large volley');
+ assert.equal(new Set(plain(run('trial.cbolts.map(b=>b.life.toFixed(4))'))).size,2,'the two barrels do not fire as one volley');
+ // A pair set to eight shots a second (an arc carries its own period) still streams as before.
+ const rapid=setup();rapid(RAPID_PAIR+'for(let i=0;i<60;i++)df(1/60)');const stream=plain(rapid('trial.cbolts'));assert.ok(stream.length>=15&&stream.length<=18,`rapid nose pair emitted ${stream.length} rounds in one second`);for(const b of stream)vec(b.vel,[5200,0,60]);
+ const rapid30=setup();rapid30(RAPID_PAIR+'for(let i=0;i<30;i++)df(1/30)');assert.equal(rapid30('trial.cbolts.length'),stream.length,'cadence is independent of render frame rate');
+ assert.ok(new Set(plain(rapid('trial.cbolts.map(b=>b.life.toFixed(4))'))).size>8,'the rounds form a stream rather than one large volley');
 });
 
 test('forward fixed guns do not create sideways or rearward streams, while a real rear-facing mount can fire aft',()=>{
@@ -66,7 +73,9 @@ test('a recorded pass does not fire after egress and all ordnance events at the 
 });
 
 test('a large nearby formation stays within both the per-frame and total bolt limits',()=>{
- const run=setup();run("const many=Array.from({length:200},(_,i)=>({...q,id:'craft'+i,cid:i,pos:[0,0,i*.1]}));for(let i=0;i<20;i++)craftFx(battle,cf,.1,[0,0,0],{df:[{m:many,fm:[target],c:craft,col:[255,80,60],gun:'laser'}],runs:[],pd:[]})");
+ // 2026-11-24: at one shot a second 200 craft emit 800 rounds in the two seconds, under the limit; the formation here carries the rapid pair
+ // (0.12 s period) so the limits are still what holds the count.
+ const run=setup();run(RAPID_PAIR+"const many=Array.from({length:200},(_,i)=>({...q,id:'craft'+i,cid:i,pos:[0,0,i*.1]}));for(let i=0;i<20;i++)craftFx(battle,cf,.1,[0,0,0],{df:[{m:many,fm:[target],c:craft,col:[255,80,60],gun:'laser'}],runs:[],pd:[]})");
  assert.ok(run('trial.cbolts.length')<=1100);assert.ok(run('trial.cbolts.length')>=900);
 });
 

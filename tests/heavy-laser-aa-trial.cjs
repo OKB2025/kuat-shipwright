@@ -26,13 +26,16 @@ section('function trialShotGeometry(','// Missiles leave');
 
 
 // Traverse ratings remain available for aimed fire, but only designated PD fires autonomously.
-for(const key of ['single6MT'])test(key+' keeps its 6 MT shot for manual fire and does not automatically intercept',()=>{
+// 2026-11-24 gun rules: these guns are lasers and a laser's shot is its bore's: 20 + 780 x (bore^2 - 0.01) / 0.15 kt (C.laserShotKt). Was 6 MT,
+// 500 MT and 100 kt a barrel by the table.
+const laserBolt=key=>{const r=C.FITS[key].gunRule;assert.equal(r.kind,'laser',key);const kt=r.perBarrel.map(b=>{assert.ok(Math.abs(b.kt-C.laserShotKt(b.bore))<=1e-9*b.kt,key);return b.kt;});const mean=kt.reduce((a,b)=>a+b,0)/kt.length;assert.ok(kt.every(v=>Math.abs(v-mean)<=1e-4*mean),key+' barrels alike (the measured bores of one mount differ in the sixth figure)');assert.ok(Math.abs(C.FITS[key].boltTT-mean/C.KT_PER_TT)<=1e-12*C.FITS[key].boltTT,key);return C.FITS[key].boltTT;};
+for(const key of ['single6MT'])test(key+' fires the laser shot of its bore (117 kt) on the manual trigger and does not automatically intercept',()=>{
  const roles=plain(C.weaponRoles(C.FITS[key]));assert.equal(roles.pointDefense,false);assert.equal(roles.dualPurpose,false);assert.equal(roles.purePointDefense,false);
  for(const kind of ['missile','craft']){
   cx.key=key;cx.kind=kind;run('reset(key);trial.fire=false;threat(kind);var aaEnergyBefore=trial.energy.E;trialGunnery(.01)');
   assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.turrets[0].pd'),false);assert.equal(run('trial.turrets[0].pdTarget'),null);assert.equal(run('trial.gun.pd||0'),0);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.energy.E'),run('aaEnergyBefore'));
-  run('trial.fire=true;trialGunnery(.01)');const t=plain(run('trial.turrets[0]')),shot=C.FITS[key].barrels*6e-6;
-  assert.equal(run('trial.gun.shots'),C.FITS[key].barrels);assert.ok(Math.abs(run('trialShotEnergyTT(trial.turrets[0])')-shot)<1e-18);assert.ok(Math.abs(run('aaEnergyBefore-trial.energy.E')-shot*t.costK)<shot*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-6e-6)<1e-18)'));
+  run('trial.fire=true;trialGunnery(.01)');const t=plain(run('trial.turrets[0]')),bolt=laserBolt(key),shot=C.FITS[key].barrels*bolt;assert.equal(Math.round(bolt*C.KT_PER_TT),117);cx.bolt=bolt;
+  assert.equal(run('trial.gun.shots'),C.FITS[key].barrels);assert.ok(Math.abs(run('trialShotEnergyTT(trial.turrets[0])')-shot)<1e-18);assert.ok(Math.abs(run('aaEnergyBefore-trial.energy.E')-shot*t.costK)<shot*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-bolt)<1e-18)'));
  }
 });
 test('the forward-fixed twin 6 MT laser cannot follow a fighter, so it stays a manual ship weapon',()=>{
@@ -42,13 +45,13 @@ test('the forward-fixed twin 6 MT laser cannot follow a fighter, so it stays a m
 // 2026-11-15, user decision「連射は全門含め1発ずつ射撃する形に(各門ではなく)」: in rapid fire a mount fires one barrel a
 // shot (its energy the volley's over the barrels, the next cycle ÷ barrels later). These cases stated every barrel in
 // one shot; each barrel's packet (500 MT, 100 kt) is unchanged.
-test('corvette light turbolasers preserve traverse and 500 MT barrels while requiring the manual trigger',()=>{
+test('the corvette guns once rated 500 MT preserve traverse, fire the laser shot of their bores and require the manual trigger',()=>{
  for(const key of ['single500MT','twin500MT','quad500MT','sphyrnaTwin500MT']){
-  cx.key=key;assert.ok(C.FITS[key].aa>0);assert.equal(C.weaponRoles(C.FITS[key]).dualPurpose,false);run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);assert.equal(C.FITS[key].boltTT,.0005);
-  run('trial.energy.E=trial.energy.cap=1;var manualEnergyBefore=trial.energy.E;trial.fire=true;trialGunnery(.01)');const shot=.0005,cost=shot*run('trial.turrets[0].costK');assert.equal(run('trial.gun.shots'),1,'one barrel a shot');assert.ok(Math.abs(run('manualEnergyBefore-trial.energy.E')-cost)<cost*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-.0005)<1e-18)'));
+  cx.key=key;assert.ok(C.FITS[key].aa>0);assert.equal(C.weaponRoles(C.FITS[key]).dualPurpose,false);run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);const shot=laserBolt(key);cx.bolt=shot;assert.equal(Math.round(shot*C.KT_PER_TT),{single500MT:613,twin500MT:285,quad500MT:279,sphyrnaTwin500MT:261}[key],key);
+  /* the store is 1e-5 TT (was 1 TT): a 0.3-0.6 MT shot taken from 1 TT is lost in the rounding of the difference (1e-16 against the unchanged 1e-10 relative tolerance) */run('trial.energy.E=trial.energy.cap=1e-5;var manualEnergyBefore=trial.energy.E;trial.fire=true;trialGunnery(.01)');const cost=shot*run('trial.turrets[0].costK');assert.equal(run('trial.gun.shots'),1,'one barrel a shot');assert.ok(Math.abs(run('manualEnergyBefore-trial.energy.E')-cost)<cost*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-bolt)<1e-18)'));
  }
 });
 
-test('dedicated twin and spherical PD packets retain 100 kt per physical barrel while intercepting',()=>{
- for(const key of ['pd','monCalPD']){cx.key=key;run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.gun.pd'),1,'one barrel a shot');assert.equal(run('trial.bolts.length'),1);assert.ok(run('trial.bolts.every(b=>b.pd&&Math.abs(b.tt-1e-7)<1e-20)'));}
+test('dedicated twin and spherical PD packets carry the laser shot of their bores (800 kt, 133 kt) per physical barrel while intercepting',()=>{
+ for(const key of ['pd','monCalPD']){cx.key=key;run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.gun.pd'),1,'one barrel a shot');assert.equal(run('trial.bolts.length'),1);cx.bolt=laserBolt(key);assert.equal(Math.round(cx.bolt*C.KT_PER_TT),{pd:800,monCalPD:133}[key],key);assert.ok(run('trial.bolts.every(b=>b.pd&&Math.abs(b.tt-bolt)<1e-20)'));}
 });

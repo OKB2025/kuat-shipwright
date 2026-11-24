@@ -21,7 +21,9 @@ function incoming(f){const m={id:'incoming',sys:f.sys,side:1,from:f.e.id,target:
 
 test('OFF stops actual missile interception for both installed PD families without silencing aimed ship fire',()=>{
  for(const kind of ['pd','monCalPD']){
-  const f=battle(kind),m=incoming(f);assert.equal(C.setAutomaticPointDefense(f.u,false),true);R.tick(f.w,.25);
+  // 2026-11-24 gun rules: a laser reaches its own range. The ball PD's 133 kt bolt is gone at about 1.7 km, so for a gun that does not
+  // reach the 5 km the ship target stood at, the target stands inside the gun's range; the missile stays where it was.
+  const reach=C.FITS[kind].gunRule.rangeM,f=battle(kind),m=incoming(f);assert.equal(C.FITS[kind].gunRule.kind,'laser');if(reach<=5000)f.e.pos=[reach*.6,0,0];assert.equal(C.setAutomaticPointDefense(f.u,false),true);R.tick(f.w,.25);
   near(m.n,8,kind+' incoming rounds');assert.equal(f.u.dualDefense,false);assert.equal(f.u.aaLeft,undefined,'OFF does not consume an interception channel');
   assert.ok(f.u.lastShot?.gun>0,kind+' remains an aimed weapon');
  }

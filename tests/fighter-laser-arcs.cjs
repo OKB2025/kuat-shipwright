@@ -58,8 +58,8 @@ test('malformed directional snapshots stay finite and bounded and retain an expl
 test('a live custom aircraft carries its actual fitted barrel directions into an embarked blueprint snapshot',()=>{
  const ship=C.newShip({L:12,W:9,H:3},'Designed fire axes');ship.parts=[];ship.fits=[{id:1,k:'claser',p:[8,1.5,1],a:2,ped:0,base:0,low:0,float:false},{id:2,k:'claserH',p:[12,0,0],a:0,ped:0,base:0,low:0,float:false}];ship.nextId=3;
  const stats={craft:true,cls:{role:'戦闘機'},accelG:3700,mass:10,crew:1,cost:100,dims:[12,9,3],info:{}},combat=C.craftCombat(ship,stats),snapshot=C.designCraftSnapshot(ship,stats),key=R.registerDesignCraft(snapshot);
- assert.ok(snapshot?.blueprint);assert.ok(key);assert.deepEqual(plain(combat.fireArcs.map(a=>a.dir)),[[1,0,0],[0,1,0]]);assert.deepEqual(plain(R.CRAFT[key].fireArcs),plain(combat.fireArcs));
- const s={craft:key,pos:[0,0,0],h:[1,0,0]};assert.ok(R.squadFireArc(s,[0,1000,0])>0);near(R.squadFireArc(s,[-1000,0,0]),0);
+ assert.ok(snapshot?.blueprint);assert.ok(key);/* 2026-11-24 (user: an aircraft laser is placed facing ahead only): both lasers fire along +X whatever face they sit on; the bow-face heavy laser was [0,1,0] */assert.deepEqual(plain(combat.fireArcs.map(a=>a.dir)),[[1,0,0],[1,0,0]]);for(const f of ship.fits)assert.deepEqual(plain(C.fitFrameOf(f).fw),[1,0,0]);assert.deepEqual(plain(R.CRAFT[key].fireArcs),plain(combat.fireArcs));
+ const s={craft:key,pos:[0,0,0],h:[1,0,0]};assert.ok(R.squadFireArc(s,[1000,0,0])>0,'both guns bear ahead');near(R.squadFireArc(s,[0,1000,0]),0);near(R.squadFireArc(s,[-1000,0,0]),0);
 });
 
 test('an exhausted forward laser cannot borrow an aft ion cannon share of damage',()=>{

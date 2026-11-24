@@ -10,8 +10,8 @@ const near=(a,b,eps=1e-8)=>assert.ok(Number.isFinite(a)&&Math.abs(a-b)<=eps,`${a
 // These checks keep the archived v23 layout (499 guns, 317,520 TT) verifiable. The v24 example follows
 // the user's design instead; tests/mandator-example-refit.cjs covers it.
 test('the archived v23 Mandator combines the batteries without changing main/ion or per-barrel PD energy',()=>{
- let mainIon=0,pointDefence=0,defenceBarrels=0;for(const [k,n]of Object.entries(EXPECTED)){const s=C.fitSpec({k}),volley=n*((s.tt||0)+(s.ion||0));if(k==='pd'||k==='monCalPD'){pointDefence+=volley;defenceBarrels+=n*s.barrels;near(s.boltTT,1e-7,1e-15);}else mainIon+=volley;}
- near(mainIon,317520,1e-8);near(pointDefence,.00005,1e-12);assert.equal(defenceBarrels,500);assert.equal(Object.values(EXPECTED).reduce((a,b)=>a+b,0),499);assert.equal(C.fitSpec({k:'quad175'}).barrels,4);assert.equal(C.fitSpec({k:'ball175QuadIon'}).barrels,4);
+ let mainIon=0,pointDefence=0,defenceBarrels=0;for(const [k,n]of Object.entries(EXPECTED)){const s=C.fitSpec({k}),volley=n*((s.tt||0)+(s.ion||0));if(k==='pd'||k==='monCalPD'){pointDefence+=volley;defenceBarrels+=n*s.barrels;/* 2026-11-24 gun rules: a point-defence laser's shot is its bore's (pd 0.40 m 800 kt, monCalPD 0.178 m 133 kt; was 100 kt a barrel) */assert.equal(s.gunRule.kind,'laser',k);near(s.boltTT,C.laserShotKt(s.gunRule.boreM)/C.KT_PER_TT,1e-15);assert.equal(Math.round(s.boltTT*C.KT_PER_TT),k==='pd'?800:133,k);}else mainIon+=volley;}
+ near(mainIon,317520,1e-8);/* 320 barrels x 800 kt + 180 x 133.1 kt (was 500 x 100 kt = 0.00005 TT) */near(pointDefence,EXPECTED.pd*C.FITS.pd.tt+EXPECTED.monCalPD*C.FITS.monCalPD.tt,1e-12);assert.ok(Math.abs(pointDefence-.00028)<1e-6);assert.equal(defenceBarrels,500);assert.equal(Object.values(EXPECTED).reduce((a,b)=>a+b,0),499);assert.equal(C.fitSpec({k:'quad175'}).barrels,4);assert.equal(C.fitSpec({k:'ball175QuadIon'}).barrels,4);
 });
 
 test('the actual published Mandator has clear batteries, compact foundations and balanced side ball mounts',()=>{

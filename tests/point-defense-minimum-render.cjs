@@ -12,7 +12,7 @@ test('minimum PD uses fixed explicit budgets, exact whole extents and one cached
   assert.equal(r.asset.minimumPointDefense,true);assert.equal(r.asset.faces,faces);assert.equal(r.asset.n,vertices);assert.equal(r.mesh.idx.length,faces*3);assert.equal(new Set(r.mesh.idx).size,vertices);assert.equal(r.asset.barrelCenters.length,barrels);assert.equal(draw(k),r);
   assert.equal(r.asset.housingVertices,r.asset.elevationVertexStart);assert.equal(r.asset.housingFaces*3,r.asset.elevationIndexStart);for(const p of r.asset.drivePivots){assert.ok(p.firstVertex+p.vertices<=vertices);assert.ok(p.firstIndex+p.indices<=faces*3);}
   for(let axis=0;axis<3;axis++){const values=Array.from({length:r.asset.n},(_,i)=>r.mesh.pos[i*3+axis]),old=Array.from({length:a.n},(_,i)=>source.pos[i*3+axis]);near(Math.min(...values),Math.min(...old),1e-7);near(Math.max(...values),Math.max(...old),1e-7);}
-  assert.equal(JSON.stringify(a),saved);assert.deepEqual([source.pos,source.uv,source.idx].map(hashArray),sourceHashes);assert.deepEqual(plain(C.fitSpec({k})),spec);assert.equal(spec.boltTT,1e-7);assert.equal(spec.barrels,barrels);
+  assert.equal(JSON.stringify(a),saved);assert.deepEqual([source.pos,source.uv,source.idx].map(hashArray),sourceHashes);assert.deepEqual(plain(C.fitSpec({k})),spec);/* 2026-11-24 gun rules: the shot of the laser's bore (pd 0.40 m 800 kt, monCalPD 0.178 m 133 kt; was 100 kt) */assert.equal(spec.gunRule.kind,'laser');near(spec.boltTT,C.laserShotKt(spec.gunRule.boreM)/C.KT_PER_TT,1e-18);assert.equal(Math.round(spec.boltTT*C.KT_PER_TT),k==='pd'?800:133);assert.equal(spec.barrels,barrels);
  }
 });
 
@@ -37,5 +37,20 @@ test('minimum PD static, articulated and picking geometry agree for upper, lower
 
 test('all 42 non-PD authored draw meshes remain byte-identical to the merged rendering baseline',()=>{
  const baseline=require('./helpers/non-pd-render-geometry.json');assert.equal(baseline.sourceGfxSha256,'700cd51ead1815a05cca8a372540c0511171c72530fb9fd04478b3104f64d3cd');assert.equal(baseline.rows.length,42);
- for(const row of baseline.rows){const r=G.turretRenderAsset(row.id);assert.equal(r.asset.n,row.vertices,row.id);assert.equal(r.asset.faces,row.faces,row.id);for(const field of ['pos','uv','idx'])assert.equal(hashArray(r.mesh[field]),row[field],row.id+' unchanged '+field);assert.notEqual(r.asset.minimumPointDefense,true);}
+ // 2026-11-24 (user: turbolasers drawn below the 0.45 m least bore are thickened to it; the Mon Calamari ball guns' exposed barrels are
+ // drawn out to the user's drawings): nine models are reshaped when the game loads (C reshapeGunBarrels, applied in decodeReference),
+ // so their drawn positions no longer hash to the baseline. The stored models and the render pipeline are still checked byte for
+ // byte against the baseline in a second copy of the game loaded with the reshape switched off (in memory only), and the reshaped
+ // draw meshes are checked to differ from it only inside their barrels.
+ const px=vm.createContext({console,performance});for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js']){let source=fs.readFileSync(path.join(root,file),'utf8');if(file==='js/core.js'){const hook='function reshapeGunBarrels(id,{radius=1,exposedTarget=null}={}){';assert.equal(source.split(hook).length,2,'the reshape entry point');source=source.replace(hook,hook+'return;');}vm.runInContext(source,px,{filename:file});}
+ const PG=vm.runInContext('Gfx',px),RESHAPED=['light_quad200','light_twin200','light_single200','light_twin200_fast','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion'],seen=[];
+ for(const row of baseline.rows){const r=G.turretRenderAsset(row.id),p=PG.turretRenderAsset(row.id),a=C.REFERENCE_ASSETS[row.id],reshaped=!!a&&(a.barrelRadiusScale!==undefined||a.barrelExposedScale!==undefined);
+  assert.equal(p.asset.n,row.vertices,row.id);assert.equal(p.asset.faces,row.faces,row.id);for(const field of ['pos','uv','idx'])assert.equal(hashArray(p.mesh[field]),row[field],row.id+' stored model and render pipeline unchanged '+field);
+  assert.equal(r.asset.n,row.vertices,row.id);assert.equal(r.asset.faces,row.faces,row.id);assert.notEqual(r.asset.minimumPointDefense,true);
+  if(!reshaped){for(const field of ['pos','uv','idx'])assert.equal(hashArray(r.mesh[field]),row[field],row.id+' unchanged '+field);continue;}
+  seen.push(row.id);for(const field of ['uv','idx'])assert.equal(hashArray(r.mesh[field]),row[field],row.id+' unchanged '+field);assert.notEqual(hashArray(r.mesh.pos),row.pos,row.id+' barrels are reshaped');
+  const barrel=new Uint8Array(r.asset.n);for(const b of r.asset.barrelCenters){assert.ok(b.vertices>0&&b.firstVertex+b.vertices<=r.asset.n,row.id+' barrel vertex range');barrel.fill(1,b.firstVertex,b.firstVertex+b.vertices);}
+  let moved=0;for(let v=0;v<r.asset.n;v++){const same=[0,1,2].every(k=>r.mesh.pos[v*3+k]===p.mesh.pos[v*3+k]);if(!same){moved++;assert.equal(barrel[v],1,row.id+' vertex '+v+' outside the barrels is unchanged');}}assert.ok(moved>0,row.id);
+ }
+ assert.deepEqual(seen.sort(),RESHAPED.filter(id=>baseline.rows.some(row=>row.id===id)).sort(),'only the nine models the user decisions name are reshaped');assert.ok(seen.length>=4);
 });
