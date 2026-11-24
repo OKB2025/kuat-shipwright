@@ -5,11 +5,11 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),G=C.SHIP_MSL_GUIDE;
-function profile(dome=0){const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',missileRange:10000,salvo:1,cycle:1.2,tt:25,launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:[[0,0,0]],launchDir:[1,0,0]};
+function profile(dome=0,heavy=false){const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',missileRange:10000,salvo:1,cycle:1.2,tt:25,...(heavy?{heavy:true,ammoPerCell:1,stock:1,ammo0:1}:{}),launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:[[0,0,0]],launchDir:[1,0,0]};
  return {name:'Guide fixture',profileVersion:5,trackModel:1/* a profile made under the 2026-11-24 rule */,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:25*20/1.2,imsl:0,
   modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher,...(dome?[{k:'sensor',name:'dome',size:dome,trackVol:dome,share:1,at:.5,domain:'main'}]:[])],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};}
 function target(craft=false){const p=profile();p.msl=0;p.modules=p.modules.slice(0,1);p.grid.fixed=0;p.grid.fixedLoads=[];if(craft){p.cls={name:'戦闘機',craft:true};p.len=12;}return p;}
-function launch(dome,dist,craft=false){const u=C.fleetUnit('s','s',profile(dome),0),t=C.fleetUnit('t','t',target(craft),1);u.pos=[0,1000,0];t.pos=[dist,1000,0];u.order={...u.order,type:'attack',target:'t'};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);
+function launch(dome,dist,craft=false,heavy=true){const u=C.fleetUnit('s','s',profile(dome,heavy),0),t=C.fleetUnit('t','t',target(craft),1);u.pos=[0,1000,0];t.pos=[dist,1000,0];u.order={...u.order,type:'attack',target:'t'};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);
  for(let i=0;i<20&&!(b.missiles||[]).length;i++)C.fleetTick(b,.1,{collide:false});return {b,u,m:(b.missiles||[])[0]};}
 
 test('tracking slots (= anti-air channels, user「枠は対空交戦枠と同一」): 1 for each 5,000 m³ of working sensor volume outside the structure, rounded down; none without a dome (user「5000m3あたり1枠として」)',()=>{
@@ -17,12 +17,15 @@ test('tracking slots (= anti-air channels, user「枠は対空交戦枠と同一
  const u=C.fleetUnit('s','s',profile(G.refVol),0);u.mods[2]=0;assert.equal(C.shipTrackSlots(u),0,'a destroyed dome gives none');
  const d=C.buildDesign('imperial'),P=C.fleetProfile(C.computeStats(d),d.name,d);assert.equal(P.aaCh,12,'the ISD\'s anti-air channels are its tracking slots');assert.equal(C.shipTrackSlots({p:P}),12,'the ISD: two ISD-72x domes; its tractor-beam control does not count (user「トラクタービーム管制装置は含まない」)');
 });
-test('beyond 10 km a ship launches only radar-guided, out to 50 km, with a slot, and its small missiles only at craft; within 10 km heat-seeking without one',()=>{
+test('beyond 10 km only a large missile goes, radar-guided out to 50 km with a slot; within 10 km heat-seeking without one',()=>{
  const far=launch(0,20000);assert.equal(far.m,undefined,'no dome: nothing at 20 km');
  const near=launch(0,8000);assert.equal(near.m?.shipGuide,'heat','no dome: heat-seeking at 8 km');
- // 2026-11-24 user「小型ミサイルは対小型艦の防空用途と近距離の対艦攻撃」: a cell launcher's small missiles reach out radar-guided only at craft
- assert.equal(launch(G.refVol,20000).m,undefined,'not at a ship 20 km off');const radar=launch(G.refVol,20000,true);assert.equal(radar.m?.shipGuide,'radar','at a craft 20 km off');assert.ok(radar.m.range>=G.radarRange);
- assert.equal(C.missileMaxRange({p:profile(G.refVol)}),G.radarRange);assert.equal(C.missileMaxRange({p:profile()}),10000);
+ // 2026-11-24 user「50kmのレーダー発射は大型ミサイルのみ」: a large missile goes radar-guided to 50 km at a ship or a craft; a cell launcher's
+ // small missiles only within 10 km
+ assert.equal(launch(G.refVol,20000,false,false).m,undefined,'small missiles: not at 20 km');assert.equal(launch(G.refVol,20000,true,false).m,undefined,'not at a craft 20 km off either');
+ const radar=launch(G.refVol,20000);assert.equal(radar.m?.shipGuide,'radar','a large missile at a ship 20 km off');assert.ok(radar.m.range>=G.radarRange);assert.equal(launch(G.refVol,20000,true).m?.shipGuide,'radar','and at a craft');
+ assert.equal(launch(G.refVol,8000,false,false).m?.shipGuide,'heat','small missiles within 10 km: heat');
+ assert.equal(C.missileMaxRange({p:profile(G.refVol,true)}),G.radarRange);assert.equal(C.missileMaxRange({p:profile(G.refVol)}),10000,'cell launchers keep 10 km');assert.equal(C.missileMaxRange({p:profile()}),10000);
 });
 test("a radar-guided round loses guidance with its ship's domes; at a craft it hands over to heat at 10 km",()=>{
  const r=launch(G.refVol,20000,true);r.u.mods[2]=0;C.fleetTick(r.b,.1,{collide:false});assert.equal(r.m.unguided,true,'the dome is gone');
