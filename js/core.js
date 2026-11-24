@@ -109974,8 +109974,12 @@ function decodeReference(id){
  // from where the barrel leaves the ball). Vertices outside a barrel component are never moved.
  if(Array.isArray(a.barrelCenters)&&Array.isArray(a.c)&&Array.isArray(a.size)&&(a.barrelRadiusScale>0&&a.barrelRadiusScale!==1||a.barrelExposedScale>0&&a.barrelExposedScale!==1)){const k=a.barrelRadiusScale>0?a.barrelRadiusScale:1,ka=a.barrelExposedScale>0?a.barrelExposedScale:1;
   for(const b of a.barrelCenters){if(!(b.vertices>0)||!Array.isArray(b.root))continue;const front=b._sourceFront??b.exposedStartX??b.root[0];for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){
-   if(k!==1)for(const ax of [1,2]){const m=a.c[ax]+pos[v*3+ax]*a.size[ax],r=m-b.root[ax];pos[v*3+ax]=(b.root[ax]+r*k-a.c[ax])/a.size[ax];}
-   if(ka!==1){const x=a.c[0]+pos[v*3]*a.size[0];if(x>front)pos[v*3]=(front+(x-front)*ka-a.c[0])/a.size[0];}}}}
+   const x=a.c[0]+pos[v*3]*a.size[0],tol=a.size[0]*1e-4;
+   /* thicker only where the barrel is outside its housing: the root inside the ball or shield keeps its modelled size */
+   if(k!==1&&x>=front-tol)for(const ax of [1,2]){const m=a.c[ax]+pos[v*3+ax]*a.size[ax],r=m-b.root[ax];pos[v*3+ax]=(b.root[ax]+r*k-a.c[ax])/a.size[ax];}
+   /* longer by its first plain length of shaft only: every ring past where it leaves the housing (the band, the bore's floor,
+      the muzzle collar) moves forward by the added length and keeps its modelled size */
+   if(ka!==1&&x>front+tol)pos[v*3]=(x+(b._sourceReach??0)*(ka-1)-a.c[0])/a.size[0];}}}
  a._decoded={pos,uv,idx};return a._decoded;
 }
 STRUCT_SHAPES.reference='参照モデル構造物';
@@ -111573,7 +111577,7 @@ const GUN_RULE_LABELS={
 function reshapeGunBarrels(id,{radius=1,exposedTarget=null}={}){const a=REFERENCE_ASSETS[id];if(!a||a._reshaped)return;a._reshaped=true;
  const b0=a.barrelCenters?.[0];if(!b0)return;const front0=b0.exposedStartX??b0.root[0],ka=exposedTarget>0?exposedTarget/Math.max(1e-6,b0.muzzle[0]-front0):1;
  if(radius!==1)a.barrelRadiusScale=radius;if(ka!==1)a.barrelExposedScale=ka;
- for(const b of a.barrelCenters){const front=b.exposedStartX??b.root[0];b._sourceFront=front;if(radius!==1){if(b.outerRadiusM>0)b.outerRadiusM*=radius;if(b.boreRadiusM>0)b.boreRadiusM*=radius;}
+ for(const b of a.barrelCenters){const front=b.exposedStartX??b.root[0];b._sourceFront=front;b._sourceReach=b.muzzle[0]-front;if(radius!==1){if(b.outerRadiusM>0)b.outerRadiusM*=radius;if(b.boreRadiusM>0)b.boreRadiusM*=radius;}
   if(ka!==1){b.muzzle=[front+(b.muzzle[0]-front)*ka,b.muzzle[1],b.muzzle[2]];if(b.fullLengthM>0)b.fullLengthM=Math.hypot(...b.muzzle.map((v,i)=>v-b.root[i]));if(b.photoVisibleReachM>0)b.photoVisibleReachM=b.muzzle[0]-front;}}
  if(ka!==1&&Array.isArray(a.muzzlePoints))a.muzzlePoints=a.barrelCenters.map(b=>b.muzzle.slice());
  /* the reshaped barrels may reach past the model's box: the fit's box (referenceFitAABB) takes the drawn extent */
