@@ -5354,15 +5354,18 @@ function designUIMetrics(){
 }
 function designUISchedulePreview(){
  cancelAnimationFrame(designUI.previewFrame);designUI.previewFrame=requestAnimationFrame(()=>{
-  const canvas=$('#designPartPreview');if(!canvas||!designUI.drawer)return;
-  if(designUI.preview&&designUI.preview.canvas!==canvas){designUI.preview.dispose?.();designUI.preview=null;}
+  let canvas=$('#designPartPreview');if(!canvas||!designUI.drawer)return;
+  // 2026-11-24 (user: 「部品を置こうといろんな部品を見てたら落ちた」): the drawer is redrawn with a new canvas for each part, and a new
+  // renderer on each made a WebGL context that was never let go; past the browser's limit (16 on desktop Chrome, fewer on phones)
+  // the oldest, the 3D view's, was lost. One preview renderer is kept: its canvas takes the new canvas's place in the drawer.
+  if(designUI.preview&&designUI.preview.canvas!==canvas){const old=designUI.preview.canvas;if(!designUI.preview.disposed&&!designUI.preview.gl?.isContextLost?.()&&old){old.id=canvas.id;old.className=canvas.className;old.hidden=false;for(const a of ['aria-label','style'])canvas.hasAttribute(a)?old.setAttribute(a,canvas.getAttribute(a)):old.removeAttribute(a);canvas.replaceWith(old);canvas=old;}else{designUI.preview.dispose?.();designUI.preview=null;}}
   try{
    const editing=st.tab==='edit',it=editing?selItem():null,fit=editing?st.sel?.list==='fits':['fit','adjust'].includes(tool());
    const p=it?requestedPart(it):fit?designUIFitDraft({p:[0,0,0],n:[0,1,0],kind:'section'}):partPreview({p:[0,0,0],n:[0,1,0],kind:'section'});if(!p)return;
    const template=tool()==='userpart'?userPartFind(st.userPart):null,imported=tool()==='importmesh'?importResult()?.part:null;
    const model={...ship,parts:template?template.parts:fit?[]:[imported||p],fits:template?template.fits:fit?[p]:[]},meshes=Gfx.meshPreview(model,model.parts,model.fits,{coded:st.coded});
    const renderer=designUI.preview||(designUI.preview=new Gfx.Renderer(canvas));renderer.noShadow=true;
-   for(const k of ['preview','previewRef','previewFits','previewRefFits'])if(meshes[k])renderer.upload(k,meshes[k]);
+   for(const k of ['preview','previewRef','previewFits','previewRefFits'])if(meshes[k])renderer.upload(k,meshes[k]);else renderer.drop?.(k);/* the kept renderer shows no mesh of the part before */
    const previewBounds=['preview','previewRef','previewFits','previewRefFits'].map(key=>meshes[key]?.previewBounds||meshes[key]?.bounds).filter(bound=>bound?.length===6&&bound.every(Number.isFinite));
    const b=previewBounds.length?xfUnion(previewBounds):template?xfUnion([...model.parts.map(q=>C.partAABB(q)),...model.fits.map(q=>C.fitAABB(q))]):fit?C.fitAABB(p):C.partAABB(imported||p),c=[0,1,2].map(i=>(b[i]+b[i+3])/2),size=Math.max(1,...[0,1,2].map(i=>b[i+3]-b[i]));renderer.off=c.map(v=>-v);renderer.cam.target=[0,0,0];renderer.cam.r=size*2.8;renderer.draw({mode:'normal',paint:ship.paint,lights:ship.lights,hullLength:size});
   }catch(e){designUI.preview?.dispose?.();designUI.preview=null;canvas.hidden=true;canvas.insertAdjacentHTML('afterend','<p class="note">実形状プレビューを準備できません。3D配置表示で確認してください。</p>');}

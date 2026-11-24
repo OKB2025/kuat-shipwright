@@ -1511,7 +1511,12 @@ class Renderer {
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
     if(this.sky)for(const k of ['dir','cor','col','idx'])gl.deleteBuffer(this.sky[k]);
     if(this.sh){gl.deleteFramebuffer(this.sh.fb);gl.deleteRenderbuffer(this.sh.rb);if(this.sh.prog?.p)gl.deleteProgram(this.sh.prog.p);}
+    // 2026-11-24 The context itself is let go at once instead of when the canvas is collected: browsers keep only a few
+    // (16 on desktop Chrome, fewer on phones) and lose the oldest, the 3D view's, past that.
+    try{gl.getExtension('WEBGL_lose_context')?.loseContext();}catch(e){}
   }
+  // A mesh no longer drawn: its buffers are deleted and its name is free.
+  drop(name){const m=this.meshes[name],gl=this.gl;if(!m)return;if(gl&&!gl.isContextLost())for(const k of ['pos','nor','uv','col','idx'])if(m[k])gl.deleteBuffer(m[k]);delete this.meshes[name];}
   // 2026-11-22 The decal atlas (see meshDecals): the shapes, then the player's images in the order given. A new set of
   // images rebuilds it once they have loaded; the shapes are there at once.
   setDecalImages(images){const key=decalImagesKey(images);if(this.decalKey===key&&this.tex.decals)return;this.decalKey=key;const t=this.makeDecalTexture(images,()=>{if(this.decalKey===key&&this.onDecalsReady)this.onDecalsReady();});if(t){const old=this.tex.decals;this.tex.decals=t;if(old){this.gl.deleteTexture(old.a);this.ownedTextures.delete(old.a);}}}
