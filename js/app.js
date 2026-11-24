@@ -10680,7 +10680,7 @@ function spaceStep(dt){
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
   // Power loss is not out of action (user decision 2026-11-16): a ship without power drifts on in the battle.
-  if(!B.me.dead&&B.me.out&&B.me.lift<=0&&!B.me.docked&&!B.me.towedBy&&!B.me.boarding){B.me.dead=true;B.me.fate='fall';spaceLog('リパルサーリフト喪失：撃墜',B.me);}/* extra review 2026-11-19: the ship being flown is counted shot down when its lift is gone, like every other (C.fleetTick skips it as manual) */
+  if(!B.me.dead&&B.me.out&&B.me.lift<=0&&!B.me.docked&&!B.me.towedBy&&!B.me.boarding){B.me.dead=true;B.me.fate='fall';spaceLog((B.me.p?.cls?.craft?'リパルサーリフト':'重力制御装置')+'喪失：撃墜',B.me);}/* extra review 2026-11-19: the ship being flown is counted shot down when its lift is gone, like every other (C.fleetTick skips it as manual) */
   if(B.me.dead||C.outOfAction(B.me)){if(trialFlyLost())break;spaceEnd(B.me.dead?'sunk':'out');break;}
   if(!B.sandbox&&b.units.filter(u=>u.team===1).every(u=>u.dead||C.outOfAction(u))&&!b.units.some(u=>u.team===1&&u.warp)){spaceEnd('win');break;}
   if(!b.units.some(u=>!u.dead&&!u.absent&&!u.out)){spaceEnd('out','standoff');break;}/* no ship on either side can act: a stand-off */}
@@ -10718,7 +10718,7 @@ function spaceDrawUnits(){
  return out;
 }
 function spaceShowResult(){
- const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'リパルサーリフト喪失'};
+ const B=trial.battle,el=$('#trialHud')?.querySelector('[data-th="result"]');if(!B||!el||!B.result)return;const r=B.result,me=B.me,fate={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'重力制御装置喪失'};
  const title=r.kind==='win'?'勝利':r.kind==='withdrew'?'離脱':'敗北',sub=r.kind==='win'?'敵艦隊を無力化しました':r.kind==='withdrew'?`${SYSTEMS[r.dest]?.name||''}へ戦域を離脱しました`:r.kind==='sunk'?`旗艦撃沈（${fate[r.fate]||'船体破断'}）`:r.why==='standoff'?'膠着：双方とも行動できる艦がありません':`旗艦戦闘不能（${r.why||''}）`;
  const foes=B.b.units.filter(u=>u.team===1),allies=B.b.units.filter(u=>u.team===0&&!u.manual);
  const rts=!!B.rts,crew=crewShare(me),sub2=rts&&r.kind==='win'?'この星系の戦闘は終わりました':rts&&r.kind==='withdrew'?'敵はこの星系から退きました':sub;
@@ -10917,7 +10917,7 @@ function fleetFocus(){if(fleet.mode==='tactical'){fleetMapFocus();return;}const 
 function fleetPowerName(){return '固定優先順';}
 function fleetOrderText(u){const o=u.order,pw=' · 出力 '+fleetPowerName(u);if(o.type==='move')return `移動 → ${(o.point[0]/1000).toFixed(1)}, ${(o.point[2]/1000).toFixed(1)} km / 高度 ${(o.point[1]/1000).toFixed(1)} km`+pw;if(o.type==='attack')return '攻撃 → '+(fleetUnits().find(t=>t.id===o.target)?.name||'目標消失')+(o.aim&&o.aim!=='auto'?`（${C.AIM_KINDS[o.aim]}を照準）`:'')+pw;return '停止・位置保持'+pw;}
 // Combat state for the readouts: sunk, out of the fight, or fighting, and why.
-const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'リパルサーリフト喪失'};
+const FLEET_FATE={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆',hull:'船体破断',fall:'重力制御装置喪失'};
 function fleetStatusText(u){return u.dead?`撃沈（${FLEET_FATE[u.fate]||'船体破断'}）`:u.out==='電源喪失'?'電源喪失（航行不能）':u.out?`戦闘不能（${u.out}）`:'戦闘可能';}
 function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)return '';const g={};mods.forEach((m,i)=>{if(m.k==='hull')return;const x=g[m.k]||(g[m.k]={n:0,lost:0,hit:0});x.n++;const v=u.mods[i]??1;if(v<=0)x.lost++;else if(v<1)x.hit++;});
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}

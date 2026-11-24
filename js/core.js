@@ -106281,7 +106281,8 @@ addComp('pump','反応物供給設備','cube',0.3,[197,155,95],'power','ポン�
 addComp('localShield','局所シールド発生器','sphere',0.5,[82,192,164],'support','船内に設置し、広域発生器とともに防御出力を担います。',{def:20,crit:true});
 addComp('inertial','慣性制御装置','cyl',0.4,[134,158,211],'support','艦の質量に応じた慣性制御能力。足りない場合は警告します。',{def:44});
 addComp('integrity','構造維持装置','cube',0.45,[127,156,177],'support','構造維持フィールドを支える装置。艦体規模との適合を確認できます。',{def:36});
-addComp('repulsor','リパルサーリフト','cyl',0.35,[112,199,202],'support','艦や機体を重力に抗して支えるリパルサーリフト（着陸脚を含む）。支えられる質量は容積で決まり、艦の質量ぶんを積みます。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
+// 2026-11-24 (user「今の艦艇に搭載してるリパルサーリフトを『重力制御装置』」): the ship's lift is its gravity control. The saved key stays 'repulsor'.
+addComp('repulsor','重力制御装置','cyl',0.35,[112,199,202],'support','艦内に1Gを合成し、艦を重力に抗して支える重力制御装置。支えられる質量は容積で決まり、艦の質量ぶんを積みます。合成した重力の起点は空間にしばらく残るため、動く艦は後ろへ引かれます（重い艦ほど少し強く減速する運動抵抗）。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
 addComp('service','航空整備・補給区画','cube',0.1,[79,140,162],'air','航空機の整備・補給能力を確保します。格納庫とは別に空間を使います。',{def:60});
 addComp('cargo','貨物・物資庫','cube',0.05,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
 // Provisional game equipment: rooms reserve existing envelope living volume;
@@ -106364,12 +106365,12 @@ for(const [k,name,dens,col,def,cost,desc] of [
  ['targetComputer','照準コンピューター',.60,[216,137,128],.26,6,'武装の追跡と照準を処理します。対応できる武装数に対して不足すると命中率が下がります。既存の射撃管制区画も同じ処理能力に加わります。'],
  ['maneuver','姿勢制御スラスター',.55,[126,179,220],.35,4,'小型推進器と姿勢制御の配管。容積から対応質量を算出し、機体の旋回能力に反映します。主推進やリパルサーの代わりにはなりません。'],
  ['laserGas','レーザーガス供給装置',.30,[210,184,104],.24,4,'小型レーザー砲のガス槽と供給配管。搭載量と砲の出力から同時射撃できる秒数を算出し、母艦で補充します。イオン砲・艦用ターボレーザーは対象外です。'],
- ['landingGear','着陸脚',.65,[160,170,180],.45,3,'地上で機体を支える脚と格納・展開機構。対応質量が足りるかを確認します。飛行・揚陸に必要な推力やリパルサー支持力は別に必要です。']
+ ['landingGear','リパルサーリフト',.65,[160,170,180],.45,3,'小型機を浮かせて地上で支えるリパルサーリフト（着陸・浮上の支持装置）。容積から支えられる質量を算出し、機体の質量に足りるかを確認します。（2026-11-24、旧「着陸脚」）']
 ]){addComp(k,name,'cube',dens,col,'craft',desc,{def,min:.05,max:30,crew:0,cost,hp:.5});CRAFT_PART_SIZE[k]=[.05,30,def];}
 Object.assign(PARTS.navComputer,{group:'command'});
 // Retain old stable kinds for saved drawings; new installation has one entry
 // for each combined function. Launcher magazines remain generated equipment.
-PARTS.landingGear.catalogHidden=true;
+// 2026-11-24 (user「小型機に搭載してて今は呼び出せない着陸脚を小型機に移し『リパルサーリフト』」): listed again, for craft, as the repulsorlift.
 // User decision 2026-11-21 (「居住区は廃止する方針(余積を居住区扱いのみ)では無かったのか」「外面編集は装甲のみになりそれ以外は無くなったのでは？」):
 // the habitation compartment, added on 2026-11-03 for the equipment faces' habitation share, was left in the parts list when those
 // faces were retired (2026-11-05). It is retired like the crew quarters (v19): not offered, and a placed one is dropped on load.
@@ -106788,7 +106789,7 @@ function engineeringStats(ship,S){
   S.fuelVolume=v('fuel');S.fuelHours=0;
   // v24 Craft need feed equipment too; the ratio already limits the reactor output (reactorPower).
   S.supplyRatio=reactantSupplyRatio(ship);
-  S.fieldGain=craftFieldGain(Math.max(.001,S.dims?.[0]||0));S.inertialSupport=v('inertial')*120*S.fieldGain;S.integritySupport=v('integrity')*180*S.fieldGain;S.repulsorSupport=v('repulsor')*70;
+  S.fieldGain=craftFieldGain(Math.max(.001,S.dims?.[0]||0));S.inertialSupport=v('inertial')*120*S.fieldGain;S.integritySupport=v('integrity')*180*S.fieldGain;S.repulsorSupport=(v('repulsor')+v('landingGear'))*70/* 2026-11-24 a craft's repulsorlift holds it up as the ship's gravity control does */;
   S.crewCapacity=0;S.troopCapacity=0;S.vehicleCapacity=(S.aviation?.vehicles||[]).reduce((n,r)=>n+r.embarked,0);S.vehicleSizeCapacity=(S.aviation?.vehicleSize||0)+(S.aviation?.freeSize||0);S.cargoCapacity=v('cargo')*.4;S.serviceCapacity=Math.floor(v('service')/1500);
   S.airControl=Object.values(S.commandInfo).filter(c=>c.role==='air'&&c.ratio>=.5).length;S.hangarControl=Object.values(S.commandInfo).filter(c=>c.role==='hangar'&&c.ratio>=.5).length;
   // Field-strength gain is a common game coefficient, not a class-name override.
@@ -107065,7 +107066,7 @@ STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
 addComp('sensor','センサー・標的追跡装置','sphere',.36,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
 // Active electronics draw and reject heat through the common hotel network.
 PARTS.sensor.power=2e15;PARTS.scanner.power=2e15;
-function partLabel(p){return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':isStructuralPart(p)&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
+function partLabel(p){if(p?.k==='repulsor'&&typeof p.label==='string'&&/^分散リパルサーリフト/.test(p.label))return p.label.replace(/^分散リパルサーリフト/,'分散重力制御装置');return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':isStructuralPart(p)&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
 // Default stations for the section table: they fall on the plan's own corners.
 function planStations(h){if(h.plan==='arrow'){const m=clamp(h.maxAt??.3,.05,.9);return [0,m/2,m,m+(1-m)/3,m+(1-m)*2/3,1];}if(h.plan==='rect')return [0,.35,.7,.8,.9,1];return [0,.2,.4,.6,.8,1];}
 function profileAt(h,t){
@@ -111181,7 +111182,7 @@ function referenceDesign(key){
       const bay=room('hangar','側方ドッキング・戦闘機格納庫',[471,54,sg*115],[64,44,50]);const mouth=openBay(s,bay,sg<0?'port':'stbd','ray');mouth.aperture=.90;
       room('cargo','前部補給倉庫',[900,62,sg*70],[120,34,22],{foreWidth:.6});
       part('localShield','前部局所シールド',[960,60,sg*53],12);
-      part('repulsor','腹部リパルサー',[405,24,sg*69],18,{dir:[0,1,0],length:10});
+      part('repulsor','腹部重力制御装置',[405,24,sg*69],18,{dir:[0,1,0],length:10});
     }
     part('hyper','細長い尾部ハイパードライブ',[120,72,0],23,{length:160});
     part('inertial','艦尾主慣性圧縮器',[228,95,0],14,{length:30});
@@ -111211,7 +111212,7 @@ function referenceDesign(key){
       room('vehicle','重車両整備庫',[332,55,z*96],[110,48,24],{foreWidth:.85});
       room('service','ガンシップ整備レール',[480,88,z*47],[110,28,12],{foreWidth:.7});
       const bay=room('hangar','前方揚陸・降下艇格納庫',[570,66,z*28],[110,36,26],{foreWidth:.5});openBay(s,bay,'bottom','ray');
-      part('repulsor','着陸支持リパルサー',[295,28,z*85],22,{dir:[0,1,0],length:12});
+      part('repulsor','着陸支持重力制御装置',[295,28,z*85],22,{dir:[0,1,0],length:12});
       room('integrity','縦通構造維持幹線',[245,82,z*115],[140,12,12]);
       room('battery','パワーセル',[180,94,z*75],[25,18,16]);
     }
@@ -112056,8 +112057,8 @@ function accBuild(opt={}){
  part('shield','区域シールド発生器ノード（後部）',[170,51.9,150],12,{},true);
  part('shield','区域シールド発生器ノード（前部）',[575,51.9,57],12,{},true);
  // Antigrav repulsorlifts: generators in the aft brim corners and under the forward brim carry the ship's weight on landing.
- part('repulsor','反重力リパルサーリフト発生装置（後部）',[163,51.9,186],30,{dir:[0,1,0],length:13},true);
- part('repulsor','反重力リパルサーリフト発生装置（前部）',[600,51.9,52],20,{dir:[0,1,0],length:13},true);
+ part('repulsor','重力制御装置（後部）',[163,51.9,186],30,{dir:[0,1,0],length:13},true);
+ part('repulsor','重力制御装置（前部）',[600,51.9,52],20,{dir:[0,1,0],length:13},true);
  // Annihilation reactant silos and the reactant valve module forward of the tower.
  for(const x of [315,340])part('fuel','反応物凝縮サイロ',[x,76,34],18,{dir:[0,1,0],length:18},true);
  room('pump','反応物バルブ・モジュール',[360,71,0],[14,14,8]);
@@ -114958,7 +114959,7 @@ function lucrehulkBuild(opt={}){
  // ---- core ship interior: droid control computer core, monitoring stations, repulsorlifts ----
  part('command','ドロイド制御コンピューター・コア',[X(1609),470,0],30,{room:[90,90,70]});
  for(const sg of [-1,1])part('command','制御コンピューター・コア配電監視ステーション',[X(1609),470,sg*120],30,{room:[60,50,40]});
- part('repulsor','コアシップ着陸用リパルサーリフト',[X(1609),140,0],140,{dir:[0,1,0],length:30});
+ part('repulsor','コアシップ着陸用重力制御装置',[X(1609),140,0],140,{dir:[0,1,0],length:30});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
@@ -119411,6 +119412,8 @@ function hullBoxGap(u,h,x,hx){
 // v18 How hard a ship's drives burn, for the engine glow (0–1): the share of
 // full acceleration it is using, over a cruise floor that rises with speed.
 function engineLevel(u){const main=u?.manual&&Number.isFinite(u.mainThrustShare)?clamp(u.mainThrustShare,0,1):1;return !u||u.out||u.dead||u.ht?.online===false?0:clamp(u.propulsion?.outputRatio??0,0,1)*main;}
+// 2026-11-24 This resistance is the gravity control's (docs/calibrated-propulsion-and-power-loss.md): the 1 G a ship synthesises
+// aboard leaves its source in space for a while, and the moving ship is pulled back by it. The law is unchanged.
 // One common resistance law is calibrated from the TIE/ln and Venator
 // reference points. It never follows a design's reactor, throttle or name.
 // Drag force is mass * rate(mass) * velocity; the weak positive mass exponent
@@ -122258,7 +122261,7 @@ function craftSystemsStats(ship,S){
  if(targetRatio<1-1e-8)warn('warn',`照準処理能力が不足しています（武装 ${+targetCapacity.toFixed(1)} 基分／必要 ${+R.targetDemand.toFixed(1)} 基分）。命中率が下がります。`,['targetComputer','firecontrol']);
  if(maneuverRatio<1-1e-8)warn('warn',`姿勢制御の対応質量が不足しています（${+maneuverSupport.toFixed(1)} t／機体 ${+(S.mass||0).toFixed(1)} t）。旋回能力が下がります。`,['maneuver']);
  if(R.laserUnits>0&&!(systems.laserGasSeconds>0))warn('warn','小型レーザー砲に供給するレーザーガスがありません。母艦で補給できるガス供給装置を追加してください。',['laserGas']);
- if(!systems.landingReady)warn('info',`着陸脚の支持質量が不足しています（${+landingSupport.toFixed(1)} t／機体 ${+(S.mass||0).toFixed(1)} t）。地上で脚による支持ができません。`,['landingGear','repulsor']);
+ if(!systems.landingReady)warn('info',`リパルサーリフトの支持質量が不足しています（${+landingSupport.toFixed(1)} t／機体 ${+(S.mass||0).toFixed(1)} t）。地上で脚による支持ができません。`,['landingGear','repulsor']);
  return S;
 }
 // ---------- v22 ordnance as stores ----------
