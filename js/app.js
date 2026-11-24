@@ -8326,7 +8326,7 @@ function trialShotEnergyTT(t){
  if(spec?.fixedPerBarrelEnergy&&spec.boltTT>0&&!spec.store)return spec.boltTT*(t.barrels||spec.barrels||1);
  return t.power*t.cycle*t.charge/TT_J;
 }
-function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},roles=C.weaponRoles(spec),band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed),cycle=pilot?TRIAL_PILOT_CYCLE[t.k]||C.CRAFT_FIRE.defaultCycle:t.cycle;return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:trial.p?.energyModel?.version===1||spec.ion?1:C.COMBAT.bandCost[band]??1,pd:roles.purePointDefense&&!pilot,pdCapable:roles.pointDefense&&!pilot,dualPurpose:roles.dualPurpose&&!pilot,pilot,cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:pilot?((Math.abs(t.id||0)*.61803398875)%1)*cycle:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
+function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},roles=C.weaponRoles(spec),band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed),cycle=pilot?TRIAL_PILOT_CYCLE[t.k]||C.CRAFT_FIRE.defaultCycle:t.cycle;return {...t,band,reach:spec.gunRule?.rangeM||C.GUN_BANDS[band]?.range||TRIAL_GUN.range/* 2026-11-24 each gun's own range (gun rules) */,costK:trial.p?.energyModel?.version===1||spec.ion?1:C.COMBAT.bandCost[band]??1,pd:roles.purePointDefense&&!pilot,pdCapable:roles.pointDefense&&!pilot,dualPurpose:roles.dualPurpose&&!pilot,pilot,cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:pilot?((Math.abs(t.id||0)*.61803398875)%1)*cycle:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
 // opts.design flies another design than the one on the drawing board;
 // opts.battle starts a space battle with that plan; opts.system picks the system.
 async function trialStart(opts={}){
@@ -10530,7 +10530,7 @@ function spaceBoltDamage(t,d,at){const B=trial.battle;if(!B||B.result||!d||t.dea
  B.extra.set(t.id,x);}
 // The range of the gun band a bolt from a to t belongs to, drawn by the fire each band brings to bear at this bearing and distance
 // (the same weights as Core's fleetFire).
-function spaceBoltBands(a,t){const B=a.p.gunBands,d=C.len(C.sub(t.pos,a.pos)),rows=[];if(B)for(const k in C.GUN_BANDS){const r=C.GUN_BANDS[k].range;if(d>r||!B[k])continue;const g=Math.max(0,C.fleetArc(a,t,B[k]));if(g>0)rows.push([g,r]);}
+function spaceBoltBands(a,t){const B=a.p.gunBands,d=C.len(C.sub(t.pos,a.pos)),rows=[];if(B)for(const k in C.GUN_BANDS){const r=C.gunRulesReach?C.gunRulesReach(a.p.gunBandRules?.[k],C.GUN_BANDS[k].range):C.GUN_BANDS[k].range;if(d>r||!B[k])continue;const g=Math.max(0,C.fleetArc(a,t,B[k]));if(g>0)rows.push([g,r]);}
  const total=rows.reduce((n,x)=>n+x[0],0),fallback=C.fleetReach(a.p);return ()=>{if(!(total>0))return fallback;let x=Math.random()*total;for(const [g,r] of rows){x-=g;if(x<=0)return r;}return rows[rows.length-1][1];};}
 function spaceBolts(dt){
  trial.vbolts=trial.vbolts.filter(b=>{
