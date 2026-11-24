@@ -47,7 +47,7 @@ test('combat state clones own independent per-cell missile inventory',()=>{
 });
 
 test('tactical fleet combat cannot use aircraft tubes at the former 60 km range',()=>{
- for(const kind of ['cmsl','shipMsl']){const u=unit(kind),t=C.fleetUnit('target','target',targetProfile(),1);u.pos=[0,1000,0];t.pos=[20000,1000,0];u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);let damage=0;
+ for(const kind of ['cmsl','shipMsl']){const u=unit(kind),t=C.fleetUnit('target','target',targetProfile(),1);u.pos=[0,1000,0];t.pos=[kind==='shipMsl'?8000:20000,1000,0]/* 2026-11-24 the ship's cell launcher at 8 km: its small missiles go at a ship only within 10 km (user「小型ミサイルは対小型艦の防空用途と近距離の対艦攻撃」) */;u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);let damage=0;
  for(let i=0;i<20;i++)damage+=C.fleetTick(b,.1,{collide:false}).filter(q=>q.from===u.id).reduce((n,q)=>n+(q.msl||0),0);
  if(kind==='cmsl'){assert.equal(damage,0);assert.equal(u.ammo[1],6);}else{assert.ok(damage>0);assert.ok(u.ammo[1]<6);}}
 });
