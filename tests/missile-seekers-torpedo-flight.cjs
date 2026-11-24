@@ -16,7 +16,7 @@ test('two missiles to choose from: heat (cmsl) and anti-radiation (rmsl), the sa
 test('seeker aims: heat goes for structure, an engine or a weapon of a ship and an engine of a craft; radar for a sensor or a point-defence mount',()=>{
  const isd={p:plain(F.imperial.p)},xw={p:prof('craft_xwing')},tie={p:prof('craft_tie_ln')};const b={seed:7};
  const heat=new Set(),radar=new Set();for(let i=0;i<60;i++){heat.add(String(C.missileSeekerAim(b,'cmsl',isd).aim));radar.add(String(C.missileSeekerAim(b,'rmsl',isd).aim));}
- assert.deepEqual([...heat].sort(),['engine','null','weapon']);assert.deepEqual([...radar].sort(),['pd','sensor']);
+ assert.deepEqual([...heat].sort(),['engine','null','weapon']);assert.deepEqual([...radar].sort(),['sensor'])/* 2026-11-24 passive at a ship: the sensor that tracks the launcher (was sensor or point defence) */;
  assert.equal(C.missileSeekerAim(b,'cmsl',xw).aim,'engine');assert.equal(C.missileSeekerAim(b,'rmsl',tie).aim,'sensor');
  const blind=C.missileSeekerAim(b,'rmsl',xw);assert.equal(blind.blind,true,'the X-wing has no sensor: the anti-radiation round cannot guide');
  assert.equal(C.missileSeekerAim(b,'ptorp',isd),null,'a torpedo has no such seeker');
@@ -46,14 +46,29 @@ test('a ship\'s torpedo leaves at a craft\'s speed, slows with distance and turn
 
 // 2026-11-24 user decision「レーダーロック発射、機首から30°で長距離発射する時。ロックした機体、艦に対して誘導で構造物に向かう。パッシブは自機にロック
 // してる機体センサーに向かう。熱源は背面を取った方が当たりやすい」.
-test('craftMissileChoice: passive at a craft locking us, heat when the guns bear, radar-locked within 30° of the nose',()=>{
+test('craftMissileChoice: passive at whatever tracks us (any direction), heat within 60° of the nose, radar fixed to the nose for a craft with a sensor',()=>{
+ // 2026-11-24 user「熱源は自分の中心から60°範囲で視認方向のカーソルに合わせてロック。レーダーは機首固定（センサーを持つ機体のみ）。対レーダーは360°」
  const p=prof('craft_tie_ln'),me=unit('me','craft_tie_ln',p,0),foe=unit('foe','craft_tie_ln',p,1),locker=unit('lk','craft_tie_ln',p,1);
- me.pos=[0,0,0];me.yaw=0;foe.pos=[2500,0,0];locker.pos=[2000,0,1500];const b=C.fleetBattle([me,foe,locker],true);b.time=10;
- assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000).mode,'heat','guns bear: heat first');
- foe.pos=[2500,0,1000];/* 22° off the nose: guns do not bear (15°), the radar cone (30°) does */assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000).mode,'radar');
- foe.pos=[1500,0,2000];assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000),null,'53° off: nothing');
- me.lockWarn={from:'lk',at:9};const ps=C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000);assert.equal(ps.mode,'passive');assert.equal(ps.target.id,'lk','at the craft that locks us');
- assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl'],3000),null,'no anti-radiation round, no passive shot');
+ me.pos=[0,0,0];me.yaw=0;foe.pos=[2500,0,0];locker.pos=[-2000,0,-1500]/* behind us */;const b=C.fleetBattle([me,foe,locker],true);b.time=10;
+ const at=(x,z)=>{foe.pos=[x,0,z];};const pick=k=>C.craftMissileChoice(b,b.units,me,foe,k,3000);
+ at(2500,0);assert.equal(pick(['cmsl','rmsl']).mode,'heat');
+ at(1500,2000);/* 53° off */assert.equal(pick(['cmsl']).mode,'heat','the heat cursor reaches 60°');assert.equal(pick(['rmsl']),null,'the radar does not (30°)');
+ at(2500,1000);/* 22° */assert.equal(pick(['rmsl']).mode,'radar');
+ at(500,2000);/* 76° */assert.equal(pick(['cmsl','rmsl']),null);
+ const xw=unit('xw','craft_xwing',prof('craft_xwing'),0);xw.pos=[0,0,0];xw.yaw=0;b.units.push(xw);at(2500,0);
+ assert.equal(C.craftMissileChoice(b,b.units,xw,foe,['rmsl'],3000),null,'an X-wing has no sensor: no radar lock');
+ me.lockWarn={from:'lk',at:9};const ps=pick(['cmsl','rmsl']);assert.equal(ps.mode,'passive');assert.equal(ps.target.id,'lk','at what tracks us, even astern');
+ assert.equal(pick(['cmsl']).mode,'heat','no anti-radiation round, no passive shot');
+});
+test('a ship engaging a craft tracks it with its sensors: the craft may fire a passive round at that ship\'s sensor',()=>{
+ const isd=C.fleetUnit('isd','imperial',plain(F.imperial.p),1),tie=unit('t','craft_tie_ln',prof('craft_tie_ln'),0);isd.pos=[0,0,0];tie.pos=[2500,0,0];isd.order={...isd.order,type:'attack',target:'t',fire:true};
+ const b=C.fleetBattle([isd,tie],true);for(let i=0;i<4&&!tie.lockWarn;i++)C.fleetTick(b,.25,{});assert.equal(tie.lockWarn?.from,'isd','tracked by the ISD');
+ const ps=C.craftMissileChoice(b,b.units,tie,null,['rmsl'],5000);assert.equal(ps?.mode,'passive');assert.equal(C.missileSeekerAim(b,'rmsl',isd,'passive').aim,'sensor');
+});
+test('a passive round is guided only while the track on its launcher stands',()=>{
+ const p=prof('craft_tie_ln'),a=unit('a','craft_tie_ln',p,0),L=unit('L','craft_tie_ln',p,1);a.pos=[0,0,0];L.pos=[2500,0,0];const b=C.fleetBattle([a,L],true);
+ a.lockWarn={from:'L',at:0};C.fleetAirRelease(b,a,L,'rmsl',1,{...C.FLEET_AIR.kinds[1],seekMode:'passive'},null);const m=b.missiles[0];
+ C.fleetTick(b,.25,{});assert.ok(!m.unguided,'guided while tracked');b.time+=C.MISSILE_SEEK.warnS+1;delete a.lockWarn;C.fleetTick(b,.25,{});assert.equal(m.unguided,true,'the track is cut, so is the guidance');
 });
 test('a radar-locked round is guided while the launcher keeps the target in its 30° cone and bursts on the structure; a passive one homes on the locker\'s sensor',()=>{
  const p=prof('craft_tie_ln'),a=unit('a','craft_tie_ln',p,0),t=unit('t','craft_tie_ln',p,1);a.pos=[0,0,0];a.yaw=0;t.pos=[2500,0,0];const b=C.fleetBattle([a,t],true);
