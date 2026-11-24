@@ -1,0 +1,16 @@
+== head-on: 1 x craft_xwing (A) vs 1 x /tmp/ks-verify/20261123-tied/tie_d.json (B), 20 runs: lost per run A 1.0 B 0.1; A wins 0, B wins 19, both lost 1, undecided in 300 s 0; mean time to decision 91.0 s; nearest 23.9 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 26.0 B 36.3; greatest height off the start plane 9105.9 m; first shot at 0.0 s
+0s d=7345 A(296,0,0 hdg 0° 1183m/s) B(7641,0,0 hdg 180° 1436m/s)
+5s d=4707 A(5750,5,-30 hdg -3° 961m/s) B(1044,26,-29 hdg -178° 1152m/s)
+10s d=13991 A(9973,41,-533 hdg -18° 743m/s) B(-4009,533,-491 hdg -169° 897m/s)
+15s d=20172 A(12741,365,-2001 hdg -46° 540m/s) B(-7378,1786,-1686 hdg -143° 644m/s)
+20s d=22497 A(13800,1260,-3697 hdg -86° 361m/s) B(-8593,3386,-3333 hdg -88° 427m/s)
+25s d=21414 A(13426,2314,-4496 hdg -162° 258m/s) B(-7891,4353,-4447 hdg -21° 314m/s)
+30s d=18103 A(11993,2662,-4617 hdg -180° 409m/s) B(-6032,4336,-4619 hdg 0° 518m/s)
+35s d=12142 A(9361,2906,-4617 hdg -180° 640m/s) B(-2729,4029,-4619 hdg 0° 800m/s)
+40s d=3875 A(5696,3247,-4618 hdg -180° 823m/s) B(1837,3605,-4618 hdg 0° 1023m/s)
+45s d=3787 A(2305,3554,-4663 hdg -174° 580m/s) B(6083,3296,-4637 hdg -1° 727m/s)
+50s d=9410 A(-188,3730,-5138 hdg -160° 447m/s) B(9211,3788,-4701 hdg -2° 550m/s)
+55s d=13243 A(-1916,3877,-6011 hdg -141° 338m/s) B(11228,4941,-4797 hdg -6° 391m/s)
+60s d=15236 A(-2891,4207,-7027 hdg -121° 258m/s) B(12057,6327,-4977 hdg -41° 294m/s)
+   run 1: B 91 s TIE/D：太陽イオン化反応炉 停止（出力 −100%） | TIE/D：中央区画で火災発生（居住空間（中央後部））
+exit 0

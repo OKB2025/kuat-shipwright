@@ -1,0 +1,103 @@
+costs-before exit 0 changed=0
+executor       built 133 s
+subjugator     built 1442 s
+lucrehulk      built 120 s
+lh3210         built 102 s
+mc80liberty    built 410 s
+recusant       built 243 s
+mandator2      built 2311 s
+recusantDn     built 142 s
+providence     built 130 s
+providenceDn   built 162 s
+acclamator     built 33 s
+arquitens      built 56 s
+cr90           built 22 s
+munificent     built 157 s
+dreadnaught    built 59 s
+gozanti        built 21 s
+gr75           built 34 s
+hammerhead     built 14 s
+heraklon       built 11 s
+imperial       built 162 s
+imperial2      built 155 s
+mc30c          built 33 s
+mc75           built 37 s
+mc80home       built 147 s
+nebulonb       built 60 s
+onager         built 74 s
+reptransport   built 9 s
+venator        built 103 s
+bc             built 3 s
+carrier        built 3 s
+craft_arc170   built 2 s
+craft_awing    built 2 s
+craft_btlb     built 2 s
+craft_hyena    built 2 s
+craft_tie_d    built 3 s
+craft_tie_in   built 3 s
+craft_tie_ln   built 3 s
+craft_tie_sa   built 2 s
+craft_v19      built 2 s
+craft_vulture  built 2 s
+craft_vwing    built 2 s
+craft_xwing    built 2 s
+craft_ywing    built 2 s
+craft_z95      built 1 s
+destroyer      built 3 s
+frigate        built 2 s
+heavy          built 3 s
+sample         built 4 s
+deathstar      built 1456 s
+subjugator     design unchanged combat updated  
+executor       design unchanged combat updated  
+mandator2      design unchanged combat updated  
+lucrehulk      design unchanged combat updated  
+lh3210         design unchanged combat updated  
+mc80liberty    design unchanged combat updated  
+recusant       design unchanged combat updated  
+recusantDn     design unchanged combat updated  
+providenceDn   design unchanged combat updated  
+providence     design unchanged combat updated  
+munificent     design unchanged combat updated  
+acclamator     design unchanged combat updated  
+arquitens      design unchanged combat updated  
+cr90           design unchanged combat updated  
+deathstar      design unchanged combat updated  
+dreadnaught    design unchanged combat updated  
+gozanti        design unchanged combat updated  
+gr75           design unchanged combat updated  
+hammerhead     design unchanged combat updated  
+heraklon       design unchanged combat updated  
+imperial       design unchanged combat updated  
+imperial2      design unchanged combat updated  
+mc30c          design unchanged combat updated  
+mc75           design unchanged combat updated  
+mc80home       design unchanged combat updated  
+nebulonb       design unchanged combat updated  
+onager         design unchanged combat updated  
+reptransport   design unchanged combat updated  
+venator        design unchanged combat updated  
+bc             design unchanged combat -        
+carrier        design unchanged combat -        
+craft_arc170   design unchanged combat -        
+craft_awing    design unchanged combat -        
+craft_btlb     design unchanged combat -        
+craft_hyena    design unchanged combat -        
+craft_tie_d    design unchanged combat -        
+craft_tie_in   design unchanged combat -        
+craft_tie_ln   design unchanged combat -        
+craft_tie_sa   design unchanged combat -        
+craft_v19      design unchanged combat -        
+craft_vulture  design unchanged combat -        
+craft_vwing    design unchanged combat -        
+craft_xwing    design unchanged combat -        
+craft_ywing    design unchanged combat -        
+craft_z95      design unchanged combat -        
+destroyer      design unchanged combat -        
+frigate        design unchanged combat -        
+heavy          design unchanged combat -        
+sample         design unchanged combat -        
+Refreshed 49 examples: 0 design and 29 combat files rewritten, the rest unchanged
+refresh exit 0
+costs exit 0 changed=0
+manifest check exit 0

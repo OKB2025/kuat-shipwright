@@ -7,9 +7,9 @@ const {C}=require('../scripts/update-ship-examples.cjs').loadRuntime(process.env
 test('a ship launcher station gets its own ordnance as the default load',()=>{
  const L=C.craftLoadout({fits:[{id:1,k:'shipMsl',p:[0,0,0],a:0},{id:2,k:'cmsl',p:[1,0,0],a:0}]});
  assert.deepEqual(JSON.parse(JSON.stringify(L.stations.map(s=>s.fit))),['shipMsl','cmsl']);
- assert.deepEqual(JSON.parse(JSON.stringify(L.load)),[{k:'cmsl',n:6},{k:'cmsl',n:6}]);
+ assert.deepEqual(JSON.parse(JSON.stringify(L.load)),[{k:'cmsl',n:6},{k:'cmsl',n:3}]);/* 2026-11-24 expectation changed: an aircraft's launch tube holds 3 missiles or 2 torpedoes (user「魚雷は発射機あたりに2発、ミサイルは発射機あたりに3発」); a ship's launcher keeps 6 a cell */
  // The table entries are unchanged.
- const T=C.craftLoadout({fits:[{id:1,k:'ctorp',p:[0,0,0],a:0}]});assert.deepEqual(JSON.parse(JSON.stringify(T.load)),[{k:'ptorp',n:3}]);
+ const T=C.craftLoadout({fits:[{id:1,k:'ctorp',p:[0,0,0],a:0}]});assert.deepEqual(JSON.parse(JSON.stringify(T.load)),[{k:'ptorp',n:2}]);
 });
 test('a multi-cell ship launcher holds 6 rounds per cell, as fitSpec and the runtime count it (physics review 2026-11-13)',()=>{
  const big={id:1,k:'shipMsl',p:[0,0,0],a:0,launcherCols:2,launcherRows:2},one={id:2,k:'shipMsl',p:[1,0,0],a:0};

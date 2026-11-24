@@ -1,0 +1,9 @@
+== head-on: 4 x craft_tie_in (A) vs 4 x craft_tie_ln (B), 20 runs: lost per run A 2.8 B 3.5; A wins 13, B wins 6, both lost 1, undecided in 300 s 0; mean time to decision 27.0 s; nearest 199.3 m; seconds on the other's tail A 2.9 B 2.1; seconds guns bearing A 21.5 B 19.1; greatest height off the start plane 1344.3 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 20, hit 2, spent 0, target lost first 10; lock warnings 610, guidance lost (launcher lost sight) 0; friendly craft struck (KS_MSL_FF; steps a ready launch was held for a wingman in the line 0) 0, other enemy craft struck 0; friendly hits sample [] rounds {"ptorp":20}; steps flown by guidance {"pursuit":81}
+0s d=7370 A(324,5,7 hdg 7° 1288m/s) B(7694,5,-7 hdg -174° 1219m/s)
+5s d=2515 A(5860,-52,1282 hdg 58° 939m/s) B(3574,28,2326 hdg 108° 877m/s)
+10s d=3555 A(6377,-454,447 hdg 126° 546m/s) B(5652,-132,3912 hdg -36° 513m/s)
+15s d=282 A(5558,-232,2561 hdg 116° 375m/s) B(5316,-263,2419 hdg -63° 320m/s)
+20s d=1641 A(4580,-34,2623 hdg -78° 210m/s) B(5496,-27,1261 hdg -26° 187m/s)
+25s d=692 A(4844,86,1832 hdg -72° 133m/s) B(4394,572,1631 hdg 14° 248m/s)
+   run 1: A 29.5 s TIE/ln 制宙戦闘機：艦首区画 崩壊 | TIE/ln 制宙戦闘機：撃沈（船体破断）

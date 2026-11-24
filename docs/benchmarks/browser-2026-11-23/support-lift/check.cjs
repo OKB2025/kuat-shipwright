@@ -1,0 +1,22 @@
+// Browser check: a turret kept on an overlapping structure (supportLift) shows the note and is seated on its own surface by the button; saved and loaded.
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
+const url=process.argv[2],out=process.argv[3];
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
+const ctx=await b.newContext({viewport:{width:1280,height:900}});const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));page.setDefaultTimeout(600000);
+await page.addInitScript(()=>{try{if(!localStorage.getItem('yard.language'))localStorage.setItem('yard.language','ja')}catch(e){}});
+const settle=async()=>{await page.waitForFunction(()=>{const Y=window.__yard;return Y.ship&&Y.stats&&Y.eng.statsGen>=Y.eng.gen;},null,{timeout:1200000});await page.waitForTimeout(2500);};
+const open=async k=>{await page.evaluate(k=>{window.__prevShip=window.__yard.ship;window.__yard.openExample(k)},k);await page.waitForFunction(()=>window.__yard.ship&&window.__yard.ship!==window.__prevShip,null,{timeout:600000});await settle();};
+await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__yard?.eng.ready,null,{timeout:300000});await page.evaluate(()=>window.__yard.title?.hide?.());
+const shot=async n=>{const f=path.join(out,n);await page.screenshot({path:f});return f;};
+await open(process.argv[4]||'nebulonb');const res={};
+const fitState=id=>page.evaluate(id=>{const f=window.__yard.ship.fits.find(f=>f.id===id);return f&&{supportLift:!!f.supportLift,base:+(f.base||0).toFixed(3)};},id);
+res.lifted=await page.evaluate(()=>window.__yard.ship.fits.filter(f=>f.supportLift).map(f=>[f.id,f.k,+(f.base||0).toFixed(2)]));const id=res.lifted[0]?.[0];res.id=id;
+await page.evaluate(id=>{const Y=window.__yard;Y.st.sel={list:'fits',id};Y.renderPanel();},id);await page.waitForTimeout(500);
+res.note=await page.evaluate(()=>document.querySelector('#panel [data-fit-support-lift]')?.textContent.trim()||null);res.before=await fitState(id);await shot('1-note.png');
+await page.evaluate(()=>document.querySelector('#panel [data-fitsupportlower]').click());await settle();await page.waitForTimeout(3000);
+res.after=await fitState(id);res.noteAfter=await page.evaluate(()=>!!document.querySelector('#panel [data-fit-support-lift]'));await shot('2-seated.png');
+await page.evaluate(()=>document.querySelector('#btnSave').click());await page.waitForTimeout(4000);const sid=await page.evaluate(()=>window.__yard.ship.saveId);res.saveId=sid;
+await open('cr90');await page.evaluate(async sid=>{window.__prevShip=window.__yard.ship;document.querySelector(`[data-load="${sid}"]`).click();},sid);
+await page.waitForFunction(()=>window.__yard.ship&&window.__yard.ship!==window.__prevShip,null,{timeout:600000});await settle();res.afterLoad=await fitState(id);res.otherLifted=await page.evaluate(()=>window.__yard.ship.fits.filter(f=>f.supportLift).map(f=>f.id));
+await page.evaluate(()=>{window.__yard.undo?.();});
+res.errors=errors;fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(res,null,1));console.log(JSON.stringify(res,null,1));await b.close();})().catch(e=>{console.error(e);process.exit(1)});

@@ -68,7 +68,7 @@ test('fresh stock TIE collectors are one native-braced panel per side, and old s
  for(const [key,preset] of [['craft_tie_ln','hex'],['craft_tie_in','interceptor'],['craft_tie_sa','bomber']]){
   const ship=C.buildDesign(key),panels=ship.parts.filter(p=>p.k==='solarPanel'),before=plain(C.serialize(ship).parts.filter(p=>p.k==='struct')),shape=C.solarPanelPreset(preset);
   assert.equal(panels.length,2,key+' has one collector per side');assert.equal(ship.parts.some(p=>['翼中央パネル','翼中央部','上翼板','下翼板'].includes(p.label)),false,key+' has no separate wing pieces');
-  for(const p of panels){count++;assert.equal(p.panelBracing,shape.panelBracing,key);near(p.panelFrame,p.s[0]*shape.frameRatio);near(p.panelRib,p.s[0]*shape.ribRatio);assert.ok(C.aeroPanelRibs(p).length>0);}
+  for(const p of panels){count++;assert.equal(p.panelBracing,shape.panelBracing,key);/* 2026-11-23 expectation changed: the TIE/ln and TIE/in examples are the user's remodels (user: 「リモデルで作例を揃える」), whose frames and ribs the designer may have made thinner than the preset */if(C.isCraftRemodel?.(key)){assert.ok(p.panelFrame>0&&p.panelFrame<=p.s[0]*shape.frameRatio+1e-9,key);assert.ok(p.panelRib>0&&p.panelRib<=p.s[0]*shape.ribRatio+1e-9,key);}else{near(p.panelFrame,p.s[0]*shape.frameRatio);near(p.panelRib,p.s[0]*shape.ribRatio);}assert.ok(C.aeroPanelRibs(p).length>0);}
   const saved=C.serialize(ship),loaded=C.deserialize(saved);for(const p of panels){const q=loaded.parts.find(q=>q.id===p.id);for(const field of ['panelBracing','panelFrame','panelRib'])assert.equal(q[field],p[field],field);}
   assert.deepEqual(plain(C.serialize(loaded).parts.filter(p=>p.k==='struct')),before);
  }

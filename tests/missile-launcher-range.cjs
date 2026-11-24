@@ -7,10 +7,10 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const {C,R}=vm.runInContext('({C:Core,R:Rts})',context),plain=q=>JSON.parse(JSON.stringify(q)),near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 function profile(kind='cmsl',cells=1){
  const native=kind==='cmsl'||kind==='shipMsl',range=kind==='shipMsl'?60000:10000;
- const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6*cells,missileKind:kind,missileRange:range,salvo:cells,cycle:1.2,tt:25,launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:Array.from({length:cells},(_,i)=>[0,0,i]),launchDir:[1,0,0]};
- return {name:'Range fixture',profileVersion:5,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,
+ const launcher={k:'launcher',fit:2,port:'f2',domain:'main',name:'Launcher',size:1,share:1,at:.5,powerConnected:true,stock:6*cells,missileKind:kind,missileRange:range,salvo:cells,cycle:1.2,tt:25,launchPowerW:1e15,muzzle:[0,0,0],launchMuzzles:Array.from({length:cells},(_,i)=>[0,0,i]),launchDir:[1,0,0],...(kind==='shipMsl'?{heavy:true}/* 2026-11-24 fixture changed: only a large missile launches beyond 10 km (user「50kmのレーダー発射は大型ミサイルのみ」) */:{})};
+ return {name:'Range fixture',profileVersion:5,trackModel:1/* 2026-11-24 a profile under the tracking-slot rule (an older one keeps its stored channels) */,hp:1e6,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:1,crewMax:1,len:100,width:20,height:10,maxSpeed:0,turnRate:0,accel:0,acc:1,aa:0,
  gunArcs:[0,0,0,0,0,0],ionArcs:[0,0,0,0,0,0],gunBands:{long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},msl:native?25*cells*20/1.2:0,imsl:0,
- modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};
+ modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},launcher,...(kind==='shipMsl'?[{k:'sensor',name:'ISD-72x-sized dome (test fixture)',size:31527,trackVol:30340,share:1,at:.5,domain:'main'}]:[])/* 2026-11-24 fixture changed: a ship's missiles beyond 10 km are radar-guided and need a tracking slot (user「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」「ISD-72xのサイズで4枠」); the firing ship is given one ISD-72x-sized dome so this case still tests its own subject */],grid:{P:1e18,Pgen:1e18,Paux:0,fixed:1e15,cooling:0,De:0,Ds:0,Dw:0,fixedLoads:[{id:'f2',port:'f2',domain:'main',weight:1e15}]}};
 }
 function targetProfile(){const p=profile();p.msl=0;p.modules=p.modules.slice(0,1);p.grid.fixed=0;p.grid.fixedLoads=[];return p;}
 function unit(kind='cmsl',cells=1){return C.fleetUnit('launcher','launcher',profile(kind,cells),0);}
@@ -23,7 +23,7 @@ function world(kind='cmsl',distance=20000){
 test('each native launcher range is checked before its ammunition is spent',()=>{
  const u=unit();const ship={...profile('shipMsl').modules[1],fit:3,port:'f3'};u.p.modules.push(ship);u.mods.push(1);u.ammo.push(6);u.p.grid.fixed+=1e15;u.p.grid.fixedLoads.push({id:'f3',port:'f3',domain:'main',weight:1e15});power(u);
  const shots=C.fleetMissileStep(u,.1,true,{distance:20000});assert.deepEqual(plain(shots.map(q=>q.kind)),['shipMsl']);assert.equal(u.ammo[1],6);assert.equal(u.ammo[2],5);assert.equal(shots[0].range,60000);
- assert.equal(C.missileRange(u.p.modules[1]),10000);assert.equal(C.missileMaxRange(u),60000);
+ assert.equal(C.missileRange(u.p.modules[1]),10000);/* 2026-11-24 expectation changed (physics review): this unit has no sensor, so its ship missiles launch heat-seeking within 10 km (was 60 km, the round's own reach) */assert.equal(C.missileMaxRange(u),10000);
  const far=unit('shipMsl');power(far);assert.equal(C.fleetMissileStep(far,.1,true,{distance:60000.001}).length,0);assert.equal(far.ammo[1],6);
  for(const [kind,distance] of [['cmsl',10000],['shipMsl',60000]]){const edge=unit(kind);power(edge);assert.equal(C.fleetMissileStep(edge,.1,true,{distance}).reduce((n,q)=>n+q.n,0),1);}
 });
@@ -47,7 +47,7 @@ test('combat state clones own independent per-cell missile inventory',()=>{
 });
 
 test('tactical fleet combat cannot use aircraft tubes at the former 60 km range',()=>{
- for(const kind of ['cmsl','shipMsl']){const u=unit(kind),t=C.fleetUnit('target','target',targetProfile(),1);u.pos=[0,1000,0];t.pos=[20000,1000,0];u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);let damage=0;
+ for(const kind of ['cmsl','shipMsl']){const u=unit(kind),t=C.fleetUnit('target','target',targetProfile(),1);u.pos=[0,1000,0];t.pos=[kind==='shipMsl'?8000:20000,1000,0]/* 2026-11-24 the ship's cell launcher at 8 km: its small missiles go at a ship only within 10 km (user「小型ミサイルは対小型艦の防空用途と近距離の対艦攻撃」) */;u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,fire:false};const b=C.fleetBattle([u,t],true);let damage=0;
  for(let i=0;i<20;i++)damage+=C.fleetTick(b,.1,{collide:false}).filter(q=>q.from===u.id).reduce((n,q)=>n+(q.msl||0),0);
  if(kind==='cmsl'){assert.equal(damage,0);assert.equal(u.ammo[1],6);}else{assert.ok(damage>0);assert.ok(u.ammo[1]<6);}}
 });
@@ -65,7 +65,7 @@ test('aircraft squadron release checks its own round range before spending store
 });
 
 test('RTS targeting launches ship missiles through 60 km and preserves aircraft ammunition',()=>{
- for(const distance of [20000,60000])for(const kind of ['cmsl','shipMsl']){const {w,u}=world(kind,distance);R.battleTick(w,u.sys,.25);const shots=w.missiles.filter(q=>q.from===u.id);
+ for(const distance of [20000,50000]/* 2026-11-24 expectation changed: radar-guided launches reach 50 km (user「熱源シーカーは10km、遠距離は50km」; was 60 km) */)for(const kind of ['cmsl','shipMsl']){const {w,u}=world(kind,distance);R.battleTick(w,u.sys,.25);const shots=w.missiles.filter(q=>q.from===u.id);
  if(kind==='cmsl'){assert.equal(shots.length,0);assert.equal(u.ammo[1],6);}else{assert.equal(shots.length,1);assert.equal(shots[0].kind,'shipMsl');assert.equal(shots[0].range,60000);assert.ok(shots[0].traveled>0);assert.equal(u.ammo[1],5);}}
 });
 
@@ -83,7 +83,7 @@ test('an already spent guided round cannot score an impact inside its final-step
 });
 
 test('aircraft store descriptors propagate the round range without changing their warhead',()=>{
- const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),12);
+ const missiles=C.craftOrdnance('awing').filter(q=>q.kind==='cmsl');assert.ok(missiles.length);assert.ok(missiles.every(q=>q.range===10000&&q.tt===C.ORDNANCE.cmsl.tt));assert.equal(missiles.reduce((n,q)=>n+q.n,0),6)/* 2026-11-24 expectation changed 12 → 6: the A-wing's two tubes hold 3 missiles each (user「ミサイルは発射機あたりに3発」) */;
  const torpedoes=C.craftOrdnance('xwing').filter(q=>q.kind==='ptorp');assert.ok(torpedoes.length);assert.ok(torpedoes.every(q=>q.tt===C.ORDNANCE.ptorp.tt&&q.tt!==C.ORDNANCE.cmsl.tt));
 });
 
@@ -98,7 +98,7 @@ function trialSetup(kind='cmsl',cells=1){
 }
 
 test('manual trial range checks its locked target before committing a round',()=>{
- for(const distance of [20000,60000])for(const kind of ['cmsl','shipMsl']){const {run}=trialSetup(kind);run(`target.pos=[${distance},1000,0];fire(target)`);if(kind==='cmsl'){assert.equal(run('trial.gun.missiles'),0);assert.equal(run('unit.ammo[1]'),6);assert.equal(run('launcher.queue'),0);}else{assert.equal(run('trial.gun.missiles'),1);assert.equal(run('unit.ammo[1]'),5);assert.equal(run('trial.missiles[0].range'),60000);}}
+ for(const distance of [20000,50000]/* 2026-11-24 expectation changed: the trial launches by the fleet's rule, radar-guided to 50 km (user「設計画面の試験も艦隊戦の仕様に合わせて」; was 60 km) */)for(const kind of ['cmsl','shipMsl']){const {run}=trialSetup(kind);run(`target.pos=[${distance},1000,0];fire(target)`);if(kind==='cmsl'){assert.equal(run('trial.gun.missiles'),0);assert.equal(run('unit.ammo[1]'),6);assert.equal(run('launcher.queue'),0);}else{assert.equal(run('trial.gun.missiles'),1);assert.equal(run('unit.ammo[1]'),5);assert.equal(run('trial.missiles[0].range'),60000);}}
 });
 
 test('manual trial exact range expiry counts the actual path including inherited ship velocity',()=>{
@@ -117,7 +117,7 @@ test('strategic-map rounds land on a small ship from every launch range instead 
  // these launch ranges every round stepped across the 100 m target until its motor ran out (docs/missiles-arrive.md).
  // 2026-11-19 expectation changed: the target's sections are made 1e6 times stronger. With u.hp retired (v30 section damage,
  // docs/damage-penetration.md:60) the 1,000 t fixture was sunk by the first 25 TT round and the cell stopped after four.
- for(const distance of [6014,8617,13138,26153,41086,54101]){const {w,u,t}=world('shipMsl',distance),seen=new Map();for(const x of t.sec){x.max*=1e6;x.s=x.max;}
+ for(const distance of [6014,8617,13138,26153,41086,49101]/* 2026-11-24 expectation changed: 54,101 m is beyond the 50 km radar-guided reach */){const {w,u,t}=world('shipMsl',distance),seen=new Map();for(const x of t.sec){x.max*=1e6;x.s=x.max;}
   for(let s=0;s<70;s+=.25){R.tick(w,.25);for(const m of w.missiles)seen.set(m.id,m);}
   const launched=[...seen.values()],hit=launched.filter(m=>m.hit>0).length;assert.equal(launched.length,6,distance+' m: the cell fired its six rounds');assert.equal(hit,6,distance+' m: '+hit+' of 6 struck');}
 });

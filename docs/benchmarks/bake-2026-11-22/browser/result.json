@@ -1,0 +1,45 @@
+{
+ "before": {
+  "solidCuts": 0,
+  "ownCuts": 0,
+  "baked": [],
+  "meshParts": 0,
+  "mass": 53131.19055028783
+ },
+ "carve": true,
+ "hit": [
+  512,
+  336.40000000000003
+ ],
+ "draft": true,
+ "toast": "接地していない部品があります（赤枠 1 個）。船体か、船体につながる部品に接するよう動かしてください",
+ "afterCut": {
+  "solidCuts": 0,
+  "ownCuts": 0,
+  "baked": [],
+  "meshParts": 2,
+  "mass": 47163.72247050187
+ },
+ "afterUndo": {
+  "solidCuts": 0,
+  "ownCuts": 0,
+  "baked": [],
+  "meshParts": 0,
+  "mass": 53131.19055028783
+ },
+ "afterRedo": {
+  "solidCuts": 0,
+  "ownCuts": 0,
+  "baked": [],
+  "meshParts": 2,
+  "mass": 47163.72529160735
+ },
+ "afterLoad": {
+  "solidCuts": 0,
+  "ownCuts": 0,
+  "baked": [],
+  "meshParts": 2,
+  "mass": 47163.72529160735
+ },
+ "errors": []
+}

@@ -45,11 +45,16 @@ test('craft performance shows funded physical speed and keeps published speeds a
 
 test('current example notes translate nozzle ownership and published speed without restoring obsolete performance claims',()=>{
  const {run}=setup();for(const file of ['js/lang-en.js','js/i18n.js'])run(fs.readFileSync(path.join(root,file),'utf8'));run('KSI18n.setLanguage("en")');
- const keys=['mc30c','mc75','mc80home','mc80liberty','craft_arc170','craft_btlb','craft_hyena','subjugator','craft_tie_ln'],notes={};
+ // 2026-11-23 expectation changed: craft_tie_ln is now the user's remodel (user: 「リモデルで作例を揃える」) and its note no longer
+ // describes the measured solar panels; it is checked for its English text only (the remodel notes test below).
+ // 2026-11-24 expectation changed: the ARC-170, BTL-B and Hyena (and the other remaining craft) are now the user's remodels too;
+ // their notes no longer carry the published-speed sentence and are checked as remodel notes.
+ const remodels=['craft_tie_ln','craft_xwing','craft_tie_in','craft_awing','craft_tie_d','craft_arc170','craft_btlb','craft_hyena','craft_tie_sa','craft_vwing','craft_vulture','craft_v19','craft_z95','craft_ywing'];
+ const keys=['mc30c','mc75','mc80home','mc80liberty','subjugator',...remodels],notes={};
  for(const key of keys){const source=run('C.SHIP_EXAMPLES['+JSON.stringify(key)+'].note');notes[key]=run('KSI18n.t('+JSON.stringify(source)+')');assert.doesNotMatch(notes[key],/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u,key);assert.equal(run('C.SHIP_EXAMPLES['+JSON.stringify(key)+'].note'),source);}
  for(const [key,count] of [['mc80home','ten'],['mc80liberty','nine'],['mc75','Twelve']])assert.match(notes[key],new RegExp(count+' propulsion nozzles.*two integrated propulsion engines'));
  assert.match(notes.mc30c,/Four main nozzles.*one integrated propulsion engine; the aft nozzle.*separate propulsion engine/);
- for(const key of ['craft_arc170','craft_btlb','craft_hyena','subjugator']){assert.ok(notes[key].includes('published value of '+run('C.referenceSublightMGLT('+JSON.stringify(key)+')')+' MGLT'),key);assert.match(notes[key],/calculated from the installed engines and completed mass/);}
- assert.match(notes.craft_tie_ln,/one solar-panel part, one on each side/);assert.match(notes.craft_tie_ln,/0\.08 m/);assert.match(notes.craft_tie_ln,/0\.992 m/);assert.match(notes.craft_tie_ln,/4,100 G/);assert.match(notes.craft_tie_ln,/No separate outer frames, spars, struts, flanges or central hubs are installed/);
+ for(const key of ['subjugator']){assert.ok(notes[key].includes('published value of '+run('C.referenceSublightMGLT('+JSON.stringify(key)+')')+' MGLT'),key);assert.match(notes[key],/calculated from the installed engines and completed mass/);}
+ for(const k of remodels)assert.match(notes[k],/user's remodel design/,k);
  assert.doesNotMatch(notes.craft_arc170,/118 MGLT/);assert.doesNotMatch(notes.craft_hyena,/75 MGLT|29 MGLT/);assert.doesNotMatch(notes.subjugator,/66 MGLT/);assert.doesNotMatch(notes.craft_btlb,/corresponding to/);
 });

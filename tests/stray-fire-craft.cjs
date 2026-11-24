@@ -25,7 +25,7 @@ test('a craft that keeps close to a ship its own side is firing on is not lost t
 });
 // User decision 2026-11-19「そもそも艦隊戦で砲撃が交わされてる部分は避けるように飛行すればいい」: craft keep out of the lanes ships fire along.
 test('a strike whose way crosses the line of fire between two other ships goes round it',()=>{
- const profiles={};for(const k of ['craft_xwing','craft_btlb']){const d=C.buildDesign(k),S=C.computeStats(d);profiles[k]={p:C.fleetProfile(S,d.name,d),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
+ const profiles={};for(const k of ['craft_xwing',C.FLEET_AIR.roles.ywing.key/* 2026-11-24 the ywing role flies craft_ywing (the BTL-A4 example), was craft_btlb */]){const d=C.buildDesign(k),S=C.computeStats(d);profiles[k]={p:C.fleetProfile(S,d.name,d),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
  // a fires on z1 along the x axis; the carrier is south of that line and the ship its strike goes for (z2) north of it.
  const a=C.fleetUnit('a','mc80liberty',plain(F.designs.mc80liberty.p),0),z1=C.fleetUnit('z1','imperial',plain(F.designs.imperial.p),1),car=C.fleetUnit('car','mc75',plain(F.designs.mc75.p),0),z2=C.fleetUnit('z2','imperial',plain(F.designs.imperial.p),1);
  a.pos=[-15000,0,0];z1.pos=[15000,0,0];/* 30 km apart: inside their guns' reach */z1.yaw=Math.PI;car.pos=[0,0,-20000];car.yaw=Math.PI/2;z2.pos=[0,0,3000];z2.yaw=-Math.PI/2;/* the carrier stands 20 km off the line: its craft have room to climb over it */

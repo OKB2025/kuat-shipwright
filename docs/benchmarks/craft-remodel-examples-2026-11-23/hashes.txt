@@ -1,0 +1,15 @@
+b36fc5f4103a06fe445fda6123d1d259a3c34e8895340819c559239728f247c1  docs/handoff-2026-11-20/refs/a-wing-remodel-2026-11-23.json
+b55aa5d795417dca5e88e2d7b88a2c9a916597e68a80c2c74d9cd337852d44ce  docs/handoff-2026-11-20/refs/tie-d-remodel-2026-11-23.json
+8c16a79be4ee971c06b1777c4dc503b302903b44ecf393743455635695a6e0d5  docs/handoff-2026-11-20/refs/tie-d-remodel-2026-11-23b.json
+050084e0b9b7f76591a462468f264a29354d7ec632c7d0a0b873c47b5114bdb3  docs/handoff-2026-11-20/refs/tie-d-remodel-2026-11-23c.json
+888140a5abb512d69e61de20ae61653d76983f30c714575e0a5353e4853e28d4  docs/handoff-2026-11-20/refs/tie-in-remodel-2026-11-23.json
+2d5757cc8c42af590d3e4d1075f5062209f5a3a84ebfdc3ed402e0a11a2727c5  docs/handoff-2026-11-20/refs/tie-in-remodel-2026-11-23b.json
+15851f616ab5de6719a426b1661fdb797ee6b3ccc4cc7f944327c282fd2b08f5  docs/handoff-2026-11-20/refs/tie-in-remodel-2026-11-23c.json
+aff7333062d3f32f9ed3ccbd385791f5d66536814071c481a36ef08b8bd63f05  docs/handoff-2026-11-20/refs/tie-ln-remodel-2026-11-23.json
+e8846fe25faedcb7bf4f01e074bd6fd1ce8dc20f2f7060b76e18db3d9adc3bc3  docs/handoff-2026-11-20/refs/x-wing-remodel-2026-11-23.json
+# supplied files (before runtime caches were stripped)
+987a5850f46bbe94e3d91b7f4b018440a4d8fc8abbb11ad62868e350965b7cb1  dd10cf62-X_Wing_Remodel.json
+51193445ae2b116dca45b87b6c2a713fb0e559f8c24f3334ab3099908a4381d5  e44c2b69-TIE_LN_Remodel.json
+0ebfddacf46b8bb419ca03a204ddc6ee82ed91537bc604336f09c2b38df3270c  c0215765-TIE_IN_Remodel.json
+528b0c1ebe46f205240c51e8812a39a337a7716619b4cef3a7935e9cfb2647ce  6ae73a80-A_Wing_Remodel.json
+a1f58ab8cf3c3bab0a0a8211de70d329e54d128e598778fcf26d51123bb92a18  1d0825da-TIE_D.json

@@ -1,0 +1,16 @@
+== head-on: 1 x craft_xwing (A) vs 1 x craft_tie_in (B), 20 runs: lost per run A 0.0 B 0.9; A wins 19, B wins 0, both lost 0, undecided in 300 s 1; mean time to decision 123.8 s; nearest 56.8 m; seconds on the other's tail A 7.8 B 4.6; seconds guns bearing A 49.2 B 17.9; greatest height off the start plane 5654.5 m; first shot at 0.0 s
+0s d=7431 A(296,0,0 hdg 0° 1183m/s) B(7726,0,0 hdg 180° 1095m/s)
+5s d=3041 A(5762,9,4 hdg 0° 950m/s) B(2721,7,39 hdg 174° 850m/s)
+10s d=10834 A(9950,398,15 hdg 1° 733m/s) B(-837,54,960 hdg 151° 640m/s)
+15s d=15846 A(12695,1761,227 hdg 15° 517m/s) B(-2887,310,2712 hdg 121° 464m/s)
+20s d=17589 A(13643,3481,766 hdg 100° 324m/s) B(-3415,1091,4327 hdg 80° 306m/s)
+25s d=16494 A(13028,4461,1326 hdg 160° 264m/s) B(-2899,2023,4856 hdg 3° 234m/s)
+30s d=13487 A(11446,4361,1734 hdg 167° 454m/s) B(-1572,2365,4641 hdg -13° 382m/s)
+35s d=8183 A(8677,3937,2352 hdg 167° 686m/s) B(778,2726,4116 hdg -13° 585m/s)
+40s d=1301 A(5097,3388,3151 hdg 167° 655m/s) B(3842,3195,3432 hdg -13° 544m/s)
+45s d=3611 A(2408,2928,3677 hdg 176° 488m/s) B(5900,3511,2961 hdg -14° 372m/s)
+50s d=7384 A(275,2653,3636 hdg -169° 380m/s) B(7497,3746,2551 hdg -15° 297m/s)
+55s d=10093 A(-1219,2681,3055 hdg -129° 270m/s) B(8760,3912,2182 hdg -18° 237m/s)
+60s d=11208 A(-1395,3065,1930 hdg -58° 255m/s) B(9772,4023,1846 hdg -20° 194m/s)
+   run 1: A 126 s TIE/in インターセプター：艦尾区画 崩壊 | TIE/in インターセプター：撃沈（船体破断）
+exit 0

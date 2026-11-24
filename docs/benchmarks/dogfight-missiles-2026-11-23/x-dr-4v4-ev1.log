@@ -1,0 +1,11 @@
+== head-on: 4 x craft_xwing (A) vs 4 x /home/user/kuat-shipwright/docs/handoff-2026-11-20/refs/tie-d-remodel-2026-11-23.json (B), 10 runs: lost per run A 4.0 B 0.0; A wins 0, B wins 10, both lost 0, undecided in 300 s 0; mean time to decision 33.8 s; nearest 533.1 m; seconds on the other's tail A 0.1 B 7.7; seconds guns bearing A 8.4 B 51.1; greatest height off the start plane 2969.5 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 75, hit 40, spent 27, target lost first 6; steps flown by guidance {"pn":1319}
+0s d=7398 A(291,2,2 hdg 3° 1157m/s) B(7689,3,-5 hdg -175° 1238m/s)
+5s d=2033 A(5182,20,1114 hdg 24° 860m/s) B(3257,44,1769 hdg 176° 893m/s)
+10s d=7437 A(8488,203,1155 hdg -33° 554m/s) B(1370,2322,1558 hdg -2° 454m/s)
+15s d=6876 A(9463,1569,-49 hdg -112° 335m/s) B(2869,2838,1430 hdg -12° 369m/s)
+20s d=4176 A(8725,2615,-473 hdg 175° 269m/s) B(4894,2610,1187 hdg -4° 494m/s)
+25s d=1326 A(7567,2777,96 hdg 132° 290m/s) B(6488,2671,-668 hdg -12° 412m/s)
+30s d=1387 A(6908,2570,1271 hdg 83° 279m/s) B(8251,2781,992 hdg -91° 204m/s)
+   run 1: B 33 s T-65B Xウイング：艦尾区画 崩壊 | T-65B Xウイング：撃沈（船体破断）
+exit 0

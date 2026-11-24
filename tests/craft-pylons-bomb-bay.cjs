@@ -10,22 +10,37 @@ test('a pylon takes six missiles, three torpedoes or two bombs and is the pylon 
  const b=C.fitAABB(r.fit),d=C.FITS.cpylon;assert.ok(Math.abs((b[4]-b[1])-d.hm)<1e-6,'no stores hang from the design');
  const S=C.computeStats(s),stations=plain(C.craftStations(s,S));assert.deepEqual(stations,[{fit:'cpylon',mount:'wing',count:2}],'a mirrored pair is one station');
 });
-test('launch tubes are retired into pylons and old bomb-bay fittings into bomb-bay compartments',()=>{
- assert.equal(C.FITS.ctorp.catalogHidden,true);assert.equal(C.FITS.cbomb.catalogHidden,true);
+// 2026-11-23 expectation changed: launch tubes are no longer turned into pylons (user: 「発射管を復活」); the bomb-bay fitting still becomes a compartment.
+test('launch tubes load as tubes and old bomb-bay fittings become bomb-bay compartments',()=>{
+ assert.notEqual(C.FITS.ctorp.catalogHidden,true);assert.equal(C.FITS.cbomb.catalogHidden,true);
  const s=craft();s.fits.push({id:s.nextId++,k:'ctorp',p:[8,.5,0],a:3,ped:0,base:0,low:0,float:false},{id:s.nextId++,k:'cbomb',p:[5,.5,0],a:3,ped:0,base:0,low:0,float:false});
  const loaded=C.deserialize(plain(C.serialize(s)));
- assert.deepEqual(loaded.fits.map(f=>f.k),['cpylon']);const bay=loaded.parts.find(p=>p.k==='bombBay');assert.ok(bay);assert.deepEqual(plain(bay.room),plain(C.FITS.cbomb.store.box));
+ assert.deepEqual(loaded.fits.map(f=>f.k),['ctorp']);const bay=loaded.parts.find(p=>p.k==='bombBay');assert.ok(bay);assert.deepEqual(plain(bay.room),plain(C.FITS.cbomb.store.box));
  C.syncCompartments(loaded);assert.equal(C.bombBayOpen(loaded,bay),true,'its floor lies on the lower outer wall');
- const S=C.computeStats(loaded);assert.ok(C.craftStations(loaded,S).some(st=>st.mount==='bay'&&st.store?.box));
+ const S=C.computeStats(loaded);assert.ok(C.craftStations(loaded,S).some(st=>st.mount==='bay'&&st.store?.box));assert.ok(C.craftStations(loaded,S).some(st=>st.fit==='ctorp'&&st.mount==='tube'));
+});
+// 2026-11-23: a launch tube seated inside the hull by less than its length counts as seated while its mouth is open (user: 「案Bに」).
+test('a launch tube sunk into the hull is seated while its mouth is open, and not when it is shut',()=>{
+ const open=craft();open.fits.push({id:open.nextId++,k:'ctorp',p:[6,.52,0],n:[0,-1,0],a:3,ped:0,base:0,low:0,localMount:true,placement:{modelVersion:1,mode:'direct'}});
+ const a=C.deserialize(plain(C.serialize(open)));C.syncCompartments(a);C.remount(a,{keepFitPose:true});const fa=a.fits.find(f=>f.k==='ctorp');
+ assert.equal(!!fa.float,false,'2 cm into the belly, mouth ahead in open space');assert.equal(C.craftMuzzleBlocked(a,fa),false);
+ const shut=craft();C.placePart(shut,'struct',[7.1,.4,0],[1,.6,1],{form:'box'});shut.fits.push({id:shut.nextId++,k:'ctorp',p:[6,.52,0],n:[0,-1,0],a:3,ped:0,base:0,low:0,localMount:true,placement:{modelVersion:1,mode:'direct'}});
+ const b=C.deserialize(plain(C.serialize(shut)));C.syncCompartments(b);C.remount(b,{keepFitPose:true});assert.equal(b.fits.find(f=>f.k==='ctorp').float,true,'a block across its mouth');
 });
 test('a bomb bay must lie wholly inside the structures with its floor on the lower skin',()=>{
  const s=craft(),deep=C.placePart(s,'bombBay',[6,2,0],1,{room:[2,.6,.7]});C.syncCompartments(s);
  assert.equal(C.bombBayOpen(s,deep),false,'a bay in the middle of the body has no open floor');
  const S=C.computeStats(s);assert.ok(S.warnings.some(w=>w.code==='bomb-bay'));assert.equal(C.craftStations(s,S).length,0);
 });
-test('stock craft carry their canon loads on pylons and bays',()=>{
+// 2026-11-23 expectation changed: the stock craft carry their tubes again.
+test('stock craft carry their canon loads in tubes and bays',()=>{
  for(const [key,type] of [['craft_xwing','xwing'],['craft_btlb','btlb'],['craft_tie_sa','tie_sa']]){
-  const s=C.buildDesign(key),S=C.computeStats(s),L=C.craftLoadout(s);assert.equal(L.canon,true,key);assert.ok(!s.fits.some(f=>['ctorp','cmsl','cbomb'].includes(f.k)),key);
+  const s=C.buildDesign(key),S=C.computeStats(s),L=C.craftLoadout(s);assert.equal(L.canon,true,key);assert.ok(!s.fits.some(f=>f.k==='cbomb'),key);assert.ok(s.fits.some(f=>f.k==='ctorp'),key);
   assert.equal(C.craftStations(s,S).length,C.CRAFT_LOADOUT[type].st.length,key);
  }
+});
+// 2026-11-23 (regression review): a loadout chosen for the BTL-B's old [bomb bay, pylon] stations keeps its bombs in the bay.
+test('an old [bay, pylon] loadout keeps its bombs in the bay against the tube stations',()=>{
+ const L=C.craftLoadout(C.buildDesign('craft_btlb'));assert.deepEqual(plain(L.stations.map(s=>s.mount)),['tube','bay']);
+ const got=plain(C.craftOrdnance(C.buildDesign('craft_btlb'),[{k:'bomb',n:8},{k:'ptorp',n:3}]));assert.equal(got.find(x=>x.kind==='bomb')?.mount,'bay');assert.equal(got.find(x=>x.kind==='ptorp')?.mount,'tube');
 });

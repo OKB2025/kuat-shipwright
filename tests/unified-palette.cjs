@@ -45,7 +45,7 @@ test('all hull classes offer the same weapons, placeable parts, command rooms an
   run('openCommandMenu("windows");craftPaletteGuard();');assert.equal(run('st.tab'),'bridge');assert.equal(run('st.bridgeMode'),'windows');
   run('openCommandMenu("rooms");craftPaletteGuard();');assert.equal(run('st.tab'),'mod');assert.equal(run('st.group'),'command');assert.equal(run('C.PARTS[st.part].group'),'command');
   if(small){context.smallOffered=offered;context.smallWeapons=weapons.slice().sort();}
-  else{assert.deepEqual(offered,plain(context.smallOffered));/* v24 craft carry missiles on pylons; the concussion launcher is a ship fitting */assert.deepEqual(weapons.filter(k=>k!=='cmsl').sort(),plain(context.smallWeapons));assert.equal(plain(context.smallWeapons).includes('cmsl'),false);}
+  else{assert.deepEqual(offered,plain(context.smallOffered));/* 2026-11-23 expectation changed: craft launch tubes are back (user: 「発射管を復活」), so the concussion-missile tube is offered to craft as well (v24 had it a ship fitting only) */assert.deepEqual(weapons.slice().sort(),plain(context.smallWeapons));assert.equal(plain(context.smallWeapons).includes('cmsl'),true);}
  }
 });
 

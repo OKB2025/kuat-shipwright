@@ -1,0 +1,4 @@
+== head-on: 1 x craft_xwing (A) vs 1 x /home/user/kuat-shipwright/docs/handoff-2026-11-20/refs/tie-in-remodel-2026-11-23.json (B), 20 runs: lost per run A 1.0 B 0.0; A wins 0, B wins 20, both lost 0, undecided in 300 s 0; mean time to decision 3.5 s; nearest 24.9 m; seconds on the other's tail A 0.0 B 0.0; seconds guns bearing A 3.3 B 3.3; greatest height off the start plane 0.0 m; first shot at 0.0 s
+0s d=7368 A(296,0,0 hdg 0° 1183m/s) B(7663,0,0 hdg 180° 1346m/s)
+   run 1: B 3.5 s TIE/in インターセプター：中央区画で火災発生（居住空間（中央後部）） | TIE/in インターセプター：熱エネルギー変換装置 4 破壊
+exit 0

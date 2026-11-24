@@ -1,0 +1,16 @@
+== head-on: 4 x craft_xwing (A) vs 4 x /home/user/kuat-shipwright/docs/handoff-2026-11-20/refs/tie-in-remodel-2026-11-23.json (B), 20 runs: lost per run A 3.6 B 2.4; A wins 4, B wins 15, both lost 0, undecided in 300 s 1; mean time to decision 156.6 s; nearest 199.6 m; seconds on the other's tail A 6.8 B 45.3; seconds guns bearing A 75.7 B 176.1; greatest height off the start plane 8569.1 m; first shot at 0.0 s
+0s d=7373 A(293,0,1 hdg 1° 1168m/s) B(7666,0,-1 hdg -179° 1329m/s)
+5s d=2628 A(5293,1,443 hdg 4° 835m/s) B(2869,21,1459 hdg 175° 951m/s)
+10s d=10105 A(8857,-50,119 hdg -23° 620m/s) B(-1199,109,1099 hdg -158° 708m/s)
+15s d=14626 A(10971,10,-1383 hdg -60° 443m/s) B(-3632,225,-601 hdg -122° 509m/s)
+20s d=15477 A(11354,186,-3103 hdg -113° 296m/s) B(-4115,305,-2590 hdg -70° 346m/s)
+25s d=13422 A(10368,330,-3895 hdg -179° 273m/s) B(-3051,290,-3626 hdg -26° 385m/s)
+30s d=9174 A(8378,321,-3953 hdg -175° 516m/s) B(-750,190,-4865 hdg -32° 648m/s)
+35s d=4631 A(5863,262,-4585 hdg -152° 520m/s) B(1856,10,-6893 hdg -44° 531m/s)
+40s d=1458 A(4226,106,-5910 hdg -142° 290m/s) B(2778,-56,-5957 hdg 23° 321m/s)
+45s d=309 A(2986,-87,-6364 hdg -165° 277m/s) B(3212,58,-6517 hdg 71° 210m/s)
+50s d=1380 A(1713,-43,-6605 hdg 163° 261m/s) B(2901,-198,-5919 hdg -171° 175m/s)
+55s d=1420 A(747,338,-5931 hdg 128° 242m/s) B(2092,-49,-6165 hdg -178° 181m/s)
+60s d=1509 A(230,666,-4923 hdg 102° 235m/s) B(1284,248,-5919 hdg 146° 201m/s)
+   run 1: B 190 s T-65B Xウイング：艦尾区画 崩壊 | T-65B Xウイング：撃沈（船体破断）
+exit 0

@@ -1,0 +1,43 @@
+craft_xwing T-65B Xウイング parts 143 (src 143) fits 6 mass 32.44 accelG 1255 len 13.4 stations ctorpx2 float 0 floatingFits [] floatFits 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_tie_ln TIE/ln 制宙戦闘機 parts 62 (src 62) fits 3 mass 15.18 accelG 1421 len 7.2 stations ctorpx1 float 0 floatingFits [] floatFits 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+craft_tie_in TIE/in インターセプター parts 74 (src 74) fits 7 mass 19.90 accelG 1555 len 9.6 stations ctorpx1 float 0 floatingFits [] floatFits 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+craft_awing RZ-1 Aウィング parts 96 (src 96) fits 6 mass 13.60 accelG 1504 len 6.9 stations cmslx4 float 0 floatingFits [] floatFits 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_tie_d TIE/D parts 85 (src 85) fits 10 mass 24.10 accelG 1862 len 9.2 stations cpylonx2 float 0 floatingFits [] floatFits 0
+craft_arc170 ARC-170 Starfighter parts 136 (src 136) fits 6 mass 46.36 accelG 1163 len 12.7 stations ctorpx2 float 0 floatingFits [] floatFits 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_btlb BTL-B Y-wing parts 138 (src 138) fits 4 mass 75.91 accelG 918 len 23.5 stations ctorpx2+cbombx1 float 0 floatingFits [] floatFits 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_tie_sa TIE/sa Bomber parts 132 (src 132) fits 3 mass 42.98 accelG 1010 len 7.9 stations ctorpx1+cbombx1 float 0 floatingFits [] floatFits 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+    宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。
+craft_hyena ハイエナ級ドロイド爆撃機 parts 85 (src 85) fits 8 mass 27.32 accelG 804 len 12.4 stations ctorpx2+cmslx2+cbombx1 float 0 floatingFits [] floatFits 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_vwing アルファ3 ニンバス級 Vウイング parts 81 (src 81) fits 2 mass 12.90 accelG 2019 len 7.9 stations  float 0 floatingFits [] floatFits 0
+    ハイパードライブがありません（星系内専用艦）。
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+    着陸脚の支持質量が不足しています（12.4 t／機体 12.9 t）。地上で脚による支持ができません。
+craft_vulture ヴァルチャー級ドロイド・スターファイター parts 76 (src 76) fits 7 mass 10.71 accelG 1813 len 7.3 stations ctorpx2+cmslx1 float 0 floatingFits [] floatFits 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+craft_v19 V-19 トレント迎撃戦闘機 parts 87 (src 87) fits 4 mass 18.96 accelG 1852 len 6.0 stations cmslx2 float 0 floatingFits [] floatFits 0
+    シールド発生器がありません（TIE のように機動と数で補う機体もあります）。
+    ハイパードライブがありません（星系内専用艦）。
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+    着陸脚の支持質量が不足しています（17.7 t／機体 18.7 t）。地上で脚による支持ができません。
+craft_z95 クローン Z-95 ヘッドハンター parts 90 (src 90) fits 4 mass 30.81 accelG 1740 len 16.8 stations cmslx2 float 0 floatingFits [] floatFits 0
+    ハイパードライブがありません（星系内専用艦）。
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
+    着陸脚の支持質量が不足しています（29.5 t／機体 30.7 t）。地上で脚による支持ができません。
+craft_ywing BTL-A4 Y-wing (Rebel Alliance) parts 152 (src 152) fits 4 mass 56.32 accelG 1060 len 23.4 stations ctorpx2+cbombx1 float 0 floatingFits [] floatFits 0
+    構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。

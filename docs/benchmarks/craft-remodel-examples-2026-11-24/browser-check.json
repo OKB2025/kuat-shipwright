@@ -1,0 +1,274 @@
+{
+ "errors": [],
+ "res": [
+  {
+   "key": "craft_ywing",
+   "name": "BTL-A4 Y-wing (Rebel Alliance)",
+   "worker": "worker",
+   "parts": 152,
+   "fits": 4,
+   "mass": 56.32216063230404,
+   "accelG": 1059.9116486114406,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "ctorp#25",
+    "ctorp#26"
+   ],
+   "rolls": [
+    -135,
+    -45,
+    -135,
+    -45
+   ],
+   "warnings": [
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+   ],
+   "reload": {
+    "parts": 152,
+    "fits": 4,
+    "mass": 56.32216063230404,
+    "accelG": 1059.9116486114406,
+    "floatFits": 0,
+    "rolls": [
+     -135,
+     -45,
+     -135,
+     -45
+    ]
+   }
+  },
+  {
+   "key": "craft_arc170",
+   "name": "ARC-170 Starfighter",
+   "worker": "worker",
+   "parts": 135,
+   "fits": 6,
+   "mass": 46.360931885480824,
+   "accelG": 1163.1115122414228,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "ctorp#43",
+    "ctorp#68"
+   ],
+   "rolls": null,
+   "warnings": [
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+   ],
+   "reload": {
+    "parts": 135,
+    "fits": 6,
+    "mass": 46.360931885480824,
+    "accelG": 1163.1115122414228,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_btlb",
+   "name": "BTL-B Y-wing",
+   "worker": "worker",
+   "parts": 138,
+   "fits": 4,
+   "mass": 75.90571081299333,
+   "accelG": 917.8813749592067,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "ctorp#25",
+    "ctorp#26"
+   ],
+   "rolls": null,
+   "warnings": [
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+   ],
+   "reload": {
+    "parts": 138,
+    "fits": 4,
+    "mass": 75.90571081299333,
+    "accelG": 917.8813749592067,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_tie_sa",
+   "name": "TIE/sa Bomber",
+   "worker": "worker",
+   "parts": 132,
+   "fits": 3,
+   "mass": 42.98143709649733,
+   "accelG": 1009.8781245779791,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "ctorp#22"
+   ],
+   "rolls": null,
+   "warnings": [
+    "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+    "ハイパードライブがありません（星系内専用艦）。",
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+    "宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。"
+   ],
+   "reload": {
+    "parts": 132,
+    "fits": 3,
+    "mass": 42.98143709649733,
+    "accelG": 1009.8781245779791,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_hyena",
+   "name": "ハイエナ級ドロイド爆撃機",
+   "worker": "worker",
+   "parts": 85,
+   "fits": 8,
+   "mass": 28.928797995821423,
+   "accelG": 754.7416860891772,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "ctorp#29",
+    "ctorp#30",
+    "cmsl#31",
+    "cmsl#32"
+   ],
+   "rolls": null,
+   "warnings": [
+    "どこにも取り付いていない（浮いている）装備が 2 基あります。船体・構造物・区画の表面に取り付けてください。",
+    "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+    "ハイパードライブがありません（星系内専用艦）。",
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+   ],
+   "reload": {
+    "parts": 85,
+    "fits": 8,
+    "mass": 28.928797995821423,
+    "accelG": 754.7416860891772,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_vwing",
+   "name": "アルファ3 ニンバス級 Vウイング",
+   "worker": "worker",
+   "parts": 81,
+   "fits": 2,
+   "mass": 12.901266904131704,
+   "accelG": 2019.02147653743,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [],
+   "rolls": null,
+   "warnings": [
+    "ハイパードライブがありません（星系内専用艦）。",
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+    "着陸脚の支持質量が不足しています（12.4 t／機体 12.9 t）。地上で脚による支持ができません。"
+   ],
+   "reload": {
+    "parts": 81,
+    "fits": 2,
+    "mass": 12.901266904131704,
+    "accelG": 2019.02147653743,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_vulture",
+   "name": "ヴァルチャー級ドロイド・スターファイター",
+   "worker": "worker",
+   "parts": 78,
+   "fits": 7,
+   "mass": 12.329174540486232,
+   "accelG": 1555.3282573437953,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "ctorp#23",
+    "ctorp#24",
+    "cmsl#25"
+   ],
+   "rolls": null,
+   "warnings": [
+    "どこにも取り付いていない（浮いている）装備が 2 基あります。船体・構造物・区画の表面に取り付けてください。",
+    "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+    "ハイパードライブがありません（星系内専用艦）。",
+    "慣性制御装置の対応質量が不足しています。",
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+   ],
+   "reload": {
+    "parts": 78,
+    "fits": 7,
+    "mass": 12.329174540486232,
+    "accelG": 1555.3282573437953,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_v19",
+   "name": "V-19 トレント迎撃戦闘機",
+   "worker": "worker",
+   "parts": 87,
+   "fits": 4,
+   "mass": 18.963012988676383,
+   "accelG": 1852.37767994482,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "cmsl#27",
+    "cmsl#28"
+   ],
+   "rolls": null,
+   "warnings": [
+    "シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+    "ハイパードライブがありません（星系内専用艦）。",
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+    "着陸脚の支持質量が不足しています（17.7 t／機体 18.7 t）。地上で脚による支持ができません。"
+   ],
+   "reload": {
+    "parts": 87,
+    "fits": 4,
+    "mass": 18.963012988676383,
+    "accelG": 1852.37767994482,
+    "floatFits": 0,
+    "rolls": null
+   }
+  },
+  {
+   "key": "craft_z95",
+   "name": "クローン Z-95 ヘッドハンター",
+   "worker": "worker",
+   "parts": 89,
+   "fits": 4,
+   "mass": 30.805936240414326,
+   "accelG": 1740.4265068325597,
+   "floatFits": 0,
+   "ungrounded": [],
+   "stores": [
+    "cmsl#31",
+    "cmsl#32"
+   ],
+   "rolls": null,
+   "warnings": [
+    "ハイパードライブがありません（星系内専用艦）。",
+    "構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+    "着陸脚の支持質量が不足しています（29.5 t／機体 30.7 t）。地上で脚による支持ができません。"
+   ],
+   "reload": {
+    "parts": 89,
+    "fits": 4,
+    "mass": 30.805936240414326,
+    "accelG": 1740.4265068325597,
+    "floatFits": 0,
+    "rolls": null
+   }
+  }
+ ]
+}

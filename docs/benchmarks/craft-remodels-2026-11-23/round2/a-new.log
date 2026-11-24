@@ -1,0 +1,12 @@
+== head-on: 4 x /tmp/ks-verify/20261123-remodel4/x-wing.tube.json (A) vs 4 x /tmp/ks-verify/20261123-remodel5/a-wing.tube.json (B), 10 runs: lost per run A 3.8 B 1.5; A wins 2, B wins 8, both lost 0, undecided in 300 s 0; mean time to decision 40.2 s; nearest 357.1 m; seconds on the other's tail A 0.5 B 0.7; seconds guns bearing A 28.3 B 24.9; greatest height off the start plane 2159.5 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 99, hit 54, spent 11, target lost first 22; rounds {"cmsl":71,"ptorp":28}; steps flown by guidance {"pn":666,"pursuit":580}
+0s d=7399 A(279,2,3 hdg 4° 1111m/s) B(7678,4,-6 hdg -175° 1280m/s)
+5s d=2053 A(4974,29,1133 hdg 28° 806m/s) B(3037,48,1813 hdg 178° 929m/s)
+10s d=6877 A(7806,516,2059 hdg 57° 467m/s) B(1297,1988,398 hdg -66° 458m/s)
+15s d=7184 A(7728,1724,2975 hdg -173° 241m/s) B(1895,1774,-1219 hdg -89° 354m/s)
+20s d=6860 A(6763,1874,2509 hdg -142° 295m/s) B(2162,1049,-2513 hdg -80° 253m/s)
+25s d=5530 A(5562,1613,1345 hdg -107° 319m/s) B(3112,175,-3399 hdg 19° 182m/s)
+30s d=3909 A(4943,1166,-87 hdg -121° 318m/s) B(3831,0,-3648 hdg -83° 177m/s)
+35s d=2278 A(4390,686,-1396 hdg -118° 278m/s) B(3384,60,-3341 hdg 18° 175m/s)
+   run 1: A 40 s RZ-1 Aウィング：戦闘不能（電源喪失） | RZ-1 Aウィング：撃沈（船体破断）
+exit 0

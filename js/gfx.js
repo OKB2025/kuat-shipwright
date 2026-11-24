@@ -672,6 +672,56 @@ function craftWeaponMesh(g,f){
  // of battle and are not part of the design.
  if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,L*.46,h*.5,0,L*.08,h*.7,W*.8,D);}
 }
+// 2026-11-22 Painted shapes and emblems (Core normalizeDecals). Each decal is the part of the hull's and the structures'
+// solid surface inside its rectangle, facing its normal and within half its larger side of its plane, lifted a little
+// off the surface (drawn with a polygon offset). The texture is a 4 × 4 atlas of 256-pixel slots, built on the
+// interface thread (Renderer.setDecalImages): 0 a filled rectangle, 1 a circle, 2 a triangle, 3 onwards the player's
+// images in the order of ship.decalImages. Shapes take their colour from the vertices; images are drawn as they are.
+// Vertex byte 248 marks the decal material: the texture's alpha cuts the shape out.
+const DECAL_ATLAS={grid:4,slot:256,shapes:{rect:0,circle:1,triangle:2},first:3};
+function decalImagesKey(images){return Object.entries(images||{}).map(([k,v])=>k+':'+v.length+':'+v.slice(-24)).join('|');}
+function decalSlot(ship,d){if(d.kind!=='image')return DECAL_ATLAS.shapes[d.kind]??0;const i=Object.keys(ship.decalImages||{}).indexOf(d.image);return i<0?0:DECAL_ATLAS.first+i;}
+function decalSlotUV(slot,s,t){const g=DECAL_ATLAS.grid,inset=4/(DECAL_ATLAS.slot*g),x=slot%g,y=Math.floor(slot/g);return [(x+inset*g+s*(1-2*inset*g))/g,(y+inset*g+t*(1-2*inset*g))/g];}
+function clipPolygonToRect(poly,hw,hh){
+ // poly: [{p:[x,y,z],u,v}], clipped against |u|<=hw, |v|<=hh (Sutherland–Hodgman)
+ let out=poly;for(const [key,lim,sign] of [['u',hw,1],['u',hw,-1],['v',hh,1],['v',hh,-1]]){if(!out.length)break;const inp=out;out=[];
+  for(let i=0;i<inp.length;i++){const a=inp[i],b=inp[(i+1)%inp.length],da=lim-sign*a[key],db=lim-sign*b[key];
+   if(da>=0)out.push(a);if((da>=0)!==(db>=0)){const t=da/(da-db);out.push({p:C.add(a.p,C.mul(C.sub(b.p,a.p),t)),u:a.u+(b.u-a.u)*t,v:a.v+(b.v-a.v)*t});}}}
+ return out;
+}
+function decalSourceTriangles(ship){
+ const out=[];if(!ship.hull?.assembly){const g=C.hullGeo(ship);if(g?.tris?.length)out.push({tris:g.tris,box:null});}
+ for(const p of ship.parts||[])if(C.isShapePart(p)&&!p.plate){try{const T=C.structTriangles(p);if(T?.length)out.push({tris:T,box:C.partAABB(p)});}catch{}}
+ return out;
+}
+function meshDecals(ship,sources){
+ const g=new Geo(64),list=ship.decals||[];if(!list.length)return g;sources=sources||decalSourceTriangles(ship);
+ for(const raw of list)for(const d of C.decalInstances(raw)){
+  const f=C.decalFrame(d),hw=d.w/2,hh=d.h/2,depth=Math.max(hw,hh),lift=Math.min(.4,Math.max(.02,.01*Math.max(d.w,d.h))),slot=decalSlot(ship,d),col=d.kind==='image'?[255,255,255]:hex(d.color||'#ffffff'),r=Math.hypot(hw,hh)+depth;
+  for(const src of sources){
+   if(src.box&&[0,1,2].some(i=>d.c[i]+r<src.box[i]||d.c[i]-r>src.box[i+3]))continue;const T=src.tris;
+   for(let i=0;i+8<T.length;i+=9){
+    const P=[[T[i],T[i+1],T[i+2]],[T[i+3],T[i+4],T[i+5]],[T[i+6],T[i+7],T[i+8]]];
+    let far=false;for(let k=0;k<3&&!far;k++){const lo=Math.min(P[0][k],P[1][k],P[2][k]),hi=Math.max(P[0][k],P[1][k],P[2][k]);far=hi<d.c[k]-r||lo>d.c[k]+r;}if(far)continue;/* the triangle's box, not its corners: a long hull triangle can cross the decal with every corner far away */
+    const nn=C.cross(C.sub(P[1],P[0]),C.sub(P[2],P[0])),nl=C.len(nn);if(!(nl>1e-12))continue;const tn=C.mul(nn,1/nl);if(C.dot(tn,f.n)<.2)continue;
+    const loc=P.map(q=>{const w=C.sub(q,d.c);return {p:q,u:C.dot(w,f.u),v:C.dot(w,f.v),h:C.dot(w,f.n)};});
+    if(loc.every(q=>q.h>depth)||loc.every(q=>q.h<-depth)||loc.every(q=>q.u>hw)||loc.every(q=>q.u<-hw)||loc.every(q=>q.v>hh)||loc.every(q=>q.v<-hh))continue;
+    const poly=clipPolygonToRect(loc,hw,hh);if(poly.length<3)continue;
+    g.room(poly.length,(poly.length-2)*3);const base=g.n,[nx,ny,nz]=tn;
+    for(const q of poly){const [s,t]=decalSlotUV(slot,q.u/d.w+.5,.5-q.v/d.h),pp=C.add(q.p,C.mul(tn,lift));g.v(pp[0],pp[1],pp[2],nx,ny,nz,s,t,col,248);}
+    for(let k=1;k+1<poly.length;k++)g.tri(base,base+k,base+k+1);
+   }
+  }
+ }
+ return g;
+}
+// 2026-11-22 A gun or an equipment part painted by the player (paint, '#rrggbb'): its vertices take the colour, keeping the model's own
+// light and dark detail as a fraction of its brightest vertex. The alpha byte (the material flag) is kept.
+function tintFitRange(g,start,f){
+ if(!f?.paint||!/^#[0-9a-f]{6}$/i.test(f.paint)||g.ni<=start)return;const rgb=hex(f.paint),seen=new Set();let top=1;
+ for(let i=start;i<g.ni;i++){const v=g.idx[i];if(seen.has(v))continue;seen.add(v);const c=g.col;top=Math.max(top,.3*c[v*4]+.59*c[v*4+1]+.11*c[v*4+2]);}
+ for(const v of seen){const c=g.col,l=(.3*c[v*4]+.59*c[v*4+1]+.11*c[v*4+2])/top;for(let k=0;k<3;k++)c[v*4+k]=Math.max(0,Math.min(255,Math.round(rgb[k]*l)));}
+}
 function meshFits(ship, filter, ranges, only, paintSource=false) {
   const g = new Geo(paintSource?64:only?.length===1?128:8192), body = FC.body;
   const one = (f) => {
@@ -807,7 +857,7 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
       if (nb <= 3) cyl(g, M, o, L * 0.3 + bl * 0.97, yy, zz, br * 1.3, br * 1.3, bl * 0.06, 0, FC.ring, 8);
     }
   };
-  for (const f of only||surfaceRenderFits(ship)) { if (filter && !filter(f)) continue; const before = g.ni; one(f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
+  for (const f of only||surfaceRenderFits(ship)) { if (filter && !filter(f)) continue; const before = g.ni; one(f); tintFitRange(g, before, f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
   return g;
 }
 
@@ -960,6 +1010,7 @@ bool solarSurface=vCol.a>253.5/255.0&&vCol.a<254.5/255.0;
 bool surfacePort=vCol.a>252.5/255.0&&vCol.a<253.5/255.0;
 if(surfacePort&&uPortK<=0.0)discard;
 if(equipmentPlain||surfacePort)tx=vec3(1.0);
+bool decalSurface=vCol.a>247.5/255.0&&vCol.a<248.5/255.0;if(decalSurface){vec4 dt=texture2D(uTex,vUv);if(dt.a<0.5)discard;tx=dt.rgb;}
 vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;
 // The station's outer skin (from 0.8% of the sphere's radius below it to 0.4% above it): the plating
 // pattern, and the sphere's own normal in place of the facets'.
@@ -1363,7 +1414,7 @@ function compile(gl, vs, fs) {
   const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES); for (let k = 0; k < na; k++) { const n = gl.getActiveAttrib(p, k).name; a[n] = gl.getAttribLocation(p, n); }
   return {p, u, a};
 }
-const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'hull', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
+const MESH_TEX = {decals: 'decals', hull: 'hull', struct: 'struct', plate: 'hull', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
 const MESH_SOURCE = {};
 Object.assign(MESH_TEX,{surfaceArmor:'hull',surfaceDevices:'surface',surfaceDetail:'surface'});
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_TEX[k]='reference';
@@ -1460,6 +1511,25 @@ class Renderer {
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
     if(this.sky)for(const k of ['dir','cor','col','idx'])gl.deleteBuffer(this.sky[k]);
     if(this.sh){gl.deleteFramebuffer(this.sh.fb);gl.deleteRenderbuffer(this.sh.rb);if(this.sh.prog?.p)gl.deleteProgram(this.sh.prog.p);}
+  }
+  // 2026-11-22 The decal atlas (see meshDecals): the shapes, then the player's images in the order given. A new set of
+  // images rebuilds it once they have loaded; the shapes are there at once.
+  setDecalImages(images){const key=decalImagesKey(images);if(this.decalKey===key&&this.tex.decals)return;this.decalKey=key;const t=this.makeDecalTexture(images,()=>{if(this.decalKey===key&&this.onDecalsReady)this.onDecalsReady();});if(t){const old=this.tex.decals;this.tex.decals=t;if(old){this.gl.deleteTexture(old.a);this.ownedTextures.delete(old.a);}}}
+  // One atlas texture for a set of images ({a, e} as the other textures); onReady after each image is drawn into it.
+  makeDecalTexture(images,onReady){
+    if(typeof document==='undefined')return null;const gl=this.gl,entries=Object.entries(images||{}),A=DECAL_ATLAS,size=A.grid*A.slot,cv=document.createElement('canvas');cv.width=cv.height=size;const c=cv.getContext('2d');
+    const slotXY=i=>[i%A.grid*A.slot,Math.floor(i/A.grid)*A.slot],pad=6,S=A.slot;c.clearRect(0,0,size,size);c.fillStyle='#fff';
+    {const [x,y]=slotXY(A.shapes.rect);c.fillRect(x,y,S,S);}
+    {const [x,y]=slotXY(A.shapes.circle);c.beginPath();c.arc(x+S/2,y+S/2,S/2-pad,0,Math.PI*2);c.fill();}
+    {const [x,y]=slotXY(A.shapes.triangle);c.beginPath();c.moveTo(x+S/2,y+pad);c.lineTo(x+S-pad,y+S-pad);c.lineTo(x+pad,y+S-pad);c.closePath();c.fill();}
+    const t=gl.createTexture();this.ownedTextures.add(t);const out={a:t,e:this.tex.hull.e};
+    const upload=()=>{if(this.disposed||gl.isContextLost())return;gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,cv);gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);};
+    upload();
+    entries.forEach(([k,src],i)=>{const slot=A.first+i;if(slot>=A.grid*A.grid||typeof Image==='undefined')return;const img=new Image();
+      img.onload=()=>{const [x,y]=slotXY(slot),sc=Math.min((S-2*pad)/img.width,(S-2*pad)/img.height),w=img.width*sc,h=img.height*sc;c.clearRect(x,y,S,S);c.drawImage(img,x+(S-w)/2,y+(S-h)/2,w,h);upload();onReady?.();};
+      img.src=src;});
+    return out;
   }
   upload(name, geo) {
     const gl = this.gl;
@@ -1708,6 +1778,7 @@ class Renderer {
       if (cut){this.drawMesh('plant',m,1);this.drawMesh('refPlant',m,1);this.drawMesh('interior',m,1);}
       gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(-1, -2);
       this.drawMesh('hatchOpen', m, 1);
+      if(this.tex.decals){gl.polygonOffset(-2,-4);this.drawMesh('decals',m,1);}
       gl.disable(gl.POLYGON_OFFSET_FILL);
       gl.disable(gl.CULL_FACE); this.drawMesh('fits', m, 1);this.drawMesh('refFits', m, 1);this.drawMesh('previewFits',m,1);this.drawMesh('previewRefFits',m,1,0);
       this.drawGlow(m);
@@ -2144,7 +2215,7 @@ function v3MeshPartsSettled(ship,opt){
 // One part into the group meshes (shared by the full build and the live preview).
 function meshOnePart(out,p,ship,opt,glow){
     if(isHiddenEngineFeed(p))return;
-    const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
+    const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:p.paint?hex(p.paint)/* 2026-11-22 equipment painted by the player */:PAINT);
     if(p.surfacePatch&&p.surfaceUnplaced)return;
     // The foundation is paid, closed Core geometry shared with physical
     // contact and picking. Keep it separate from the bell's skin, dimensions
@@ -3453,13 +3524,13 @@ function meshReferenceParts(ship,ranges,only,opt={}){
   const size=p.skinSize||a.size,scale=p.d/Math.max(...size),r=(p.yaw||0)*Math.PI/180,rigid=p.placement?.mode==='direct'&&p.placement.parentStructureId!=null;
   appendReference(refStruct,p.skinAsset,v=>{const x=v[0]*size[0]*scale,y=v[1]*size[1]*scale,z=v[2]*size[2]*scale;return rigid?C.worldStruct(p,[x,y,z]):C.add(p.c,[x*Math.cos(r)-z*Math.sin(r),y,x*Math.sin(r)+z*Math.cos(r)]);});
  };
- for(const p of only||ship.parts){if(p._placementGeometry&&C.isShapePart(p))continue;if(C.isHullStructure?.(p)){const data=p.hullData?.hullSkin?.enabled?C.hullStructureGeometry(ship,p).referenceSkin:null;if(data){const before=geoMarks(out);indexedReference(refStruct,data,refTone(data.asset||p.hullData.hullSkin.asset));if(ranges)markRanges(ranges,p.id,before,out);}continue;}const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a||isStructuralPart(p)&&a.plainMetal)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
+ for(const p of only||ship.parts){if(p._placementGeometry&&C.isShapePart(p))continue;if(C.isHullStructure?.(p)){const data=p.hullData?.hullSkin?.enabled?C.hullStructureGeometry(ship,p).referenceSkin:null;if(data){const before=geoMarks(out);indexedReference(refStruct,data,refTone(data.asset||p.hullData.hullSkin.asset));if(ranges)markRanges(ranges,p.id,before,out);}continue;}const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a||isStructuralPart(p)&&a.plainMetal)continue;const before=geoMarks(out);one(p,a);if(p.paint&&!isStructuralPart(p))for(const k in out)tintFitRange(out[k],before[k]||0,p);/* 2026-11-22 equipment drawn from a reference model takes its own colour */if(ranges)markRanges(ranges,p.id,before,out);}
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
   const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(noModelFit(f)||embeddedSurfaceFit(f)||!(d.asset||d.pod||sharedProceduralTurret(f))||f.float&&!sharedProceduralTurret(f)||plainFitAsset(f)&&!familyReferenceAsset(f))continue;const before=g.ni;
   if(sharedProceduralTurret(f))appendProceduralTurret(g,f);else if(familyReferenceAsset(f))appendFamilyReference(g,f);else if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
-  if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
+  tintFitRange(g,before,f);if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
 }
 // Live preview of edited parts and fittings, built in the editor from their
@@ -3635,7 +3706,7 @@ function fleetGeometry(ship,opts){
  if(model.surfaces?.patches?.length&&typeof C.surfacePatches==='function'){const patches=new Map(C.surfacePatches(model).map(p=>[p.id,p]));for(const [kind,list]of [['part',model.parts],['fit',surfaceRenderFits(model)]])for(const q of list){const host=patches.get(q.surfacePatch)?.host,owner=/^p\d+$/.test(host||'')?owners.get(+host.slice(1)):null;if(owner==null||owners.has(q.id))continue;owners.set(q.id,owner);foils[owner][kind==='part'?'partIds':'fitIds'].push(q.id);}}
  for(const row of surfaceVisualPlan(model)){const owner=/^p\d+$/.test(row.host)?owners.get(+row.host.slice(1)):null;if(owner==null)continue;for(const item of row.devices){if(owners.has(item.id))continue;owners.set(item.id,owner);foils[owner].partIds.push(item.id);}}
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name]&&(!name.startsWith('surface')||parts.g[name].ni))put(name,parts.g[name]);
- const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
+ if(model.decals?.length)put('decals',meshDecals(model),'decals');const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
  const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,both=!!opts?.variants&&surfaceTurrets,trial=!!opts?.trial||both,turrets=trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp((b[3]-b[0])*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name,hatchId:hatch.id});}
@@ -3647,7 +3718,7 @@ function fleetGeometry(ship,opts){
  const eyes=trial?trialEyes(ship,b,meshes):null;splitFoilGeometry(meshes,ranges,foils,owners);
  const glowOwners=new Int32Array(parts.glow.length);for(const [id,[start,count]] of Object.entries(parts.glowRanges||{})){const owner=owners.get(Number(id));if(owner!=null)glowOwners.fill(owner+1,start,start+count);}
  const glow=[];for(let i=0;i<parts.glow.length;i+=4)(glowOwners[i]?foils[glowOwners[i]-1].glow:glow).push(...parts.glow.slice(i,i+4));
- const out={meshes,doors,rays,foils,center,glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:b[3]-b[0],turrets,surfaceTurrets,launchers,targetRadius,eyes};
+ const out={meshes,doors,rays,foils,center,glow,bounds:b,paint:ship.paint,...(ship.decals?.length&&ship.decalImages?{decalImages:ship.decalImages}:{}),lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:b[3]-b[0],turrets,surfaceTurrets,launchers,targetRadius,eyes};
  // opts.variants: the plain model and the trial model of a surface design differ only in the launchers and the
  // eye points (both carry the turret meshes), so one build serves both; they share the same mesh objects.
  if(opts?.variants)return both?{model:{...out,launchers:null,eyes:null},trial:out}:{model:out,trial:null};
@@ -3730,7 +3801,7 @@ function trialTurrets(model,put,ranges){
    out.push({id:f.id,k:f.k,name:spec.short||spec.name,trenchAggregate:true,noModel:true,aggregateCount:row.count??f.aggregateCount,aggregateBarrels:d.barrels||1,volleyTT,mesh:null,broadsideBattery:true,muzzles,rowSpan:row.rowSpan,pivot:muzzles[0].slice(),axis:across,fw:wall,origin:muzzles[0].slice(),mount:fr.up,r:d.r,hm:0,embedded:true,fixed:true,casemate:true,barrels:muzzles.length,cycle:d.cycle||2.5,tt:volleyTT,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});continue;
   }
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
-  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=Number.isInteger(geo.drawElevationIndexStart)?geo.drawElevationIndexStart:g?.indexStart;
+  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain){appendPlainFit(geo,f);tintFitRange(geo,0,f);}mesh=(plain?'tur_':'refTur_')+f.id;const split=Number.isInteger(geo.drawElevationIndexStart)?geo.drawElevationIndexStart:g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
   const embedded=C.surfaceBatteryGeometry?.(f),bay=C.broadsideBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),...(bay?{broadsideBattery:true,muzzles:bay.muzzles.map(p=>p.slice())}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:bay?.width??embedded?.width,portHeight:bay?.height??embedded?.height,port:bay?{width:bay.width,height:bay.height,depth:bay.depth}:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:bay?true:embedded?false:!!(spec.casemate||spec.fixed),barrels:d.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:d.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
@@ -3782,10 +3853,10 @@ Renderer.prototype.loadFleet=function(key,data){
  this.fleetCache=this.fleetCache||new Map();if(this.fleetCache.has(key))return this.fleetCache.get(key);
  const old=this.meshes,meshes={};this.meshes=meshes;
  try{for(const [name,m] of Object.entries(data.meshes)){if(m.tex)MESH_TEX[name]=m.tex;if(m.emi!=null)MESH_EMI[name]=m.emi;if(m.source)MESH_SOURCE[name]=m.source;if(m.geo)this.upload(name,m.geo);}
-  const asset={meshes,doors:data.doors,rays:data.rays,foils:data.foils||[],turrets:data.turrets||[],surfaceTurrets:!!data.surfaceTurrets,center:data.center,glow:data.glow||[],bounds:data.bounds,paint:data.paint,lights:data.lights,engine:data.engine||null,reference:data.reference,length:data.length};this.fleetCache.set(key,asset);return asset;}
+  const asset={meshes,doors:data.doors,rays:data.rays,foils:data.foils||[],turrets:data.turrets||[],surfaceTurrets:!!data.surfaceTurrets,center:data.center,glow:data.glow||[],bounds:data.bounds,paint:data.paint,lights:data.lights,engine:data.engine||null,reference:data.reference,length:data.length};if(meshes.decals)asset.decalTex=this.makeDecalTexture(data.decalImages);this.fleetCache.set(key,asset);return asset;}
  catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
 };
-Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);this.fleetCache.delete(k);}};
+Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);if(a.decalTex){this.gl.deleteTexture(a.decalTex.a);this.ownedTextures.delete(a.decalTex.a);}this.fleetCache.delete(k);}};
 // Runtime drive effects represent delivered propulsion output, never an idle
 // brightness or an assumed command when the caller has no live result.
 function fleetEngineOutput(u){return !u.wreck&&Number.isFinite(u.glow)?C.clamp(u.glow,0,1):0;}
@@ -3823,6 +3894,7 @@ Renderer.prototype.drawFleet=function(m,opt){
   const sx=u.stretch||1;this.unitScl=sx!==1?[sx,1,1]:null;this.unitFlash=u.flash||0;if(sx!==1&&a.bounds)this.modelCenter=[a.center[0]+a.bounds[3]*(sx-1),a.center[1],a.center[2]];const center=this.modelCenter;
   // From its own cockpit a ship hides the compartments inside its hull (u.noInner).
   for(const n of lod?SHELL:u.noInner?OUTER:FULL)this.drawMesh(n,m,1);
+  if(!lod&&a.decalTex&&a.meshes.decals){const keep=this.tex.decals;this.tex.decals=a.decalTex;gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-2,-4);this.drawMesh('decals',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);this.tex.decals=keep;}
   // Each moving group is uploaded once in the deployed frame. Its hinge transform
   // rotates its surface normals with its vertices and is independent for every ship.
   for(const foil of a.foils||[]){const pose=fleetFoilPose(a,u,foil,center),scale=this.unitScl;this.off=pose.off;this.modelCenter=pose.center;this.modelRot=pose.rot;this.unitScl=null;
@@ -3992,6 +4064,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, clearPreviewCache, symmetryPlaneLines, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh, meshStructures};
+return {meshPreview, meshDecals, DECAL_ATLAS, clearPreviewCache, symmetryPlaneLines, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh, meshStructures};
 })();
 

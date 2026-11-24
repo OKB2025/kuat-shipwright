@@ -1,0 +1,465 @@
+== craft_xwing: 34 differences
+  parts#31.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#31.engineMountSupport.geometryKey: "lb0wlj" -> "cu443z"
+  parts#31.engineMountSupport.volume: 0.042112843395888694 -> 0.0015840605986572748
+  parts#31.engineMountSupport.parentId: 4 -> 48
+  parts#31.engineMountSupport.sourceKey: "1qkk598" -> "1ey07hf"
+  parts#31.engineMountSupport.polys: length 6 -> 16
+  parts#32.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#32.engineMountSupport.geometryKey: "1k2076l" -> "1foyl5i"
+  parts#32.engineMountSupport.volume: 0.04211282831561938 -> 0.0015840588776958621
+  parts#32.engineMountSupport.parentId: 5 -> 53
+  parts#32.engineMountSupport.sourceKey: "6iizc6" -> "1lbp1xn"
+  parts#32.engineMountSupport.polys: length 6 -> 16
+  parts#33.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#33.engineMountSupport.geometryKey: "18604pc" -> "j8cryo"
+  parts#33.engineMountSupport.volume: 0.042112843395888694 -> 0.0015840608822770275
+  parts#33.engineMountSupport.parentId: 18 -> 58
+  parts#33.engineMountSupport.sourceKey: "1dppncd" -> "1sj175d"
+  parts#33.engineMountSupport.polys: length 6 -> 16
+  parts#34.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#34.engineMountSupport.geometryKey: "6q0n1g" -> "1jiyid"
+  parts#34.engineMountSupport.volume: 0.042112828315619355 -> 0.0015840591613153036
+  parts#34.engineMountSupport.parentId: 19 -> 63
+  parts#34.engineMountSupport.sourceKey: "aqs3fm" -> "43f380"
+  parts#34.engineMountSupport.polys: length 6 -> 16
+  fits#46.sink: 0.155 -> null
+  fits#46.k: "cpylon" -> "ctorp"
+  fits#46.p[0]: 8.84 -> 8.748
+  fits#46.p[2]: 0.6815752340228829 -> 0.2866
+  fits#47.sink: 0.155 -> null
+  fits#47.k: "cpylon" -> "ctorp"
+  fits#47.p[0]: 8.84 -> 8.748
+  fits#47.p[2]: -0.6815752340228829 -> -0.2866
+  credits: {"source": "KUAT SHIPWRIGHT / craft_xwing, based on “Star Wars: X-Wing” by Danie -> null
+  turretSupportRule: null -> 2
+== craft_tie_ln: 11 differences
+  parts#1.bakedSections: null -> [[0.0078125, 0.006808771829567791], [0.0234375, 0.0076048661313154985], [0.03906
+  parts#1.bakedMesh: null -> {"v": [[-0.5, -0.2813970281, 0], [-0.4500000014, -0.3341246801, 0], [-0.45000000
+  parts#1.hullData.solidCuts: length 1 -> 0
+  parts#432.s[0]: 0.018 -> 0.02
+  fits#430.sink: 0.185 -> null
+  fits#430.k: "cpylon" -> "ctorp"
+  fits#430.p[0]: 3.12 -> 3.288
+  fits#430.p[1]: 1.9900000095367432 -> 2.425
+  credits: {"source": "KUAT SHIPWRIGHT / craft_tie_ln, based on “Star Wars: TIE/ln Fighter” -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_tie_in: 12 differences
+  parts#1.bakedSections: null -> [[0.0078125, 0.006808771829567791], [0.0234375, 0.0076048661313154985], [0.03906
+  parts#1.bakedMesh: null -> {"v": [[-0.5, -0.2813970281, 0], [-0.4500000014, -0.3341246801, 0], [-0.45000000
+  parts#1.hullData.solidCuts: length 1 -> 0
+  parts#432.s[0]: 0.018 -> 0.02
+  fits#430.sink: 0.185 -> null
+  fits#430.k: "cpylon" -> "ctorp"
+  fits#430.p[0]: 3.12 -> 3.288
+  fits#430.p[1]: 1.9900000095367432 -> 2.425
+  credits: {"source": "KUAT SHIPWRIGHT / craft_tie_in (OKB2025), based on “Star Wars: TIE/i -> null
+  hullLocked: false -> true
+  reference: null -> "craft_tie_in"
+  turretSupportRule: null -> 2
+== craft_awing: 17 differences
+  parts#46.bakedMesh: null -> {"v": [[-0.3550724638, -0.1102571487, -0.1489655138], [-0.34375, -0.1108709812, 
+  parts#46.bakedSections: null -> [[0.15058876811594202, 0.010492262758179773], [0.15928442028985507, 0.0056254185
+  parts#46.hullData.paint: "#d6d2c4" -> "neutral"
+  parts#46.hullData.solidCuts: length 1 -> 0
+  parts#44.d: 0.5 -> 0.499220117532457
+  parts#49.d: 0.39 -> 0.39991664929952486
+  fits#27.k: "cpylon" -> "cmsl"
+  fits#27.p[1]: 0.9290000200271606 -> 0.969
+  fits#28.k: "cpylon" -> "cmsl"
+  fits#28.p[1]: 0.9290000200271606 -> 0.969
+  fits#47.k: "cpylon" -> "cmsl"
+  fits#47.p[1]: 0.9707192182540894 -> 1.0307
+  fits#48.k: "cpylon" -> "cmsl"
+  fits#48.p[1]: 0.9713910222053528 -> 1.0314
+  credits: {"source": "KUAT SHIPWRIGHT / craft_awing（ユーザー提供の RZ1AWing.STL に基づく作例）", "change -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_tie_d: 12 differences
+  parts#1.bakedSections: null -> [[0.0078125, 0.007818964445783677], [0.0234375, 0.007949878415712151], [0.039062
+  parts#1.bakedMesh: null -> {"v": [[-0.5, -0.279717357, 0], [-0.4843749757, -0.2820590746, 0], [-0.484374975
+  parts#1.hullData.solidCuts: length 1 -> 0
+  fits#406.k: "cpylon" -> "cmsl"
+  fits#406.p[1]: 3.830295 -> 4.2803
+  fits#406.p[2]: -0.54135 -> -0.5413
+  fits#407.k: "cpylon" -> "cmsl"
+  fits#407.p[1]: 3.830295 -> 4.2803
+  fits#407.p[2]: 0.54135 -> 0.5413
+  hullLocked: false -> true
+  reference: null -> "craft_tie_d"
+  turretSupportRule: null -> 2
+== craft_arc170: 10 differences
+  parts#67.hullData.paint: "#d7d5ca" -> "neutral"
+  parts#7.bandPaint: "#905050" -> null
+  parts#8.bandPaint: "#905050" -> null
+  fits#43.k: "cpylon" -> "ctorp"
+  fits#43.p[1]: 0.59 -> 0.95
+  fits#68.k: "cpylon" -> "ctorp"
+  fits#68.p[1]: 0.59 -> 0.95
+  credits: {"author": "DrEgguin", "source": "https://sketchfab.com/3d-models/arc-170-starfi -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_btlb: 8 differences
+  parts#52.hullData.paint: "#cdcac0" -> "neutral"
+  fits#25.k: "cpylon" -> "ctorp"
+  fits#25.p[1]: 0.33370451 -> 0.5737
+  fits#26.k: "cpylon" -> "ctorp"
+  fits#26.p[1]: 0.33370451 -> 0.5737
+  credits: {"author": "A308 Digital", "source": "https://sketchfab.com/3d-models/btl-b-y-wi -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_tie_sa: 13 differences
+  parts#47.hullData.paint: "#7e8993" -> "neutral"
+  parts#86.s[0]: 0.017 -> 0.02
+  parts#107.s[0]: 0.012 -> 0.02
+  parts#111.s[0]: 0.012 -> 0.02
+  parts#144.s[0]: 0.012 -> 0.02
+  parts#148.s[0]: 0.012 -> 0.02
+  fits#22.k: "cpylon" -> "ctorp"
+  fits#22.p[1]: 0.00124647 -> 0.5012
+  credits: {"author": "Daniel", "source": "https://sketchfab.com/3d-models/star-wars-tiesa- -> null
+  detail: null -> 1
+  hullLocked: false -> true
+  shieldTarget: null -> 1
+  turretSupportRule: null -> 2
+== craft_hyena: 13 differences
+  parts#47.hullData.paint: "#626f77" -> "neutral"
+  fits#29.k: "cpylon" -> "ctorp"
+  fits#29.p[1]: 1.9507685986743124 -> 1.6908
+  fits#30.k: "cpylon" -> "ctorp"
+  fits#30.p[1]: 1.9507685986743124 -> 1.6908
+  fits#31.k: "cpylon" -> "cmsl"
+  fits#31.p[1]: 1.8951473560811674 -> 1.7251
+  fits#32.k: "cpylon" -> "cmsl"
+  fits#32.p[1]: 1.8951473560811674 -> 1.7251
+  credits: {"source": "\"Hyena Bomber\" by Dakata_123 (https://sketchfab.com/Dakata_123), C -> null
+  groups[13].parts: length 12 -> 11
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_vwing: 5 differences
+  parts#53.hullData.paint: "#c7c8c2" -> "neutral"
+  credits: {"source": "\"Republic V-wing Starfighter\" by DrEgguin (https://sketchfab.com/D -> null
+  groups[10].parts: length 10 -> 8
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_vulture: 11 differences
+  parts#41.hullData.paint: "#858c96" -> "neutral"
+  fits#23.k: "cpylon" -> "ctorp"
+  fits#23.p[1]: 1.0372571292777173 -> 0.8373
+  fits#24.k: "cpylon" -> "ctorp"
+  fits#24.p[1]: 1.0372571292777173 -> 0.8373
+  fits#25.k: "cpylon" -> "cmsl"
+  fits#25.p[1]: 0.7579961258902803 -> 0.998
+  credits: {"source": "\"Vulture Droid\" by DrEgguin (https://sketchfab.com/DrEgguin), CC B -> null
+  groups[13].parts: length 8 -> 5
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_v19: 10 differences
+  parts#47.hullData.paint: "#d2d1c7" -> "neutral"
+  parts#61.s[0]: 0.017 -> 0.02
+  parts#74.s[0]: 0.017 -> 0.02
+  fits#27.k: "cpylon" -> "cmsl"
+  fits#27.p[1]: 1.0625 -> 0.7625
+  fits#28.k: "cpylon" -> "cmsl"
+  fits#28.p[1]: 1.0625 -> 0.7625
+  credits: {"source": "\"V-19 Torrent Starfighter\" by A308 Digital (https://sketchfab.com/ -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_z95: 11 differences
+  parts#50.hullData.paint: "#d2d1c7" -> "neutral"
+  fits#31.label: "右舷胴体プロトン魚雷発射管" -> null
+  fits#31.k: "cpylon" -> "cmsl"
+  fits#31.p[1]: 0.2899999916553498 -> 0.45
+  fits#32.label: "左舷胴体プロトン魚雷発射管" -> null
+  fits#32.k: "cpylon" -> "cmsl"
+  fits#32.p[1]: 0.2899999916553498 -> 0.45
+  credits: {"source": "This work is based on \"Z-95 Headhunter\" (https://sketchfab.com/3d- -> null
+  groups[2].parts: length 4 -> 2
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_ywing: 9 differences
+  parts#52.hullData.paint: "#c8c7ba" -> "neutral"
+  fits#25.k: "cpylon" -> "ctorp"
+  fits#25.p[1]: 0.33370451 -> 0.5737
+  fits#26.k: "cpylon" -> "ctorp"
+  fits#26.p[1]: 0.33370451 -> 0.5737
+  credits: {"author": "A308 Digital", "source": "https://sketchfab.com/3d-models/btl-b-y-wi -> null
+  hullLocked: false -> true
+  reference: "craft_btlb" -> "craft_ywing"
+  turretSupportRule: null -> 2
+== venator: 274 differences
+  parts#174.bakedMesh: null -> {"v": [[-0.375, -0.4743248278, 0.0594405594], [-0.359375, -0.4720601241, 0.05944
+  parts#174.bakedSections: null -> [[0.107018195, 0.01032268752150609], [0.1171875, 0.03416388555710634], [0.132812
+  parts#174.hullData.solidCuts: length 13 -> 0
+  fits#95.supportLift: null -> true
+  fits#95.mountSupport.version: 3 -> 4
+  fits#97.base: 0.024718432035861104 -> 0.02471533463351938
+  fits#97.supportLift: null -> true
+  fits#97.mountSupport.top: 0.024718432035861104 -> 0.02471533463351938
+  fits#97.mountSupport.polys[0][0][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[0][1][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[0][2][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[0][3][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[0][4][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[0][5][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][0][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][1][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][2][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][3][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][4][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][5][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][6][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][7][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][8][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][9][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][10][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][11][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][12][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][13][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][14][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][15][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][16][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][17][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[1][18][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][0][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][1][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][2][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][3][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][4][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][5][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][6][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][7][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][8][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][9][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][10][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][11][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][12][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[2][13][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[3][0][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[3][1][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[3][2][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[4][0][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[4][1][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[4][2][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[4][3][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[4][4][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[5][0][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[5][1][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.polys[5][2][2]: 3.0974023417229546e-06 -> 0
+  fits#97.mountSupport.version: 3 -> 4
+  fits#97.slope: 0.024718432035861104 -> 0.02471533463351938
+  fits#98.base: 0.0533275045825965 -> 0.053324407180254774
+  fits#98.supportLift: null -> true
+  fits#98.mountSupport.top: 0.0533275045825965 -> 0.053324407180254774
+  fits#98.mountSupport.polys[0][0][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][1][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][2][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][3][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][4][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][5][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][6][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][7][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][8][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][9][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][10][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][11][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][12][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][13][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[0][14][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][0][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][1][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][2][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][3][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][4][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][5][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][6][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][7][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[1][8][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][0][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][1][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][2][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][3][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][4][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][5][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][6][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][7][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][8][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][9][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][10][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[2][11][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][0][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][1][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][2][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][3][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][4][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][5][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][6][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.polys[3][7][2]: 3.0974023417229546e-06 -> 0
+  fits#98.mountSupport.version: 3 -> 4
+  fits#98.slope: 0.0533275045825965 -> 0.053324407180254774
+  fits#99.supportLift: null -> true
+  fits#99.mountSupport.version: 3 -> 4
+  fits#119.p[1]: 106.28634386 -> 106.28608999147411
+  fits#128.p[2]: -117.96774194 -> -118.28754755772505
+  fits#129.p[2]: 117.96774194 -> 118.28754755772505
+  fits#130.p[2]: -94.74193548 -> -95.06173992032076
+  fits#131.p[2]: 94.74193548 -> 95.06173992032076
+  fits#132.p[2]: -71.51612903 -> -71.83594915258037
+  fits#133.p[2]: 71.51612903 -> 71.83594915258037
+  fits#140.mountSupport.polys[0]: length 17 -> 19
+  fits#140.mountSupport.polys[1]: length 19 -> 17
+  fits#140.mountSupport.version: 3 -> 4
+  fits#141.mountSupport.polys[0]: length 15 -> 21
+  fits#141.mountSupport.polys[1]: length 21 -> 15
+  fits#141.mountSupport.version: 3 -> 4
+  fits#142.mountSupport.polys[0]: length 13 -> 23
+  fits#142.mountSupport.polys[1]: length 23 -> 13
+  fits#142.mountSupport.version: 3 -> 4
+  fits#143.mountSupport.version: 3 -> 4
+  fits#144.mountSupport.version: 3 -> 4
+  fits#145.mountSupport.version: 3 -> 4
+  fits#146.mountSupport.version: 3 -> 4
+  fits#147.mountSupport.version: 3 -> 4
+  fits#148.mountSupport.polys[0]: length 13 -> 23
+  fits#148.mountSupport.polys[1]: length 23 -> 13
+  fits#148.mountSupport.version: 3 -> 4
+  fits#149.mountSupport.version: 3 -> 4
+  fits#150.mountSupport.polys[0]: length 9 -> 7
+  fits#150.mountSupport.polys[1]: length 7 -> 10
+  fits#150.mountSupport.polys[2]: length 10 -> 9
+  fits#150.mountSupport.polys[3]: length 7 -> 8
+  fits#150.mountSupport.polys[4]: length 8 -> 10
+  fits#150.mountSupport.polys[5]: length 10 -> 7
+  fits#150.mountSupport.version: 3 -> 4
+  fits#151.mountSupport.polys[0]: length 3 -> 6
+  fits#151.mountSupport.polys[1]: length 14 -> 8
+  fits#151.mountSupport.polys[2]: length 6 -> 3
+  fits#151.mountSupport.polys[3]: length 8 -> 3
+  fits#151.mountSupport.polys[4]: length 3 -> 14
+  fits#151.mountSupport.polys[5]: length 8 -> 3
+  fits#151.mountSupport.polys[6]: length 3 -> 12
+  fits#151.mountSupport.polys[7]: length 6 -> 8
+  fits#151.mountSupport.polys[8][0][1]: -0.16779509070312312 -> -0.004533490827335229
+  fits#151.mountSupport.polys[8][0][2]: 0.07483836135952532 -> 0.017671961403018206
+  fits#151.mountSupport.polys[8][1][0]: -1.8732989288094817 -> -0.18750000000000003
+  fits#151.mountSupport.polys[8][1][1]: 1.3924305771954881 -> 2.3242419073318175
+  fits#151.mountSupport.polys[8][1][2]: -0.3243336334456868 -> -0.7977537475286925
+  fits#151.mountSupport.polys[8][2][0]: -1.9301373416767071 -> -0.18787929258237843
+  fits#151.mountSupport.polys[8][2][1]: 1.323172770727949 -> 2.324204550273096
+  fits#151.mountSupport.polys[8][2][2]: -0.29549863566687945 -> -0.7977075604528034
+  fits#151.mountSupport.polys[9]: length 3 -> 6
+  fits#151.mountSupport.polys[10]: length 12 -> 3
+  fits#151.mountSupport.version: 3 -> 4
+  fits#152.mountSupport.version: 3 -> 4
+  fits#153.mountSupport.version: 3 -> 4
+  fits#154.mountSupport.version: 3 -> 4
+  fits#155.mountSupport.version: 3 -> 4
+  fits#156.mountSupport.polys[0]: length 29 -> 7
+  fits#156.mountSupport.polys[1]: length 7 -> 29
+  fits#156.mountSupport.version: 3 -> 4
+  fits#157.mountSupport.version: 3 -> 4
+  fits#158.mountSupport.version: 3 -> 4
+  fits#159.base: 0.668087055182542 -> 0.6680055103664158
+  fits#159.p[1]: 37.33899791 -> 37.33891636518388
+  fits#159.mountSupport.top: 0.668087055182542 -> 0.6680055103664158
+  fits#159.mountSupport.outlineLow: -0.6679300876605424 -> -0.6680116324766686
+  fits#159.mountSupport.polys[0][0][2]: 0.17401212224128929 -> 0.17393057742516307
+  fits#159.mountSupport.polys[0][1][2]: 0.04509057942213415 -> 0.04500903460600794
+  fits#159.mountSupport.polys[0][2][2]: -0.08556063535556954 -> -0.08564218017169575
+  fits#159.mountSupport.polys[0][3][2]: -0.2129206691779604 -> -0.21300221399408661
+  fits#159.mountSupport.polys[0][4][2]: -0.332095147369574 -> -0.33217669218570023
+  fits#159.mountSupport.polys[0][5][2]: -0.4385042615673236 -> -0.4385858063834498
+  fits#159.mountSupport.polys[0][6][2]: -0.5280587691875082 -> -0.5281403140036344
+  fits#159.mountSupport.polys[0][7][2]: -0.5973171407250313 -> -0.5973986855411575
+  fits#159.mountSupport.polys[0][8][2]: -0.6436178158022475 -> -0.6436993606183737
+  fits#159.mountSupport.polys[0][9][2]: -0.6651814854416573 -> -0.6652630302577835
+  fits#159.mountSupport.polys[0][10][2]: -0.6611794699120633 -> -0.6612610147281895
+  fits#159.mountSupport.polys[0][11][2]: -0.6317655644259121 -> -0.6318471092420384
+  fits#159.mountSupport.polys[0][12][2]: -0.5780701288755279 -> -0.5781516736916541
+  fits#159.mountSupport.polys[0][13][2]: -0.5021566487363646 -> -0.5022381935524908
+  fits#159.mountSupport.polys[0][14][2]: -0.4069424364774008 -> -0.407023981293527
+  fits#159.mountSupport.polys[0][15][2]: -0.2960865208790022 -> -0.29616806569512844
+  fits#159.mountSupport.polys[0][16][2]: -0.17384903260890178 -> -0.173930577425028
+  fits#159.mountSupport.polys[0][17][2]: -0.04492748978974681 -> -0.04500903460587302
+  fits#159.mountSupport.polys[0][18][2]: 0.08572372498795713 -> 0.08564218017183092
+  fits#159.mountSupport.polys[0][19][2]: 0.21308375881034802 -> 0.2130022139942218
+  fits#159.mountSupport.polys[0][20][2]: 0.33225823700196144 -> 0.33217669218583523
+  fits#159.mountSupport.polys[0][21][2]: 0.438667351199711 -> 0.4385858063835848
+  fits#159.mountSupport.polys[0][22][2]: 0.5282218588198957 -> 0.5281403140037695
+  fits#159.mountSupport.polys[0][23][2]: 0.5974802303574187 -> 0.5973986855412925
+  fits#159.mountSupport.polys[0][24][2]: 0.643780905434635 -> 0.6436993606185087
+  fits#159.mountSupport.polys[0][25][2]: 0.6653445750740448 -> 0.6652630302579186
+  fits#159.mountSupport.polys[0][26][2]: 0.6613425595444509 -> 0.6612610147283247
+  fits#159.mountSupport.polys[0][27][2]: 0.6319286540582995 -> 0.6318471092421732
+  fits#159.mountSupport.polys[0][28][2]: 0.5782332185079152 -> 0.578151673691789
+  fits#159.mountSupport.polys[0][29][2]: 0.502319738368752 -> 0.5022381935526258
+  fits#159.mountSupport.polys[0][30][2]: 0.4071055261097879 -> 0.4070239812936617
+  fits#159.mountSupport.polys[0][31][2]: 0.29624961051138954 -> 0.2961680656952633
+  fits#159.mountSupport.version: 3 -> 4
+  fits#159.low: -0.6651814854416573 -> -0.6652630302577835
+  fits#160.mountSupport.version: 3 -> 4
+  fits#161.mountSupport.version: 3 -> 4
+  fits#162.mountSupport.version: 3 -> 4
+  fits#163.mountSupport.version: 3 -> 4
+  fits#164.mountSupport.polys[0]: length 4 -> 32
+  fits#164.mountSupport.polys[1]: length 32 -> 4
+  fits#164.mountSupport.version: 3 -> 4
+  fits#165.mountSupport.version: 3 -> 4
+  fits#166.mountSupport.polys[0]: length 3 -> 17
+  fits#166.mountSupport.polys[1]: length 4 -> 5
+  fits#166.mountSupport.polys[2]: length 5 -> 4
+  fits#166.mountSupport.polys[3]: length 17 -> 3
+  fits#166.mountSupport.polys[4]: length 4 -> 3
+  fits#166.mountSupport.polys[5]: length 3 -> 4
+  fits#166.mountSupport.version: 3 -> 4
+  fits#167.mountSupport.polys[0]: length 6 -> 13
+  fits#167.mountSupport.polys[1][0][0]: 0.4880683557865875 -> 0.7234354564448267
+  fits#167.mountSupport.polys[1][0][1]: 2.197101472627167 -> 1.7950521186710793
+  fits#167.mountSupport.polys[1][0][2]: 0.3993309975954956 -> 0.3101980091223134
+  fits#167.mountSupport.polys[1][1][0]: 0.25252245390008876 -> 2.005802393886889
+  fits#167.mountSupport.polys[1][1][1]: 2.0160669361955432 -> 1.19319552701488
+  fits#167.mountSupport.polys[1][1][2]: 0.37844483029181525 -> 0.12434915626760776
+  fits#167.mountSupport.polys[1][2][0]: 0.7234354564448267 -> 1.9478913817673613
+  fits#167.mountSupport.polys[1][2][1]: 1.7950521186710793 -> 1.3015394102840565
+  fits#167.mountSupport.polys[1][2][2]: 0.31019709342183793 -> 0.14805801533975838
+  fits#167.mountSupport.polys[1][3][0]: 1.1532085556435723 -> 1.6565454523927392
+  fits#167.mountSupport.polys[1][3][1]: 2.0271758753777984 -> 1.656545452392739
+  fits#167.mountSupport.polys[1][3][2]: 0.3297770397489471 -> 0.23146972264829307
+  fits#167.mountSupport.polys[1][4][0]: 0.8965159385498682 -> 1.3015394102840567
+  fits#167.mountSupport.polys[1][4][1]: 2.1643809377307357 -> 1.9478913817673613
+  fits#167.mountSupport.polys[1][4][2]: 0.37013575800270543 -> 0.30645650881588277
+  fits#167.mountSupport.polys[1][5][0]: 0.6994094925905581 -> 1.1532085556435723
+  fits#167.mountSupport.polys[1][5][1]: 2.2241725244301223 -> 2.0271758753777984
+  fits#167.mountSupport.polys[1][5][2]: 0.3925278881997934 -> 0.32977795544942257
+  fits#167.mountSupport.polys[2]: length 3 -> 6
+  fits#167.mountSupport.polys[3]: length 13 -> 3
+  fits#167.mountSupport.polys[4]: length 6 -> 4
+  fits#167.mountSupport.polys[5]: length 7 -> 5
+  fits#167.mountSupport.polys[6][0][0]: 2.6826439565792284e-06 -> 2.919384220416166e-05
+  fits#167.mountSupport.polys[6][0][1]: 2.134569198415405 -> 2.134587692136236
+  fits#167.mountSupport.polys[6][0][2]: 0.4150389708138093 -> 0.41504198213682375
+  fits#167.mountSupport.polys[6][1][0]: -4.027725792022109e-05 -> 1.1053102335310816e-16
+  fits#167.mountSupport.polys[6][1][1]: 2.1345261706744285 -> 2.134583952646487
+  fits#167.mountSupport.polys[6][1][2]: 0.4150332726031928 -> 0.4150429218918814
+  fits#167.mountSupport.polys[6][2][0]: -0.0007130882327061605 -> -1.334848337851015e-05
+  fits#167.mountSupport.polys[6][2][1]: -2.3426388124005295 -> 2.1346573677591776
+  fits#167.mountSupport.polys[6][2][2]: -0.45545319468491074 -> 0.41505795870748097
+  fits#167.mountSupport.polys[6][3][0]: -4.3034867007865725e-16 -> 0.01793163541163778
+  fits#167.mountSupport.polys[6][3][1]: -2.342709045461286 -> 2.340942933525105
+  fits#167.mountSupport.polys[6][3][2]: -0.4555111363998563 -> 0.4541430739784225
+  fits#167.mountSupport.polys[6][4][0]: -7.216133951471637e-17 -> 5.186715022015287e-05
+  fits#167.mountSupport.polys[6][4][1]: 2.1345839526464876 -> 2.342703936992873
+  fits#167.mountSupport.polys[6][4][2]: 0.4150420061914063 -> 0.4555063436796814
+  fits#167.mountSupport.polys[7]: length 6 -> 7
+  fits#167.mountSupport.polys[8]: length 3 -> 5
+  fits#167.mountSupport.polys[9]: length 4 -> 6
+  fits#167.mountSupport.polys[10]: length 5 -> 3
+  fits#167.mountSupport.polys[11]: length 5 -> 6
+  fits#167.mountSupport.polys[12]: length 6 -> 3
+  fits#167.mountSupport.polys[13]: length 7 -> 5
+  fits#167.mountSupport.polys[14]: length 3 -> 6
+  fits#167.mountSupport.polys[15]: length 5 -> 7
+  fits#167.mountSupport.version: 3 -> 4
+  name: "ヴェネター級スター・デストロイヤー｜共和国艦隊・1,137 m（軽量版）" -> "ヴェネター級"
+  turretSupportRule: null -> 2

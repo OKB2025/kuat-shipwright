@@ -1,0 +1,16 @@
+== head-on: 1 x /home/user/kuat-shipwright/docs/handoff-2026-11-20/refs/tie-in-remodel-2026-11-23.json (A) vs 1 x /home/user/kuat-shipwright/docs/handoff-2026-11-20/refs/tie-d-2026-11-23.json (B), 20 runs: lost per run A 0.5 B 0.5; A wins 10, B wins 10, both lost 0, undecided in 300 s 0; mean time to decision 88.4 s; nearest 25.8 m; seconds on the other's tail A 2.8 B 0.0; seconds guns bearing A 42.9 B 28.6; greatest height off the start plane 5979.3 m; first shot at 0.0 s
+0s d=7304 A(337,0,0 hdg 0° 1346m/s) B(7641,0,0 hdg 180° 1436m/s)
+5s d=5462 A(6463,16,-123 hdg -8° 1057m/s) B(1002,44,-23 hdg -179° 1169m/s)
+10s d=14992 A(10829,109,-1467 hdg -32° 795m/s) B(-4096,761,-199 hdg -173° 897m/s)
+15s d=20915 A(13301,622,-3692 hdg -59° 576m/s) B(-7356,2489,-999 hdg -150° 639m/s)
+20s d=22758 A(13927,1822,-5576 hdg -102° 380m/s) B(-8433,4446,-2246 hdg -83° 417m/s)
+25s d=21407 A(13320,2928,-6131 hdg 178° 212m/s) B(-7727,5450,-3141 hdg -16° 242m/s)
+30s d=17980 A(11739,3161,-5929 hdg 172° 469m/s) B(-5939,5283,-3429 hdg -8° 528m/s)
+35s d=11619 A(8791,3515,-5512 hdg 172° 722m/s) B(-2633,4886,-3896 hdg -8° 808m/s)
+40s d=2866 A(4722,4003,-4936 hdg 172° 890m/s) B(1904,4342,-4538 hdg -8° 988m/s)
+45s d=4572 A(1469,4397,-4268 hdg 152° 541m/s) B(5958,3904,-4982 hdg -1° 714m/s)
+50s d=9425 A(-107,4408,-2724 hdg 106° 376m/s) B(9059,4170,-4909 hdg 8° 542m/s)
+55s d=11469 A(102,4259,-1300 hdg 37° 244m/s) B(11134,4993,-4349 hdg 31° 390m/s)
+60s d=10892 A(1144,4342,-1233 hdg -11° 303m/s) B(11730,5800,-3342 hdg 119° 223m/s)
+   run 1: A 108.25 s TIE/D：中央区画 崩壊 | TIE/D：撃沈（反応物誘爆）
+exit 0

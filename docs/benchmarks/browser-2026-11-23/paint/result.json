@@ -1,0 +1,22 @@
+{
+ "ids": {
+  "fit": 32,
+  "fitK": "single6MT",
+  "part": 11,
+  "partK": "engine"
+ },
+ "fitSet": "ok",
+ "partSet": "ok",
+ "afterSet": {
+  "fit": "#ff2020",
+  "part": "#2040ff",
+  "twins": 1
+ },
+ "saveId": "ship-c11967e4-2077-4a49-9879-b93747be3f49",
+ "afterLoad": {
+  "fit": "#ff2020",
+  "part": "#2040ff"
+ },
+ "clear": null,
+ "errors": []
+}

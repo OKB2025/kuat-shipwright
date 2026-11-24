@@ -1,0 +1,184 @@
+== craft_xwing: 34 differences
+  parts#31.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#31.engineMountSupport.polys: length 6 -> 16
+  parts#31.engineMountSupport.parentId: 4 -> 48
+  parts#31.engineMountSupport.volume: 0.042112843395888694 -> 0.0015840605986572748
+  parts#31.engineMountSupport.geometryKey: "lb0wlj" -> "cu443z"
+  parts#31.engineMountSupport.sourceKey: "1qkk598" -> "1ey07hf"
+  parts#32.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#32.engineMountSupport.polys: length 6 -> 16
+  parts#32.engineMountSupport.parentId: 5 -> 53
+  parts#32.engineMountSupport.volume: 0.04211282831561938 -> 0.0015840588776958621
+  parts#32.engineMountSupport.geometryKey: "1k2076l" -> "1foyl5i"
+  parts#32.engineMountSupport.sourceKey: "6iizc6" -> "1lbp1xn"
+  parts#33.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#33.engineMountSupport.polys: length 6 -> 16
+  parts#33.engineMountSupport.parentId: 18 -> 58
+  parts#33.engineMountSupport.volume: 0.042112843395888694 -> 0.0015840608822770275
+  parts#33.engineMountSupport.geometryKey: "18604pc" -> "j8cryo"
+  parts#33.engineMountSupport.sourceKey: "1dppncd" -> "1sj175d"
+  parts#34.engineMountSupport.localTriangles: length 108 -> 1404
+  parts#34.engineMountSupport.polys: length 6 -> 16
+  parts#34.engineMountSupport.parentId: 19 -> 63
+  parts#34.engineMountSupport.volume: 0.042112828315619355 -> 0.0015840591613153036
+  parts#34.engineMountSupport.geometryKey: "6q0n1g" -> "1jiyid"
+  parts#34.engineMountSupport.sourceKey: "aqs3fm" -> "43f380"
+  fits#46.k: "cpylon" -> "ctorp"
+  fits#46.sink: 0.155 -> null
+  fits#46.p[0]: 8.84 -> 8.748
+  fits#46.p[2]: 0.6815752340228829 -> 0.2866
+  fits#47.k: "cpylon" -> "ctorp"
+  fits#47.sink: 0.155 -> null
+  fits#47.p[0]: 8.84 -> 8.748
+  fits#47.p[2]: -0.6815752340228829 -> -0.2866
+  credits: {"source": "KUAT SHIPWRIGHT / craft_xwing, based on “Star Wars: X-Wing” by Danie -> null
+  turretSupportRule: null -> 2
+== craft_tie_ln: 11 differences
+  parts#1.bakedSections: null -> [[0.0078125, 0.006808771829567791], [0.0234375, 0.0076048661313154985], [0.03906
+  parts#1.bakedMesh: null -> {"v": [[-0.5, -0.2813970281, 0], [-0.4500000014, -0.3341246801, 0], [-0.45000000
+  parts#1.hullData.solidCuts: length 1 -> 0
+  parts#432.s[0]: 0.018 -> 0.02
+  fits#430.k: "cpylon" -> "ctorp"
+  fits#430.sink: 0.185 -> null
+  fits#430.p[0]: 3.12 -> 3.288
+  fits#430.p[1]: 1.9900000095367432 -> 2.425
+  credits: {"source": "KUAT SHIPWRIGHT / craft_tie_ln, based on “Star Wars: TIE/ln Fighter” -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_tie_in: 12 differences
+  parts#1.bakedSections: null -> [[0.0078125, 0.006808771829567791], [0.0234375, 0.0076048661313154985], [0.03906
+  parts#1.bakedMesh: null -> {"v": [[-0.5, -0.2813970281, 0], [-0.4500000014, -0.3341246801, 0], [-0.45000000
+  parts#1.hullData.solidCuts: length 1 -> 0
+  parts#432.s[0]: 0.018 -> 0.02
+  fits#430.k: "cpylon" -> "ctorp"
+  fits#430.sink: 0.185 -> null
+  fits#430.p[0]: 3.12 -> 3.288
+  fits#430.p[1]: 1.9900000095367432 -> 2.425
+  credits: {"source": "KUAT SHIPWRIGHT / craft_tie_in (OKB2025), based on “Star Wars: TIE/i -> null
+  hullLocked: false -> true
+  reference: null -> "craft_tie_in"
+  turretSupportRule: null -> 2
+== craft_awing: 17 differences
+  parts#46.bakedSections: null -> [[0.15058876811594202, 0.010492262758179773], [0.15928442028985507, 0.0056254185
+  parts#46.bakedMesh: null -> {"v": [[-0.3550724638, -0.1102571487, -0.1489655138], [-0.34375, -0.1108709812, 
+  parts#46.hullData.solidCuts: length 1 -> 0
+  parts#46.hullData.paint: "#d6d2c4" -> "neutral"
+  parts#44.d: 0.5 -> 0.499220117532457
+  parts#49.d: 0.39 -> 0.39991664929952486
+  fits#27.k: "cpylon" -> "cmsl"
+  fits#27.p[1]: 0.9290000200271606 -> 0.969
+  fits#28.k: "cpylon" -> "cmsl"
+  fits#28.p[1]: 0.9290000200271606 -> 0.969
+  fits#47.k: "cpylon" -> "cmsl"
+  fits#47.p[1]: 0.9707192182540894 -> 1.0307
+  fits#48.k: "cpylon" -> "cmsl"
+  fits#48.p[1]: 0.9713910222053528 -> 1.0314
+  credits: {"source": "KUAT SHIPWRIGHT / craft_awing（ユーザー提供の RZ1AWing.STL に基づく作例）", "change -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_tie_d: 6 differences
+  parts#1.bakedSections: null -> [[0.0078125, 0.007818964445783677], [0.0234375, 0.007949878415712151], [0.039062
+  parts#1.bakedMesh: null -> {"v": [[-0.5, -0.279717357, 0], [-0.4843749757, -0.2820590746, 0], [-0.484374975
+  parts#1.hullData.solidCuts: length 1 -> 0
+  hullLocked: false -> true
+  reference: null -> "craft_tie_d"
+  turretSupportRule: null -> 2
+== craft_arc170: 10 differences
+  parts#67.hullData.paint: "#d7d5ca" -> "neutral"
+  parts#7.bandPaint: "#905050" -> null
+  parts#8.bandPaint: "#905050" -> null
+  fits#43.k: "cpylon" -> "ctorp"
+  fits#43.p[1]: 0.59 -> 0.95
+  fits#68.k: "cpylon" -> "ctorp"
+  fits#68.p[1]: 0.59 -> 0.95
+  credits: {"author": "DrEgguin", "source": "https://sketchfab.com/3d-models/arc-170-starfi -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_btlb: 8 differences
+  parts#52.hullData.paint: "#cdcac0" -> "neutral"
+  fits#25.k: "cpylon" -> "ctorp"
+  fits#25.p[1]: 0.33370451 -> 0.5737
+  fits#26.k: "cpylon" -> "ctorp"
+  fits#26.p[1]: 0.33370451 -> 0.5737
+  credits: {"author": "A308 Digital", "source": "https://sketchfab.com/3d-models/btl-b-y-wi -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_tie_sa: 13 differences
+  parts#47.hullData.paint: "#7e8993" -> "neutral"
+  parts#86.s[0]: 0.017 -> 0.02
+  parts#107.s[0]: 0.012 -> 0.02
+  parts#111.s[0]: 0.012 -> 0.02
+  parts#144.s[0]: 0.012 -> 0.02
+  parts#148.s[0]: 0.012 -> 0.02
+  fits#22.p[1]: 0.00124647 -> 0.5012
+  fits#22.k: "cpylon" -> "ctorp"
+  credits: {"author": "Daniel", "source": "https://sketchfab.com/3d-models/star-wars-tiesa- -> null
+  detail: null -> 1
+  hullLocked: false -> true
+  shieldTarget: null -> 1
+  turretSupportRule: null -> 2
+== craft_hyena: 13 differences
+  parts#47.hullData.paint: "#626f77" -> "neutral"
+  fits#29.k: "cpylon" -> "ctorp"
+  fits#29.p[1]: 1.9507685986743124 -> 1.6908
+  fits#30.k: "cpylon" -> "ctorp"
+  fits#30.p[1]: 1.9507685986743124 -> 1.6908
+  fits#31.k: "cpylon" -> "cmsl"
+  fits#31.p[1]: 1.8951473560811674 -> 1.7251
+  fits#32.k: "cpylon" -> "cmsl"
+  fits#32.p[1]: 1.8951473560811674 -> 1.7251
+  credits: {"source": "\"Hyena Bomber\" by Dakata_123 (https://sketchfab.com/Dakata_123), C -> null
+  groups[13].parts: length 12 -> 11
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_vwing: 5 differences
+  parts#53.hullData.paint: "#c7c8c2" -> "neutral"
+  credits: {"source": "\"Republic V-wing Starfighter\" by DrEgguin (https://sketchfab.com/D -> null
+  groups[10].parts: length 10 -> 8
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_vulture: 11 differences
+  parts#41.hullData.paint: "#858c96" -> "neutral"
+  fits#23.k: "cpylon" -> "ctorp"
+  fits#23.p[1]: 1.0372571292777173 -> 0.8373
+  fits#24.k: "cpylon" -> "ctorp"
+  fits#24.p[1]: 1.0372571292777173 -> 0.8373
+  fits#25.k: "cpylon" -> "cmsl"
+  fits#25.p[1]: 0.7579961258902803 -> 0.998
+  credits: {"source": "\"Vulture Droid\" by DrEgguin (https://sketchfab.com/DrEgguin), CC B -> null
+  groups[13].parts: length 8 -> 5
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_v19: 10 differences
+  parts#47.hullData.paint: "#d2d1c7" -> "neutral"
+  parts#61.s[0]: 0.017 -> 0.02
+  parts#74.s[0]: 0.017 -> 0.02
+  fits#27.k: "cpylon" -> "cmsl"
+  fits#27.p[1]: 1.0625 -> 0.7625
+  fits#28.k: "cpylon" -> "cmsl"
+  fits#28.p[1]: 1.0625 -> 0.7625
+  credits: {"source": "\"V-19 Torrent Starfighter\" by A308 Digital (https://sketchfab.com/ -> null
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_z95: 11 differences
+  parts#50.hullData.paint: "#d2d1c7" -> "neutral"
+  fits#31.label: "右舷胴体プロトン魚雷発射管" -> null
+  fits#31.k: "cpylon" -> "cmsl"
+  fits#31.p[1]: 0.2899999916553498 -> 0.45
+  fits#32.label: "左舷胴体プロトン魚雷発射管" -> null
+  fits#32.k: "cpylon" -> "cmsl"
+  fits#32.p[1]: 0.2899999916553498 -> 0.45
+  credits: {"source": "This work is based on \"Z-95 Headhunter\" (https://sketchfab.com/3d- -> null
+  groups[2].parts: length 4 -> 2
+  hullLocked: false -> true
+  turretSupportRule: null -> 2
+== craft_ywing: 9 differences
+  parts#52.hullData.paint: "#c8c7ba" -> "neutral"
+  fits#25.k: "cpylon" -> "ctorp"
+  fits#25.p[1]: 0.33370451 -> 0.5737
+  fits#26.k: "cpylon" -> "ctorp"
+  fits#26.p[1]: 0.33370451 -> 0.5737
+  credits: {"author": "A308 Digital", "source": "https://sketchfab.com/3d-models/btl-b-y-wi -> null
+  hullLocked: false -> true
+  reference: "craft_btlb" -> "craft_ywing"
+  turretSupportRule: null -> 2

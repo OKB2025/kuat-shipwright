@@ -97,7 +97,7 @@ test('aircraft keep their existing six stored missiles without native aggregate 
  const ship=C.newShip({L:15,W:8,H:4},'Missile craft');ship.shipClass='starfighter';
  const h=C.rayEnv(ship,[8,100,0],[0,-1,0],{structOnly:true});C.placeFit(ship,'cmsl',h.p,h.n,0,false);
  const S=C.computeStats(ship),c=C.craftCombat(ship,S);assert.equal(S.mslSalvo,0);
- assert.equal(c.ord.filter(q=>q.kind==='cmsl').reduce((n,q)=>n+q.n,0),6);assert.ok(c.ord.every(q=>q.tt===C.ORDNANCE.cmsl.tt));
+ assert.equal(c.ord.filter(q=>q.kind==='cmsl').reduce((n,q)=>n+q.n,0),C.LAUNCHER_ROUNDS.missile)/* 2026-11-24 expectation changed 6 → 3: a launch tube holds 3 missiles (user「魚雷は発射機あたりに2発、ミサイルは発射機あたりに3発」) */;assert.ok(c.ord.every(q=>q.tt===C.ORDNANCE.cmsl.tt));
 });
 
 test('legacy ion launchers retain their aggregate even on a small craft',()=>{

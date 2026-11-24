@@ -1,0 +1,10 @@
+== head-on: 4 x craft_tie_in (A) vs 4 x craft_tie_ln (B), 20 runs: lost per run A 2.7 B 3.4; A wins 13, B wins 7, both lost 0, undecided in 300 s 0; mean time to decision 29.9 s; nearest 174.7 m; seconds on the other's tail A 4.8 B 3.7; seconds guns bearing A 22.6 B 19.7; greatest height off the start plane 1244.0 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 125, hit 0, spent 24, target lost first 58; lock warnings 303, guidance lost (launcher lost sight) 0; rounds {"ptorp":125}; steps flown by guidance {"pursuit":1641}
+0s d=7370 A(324,5,7 hdg 7° 1288m/s) B(7694,5,-7 hdg -174° 1219m/s)
+5s d=2515 A(5860,-52,1282 hdg 58° 939m/s) B(3574,28,2326 hdg 108° 877m/s)
+10s d=3615 A(6394,-455,458 hdg 109° 553m/s) B(5685,-121,3987 hdg -19° 525m/s)
+15s d=1225 A(5424,911,1918 hdg 120° 362m/s) B(5208,-222,2333 hdg -51° 320m/s)
+20s d=674 A(5536,-252,2150 hdg -43° 239m/s) B(5994,174,1900 hdg 74° 173m/s)
+25s d=948 A(5986,76,1596 hdg 98° 128m/s) B(6046,304,2515 hdg 28° 130m/s)
+30s d=459 A(5795,328,2140 hdg 166° 135m/s) B(5600,307,1725 hdg 59° 188m/s)
+   run 1: B 31.25 s TIE/in インターセプター：艦首区画 崩壊 | TIE/in インターセプター：撃沈（船体破断）

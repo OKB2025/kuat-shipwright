@@ -127,7 +127,9 @@ test('without the reference files\' hashes the derived cache is not used',async(
 // table, must give different keys (independent check 2026-11-12).
 test('the model key changes with the Rts craft tables',()=>{
  const runtime=()=>require('../scripts/update-ship-examples.cjs').loadRuntime(root);
- const plain=runtime(),changed=runtime();assert.ok(changed.R?.CRAFT?.ywing,'Rts.CRAFT.ywing');
- changed.R.CRAFT.ywing.aa=(changed.R.CRAFT.ywing.aa||0)+2;
+ // 2026-11-24 expectation changed: the BTL-A4 Y-wing is now a modelled example (craft_ywing) whose figures come from its design,
+ // not the table, so the table change is made on the B-wing, which is still table-only.
+ const plain=runtime(),changed=runtime();assert.ok(changed.R?.CRAFT?.bwing,'Rts.CRAFT.bwing');
+ changed.R.CRAFT.bwing.aa=(changed.R.CRAFT.bwing.aa||0)+2;
  assert.notEqual(changed.C.profileModelKey(),plain.C.profileModelKey());
 });

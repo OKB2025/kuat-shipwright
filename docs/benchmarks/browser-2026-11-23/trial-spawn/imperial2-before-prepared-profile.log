@@ -1,0 +1,9 @@
+28.0s trial entered {"mode":"trial","sandbox":false,"battle":false,"result":null,"targets":4,"exit":"公試終了","where":"公試 · コルサント低軌道","selfCard":false,"units":[]}
+28.7s example picked ["imperial2","インペリアルII級"]
+126.0s spawned after {"ms":89090}
+126.2s target imperial2 ["アークワイテンス級軽クルーザー","インペリアルII級"]
+146.3s sim rate with imperial2 target {"sim":9.75,"wall":20.018}
+151.9s spawned after {"ms":216}
+152.0s foe imperial2 ["アークワイテンス級軽クルーザー:hold:null","インペリアルII級:hold:null","インペリアルII級:attack:me"]
+172.4s sim rate with imperial2 foe {"sim":8.00000000000001,"wall":20.222}
+DONE []

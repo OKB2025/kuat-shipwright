@@ -1,0 +1,9 @@
+25.2s trial entered {"mode":"trial","sandbox":false,"battle":false,"result":null,"targets":4,"exit":"公試終了","where":"公試 · コルサント低軌道","selfCard":false,"units":[]}
+25.8s example picked ["cr90","CR90コルベット"]
+41.3s spawned after {"ms":7432}
+41.5s target cr90 ["アークワイテンス級軽クルーザー","CR90コルベット"]
+61.7s sim rate with cr90 target {"sim":8.75,"wall":20.081}
+67.1s spawned after {"ms":267}
+67.3s foe cr90 ["アークワイテンス級軽クルーザー:hold:null","CR90コルベット:hold:null","CR90コルベット:attack:me"]
+87.5s sim rate with cr90 foe {"sim":7.75,"wall":20.052}
+DONE []

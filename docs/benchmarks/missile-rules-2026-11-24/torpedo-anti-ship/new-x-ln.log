@@ -1,0 +1,16 @@
+== head-on: 4 x craft_xwing (A) vs 4 x craft_tie_ln (B), 20 runs: lost per run A 1.9 B 3.6; A wins 12, B wins 6, both lost 0, undecided in 300 s 2; mean time to decision 75.8 s; nearest 310.6 m; seconds on the other's tail A 14.5 B 30.4; seconds guns bearing A 56.7 B 104.1; greatest height off the start plane 3431.1 m; first shot at 0.0 s
+   missiles (KS_DOGFIGHT_STORES, guidance pn): fired 0, hit 0, spent 0, target lost first 0; lock warnings 0, guidance lost (launcher lost sight) 0; friendly craft struck (KS_MSL_FF; steps a ready launch was held for a wingman in the line 0) 0, other enemy craft struck 0; proximity bursts (field met first) 0; rounds {}; steps flown by guidance {}
+0s d=7413 A(281,2,3 hdg 4° 1118m/s) B(7694,5,-7 hdg -174° 1219m/s)
+5s d=1987 A(5131,30,1171 hdg 28° 864m/s) B(3249,56,1808 hdg -179° 915m/s)
+10s d=6034 A(8204,956,1215 hdg -56° 553m/s) B(2389,1872,-110 hdg -36° 516m/s)
+15s d=4236 A(7695,2434,122 hdg -154° 338m/s) B(3959,1979,-1823 hdg -63° 423m/s)
+20s d=3283 A(6293,2298,-533 hdg -138° 281m/s) B(4160,1736,-2963 hdg -65° 311m/s)
+25s d=3081 A(5484,1976,-1589 hdg -117° 299m/s) B(4221,1058,-4245 hdg -104° 303m/s)
+30s d=2738 A(4881,1428,-2923 hdg -105° 302m/s) B(4575,312,-5405 hdg -38° 270m/s)
+35s d=1704 A(4785,747,-4069 hdg -92° 245m/s) B(4771,-425,-5305 hdg 125° 198m/s)
+40s d=532 A(4403,63,-4702 hdg -171° 189m/s) B(4403,-431,-4507 hdg 80° 151m/s)
+45s d=748 A(4001,-761,-4821 hdg -112° 188m/s) B(4209,-53,-4706 hdg -135° 130m/s)
+50s d=1007 A(4048,-1671,-4967 hdg 56° 189m/s) B(4057,-667,-4883 hdg -76° 141m/s)
+55s d=1311 A(4236,-2490,-4597 hdg 68° 188m/s) B(3975,-1273,-5005 hdg 57° 143m/s)
+60s d=1006 A(4490,-3154,-4000 hdg 58° 187m/s) B(4231,-2340,-4529 hdg 64° 264m/s)
+   run 1: B 138.75 s T-65B Xウイング：後部区画 崩壊 | T-65B Xウイング：撃沈（船体破断）

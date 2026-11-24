@@ -6,7 +6,7 @@ function setup(){
  for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])run(fs.readFileSync(path.join(root,f),'utf8'));
  run(`const C=Core,tv={dot:C.dot,norm:C.norm,add:(a,b,k=1)=>C.add(a,C.mul(b,k)),scale:C.mul,cross:C.cross};
  const trial={sysKey:'coruscant',p:{len:12,wCap:0},turrets:[],launchers:[],mode:'trial'},view=null,TRIAL_GUN={targets:0};
- const spaceCineEnd=()=>{},trialDust=()=>{},escortsInit=()=>{},trialFoilReset=()=>{},trialCraftSystemsReset=()=>{};`);
+ const spaceCineEnd=()=>{},trialDust=()=>{},escortsInit=()=>{},trialFoilReset=()=>{},trialCraftSystemsReset=()=>{},trialTargetsBattle=()=>{}/* 2026-11-24 fixture: the reset now starts the trial's target battle (static target ships) instead of placing drifting targets */;`);
  run(fn('trialFrame'));
  const a=app.indexOf('const SYSTEMS={};'),b=app.indexOf('function trialDust()',a);assert.ok(a>=0&&b>a);run(app.slice(a,b));run(fn('trialReset'));
  return {run,C:run('Core')};

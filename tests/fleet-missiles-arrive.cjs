@@ -22,6 +22,7 @@ const D=9000;
 function duel(distance,{pd=false,target='dreadnaught',tough=false,heavy=0}={}){
  const pa=plain(F.designs.mc75.p);pa.gunArcs=pa.gunArcs.map(()=>0);pa.ionArcs=(pa.ionArcs||[]).map(()=>0);
  if(heavy){let n=0;for(const m of pa.modules)if(m.k==='launcher'){const k=n++<heavy?1:0;Object.assign(m,{heavy:true,tt:C.SHIP_MISSILE.tt,ammoPerCell:1,stock:k,ammo0:k,missileRange:C.HEAVY_LAUNCHER.range});}}
+ pa.modules=[...pa.modules,{k:'sensor',name:'ISD-72x-sized dome (test fixture)',size:31527,trackVol:30340,share:1,at:.5,domain:'main'}];/* 2026-11-24 fixture changed: a ship's missiles beyond 10 km are radar-guided and need a tracking slot (user「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」「ISD-72xのサイズで4枠」); the firing ship is given one ISD-72x-sized dome so this case still tests its own subject */
  const a=C.fleetUnit('a','mc75',pa,0),b=C.fleetUnit('b',target,plain(F.designs[target].p),1);b.pos=[distance,0,0];b.yaw=Math.PI;if(tough)for(const x of b.sec){x.max*=1e6;x.s=x.max;}
  a.order={...a.order,type:'hold',target:'b',fire:true};b.order={...b.order,type:'hold',fire:false,autoPointDefense:pd};
  const B=C.fleetBattle([a,b],true);B.seed=7;return {a,b,B,rounds:()=>a.ammo.reduce((n,v)=>n+(v||0),0)};

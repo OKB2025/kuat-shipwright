@@ -6,14 +6,16 @@ const {C,R}=vm.runInContext('({C:Core,R:Rts})',cx),plain=x=>JSON.parse(JSON.stri
 const ship=C.buildDesign('craft_tie_ln'),stats=C.computeStats(ship),panels=ship.parts.filter(p=>p.k==='solarPanel'),preset=C.solarPanelPreset('hex');
 if(process.env.KS_TIE_AUDIT_OUTPUT){const dir=path.resolve(process.env.KS_TIE_AUDIT_OUTPUT);fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,'blueprint.json'),JSON.stringify(C.serialize(ship),null,2)+'\n');fs.writeFileSync(path.join(dir,'stats.json'),JSON.stringify(stats,null,2)+'\n');}
 test('TIE/ln wings are two native solar panels with no separately installed framework',()=>{
- assert.equal(panels.length,2);assert.equal(ship.parts.filter(p=>p.label==='太陽電池翼').length,2);
+ // 2026-11-23 expectations changed: the TIE/ln example is the user's remodel (user: 「リモデルで作例を揃える」): its panels are named
+ // 「左舷・六角形集光翼」「右舷・六角形集光翼」, held by support arms (「翼支持腕の付根」, no 「翼支持柱」), with a thinner frame and ribs than the preset.
+ assert.equal(panels.length,2);assert.equal(ship.parts.filter(p=>/^(左舷|右舷)・六角形集光翼$/.test(p.label)).length,2);
  const removed=new Set(['翼中央ハブ','翼外枠','翼水平桁','翼水平桁フランジ','翼支柱','翼支柱フランジ']);
- assert.equal(ship.parts.filter(p=>removed.has(p.label)).length,0);assert.equal(ship.parts.filter(p=>p.label==='翼支持柱').length,2,'retain the cockpit-to-wing connection columns');
- for(const p of panels){assert.equal(p.form,'outline');assert.deepEqual(plain(p.outline).map(q=>q.join(',')).sort(),plain(preset.outline).map(q=>q.join(',')).sort());near(p.s[0],7.24);near(p.s[1],7.24*preset.aspect);near(p.s[2],.08);assert.equal(p.wing.solar,true);assert.equal(p.panelBracing,preset.panelBracing);near(p.panelFrame,7.24*preset.frameRatio);near(p.panelRib,7.24*preset.ribRatio);assert.ok(C.aeroPanelRibs(p).length>0,'native one-part detailing remains available');}
+ assert.equal(ship.parts.filter(p=>removed.has(p.label)).length,0);assert.equal(ship.parts.filter(p=>/翼支持腕の付根$/.test(p.label)).length,2,'retain the cockpit-to-wing support arms');
+ for(const p of panels){assert.equal(p.form,'outline');assert.deepEqual(plain(p.outline).map(q=>q.join(',')).sort(),plain(preset.outline).map(q=>q.join(',')).sort());near(p.s[0],7.24);near(p.s[1],7.24*preset.aspect);near(p.s[2],.08);assert.equal(p.wing.solar,true);assert.equal(p.panelBracing,preset.panelBracing);assert.ok(p.panelFrame>0&&p.panelFrame<=7.24*preset.frameRatio+1e-9,'frame');assert.ok(p.panelRib>0&&p.panelRib<=7.24*preset.ribRatio+1e-9,'rib');assert.ok(C.aeroPanelRibs(p).length>0,'native one-part detailing remains available');}
 });
 test('the native wing footprint, electricity, cooling and material mass use the real panel part',()=>{
  let solar=0;
- for(const p of panels){const area=Math.abs(C.outlineArea(p.outline))*p.s[0]*p.s[1],volume=C.partVolume(p);near(C.solarArea(p),area);near(C.solarPower(p),area*C.SOLAR.W);near(C.solarCap(p),area*2*C.wingDischargeW()*C.WING.dischargeK.solar);near(stats.info[p.id].materialMass,volume*C.PARTS.solarPanel.dens);solar+=C.solarPower(p);assert.ok(volume>0);}
+ for(const p of panels){const area=Math.abs(C.outlineArea(p.outline))*p.s[0]*p.s[1],volume=C.partVolume(p);near(C.solarArea(p),area);near(C.solarPower(p),area*C.SOLAR.W);near(C.solarCap(p),area*2*C.wingDischargeW()*C.WING.dischargeK.solar);/* 2026-11-23 the remodel's wing mounting plate overlaps the panel, so the panel's own material is up to that much less */assert.ok(stats.info[p.id].materialMass<=volume*C.PARTS.solarPanel.dens*(1+1e-9)&&stats.info[p.id].materialMass>=volume*C.PARTS.solarPanel.dens*.95,'material mass');solar+=C.solarPower(p);assert.ok(volume>0);}
  near(stats.solarPower,solar);const wings=stats.wings.filter(w=>panels.some(p=>p.id===w.id));assert.equal(wings.length,2);assert.ok(wings.every(w=>w.solar&&w.solarP>0));
  assert.ok(stats.dims[1]<9,'native panels retain the measured overall craft width');
 });
@@ -26,7 +28,7 @@ test('mirrored wing identity and editable native panel settings survive save and
 
 
 test('fresh factory combat profiles record the native-wing physical revision through cleaning and JSON',()=>{
- const expected={key:'craft_tie_ln',version:C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision};assert.equal(expected.version,3,'v24 smaller engine nozzles');
+ const expected={key:'craft_tie_ln',version:C.SHIP_EXAMPLES.craft_tie_ln.physicalRevision};assert.equal(expected.version,4,'2026-11-23 the user\'s remodel (was 3: v24 smaller engine nozzles)');
  const craft=C.craftPowerProfile(ship,stats),fleet=C.fleetProfile(stats,ship.name,ship);
  for(const p of [craft,fleet]){assert.deepEqual(plain(p.referencePhysicalRevision),expected);assert.equal(C.referencePhysicalProfileCurrent(p,'craft_tie_ln'),true);}
  const clean=C.cleanCraftPowerProfile(plain(craft));assert.ok(clean);assert.deepEqual(plain(clean.referencePhysicalRevision),expected);

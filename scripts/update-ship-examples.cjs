@@ -23,9 +23,12 @@ function exampleKeys(C,data){return Object.keys(data.designs).filter(key=>C.DESI
 function designOnlyKeys(C,data){const ships=new Set(exampleKeys(C,data));return Object.keys(C.DESIGNS).filter(key=>!ships.has(key)).sort();}
 // The saved design of an example, prepared exactly as for a catalogue ship (generateMeasuredEntry):
 // built by the authoring tool, then the ordinary load steps, then serialized.
+// 2026-11-23 A user's remodel keeps its fittings where the designer put them, as the game does when it loads a design
+// (engine.js remounts with keepFitPose); the stock builders' fittings are seated afresh as before.
+const keepPose=(C,key)=>C.isCraftRemodel?.(key)?{keepFitPose:true}:undefined;
 function generateBlueprint(C,key){
  if(!C.DESIGNS[key])throw new Error('Unknown example design: '+key);
- const build=()=>{const ship=C.buildDesign(key);C.syncCompartments(ship);C.remount(ship);C.syncCompartments(ship);return C.serialize(ship);};
+ const build=()=>{const ship=C.buildDesign(key);C.syncCompartments(ship);C.remount(ship,keepPose(C,key));C.syncCompartments(ship);return C.serialize(ship);};
  return typeof C.withFrozenStructures==='function'?C.withFrozenStructures(build):build();
 }
 // The catalogue describes choices; exact surface meshes stay in worker-built
@@ -57,13 +60,13 @@ function generateEntryFromShip(C,R,key,ship,previous,sources,options={}){
  const measure=()=>generateMeasuredEntry(C,R,key,ship,previous,sources,options);return typeof C.withFrozenStructures==='function'?C.withFrozenStructures(measure):measure();
 }
 function generateMeasuredEntry(C,R,key,ship,previous,sources,options={}){
- C.syncCompartments(ship);C.remount(ship);C.syncCompartments(ship);
+ C.syncCompartments(ship);C.remount(ship,keepPose(C,key));C.syncCompartments(ship);
  const stats=C.computeStats(ship),profile=C.fleetProfile(stats,ship.name,ship),info=R.designInfo(stats,profile),blueprint=C.serialize(ship),complement=C.builtinComplement(key);
  if(profile.profileVersion!==C.FLEET_PROFILE_VERSION)throw new Error('Stale generated fleet profile: '+key);
  if(!(info.mass>0)||!Number.isFinite(info.mass)||!Number.isFinite(info.cost))throw new Error('Invalid generated engineering figures: '+key);
  const entry=plain({...previous,key,name:previous.name||C.DESIGNS[key].name||ship.name,cls:stats.cls?.name||previous.cls,p:compactCatalogProfile(profile),info,
   ...(ship.paint?{paint:ship.paint}:{}),...(complement?{air:complement.air||[],ground:complement.ground||[]}:Array.isArray(previous.air)?{air:previous.air.filter(r=>!C.RETIRED_CRAFT_TYPES?.has(r?.type))}:{}),/* a kept complement loses craft types taken out of the catalogue (Eta-2, user decision 2026-11-16) */
-  model:{profileVersion:C.FLEET_PROFILE_VERSION,costVersion:C.COST_MODEL.version,costSignature:C.costModelSignature(),exampleProfileVersion:C.EXAMPLE_PROFILE_VERSION,blueprintSha256:sha(stable(blueprint)),sourceSha256:sources}});
+  model:{profileVersion:C.FLEET_PROFILE_VERSION,costVersion:C.COST_MODEL.version,costSignature:C.costModelSignature(),exampleProfileVersion:C.EXAMPLE_PROFILE_VERSION,/* 2026-11-23 the whole calculation-model key: the engine uses the row as the ship's profile only under this key */modelKey:C.profileModelKey(),surface:!!profile.surface,blueprintSha256:sha(stable(blueprint)),sourceSha256:sources}});
  if(options.onBuilt)options.onBuilt({key,ship,stats,profile,entry,blueprint});
  return entry;
 }

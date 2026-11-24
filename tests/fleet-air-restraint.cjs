@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx),plain=x=>JSON.parse(JSON.stringify(x));
-const profiles={};for(const k of ['craft_tie_ln','craft_tie_sa','craft_xwing','craft_btlb']){const xs=C.buildDesign(k),S=C.computeStats(xs);profiles[k]={p:C.fleetProfile(S,xs.name,xs),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
+const profiles={};for(const k of ['craft_tie_ln','craft_tie_sa','craft_xwing',C.FLEET_AIR.roles.ywing.key/* 2026-11-24 the ywing role flies craft_ywing (the BTL-A4 example), was craft_btlb */]){const xs=C.buildDesign(k),S=C.computeStats(xs);profiles[k]={p:C.fleetProfile(S,xs.name,xs),liftSpare:Math.max(0,(S.craftSystems?.landingSupport||0)-S.mass)};}
 // The strike is ordered here for both sides (posture.strike), so that these cases see the launch, the hatches and the landing;
 // when a fleet strikes is the subject of the cases at the end.
 function setup(){
@@ -71,7 +71,7 @@ test('a ship with no mouth the craft fits does not launch them',()=>{
 test('a squadron that has landed is re-armed and can go up again, bombers too',()=>{
  const {B,isd}=setup();run(B,25);const q=B.air.squadrons.find(x=>x.team===1&&x.bomber);
  for(const u of B.units.filter(u=>u.sortie?.bomber&&u.team===1)){u.sortie.stores=[];u.pos=[isd.pos[0]+200,300,0];u.velocity=[0,0,0];}
- B.air.squadrons.filter(x=>x.team===1).forEach(x=>{x.queue=[];x.pending=0;});for(const u of B.units.filter(u=>u.sortie&&!u.sortie.bomber&&u.team===1)){u.pos=[isd.pos[0]+200,300,400];u.velocity=[0,0,0];}for(const u of B.units.filter(u=>u.sortie&&u.team===0))u.dead=true;run(B,1);
+ B.air.squadrons.filter(x=>x.team===1).forEach(x=>{x.queue=[];x.pending=0;});for(const u of B.units.filter(u=>u.sortie&&!u.sortie.bomber&&u.team===1)){u.pos=[isd.pos[0]+200,300,400];u.velocity=[0,0,0];}for(const u of B.units.filter(u=>u.sortie&&u.team===0))u.dead=true;B.air.squadrons.filter(x=>x.team===0).forEach(x=>{x.queue=[];x.pending=0;x.size=0;});/* 2026-11-24 fixture changed: the rebels' hangar squadrons are emptied too. With the BTL-A4 as the ywing (craft_ywing) their second Y-wing squadron goes up during the re-arm, the Imperial fleet answers it with fighters (user decision 2026-11-19, wide-area defence) and holds its bombers, which is the rule working; this case is about the re-arm. */run(B,1);
  assert.equal(q.out,false);assert.ok(q.readyAt>B.time);const n=q.size;assert.ok(n>0);
  run(B,C.FLEET_AIR.rearm+C.FLEET_AIR.every+8);
  assert.equal(q.out,true,'it goes up again after '+C.FLEET_AIR.rearm+' s');const again=B.units.filter(u=>q.members.includes(u.id));const bs=again.filter(u=>u.sortie.bomber);assert.ok(bs.length>0&&bs.every(u=>u.sortie.stores.length>0),'the bombers with their rounds');
