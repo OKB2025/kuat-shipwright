@@ -4,7 +4,7 @@ const Lref=19.01,kV=0.06313782219884272,A0=29*1.10,R0=0.861,tail=0.171,KC=+(proc
 const MC={monCal200Triple:1.45,monCal200:1.75,monCal150Ion:1.5,monCal80:1.55,monCal34:1.0};
 const fmt=x=>{if(x>=1e3)return (x/1e3).toPrecision(3)+' PT';if(x>=1)return +x.toPrecision(3)+' TT';if(x>=1e-3)return +(x*1e3).toPrecision(3)+' GT';return +(x*1e6).toPrecision(3)+' MT';};
 const dl=Ekt=>Math.sqrt(0.01+(Ekt-20)*0.15/780);
-{const ex=(E,b,L)=>L-(1+KC*Math.log((dl(E*1e9)/b)**2)),e1=ex(40,.74,19.01),e2=ex(175,1.09,26.3),t=(40-R0)/(30-R0);let lo=1e-9,hi=1e6;for(let i=0;i<300;i++){const x=Math.sqrt(lo*hi),r=Math.log(1+e2/x)/Math.log(1+e1/x);if(r>t)hi=x;else lo=x;}x0=Math.sqrt(lo*hi);Ak=(30-R0)/Math.log(1+e1/x0);console.log('KC',KC,'ISD extra',e1.toFixed(2),'175 extra',e2.toFixed(2),'x0',x0.toPrecision(3),'A',Ak.toFixed(2));}
+{const ex=(E,b,L)=>L-(1+KC*Math.log((dl(E*1e9)/b)**2)),SP=process.env.SPLIT?+process.env.SPLIT:1,e1=ex(40,.74,19.01)*SP,e2=ex(175,1.09,26.3)*SP,t=(40-R0)/(30-R0);let lo=1e-9,hi=1e6;for(let i=0;i<300;i++){const x=Math.sqrt(lo*hi),r=Math.log(1+e2/x)/Math.log(1+e1/x);if(r>t)hi=x;else lo=x;}x0=Math.sqrt(lo*hi);Ak=(30-R0)/Math.log(1+e1/x0);console.log('KC',KC,'ISD extra',e1.toFixed(2),'175 extra',e2.toFixed(2),'x0',x0.toPrecision(3),'A',Ak.toFixed(2));}
 const V0=(()=>{const E=1e9,b=1.10,L=29.0,m=1+KC*Math.log((dl(E)/b)**2);return (L-m)*(1-(+process.env.SPLIT||0))*Math.PI/4*b*b;})();
 const rows=[];
 for(const [k,d] of Object.entries(C.FITS)){const e=(d.tt||0)+(d.ion||0);if(!(e>0)||!d.asset)continue;const laser=/^claser|^cturret|^pd$|^monCalPD$/.test(k)||(/レーザー/.test(d.name)&&!/ターボ/.test(d.name));if(laser)continue;
