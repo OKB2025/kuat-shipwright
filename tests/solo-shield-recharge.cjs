@@ -10,6 +10,10 @@
 //   remain one third of a fully paid step. Test 2 reads the field against the design field because the hit's wear
 //   (SHIELD_MODEL.wear, same 3rd section) lowers u.shieldMax.
 // The power-ledger checks (paid watts, fuel, heat, the return of idle power to navigation) are unchanged.
+// 2026-11-24 fixture changed again, for the same reason as the length above (user「シールドはヴェネターとXウイングをつなぐ曲線で決まるはずだ」):
+// C.fieldScale now reads the volume of the unit's shield generators on one curve for ships and craft (C.SHIELD_CURVE: 1 at the Venator's
+// 61,561 m3 generator), whatever the hull length. The fixture's generator module was 1 m3 (scale 1.8e-5, a 200 TT field of 0.004 TT); it is
+// now the Venator generator's volume, where the scale is exactly 1, so the field this file was written around is unchanged.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,Math});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
@@ -18,7 +22,7 @@ run('const C=Core,TT_J=C.TT,trial={},toast=()=>{};');
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
 for(const name of ['trialSystemsUnit','trialPropulsionMotion','trialMainOutput','trialPowerStep']){const start=app.indexOf('function '+name+'('),end=app.indexOf('\n}',start)+2;assert.ok(start>=0&&end>start);run(app.slice(start,end));}
 function fixture(battle=false){
- const module=(k,part)=>({k,part,port:'p'+part,domain:'main',size:1,share:1,at:.5,powerConnected:true}),modules=[module('reactor',1),module('engine',2),module('shield',3),module('other',4)],P=100*TT;
+ const module=(k,part)=>({k,part,port:'p'+part,domain:'main',size:1,share:1,at:.5,powerConnected:true}),modules=[module('reactor',1),module('engine',2),{...module('shield',3),size:C.SHIELD_CURVE.fullGenV/* 2026-11-24 fixture changed, see the head of this file */},module('other',4)],P=100*TT;
  const engine={id:2,machineryId:2,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',ratedInputW:P,wattsPerNewton:2e9,ratedThrustN:P/2e9,driveProfileId:'standard',effectiveMachineryVolumeM3:1,machineryVolumeM3:1,direction:[1,0,0],pathCapacityW:P,valid:true,available:true,connected:true,outletAvailable:true};
  const src=(k,id,m)=>({k,id,n:id,g:'high',sh:1,st:1e40,m,pc:[],sec:-1,sw:-1,gen:-1});
  const p={profileVersion:C.FLEET_PROFILE_VERSION,name:'Actual solo shield regeneration',hp:1e12,len:1000/* 2026-11-19 fixture changed, see the head of this file */,width:40,height:20,D:20*C.K.deflect,shieldBuffer:200*C.K.deflect,reserve:0,wCap:0,crewNeed:0,crewMax:0,maxSpeed:1000,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,energyModel:{version:0},propulsion:{version:1,engines:[engine],massKg:1e9,ratedThrustN:engine.ratedThrustN,ratedAccelMps2:engine.ratedThrustN/1e9,accelerationLimitMps2:1e20},grid:{P,Pgen:P,fixed:5*TT,cooling:0,De:P,Ds:20*TT,Dw:0,domains:[{id:'main',P,sources:[{moduleIndex:0,P}],modules:[0,1,2,3]}],fixedLoads:[{id:'p4',port:'p4',domain:'main',weight:5*TT}],powerPaths:[{from:'p1',to:'p2',cap:P,ok:true},{from:'p1',to:'p3',cap:20*TT,ok:true},{from:'p1',to:'p4',cap:5*TT,ok:true}]},heat:{v:3,mode:'strict',src:[src('reactor','p1',[0]),src('engine','p2',[1]),src('shield','p3',[2]),src('hotel','p4',[3])],dis:[],ln:[]},fuel:{version:1,capacityKnown:true,capacityJ:1e40,specificEnergyJPerKg:C.fuelSpecificEnergyJPerKg()}};

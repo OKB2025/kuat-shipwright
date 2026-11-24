@@ -34,7 +34,7 @@ function surfacesTouch(a,m,left,right,eps=.01){
 
 test('the two photographed 40 TT twins have distinct houses while DBY-827 remains a 70 TT twin',()=>{
  const box=data(),dome=data('twin40Dome');assert.equal(box.d.asset,'family_twin40_box');assert.equal(dome.d.asset,'family_twin40_dome');
- for(const {d,a}of [box,dome]){assert.equal(d.barrels,2);assert.equal(d.boltTT,40);assert.equal(d.tt,80);near(d.power*d.cycle/C.TT,80,1e-9);near(C.weaponModelScale(d.key),1,1e-12);assert.equal(a.noSupportPedestal,true);}
+ for(const {d,a}of [box,dome]){assert.equal(d.barrels,2);assert.equal(d.boltTT,40);assert.equal(d.tt,80);/* 2026-11-24 gun rules: power is the charging rate; a shot's charge is E x (1 + barrel / 19 m) */near(d.gunRule.shotChargeTT,40*(1+d.gunRule.barrelM/C.GUN_RULES.turbolaser.chargeLen),1e-9);assert.equal(d.cycle,d.gunRule.cycle);near(d.power/C.TT,d.gunRule.chargeRateTT,1e-9);near(d.power*d.cycle/C.TT,2*d.gunRule.shotChargeTT,1e-9);near(C.weaponModelScale(d.key),1,1e-12);assert.equal(a.noSupportPedestal,true);}
  for(const {d,a}of [box,dome])for(const [i,key]of ['fm','hm','wm'].entries())near(a.size[i],d[key],.001);assert.notEqual(dome.a.turretCompartment.volumeM3,box.a.turretCompartment.volumeM3,'different closed houses at the same salvo energy retain their own physical room');
  assert.equal(C.FITS.refVen.tt,140);assert.equal(C.FITS.refVen.boltTT,70);near(C.FITS.refVen.fm,28.861991732993026,.003);assert.equal(C.FITS.refSide,undefined);assert.equal(C.canonicalWeaponKind('refSide'),'twin40');
 });

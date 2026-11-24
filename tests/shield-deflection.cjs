@@ -26,12 +26,17 @@ test('only the absorbed share draws on the field',()=>{
 test('a field whose transient buffer is full lets the shortfall through',()=>{
  const room=1.2,r=C.shieldPacketEnergyJ(100,0,1000,room,1000);near(r.absorbedJ,room/C.SHIELD_MODEL.beamStore);near(r.beamLeakJ,100-r.deflectedJ-r.absorbedJ);assert.ok(r.beamLeakJ>0);
 });
-test('missiles, bombs and craft strike the hull; ion ordnance works on the ship without the field',()=>{
+test('missiles and bombs strike the hull, craft lasers meet the field unless fired from inside it; ion ordnance works on the ship without the field',()=>{
  const src=fs.readFileSync(path.join(root,'js/core.js'),'utf8'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
  // 2026-11-19 expectation changed: v30 warheads wreck the section they strike (docs/damage-penetration.md), so the craft's
  // ordnance (ord) and the strategic map's arriving rounds go through combatBlastAdd instead of the direct channel. Missiles,
  // bombs and craft still strike the hull, ion ordnance still works without the field.
- assert.match(src,/\{sf:\(gun\+COMBAT\.ionShield\*ion\)\*hd,hull:\(gun\+COMBAT\.ionHull\*ion\)\*hd,direct:\(msl\+fd\)\*hd,ion:ion\*hd,ionDirect:\(imsl\+iord\)\*hd\}/);
+ // 2026-11-24 expectation changed (user「シールドに当たる場合はシールドに防がれる。スレスレを飛行してシールドの内側に入ると直接ダメージ」): the embarked
+ // craft's lasers (fd) meet the field like the guns, as their own bolts (the `air` amount, FLEET_AIR_GUN_BOLT); only fire from inside the
+ // field strikes the ship itself. Missiles still take the direct channel. Was: direct:(msl+fd)*hd from outside the field too.
+ assert.match(src,/\{sf:\(gun\+COMBAT\.ionShield\*ion\)\*hd,hull:\(gun\+COMBAT\.ionHull\*ion\)\*hd,air:fd\*hd(?:\/\*[^]*?\*\/)?,direct:msl\*hd,ion:ion\*hd,ionDirect:\(imsl\+iord\)\*hd\}/);
+ assert.match(src,/amt=inside\?\{sf:0,hull:0,direct:\(gun\+msl\+fd\)\*hd,ion:0,ionDirect:\(ion\+imsl\+iord\)\*hd\}:/,'from inside the field every kind of fire, the craft lasers too, strikes the ship itself');
+ assert.match(src,/if\(amount\.air>0\)combatAdd\(incoming,target,u\.pos,\{sf:amount\.air,hull:amount\.air,shot:FLEET_AIR_GUN_BOLT\},aim,u\.id\)/,'the craft lasers reach the field as shield fire (sf), not as a direct strike');
  assert.match(src,/combatBlastAdd\(incoming\.get\(t\.id\),ord\*hd\/oShot/);
  assert.match(src,/amt = m\.ion \? \{ionDirect: tt\} : \{blastRounds: m\.n \* DMG/);
  assert.match(src,/if\(o\.ionDirect>0\)ionOverloadJ\(u,o\.ionDirect\*TT/);
