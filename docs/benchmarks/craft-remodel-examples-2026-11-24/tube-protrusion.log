@@ -5,10 +5,10 @@ craft_btlb ctorp #26 body 1.4×0.5×0.5 m; outside the solids 60% ; reaches 0.50
 craft_tie_sa ctorp #22 body 1.4×0.5×0.5 m; outside the solids 21% ; reaches 0.50 m out along its mounting normal; autoSink 0.500
 craft_hyena ctorp #29 body 1.4×0.5×0.5 m; outside the solids 47% ; reaches 0.50 m out along its mounting normal; autoSink 0.260
 craft_hyena ctorp #30 body 1.4×0.5×0.5 m; outside the solids 47% ; reaches 0.50 m out along its mounting normal; autoSink 0.260
-craft_hyena cmsl #31 body 1.2×0.45×0.45 m; outside the solids 58% ; reaches 0.45 m out along its mounting normal; autoSink 0.210
-craft_hyena cmsl #32 body 1.2×0.45×0.45 m; outside the solids 58% ; reaches 0.45 m out along its mounting normal; autoSink 0.210
-craft_vulture ctorp #23 body 1.4×0.5×0.5 m; outside the solids 55% ; reaches 0.50 m out along its mounting normal; autoSink 0.420
-craft_vulture ctorp #24 body 1.4×0.5×0.5 m; outside the solids 55% ; reaches 0.50 m out along its mounting normal; autoSink 0.420
+craft_hyena cmsl #31 body 1.2×0.45×0.45 m; outside the solids 60% ; reaches 0.45 m out along its mounting normal; autoSink 0.170
+craft_hyena cmsl #32 body 1.2×0.45×0.45 m; outside the solids 60% ; reaches 0.45 m out along its mounting normal; autoSink 0.170
+craft_vulture ctorp #23 body 1.4×0.5×0.5 m; outside the solids 58% ; reaches 0.50 m out along its mounting normal; autoSink 0.200
+craft_vulture ctorp #24 body 1.4×0.5×0.5 m; outside the solids 58% ; reaches 0.50 m out along its mounting normal; autoSink 0.200
 craft_vulture cmsl #25 body 1.2×0.45×0.45 m; outside the solids 46% ; reaches 0.45 m out along its mounting normal; autoSink 0.240
 craft_v19 cmsl #27 body 1.2×0.45×0.45 m; outside the solids 37% ; reaches 0.45 m out along its mounting normal; autoSink 0.300
 craft_v19 cmsl #28 body 1.2×0.45×0.45 m; outside the solids 37% ; reaches 0.45 m out along its mounting normal; autoSink 0.300

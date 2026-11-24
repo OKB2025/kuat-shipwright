@@ -71,7 +71,7 @@ test('a ship with no mouth the craft fits does not launch them',()=>{
 test('a squadron that has landed is re-armed and can go up again, bombers too',()=>{
  const {B,isd}=setup();run(B,25);const q=B.air.squadrons.find(x=>x.team===1&&x.bomber);
  for(const u of B.units.filter(u=>u.sortie?.bomber&&u.team===1)){u.sortie.stores=[];u.pos=[isd.pos[0]+200,300,0];u.velocity=[0,0,0];}
- B.air.squadrons.filter(x=>x.team===1).forEach(x=>{x.queue=[];x.pending=0;});for(const u of B.units.filter(u=>u.sortie&&!u.sortie.bomber&&u.team===1)){u.pos=[isd.pos[0]+200,300,400];u.velocity=[0,0,0];}for(const u of B.units.filter(u=>u.sortie&&u.team===0))u.dead=true;run(B,1);
+ B.air.squadrons.filter(x=>x.team===1).forEach(x=>{x.queue=[];x.pending=0;});for(const u of B.units.filter(u=>u.sortie&&!u.sortie.bomber&&u.team===1)){u.pos=[isd.pos[0]+200,300,400];u.velocity=[0,0,0];}for(const u of B.units.filter(u=>u.sortie&&u.team===0))u.dead=true;B.air.squadrons.filter(x=>x.team===0).forEach(x=>{x.queue=[];x.pending=0;x.size=0;});/* 2026-11-24 fixture changed: the rebels' hangar squadrons are emptied too. With the BTL-A4 as the ywing (craft_ywing) their second Y-wing squadron goes up during the re-arm, the Imperial fleet answers it with fighters (user decision 2026-11-19, wide-area defence) and holds its bombers, which is the rule working; this case is about the re-arm. */run(B,1);
  assert.equal(q.out,false);assert.ok(q.readyAt>B.time);const n=q.size;assert.ok(n>0);
  run(B,C.FLEET_AIR.rearm+C.FLEET_AIR.every+8);
  assert.equal(q.out,true,'it goes up again after '+C.FLEET_AIR.rearm+' s');const again=B.units.filter(u=>q.members.includes(u.id));const bs=again.filter(u=>u.sortie.bomber);assert.ok(bs.length>0&&bs.every(u=>u.sortie.stores.length>0),'the bombers with their rounds');

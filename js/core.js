@@ -26775,7 +26775,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "wc3w8z",
+   "signature": "3wpc62",
    "build": 177666,
    "crew": 0,
    "total": 177666,
@@ -26988,12 +26988,12 @@ const CRAFT_PRICE_CATALOG={
       "launchMuzzles": [
        [
         4.301999961853028,
-        0.23848021498173488,
+        0.2784802149817349,
         0.351
        ],
        [
         4.301999961853028,
-        0.23848021498173488,
+        0.2784802149817349,
         0.549
        ]
       ],
@@ -27004,7 +27004,7 @@ const CRAFT_PRICE_CATALOG={
       "ammo0": 6,
       "muzzle": [
        4.301999961853028,
-       0.23848021498173488,
+       0.2784802149817349,
        0.45
       ],
       "launchDir": [
@@ -27016,7 +27016,7 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.797,
       "pd": false,
       "dualPurpose": false,
-      "y": 0.01,
+      "y": 0.03,
       "z": 0.1,
       "r": 0.048,
       "share": 0.5,
@@ -27041,12 +27041,12 @@ const CRAFT_PRICE_CATALOG={
       "launchMuzzles": [
        [
         4.301999961853028,
-        0.23848021498173488,
+        0.2784802149817349,
         -0.549
        ],
        [
         4.301999961853028,
-        0.23848021498173488,
+        0.2784802149817349,
         -0.351
        ]
       ],
@@ -27057,7 +27057,7 @@ const CRAFT_PRICE_CATALOG={
       "ammo0": 6,
       "muzzle": [
        4.301999961853028,
-       0.23848021498173488,
+       0.2784802149817349,
        -0.45
       ],
       "launchDir": [
@@ -27069,7 +27069,7 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.797,
       "pd": false,
       "dualPurpose": false,
-      "y": 0.01,
+      "y": 0.03,
       "z": -0.1,
       "r": 0.048,
       "share": 0.5,
@@ -27848,8 +27848,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1483164356235549200,
-     "fixed": 33169313307142084,
-     "cooling": 1891628892958619.2,
+     "fixed": 33169313306992820,
+     "cooling": 1891628892809356,
      "De": 1483164356235549200,
      "Ds": 0,
      "Dw": 2836800000000000,
@@ -28308,8 +28308,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p17>f31",
        "model": "source-distance",
-       "lengthM": 3.5459987323742803,
-       "efficiency": 0.9999645406413742
+       "lengthM": 3.5452101503295963,
+       "efficiency": 0.9999645485269151
       },
       {
        "kind": "power",
@@ -28320,8 +28320,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p17>f32",
        "model": "source-distance",
-       "lengthM": 4.432618527462068,
-       "efficiency": 0.9999556747971162
+       "lengthM": 4.4319877041796945,
+       "efficiency": 0.9999556811050695
       },
       {
        "kind": "power",
@@ -28404,8 +28404,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p18>f31",
        "model": "source-distance",
-       "lengthM": 4.432618527462068,
-       "efficiency": 0.9999556747971162
+       "lengthM": 4.4319877041796945,
+       "efficiency": 0.9999556811050695
       },
       {
        "kind": "power",
@@ -28416,8 +28416,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p18>f32",
        "model": "source-distance",
-       "lengthM": 3.5459987323742803,
-       "efficiency": 0.9999645406413742
+       "lengthM": 3.5452101503295963,
+       "efficiency": 0.9999645485269151
       },
       {
        "kind": "power",
@@ -28500,8 +28500,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p23>f31",
        "model": "source-distance",
-       "lengthM": 3.086424470159605,
-       "efficiency": 0.9999691362315943
+       "lengthM": 3.081237415390122,
+       "efficiency": 0.9999691881005425
       },
       {
        "kind": "power",
@@ -28512,8 +28512,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p23>f32",
        "model": "source-distance",
-       "lengthM": 3.389397588067827,
-       "efficiency": 0.9999661065985136
+       "lengthM": 3.384674875080323,
+       "efficiency": 0.999966153824044
       },
       {
        "kind": "power",
@@ -28596,8 +28596,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p24>f31",
        "model": "source-distance",
-       "lengthM": 3.3657947070491394,
-       "efficiency": 0.9999663426193518
+       "lengthM": 3.3644883726950225,
+       "efficiency": 0.9999663556822558
       },
       {
        "kind": "power",
@@ -28608,8 +28608,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p24>f32",
        "model": "source-distance",
-       "lengthM": 3.060485910766459,
-       "efficiency": 0.9999693956092163
+       "lengthM": 3.0590492003235257,
+       "efficiency": 0.9999694099758811
       },
       {
        "kind": "power",
@@ -29728,7 +29728,7 @@ const CRAFT_PRICE_CATALOG={
      "sourceBudgetKey": "[1483164356235549200,[[\"main\",1483164356235549200,[[12,598726074267802100],[13,598698071583576400],[18,142870105192085180],[19,142870105192085180]]]],[[12,\"reactor\",17,\"p17\",\"main\",0.11432607407367701,0.403681541934733],[13,\"reactor\",18,\"p18\",\"main\",0.11432072699245133,0.40366266156985103],[18,\"reactor\",23,\"p23\",\"main\",0.027280886754563617,0.0963278982477079],[19,\"reactor\",24,\"p24\",\"main\",0.027280886754563617,0.0963278982477079]]]"
     },
     "profileVersion": 25,
-    "maxSpeed": 928.3179037840692,
+    "maxSpeed": 928.3179037920521,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -30278,7 +30278,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f30",
        "n": "送電損失 p17>f30",
        "g": "high",
-       "sh": 0.000796169,
+       "sh": 0.00079617,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30291,7 +30291,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f31",
        "n": "送電損失 p17>f31",
        "g": "high",
-       "sh": 0.000423639,
+       "sh": 0.000423545,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30304,7 +30304,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f32",
        "n": "送電損失 p17>f32",
        "g": "high",
-       "sh": 0.000529565,
+       "sh": 0.00052949,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30980,7 +30980,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p22",
        "n": "送電損失 p23>p22",
        "g": "high",
-       "sh": 0.0135566,
+       "sh": 0.0135567,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -35836,7 +35836,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 46.41589518920346,
+    "mglt": 46.41589518960261,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -61004,7 +61004,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "8gp6lf",
+   "signature": "4ef31i",
    "build": 158917,
    "crew": 0,
    "total": 158917,
@@ -61048,8 +61048,8 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 1.6256739754476743e-16,
+    "upS": 1.6256739754476743e-16,
     "down": 0.01,
     "T": 0
    },
@@ -61168,7 +61168,7 @@ const CRAFT_PRICE_CATALOG={
       "pd": false,
       "dualPurpose": false,
       "band": "close",
-      "y": -0.27,
+      "y": -0.05,
       "z": 0.12,
       "r": 0.093,
       "share": 0,
@@ -61192,7 +61192,7 @@ const CRAFT_PRICE_CATALOG={
       "pd": false,
       "dualPurpose": false,
       "band": "close",
-      "y": -0.27,
+      "y": -0.05,
       "z": -0.12,
       "r": 0.093,
       "share": 0,
@@ -61973,8 +61973,8 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1566647326945347800,
-     "fixed": 31530534712991120,
-     "cooling": 4249758893634178,
+     "fixed": 31530534719815410,
+     "cooling": 4249758900458466,
      "De": 1566647326945347800,
      "Ds": 0,
      "Dw": 2836800000000000,
@@ -62412,8 +62412,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p16>f23",
        "model": "source-distance",
-       "lengthM": 0.6971866966602274,
-       "efficiency": 0.9999930281573368
+       "lengthM": 0.7211666173638377,
+       "efficiency": 0.9999927883598304
       },
       {
        "kind": "power",
@@ -62424,8 +62424,8 @@ const CRAFT_PRICE_CATALOG={
        "ok": true,
        "routeId": "p16>f24",
        "model": "source-distance",
-       "lengthM": 0.6971866966602274,
-       "efficiency": 0.9999930281573368
+       "lengthM": 0.7211666173638377,
+       "efficiency": 0.9999927883598304
       },
       {
        "kind": "power",
@@ -63163,7 +63163,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00947967,
+       "sh": 0.00947951,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -63176,7 +63176,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p4",
        "n": "送電損失 p100>p4",
        "g": "high",
-       "sh": 0.0000110416,
+       "sh": 0.0000110415,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63189,7 +63189,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p5",
        "n": "送電損失 p99>p5",
        "g": "high",
-       "sh": 0.0000110416,
+       "sh": 0.0000110415,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63202,7 +63202,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p6",
        "n": "送電損失 p100>p6",
        "g": "high",
-       "sh": 0.00000975502,
+       "sh": 0.00000975486,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63215,7 +63215,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p7",
        "n": "送電損失 p99>p7",
        "g": "high",
-       "sh": 0.00000975502,
+       "sh": 0.00000975486,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63488,7 +63488,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f19",
        "n": "送電損失 p16>f19",
        "g": "high",
-       "sh": 0.000265783,
+       "sh": 0.000265779,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63501,7 +63501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f20",
        "n": "送電損失 p16>f20",
        "g": "high",
-       "sh": 0.000265783,
+       "sh": 0.000265779,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63514,7 +63514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f21",
        "n": "送電損失 p16>f21",
        "g": "high",
-       "sh": 0.000262394,
+       "sh": 0.00026239,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63527,7 +63527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.000262394,
+       "sh": 0.00026239,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63540,7 +63540,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.000237106,
+       "sh": 0.000245258,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63553,7 +63553,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.000237106,
+       "sh": 0.000245258,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63566,7 +63566,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.000118351,
+       "sh": 0.000118349,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63579,7 +63579,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p13",
        "n": "送電損失 p16>p13",
        "g": "high",
-       "sh": 0.000167769,
+       "sh": 0.000167766,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -63592,7 +63592,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p39",
        "n": "送電損失 p16>p39",
        "g": "high",
-       "sh": 0.000416263,
+       "sh": 0.000416257,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -63605,7 +63605,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p40",
        "n": "送電損失 p16>p40",
        "g": "high",
-       "sh": 0.00083972,
+       "sh": 0.000839706,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -63618,7 +63618,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p92",
        "n": "送電損失 p16>p92",
        "g": "high",
-       "sh": 0.00208189,
+       "sh": 0.00208185,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -63631,7 +63631,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p94",
        "n": "送電損失 p16>p94",
        "g": "high",
-       "sh": 0.00208189,
+       "sh": 0.00208185,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -63696,7 +63696,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.242656,
+       "sh": 0.242653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63709,7 +63709,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p18",
        "n": "送電損失 p16>p18",
        "g": "high",
-       "sh": 0.242656,
+       "sh": 0.242653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63722,7 +63722,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p17",
        "n": "送電損失 p99>p17",
        "g": "high",
-       "sh": 0.180814,
+       "sh": 0.180811,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63735,7 +63735,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p18",
        "n": "送電損失 p99>p18",
        "g": "high",
-       "sh": 0.0681508,
+       "sh": 0.0681497,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63748,7 +63748,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p17",
        "n": "送電損失 p100>p17",
        "g": "high",
-       "sh": 0.0681508,
+       "sh": 0.0681497,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63761,7 +63761,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p18",
        "n": "送電損失 p100>p18",
        "g": "high",
-       "sh": 0.180814,
+       "sh": 0.180811,
        "m": [],
        "pc": [],
        "sec": 3,
