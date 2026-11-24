@@ -22,8 +22,13 @@ test('a burst 8 m beside a shielded X-wing is taken by its field: no section is 
  // that the field is met first; the burst that leaks through goes on as a warhead burst
  assert.ok(r.log.hit>=1);
 });
-test('a round that strikes the craft passes the field as before',()=>{
- const r=shot(px,0);assert.ok(!(r.log.prox>0),JSON.stringify(r.log));assert.ok(r.log.hit>=1);assert.ok(r.secLost>0||r.dead,'the warhead takes its section');
+test('the fuse fires before contact: a round aimed at the centre also bursts beside the craft and meets its field',()=>{
+ // 2026-11-24 expectation changed (user: 「近接信管なんだから当たる前に爆発するべきでは？」): was "a round that strikes the craft passes the field"
+ const r=shot(px,0);assert.equal(r.log.prox,1,JSON.stringify(r.log));assert.ok(r.shieldUsed>0,'the field took energy');
+ for(const k of ['craft_xwing','craft_awing','craft_tie_ln','craft_ywing','craft_btlb']){const q=prof(k);assert.ok(C.craftFuseRadius({p:q})>C.proxBodyRadius({p:q}),k+' is smaller than its fuse reach');}
+});
+test('a craft larger than its fuse reach is struck: the round passes its field',()=>{
+ const big={...plain(px),len:60,width:60};assert.ok(C.craftFuseRadius({p:big})<C.proxBodyRadius({p:big}));
 });
 test('a burst beside an unshielded craft goes on whole as a warhead burst',()=>{
  const r=shot(pt,8);assert.equal(r.log.prox,1);assert.ok(r.secLost>0||r.dead,'TIE/in: no field, the burst takes its section');
