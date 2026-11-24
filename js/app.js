@@ -11186,6 +11186,8 @@ function decalPanelHTML(){
   ${sel.kind!=='image'?`<label>色 <input type="color" data-decalcolor value="${sel.color||'#ffffff'}"></label>`:''}
   <div class="sliders">${num('w','幅 (m)',sel.w,.05,C.DECAL_LIMITS.size,.1)}${num('h','高さ (m)',sel.h,.05,C.DECAL_LIMITS.size,.1)}${num('rot','回転 (°)',Math.round(sel.rot||0),-180,180,1)}</div>
   <label><input type="checkbox" data-decalmirror ${sel.mirror?'checked':''}> 反対側にも描く（左右対称）</label>
+  <div class="xf-grid" data-decal-move>${['前後 X','上下 Y','左右 Z'].map((l,i)=>`<div class="xf-row"><span>${esc(T(l))}</span><button type="button" class="btn sm" data-decalnudge="${i}" data-sign="-1" aria-label="${esc(T(l))} を減らす">−</button><input type="number" step="any" data-decalpos="${i}" value="${+(sel.c[i]||0).toFixed(3)}" aria-label="${esc(T(l))}（m）"><button type="button" class="btn sm" data-decalnudge="${i}" data-sign="1" aria-label="${esc(T(l))} を増やす">＋</button></div>`).join('')}</div>
+  <label class="field-label xf-step">${esc(T('刻み（m）'))}<input type="number" min="0.01" step="any" data-decalstep value="${st.decalStep||Math.max(.1,Math.round(Math.max(sel.w,sel.h)*.1*100)/100)}"></label>
   <div><button type="button" class="btn sm" data-decalmove>位置を変える</button><button type="button" class="btn sm danger" data-decaldel>削除</button></div></div>`:''}
  </div>`;
 }
@@ -11219,12 +11221,16 @@ function bindDecalPanel(panel){
   else if('decalcancel'in d){st.decalArm=null;renderPanel();}
   else if(d.decalsel){st.decalSel=+d.decalsel;renderPanel();}
   else if('decalmove'in d&&decalById(st.decalSel)){st.decalArm={move:st.decalSel};renderPanel();}
+  /* 2026-11-24 (user「構造物同様、バーで移動できるように」): − / ＋ move it by the step along X, Y or Z */
+  else if(d.decalnudge!=null&&decalById(st.decalSel)){const id=st.decalSel,i=+d.decalnudge,sel=decalById(id),step=st.decalStep||Math.max(.1,Math.round(Math.max(sel.w,sel.h)*.1*100)/100),sign=+d.sign||1;mutate('塗装・エンブレムを移動',()=>{const q=decalById(id);q.c=q.c.slice();q.c[i]=C.clamp(q.c[i]+sign*step,-C.DESIGN_LIMITS.coordinate,C.DESIGN_LIMITS.coordinate);},'decals');renderPanel();}
   else if('decaldel'in d&&decalById(st.decalSel)){const id=st.decalSel;mutate('塗装・エンブレムを削除',()=>{ship.decals=ship.decals.filter(q=>q.id!==id);const used=new Set(ship.decals.map(q=>q.image).filter(Boolean));for(const k of Object.keys(ship.decalImages||{}))if(!used.has(k))delete ship.decalImages[k];if(!ship.decals.length){delete ship.decals;delete ship.decalImages;}},'decals');st.decalSel=null;renderPanel();}
  });
  panel.addEventListener('change',e=>{const t=e.target;if(!t.closest?.('[data-decal-panel]'))return;const sel=decalById(st.decalSel);
   if('decalfile'in t.dataset){decalReadImage(t.files?.[0]);t.value='';return;}if(!sel)return;const id=sel.id;
   if('decalcolor'in t.dataset)mutate('塗装・エンブレムの色',()=>{decalById(id).color=t.value.toLowerCase();},'decals');
   else if(t.dataset.decalnum){const k=t.dataset.decalnum,v=+t.value;if(!Number.isFinite(v))return;mutate('塗装・エンブレムの大きさ・向き',()=>{const d=decalById(id);d[k]=k==='rot'?C.clamp(v,-180,180):C.clamp(v,.05,C.DECAL_LIMITS.size);},'decals');}
+  else if(t.dataset.decalpos!=null){const i=+t.dataset.decalpos,v=+t.value;if(!Number.isFinite(v))return;mutate('塗装・エンブレムを移動',()=>{const q=decalById(id);q.c=q.c.slice();q.c[i]=C.clamp(v,-C.DESIGN_LIMITS.coordinate,C.DESIGN_LIMITS.coordinate);},'decals');}
+  else if('decalstep'in t.dataset){const v=+t.value;if(Number.isFinite(v)&&v>0)st.decalStep=v;}
   else if('decalmirror'in t.dataset)mutate('塗装・エンブレムの左右対称',()=>{const d=decalById(id);if(t.checked)d.mirror=true;else delete d.mirror;},'decals');
   renderPanel();
  });

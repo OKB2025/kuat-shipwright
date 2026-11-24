@@ -108397,10 +108397,12 @@ function normalizeDecals(rawDecals,rawImages){
  const used=new Set(out.filter(d=>d.image).map(d=>d.image));for(const k of Object.keys(images))if(!used.has(k))delete images[k];
  return {decals:out,images};
 }
-// The decal's frame: n out of the surface, u along its width and v along its height. u starts from the ship's
-// length axis projected on the surface plane (its height axis on a surface facing along x), turned by rot.
+// The decal's frame: n out of the surface, u along its width and v along its height (the picture's up).
+// 2026-11-24 (user「向きはカメラベースではなく艦の向きをベースに0度で」): at 0° the picture's up is the ship's up (+Y) on a wall, and
+// the ship's bow (+X) on a deck or the bottom (a surface facing up or down); u = v × n, so the picture reads the right way round
+// seen from outside on either side of the ship. rot turns it about n.
 function decalFrame(d){
- const n=norm(d.n),ref=Math.abs(n[0])>.9?[0,1,0]:[1,0,0];let u=norm(sub(ref,mul(n,dot(ref,n))));let v=cross(n,u);const a=(d.rot||0)*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
+ const n=norm(d.n),ref=Math.abs(n[1])>.9?[1,0,0]:Math.abs(n[0])>.9?[0,1,0]:[0,1,0];let v=norm(sub(ref,mul(n,dot(ref,n))));let u=cross(v,n);const a=(d.rot||0)*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
  const uu=add(mul(u,ca),mul(v,sa)),vv=add(mul(u,-sa),mul(v,ca));return {n,u:uu,v:vv};
 }
 // The decal and, when mirrored, its image across the ship's centre plane (z → −z, the picture itself not reversed).
