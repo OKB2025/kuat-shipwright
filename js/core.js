@@ -109956,6 +109956,8 @@ Object.assign(FITS.pd,{fm:PD_TURRET_SIZE[0],wm:PD_TURRET_SIZE[2],hm:PD_TURRET_SI
 // brings an asset's mean texture colour to one shared neutral hull grey;
 // engines keep half of their extra darkness. Measured from the atlas.
 const REFERENCE_TONE=Object.freeze({"ven_side70_native":[0.952,0.961,0.969],"bridge_pod":[1.064,1.108,1.132],"ven_hull":[0.98,1.009,1.04],"ven_tower_port":[0.965,0.998,1.036],"ven_tower_stbd":[0.965,0.998,1.036],"ven_bridge_port":[0.941,0.973,1.013],"ven_bridge_stbd":[0.941,0.973,1.013],"ven_spine":[0.945,0.978,1.013],"ven_outer_port":[1.131,1.142,1.153],"ven_outer_stbd":[1.131,1.142,1.153],"ven_inner_port":[1.127,1.138,1.148],"ven_inner_stbd":[1.127,1.138,1.148],"ven_upper_port":[1.13,1.141,1.151],"ven_upper_stbd":[1.13,1.141,1.151],"ven_aux_port":[1.098,1.109,1.119],"ven_aux_stbd":[1.098,1.109,1.119],"ven_turret":[1.097,1.173,1.236],"ven_turret_0":[1.097,1.173,1.236],"ven_turret_1":[1.097,1.173,1.236],"ven_turret_2":[1.097,1.173,1.236],"ven_turret_3":[1.097,1.173,1.236],"ven_turret_4":[1.097,1.173,1.236],"ven_turret_5":[1.097,1.173,1.236],"ven_turret_6":[1.097,1.173,1.236],"ven_turret_7":[1.097,1.173,1.236],"ven_side_gun":[0.952,0.961,0.969],"ven_side_port":[0.952,0.961,0.969],"ven_side_stbd":[0.952,0.961,0.969],"isd_hull":[1.037,1.081,1.107],"isd_support":[1.052,1.094,1.12],"isd_citadel":[1.082,1.131,1.161],"isd_bridge":[1.064,1.108,1.132],"isd_engine_0":[1.032,1.087,1.122],"isd_engine_1":[1.042,1.096,1.131],"isd_engine_3":[1.042,1.101,1.136],"isd_engine_4":[1.042,1.101,1.136],"isd_mast":[1.128,1.186,1.224],"isd_sensor_port":[1.017,1.062,1.087],"isd_engine_2":[1.032,1.087,1.122],"isd_engine_5":[1.042,1.101,1.136],"isd_engine_6":[1.042,1.101,1.136],"isd_sensor_stbd":[1.017,1.062,1.087],"isd_heavy_twin":[1.118,1.173,1.208],"isd_heavy_octuple":[1.118,1.173,1.208],"isd_turret":[1.118,1.173,1.208],"isd_turret_0":[1.118,1.173,1.208],"isd_turret_1":[1.118,1.173,1.208],"isd_turret_2":[1.118,1.173,1.208],"isd_turret_3":[1.118,1.173,1.208],"isd_turret_4":[1.118,1.173,1.205],"isd_turret_5":[1.118,1.173,1.205],"isd_turret_6":[1.118,1.173,1.205],"isd_turret_7":[1.118,1.173,1.205],"isd2_octuple":[0.877,0.886,0.894],"isd2_casemate":[0.877,0.886,0.894],"isdh_turret":[1.208,1.217,1.196],"isdh_bridge":[1.172,1.172,1.142],"isdh_sensor_port":[1.155,1.162,1.141],"isdh_sensor_stbd":[1.155,1.162,1.141],"isdh_mast":[1.193,1.201,1.182],"isdh_engine_main":[1.048,1.055,1.035],"isdh_engine_aux":[1.102,1.107,1.085]});
+// The point defence twin's barrels thickened to 0.40 m outside (user 2026-11-24; 800 kt by the laser rule): from 0.231 m.
+{const a=REFERENCE_ASSETS.pd_twin_side_laser;if(a&&!a.barrelRadiusScale){a.barrelRadiusScale=.20/.1155;for(const b of a.barrelCenters||[]){if(b.outerRadiusM>0)b.outerRadiusM*=a.barrelRadiusScale;if(b.boreRadiusM>0)b.boreRadiusM*=a.barrelRadiusScale;}}}
 function decodeReference(id){
  const a=REFERENCE_ASSETS[id];if(!a)return null;if(a._decoded)return a._decoded;
  // Identical meshes are stored once; a copy names its source with dataFrom.
@@ -109966,6 +109968,9 @@ function decodeReference(id){
  for(let i=0;i<pos.length;i++)pos[i]=dv.getInt16(i*2,true)/65532;
  for(let i=0;i<uv.length;i++)uv[i]=dv.getUint16(a.n*6+i*2,true)/65535;
  for(let i=0;i<idx.length;i++)idx[i]=a.indexBytes===2?dv.getUint16(a.n*10+i*2,true):dv.getUint32(a.n*10+i*4,true);
+ // 2026-11-24 (user「点防御の砲身を太くする」): a model whose barrels the user had made thicker (barrelRadiusScale) has each
+ // barrel component's vertices moved out from its centre line by that factor, in metres (c + pos × size), the rest as modelled.
+ if(a.barrelRadiusScale>0&&a.barrelRadiusScale!==1&&Array.isArray(a.barrelCenters)&&Array.isArray(a.c)&&Array.isArray(a.size)){const k=a.barrelRadiusScale;for(const b of a.barrelCenters){if(!(b.vertices>0)||!Array.isArray(b.root))continue;for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){for(const ax of [1,2]){const m=a.c[ax]+pos[v*3+ax]*a.size[ax],r=m-b.root[ax];pos[v*3+ax]=(b.root[ax]+r*k-a.c[ax])/a.size[ax];}}}}
  a._decoded={pos,uv,idx};return a._decoded;
 }
 STRUCT_SHAPES.reference='参照モデル構造物';
@@ -118563,10 +118568,10 @@ function shieldGeneratorLength(p){const S=CRAFT_SHIELD,mods=Array.isArray(p?.mod
 // craft and ships on one curve by the volume of their shield generators, joining the X-wing's (0.333 m³, 1.2e-5: four times
 // its earlier field, user 2026-11-24) to the Venator's (61,561 m³, the whole field); above the Venator's, the whole field.
 // A profile without generator modules (a legacy or table-only one) keeps the length curve below.
-// The X-wing's point (user 2026-11-24「交戦距離でのTIE/inの4秒間の投射分に合わせてxウィングのシールドの倍率を変え直して」): the fight distance
-// with mass and thrust turning is 380 m (the TIE/in's mean shot distance, docs/benchmarks/gun-model-2026-11-24/dodge/natural.txt); there its
-// six 118 kt lasers (1 shot a second, fading over 180 m) put 344.5 kt on target in 4 s, the X-wing's field: 7.395e-6.
-const SHIELD_CURVE=Object.freeze({refGenV:4/3*Math.PI*.43**3,refScale:7.395e-6,fullGenV:61561.1});
+// The X-wing's point (user 2026-11-24「交戦距離でのTIE/inの4秒間の投射分に合わせて」, then「交戦距離ではなく実際の被弾距離で」): with mass
+// and thrust turning the X-wing is hit at 413 m on average (the TIE/in's mean hit distance, docs/benchmarks/gun-model-2026-11-24/dodge/
+// natural.txt); there the TIE/in's six 118 kt lasers (1 shot a second, fading over 180 m) carry 286.8 kt in 4 s, the X-wing's field.
+const SHIELD_CURVE=Object.freeze({refGenV:4/3*Math.PI*.43**3,refScale:6.158e-6,fullGenV:61561.1});
 const SHIELD_CURVE_EXP=Math.log(SHIELD_CURVE.refScale)/Math.log(SHIELD_CURVE.refGenV/SHIELD_CURVE.fullGenV);
 function shieldGeneratorVolume(p){const mods=Array.isArray(p?.modules)?p.modules.filter(m=>m&&(m.k==='shield'||m.k==='localShield')):[];return mods.reduce((n,m)=>n+(Number.isFinite(m.size)&&m.size>0?m.size:0),0);}
 function fieldScale(p){const V=shieldGeneratorVolume(p);if(V>0)return Math.min(1,Math.pow(V/SHIELD_CURVE.fullGenV,SHIELD_CURVE_EXP))*(p?.cls?.craft||p?.craftShield===true?craftShieldTrial():1);return lengthFieldScale(p);}
