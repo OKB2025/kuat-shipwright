@@ -5361,7 +5361,7 @@ function designUISchedulePreview(){
   if(designUI.preview&&designUI.preview.canvas!==canvas){const old=designUI.preview.canvas;if(!designUI.preview.disposed&&!designUI.preview.gl?.isContextLost?.()&&old){old.id=canvas.id;old.className=canvas.className;old.hidden=false;for(const a of ['aria-label','style'])canvas.hasAttribute(a)?old.setAttribute(a,canvas.getAttribute(a)):old.removeAttribute(a);canvas.replaceWith(old);canvas=old;}else{designUI.preview.dispose?.();designUI.preview=null;}}
   try{
    const editing=st.tab==='edit',it=editing?selItem():null,fit=editing?st.sel?.list==='fits':['fit','adjust'].includes(tool());
-   const p=it?requestedPart(it):fit?designUIFitDraft({p:[0,0,0],n:[0,1,0],kind:'section'}):partPreview({p:[0,0,0],n:[0,1,0],kind:'section'});if(!p)return;
+   const p=it?requestedPart(it):fit?designUIFitDraft({p:[0,0,0],n:[0,1,0],kind:'section'}):partPreview({p:[0,0,0],n:[0,1,0],kind:'section'});if(!p){canvas.hidden=true;/* the kept canvas would show the part before */return;}canvas.hidden=false;
    const template=tool()==='userpart'?userPartFind(st.userPart):null,imported=tool()==='importmesh'?importResult()?.part:null;
    const model={...ship,parts:template?template.parts:fit?[]:[imported||p],fits:template?template.fits:fit?[p]:[]},meshes=Gfx.meshPreview(model,model.parts,model.fits,{coded:st.coded});
    const renderer=designUI.preview||(designUI.preview=new Gfx.Renderer(canvas));renderer.noShadow=true;
