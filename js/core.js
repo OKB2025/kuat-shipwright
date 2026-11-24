@@ -118407,7 +118407,8 @@ function combatResolve(ctx,u,o,dt,s){
  // 2026-11-24 (user: 「直撃ではなく近接で作動するならシールドは動作していいのでは」): a warhead that bursts beside a craft on its proximity
  // fuse, not on it (fleetMissilesFly: every fused round on a craft smaller than its fuse reach), meets the craft's field like
  // any other energy (shieldReceive); only what the field lets through goes on as a warhead burst on the craft (combatBlast). A
- // round that strikes a ship or a craft larger than its fuse reach still passes the field (v24 rule).
+ // round that strikes a ship or a craft larger than its fuse reach still passes the field (v24 rule; user decision 2026-11-24
+ // 「艦に対しては直撃のみ」: against ships a round counts only as a strike on the hull, never as a burst beside it).
  if(o.proxBlasts?.length&&!u.dead){const kept=[];for(const bl of o.proxBlasts){const E=Math.max(0,bl.n*bl.tt*DMG);if(!(E>0))continue;const r=u.shieldMax>0?shieldReceive(u,{energy:E},ctx):{leaked:E},f=clamp((r.leaked||0)/E,0,1);const lg=ctx.proxLog||null;if(lg){lg.n=(lg.n||0)+bl.n;lg.blocked=(lg.blocked||0)+bl.n*(1-f);}if(f>1e-9)kept.push({...bl,n:bl.n*f});}
   if(kept.length){o.blasts=(o.blasts||[]).concat(kept);}}
  if(o.blasts?.length&&!u.dead){combatBlast(ctx,u,o);u.hot=true;}
