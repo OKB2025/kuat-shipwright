@@ -42,3 +42,12 @@ test('a trial missile turns at most ROUND_TRIAL.turn: fired head-on and passed, 
  for(let i=0;i<20&&b.missiles.includes(m)&&m.n>0;i++){C.fleetTick(b,.25,{});const v=C.norm(m.vel),ang=Math.acos(Math.max(-1,Math.min(1,C.dot(prev,v))));maxRate=Math.max(maxRate,ang/.25);prev=v;}
  assert.ok(maxRate<=C.ROUND_TRIAL.turn*1.001,'turn rate '+maxRate+' rad/s');assert.ok(!(b.missileLog?.hit>0),'it does not reach the target behind it');
 });
+
+test('KS_MSL_FF: a launcher holds fire while a wingman is in its line to the target',()=>{
+ const {C}=core({KS_MSL_FF:true}),p=craft(C,'craft_xwing'),q=craft(C,'craft_tie_ln');
+ const a=C.fleetUnit('a','craft_xwing',p,0),w=C.fleetUnit('w','craft_xwing',plain(p),0),t=C.fleetUnit('t','craft_tie_ln',q,1);a.pos=[0,0,0];t.pos=[2000,0,0];
+ w.pos=[1000,30,0];assert.equal(C.craftLineClear([a,w,t],a,t),false,'30 m off the line, between');
+ w.pos=[1000,120,0];assert.equal(C.craftLineClear([a,w,t],a,t),true,'120 m off the line');
+ w.pos=[2500,0,0];assert.equal(C.craftLineClear([a,w,t],a,t),true,'beyond the target');
+ const off=core().C;assert.equal(off.craftLineClear([a,{...w,pos:[1000,0,0]},t],a,t),true,'without the switch nothing is held');
+});
