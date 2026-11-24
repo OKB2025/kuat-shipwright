@@ -8262,13 +8262,33 @@ function trialReset(){
  const bank=trial.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);trial.energy={E:bank,cap:bank};trial.engF=0;trial.thrustWant=0;trial.mainThrustShare=0;trial.steeringWant=0;trial.power=null;trial.propulsion=null;
  const L=trial.p.len;trialDust();
  for(const t of trial.turrets){t.yaw=0;t.el=0;t.reload=Math.random()*t.cycle;t.clear=false;t.clearDir=null;t.aimed=false;t.arc=true;t.dead=false;t.rot=trialAxisMatrix(t.axis,0,t.rot);}for(const l of trial.launchers)l.dead=false;
- trial.targets=[];trial.battle=null;trial.wing=null;if(trial.rts)voyPilotInit();else if(trial.mode==='battle'&&trial.battlePlan)spaceBattleInit(trial.battlePlan);else if(trial.returnTo==='title')patrolReset();else for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));
+ trial.targets=[];trial.battle=null;trial.wing=null;if(trial.rts)voyPilotInit();else if(trial.mode==='battle'&&trial.battlePlan){spaceBattleInit(trial.battlePlan);if(trial.battlePlan.targets)trialTargetsBattle();}else if(trial.returnTo==='title')patrolReset();else{trial.mode='trial';trial.battlePlan=null;trialTargetsBattle();}
  escortsInit();
  trial.swSelect='all';trial.swSolo=null;trial.systemsUnit=null;trial.surfaceTurretPoses=new Map();trial.swfx=[];trial.swPend=[];
  if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600),r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));view.cam.th=Math.PI;if(trial.camMode==='cockpit'){trial.chaseR=r;view.cam.ph=Math.PI/2;}else{view.cam.ph=TRIAL_CAM_PH;view.cam.r=r;}}
  trialFoilReset();trialCraftSystemsReset();
 }
 // Target buoys sit ahead of the ship in its local horizon, 8–28 km out.
+// 2026-11-24 user「弾の動きも同じで動かない標的があるだけの方がわざわざ残さずに済むのでは？」(with「公試＝艦隊戦のプレイヤー操作」): the
+// trial flies as a sandbox battle from the start; its targets are static ships (静止目標, TRIAL_TARGET.key) where the drifting
+// targets were, so every round, missile and hit is the battle's. A target that is sunk or put out of action is put back after
+// TRIAL_TARGET.respawn seconds at a new place.
+const TRIAL_TARGET={key:'cr90',n:TRIAL_GUN.targets,respawn:6};
+function trialTargetsWanted(){return trial.on&&!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!=='title'&&(trial.mode==='trial'||!!trial.battlePlan?.targets);}
+async function trialTargetsBattle(){
+ if(!trialTargetsWanted())return;const gen=trial.resetGen,started=trial.startedAt;let a=null;
+ try{a=await fleetAsset(TRIAL_TARGET.key,fleetExampleOptions(TRIAL_TARGET.key));}catch(e){console.error(e);toast('標的艦を出せません：'+esc(e.message||e));return;}
+ if(!a?.p||!trialTargetsWanted()||trial.resetGen!==gen||trial.startedAt!==started||trial.jump)return;
+ if(!trial.battle){const esc0=(trial.escorts||[]).map(e=>({key:e.key,p:e.p,name:e.name,order:{}}));trial.mode='battle';trial.battlePlan={flag:{order:{}},escorts:esc0,foes:[],sandbox:true,targets:true};trial.escorts=[];spaceBattleInit(trial.battlePlan);trialHudRemount();}
+ trial.targetAsset=a;for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();trialHudUpdate?.(true);
+}
+function trialTargetPut(i,first){
+ const B=trial.battle,a=trial.targetAsset;if(!B||!a?.p)return null;spaceSync();const world=trialSpawnTarget(i,first).pos,loc=w=>trialApplyT(B.E,w),u=C.fleetUnit('tg'+i+'_'+(B.b.time|0)+'_'+Math.floor(Math.random()*1e6),a.key,a.p,1),f=loc(trialCol(trial.R,0));
+ u.name='標的';u.trialTarget=i;u.pos=loc(tv.sub(world,B.O));u.yaw=Math.atan2(f[2],f[0])+Math.PI*.5;u.velocity=[0,0,0];u.trialStatic=true;u.trialAt={pos:u.pos.slice(),yaw:u.yaw};trialStaticOrder(u);
+ B.b.units.push(u);C.fleetPrepareCollision?.([u]);return u;
+}
+// A target sunk or put out of action comes back at a new place after TRIAL_TARGET.respawn seconds.
+function trialTargetsRespawn(dt){const B=trial.battle;if(!B?.plan?.targets||B.result)return;for(const u of B.b.units){if(u.trialTarget==null||u.trialGone)continue;if(u.dead||C.outOfAction(u)){if(u.trialBack==null)trial.gun.kills=(trial.gun.kills||0)+1;u.trialBack=(u.trialBack??TRIAL_TARGET.respawn)-dt;if(u.trialBack<=0){u.trialGone=true;u.dead=true;u.hidden=true;trialTargetPut(u.trialTarget,false);}}}}
 function trialSpawnTarget(i,first){
  const up=tv.norm(trial.P),f=trialCol(trial.R,0);let fh=tv.add(f,up,-tv.dot(f,up));fh=tv.len(fh)>.2?tv.norm(fh):tv.norm(tv.cross(up,[0,0,1]));const rt=tv.cross(fh,up);
  const L=trial.p.len,bearing=first?[-.6,.25,-.15,.55][i%4]:(Math.random()*2-1)*1.2,dist=first?[9000,14000,20000,27000][i%4]+L*.6:8000+L*.6+Math.random()*20000,rise=(Math.random()*2-1)*1500;
@@ -8518,7 +8538,7 @@ function trialDroneSpawn(i){
  return {id:'drone'+i,kind:'craft',pos,vel:[...trial.V],h:tv.norm(tv.sub(P,pos)),alive:true,run:false,way:null,wayT:0,respawn:0};
 }
 function trialDronesStep(dt){
- if(trial.mode!=='trial'||!trial.p||trial.pat){trial.drones=[];return;}const ds=trial.drones||(trial.drones=[]);
+ if((trial.mode!=='trial'&&!trial.battlePlan?.targets)||!trial.p||trial.pat){trial.drones=[];return;}const ds=trial.drones||(trial.drones=[]);
  while(ds.length<TRIAL_PD.drones)ds.push(trialDroneSpawn(ds.length));
  const P=trial.P,up=tv.norm(P),f=trialCol(trial.R,0),r=tv.norm(tv.cross(f,up)),L=trial.p.len,W=trial.p.width||L*.5,spd=Math.max(TRIAL_PD.speed,tv.len(trial.V)+220);
  for(let i=0;i<ds.length;i++){const d=ds[i];
@@ -9076,7 +9096,7 @@ function trialHudUpdate(full){
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);trialFlightReadouts(hud);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam','視点 '+trialCamName(trial.camMode));set('camq',trialCamName(trial.camMode));
- const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!C.outOfAction(u)&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
+ const r=trial.rec,g=trial.gun;const B=trial.battle;if(B&&!B.plan?.targets){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!C.outOfAction(u)&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
  const w=q('warn');if(w){const hint=trialArcHint(),txt=trialPropulsionWarning()||trialCraftSystemsWarning()||trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(sourceText(w) !== String(txt))w.textContent=txt;}
  const bar=q('speedbar');if(bar)bar.style.height=(trialMainOutput()*100).toFixed(1)+'%';
@@ -9428,7 +9448,7 @@ function trialArrive(dest){
  trial.sysKey=dest;const s=trialSys(),R=s.planet.radius,f=galArrivalDir(trial.jump?.from,dest);
  if(trial.navigation){const p=Galaxy.itinerary(dest,trial.navigation.final);trial.navigation=p?.segments.length?{version:1,final:p.final,stop:dest,remaining:p.stops.slice(),waiting:true}:null;}
  Object.assign(trial,{P:[0,R+s.altitude,0],R:trialFrame(f,[0,1,0]),w:[0,0,0],V:tv.scale(f,trial.p.maxSpeed*.3),tele:2,throttle:.25,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.p.maxSpeed*.3;trialDust();
- if(trial.pat){trial.targets=[];patrolArrive();}else if(trial.mode==='trial'){trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));}else trial.targets=[];
+ if(trial.pat){trial.targets=[];patrolArrive();}else if(trial.mode==='trial'||trial.battlePlan?.targets){trial.targets=[];if(trial.battle?.plan?.targets){for(const u of trial.battle.b.units)if(u.trialTarget!=null&&!u.dead){u.dead=true;u.hidden=true;u.trialGone=true;}for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();}else trialTargetsBattle();}else trial.targets=[];
  // The arrival point; reversion brings the ship in along its heading to it.
  if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;trial.camF=trialFrame(trial.jump.dir,tv.norm(trial.P));}escortsPlace();toast(`${s.name}に到着 — ${s.note}`);
 }
@@ -10615,7 +10635,7 @@ function spaceStep(dt){
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
   const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,boltGuns:B.me?new Set([B.me.id]):null/* v27 enemy gun fire at the flown ship lands only by the bolts that reach it */,gravity:true,planet:{center:trialApplyT(B.E,tv.scale(B.O,-1)),radius:trialSys().planet.radius}/* v30 the planet in the battle's frame: gravity, lift and the fall of wrecks */,radial:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
-  spaceBumps(b.bumps);spaceBump(B.me);spaceDockStep(SPACE_RULES.step);trialWingStep(SPACE_RULES.step);
+  spaceBumps(b.bumps);spaceBump(B.me);spaceDockStep(SPACE_RULES.step);trialWingStep(SPACE_RULES.step);trialTargetsRespawn(SPACE_RULES.step);
   // A stationary target put out in the trial stays where and as it was put (hits, bumps and station-keeping do not move it).
   if(B.sandbox)for(const u of b.units)if(u.trialStatic&&u.trialAt&&!u.dead){u.pos=u.trialAt.pos.slice();u.yaw=u.trialAt.yaw;u.velocity=[0,0,0];}
   for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(C.outOfAction(u)&&!C.outOfAction(was)&&u.team===1)B.disabled++;}
