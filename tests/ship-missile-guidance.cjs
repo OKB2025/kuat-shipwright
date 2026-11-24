@@ -50,3 +50,11 @@ test('the large missile launches radar-guided out to 50 km, not its round\'s 60 
  const p=profile(G.refVol,true);p.modules[1].missileRange=60000;assert.equal(C.missileMaxRange({p}),G.radarRange);
  const q=profile(0,true);q.modules[1].missileRange=60000;assert.equal(C.missileMaxRange({p:q}),G.heatRange,'no slot: the seeker\'s 10 km');
 });
+// 2026-11-24 user「対空戦闘などでセンサーが別の目標を優先しないといけない時も誘導が切れる」: anti-air engagement takes the slots first.
+test('a radar-guided round loses its guidance when its slot is wanted for anti-air work: unguided far out, heat-seeking within 10 km',()=>{
+ const far=launch(G.refVol,20000);assert.equal(far.m?.shipGuide,'radar');far.u.aaUsed=1/* its one slot on incoming rounds */;C.fleetTick(far.b,.1,{collide:false});
+ assert.equal(far.m.unguided,true,'20 km out: unguided');
+ const near=launch(G.refVol,8000);assert.equal(near.m?.shipGuide,'radar');near.u.aaUsedCraft=1/* on a craft */;C.fleetTick(near.b,.1,{collide:false});
+ assert.equal(near.m.shipGuide,'heat','8 km out: heat-seeking');
+ const kept=launch(2*G.refVol,20000);kept.u.aaUsed=1;C.fleetTick(kept.b,.1,{collide:false});assert.equal(kept.m.shipGuide,'radar','with a second slot it keeps its guidance');assert.ok(!kept.m.unguided);
+});
