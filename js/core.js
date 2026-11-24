@@ -111556,11 +111556,12 @@ const GUN_RULE_LABELS={
  pd:{name:'800kt 2連装点防御レーザー',short:'800kt 点防御2連装',desc:'中央の機器ケースの左右に、円形の俯仰軸とレーザー砲身を1門ずつ取り付けた2連装PD。砲身 0.40 m・長さ 6 m で1発800 kt、射程5 km。艦載機・ミサイル迎撃と対艦射撃を兼ねる。'},
  monCalPD:{name:'133kt 3連装球状点防御レーザー',short:'133kt 球状PD 3連装',desc:'図の寸法に合わせた小型球状砲塔に点防御レーザー3門を収める。砲身 0.178 m で1発133 kt、射程1.7 km。球体全体が旋回・俯仰し、対艦射撃と艦載機・ミサイル迎撃を兼ねる。'},
  single6MT:{name:'117kt 単装中レーザー砲',short:'117kt 中レーザー',desc:'CR90標準型の小型単装の中レーザー砲。砲身 0.169 m で1発117 kt、射程1.7 km。提供されたSTLを船体と同じ縮尺で使用する。'},
- // The corvettes' 500MT guns are heavy lasers at their drawn bores (user 2026-11-24); their models are not changed.
- quad500MT:{name:'279kt 4連装重レーザー',short:'重レーザー4連装',desc:'CR90型の4連装の重レーザー砲。砲身 0.245 m・長さ 5.5 m で1発279 kt、射程4.0 km。提供されたSTLを船体と同じ縮尺で使用する。'},
- twin500MT:{name:'285kt 2連装重レーザー（CR90型）',short:'重レーザー2連装（CR90型）',desc:'CR90型の2連装の重レーザー砲。砲身 0.247 m・長さ 5.5 m で1発285 kt、射程4.1 km。'},
+ // The corvettes' 500MT guns are lasers at their drawn bores (user 2026-11-24); their models are not changed. Named by their actual
+ // shots (user「実際の出力に合わせた呼称を行って」: LLC to 50 kt, MLC to 400 kt, HLC above).
+ quad500MT:{name:'279kt 4連装中レーザー',short:'中レーザー4連装',desc:'CR90型の4連装の中レーザー砲。砲身 0.245 m・長さ 5.5 m で1発279 kt、射程4.0 km。提供されたSTLを船体と同じ縮尺で使用する。'},
+ twin500MT:{name:'285kt 2連装中レーザー（CR90型）',short:'中レーザー2連装（CR90型）',desc:'CR90型の2連装の中レーザー砲。砲身 0.247 m・長さ 5.5 m で1発285 kt、射程4.1 km。'},
  single500MT:{name:'613kt 単装重レーザー',short:'重レーザー単装',desc:'単装の重レーザー砲。砲身 0.352 m・長さ 11.1 m で1発613 kt、射程9.0 km。'},
- sphyrnaTwin500MT:{name:'261kt 2連装重レーザー（スフィルナ型）',short:'重レーザー2連装（スフィルナ型）',desc:'スフィルナ型の2連装の重レーザー砲。砲身 0.237 m・長さ 5.1 m で1発261 kt、射程3.7 km。'},
+ sphyrnaTwin500MT:{name:'261kt 2連装中レーザー（スフィルナ型）',short:'中レーザー2連装（スフィルナ型）',desc:'スフィルナ型の2連装の中レーザー砲。砲身 0.237 m・長さ 5.1 m で1発261 kt、射程3.7 km。'},
  twin6MT:{name:'2連装重レーザー砲（658kt・1.57MT）',short:'重レーザー2連装',desc:'スフィルナ型船体の艦首側面にある上下2本の砲身。細い砲身（0.364 m）は1発658 kt・射程3.9 km、太い砲身（0.554 m）は1発1.57 MT・射程7.9 km（ターボレーザーではなくレーザーとして扱う）。'}
 };
 // The point defence twin's barrels thickened to 0.40 m outside (user 2026-11-24; 800 kt by the laser rule): from 0.231 m.
