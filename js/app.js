@@ -3231,7 +3231,7 @@ function tapHit(t, hit, add) {
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit();
       const issue=weaponMountIssue(k,weaponPlacementNormal(k,hit.n));if(issue){toast(issue);break;}let err = null, made = null;
-      const placed=mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k)}, r = placeEditorFit(k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      const placed=mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k)}, r = placeEditorFit(k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyCraftLaserOptions(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (placed&&made) { queuePreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -4656,6 +4656,22 @@ function carryToPlace() {
   }
   st.sel = null; toast(`${list === 'parts' ? C.partLabel(it) : C.FITS[it.k].name} を同じ設定で設置できます`);
 }
+// 2026-11-24 Aircraft lasers are cylinders whose bore, length and rate of fire the player sets (user「航空レーザーは円柱部品でユーザーが
+// 口径と長さと連射速度を決める形に」): the next one placed takes the drawer's settings; a selected one is edited in place.
+function craftLaserOptions(k=curFit()){const g=C.CRAFT_LASER_GEOMETRY?.[k];if(!g)return {};const q=st.craftLaser?.[k]||{};return {boreM:q.boreM??g.bore,barrelM:q.barrelM??g.length,rateHz:q.rateHz??1};}
+function applyCraftLaserOptions(f){if(!f||!C.CRAFT_LASER_GEOMETRY?.[f.k])return;const o=craftLaserOptions(f.k);for(const q of linkedItems('fits',f))Object.assign(q,o);}
+function craftLaserHTML(part){
+ const g=C.CRAFT_LASER_GEOMETRY?.[part?.k];if(!g)return '';const selected=st.tab==='edit'&&st.sel?.list==='fits'&&selItem()?.k===part.k?selItem():null,src=selected||{k:part.k,...craftLaserOptions(part.k)},r=C.craftLaserRule(src);if(!r)return '';
+ const slider=(key,label,min,max,step,v,fmt)=>`<label class="field-label">${esc(T(label))} <output data-claser-out="${key}">${esc(fmt(v))}</output><input type="range" data-claser="${key}" min="${min}" max="${max}" step="${step}" value="${v}"></label>`;
+ return `<div class="pgroup" data-craft-laser><h4>${esc(T('レーザー砲身（円柱）'))}</h4>${slider('boreM','口径',.10,.60,.01,r.boreM,v=>num(v,2)+' m')}${slider('barrelM','長さ',.2,10,.05,r.barrelM,v=>num(v,2)+' m')}${slider('rateHz','連射速度',.2,10,.1,r.rateHz,v=>num(v,1)+' 発/秒')}<p class="note" data-claser-summary>${esc(craftLaserSummary(r))}</p><p class="note">${esc(T('正面（機首方向）にだけ向けて取り付けます。1発は口径で、射程は長さで決まります。連射速度を上げると電力・ガス・発熱が増えます。'))}</p></div>`;
+}
+function craftLaserSummary(r){const kt=r.shotKt;return `1発 ${kt>=1000?num(kt/1000,2)+' MT':num(kt,0)+' kt'}・射程 ${r.rangeM>=1000?num(r.rangeM/1000,2)+' km':num(r.rangeM,0)+' m'}・定格入力 ${num(kt*r.rateHz,0)} kt/秒（1門）`;}
+function changeCraftLaser(key,v){
+ const k=st.tab==='edit'&&st.sel?.list==='fits'?selItem()?.k:curFit();if(!C.CRAFT_LASER_GEOMETRY?.[k])return;const lim={boreM:[.10,.60],barrelM:[.2,10],rateHz:[.2,10]}[key];if(!lim)return;v=C.clamp(v,lim[0],lim[1]);
+ if(st.tab==='edit'&&st.sel?.list==='fits'&&selItem()){beginDrag('レーザー砲身を調整');editSel(f=>{f[key]=v;});touch('fits');scheduleStats(350);}else{st.craftLaser=st.craftLaser||{};st.craftLaser[k]={...craftLaserOptions(k),[key]:v};}
+ const src=st.tab==='edit'&&st.sel?.list==='fits'?selItem():{k,...craftLaserOptions(k)},r=C.craftLaserRule(src),out=document.querySelector(`[data-claser-out="${key}"]`),sum=document.querySelector('[data-claser-summary]');
+ if(out)out.textContent=key==='rateHz'?num(v,1)+' 発/秒':num(v,2)+' m';if(sum&&r)sum.textContent=craftLaserSummary(r);if(typeof designUISchedulePreview==='function')designUISchedulePreview();requestDraw();
+}
 function applyFitTemplate(f) {
   const t = activeTemplate('fits', f.k); if (!t) return;
   for (const q of linkedItems('fits', f)) { for (const k of FIT_TEMPLATE_KEYS) if (t.data[k] != null) q[k] = JSON.parse(JSON.stringify(t.data[k])); launcherSpacingFrom(t.data,q); refreshFitSupport(q); }
@@ -5221,7 +5237,7 @@ function designWeaponPreviewHTML(part){
  const variable=T(stats.kind==='superweapon'?'給電元により変化':stats.kind==='payload'?'搭載弾薬により変化':'条件により変化'),
   row=(key,label,value,format)=>'<div><dt>'+esc(T(label))+'</dt><dd data-weapon-stat="'+key+'" data-value="'+(Number.isFinite(value)?value:'')+'">'+esc(Number.isFinite(value)?format(value):variable)+'</dd></div>';
  const phase=stats.heatBasis==='charging'?'<p class="note">'+esc(T('超兵器の発熱は充電時の値です。発射時の瞬間発熱は含みません。'))+'</p>':'';
- return '<div class="design-weapon-summary"><dl class="design-weapon-stats" data-design-weapon-stats>'+row('output','威力',stats.outputTT,fTT)+row('traverse','旋回速度',stats.traverseDegS,v=>num(v,1)+' °/s')+row('range','射程',stats.rangeM,v=>v>=1000?num(v/1000,1)+' km':num(v,0)+' m')+row('power','最大使用電力量（1秒あたり）',stats.maxPowerW,fW)+row('heat','最大発熱（1秒あたり）',stats.maxHeatW,fW)+'</dl><p class="note">'+esc(T('威力は1発・1門あたりです。電力と発熱は選択した武装全体の最大値です。'))+'</p>'+phase+'</div>';
+ return '<div class="design-weapon-summary"><dl class="design-weapon-stats" data-design-weapon-stats>'+row('output','威力',stats.outputTT,fTT)+row('traverse','旋回速度',stats.traverseDegS,v=>num(v,1)+' °/s')+row('range','射程',stats.rangeM,v=>v>=1000?num(v/1000,1)+' km':num(v,0)+' m')+row('power','最大使用電力量（1秒あたり）',stats.maxPowerW,fW)+row('heat','最大発熱（1秒あたり）',stats.maxHeatW,fW)+'</dl>'+craftLaserHTML(part)+'<p class="note">'+esc(T('威力は1発・1門あたりです。電力と発熱は選択した武装全体の最大値です。'))+'</p>'+phase+'</div>';
 }
 function designUIPlacementHTML(){
  if(st.tab==='mod'&&st.group==='user'&&st.partTool==='place'){const template=userPartFind(st.userPart);return '<section class="design-placement" data-design-placement><canvas class="design-part-preview" id="designPartPreview" aria-label="部品の実形状プレビュー"></canvas><h4>'+esc(template?.name||'ユーザー部品')+'</h4><p class="note">'+esc(template?userPartCounts(template):'配置するユーザー部品を選んでください。')+'</p></section>';}
@@ -5416,7 +5432,7 @@ function designUIArm(){
 }
 function designUIFitDraft(hit){
  const k=curFit(),n=weaponPlacementNormal(k,hit.n),axis=C.AXES.reduce((best,v,i)=>C.dot(v,n)>C.dot(C.AXES[best],n)?i:best,0);
- const p={id:-1,k,_fit:true,p:hit.p.slice(),n,a:axis,base:0,ped:fitPlacementPed(k),localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k)};
+ const p={id:-1,k,_fit:true,p:hit.p.slice(),n,a:axis,base:0,ped:fitPlacementPed(k),localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k)?C.fitTilt(n):null,...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(C.craftFixedGun?.(k)&&st.fitSink>0?{sink:st.fitSink}:{}),...shipLauncherPlacementOptions(k),...craftLaserOptions(k)};
  if(fitPedestalAllowed(k)){if(st.pedShape==='trap')p.pedShape='trap';if(Math.abs(st.pedSize-1)>1e-6)p.pedSize=st.pedSize;}
  const template=activeTemplate('fits',k);if(template){for(const key of FIT_TEMPLATE_KEYS)if(template.data[key]!=null)p[key]=structuredClone(template.data[key]);if(template.data.launcherHeavy)for(const key of ['launcherColSpacing','launcherRowSpacing'])p[key]=template.data[key]??C.HEAVY_LAUNCHER.cell;}if(fitPedestalAllowed(k)){if(st.pedShape==='trap')p.pedShape='trap';else delete p.pedShape;if(Math.abs(st.pedSize-1)>1e-6)p.pedSize=st.pedSize;else delete p.pedSize;}return p;
 }
@@ -6929,6 +6945,8 @@ function bindReference(){
   if(['launcherCols','launcherRows','launchYaw','launchRoll','launcherColSpacing','launcherRowSpacing'].includes(id)){field=id;mode='selected';}else if(/^(new|multi)(LauncherCols|LauncherRows|LaunchYaw|LaunchRoll|LauncherColSpacing|LauncherRowSpacing)$/.test(id||'')){const [,prefix,key]=/^(new|multi)(LauncherCols|LauncherRows|LaunchYaw|LaunchRoll|LauncherColSpacing|LauncherRowSpacing)$/.exec(id);field=key[0].toLowerCase()+key.slice(1);mode=prefix==='new'?'new':'multiple';}else return;
   if(!changeShipLauncher(field,t.value,mode))return;const out=$('#out-'+id);if(out)out.textContent=field==='launchYaw'||field==='launchRoll'?deg(C.clamp(Number(t.value),-180,180)):/Spacing$/.test(field)?launcherSpacingText(Number(t.value)):Math.round(C.clamp(Number(t.value),1,16))+(field==='launcherCols'?' 列':' 段');const subject=mode==='new'?{k:st.fit,launchPitch:st.launchPitch,...shipLauncherPlacementOptions()}:shipLauncherTargets(mode==='multiple')[0]?.fit,summary=$('[data-ship-launcher-summary]');if(subject&&summary)summary.textContent=shipLauncherSummary(subject);
  });
+ $('#panel').addEventListener('input',e=>{const key=e.target?.dataset?.claser;if(key)changeCraftLaser(key,+e.target.value);});
+ $('#panel').addEventListener('change',e=>{if(e.target?.dataset?.claser&&typeof dragSnap!=='undefined'&&dragSnap)endDrag();});
  $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||!['chargeDepth','chargeScale','chargeSalvos'].includes(k))return;beginDrag('主砲充電装置を調整');editSel(f=>f[k]=k==='chargeDepth'?C.clamp(v,1,500):k==='chargeSalvos'?Math.round(C.clamp(v,1,20)):C.clamp(v/100,.25,4));touch('fits');scheduleStats(350);const o=$('#out-'+k);if(o)o.textContent=k==='chargeDepth'?fmtM(v):k==='chargeSalvos'?v+' 回分':v+'%';});
 }
 
