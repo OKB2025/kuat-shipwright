@@ -10,7 +10,9 @@
 
 - 部品 `repulsor`「リパルサーリフト」（js/core.js addComp、'support'）：艦や機体を重力に抗して支える（着陸脚を含む）。`S.repulsorSupport` で支えられる質量。`landingEquipment` の印で着陸脚として置く経路がある。
 - 航空機の作例には「着陸脚機構」の部品がある（data/imperial2.js など）が、航空機の部品一覧からは今は選べない。
-- 「質量あたりの減速力」：どの値か未特定（宇宙での最高速度を決める抗力・減速の係数を想定）。実装前に場所を確かめて報告する。
+- 「質量あたりの減速力」＝ユーザー「大型艦の減速が小型艦より速いという話のもの。減速率」：運動抵抗（js/core.js MOTION_RESISTANCE、motionResistanceRate、massDragRate。docs/calibrated-propulsion-and-power-loss.md「抵抗と速度」）。
+  減速係数 k(M) = ksmall × (M / Msmall)^δ、抵抗力 = M × k(M) × 速度。δ ≈ 0.028 で、重い艦ほど 1 秒あたりの減速の割合 k が少し大きい。TIE/ln 100 MGLT・ヴェネター 50 MGLT を健全時の校正点にしている。
+  これを「重力制御装置が艦内に 1G を合成するとき空間に残る重力の起点が艦を後ろに引く」働きとして説明し直す。
 
 ## 案
 
