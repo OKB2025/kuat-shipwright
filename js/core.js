@@ -118563,7 +118563,10 @@ function shieldGeneratorLength(p){const S=CRAFT_SHIELD,mods=Array.isArray(p?.mod
 // craft and ships on one curve by the volume of their shield generators, joining the X-wing's (0.333 m³, 1.2e-5: four times
 // its earlier field, user 2026-11-24) to the Venator's (61,561 m³, the whole field); above the Venator's, the whole field.
 // A profile without generator modules (a legacy or table-only one) keeps the length curve below.
-const SHIELD_CURVE=Object.freeze({refGenV:4/3*Math.PI*.43**3,refScale:1.2e-5,fullGenV:61561.1});
+// The X-wing's point (user 2026-11-24「交戦距離でのTIE/inの4秒間の投射分に合わせてxウィングのシールドの倍率を変え直して」): the fight distance
+// with mass and thrust turning is 380 m (the TIE/in's mean shot distance, docs/benchmarks/gun-model-2026-11-24/dodge/natural.txt); there its
+// six 118 kt lasers (1 shot a second, fading over 180 m) put 344.5 kt on target in 4 s, the X-wing's field: 7.395e-6.
+const SHIELD_CURVE=Object.freeze({refGenV:4/3*Math.PI*.43**3,refScale:7.395e-6,fullGenV:61561.1});
 const SHIELD_CURVE_EXP=Math.log(SHIELD_CURVE.refScale)/Math.log(SHIELD_CURVE.refGenV/SHIELD_CURVE.fullGenV);
 function shieldGeneratorVolume(p){const mods=Array.isArray(p?.modules)?p.modules.filter(m=>m&&(m.k==='shield'||m.k==='localShield')):[];return mods.reduce((n,m)=>n+(Number.isFinite(m.size)&&m.size>0?m.size:0),0);}
 function fieldScale(p){const V=shieldGeneratorVolume(p);if(V>0)return Math.min(1,Math.pow(V/SHIELD_CURVE.fullGenV,SHIELD_CURVE_EXP))*(p?.cls?.craft||p?.craftShield===true?craftShieldTrial():1);return lengthFieldScale(p);}
