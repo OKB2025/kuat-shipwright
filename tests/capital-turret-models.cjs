@@ -63,7 +63,7 @@ test('all nine capital weapons use their native physical models, requested barre
  for(const[k,id,n,bolt,ion]of FAMILY){
   const{d,a,m}=model(k);ids.push(d.asset);assert.equal(d.asset,id);assert.equal(a.catalogKind,k);
   assert.equal(d.barrels,n);near(d.boltTT,bolt,1e-12);near(d.tt||0,ion?0:n*bolt,1e-12);near(d.ion||0,ion?n*bolt:0,1e-12);
-  near(d.power*d.cycle/C.TT,n*bolt,1e-9);near(C.weaponModelScale(k),1,1e-12);assert.match(C.weaponSizing(k).calibration,/photo/);
+  /* 2026-11-24 gun rules: a gun's power is its charging rate, and a shot's charge holds the confinement, E x (1 + barrel / 19 m) */near(d.gunRule.shotKt/C.KT_PER_TT,bolt,1e-9);near(d.gunRule.shotChargeTT,bolt*(1+d.gunRule.barrelM/C.GUN_RULES.turbolaser.chargeLen),1e-9);assert.equal(d.cycle,d.gunRule.cycle);near(d.power/C.TT,d.gunRule.chargeRateTT,1e-9);near(d.power*d.cycle/C.TT,n*d.gunRule.shotChargeTT,1e-9);near(C.weaponModelScale(k),1,1e-12);assert.match(C.weaponSizing(k).calibration,/photo/);
   vector([d.fm,d.hm,d.wm],a.size,.001);assert.equal(a.noSupportPedestal,true);near(a.supportStandHeightM,0,1e-12);
   let raw=a;while(raw.dataFrom)raw=C.REFERENCE_ASSETS[raw.dataFrom];assert.ok(raw?.data);
   assert.equal(Buffer.from(raw.data,'base64').length,a.n*10+a.faces*3*a.indexBytes);assert.equal(m.pos.length,a.n*3);assert.equal(m.idx.length,a.faces*3);
@@ -308,5 +308,15 @@ test('adding capital weapons preserves all fourteen unaffected 40/70TT and 200/5
  // Decoding and mounting add enumerable private caches to runtime assets.
  // Hash every authored field while excluding those transient caches.
  // The separately tested quad40 ion keeps its sphere/room, with the user-requested fat ion barrels.
- for(const[id,expected]of Object.entries(PRESERVED)){const a=C.REFERENCE_ASSETS[id];assert.ok(a,id);assert.equal(crypto.createHash('sha256').update(JSON.stringify(a,(k,v)=>k.startsWith('_')?undefined:v)).digest('hex'),expected,id+' unchanged source/model/UV/room/articulation data');}
+ // 2026-11-24 (user: turbolasers drawn below the 0.45 m least bore are thickened to it): four 200 GT models now carry the load-time
+ // reshape (C reshapeGunBarrels: barrelRadiusScale, drawnExtent, barrel radii x scale). The stored record must still be the old one, so
+ // the reshape is taken out of a copy before hashing; the hashes themselves are unchanged.
+ const RESHAPED=['light_twin200','light_quad200','light_single200','light_twin200_fast'];let reshaped=0;
+ for(const[id,expected]of Object.entries(PRESERVED)){const a=C.REFERENCE_ASSETS[id];assert.ok(a,id);let view=a;
+  if(a.barrelRadiusScale!==undefined||a.drawnExtent!==undefined||a.barrelExposedScale!==undefined){assert.ok(RESHAPED.includes(id),id+' is not a model the 0.45 m least bore reshapes');assert.equal(a.barrelExposedScale,undefined,id+' keeps its barrel length');const r=a.barrelRadiusScale;assert.ok(r>1&&r<1.3,id+' barrels are only thickened');reshaped++;
+   view=JSON.parse(JSON.stringify(a,(k,v)=>k.startsWith('_')?undefined:v));delete view.barrelRadiusScale;delete view.drawnExtent;
+   for(const b of a.barrelCenters)near(2*b.boreRadiusM,C.GUN_RULES.turbolaser.minBore,1e-9,id+' bore');
+   for(const b of view.barrelCenters){b.outerRadiusM/=r;b.boreRadiusM/=r;}}
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(view,(k,v)=>k.startsWith('_')?undefined:v)).digest('hex'),expected,id+' unchanged source/model/UV/room/articulation data');}
+ assert.equal(reshaped,RESHAPED.length);
 });

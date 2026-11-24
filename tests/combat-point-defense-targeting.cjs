@@ -41,7 +41,9 @@ test('installed normal guns retain their output and tracking but contribute no a
 
 test('the real RTS missile step leaves missiles alone when only ordinary guns are installed',()=>{
  for(const k of ['triple40','single500MT','single6MT']){
-  const f=battle(k),m=incoming(f);R.tick(f.w,.25);
+  // 2026-11-24 gun rules: each gun reaches its own range. The CR-90's single6MT is now a 117 kt medium laser that is gone at about
+  // 1.7 km, so the ship target stands inside the gun's range (it stood at 5 km for every gun); the missile stays where it was.
+  const reach=C.FITS[k].gunRule.rangeM,f=battle(k),m=incoming(f);assert.ok(reach>0,k);if(reach<=5000){assert.equal(C.FITS[k].gunRule.kind,'laser',k);f.e.pos=[reach*.6,0,0];}R.tick(f.w,.25);
   assert.equal(m.n,8,k+' does not silently use ordinary barrels for defence');assert.equal(f.u.dualDefense,false,k);
   assert.ok(f.u.lastShot?.gun>0,k+' continues shooting its ordinary ship target');
  }

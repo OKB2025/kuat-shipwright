@@ -76,8 +76,8 @@ test('actual capital trial fire samples independent shared dispersion at each ph
    trial.fire=true;for(let i=0;i<4;i++){trial.turrets[0].reload=0;trialGunnery(.001);}return {calls,bolts:trial.bolts,energy:trial.bolts.reduce((n,b)=>n+b.tt,0),shots:trial.gun.shots};
   }finally{C.gunScatter=original;}
  })();`);
- const proof=plain(run('scatterProof'));assert.equal(proof.calls.length,4);assert.equal(proof.bolts.length,4);assert.equal(proof.shots,4);near(proof.energy,700);
- for(let i=0;i<4;i++){assert.equal(proof.calls[i].range,40000);assert.equal(proof.calls[i].control,1);assert.ok(proof.bolts[i].life<=40000/4500,'a longer platform cannot extend the gun\'s nominal reach');vector(run('tv.norm('+JSON.stringify(proof.bolts[i].vel)+')'),proof.calls[i].result,1e-7);}
+ const proof=plain(run('scatterProof')),reach175=run('C.FITS.ball175Quad.gunRule.rangeM');assert.ok(reach175>0);assert.equal(run('trial.turrets[0].reach'),reach175);assert.equal(proof.calls.length,4);assert.equal(proof.bolts.length,4);assert.equal(proof.shots,4);near(proof.energy,700);
+ for(let i=0;i<4;i++){/* 2026-11-24 gun rules: each gun scatters and carries over its own range (gunRule.rangeM), not the trial's common 40 km */assert.equal(proof.calls[i].range,reach175);assert.equal(proof.calls[i].control,1);assert.ok(proof.bolts[i].life<=reach175/4500,'a longer platform cannot extend the gun\'s nominal reach');vector(run('tv.norm('+JSON.stringify(proof.bolts[i].vel)+')'),proof.calls[i].result,1e-7);}
  assert.equal(new Set(proof.calls.map(c=>JSON.stringify(c.result))).size,4,'each barrel gets its own physical miss vector');
 });
 
@@ -88,5 +88,5 @@ test('a real RTS carrier spool keeps its manually piloted physical guns fireable
   setup('ball175Quad',{a:2},42);trial.fire=true;trial.battle={me:u,modIndex:new Map([[trial.turrets[0].id,u.p.modules.findIndex(m=>m.k==='weapon')]])};u.manual=true;
   const before=trial.energy.E;for(let i=0;i<4;i++){trial.turrets[0].reload=0;trialGunnery(.001);}/* rapid fire: four shots, one barrel each (2026-11-15) */return {phase:u.jump?.phase,localJump:trial.jump,shots:trial.gun.shots,packets:trial.bolts.length,outputTT:trial.bolts.reduce((n,b)=>n+b.tt,0),spentTT:before-trial.energy.E};
  })();`);
- const proof=plain(run('pilotSpoolProof'));assert.equal(proof.phase,'spool');assert.equal(proof.localJump,null);assert.equal(proof.shots,4);assert.equal(proof.packets,4);near(proof.outputTT,700);near(proof.spentTT,700);
+ const proof=plain(run('pilotSpoolProof'));assert.equal(proof.phase,'spool');assert.equal(proof.localJump,null);assert.equal(proof.shots,4);assert.equal(proof.packets,4);near(proof.outputTT,700);/* 2026-11-24 gun rules: a turbolaser draws E x (1 + barrel / 19 m) and fires E */const charge=run('C.weaponChargeFactor(C.FITS.ball175Quad)');near(charge,1+run('C.FITS.ball175Quad.gunRule.barrelM')/19,1e-9);assert.ok(charge>1);near(proof.spentTT,700*charge);
 });

@@ -15,7 +15,7 @@ test('every old window draws a real ball with a projecting barrel and selectable
 });
 
 test('fleet descriptors use articulated balls and the same physical muzzle as design geometry',()=>{
- for(const frame of frames){const s=fixture(frame,{batteryCaliber:'70TT'}),f=s.fits[0],fleet=G.fleetGeometry(s,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id),g=C.authoredTurretGeometry(f);assert.ok(t);assert.equal(f.k,'monCal80');assert.ok(t.authored);assert.ok(t.mesh||t.bodyMesh);assert.equal(!!t.broadsideBattery,false);assert.equal(t.barrels,1);assert.equal(t.tt,80);assert.equal(t.cycle,1);assert.equal(t.authored.muzzles.length,1);assert.equal(t.cap,true);
+ for(const frame of frames){const s=fixture(frame,{batteryCaliber:'70TT'}),f=s.fits[0],fleet=G.fleetGeometry(s,{trial:true}),t=fleet.turrets.find(t=>t.id===f.id),g=C.authoredTurretGeometry(f);assert.ok(t);assert.equal(f.k,'monCal80');assert.ok(t.authored);assert.ok(t.mesh||t.bodyMesh);assert.equal(!!t.broadsideBattery,false);assert.equal(t.barrels,1);assert.equal(t.tt,80);/* 2026-11-24 gun rules: the interval is the charging time of one shot (was a stated 1 s) */assert.equal(t.cycle,C.FITS.monCal80.gunRule.cycle);assert.ok(Math.abs(t.cycle-C.FITS.monCal80.gunRule.shotChargeTT/C.FITS.monCal80.gunRule.chargeRateTT)<1e-12);assert.equal(t.authored.muzzles.length,1);assert.equal(t.cap,true);
   for(let axis=0;axis<3;axis++)near(t.authored.muzzles[0][axis],g.muzzles[0][axis]);
   const aimed=C.aimAuthoredTurret(t.authored,.2,.3);assert.equal(aimed.muzzles.length,1);assert.ok(C.len(C.sub(aimed.muzzles[0],g.muzzles[0]))>.1,'the complete ball and gun can aim away from their saved rest pose');
  }
