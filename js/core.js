@@ -109956,8 +109956,6 @@ Object.assign(FITS.pd,{fm:PD_TURRET_SIZE[0],wm:PD_TURRET_SIZE[2],hm:PD_TURRET_SI
 // brings an asset's mean texture colour to one shared neutral hull grey;
 // engines keep half of their extra darkness. Measured from the atlas.
 const REFERENCE_TONE=Object.freeze({"ven_side70_native":[0.952,0.961,0.969],"bridge_pod":[1.064,1.108,1.132],"ven_hull":[0.98,1.009,1.04],"ven_tower_port":[0.965,0.998,1.036],"ven_tower_stbd":[0.965,0.998,1.036],"ven_bridge_port":[0.941,0.973,1.013],"ven_bridge_stbd":[0.941,0.973,1.013],"ven_spine":[0.945,0.978,1.013],"ven_outer_port":[1.131,1.142,1.153],"ven_outer_stbd":[1.131,1.142,1.153],"ven_inner_port":[1.127,1.138,1.148],"ven_inner_stbd":[1.127,1.138,1.148],"ven_upper_port":[1.13,1.141,1.151],"ven_upper_stbd":[1.13,1.141,1.151],"ven_aux_port":[1.098,1.109,1.119],"ven_aux_stbd":[1.098,1.109,1.119],"ven_turret":[1.097,1.173,1.236],"ven_turret_0":[1.097,1.173,1.236],"ven_turret_1":[1.097,1.173,1.236],"ven_turret_2":[1.097,1.173,1.236],"ven_turret_3":[1.097,1.173,1.236],"ven_turret_4":[1.097,1.173,1.236],"ven_turret_5":[1.097,1.173,1.236],"ven_turret_6":[1.097,1.173,1.236],"ven_turret_7":[1.097,1.173,1.236],"ven_side_gun":[0.952,0.961,0.969],"ven_side_port":[0.952,0.961,0.969],"ven_side_stbd":[0.952,0.961,0.969],"isd_hull":[1.037,1.081,1.107],"isd_support":[1.052,1.094,1.12],"isd_citadel":[1.082,1.131,1.161],"isd_bridge":[1.064,1.108,1.132],"isd_engine_0":[1.032,1.087,1.122],"isd_engine_1":[1.042,1.096,1.131],"isd_engine_3":[1.042,1.101,1.136],"isd_engine_4":[1.042,1.101,1.136],"isd_mast":[1.128,1.186,1.224],"isd_sensor_port":[1.017,1.062,1.087],"isd_engine_2":[1.032,1.087,1.122],"isd_engine_5":[1.042,1.101,1.136],"isd_engine_6":[1.042,1.101,1.136],"isd_sensor_stbd":[1.017,1.062,1.087],"isd_heavy_twin":[1.118,1.173,1.208],"isd_heavy_octuple":[1.118,1.173,1.208],"isd_turret":[1.118,1.173,1.208],"isd_turret_0":[1.118,1.173,1.208],"isd_turret_1":[1.118,1.173,1.208],"isd_turret_2":[1.118,1.173,1.208],"isd_turret_3":[1.118,1.173,1.208],"isd_turret_4":[1.118,1.173,1.205],"isd_turret_5":[1.118,1.173,1.205],"isd_turret_6":[1.118,1.173,1.205],"isd_turret_7":[1.118,1.173,1.205],"isd2_octuple":[0.877,0.886,0.894],"isd2_casemate":[0.877,0.886,0.894],"isdh_turret":[1.208,1.217,1.196],"isdh_bridge":[1.172,1.172,1.142],"isdh_sensor_port":[1.155,1.162,1.141],"isdh_sensor_stbd":[1.155,1.162,1.141],"isdh_mast":[1.193,1.201,1.182],"isdh_engine_main":[1.048,1.055,1.035],"isdh_engine_aux":[1.102,1.107,1.085]});
-// The point defence twin's barrels thickened to 0.40 m outside (user 2026-11-24; 800 kt by the laser rule): from 0.231 m.
-{const a=REFERENCE_ASSETS.pd_twin_side_laser;if(a&&!a.barrelRadiusScale){a.barrelRadiusScale=.20/.1155;for(const b of a.barrelCenters||[]){if(b.outerRadiusM>0)b.outerRadiusM*=a.barrelRadiusScale;if(b.boreRadiusM>0)b.boreRadiusM*=a.barrelRadiusScale;}}}
 function decodeReference(id){
  const a=REFERENCE_ASSETS[id];if(!a)return null;if(a._decoded)return a._decoded;
  // Identical meshes are stored once; a copy names its source with dataFrom.
@@ -109970,7 +109968,12 @@ function decodeReference(id){
  for(let i=0;i<idx.length;i++)idx[i]=a.indexBytes===2?dv.getUint16(a.n*10+i*2,true):dv.getUint32(a.n*10+i*4,true);
  // 2026-11-24 (user「点防御の砲身を太くする」): a model whose barrels the user had made thicker (barrelRadiusScale) has each
  // barrel component's vertices moved out from its centre line by that factor, in metres (c + pos × size), the rest as modelled.
- if(a.barrelRadiusScale>0&&a.barrelRadiusScale!==1&&Array.isArray(a.barrelCenters)&&Array.isArray(a.c)&&Array.isArray(a.size)){const k=a.barrelRadiusScale;for(const b of a.barrelCenters){if(!(b.vertices>0)||!Array.isArray(b.root))continue;for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){for(const ax of [1,2]){const m=a.c[ax]+pos[v*3+ax]*a.size[ax],r=m-b.root[ax];pos[v*3+ax]=(b.root[ax]+r*k-a.c[ax])/a.size[ax];}}}}
+ // Also (user 2026-11-24): a Mon Calamari ball gun's exposed barrel drawn out to its drawing (barrelExposedScale, along +X
+ // from where the barrel leaves the ball). Vertices outside a barrel component are never moved.
+ if(Array.isArray(a.barrelCenters)&&Array.isArray(a.c)&&Array.isArray(a.size)&&(a.barrelRadiusScale>0&&a.barrelRadiusScale!==1||a.barrelExposedScale>0&&a.barrelExposedScale!==1)){const k=a.barrelRadiusScale>0?a.barrelRadiusScale:1,ka=a.barrelExposedScale>0?a.barrelExposedScale:1;
+  for(const b of a.barrelCenters){if(!(b.vertices>0)||!Array.isArray(b.root))continue;const front=b._sourceFront??b.exposedStartX??b.root[0];for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){
+   if(k!==1)for(const ax of [1,2]){const m=a.c[ax]+pos[v*3+ax]*a.size[ax],r=m-b.root[ax];pos[v*3+ax]=(b.root[ax]+r*k-a.c[ax])/a.size[ax];}
+   if(ka!==1){const x=a.c[0]+pos[v*3]*a.size[0];if(x>front)pos[v*3]=(front+(x-front)*ka-a.c[0])/a.size[0];}}}}
  a._decoded={pos,uv,idx};return a._decoded;
 }
 STRUCT_SHAPES.reference='参照モデル構造物';
@@ -111555,6 +111558,21 @@ const GUN_RULE_LABELS={
  single6MT:{name:'117kt 単装中レーザー砲',short:'117kt 中レーザー',desc:'CR90標準型の小型単装の中レーザー砲。砲身 0.169 m で1発117 kt、射程1.7 km。提供されたSTLを船体と同じ縮尺で使用する。'},
  twin6MT:{name:'2連装重レーザー砲（658kt・1.57MT）',short:'重レーザー2連装',desc:'スフィルナ型船体の艦首側面にある上下2本の砲身。細い砲身（0.364 m）は1発658 kt・射程3.9 km、太い砲身（0.554 m）は1発1.57 MT・射程7.9 km（ターボレーザーではなくレーザーとして扱う）。'}
 };
+// The point defence twin's barrels thickened to 0.40 m outside (user 2026-11-24; 800 kt by the laser rule): from 0.231 m.
+// The turbolasers drawn below the 0.45 m least bore are thickened to it (user 2026-11-24, 0.6 of the outer diameter where no bore is
+// modelled), and the Mon Calamari ball guns' exposed barrels drawn out to the user's drawings (exposed barrel ÷ ball diameter:
+// 200TT triple 1.45, single 1.75, 150TT ion 1.5, 80TT 1.55, 34TT 1.0). The barrel records follow the drawn shape.
+function reshapeGunBarrels(id,{radius=1,exposedTarget=null}={}){const a=REFERENCE_ASSETS[id];if(!a||a._reshaped)return;a._reshaped=true;
+ const b0=a.barrelCenters?.[0];if(!b0)return;const front0=b0.exposedStartX??b0.root[0],ka=exposedTarget>0?exposedTarget/Math.max(1e-6,b0.muzzle[0]-front0):1;
+ if(radius!==1)a.barrelRadiusScale=radius;if(ka!==1)a.barrelExposedScale=ka;
+ for(const b of a.barrelCenters){const front=b.exposedStartX??b.root[0];b._sourceFront=front;if(radius!==1){if(b.outerRadiusM>0)b.outerRadiusM*=radius;if(b.boreRadiusM>0)b.boreRadiusM*=radius;}
+  if(ka!==1){b.muzzle=[front+(b.muzzle[0]-front)*ka,b.muzzle[1],b.muzzle[2]];if(b.fullLengthM>0)b.fullLengthM=Math.hypot(...b.muzzle.map((v,i)=>v-b.root[i]));if(b.photoVisibleReachM>0)b.photoVisibleReachM=b.muzzle[0]-front;}}
+ if(ka!==1&&Array.isArray(a.muzzlePoints))a.muzzlePoints=a.barrelCenters.map(b=>b.muzzle.slice());}
+reshapeGunBarrels('pd_twin_side_laser',{radius:.20/.1155});
+{const MC={moncal_single34:1.0,moncal_single80:1.55,moncal_single200:1.75,moncal_triple200:1.45,moncal_single150_ion:1.5},MCK={moncal_single34:'monCal34',moncal_single80:'monCal80',moncal_single200:'monCal200',moncal_triple200:'monCal200Triple',moncal_single150_ion:'monCal150Ion'};
+ for(const id of ['light_quad200','light_twin200','light_single200','light_twin200_fast','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion','cr90_light_quad500mt','cr90_light_twin500mt','cr90_light_single500mt','sphyrna_light_twin500mt']){const a=REFERENCE_ASSETS[id],b=a?.barrelCenters?.[0];if(!b)continue;
+  const ion=id==='moncal_single150_ion',bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*.6:null,radius=!ion&&bore>0&&bore<.45?.45/bore:1,d=MCK[id]?FITS[MCK[id]]:null;
+  reshapeGunBarrels(id,{radius,exposedTarget:MC[id]&&d?MC[id]*d.wm:null});}}
 applyGunRules();
 // Keep internal recipes readable while the editor exposes one canonical entry.
 for(const key of ['mtl','htl','ltl','casemate40','casemateMid','casemateLight','casemateIon','casemateIonL'])Object.defineProperty(FITS,key,{enumerable:false,configurable:true,get:()=>FITS[canonicalWeaponKind(key)]});
