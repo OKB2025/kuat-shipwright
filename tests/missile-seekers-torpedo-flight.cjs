@@ -43,3 +43,25 @@ test('a ship\'s torpedo leaves at a craft\'s speed, slows with distance and turn
  assert.ok(big.m.s>little.m.s,'the ship\'s 50 m torpedo keeps its speed longer than a craft\'s 1.3 m one: '+big.m.s+' / '+little.m.s);
  const fighter=unit('f','craft_xwing',prof('craft_xwing'),1);fighter.pos=[8000,0,3000];const f=fly(fighter);assert.equal(f.m.unguided,true,'its seeker does not see a craft');
 });
+
+// 2026-11-24 user decision「レーダーロック発射、機首から30°で長距離発射する時。ロックした機体、艦に対して誘導で構造物に向かう。パッシブは自機にロック
+// してる機体センサーに向かう。熱源は背面を取った方が当たりやすい」.
+test('craftMissileChoice: passive at a craft locking us, heat when the guns bear, radar-locked within 30° of the nose',()=>{
+ const p=prof('craft_tie_ln'),me=unit('me','craft_tie_ln',p,0),foe=unit('foe','craft_tie_ln',p,1),locker=unit('lk','craft_tie_ln',p,1);
+ me.pos=[0,0,0];me.yaw=0;foe.pos=[2500,0,0];locker.pos=[2000,0,1500];const b=C.fleetBattle([me,foe,locker],true);b.time=10;
+ assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000).mode,'heat','guns bear: heat first');
+ foe.pos=[2500,0,1000];/* 22° off the nose: guns do not bear (15°), the radar cone (30°) does */assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000).mode,'radar');
+ foe.pos=[1500,0,2000];assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000),null,'53° off: nothing');
+ me.lockWarn={from:'lk',at:9};const ps=C.craftMissileChoice(b,b.units,me,foe,['cmsl','rmsl'],3000);assert.equal(ps.mode,'passive');assert.equal(ps.target.id,'lk','at the craft that locks us');
+ assert.equal(C.craftMissileChoice(b,b.units,me,foe,['cmsl'],3000),null,'no anti-radiation round, no passive shot');
+});
+test('a radar-locked round is guided while the launcher keeps the target in its 30° cone and bursts on the structure; a passive one homes on the locker\'s sensor',()=>{
+ const p=prof('craft_tie_ln'),a=unit('a','craft_tie_ln',p,0),t=unit('t','craft_tie_ln',p,1);a.pos=[0,0,0];a.yaw=0;t.pos=[2500,0,0];const b=C.fleetBattle([a,t],true);
+ C.fleetAirRelease(b,a,t,'rmsl',1,{...C.FLEET_AIR.kinds[1],seekMode:'radar'},null);const m=b.missiles[0];assert.equal(m.seekMode,'radar');assert.equal(m.semiActive,true);assert.ok(m.aim==null,'no part: the structure');
+ C.fleetAirRelease(b,a,t,'rmsl',1,{...C.FLEET_AIR.kinds[1],seekMode:'passive'},null);const q=b.missiles[1];assert.equal(q.aim,'sensor');assert.ok(!q.semiActive);
+ const ship={p:plain(F.imperial.p)};assert.equal(C.missileSeekerAim({seed:1},'rmsl',ship,'radar').aim,null,'radar-locked at a ship: its structure');
+});
+test('a heat round holds to its target with 1 from dead astern and MISSILE_SEEK.heatBase head-on',()=>{
+ const p=prof('craft_tie_ln'),heat=(tYaw)=>{const a=unit('a','craft_tie_ln',p,0),t=unit('t','craft_tie_ln',p,1);a.pos=[0,0,0];a.yaw=0;t.pos=[2000,0,0];t.yaw=tYaw;const b=C.fleetBattle([a,t],true);C.fleetAirRelease(b,a,t,'cmsl',1,C.FLEET_AIR.kinds[1],null);return b.missiles[0].heatP;};
+ assert.ok(Math.abs(heat(0)-1)<1e-9,'astern');assert.ok(Math.abs(heat(Math.PI)-C.MISSILE_SEEK.heatBase)<1e-9,'head-on');assert.ok(Math.abs(heat(Math.PI/2)-(C.MISSILE_SEEK.heatBase+(1-C.MISSILE_SEEK.heatBase)/2))<1e-9,'beam');
+});

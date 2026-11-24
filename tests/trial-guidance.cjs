@@ -44,10 +44,10 @@ test('KS_MISSILE_EVADE: a craft with a round closing on it turns onto the beam (
 });
 
 // 2026-11-23 KS_ROUND_PROFILE / KS_MISSILE_LOCK (user: 「ミサイルは当たるまで敵をカーソル内に…」「魚雷は…減速を続けて最大到達距離で停止、爆発」).
-function flyOut(flags,kind,{launcherFaces=[1,0,0],target=[50000,0,30000]}={}){
+function flyOut(flags,kind,{launcherFaces=[1,0,0],target=[50000,0,30000],seekMode}={}){
  const C=runtime(flags),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),a=C.fleetUnit('a','craft_tie_ln',p,0),t=C.fleetUnit('t','craft_tie_ln',p,1);
  a.pos=[0,0,0];a.yaw=Math.atan2(launcherFaces[2],launcherFaces[0]);a.velocity=[500,0,0];t.pos=target;t.velocity=[0,0,0];const B=C.fleetBattle([a,t],true);a.order={type:'hold',fire:false};t.order={type:'hold',fire:false};
- C.fleetAirRelease(B,a,t,kind,1,C.FLEET_AIR.kinds[1],null);const m=B.missiles[0],speeds=[];let last=m;
+ C.fleetAirRelease(B,a,t,kind,1,seekMode?{...C.FLEET_AIR.kinds[1],seekMode}:C.FLEET_AIR.kinds[1],null);const m=B.missiles[0],speeds=[];let last=m;
  for(let i=0;i<400&&B.missiles.length;i++){C.fleetTick(B,.05);const q=B.missiles.find(x=>x.id===m.id);if(!q)break;speeds.push(q.s);last=q;}
  return {C,m:last,speeds,gone:!B.missiles.some(x=>x.id===m.id)};}
 // 2026-11-24 expectation changed (user decision「魚雷の誘導装置は艦艇クラスの重量にしか反応できない。基本的に発射機の慣性で進み…方向転換数、距離によって
@@ -66,7 +66,9 @@ test('KS_ROUND_PROFILE: a missile boosts, then slows, and bursts at its reach',(
  const far=flyOut({KS_ROUND_PROFILE:true,KS_MSL_RANGE:2500},'cmsl');assert.ok(Math.abs(far.m.traveled-2500)<1,'KS_MSL_RANGE sets the reach');
 });
 test('KS_MISSILE_LOCK: a missile stays guided only while its launcher keeps the target in its sight',()=>{
- const inSight=flyOut({KS_MISSILE_LOCK:true,KS_GUIDANCE:'pn'},'cmsl',{target:[3000,0,0]}),away=flyOut({KS_MISSILE_LOCK:true,KS_GUIDANCE:'pn'},'cmsl',{launcherFaces:[-1,0,0],target:[3000,0,0]});
+ // 2026-11-24 expectation changed (user「レーダーロック発射…熱源は背面を取った方が当たりやすい」): only a radar-locked anti-radiation round is guided
+ // by its launcher's lock; this case was a concussion (now heat-seeking) round, which homes on heat by itself.
+ const inSight=flyOut({KS_MISSILE_LOCK:true,KS_GUIDANCE:'pn'},'rmsl',{target:[3000,0,0],seekMode:'radar'}),away=flyOut({KS_MISSILE_LOCK:true,KS_GUIDANCE:'pn'},'rmsl',{launcherFaces:[-1,0,0],target:[3000,0,0],seekMode:'radar'});
  assert.notEqual(inSight.m.unguided,true);assert.equal(away.m.unguided,true,'the launcher looks the other way');
  const off=flyOut({KS_GUIDANCE:'pn'},'cmsl',{launcherFaces:[-1,0,0],target:[3000,0,0]});assert.notEqual(off.m.unguided,true,'off by default');
 });
