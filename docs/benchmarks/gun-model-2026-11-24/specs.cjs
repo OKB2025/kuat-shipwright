@@ -17,9 +17,9 @@ for(const [k,d] of Object.entries(C.FITS)){const e=(d.tt||0)+(d.ion||0);if(!(e>0
  else if(ball){L=(b.muzzle[0]-front)+.75*body;how='球 3/4';}
  else if(Math.abs(ex-full)<.01){L=d.fm*2/3;how='固定 2/3';}else{L=full;how='全長';}
  let bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*.6:0.74;bore=Math.max(bore,0.45);
- const Ekt=bolt*1e9,minCoil=1+KC*Math.log((dl(Ekt)/bore)**2),extra=L-minCoil,c=L/Lref,V=process.env.SUBJ?d.fm*d.wm*d.hm:C.weaponChargeSpec({k,p:[0,0,0]}).targetVolume,charge=bolt*(1+c)/((process.env.SUBJ?3.1027e-4:kV)*V),coilL=process.env.SPLIT?minCoil+Math.max(0,extra)*(+process.env.SPLIT):L,coolV=Math.max(0,L-coilL)*Math.PI/4*bore*bore,cool=process.env.SPLIT?(coolV>0?Math.sqrt(bolt)*V0/coolV*(ball?.5:1):Infinity):Math.sqrt(bolt)*A0/(L*bore)*(ball?.5:1),gap=process.env.COOL_EQ?charge:ion?charge:Math.max(charge,cool/n);
+ const Ekt=bolt*1e9,minCoil=1+KC*Math.log((dl(Ekt)/bore)**2),extra=L-minCoil,c=L/Lref,V=process.env.SUBJ?d.fm*d.wm*d.hm:C.weaponChargeSpec({k,p:[0,0,0]}).targetVolume,charge=bolt*(1+c)/((process.env.SUBJ?3.1027e-4:kV)*V),coilL=process.env.SPLIT?minCoil+Math.max(0,extra)*(+process.env.SPLIT):L,coolV=Math.max(0,L-coilL)*Math.PI/4*bore*bore,Vt=d.fm*d.wm*d.hm,cool=process.env.TURRET?Math.sqrt(bolt)*8982/Vt*(ball?.5:1):process.env.SPLIT?(coolV>0?Math.sqrt(bolt)*V0/coolV*(ball?.5:1):Infinity):Math.sqrt(bolt)*A0/(L*bore)*(ball?.5:1),gap=process.env.COOL_EQ?charge:ion?charge:Math.max(charge,cool/n);
  const hold=extra<0?null:R0+Ak*Math.log(1+(coilL-minCoil)/x0),rng=hold==null?null:hold+tail*Math.log(Ekt/1e3);
- rows.push({coilL,coolV,name:d.short||d.name,n,bolt,L,how,bore,minCoil,extra,hold,rng,charge,cool,gap,ps:bolt/gap,old:e/d.cycle});}
+ rows.push({coilL,coolV:process.env.TURRET?Vt:coolV,name:d.short||d.name,n,bolt,L,how,bore,minCoil,extra,hold,rng,charge,cool,gap,ps:bolt/gap,old:e/d.cycle});}
 rows.sort((a,b)=>b.bolt-a.bolt||b.ps-a.ps);const s=x=>x==null?'—':x>=100?x.toFixed(0):x>=10?x.toFixed(1):x.toFixed(2);
 console.log('砲|門|1発|コイル|冷却部m3|砲身|口径|最低コイル|超過|100%距離|射程|1発充電|冷却|間隔|火力/秒|今の火力/秒');
 for(const r of rows)console.log([r.name,r.n,fmt(r.bolt),s(r.coilL),s(r.coolV),s(r.L)+'（'+r.how+'）',r.bore.toFixed(2),s(r.minCoil),s(r.extra),s(r.hold),s(r.rng),s(r.charge),s(r.cool),s(r.gap),fmt(r.ps),fmt(r.old)].join('|'));
