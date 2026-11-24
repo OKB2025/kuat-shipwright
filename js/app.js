@@ -9448,7 +9448,7 @@ function trialArrive(dest){
  trial.sysKey=dest;const s=trialSys(),R=s.planet.radius,f=galArrivalDir(trial.jump?.from,dest);
  if(trial.navigation){const p=Galaxy.itinerary(dest,trial.navigation.final);trial.navigation=p?.segments.length?{version:1,final:p.final,stop:dest,remaining:p.stops.slice(),waiting:true}:null;}
  Object.assign(trial,{P:[0,R+s.altitude,0],R:trialFrame(f,[0,1,0]),w:[0,0,0],V:tv.scale(f,trial.p.maxSpeed*.3),tele:2,throttle:.25,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.p.maxSpeed*.3;trialDust();
- if(trial.pat){trial.targets=[];patrolArrive();}else if(trial.mode==='trial'||trial.battlePlan?.targets){trial.targets=[];if(trial.battle?.plan?.targets){for(const u of trial.battle.b.units)if(u.trialTarget!=null&&!u.dead){u.dead=true;u.hidden=true;u.trialGone=true;}for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();}else trialTargetsBattle();}else trial.targets=[];
+ if(trial.pat){trial.targets=[];patrolArrive();}else if(trial.mode==='trial'||trial.battlePlan?.targets){trial.targets=[];if(trial.battle?.plan?.targets){for(const u of trial.battle.b.units)if(u.trialTarget!=null&&!u.trialGone){u.dead=true;u.hidden=true;u.trialGone=true;}/* every target, also one sunk and waiting to come back (regression review 2026-11-24: its timer put an extra target out after the reset) */for(let i=0;i<TRIAL_TARGET.n;i++)trialTargetPut(i,true);spaceRefresh();}else trialTargetsBattle();}else trial.targets=[];
  // The arrival point; reversion brings the ship in along its heading to it.
  if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;trial.camF=trialFrame(trial.jump.dir,tv.norm(trial.P));}escortsPlace();toast(`${s.name}に到着 — ${s.note}`);
 }
