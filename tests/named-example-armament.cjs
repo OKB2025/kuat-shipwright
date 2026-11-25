@@ -24,16 +24,21 @@ function modelsHaveGap(f,g){
  const outside=(shape,box)=>!contains(shape.bounds,box)&&shape.triangles.every(t=>boxesHaveGap(t,box));
  return outside(a,b.bounds)||outside(b,a.bounds);
 }
+// 2026-11-25 (user decision, expectation-changes.md): a laser (gunRule.kind 'laser': pd) is its barrels alone and has no feed
+// compartment, so the roster can no longer be read off needsCapacitor. An independent turret here is a gun that needs a
+// compartment or a ship's laser; the charge checks below apply to the first kind, and a laser must have no charging entry.
+const shipLaser=f=>{const d=C.fitSpec(f);return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&!d.msl&&d.gunRule?.kind==='laser';};
 function verify(key,expected){
- const ship=C.buildDesign(key),guns=ship.fits.filter(f=>C.needsCapacitor(f)),counts={};for(const f of guns)counts[f.k]=(counts[f.k]||0)+1;assert.deepEqual(counts,expected,key+' installs the requested independent turret roster');
+ const ship=C.buildDesign(key),guns=ship.fits.filter(f=>C.needsCapacitor(f)||shipLaser(f)),counts={};for(const f of guns)counts[f.k]=(counts[f.k]||0)+1;assert.deepEqual(counts,expected,key+' installs the requested independent turret roster');
  C.syncCompartments(ship);C.remount(ship);C.syncCompartments(ship);
  const stats=C.computeStats(ship),banks=C.weaponCapacitors(ship);
  for(let i=0;i<guns.length;i++){
   const f=guns[i],d=C.fitSpec(f),charge=stats.chargeInfo[f.id],geometry=C.authoredTurretGeometry(f);assert.notEqual(f.float,true,key+' '+f.k+' is seated');assert.ok(geometry,key+' '+f.k+' has real authored joints');assert.equal(geometry.muzzles.length,d.barrels,'every barrel has its own firing mouth');
   const up=C.fitUp(f),hit=C.rayEnv(ship,C.add(f.p,C.mul(up,3)),C.mul(up,-1),{maxT:80,structOnly:true});assert.ok(hit,'a structural mounting face lies beneath every turret');near(C.len(C.sub(hit.p,f.p)),0,.03);
   for(const muzzle of geometry.muzzles)assert.equal(C.insideOriginalEnvelope(ship,muzzle),false,key+' '+f.k+' muzzle must clear the hull');
-  assert.ok(charge&&charge.ratio>1-1e-6,key+' '+f.k+' #'+f.id+' has a complete physical firing charge');assert.equal(charge.blocked,false);near(charge.storedTT,Math.max(d.tt||0,d.ion||0));near(charge.storedTT,charge.volume*C.CHARGE_TT_M3);
-  if(charge.internalRequired>1e-5){assert.ok(charge.internalVolume>0);assert.ok(banks.some(p=>p.weaponId===f.id&&C.partVolume(p)>0),'housing shortfall has real internal hardware');}
+  if(shipLaser(f)){assert.equal(C.needsCapacitor(f),false);assert.equal(charge,undefined,key+' '+f.k+' #'+f.id+' is a laser: no charging entry');assert.ok(!banks.some(p=>p.weaponId===f.id||p.weaponIds?.includes(f.id)),'and no charging part');}
+  else{assert.ok(charge&&charge.ratio>1-1e-6,key+' '+f.k+' #'+f.id+' has a complete physical firing charge');assert.equal(charge.blocked,false);near(charge.storedTT,Math.max(d.tt||0,d.ion||0));/* 2026-11-25: a compartment is never under GUN_RULES.feedMinM3 and one at the least holds its volleys and no more, so a cubic metre holds weaponChargeSpec.ttPerM3 (was the flat CHARGE_TT_M3) */const q=C.weaponChargeSpec(f);assert.ok(q.targetVolume>=C.GUN_RULES.feedMinM3);assert.ok(q.ttPerM3<=C.CHARGE_TT_M3*(1+1e-12));near(charge.storedTT,charge.volume*q.ttPerM3);}
+  if(charge&&charge.internalRequired>1e-5){assert.ok(charge.internalVolume>0);assert.ok(banks.some(p=>p.weaponId===f.id&&C.partVolume(p)>0),'housing shortfall has real internal hardware');}
   for(const g of guns.slice(i+1))assert.ok(modelsHaveGap(f,g),key+' neighbouring authored gun models have a physical gap: #'+f.id+' / #'+g.id);
  }
  return {ship,guns,stats,banks};
