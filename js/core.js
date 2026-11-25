@@ -118407,7 +118407,7 @@ const CRAFT_INTERIOR_TARGETS=Object.freeze({
  craft_tie_ln:{g:4100,basis:'published acceleration'},
  craft_tie_sa:{g:3690,basis:'game conversion of published 90 MGLT: 90% of the TIE/ln (user decision 2026-11-19「TIE/saの速度を見直し」; was 2380, the published acceleration, which gave 56% of the TIE/ln speed)'},
  craft_v19:{g:4696,basis:'game assumption; previous authored interceptor target'},
- craft_vulture:{g:3600,basis:'game assumption; 108 MGLT on the shared conversion'},
+ craft_vulture:{g:3900,basis:'the user\'s refit of 2026-11-25 (target 3,900 G in its table; user「ヴァルチャーはそのままでいい」); was 3600, a game assumption of 108 MGLT on the shared conversion'},
  craft_vwing:{g:5200,basis:'published acceleration'},
  craft_xwing:{g:3700,basis:'published acceleration'},
  craft_z95:{g:3330,reactors:[1.02,1.02],basis:'game assumption; 90% of X-wing acceleration'}
