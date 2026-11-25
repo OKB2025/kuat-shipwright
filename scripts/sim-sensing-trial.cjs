@@ -1,7 +1,7 @@
 // 索敵の検証（計算だけ。ゲーム本体には組み込まない）。ユーザーの指示 2026-11-25：
 //   docs/handoff-2026-11-25/sensing-trial-request-2026-11-25.md
 // 使い方: node scripts/sim-sensing-trial.cjs <出力先フォルダ> [場面=all] [回数=5]
-//   場面: f1 | f2 | f3 | g1 | g2（輸送艦と商船の見分け）| e2 | e3 | e3only（分派）| aLock | cLock（ロックあり）| a | a2x12 | a12x2 | b | c | c2 | c2x12 | c12x2 | d | all（コンマで複数）（下の SCENES を参照）
+//   場面: f1 | f2 | f3 | f4 | g1 | g2（輸送艦と商船の見分け）| e2 | e3 | e3only（分派）| aLock | cLock（ロックあり）| a | a2x12 | a12x2 | b | c | c2 | c2x12 | c12x2 | d | all（コンマで複数）（下の SCENES を参照）
 //   出力先は必ず引数で渡す（既定でリポジトリの中には書かない）。図を作らないときは KS_NOFIG=1。
 // Core は読むだけ（性能表 YardFleetData と、既存の索敵の式 Core.sensSNR・定数 Core.SENS / EMIT / EMCON を使う）。
 // 検証用に足した式はこのファイルの「純粋な関数」の節にあり、★ を付けた定数は K に 1 か所でまとめてある。
@@ -160,7 +160,8 @@ function classify(c) {
 // 戻り値: 'hostile' | 'civil'（商船・非敵対とみなす）| 'suspect'（不審。敵とはマークしない）| 'neutral' | 'rock' | null（艦種がまだ分からない）
 function allegiance(c, t) {
   if (c.lockMark) return 'hostile';
-  if (!c.id) return null;
+  if (c.escortSince != null && t - c.escortSince >= K.ESCORT_WAIT) return 'hostile';
+  if (!c.id) return c.xpdr === 'shown' ? 'civil' : null; // 艦種が分からなくても、船籍表示を受ければ商船とみなす
   if (c.id.kind === 'rock') return 'rock';
   if (!c.id.civilType) return c.id.militarySide ? 'hostile' : 'neutral';
   if (c.escortSince != null && t - c.escortSince >= K.ESCORT_WAIT) return 'hostile';
@@ -169,6 +170,7 @@ function allegiance(c, t) {
 }
 // 追跡枠が足りないときの優先度（大きいほど先に枠をもらう）。★
 function trackPriority(c) {
+  if (c.alleg === 'hostile' && !c.id) return 100;
   if (c.id) return c.id.hostile ? (c.id.kind === 'flight' ? 60 : 100) : c.alleg === 'suspect' ? 85 : 0; // 敵と確定した艦 100、敵機 60、艦種は分かったが不審 85、商船・小惑星・中立とみなしたものは枠を返す
   switch (c.stage) { case ST.SUSPECT: return 90; case ST.POWERED: return 80; case ST.BLIP: return 70; case ST.DEBRIS: return 30; case ST.CIVIL: return 20; default: return 0; }
 }
@@ -196,7 +198,7 @@ function detachRoles(tr, fleetCruise, searchDist) {
   return {carrier: {ok: !cWhy, why: cWhy, craft, hangar, launch}, fast: {ok: !fWhy, why: fWhy, cruise, range}};
 }
 // 目標にできる条件：枠を持って追跡中で、位置が使え、敵と印が付いている（確定、または推定を許すなら不審も）。
-function targetable(c, allowPresumed) { return !!c.tracker && (c.id ? c.id.hostile : allowPresumed && c.stage === ST.SUSPECT); }
+function targetable(c, allowPresumed) { return !!c.tracker && (c.alleg === 'hostile' || (c.id ? c.id.hostile : allowPresumed && c.stage === ST.SUSPECT)); }
 
 // ====================================================================================================
 // 特性の読み込み（艦：data/fleet.js の性能表。航空機：作例の設計から Core.fleetProfile）
@@ -230,6 +232,7 @@ const SCENES = {
   f1: {title: '(f1) 味方の GR-75 × 3 ＋ 護衛（ネビュロン B）が敵の見張りのそばを通る。輸送艦は船籍表示を出す', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75', 'nebulonb'], picket: ['imperial', 'arquitens'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
   f2: {title: '(f2) (f1) で、輸送艦が船籍表示を出さない', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75', 'nebulonb'], picket: ['imperial', 'arquitens'], xpdr: false, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
   f3: {title: '(f3) 味方の GR-75 × 3 だけ（護衛なし）、船籍表示を出す', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75'], picket: ['imperial', 'arquitens'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
+  f4: {title: '(f4) 味方の GR-75 × 3 だけ（護衛なし）、船籍表示を出さない', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75'], picket: ['imperial', 'arquitens'], xpdr: false, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
   g1: {title: '(g1) 敵のゴザンティ × 3 ＋ 護衛（アークワイテンス）が味方の見張りのそばを通る。輸送艦は船籍表示を出す', layout: 'convoy', convoy: {side: 1, ships: ['gozanti', 'gozanti', 'gozanti', 'arquitens'], picket: ['mc80liberty', 'nebulonb'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
   g2: {title: '(g2) 敵のゴザンティ × 3 だけ（護衛なし）、船籍表示を出す', layout: 'convoy', convoy: {side: 1, ships: ['gozanti', 'gozanti', 'gozanti'], picket: ['mc80liberty', 'nebulonb'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
   d: {title: '(d) 双方とも偵察機なし', enemy: EMPIRE, enemyMode: 'patrol', recon: [null, null]}
@@ -407,8 +410,8 @@ function senseSide(W, sideIx, t, dt) {
 function judgeAllegiance(W, sideIx, t) {
   const side = W.sides[sideIx], all = [...side.contacts.values()], precise = c => c.est && (c.hold.rad.on || c.hold.vis.on || c.xpdr === 'shown');
   const warships = all.filter(m => m.id && m.id.kind === 'ship' && !m.id.civilType && m.id.militarySide && precise(m));
-  for (const c of all) { if (c.id?.civilType) { const near = precise(c) && warships.some(m => len(sub(m.est, c.est)) <= K.ESCORT_RADIUS); if (near) c.escortSince ??= t; else if (!(c.alleg === 'hostile')) c.escortSince = null; }
-    const a = allegiance(c, t); if (a !== c.alleg) { c.alleg = a; (c.allegLog ||= []).push({t, a}); if (a === 'hostile' && c.hostileT == null) { c.hostileT = t; c.hostileWhy = c.lockMark ? 'ロックされた' : c.id?.civilType ? '軍艦と一緒に動いている' : '軍用の艦種'; } if (a === 'civil' && c.civilT == null) c.civilT = t; }
+  for (const c of all) { if (c.id?.civilType || (!c.id && c.xpdr === 'shown')) { const near = precise(c) && warships.some(m => len(sub(m.est, c.est)) <= K.ESCORT_RADIUS); if (near) c.escortSince ??= t; else if (!(c.alleg === 'hostile')) c.escortSince = null; }
+    const a = allegiance(c, t); if (a !== c.alleg) { c.alleg = a; (c.allegLog ||= []).push({t, a}); if (a === 'hostile' && c.hostileT == null) { c.hostileT = t; c.hostileWhy = c.lockMark ? 'ロックされた' : !c.id || c.id.civilType ? '軍艦と一緒に動いている' : '軍用の艦種'; } if (a === 'civil' && c.civilT == null) c.civilT = t; }
     if (c.id) c.id.hostile = a === 'hostile'; }
 }
 // 追跡枠の割り当て（艦隊で共有）。ユーザーの記録 docs/handoff-2026-11-25/README.md に合わせた形：
