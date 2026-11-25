@@ -6,8 +6,12 @@ const root=process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'),cx=vm.createCo
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx);
 function plan(){
- const a=C.fleetUnit('a','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),0),b=C.fleetUnit('b','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),1);b.pos=[5000,0,0];b.yaw=Math.PI;
- a.order={...a.order,type:'attack',target:'b',fire:true};b.order={...b.order,type:'attack',target:'a',fire:true};
+ const a=C.fleetUnit('a','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),0),b=C.fleetUnit('b','cr90',JSON.parse(JSON.stringify(F.designs.cr90.p)),1);b.pos=[2500,0,0];b.yaw=Math.PI;
+ // 2026-11-25 the set-up changed, the subject did not: with the CR-90's guns turbolasers again (200 GT a shot, a volley of 0.4 TT
+ // against a field of 0.30 TT) two corvettes ordered to attack from 5 km ran in bow to bow and sank each other with their guns at
+ // 76 m in 11.5 s (no hull contact: the pass kept 36-38 m between them), so the action was over before the second commit. They
+ // now hold 2.5 km apart and fire: inside the guns' 2.9 km, both alive through the turns, the track history still in use.
+ a.order={...a.order,type:'hold',target:'b',fire:true};b.order={...b.order,type:'hold',target:'a',fire:true};
  const B=C.fleetBattle([a,b]);B.seed=7;return B;
 }
 const state=us=>JSON.stringify(us.map(u=>[u.id,u.pos,u.velocity,u.shield,u.energy,u.sec,u.mods,u.dead,u.out]));
