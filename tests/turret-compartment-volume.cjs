@@ -4,12 +4,18 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=v=>JSON.parse(JSON.stringify(v)),near=(a,b,eps=1e-5)=>assert.ok(Math.abs(a-b)<=eps,`${a} != ${b}`);
 const faces=[[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[0,3,7,4],[1,5,6,2]],box=(L,H,W,offset=[0,0,0])=>({verticesM:[[-1,0,-1],[1,0,-1],[1,1,-1],[-1,1,-1],[-1,0,1],[1,0,1],[1,1,1],[-1,1,1]].map(v=>[v[0]*L/2+offset[0],v[1]*H+offset[1],v[2]*W/2+offset[2]]),faces});
 let serial=0;
-function register(solids,{metadata=true}={}){
+// 2026-11-25 expectation changed (gun rules, user: a laser is its barrel alone with its gas kept elsewhere; only a turbolaser or an ion cannon has
+// a feed compartment in the ship; recorded in docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): the fixture gun was a copy of pd,
+// a laser (gunRule.kind 'laser'), which no longer has a charging compartment (needsCapacitor false, no entry in chargingStatus or chargeInfo).
+// The compartment accounting is tested on a copy of a turbolaser, twin40 (two barrels, no feed factor); the copy takes twin40's rule only
+// for its kind, its 5 TT volley is the fixture's own. `base` and `tt` are options for the laser, least-volume and feed-factor cases below.
+function register(solids,{metadata=true,base='twin40',tt=5}={}){
  const key='volumeTest'+(++serial),barrel=box(30,.5,.5,[20,.5,0]),all=[...solids,barrel],points=all.flatMap(q=>q.verticesM),low=[0,1,2].map(i=>Math.min(...points.map(p=>p[i]))),high=[0,1,2].map(i=>Math.max(...points.map(p=>p[i]))),size=high.map((v,i)=>v-low[i]),center=high.map((v,i)=>(v+low[i])/2),indices=[];let offset=0;
  for(const q of all){const center=q.verticesM.reduce((s,p)=>s.map((v,i)=>v+p[i]/q.verticesM.length),[0,0,0]);for(const row of q.faces){let ids=row.slice(),a=q.verticesM[ids[0]],n=C.cross(C.sub(q.verticesM[ids[1]],a),C.sub(q.verticesM[ids[2]],a));if(C.dot(n,C.sub(center,a))>0)ids.reverse();for(let j=1;j+1<ids.length;j++)indices.push(offset+ids[0],offset+ids[j],offset+ids[j+1]);}offset+=q.verticesM.length;}
  const data=Buffer.alloc(points.length*10+indices.length*2);points.forEach((p,i)=>p.forEach((v,k)=>data.writeInt16LE(Math.round((v-center[k])/size[k]*65532),i*6+k*2)));indices.forEach((v,i)=>data.writeUInt16LE(v,points.length*10+i*2));
  C.REFERENCE_ASSETS[key]={kind:'fit',plainMetal:true,n:points.length,faces:indices.length/3,indexBytes:2,size,c:center,mount:[0,0,0],forward:[1,0,0],up:[0,1,0],data:data.toString('base64'),...(metadata?{turretCompartment:{version:1,role:'gunhouse',convexes:solids}}:{})};
- C.FITS[key]={...C.FITS.pd,key,asset:key,tt:5,boltTT:2.5,barrels:2,power:5*C.TT,cycle:1,mass:100,crew:1,cost:1000,fm:size[0],hm:size[1],wm:size[2],r:Math.max(size[0],size[2])/2,weaponSizing:{factor:1,sourceSize:size,sourceVolume:size.reduce((a,b)=>a*b,1)}};
+ if(base==='twin40'){assert.equal(C.FITS.twin40.gunRule.kind,'turbolaser');assert.equal(C.FITS.twin40.gunRule.feedK,undefined);}
+ C.FITS[key]={...C.FITS[base],key,asset:key,tt,boltTT:tt/2,barrels:2,power:tt*C.TT,cycle:1,mass:100,crew:1,cost:1000,fm:size[0],hm:size[1],wm:size[2],r:Math.max(size[0],size[2])/2,weaponSizing:{factor:1,sourceSize:size,sourceVolume:size.reduce((a,b)=>a*b,1)}};
  return key;
 }
 function fixture(solids=[box(10,2,5)],options={}){const key=register(solids,options),s=C.newShip({L:100,W:100,H:30,assembly:true},'Gunhouse volume fixture');s.parts=[];C.placePart(s,'struct',[50,-10,0],[100,100,20],{form:'box',corner:0},false);const f={id:s.nextId++,k:key,p:[50,0,0],a:2,ped:0,base:0,low:0,float:false};s.fits.push(f);return {s,f,key};}
@@ -41,8 +47,13 @@ test('a larger external house reduces the reserved internal depth without increa
  const small=fixture([box(5,1,5)]),large=fixture([box(10,1,5)]),full=fixture([box(10,3,5)]),a=status(small.s,small.f),b=status(large.s,large.f),c=status(full.s,full.f);near(a.internalRequired,75);near(b.internalRequired,50);near(c.internalRequired,0);assert.ok(C.weaponCapacitors(large.s)[0].boxSize[1]<C.weaponCapacitors(small.s)[0].boxSize[1]);assert.equal(C.weaponCapacitors(full.s).length,0);for(const q of [a,b,c]){near(q.required,100);near(q.volume,100);near(q.storedTT,5);near(q.ratio,1);}
 });
 
-test('all ordinary powered guns share compartment accounting while launchers, craft and tractors remain excluded',()=>{
- for(const k of ['pd','quad500','twin40','ltl','ionL'])assert.equal(C.needsCapacitor({k}),true,k);
+// 2026-11-25 expectation changed (gun rules): lasers (pd, monCalPD, twin6MT, single500MT, and the retired ltl that reads as pd) have no feed
+// compartment; turbolasers and ion cannons have, the four corvette guns made turbolasers included. Was: pd and ltl true.
+test('turbolasers and ion cannons share compartment accounting while lasers, launchers, craft and tractors remain excluded',()=>{
+ for(const k of ['quad500','twin40','ionL','single6MT','twin500MT','quad500MT','sphyrnaTwin500MT'])assert.equal(C.needsCapacitor({k}),true,k);
+ for(const k of ['pd','monCalPD','twin6MT','single500MT'])assert.equal(C.FITS[k].gunRule.kind,'laser',k);
+ for(const k of ['pd','monCalPD','twin6MT','single500MT','ltl'])assert.equal(C.needsCapacitor({k}),false,k);
+ let ruled=0;for(const [k,d]of Object.entries(C.FITS))if(d.gunRule&&!d.craft&&!d.fixed){ruled++;assert.equal(C.needsCapacitor({k}),d.gunRule.kind!=='laser',k+' ('+d.gunRule.kind+')');}assert.ok(ruled>40);
  for(const k of ['claser','cturret','cmsl','itl','trc'])assert.equal(C.needsCapacitor({k}),false,k);
 });
 
@@ -74,4 +85,24 @@ test('destroying the turret removes its external bank capacity and prevents stor
 
 test('an oversized exterior gunhouse retains the same finite bank and charges only through the shared power budget',()=>{
  const {s,f}=fixture([box(20,3,10)]);C.placePart(s,'gen',[20,-10,0],4,{},false);s.surfaces={version:C.SURFACE_VERSION,mode:'strict',patches:[]};const S=C.computeStats(s),p=C.fleetProfile(S,s.name,s),u=C.fleetUnit('charged-house','fixture',p,0),m=p.surface.mounts.find(m=>m.id===f.id);near(p.wCap,5);near(m.capacity,5);near(m.housingCapacity,5);u.energy=0;u.surfaceBanks={[f.id]:0};assert.ok(p.grid.P>0);const request=p.grid.P*.1,allocation=C.allocateShipPower(u,C.fleetSystems(u),{weapons:request,throttle:0,deferHeat:true},1,'balanced');assert.ok(allocation.got.weapons>0&&allocation.got.weapons<=request);const charged=C.surfaceManualCharge(u,allocation.got.weapons,1),expected=allocation.got.weapons/C.TT*p.energyModel.eta;assert.ok(charged>0);near(charged,expected,expected*1e-9);near(C.surfaceMountEnergy(u,f.id),charged,expected*1e-9);assert.ok(charged<=m.capacity,'a large visible gunhouse cannot create unrequested energy capacity');
+});
+
+// 2026-11-25 added (gun rules): the three cases of the new rules, on the same fixture.
+test('a laser has no feed compartment: no bank room, no gunhouse reservation in the hull and no charging entry',()=>{
+ const {s,f,key}=fixture([box(10,10,10)],{base:'pd'});assert.equal(C.FITS[key].gunRule.kind,'laser');C.placePart(s,'struct',[50,.5,0],[10,10,1],{form:'box',corner:0},false);assert.equal(C.needsCapacitor(f),false);assert.equal(status(s,f),undefined);assert.equal(C.weaponCapacitors(s).length,0);assert.ok(!C.allOccupied(s).some(p=>p.turretRoom||p.k==='capacitor'),'the embedded house of a laser reserves nothing');const S=C.computeStats(s);assert.equal(S.chargeInfo[f.id],undefined);near(S.chargingTotalVolume,0);
+});
+
+test('a turbolaser feed compartment is never under the least volume, and a compartment at the least holds its volleys and no more',()=>{
+ const least=C.GUN_RULES.feedMinM3,per=C.CHARGE_TT_M3;assert.equal(least,50);
+ // 1 TT a volley: 20 m³ by the volley, so the least 50 m³, holding 1 TT (not 50 × 0.05 = 2.5 TT).
+ const {s,f}=fixture([box(5,1,5)],{tt:1}),spec=C.weaponChargeSpec(f);assert.ok(1/per<least);near(spec.volleyVolume,least);near(spec.targetVolume,least);near(spec.ttPerM3,1/least);let q=status(s,f);near(q.required,least);near(q.externalUsed,25);near(q.internalRequired,least-25);near(q.volume,least);near(q.storedTT,1);near(q.ratio,1);
+ // Two volleys still fit the least (40 m³ by the volleys); three need 60 m³, above the least, at the plain 0.05 TT/m³.
+ f.chargeSalvos=2;let two=C.weaponChargeSpec(f);near(two.targetVolume,Math.max(least,2/per));near(two.targetVolume,least);near(two.ttPerM3,2/least);q=status(s,f);near(q.volume,least);near(q.storedTT,2);
+ f.chargeSalvos=3;let three=C.weaponChargeSpec(f);near(three.targetVolume,3/per);assert.ok(three.targetVolume>least);near(three.ttPerM3,per);near(three.volleyVolume,least);q=status(s,f);near(q.required,3/per);near(q.storedTT,3);
+ // The 5 TT fixture gun is above the least: 100 m³ as before.
+ const plain5=fixture(),big=C.weaponChargeSpec(plain5.f);near(big.targetVolume,5/per);near(big.ttPerM3,per);
+});
+
+test('a gun with a feed factor needs that many times the compartment for the same stored volley',()=>{
+ const k=C.FITS.twin500MT.gunRule.feedK,per=C.CHARGE_TT_M3;assert.ok(k>1,'twin500MT is drawn under the least coil and bore');const {s,f,key}=fixture([box(10,3,5)],{base:'twin500MT'});assert.equal(C.FITS[key].gunRule.feedK,k);const spec=C.weaponChargeSpec(f);near(spec.volleyTT,5);near(spec.volleyVolume,5*k/per);near(spec.targetVolume,5*k/per);near(spec.ttPerM3,per/k);const q=status(s,f);near(q.required,5*k/per);near(q.housingUsed,150);near(q.internalRequired,5*k/per-150);near(q.volume,5*k/per);near(q.storedTT,5);near(q.ratio,1);
 });

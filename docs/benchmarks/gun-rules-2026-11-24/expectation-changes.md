@@ -291,3 +291,49 @@ js/lang-en.js の末尾に `<gun-rules-2026-11-24-catalog>` の区画を足し�
 
 - 確認（2401f13 の作業ツリー）：capital-turret-trial 6／0、ion-barrel-style 3／0。
 - 補助エージェントは `tests/**`・`js/lang-en.js`・この記録だけを編集した。`js/`・`scripts/`・`data/` の変更はすべて主担当による。
+
+## 2026-11-25 の砲の変更（コルベットのターボレーザー化、給電の割り増し、給電区画の最小容積）
+
+対象：ユーザー決定（2026-11-25、コミット 520bcf0 の `js/core.js`）で意図して変えた砲の規則に合わせ、変更前（f9b46e2）から新しく落ちるようになった 3 本の期待値を直したもの。
+
+- 決定の要点：レーザーは砲身だけで充電区画（給電区画）を持たない。single6MT は 100 MT の軽ターボレーザー、twin500MT・quad500MT は 1 発 200 GT の中ターボレーザー、sphyrnaTwin500MT は 1 発 200 MT の軽ターボレーザー（`GUN_RULES.turbolaserShot`）。砲身が最低コイル長より短い、または描かれた口径が 0.45 m より細い砲は、充電と給電が `feedK` 倍。ターボレーザー・イオン砲の給電区画は最小 50 m³（`GUN_RULES.feedMinM3`）。
+- 基準：f9b46e2 の写し（スクラッチパッドの wt-regen、読むだけ）で同じ 3 本を 1 本ずつ実行。候補：ブランチ `claude/inspiring-faraday-kn13yq` の 520bcf0 の作業ツリー（テストとこの記録だけ変更。`js/`・`data/`・`scripts/` は変更していない）。
+- ログ：スクラッチパッドの tests/agent1/（`before-old-*.log`＝f9b46e2、`before-new-*.log`＝520bcf0 で直す前、`after-*.log`＝直した後）。
+- 許容差は変えていない。数値の決め打ちより、規則との関係（`GUN_RULES.turbolaserShot`、`gunRule.feedK`、`GUN_RULES.feedMinM3`、`weaponChargeSpec`、`needsCapacitor`）で書いた。ユーザーが決めた値そのもの（100 MT・200 GT・200 MT、50 m³）だけは数値でも確かめている。
+
+### 変更した期待値
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由（ユーザー決定） | 変更前（f9b46e2）に失敗していたか |
+| --- | --- | --- | --- | --- |
+| heavy-laser-aa-trial.cjs / single6MT fires the laser shot of its bore (117 kt) on the manual trigger…（新名 single6MT fires its 100 MT light-turbolaser shot on the manual trigger…） | `gunRule.kind = 'laser'`、1 発 = 口径の `laserShotKt`（117 kt） | `gunRule.kind = 'turbolaser'`、1 発 = `GUN_RULES.turbolaserShot.single6MT`（1e-4 TT = 100 MT）、`FITS.boltTT`・`gunRule.shotKt` がそれと一致、`needsCapacitor` が true。「手動の引き金でだけ撃つ」「自動迎撃しない」「撃った分だけ蓄電が減る」はそのまま | single6MT は 100 MT の軽ターボレーザー | いいえ |
+| heavy-laser-aa-trial.cjs / the corvette guns once rated 500 MT preserve traverse, fire the laser shot of their bores and require the manual trigger（新名 …fire their own shot (the single a laser of its bore, the others turbolasers)…） | 4 門ともレーザー、1 発 613／285／279／261 kt。蓄電は 1e-5 TT | single500MT はレーザーのまま 613 kt。twin500MT・quad500MT は 200 GT、sphyrnaTwin500MT は 200 MT のターボレーザー（`GUN_RULES.turbolaserShot`）。蓄電は「1 発の 16 倍」（200 GT の弾は 1e-5 TT では撃てないため。旧の 1e-5 TT もレーザーの 1 発の 16〜38 倍だった）。蓄電の減りの許容差（相対 1e-10）は変えていない | 2 連装と 4 連装は中ターボレーザー（200 GT）、スフィルナの 2 連装は軽ターボレーザー（200 MT）、単装 613 kt はレーザーのまま | いいえ |
+| weapon-shot-calibration.cjs / ファイル冒頭の `laserBolt` と作例の表 `corvette`（読み込み時に落ちていた） | コルベットの 6 門すべてを `gunRule.perBarrel`（レーザーだけが持つ）から計算 | レーザー（twin6MT・single500MT）は従来どおり口径から。ターボレーザーの 4 門は `GUN_RULES.turbolaserShot[k]`（`gunRule.shotKt` と一致することも検査）。`laserBolt` はレーザー以外に使うと検査で止まる | コルベットの 4 門をターボレーザーに | いいえ（520bcf0 では読み込みで落ち、9 本とも実行されなかった） |
+| weapon-shot-calibration.cjs / 共通の `shot()` 検査（tests 1–3 で使用） | `shotChargeTT = E × (1 + 砲身 ÷ 19 m)`、`weaponChargeSpec.targetVolume = 斉射 ÷ 0.05` | `shotChargeTT = E × (1 + 砲身 ÷ 19 m) × feedK`、`feedK = max(1, 最低コイル ÷ 砲身) × (描かれた口径が 0.45 m 未満なら (0.45 ÷ 口径)²)`＝`coilShortK × boreShortK`、`chargeRateTT = 0.0631 × 斉射 ÷ 0.05 × feedK`（間隔は変わらない）、`heatFrac = 0.05 × over ÷ (1 + over)`、over = (1 + c) × feedK − 1。区画は `targetVolume = volleyVolume = max(最小, 斉射 × feedK ÷ 0.05)`、`ttPerM3 = 斉射 ÷ targetVolume`、最小はターボレーザー・イオン砲が 50 m³、レーザーは 0。`needsCapacitor` はレーザーで false、ほかで true | 給電の割り増し、給電区画の最小 50 m³、レーザーは充電区画なし | いいえ |
+| weapon-shot-calibration.cjs / six native corvette weapons preserve their 500 MT and 6 MT shot energies…（新名 six native corvette weapons fire their 2026-11-25 shots (four turbolasers, two lasers)…） | 6 門ともレーザーの 1 発（117〜658 kt／1.57 MT） | `GUN_RULES.turbolaserShot` が {single6MT 1e-4, twin500MT 0.2, quad500MT 0.2, sphyrnaTwin500MT 2e-4} TT、6 門の種類（twin6MT・single500MT だけレーザー）。1 発・斉射・電力・区画は上の `shot()` で検査。資産・`weaponFamily`・砲口数などの検査はそのまま（`weaponFamily` は single6MT が 'heavy-laser'、500MT 系が 'light-turbolaser' のまま＝モデルの系統名で、変わっていない） | 同上。3D モデルは変えない | いいえ |
+| weapon-shot-calibration.cjs / native 6 MT and 500 MT guns retain their actual shot yields and aimed fire without automatic interception | single6MT・500MT 系 4 門の `boltTT` = 口径のレーザーの 1 発 | single6MT・twin500MT・quad500MT・sphyrnaTwin500MT は `GUN_RULES.turbolaserShot`、single500MT は口径のレーザーの 1 発。twin6MT（658 kt・1.57 MT）と「自動迎撃しない」「艦隊の性能表に砲として載る」はそのまま | 同上 | いいえ |
+| turret-compartment-volume.cjs / 試験用の砲（`register`。テスト 2〜6・9・10・12・13 が使用） | `FITS.pd` の写しに 5 TT の斉射を持たせた砲 | `FITS.twin40`（ターボレーザー、2 門、feedK なし）の写しに同じ 5 TT の斉射。**各テストの期待値（100 m³、550 m³、5 TT など）は 1 つも変えていない。** 5 TT ÷ 0.05 = 100 m³ は最小 50 m³ より大きいので、最小容積で数値がずれたテストはなかった（9 本とも原因は「pd の写しがレーザーで、充電区画がなくなった」こと。試験用の砲を twin40 に替えるだけで 9 本とも通る） | レーザーは充電区画を持たない。区画の仕組みの検査はターボレーザーの砲で残す | いいえ |
+| turret-compartment-volume.cjs / all ordinary powered guns share compartment accounting while launchers, craft and tractors remain excluded（新名 turbolasers and ion cannons share compartment accounting while lasers, launchers, craft and tractors remain excluded） | pd・quad500・twin40・ltl・ionL が `needsCapacitor` true | quad500・twin40・ionL・single6MT・twin500MT・quad500MT・sphyrnaTwin500MT が true。pd・monCalPD・twin6MT・single500MT（`gunRule.kind = 'laser'`）と ltl（退役して pd として読まれる）が false。`gunRule` を持つ艦の砲すべてで `needsCapacitor = (kind ≠ 'laser')`。claser・cturret・cmsl・itl・trc が false はそのまま | レーザーは充電区画を持たない | いいえ |
+
+### 追加したテスト（新しい規則そのものの検査）
+
+| テストファイル / テスト名 | 内容 | 理由（ユーザー決定） |
+| --- | --- | --- |
+| turret-compartment-volume.cjs / a laser has no feed compartment: no bank room, no gunhouse reservation in the hull and no charging entry | pd の写し（レーザー）を船体に食い込ませても、`needsCapacitor` false、`chargingStatus`・`computeStats().chargeInfo` に載らない、`weaponCapacitors` が空、船内の砲塔区画（turretRoom）もできない、`chargingTotalVolume` = 0 | レーザーは砲身だけ |
+| turret-compartment-volume.cjs / a turbolaser feed compartment is never under the least volume, and a compartment at the least holds its volleys and no more | 斉射 1 TT の砲：斉射からは 20 m³ だが区画は `GUN_RULES.feedMinM3`（50 m³）、満たして 1 TT（`ttPerM3 = 1 ÷ 50`。以前の「容積 × 0.05」なら 2.5 TT）。2 斉射ぶんも 50 m³ で 2 TT、3 斉射ぶんは 60 m³ で 3 TT（0.05 TT/m³）。5 TT の砲は 100 m³ のまま | 給電区画は最小 50 m³。最小の区画が持つのは斉射ぶんだけ |
+| turret-compartment-volume.cjs / a gun with a feed factor needs that many times the compartment for the same stored volley | twin500MT（`feedK` ≒ 3.51）の写しに 5 TT の斉射：区画 = 5 × feedK ÷ 0.05、`ttPerM3 = 0.05 ÷ feedK`、満たして 5 TT | 給電の割り増しは区画にも同じ倍率でかかる |
+
+### 変更していない失敗
+
+| テストファイル / テスト名 | 状態 | 理由 |
+| --- | --- | --- |
+| turret-compartment-volume.cjs / an oversized exterior gunhouse retains the same finite bank and charges only through the shared power budget（テスト 14） | 失敗（`assert.ok(p.grid.P>0)`、`p.grid.P` = 0） | f9b46e2 でも同じ行・同じ値で失敗（既存）。520bcf0 で直す前は、その手前の `m.housingCapacity`（レーザーで区画なし → undefined）で先に落ちていた。試験用の砲を twin40 に替えたあとは、手前の `p.wCap = 5`・`m.capacity = 5`・`m.housingCapacity = 5` は通り、f9b46e2 と同じ `p.grid.P > 0` で落ちる（どちらも発電機 gen を 1 つ置いた試験用の艦で `p.grid.P`・`p.grid.Pgen`・`S.power` が 0）。砲の規則とは別の原因なので触っていない |
+
+新しい規則で説明できない失敗（不具合の疑い）と、`data/` の作り直しを待つ失敗は、この 3 本にはなかった。
+
+### 再実行の結果（1 本ずつ直列、`node --test tests/<名前>.cjs`）
+
+| ファイル | f9b46e2（通過/失敗） | 520bcf0 で直す前 | 直した後 | 残る失敗 |
+| --- | --- | --- | --- | --- |
+| heavy-laser-aa-trial | 4/0 | 2/2 | 4/0 | なし |
+| weapon-shot-calibration | 9/0 | 0/1（読み込みで失敗、9 本とも実行されず） | 9/0 | なし |
+| turret-compartment-volume | 13/1 | 3/11 | 16/1（テスト 3 本を追加） | 既存 1 件（テスト 14、f9b46e2 と同じ行） |

@@ -1,0 +1,70 @@
+{
+ "o": {
+  "opened": {
+   "ship": "T-65B Xウイング",
+   "key": "claser",
+   "lasers": [
+    42,
+    43,
+    44,
+    45
+   ]
+  },
+  "drawer": {
+   "pick": true,
+   "slider": true,
+   "sel": null,
+   "tab": "mod"
+  },
+  "setBore": [
+   "0.25",
+   "0.25 m",
+   "1発 293 kt・射程 860 m・定格入力 293 kt/秒（1門）"
+  ],
+  "setLen": [
+   "4.2",
+   "4.20 m",
+   "1発 293 kt・射程 3.13 km・定格入力 293 kt/秒（1門）"
+  ],
+  "setRate": [
+   "2.5",
+   "2.5 発/秒",
+   "1発 293 kt・射程 3.13 km・定格入力 733 kt/秒（1門）"
+  ],
+  "pending": {
+   "boreM": 0.25,
+   "barrelM": 4.2,
+   "rateHz": 2.5
+  },
+  "arm": {
+   "armed": true,
+   "tool": "fit"
+  },
+  "candidates": 12,
+  "tapAt": {
+   "cx": 640,
+   "cy": 429.5
+  },
+  "added": [
+   {
+    "id": 173,
+    "k": "claser",
+    "tw": null,
+    "boreM": 0.25,
+    "barrelM": 4.2,
+    "rateHz": 2.5
+   }
+  ],
+  "toast": "配置見本を開きました。全区画を編集できます。",
+  "spec": [
+   [
+    0.25,
+    4.2,
+    2.5,
+    293,
+    3132.069043606827
+   ]
+  ]
+ },
+ "errs": []
+}
