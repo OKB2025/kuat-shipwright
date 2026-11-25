@@ -5040,6 +5040,7 @@ root.KS_EN={
   "ほかの装備と干渉します": "Overlaps other equipment",
   "どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。": "All engine exhausts are buried inside the hull. Extend their rear ends outside.",
   "噴射口が塞がったエンジンがあります（推力に寄与しません）。": "Some engine exhausts are blocked and produce no thrust.",
+  "反応炉に接続されていないエンジンが {0} 基あります（推力に寄与しません）。「接続する炉」を選び直してください。": "{0} engine(s) are not connected to a reactor and produce no thrust. Choose their reactor again.",
   "船体から離れて浮いている区画が {0} 個あります。": "{0} compartments are detached from the hull.",
   "取り付け面を失った装備が {0} 基あります。": "{0} equipment mounts have lost their supporting surfaces.",
   "ほかの装備と重なって取り付けられない装備が {0} 基あります。左右対称で中心線の近くに置くと、対の装備が重なります。": "{0} equipment mounts cannot be fitted because they overlap other mounts. With left/right symmetry, a mount placed near the centreline overlaps its own mirrored twin.",

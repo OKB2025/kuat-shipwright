@@ -105768,7 +105768,7 @@ function baseComputeStats(ship,options={}) {
     if(overlapParts(a,b)){invalid.add(a.id);invalid.add(b.id);}
   }
   let crew = 0, cost = 0, hpSum = 0;const costBy = {hull: 0, armor: 0, power: 0, drive: 0, defense: 0, hangar: 0, command: 0, weapons: 0, systems: 0};   // PLAN-002 the build cost by category (costCategory)
-  let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
+  let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, engNoSource = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
   const reactorVolumes=[];let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,shieldDissipationW,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [],countedMachinery=new Set();
@@ -105819,7 +105819,7 @@ function baseComputeStats(ship,options={}) {
       engN++; Veng += V;
       const spec=resolveEngineSpec(pt,ship),source=ship.parts.find(r=>isReactor(r)&&r.id===spec.reactorId),path=enginePaths(ship).find(r=>r.nozzle===spec.machineryId);
       let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id))&&!invalid.has(pt.id)&&!detached.has(pt.id);/* thrust follows the placement connection judgment exactly (no separate geometric test) *//* user decision 2026-11-13: a placed engine that does not stand on its body gives no thrust */
-      info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;
+      info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;if(!source)engNoSource++;
       if(ok){ventEng+=V;if(!countedMachinery.has(spec.machineryId)){countedMachinery.add(spec.machineryId);availableThrust+=spec.ratedThrustN;engineDemand+=spec.valid?spec.ratedInputW:0;}info[pt.id].powerRatio=1;}
     }
   }
@@ -105995,7 +105995,7 @@ function baseComputeStats(ship,options={}) {
     power: P, xISD: P / ISD_W, draw: {weapons: Dw, shields: Ds, engines: De, hotel: Dh, systems:systemsPower, ray: Dr, jump: Dj},
     rc, coreRate,weaponBudget,chargeInfo,vlsInfo, rm, jumpOK, jumpChargeS, jumpChargeJ, jumpSpareW, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
     weakAt: worstX, cutSection: cut, structLimited: aStruct < aThrust, MGLT: Math.round(aEff / G0 / 30),
-    engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
+    engN, ventEng, engNoSource, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
     shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate,...(shieldDissipationW!=null?{shieldDissipationW}:{}), shieldTarget:ship.shieldTarget||1, armorHull:ship.surfaces?surfaceArmor.average:ship.armor.hull,armorCit:cit,armorAvg:surfaceArmor.average+(area>0?plateAT/area:0),armorPlate:plateA>0?plateAT/plateA:0,plateArea:plateA,plateShare:area>0?Math.min(1,plateA/area):0,plateMass:plateM,
     slots, aviation, deployableSlots:aviation.combatDeployable, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
     weaponWasteFrac:wPower>0?wWaste/wPower:HEAT.waste.weapon,weaponChargeFactor:wOut>0?wPower/wOut:1,allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,gunBandRules:Object.fromEntries(Object.entries(bandRules).map(([k,v])=>[k,Object.values(v)])),ionRules:Object.values(ionRules),alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
@@ -106034,7 +106034,7 @@ function warnings(S) {
   if (S.Vgen <= 0) add2('bad', S.invalidReactorIds?.length ? '反応炉 '+S.invalidReactorIds.map(id=>'#'+id).join('、')+' は配置が無効（船内に収まらない、または他の設備と重なる）なため出力に数えていません。配置の問題を解消してください。出力ゼロでは何も動きません。' : 'ジェネレーターがありません。出力ゼロでは何も動きません。');
   if (S.engN === 0) add2('bad', 'エンジンがありません。');
   else if (S.ventEng <= 0) add2('bad', 'どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。');
-  else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
+  else if (S.ventEng < S.Veng * 0.999) add2('warn', S.engNoSource > 0 ? /* 2026-11-25 the engine's nozzle is open; it has no reactor (the message named the nozzle for this too) */`反応炉に接続されていないエンジンが ${S.engNoSource} 基あります（推力に寄与しません）。「接続する炉」を選び直してください。` : '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
   if (S.bridges === 0) add2('bad', '艦橋がありません。命中率が大きく落ちます。');
   if (S.floating) add2('bad', `船体から離れて浮いている区画が ${S.floating} 個あります。`);
   // A fitting refused because it stands in another fitting or equipment is reported as that, not as a lost surface.
@@ -106424,7 +106424,11 @@ function isReactor(p){return p.k==='gen'||p.k==='aux';}
 function reactorFor(ship,p){
   const rs=ship.parts.filter(isReactor);
   if(p.reactor===0)return null;
-  if(p.reactor!=null)return rs.find(r=>r.id===p.reactor)||null;
+  // 2026-11-25 A reactor that is no longer in the ship is no choice any more: the engine (or other consumer) is fed as one
+  // with no reactor chosen, by the nearest. It was left with none: the user's GR-75, rebuilt inside with one reactor in place of
+  // four, kept its two side engines on auxiliary reactors #48 and #49, which were gone, and they gave no thrust (user「エンジンは
+  // 何も手を加えてないのでバグでは？」). 0 still means none on purpose.
+  if(p.reactor!=null){const chosen=rs.find(r=>r.id===p.reactor);if(chosen)return chosen;}
   return rs.sort((a,b)=>len(sub(a.c,p.c))-len(sub(b.c,p.c)))[0]||null;
 }
 function frameAxis(axis){const u=norm(axis),v=norm(cross(Math.abs(u[1])<0.9?[0,1,0]:[0,0,1],u));return {u,v,w:cross(u,v)};}
@@ -107024,7 +107028,7 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 // (v25 the Executor is the user's whole design: its machinery, reactors and engines are kept as built, not refitted)
-const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems; 2026-11-24 the Venator is the user's design too */'acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems; 2026-11-24 the Venator is the user's design too */'acclamator','arquitens','cr90','dreadnaught','gozanti',/* 2026-11-25 the GR-75 is the user's design too */'hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
 // v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
 // a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
@@ -114805,8 +114809,13 @@ registerShipExample({
  title:'Star Wars: GR-75 Medium Transport',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
  source:'https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a',license:'CC-BY-4.0',
  credit:'This work is based on "Star Wars: GR-75 Medium Transport" (https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'90 m・装甲殻の下に開いた貨物架。上部殻を通常船体（断面表）とし、貨物架・機関・操縦室は原型モデルから実測した構造物',
- build(){
+ note:'90 m・装甲殻の下に開いた貨物架。上部殻を通常船体（断面表）とし、貨物架・機関・操縦室は原型モデルから実測した構造物。内部（反応炉・シールド・貨物倉など）はユーザーが作り直した設計（docs/handoff-2026-11-20/refs/gr75-remodel-2026-11-25.json）。',
+ // 2026-11-25 The example is the user's design (GR75_REMODEL in data/imperial2.js; user「GR-75が輸送船にしては反応炉もシールドも大きすぎる」
+ // 「GR-75を内部作り直した」), taken as it is: the hull, the 54 structures and the two turrets are those of the measured build
+ // below (measuredBuild, kept as the record of how the shape was measured), the interior is the user's. It carries its own
+ // systems, so no systems refit follows.
+ build(){if(typeof GR75_REMODEL!=='object'||!GR75_REMODEL)throw new Error('GR-75 の設計がありません');const ship=deserialize(JSON.parse(JSON.stringify(GR75_REMODEL)));ship.reference='gr75';return ship;},
+ measuredBuild(){
   // Upper shell: a domed section (warship section with a full-width keel and
   // a narrow deck) measured every 4 m; its underside stays flat at y 6.6.
   const SHELL=[[0,3.43,7.15,8.95],[5,5.34,6.5,8.93],[9,6.36,6.54,8.92],[13,7.11,6.62,9.3],[17,7.91,6.62,9.88],[21,8.7,6.64,10.44],[25,9.4,6.66,11.05],[29,10.21,6.68,11.6],[33,10.91,6.67,12.19],[37,11.74,6.67,12.77],[41,12.43,6.67,13.27],[45,12.73,6.68,13.91],[49,13.24,6.68,14.31],[53,13.68,6.68,14.64],[57,13.78,6.68,14.71],[61,13.58,6.69,14.59],[65,13.52,6.6,14.5],[69,12.85,6.79,14.13],[73,12.2,6.75,13.81],[77,10.1,7.4,13.06],[81,8.89,7.8,12.43],[85,6.62,7.84,10.98],[88,4.6,7.7,9.8],[90,2.2,7.9,9]];
