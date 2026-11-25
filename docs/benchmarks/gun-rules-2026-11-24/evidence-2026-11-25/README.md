@@ -30,8 +30,20 @@
 | turret-compartment-volume | 1｜13｜1 | 1｜16｜1 | テストを 3 件追加。残る 1 件は main と同じ失敗 |
 | lowered-bays-capacity | 1｜1｜1 | 0｜2｜0 | 良くなった |
 | fighter-interiors | 0｜14｜0 | 1｜13｜1 | **既知**：Z-95 の加速 3,406 G が目標 3,330 G を超える。ユーザー決定で次の PR で作例を直す |
-| fleet-record-release | 0｜8｜0 | 1｜7｜1 | **未修正**：Worker が艦を戻す経路でハンマーヘッドの灯りが最大 1.1 mm ずれる（`restored-ship-lights-main-code.txt`。main のコードでも今の設計で再現） |
+| fleet-record-release | 0｜8｜0 | 1｜7｜1 | **未修正・原因は特定**：Worker が艦を戻す経路でハンマーヘッドの灯りが最大 1.1 mm ずれる（`restored-ship-lights-main-code.txt`。main のコードでも今の設計で再現）。原因は下の「戻した艦の灯りのずれの原因」 |
 | trench-armament-combat | 1｜8｜1 | 1｜6｜3 | この実行の後に期待値 2 件を更新（砲列の充電区画はレーザーを含まない）。更新後は 8／1 で main と同じ 1 件の失敗 |
 | hull-outer-surface-contact | 124（600 秒で打ち切り） | 1｜0｜1 | 候補は 521 秒で強制終了された（SIGKILL。作業プロセスの再起動と重なった）。完走していない点は main と同じ |
 
 - 600／700 秒の制限で打ち切り：main は example-figures-regression、fleet-loadout-separation、hull-outer-surface-contact。候補は example-figures-regression、fleet-loadout-separation（mandator-example-refit は候補で完走）。
+
+## 戻した艦の灯りのずれの原因（2026-11-25 追記）
+
+`restored-ship-lights-cause.cjs` と `restored-ship-lights-cause.txt`。
+
+- 表面の露出の調査（`surfacePatches`）は、他の部品に隠れる部分を面から切り取る。形状部品でない区画は、切り取り後の形（`_clip.tris`、`_packing.tris`）があればそれを、無ければ素の形（円柱・球など）を遮蔽に使う（`surfaceExposureMeshes`）。
+- 最初の構築では、調査が区画の切り取りより先に走り、その結果が艦ごとのキャッシュに残る。キャッシュの鍵（`surfaceGeometryKey`）は部品の設計値だけで、切り取り後の形があるかどうかを含まないので、あとで切り取り後の形ができても調べ直さない。新しく組んだ艦は、どの順で組んでも同じ結果になる（別の実行環境で確認）。
+- Worker が戻した艦は、切り取り後の形を先にキャッシュから受け取り、調査の結果は受け取らない（`packCaches` は `exposedTriangles` を詰めない）。そこで調べ直すと、切り取り後の形（船体の内側に収まる分だけ小さい）が遮蔽に使われ、ハンマーの面 3 個で露出面積が 0.21〜1.56 m² 大きく出る。灯りの位置と大きさは露出した三角形から決まるので、ずれる。
+- 戻したあとに `_clip` を外すと最初の構築と一致する（`restored-ship-lights-cause.txt` の「B -partClip」）。
+- 影響の範囲：性能値・装甲の質量は最初の構築で計算して記録に残した値を使うので変わらない。戻した艦が使われるのはモデルの生成と公試の射線。モデルの違いは灯り（`surfaceDevices` の頂点 11 個）だけだった（`restored-ship-lights-main-code.txt`）。
+- main でも同じ仕組み。薄い装甲（0.3 m 以下）の面に区画が重なる設計で現れる。今回ハンマーヘッドの作例に現れたのは、ハンマー部分に面ごとの装甲を入れ、給電区画が増えたため。
+- **直していない理由**：直し方は 2 つあり、どちらもこの PR の範囲を超える。(1) 調査の鍵に切り取り後の形を入れる → 全作例の露出面積・装甲の質量が変わり得るので、全作例の作り直しと物理レビューが要る。(2) 調査の結果を Worker の記録に詰める → 記録の大きさと形式が変わるので、回帰レビュー（保存形式）が要る。どちらが正しい遮蔽か（素の形か、切り取り後の形か）も決める必要がある。
