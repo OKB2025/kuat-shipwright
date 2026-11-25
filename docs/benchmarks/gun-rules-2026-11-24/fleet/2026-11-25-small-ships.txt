@@ -1,0 +1,69 @@
+cr90:cr90 | B wins at 176.5s | left 0/1 : 1/1 | first fire A 29s @2.0km, B 29s @2.0km | closest 0.05km | press false,false
+  standoff: cr90->cr90 0.8km; cr90->cr90 0.8km
+  A cr90         shield 0% hull NaN% OUT reactor at 176.5s
+  B cr90         shield 0% hull NaN% in action
+cr90:gozanti | A wins at 78.5s | left 1/1 : 0/1 | first fire A 35.5s @2.5km, B never | closest 0.06km | press false,false
+  standoff: cr90->gozanti 0.8km; gozanti->cr90 4.9km
+  A cr90         shield 100% hull NaN% in action
+  B gozanti      shield 0% hull NaN% OUT hull at 78.5s
+cr90:hammerhead | A wins at 81.5s | left 1/1 : 0/1 | first fire A 34s @2.6km, B 26.25s @13.6km | closest 0.46km | press false,false
+  standoff: cr90->hammerhead 0.8km; hammerhead->cr90 3.0km
+  A cr90         shield 100% hull NaN% in action
+  B hammerhead   shield 0% hull NaN% OUT 電源喪失 at 81.5s
+hammerhead:hammerhead | A wins at 47.5s | left 1/1 : 0/1 | first fire A 31.75s @11.6km, B 31.75s @11.6km | closest 0.05km | press false,false
+  standoff: hammerhead->hammerhead 0.2km; hammerhead->hammerhead 0.2km
+  A hammerhead   shield 100% hull NaN% in action
+  B hammerhead   shield 100% hull NaN% OUT 電源喪失 at 47.5s
+hammerhead:gozanti | UNDECIDED at 1200s | left 1/1 : 1/1 | first fire A 38.75s @7.5km, B never | closest 0.05km | press false,false
+  standoff: hammerhead->gozanti 0.1km; gozanti->hammerhead 4.9km
+  A hammerhead   shield 100% hull NaN% in action
+  B gozanti      shield 100% hull NaN% in action
+hammerhead:gr75 | UNDECIDED at 1200s | left 1/1 : 1/1 | first fire A 35.75s @7.3km, B 40.75s @0.2km | closest 0.14km | press false,false
+  standoff: hammerhead->gr75 0.1km; gr75->hammerhead 0.8km
+  A hammerhead   shield 100% hull NaN% in action
+  B gr75         shield 99% hull NaN% in action
+gozanti:gozanti | UNDECIDED at 1200s | left 1/1 : 1/1 | first fire A never, B never | closest 0.03km | press false,false
+  standoff: gozanti->gozanti 0.1km; gozanti->gozanti 0.1km
+  A gozanti      shield 100% hull NaN% in action
+  B gozanti      shield 100% hull NaN% in action
+arquitens:arquitens | A wins at 92.25s | left 1/1 : 0/1 | first fire A 25.25s @29.1km, B 25.25s @29.1km | closest 0.08km | press false,false
+  standoff: arquitens->arquitens 4.9km; arquitens->arquitens 4.9km
+  A arquitens    shield 64% hull NaN% in action
+  B arquitens    shield 50% hull NaN% OUT 電源喪失 at 92.25s
+nebulonb:arquitens | B wins at 92s | left 0/1 : 1/1 | first fire A 30s @27.2km, B 27.25s @29.0km | closest 0.13km | press false,false
+  standoff: nebulonb->arquitens 25.5km; arquitens->nebulonb 5.2km
+  A nebulonb     shield 0% hull NaN% OUT hull at 92s
+  B arquitens    shield 100% hull NaN% in action
+nebulonb:nebulonb | B wins at 170.5s | left 0/1 : 1/1 | first fire A 32.5s @27.4km, B 32.5s @27.4km | closest 0.18km | press false,false
+  standoff: nebulonb->nebulonb 3.8km; nebulonb->nebulonb 3.8km
+  A nebulonb     shield 2% hull NaN% OUT hull at 170.5s
+  B nebulonb     shield 74% hull NaN% in action
+cr90:nebulonb | B wins at 105.75s | left 0/1 : 1/1 | first fire A 38.5s @2.3km, B 19.75s @27.1km | closest 0.11km | press false,true
+  standoff: cr90->nebulonb 0.8km; nebulonb->cr90 3.0km
+  A cr90         shield 0% hull NaN% OUT hull at 105.75s
+  B nebulonb     shield 83% hull NaN% in action
+gr75,cr90:gozanti,gozanti | A wins at 116.25s | left 2/2 : 0/2 | first fire A 35.5s @2.5km, B never | closest 0.03km | press false,false
+  standoff: gr75->gozanti 0.8km; cr90->gozanti 0.8km; gozanti->gr75 0.1km; gozanti->cr90 4.9km
+  A gr75         shield 97% hull NaN% in action
+  A cr90         shield 100% hull NaN% in action
+  B gozanti      shield 0% hull NaN% OUT hull at 80.5s
+  B gozanti      shield 0% hull NaN% OUT 電源喪失 at 116.25s
+cr90,cr90,hammerhead,nebulonb:arquitens,gozanti,gozanti,gozanti | B wins at 107.75s | left 0/4 : 1/4 | first fire A 28.25s @27.3km, B 17.5s @28.8km | closest 0.15km | press false,false
+  standoff: cr90->arquitens 0.8km; cr90->gozanti 0.8km; hammerhead->gozanti 0.1km; nebulonb->gozanti 0.3km; arquitens->cr90 3.8km; gozanti->cr90 4.9km; gozanti->hammerhead 4.9km; gozanti->nebulonb 1.6km
+  A cr90         shield 90% hull NaN% OUT hull at 37.75s
+  A cr90         shield 100% hull NaN% OUT hull at 37.25s
+  A hammerhead   shield 71% hull NaN% OUT hull at 49.25s
+  A nebulonb     shield 6% hull NaN% OUT hull at 107.75s
+  B arquitens    shield 96% hull NaN% in action
+  B gozanti      shield 28% hull NaN% OUT hull at 47.75s
+  B gozanti      shield 95% hull NaN% OUT hull at 48s
+  B gozanti      shield 8% hull NaN% OUT hull at 70s
+cr90,cr90,cr90,hammerhead,hammerhead:arquitens,arquitens | B wins at 46.75s | left 0/5 : 2/2 | first fire A 36.5s @14.0km, B 17.5s @28.8km | closest 3.53km | press false,false
+  standoff: cr90->arquitens 0.8km; cr90->arquitens 0.8km; cr90->arquitens 0.8km; hammerhead->arquitens 1.6km; hammerhead->arquitens 1.6km; arquitens->cr90 3.8km; arquitens->cr90 3.8km
+  A cr90         shield 99% hull NaN% OUT hull at 37.25s
+  A cr90         shield 42% hull NaN% OUT hull at 37s
+  A cr90         shield 92% hull NaN% OUT hull at 36.75s
+  A hammerhead   shield 51% hull NaN% OUT hull at 46.5s
+  A hammerhead   shield 98% hull NaN% OUT hull at 46.75s
+  B arquitens    shield 100% hull NaN% in action
+  B arquitens    shield 100% hull NaN% in action
