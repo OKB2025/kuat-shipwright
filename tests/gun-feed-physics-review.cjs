@@ -27,3 +27,17 @@ test('a mount carries its own input factor: a laser\'s is the plant\'s efficienc
   if(d.gunRule.kind==='laser'){lasers++;near(m.inputK,1/eta);}else{turbo++;assert.ok(m.inputK>1/eta);}}
  assert.ok(lasers>0&&turbo>0,'the Sphyrna carries both kinds');assert.ok(C.weaponInputFactor(p)>1/eta,'and its mean factor is above a laser\'s own');
 });
+// Physics re-review 2026-11-25: the earlier fix gave a mount its own factor only in its per-step limit; the grant its module
+// receives was still turned into charge by the ship's mean, so a laser beside turbolasers still filled at 1/mean of its rate.
+// Each mount is granted its own rated input for one second, from empty: it fills by exactly its own rate (power / inputK), and
+// what is left of a grant is what the mount did not take, in input.
+test('granted its rated input, each mount fills at its own rate and is charged its own input',()=>{
+ const {p}=built('hammerhead'),u=C.fleetUnit('a','hammerhead',JSON.parse(JSON.stringify(p)),0),mounts=u.p.surface.mounts,mean=C.weaponInputFactor(u.p);
+ C.surfacePowerStep(u,C.fleetSystems(u),null,0,1e-9,0);for(const m of mounts)u.surfaceBanks[m.id]=0;
+ u.pw={...(u.pw||{}),weaponInputs:Object.fromEntries(mounts.map(m=>[m.module,m.power]))};delete u.pw.weaponInputRemainingJ;
+ const offered=mounts.reduce((n,m)=>n+m.power,0),dt=1;C.surfacePowerStep(u,C.fleetSystems(u),null,0,dt,offered);
+ let lasers=0;for(const m of mounts){const want=Math.min(m.capacity,m.power*dt/C.TT/m.inputK),got=u.surfaceBanks[m.id];near(got,want,1e-6);
+  const left=u.pw.weaponInputRemainingJ[m.module],taken=m.power*dt-left;near(taken,got*C.TT*m.inputK,1e-6);
+  if(m.inputK<mean*(1-1e-6)){lasers++;assert.ok(got>m.power*dt/C.TT/mean*(1+1e-6),'a laser takes more than the mean would have let it');}}
+ assert.ok(lasers>0);near(u.surfaceLastFire.acceptedInputTT*C.TT,mounts.reduce((n,m)=>n+u.surfaceBanks[m.id]*C.TT*m.inputK,0),1e-6);
+});

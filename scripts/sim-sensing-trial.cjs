@@ -62,7 +62,7 @@ const K = {
   QUIET_MARGIN: 0.3,             // ★ 目安の 0.3 倍でも映るはずの距離でだけ「熱なし」と言える
   QUIET_NEED_SNR: 2,             // ★ そのとき要る SNR
   MOVE_SPEED: 100,               // ★ 追跡中のレーダー光点がこの速さ m/s より速く動いていれば「動力あり」（小惑星は 42 m/s 以下で置いている）
-  CIVIL_TYPES: ['gr75', 'gozanti', 'reptransport', 'lh3210', 'cr90', 'heraklon'], // ★ 民間でも使われる艦種（仮の一覧）。艦種が分かっても所属は決まらない
+  CIVIL_TYPES: ['gr75', 'gozanti', 'cr90', 'heraklon', 'reptransport'], // 民間・非戦闘でも使われる艦種（ユーザー 2026-11-25 が挙げた 5 つ）。艦種が分かっても所属は決まらない。lh3210 など貨物が主な作例を入れるかは未定 ★
   NEUTRAL_CR90: 4,               // ★ 場面に置く中立の CR90（外交艦）の数
   NEUTRAL_CR90_XPDR: 0.8,        // ★ そのうち船籍表示を出している割合（ユーザー「基本は船籍表示されてることが多い」）。軍用の CR90 は出さない
   ESCORT_RADIUS: 50 * KM,        // ★ 敵の軍艦と分かった艦からこの距離の中にいて…
@@ -215,7 +215,7 @@ const reconTypesOf = keys => [...new Set(keys.flatMap(k => (shipTraits(k).air ||
 // 場面
 // ====================================================================================================
 const REBEL = ['mc75', 'mc80liberty', 'nebulonb', 'nebulonb', 'cr90'], EMPIRE = ['imperial', 'imperial', 'arquitens', 'gozanti', 'gozanti'], SMALL = ['cr90', 'cr90', 'gozanti', 'gozanti', 'gozanti'];
-const MERCHANT_KEYS = ['gr75', 'gr75', 'gr75', 'reptransport', 'reptransport', 'gozanti', 'gr75', 'lh3210'];
+const MERCHANT_KEYS = ['gr75', 'gr75', 'heraklon', 'reptransport', 'reptransport', 'gozanti', 'gr75', 'lh3210']; // 中立の商船。敵・味方の輸送艦と同じ艦種が混ざる
 // recon: {flights: 編隊の数, size: 1 編隊の機数, fan: 扇の半角°（360 なら全周）, search: 捜索する距離（母艦から）}。機種は chooseRecon が航続で選ぶ
 const SCENES = {
   a: {title: '(a) 偵察機あり：4 機 × 6 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{flights: 6, size: 4, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
