@@ -20,14 +20,14 @@ const C = vm.runInContext('Core', cx), F = vm.runInContext('YardFleetData', cx);
 const KM = 1000;
 const K = {
   // ---- マップ（ユーザーの指示。直径か半径かは README の「決めてもらう点」）----
-  MAP_RADIUS: 10000 * KM,        // 「2万キロ」を直径 20,000 km と読んだ → 半径 10,000 km
-  MAP_HALF_HEIGHT: 5000 * KM,    // 上へ 5,000 km・下へ 5,000 km
+  MAP_RADIUS: 50000 * KM,        // ユーザー 2026-11-25「円は半径5万まで広げて」（前は直径 20,000 km）
+  MAP_HALF_HEIGHT: 20000 * KM,   // 「上下を2万キロ」を、上へ 20,000 km・下へ 20,000 km と読んだ（前は上下 5,000 km）
   PLANET_RADIUS: 6.12e6,         // ★ 惑星の半径。既存の scripts/sim-fleet-air.cjs の惑星（6,120 km）と同じにした
   PLANET_G: 9.8,                 // ★ 惑星の表面重力（Core.GRAVITY.g0 と同じ）
   SUN_DIR: [0, 0, -1],           // ★ 恒星の光が進む向き（惑星の +z 側が昼、-z 側の円柱が影）
   // ---- 時間 ----
   DT: 10,                        // ★ 時間刻み s
-  LIMIT: 6 * 3600,               // ★ 1 回の計算の長さ s（6 時間）
+  LIMIT: 12 * 3600,              // ★ 1 回の計算の長さ s（12 時間。前の大きさでは 6 時間）
   // ---- 既存の式をそのまま使う部分（Core から読む。ここでは変えていない）----
   SENS: C.SENS,                  // レーダー・ニュートリノ・赤外の基準距離、識別に要る SNR（idRad 20、idIr 40）、方位誤差 errK
   EMIT: C.EMIT,                  // 排熱の種類ごとのニュートリノ・赤外の割合
@@ -74,8 +74,11 @@ const K = {
   RECON_SPACING: 100 * KM,       // ★ 編隊の中の機体の間隔（横一列）
   RECON_LOAD: 0.5,               // ★ 航続の見積もり：燃料のエネルギー ÷（反応炉出力 × 0.5）
   RECON_RANGE_USE: 0.9,          // ★ 航続のうち使う割合（残りは予備）
-  RECON_LANES: [7300 * KM, 9000 * KM], // ★ 偵察の編隊が沿って飛ぶ帯の半径（編隊ごとに交互）
-  RECON_LEG_DEG: 15,             // ★ 帯の上の経由点の間隔（惑星の中心から見た角度）
+  RECON_ELEV: [0, 15, -15],      // ★ 偵察の編隊が向かう上下の角度°（編隊ごとに順番に。高さ方向も探す）
+  RECON_OUT_SHARE: 0.45,         // ★ 行きに使う航続の割合（残りは帰りと寄り道）
+  // ---- 配置（★ すべてこちらで選んだ。README「配置の決め方」）----
+  PLACE: {friendStart: 48000 * KM, friendGoal: 20000 * KM, enemyDist: [8000 * KM, 40000 * KM], enemyBearing: 60, enemyY: 8000 * KM, hideDist: [3000 * KM, 12000 * KM], hideBearing: 40, hideY: 3000 * KM,
+    merchantR: [8000 * KM, 48000 * KM], merchantY: 10000 * KM, noXpdrDist: [2000 * KM, 10000 * KM], noXpdrY: 2000 * KM, rockNearFriend: 11, rockNearDist: 15000 * KM, rockNearY: 3000 * KM, rockY: 10000 * KM},
   RECON_DIVERT: 600 * KM,        // ★ 経路からこの距離までの未識別の光点は見に行く
   RECON_SEARCHED_HOLD: 900,      // ★ 行っても識別できなかった光点を、次に見に行くまでの間 s
   RECON_INVESTIGATE_QUIET: false,// ★「浮遊物（推定）」は見に行かない（場面 c2 では見に行く）
@@ -189,22 +192,23 @@ const angleOf = p => Math.atan2(p[2], p[0]) * 180 / Math.PI;
 function setup(sceneKey, seed) {
   const sc = SCENES[sceneKey], R = rng(seed * 7919 + 13), ents = [];
   const mk = o => { const e = {wake: [], accelNow: 0, emcon: 'normal', radarOn: true, xpdr: false, n: 1, vel: [0, 0, 0], path: [], ...o}; ents.push(e); return e; };
-  // 味方艦隊：+x の縁から入り、惑星へ向かって半径 7,500 km の点まで進んで止まる
-  const aStart = polar(9800 * KM, 0), aGoal = polar(7500 * KM, 0), aSpeed = Math.min(...REBEL.map(k => shipTraits(k).maxSpeed)) * K.FLEET_SPEED_SHARE;
+  // 味方艦隊：+x 側の縁の近く（惑星の中心から 48,000 km）から入り、惑星へ向かって進む
+  const P = K.PLACE, aStart = polar(P.friendStart, 0), aGoal = polar(P.friendGoal, 0), aSpeed = Math.min(...REBEL.map(k => shipTraits(k).maxSpeed)) * K.FLEET_SPEED_SHARE;
   REBEL.forEach((key, i) => mk({id: 'A' + i + '_' + key, kind: 'ship', side: 0, key, tr: shipTraits(key), pos: add(aStart, [0, 0, (i - 2) * 5 * KM]), goal: add(aGoal, [0, 0, (i - 2) * 5 * KM]), speed: aSpeed}));
+  // 味方の入口から見て、進む向き（惑星の方）を中心にした方位・距離・高さで点を決める。マップの外や惑星の近くに出たら引き直す
+  const fromEntry = (dist, bearingMax, yMax) => { for (let i = 0; i < 200; i++) { const b = R.range(-bearingMax, bearingMax) * Math.PI / 180, d = R.range(dist[0], dist[1]), p = [aStart[0] - d * Math.cos(b), R.range(-yMax, yMax), d * Math.sin(b)]; const rr = Math.hypot(p[0], p[2]); if (rr < K.MAP_RADIUS - 500 * KM && len(p) > K.PLANET_RADIUS + 2000 * KM) return p; } return polar(30000 * KM, 20); };
   // 敵艦隊
-  const sign = R() < 0.5 ? -1 : 1, hide = sc.enemyMode === 'hide';
-  const eAng = sign * (hide ? R.range(5, 20) : R.range(40, 110)), eRad = (hide ? R.range(7300, 9300) : R.range(7500, 9000)) * KM, eY = R.range(-500, 500) * KM, eCentre = polar(eRad, eAng, eY);
+  const hide = sc.enemyMode === 'hide', eCentre = hide ? fromEntry(P.hideDist, P.hideBearing, P.hideY) : fromEntry(P.enemyDist, P.enemyBearing, P.enemyY), eRad = Math.hypot(eCentre[0], eCentre[2]), eY = eCentre[1], sign = R() < 0.5 ? -1 : 1;
   const eSpeed = Math.min(...sc.enemy.map(k => shipTraits(k).maxSpeed)) * K.PATROL_SPEED_SHARE;
   sc.enemy.forEach((key, i) => { const off = [R.range(-1, 1) * (hide ? 20 : 8) * KM, R.range(-1, 1) * 3 * KM, R.range(-1, 1) * (hide ? 20 : 8) * KM];
-    mk({id: 'B' + i + '_' + key, kind: 'ship', side: 1, key, tr: shipTraits(key), pos: add(eCentre, off), emcon: hide ? 'low' : 'normal', radarOn: !hide, patrol: hide ? null : {r: eRad, y: eY + off[1], dir: -sign, off}, speed: hide ? 0 : eSpeed}); });
-  // 商船 8 隻：軌道に沿って動く。うち 2 隻は船籍表示なし（1 隻は怪しい商船、1 隻は出し忘れ）
+    mk({id: 'B' + i + '_' + key, kind: 'ship', side: 1, key, tr: shipTraits(key), pos: add(eCentre, off), emcon: hide ? 'low' : 'normal', radarOn: !hide, patrol: hide ? null : {r: eRad, y: eY + off[1], dir: sign, off}, speed: hide ? 0 : eSpeed}); });
+  // 商船 8 隻：惑星のまわりを回る。うち 2 隻は船籍表示なし（1 隻は怪しい商船、1 隻は出し忘れ）で、味方の入口の近くに置く
   const noX = new Map([[1, '出し忘れ'], [5, '怪しい商船']]);
-  MERCHANT_KEYS.forEach((key, i) => { const tr = shipTraits(key), near = noX.has(i), ang = near ? R.range(-50, 50) : R.range(-180, 180), r = (near ? K.RECON_LANES[i % K.RECON_LANES.length] / KM + R.range(-300, 300) : R.range(7000, 9800)) * KM, y = near ? R.range(-100, 100) * KM : R.range(-500, 500) * KM; // 船籍表示なしの 2 隻は、味方の偵察が通る帯の近く（入口から ±50°）に置く ★
-    mk({id: 'M' + i + '_' + key, kind: 'ship', side: 2, key, tr, pos: polar(r, ang, y), xpdr: !noX.has(i), xpdrWhy: noX.get(i) || null, patrol: {r, y, dir: R() < 0.5 ? -1 : 1, off: [0, 0, 0]}, speed: tr.maxSpeed * K.CRUISE * 0.5}); });
-  // 小惑星 30 個（構造物だけの浮遊物）：うち 8 個は敵の近くにかためる
+  MERCHANT_KEYS.forEach((key, i) => { const tr = shipTraits(key), near = noX.has(i), pos = near ? fromEntry(P.noXpdrDist, 60, P.noXpdrY) : polar(R.range(P.merchantR[0], P.merchantR[1]), R.range(-180, 180), R.range(-P.merchantY, P.merchantY));
+    mk({id: 'M' + i + '_' + key, kind: 'ship', side: 2, key, tr, pos, xpdr: !noX.has(i), xpdrWhy: noX.get(i) || null, patrol: {r: Math.hypot(pos[0], pos[2]), y: pos[1], dir: R() < 0.5 ? -1 : 1, off: [0, 0, 0]}, speed: tr.maxSpeed * K.CRUISE * 0.5}); });
+  // 小惑星 30 個（構造物だけの浮遊物）：8 個は敵の近く、11 個は味方の入口から 15,000 km 以内、残りはマップ全体
   for (let i = 0; i < 30; i++) { const d = Math.round(R.range(30, 400)), near = i < 8;
-    const pos = near ? add(eCentre, [R.range(-1, 1) * (hide ? 25 : 300) * KM, R.range(-1, 1) * (hide ? 5 : 100) * KM, R.range(-1, 1) * (hide ? 25 : 300) * KM]) : polar(R.range(6800, 9900) * KM, R.range(-180, 180), R.range(-500, 500) * KM);
+    const pos = near ? add(eCentre, [R.range(-1, 1) * (hide ? 25 : 300) * KM, R.range(-1, 1) * (hide ? 5 : 100) * KM, R.range(-1, 1) * (hide ? 25 : 300) * KM]) : i < 8 + P.rockNearFriend ? fromEntry([1000 * KM, P.rockNearDist], 70, P.rockNearY) : polar(R.range(8000, 49000) * KM, R.range(-180, 180), R.range(-P.rockY, P.rockY));
     mk({id: 'R' + String(i).padStart(2, '0') + '_' + d + 'm', kind: 'rock', side: 3, key: 'rock', tr: rockTraits(d), pos, vel: [R.range(-30, 30), 0, R.range(-30, 30)], radarOn: false}); }
   // 偵察の編隊：母艦の搭載機から。機数が足りなければ編隊を減らす（積んでいる数を超えない）
   const notes = [];
@@ -214,9 +218,12 @@ function setup(sceneKey, seed) {
     const flights = [];
     for (let i = 0; i < rc.flights; i++) { const want = rc.types[i % rc.types.length], s = stock.find(x => x.type === want && x.left >= rc.size) || stock.find(x => x.left >= rc.size); if (!s) { notes.push(`${SIDE_NAME[side]}：搭載機が足りず、編隊は ${flights.length} 個`); break; } s.left -= rc.size; flights.push(s); }
     flights.forEach((s, i) => { const tr = craftTraits(s.type), rr = reconRange(tr), n = flights.length;
-      // 扇形：母艦から見た方位を等間隔に割り振り、惑星を回り込む帯（半径 7,300 km と 9,000 km を交互）に沿って、割り振られた方位まで進んで戻る
-      const homeAng = angleOf(s.home.pos), offs = rc.fan >= 360 ? (i + 0.5) * 360 / n - 180 : (n === 1 ? 0 : -rc.fan + i * 2 * rc.fan / (n - 1)), lane = K.RECON_LANES[i % K.RECON_LANES.length], route = [];
-      for (let a = Math.min(K.RECON_LEG_DEG, Math.abs(offs)); ; a = Math.min(a + K.RECON_LEG_DEG, Math.abs(offs))) { route.push(polar(lane, homeAng + Math.sign(offs || 1) * a, s.home.pos[1])); if (a >= Math.abs(offs) - 1e-9) break; }
+      // 扇形：艦隊の進む向き（味方は惑星の方、敵は全周）を中心に方位を等間隔に割り振り、上下の角度も編隊ごとに変える。
+      // 真っすぐ進み、行きに使える航続（またはマップの端）まで行って母艦へ戻る
+      const heading = side === 0 ? 180 : angleOf(eCentre), offs = rc.fan >= 360 ? (i + 0.5) * 360 / n - 180 : (n === 1 ? 0 : -rc.fan + i * 2 * rc.fan / (n - 1)), el = K.RECON_ELEV[i % K.RECON_ELEV.length] * Math.PI / 180, bz = (heading + offs) * Math.PI / 180;
+      const dir = [Math.cos(bz) * Math.cos(el), Math.sin(el), Math.sin(bz) * Math.cos(el)]; let out = rr.range * K.RECON_OUT_SHARE;
+      for (; out > 0; out -= 100 * KM) { const q = add(s.home.pos, mul(dir, out)); if (Math.hypot(q[0], q[2]) <= K.MAP_RADIUS && Math.abs(q[1]) <= K.MAP_HALF_HEIGHT) break; }
+      const route = [add(s.home.pos, mul(dir, Math.max(out, 100 * KM)))];
       mk({id: (side ? 'B' : 'A') + 'f' + i + '_' + s.type + 'x' + rc.size, kind: 'flight', side, key: tr.key, type: s.type, tr, n: rc.size, pos: s.home.pos.slice(), home: s.home, route, wp: 0, speed: rr.speed, rangeLeft: rr.range * K.RECON_RANGE_USE, state: 'out', searched: new Map()}); });
   }
   return {sc, sceneKey, seed, ents, notes, lock: !!sc.lock, R: rng(seed * 104729 + 7), eCentre, investigateQuiet: sc.investigateQuiet ?? K.RECON_INVESTIGATE_QUIET};
@@ -432,7 +439,7 @@ function mapSvg(r, title) {
   // 惑星の影（-z 側が昼なら影は +z … SUN_DIR の向きへ伸びる）
   const sx = K.SUN_DIR[0], sz = K.SUN_DIR[2], L = K.MAP_RADIUS * 1.0, pr = K.PLANET_RADIUS; const px = -sz, pz = sx;
   s += `<clipPath id="mapclip"><circle cx="${X(0)}" cy="${g(Y(0))}" r="${K.MAP_RADIUS * sc}"/></clipPath><polygon clip-path="url(#mapclip)" points="${[[px * pr, pz * pr], [px * pr + sx * L, pz * pr + sz * L], [-px * pr + sx * L, -pz * pr + sz * L], [-px * pr, -pz * pr]].map(p => X(p[0]) + ',' + g(Y(p[1]))).join(' ')}" fill="#e3e3e3"/>`;
-  s += `<circle cx="${X(0)}" cy="${g(Y(0))}" r="${pr * sc}" fill="#d0d0d0" stroke="#9c9c9c"/><text x="${X(0)}" y="${g(Y(0)) - 4}" text-anchor="middle" font-size="15" fill="${ink}">惑星（半径 ${Math.round(pr / KM).toLocaleString('en-US')} km）</text><text x="${X(0)}" y="${g(Y(0)) + 16}" text-anchor="middle" font-size="12" fill="${ink2}">レーダーには巨大な光点</text><text x="${X(0)}" y="${g(Y(-pr - 900 * KM))}" text-anchor="middle" font-size="12" fill="${ink2}">惑星の影（目視できない）</text>`;
+  s += `<circle cx="${X(0)}" cy="${g(Y(0))}" r="${pr * sc}" fill="#d0d0d0" stroke="#9c9c9c"/><text x="${X(0) - pr * sc - 8}" y="${g(Y(0)) + 4}" text-anchor="end" font-size="13" fill="${ink}">惑星（半径 ${Math.round(pr / KM).toLocaleString('en-US')} km）</text><text x="${X(0)}" y="${g(Y(-pr - 14000 * KM))}" text-anchor="middle" font-size="12" fill="${ink2}">惑星の影（目視できない）</text>`;
   const confirmed = new Set(r.map.confirms.map(x => x.id));
   for (const e of r.map.ents) { const pts = e.path.map(p => X(p[0]).toFixed(1) + ',' + g(Y(p[1])).toFixed(1)).join(' '), [ex, ez] = e.kind === 'flight' ? (e.path.at(-1) || e.end) : e.end, x = X(ex), y = g(Y(ez));
     if (e.kind === 'flight') { s += `<polyline points="${pts}" fill="none" stroke="${col[e.side]}" stroke-width="1.2" stroke-opacity=".75" stroke-dasharray="${e.side ? '5 3' : 'none'}"/>`; continue; }
@@ -457,7 +464,7 @@ function mapSvg(r, title) {
   leg((x, y) => `<path d="M${x - 4},${y} L${x},${y - 4} L${x + 4},${y} L${x},${y + 4}Z" fill="${col[3]}"/>`, '小惑星（浮遊物）');
   const A0 = r.sides[0], B0 = r.sides[1]; ly += 14;
   for (const line of [`味方が敵艦を：`, `　初探知 ${hm(A0.tBlip)}`, `　敵と確定 ${hm(A0.tConfirm)}（${A0.foesConfirmed}/${A0.foes} 隻）`, `敵が味方艦を：`, `　初探知 ${hm(B0.tBlip)}`, `　敵と確定 ${hm(B0.tConfirm)}（${B0.foesConfirmed}/${B0.foes} 隻）`, `（時刻は 時:分:秒、計算は ${K.LIMIT / 3600} 時間）`]) { s += `<text x="${lx}" y="${ly}" font-size="13" fill="${line.startsWith('　') || line.startsWith('（') ? ink2 : ink}">${line}</text>`; ly += 20; }
-  const bar = 2000 * KM * sc; s += `<line x1="30" y1="${S + 12}" x2="${30 + bar}" y2="${S + 12}" stroke="${ink}" stroke-width="2"/><text x="${36 + bar}" y="${S + 17}" font-size="13" fill="${ink2}">2,000 km（上から見た図。位置は計算の終わり、線は通った跡）</text>`;
+  const bar = 10000 * KM * sc; s += `<line x1="30" y1="${S + 12}" x2="${30 + bar}" y2="${S + 12}" stroke="${ink}" stroke-width="2"/><text x="${36 + bar}" y="${S + 17}" font-size="13" fill="${ink2}">10,000 km（上から見た図。高さの違いは描いていない。位置は計算の終わり、線は通った跡）</text>`;
   return {svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${Wd}" height="${S + 40}" font-family="'Noto Sans CJK JP','Noto Sans JP',sans-serif">${s}</svg>`, w: Wd, h: S + 40};
 }
 
