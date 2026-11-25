@@ -19,18 +19,24 @@ test('a torpedo flies pure pursuit and a missile proportional navigation with KS
  const N5=step(runtime({KS_GUIDANCE:'pn',KS_PN_N:5}),'cmsl');assert.ok(Math.abs(N5.pnMaxG/m.pnMaxG-5/3)<1e-6,'N\' scales the command');
 });
 
-test('KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (off by default)',()=>{
+// 2026-11-24 expectation changed (user decision 2026-11-24「旋回は質量も推力も」; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md):
+// KS_TURN_MASS and KS_TURN_VECTOR are the game's default; a simulator turns them off with =false. "Off" is now KS_TURN_MASS:false,
+// and the default runtime is checked to equal the switched-on one.
+test('KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (on by default, off with =false)',()=>{
  const rate=(C,k)=>{const s=C.buildDesign(k);return C.fleetProfile(C.computeStats(s),s.name,s).turnRate;};
- const off=runtime();assert.equal(rate(off,'craft_tie_ln'),.24,'the present common cap');
+ const off=runtime({KS_TURN_MASS:false});assert.equal(rate(off,'craft_tie_ln'),.24,'the former common cap when switched off');
+ const def=runtime();assert.equal(rate(def,'craft_tie_ln'),rate(runtime({KS_TURN_MASS:true}),'craft_tie_ln'),'the default is the mass-driven turn');assert.notEqual(rate(def,'craft_tie_ln'),.24);
  const on=runtime({KS_TURN_MASS:true}),ln=rate(on,'craft_tie_ln'),x=rate(on,'craft_xwing'),y=rate(on,'craft_btlb');
  assert.ok(ln>x&&x>y,`the light TIE turns faster than the X-wing, the Y-wing slower: ${ln} ${x} ${y}`);
  const s=on.buildDesign('craft_xwing'),S=on.computeStats(s),p=on.fleetProfile(S,s.name,s),r=S.craftSystems.maneuverSupport/S.mass;assert.ok(Math.abs(p.turnRate-.24*Math.sqrt(r)*Math.sqrt(12/p.len))<1e-12);
 });
 
-test('KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed off its way (off by default)',()=>{
+test('KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed off its way (on by default, off with =false)',()=>{
  const reverse=flags=>{const C=runtime(flags),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),u=C.fleetUnit('a','craft_tie_ln',p,0);u.pos=[0,0,0];u.yaw=0;u.velocity=[400,0,0];const B=C.fleetBattle([u],true);u.order={type:'move',point:[-20000,0,1],dash:true};
   let aoa=false;for(let t=0;t<30;t+=.25){C.fleetTick(B,.25);const x=B.units[0];if(x.aoa!=null)aoa=true;if(x.velocity[0]<0)return {t,aoa};}return {t:Infinity,aoa};};
- const mass=reverse({KS_TURN_MASS:true}),vec=reverse({KS_TURN_MASS:true,KS_TURN_VECTOR:true});
+ // 2026-11-24 expectation changed (default ON, see above): the plain mass model now needs KS_TURN_VECTOR:false.
+ const mass=reverse({KS_TURN_MASS:true,KS_TURN_VECTOR:false}),vec=reverse({KS_TURN_MASS:true,KS_TURN_VECTOR:true}),def=reverse({});
+ assert.equal(def.aoa,true,'the default turns by its thrust');assert.equal(def.t,vec.t,'the default is the vectored turn');
  assert.equal(mass.aoa,false,'the plain model has no angle of attack');assert.equal(vec.aoa,true);assert.ok(vec.t<mass.t,`reversed in ${vec.t} s against ${mass.t} s`);
 });
 

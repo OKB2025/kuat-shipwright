@@ -46,16 +46,21 @@ test('an embarked model refreshes cached combat output when its retired weapon c
   const old = legacySnapshot(), before = plain(old), snapshot = C.cleanDesignCraft(old);
   assert.deepEqual(old, before, 'normalization leaves the saved source available');
   assert.equal(snapshot.blueprint.fits[0].k, 'oct40');
-  assert.equal(snapshot.craft.gun, 327, 'six base points, the current octuple 320 TT battery and its traverse-based anti-air');
-  assert.equal(snapshot.craft.strike, 327);
+  // 2026-11-24 expectation changed 327 -> 328 (accepted): the anti-air rating is calibrated on the point defence twin (traverse x barrels /
+  // cycle = 6), and that twin now fires once a second (was every 0.2 s), so the coefficient is five times larger and every gun that is not a
+  // laser rates 2-5 times higher against craft (oct40 0.69 -> 2.18). Known side effect, recorded in expectation-changes.md.
+  const GUN = Math.round(6 + C.FITS.oct40.aa + 320);
+  assert.equal(GUN, 328); assert.ok(Math.abs(C.FITS.oct40.aa - 2.179405854) < 1e-6);
+  assert.equal(snapshot.craft.gun, GUN, 'six base points, the current octuple 320 TT battery and its traverse-based anti-air');
+  assert.equal(snapshot.craft.strike, GUN);
   assert.equal(snapshot.craft.fireArcs[0].k, 'oct40');
   assert.notDeepEqual(plain(snapshot.craft.fireArcs[0].pos), [999, 999, 999], 'muzzles rebuild with the current model');
   assert.equal(snapshot.ref, old.ref);
   assert.equal(snapshot.name, old.name);
   assert.equal(snapshot.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);
   const key = R.registerDesignCraft(old), craft = R.CRAFT[key];
-  assert.equal(craft.gun, 327, 'RTS registration uses the refreshed output');
-  assert.equal(craft.strike, 327);
+  assert.equal(craft.gun, GUN, 'RTS registration uses the refreshed output');
+  assert.equal(craft.strike, GUN);
   assert.equal(craft.fireArcs[0].k, 'oct40');
   assert.deepEqual(plain(C.cleanDesignCraft(snapshot)), plain(snapshot), 'the refreshed immutable snapshot is stable');
 });
@@ -67,7 +72,7 @@ test('engine transport retains a pending combat refresh after weapon ids become 
   assert.equal(transported.weaponProfileVersion, 0, 'transport must retain evidence that cached stats need rebuilding');
   assert.equal(transported.craft.fireArcs[0].k, 'oct40');
   const snapshot = C.cleanDesignCraft(transported);
-  assert.equal(snapshot.craft.gun, 327);
+  assert.equal(snapshot.craft.gun, 328/* 2026-11-24: was 327, see the first test */);
   assert.equal(snapshot.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);
   const saved = JSON.parse(C.publicJSON(snapshot));
   assert.equal(saved.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);

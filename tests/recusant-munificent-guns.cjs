@@ -8,9 +8,13 @@ const C=vm.runInContext('Core',cx),near=(a,b,e=1e-9)=>assert.ok(Math.abs(a-b)<=e
 test('catalog outputs follow the user (2 PT prow gun, 360 TT twins, 2.5 PT x2 bow gun, 300 GT rapid ventral twins)',()=>{
  for(const [k,barrels,bolt,fixed] of [['recProw',1,2000,true],['recTwin',2,360,false],['recKeel',2,360,true],['munBow',2,2500,true],['munTwin',2,.3,false]]){
   const d=C.FITS[k],a=C.REFERENCE_ASSETS[d.asset];assert.ok(a,k+' asset registered');
-  assert.equal(d.barrels,barrels,k);near(d.boltTT,bolt);near(d.tt,barrels*bolt);near(d.power*d.cycle/C.TT,barrels*bolt,1e-6);
+  // 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): a cycle charges every
+  // barrel's shot with its confinement, gunRule.shotChargeTT = E × (1 + barrel ÷ 19 m), at the charging rate (power = chargeRateTT × TT;
+  // was power × cycle = the salvo's energy). munTwin's cycle is its charging time (gunRule.cycle; was 0.2 s).
+  assert.equal(d.barrels,barrels,k);near(d.boltTT,bolt);near(d.tt,barrels*bolt);const r=d.gunRule;assert.equal(r.kind,'turbolaser',k);
+  near(d.power*d.cycle/C.TT,barrels*r.shotChargeTT,barrels*r.shotChargeTT*1e-12);near(r.shotChargeTT,bolt*(1+r.barrelM/C.GUN_RULES.turbolaser.chargeLen),bolt*1e-12);assert.equal(d.cycle,r.cycle);near(d.power,r.chargeRateTT*C.TT,d.power*1e-12);
   assert.equal(!!d.fixedMount,fixed,k);assert.equal(a.muzzlePoints.length,barrels,k+' a muzzle per barrel');
-  if(k==='munTwin'){near(d.cycle,.2);near(d.tt,.6);assert.equal(d.name,'腹部300GT 2連装速射砲');near(a.boltTT,.3);near(a.volleyTT,.6);}
+  if(k==='munTwin'){near(d.cycle,r.cycle);near(d.tt,.6);assert.equal(d.name,'腹部300GT 2連装速射砲');near(a.boltTT,.3);near(a.volleyTT,.6);}
   assert.ok(a.faces<=5000,k+' triangle budget');assert.equal(C.weaponModelScale({k}),1,k+' native model size');assert.equal(C.needsCapacitor({k}),true,k+' charges like any gun');}
 });
 

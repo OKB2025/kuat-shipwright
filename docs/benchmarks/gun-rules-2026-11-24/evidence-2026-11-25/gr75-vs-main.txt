@@ -1,0 +1,6 @@
+# node gr75-vs-main.cjs <main 8c4bcab の写し> <候補の作業ツリー>
+hull record identical (key order ignored): true
+structures (kind, form, centre, size, outline, taper, angles, corner, label): main 54, candidate 54, only in main 0, only in candidate 0
+guns (kind, position, axis, normal, yaw, base, pedestal, tilt): main 2, candidate 2, only in main 0, only in candidate 0
+interior parts main: {"gen":1,"aux":3,"engine":3,"pump":1,"integrity":2,"fuel":1,"shield":2,"hyper":1,"inertial":1,"cargo":1,"command":1,"engineCore":3,"hdis":10,"repulsor":2}
+interior parts candidate: {"gen":1,"engine":3,"pump":1,"integrity":2,"fuel":1,"shield":2,"hyper":1,"inertial":1,"cargo":1,"command":1,"engineCore":3,"hdis":4,"repulsor":2}

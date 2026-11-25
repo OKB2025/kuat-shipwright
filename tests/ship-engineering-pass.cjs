@@ -23,7 +23,11 @@ test('engineering prepasses retain physical figures while the final pass surveys
 test('capital engineering enters the shared surface model once and retains its physical results',()=>{
  const ship=C.newShip({L:240,W:100,H:80,plan:'rect',bowW:1,bowH:1,stern:1},'Repeated surface lookup regression');
  ship._building=true;C.placePart(ship,'gen',[70,0,0],20);C.placePart(ship,'shield',[110,0,0],8);
- for(let i=0;i<12;i++){const f={id:ship.nextId++,k:'pd',p:[130+(i%6)*16,40,i<6?-25:25],n:[0,1,0],a:2,ped:0,base:0,low:0,float:false};C.mountFit(ship,f);ship.fits.push(f);}
+ // 2026-11-25 fixture changed: the twelve guns were pd. A laser now has no feed compartment (needsCapacitor false), so it makes no
+ // per-turret whole-ship lookup and the fixture no longer exercised what this case measures. They are quad200
+ // (a turbolaser with a feed compartment of its own, at the least volume GUN_RULES.feedMinM3). The expectations are unchanged.
+ assert.equal(C.needsCapacitor({k:'pd'}),false);assert.equal(C.needsCapacitor({k:'quad200'}),true);assert.equal(C.weaponChargeSpec({k:'quad200'}).targetVolume,C.GUN_RULES.feedMinM3);
+ for(let i=0;i<12;i++){const f={id:ship.nextId++,k:'quad200',p:[130+(i%6)*16,40,i<6?-25:25],n:[0,1,0],a:2,ped:0,base:0,low:0,float:false};C.mountFit(ship,f);ship.fits.push(f);}
  delete ship._building;ship.surfaces=C.normalizeSurfaces({mode:'strict',armorOnly:1,legacyArmor:.1,patches:[]});C.syncCompartments(ship);
  context.aggregateCalls=0;const repeated=C.baseComputeStats(ship,{engineeringOnly:true}),oldCalls=context.aggregateCalls;
  context.aggregateCalls=0;const measured=C.shipRefitMeasure(ship),newCalls=context.aggregateCalls;

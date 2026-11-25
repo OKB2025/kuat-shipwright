@@ -50,34 +50,37 @@ test('side-mounted and sloped fixed guns use the model frame instead of an assum
  }
 });
 
-test('each pilot pulse retains its catalogue shot energy and gas cost when the firing cadence changes',()=>{
- run('reset();trial.energy.E=1e-5;const energy0=trial.energy.E;advance(6);const fast={shots:trial.gun.shots,energy:energy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,cycle:trial.turrets[0].cycle,power:trial.turrets[0].power,costK:trial.turrets[0].costK,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0),hitScales:trial.emitted.map(b=>b.hitScale)}');
- const fast=plain(run('fast')),bolt=Number(run('C.FITS[trial.turrets[0].k].boltTT'));assert.ok(fast.cycle>=.08&&fast.cycle<=.18);assert.ok(fast.shots>=40,'rapid stream needs at least forty pulses in six seconds');
- near(fast.energy,fast.shots*bolt*fast.costK,fast.energy*1e-9);near(fast.boltEnergy,fast.shots*bolt,fast.boltEnergy*1e-10);assert.ok(fast.hitScales.every(k=>k===1),'physical shots are not diluted by a former reference cycle');near(fast.gas,fast.shots*Number(run('C.FITS.claser.cycle')),1e-8);
- run('reset();trial.energy.E=1e-5;trial.turrets[0].cycle=.6;const slowEnergy0=trial.energy.E;advance(6);const slow={shots:trial.gun.shots,energy:slowEnergy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0)}');
- // 2026-11-19 expectation changed for the slow cadence: a shot is the per-second output over the actual firing period,
- // not a fixed catalogue pulse (user decision 2026-11-11, docs/dev-status-2026-11.md:19, docs/ship-example-refit.md:53;
- // C.craftShotTT, tests/craft-laser-output.cjs). At 0.6 s a pulse carries 0.6 s of output and 0.6 s of gas, so energy and
- // gas per second are the same at both cadences (was: catalogue energy and gas per pulse at any cadence).
- const slow=plain(run('slow'));assert.ok(fast.shots>=slow.shots*4);const slowBolt=Number(run('C.craftShotTT(C.FITS.claser,.6)'));near(slowBolt,bolt*.6/fast.cycle,slowBolt*1e-12);near(slow.energy,slow.shots*slowBolt*fast.costK,slow.energy*1e-9);near(slow.boltEnergy,slow.shots*slowBolt,slow.boltEnergy*1e-10);near(slow.gas,slow.shots*.6,1e-8);near(fast.energy/slow.energy,fast.shots*fast.cycle/(slow.shots*.6),1e-7);near(fast.gas/slow.gas,fast.shots*fast.cycle/(slow.shots*.6),1e-7);
+// 2026-11-24 gun rules (user「航空レーザーは円柱部品でユーザーが口径と長さと連射速度を決める形に」「毎秒1発くらいで」「定格入力で自由に連射速度を決められる形
+// （ガスは発射するほど減るし電力量も加熱量も上がる）」): a craft laser's shot is its bore's (C.craftLaserRule), whatever its cadence; the cadence is
+// the fit's rateHz (1 a second by default), and energy and gas go by the shots fired. Was: a 0.12 s catalogue period, and a shot that
+// carried the per-second output over the period (C.craftShotTT), so a slower gun fired bigger shots.
+test('each pilot pulse is the shot of its bore, and energy and gas follow the shots fired when the rate of fire changes',()=>{
+ const sample=extra=>{context.extra=extra;run('reset("claser",extra);trial.energy.E=1e-5;globalThis.energy0=trial.energy.E;advance(6)');return plain(run('({shots:trial.gun.shots,energy:energy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,cycle:trial.turrets[0].cycle,rate:trial.turrets[0].rule.rateHz,costK:trial.turrets[0].costK,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0),bolts:trial.emitted.map(b=>b.tt),hitScales:trial.emitted.map(b=>b.hitScale)})'));};
+ const base=sample({}),bolt=Number(run('C.FITS.claser.boltTT'));near(bolt,Number(run('C.laserShotKt(C.CRAFT_LASER_GEOMETRY.claser.bore)/C.KT_PER_TT')),bolt*1e-12);
+ assert.equal(base.rate,1);assert.equal(base.cycle,1);assert.equal(base.cycle,run('C.CRAFT_FIRE.cycles.claser'));assert.ok(base.shots>=5&&base.shots<=6,'one shot a second for six seconds: '+base.shots);
+ near(base.energy,base.shots*bolt*base.costK,base.energy*1e-9);near(base.boltEnergy,base.shots*bolt,base.boltEnergy*1e-10);assert.ok(base.hitScales.every(k=>k===1),'physical shots are not diluted by a former reference cycle');near(base.gas,base.shots*Number(run('C.FITS.claser.cycle')),1e-8);
+ const rapid=sample({rateHz:4});assert.equal(rapid.rate,4);near(rapid.cycle,.25,1e-12);assert.ok(rapid.shots>=base.shots*3.5&&rapid.shots<=24,'four shots a second: '+rapid.shots);
+ for(const tt of rapid.bolts)near(tt,bolt,bolt*1e-12);near(rapid.energy,rapid.shots*bolt*rapid.costK,rapid.energy*1e-9);near(rapid.boltEnergy,rapid.shots*bolt,rapid.boltEnergy*1e-10);
+ near(rapid.gas,rapid.shots*Number(run('C.FITS.claser.cycle')),1e-8);near(rapid.energy/base.energy,rapid.shots/base.shots,1e-7);near(rapid.gas/base.gas,rapid.shots/base.shots,1e-7);
 });
 
 test('normal and coarse frame steps keep the pulse stream steady without saving up idle shots',()=>{
  const samples=[];
- for(const dt of [.016,.04,.1]){context.dt=dt;run('reset();trial.energy.E=1e-5;advance(8,dt)');samples.push(plain(run('({shots:trial.gun.shots,energy:1e-5-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds})')));}
+ // 2026-11-24: the default cadence is one shot a second; the rapid stream this case steps coarsely is a laser set to ten a second (rateHz, the most a fit allows).
+ for(const dt of [.016,.04,.1]){context.dt=dt;run('reset("claser",{rateHz:10});trial.energy.E=1e-5;advance(8,dt)');samples.push(plain(run('({shots:trial.gun.shots,energy:1e-5-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds})')));}
  for(const sample of samples){assert.ok(sample.shots>=60);assert.ok(Math.abs(sample.shots-samples[0].shots)<=1);assert.ok(Math.abs(sample.energy/samples[0].energy-1)<.03);assert.ok(Math.abs(sample.gas/samples[0].gas-1)<.03);}
  run('reset();advance(1,.04);trial.fire=false;advance(10,.1);const idleCount=trial.gun.shots;trial.fire=true;trialGunnery(.1)');assert.ok(run('trial.gun.shots-idleCount')<=1,'releasing the trigger must not accumulate firing debt');
  run('reset();trial.energy.E=0;advance(10,.1);trial.energy.E=1000;trialGunnery(.04)');assert.ok(run('trial.gun.shots')<=1,'power starvation must not accumulate a backlog of pulses');
 });
 
 test('several fixed guns stagger their pulses and the pilot trigger does not wait for a capital salvo',()=>{
- run('reset();trial.turrets=[1,2,3,4].map(id=>stateFromFit(makeFit("claser",{id})));trial.asset.stats.craftSystems.laserUnits=4;trialCraftSystemsReset();const emissionFrames=[];for(let i=0;i<12;i++){const before=trial.gun.shots;trialGunnery(.01);if(trial.gun.shots>before)emissionFrames.push(trial.gun.shots-before)}');
+ run('reset();trial.turrets=[1,2,3,4].map(id=>stateFromFit(makeFit("claser",{id})));trial.asset.stats.craftSystems.laserUnits=4;trialCraftSystemsReset();const emissionFrames=[];/* 2026-11-24: one period is now 1 s (was 0.12 s) */for(let i=0;i<100;i++){const before=trial.gun.shots;trialGunnery(.01);if(trial.gun.shots>before)emissionFrames.push(trial.gun.shots-before)}');
  assert.deepEqual(plain(run('emissionFrames')),[1,1,1,1]);
  run('reset();salvo=new Set();trial.turrets[0].reload=0;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),1);
 });
 
-test('all pilot weapon types share short cycles while a rotating turret still tracks the reticle',()=>{
- for(const k of ['claser','claserH']){context.key=k;run('reset(key)');assert.equal(run('trial.turrets[0].pilot'),true);assert.equal(run('trial.turrets[0].cycle'),run('C.CRAFT_FIRE.cycles[key]'));assert.ok(run('trial.turrets[0].cycle')<=.22);assert.deepEqual(plain(run('trialLimits(trial.turrets[0])')),{yaw:0,lo:0,hi:0});}
+test('pilot lasers fire once a second by default and at the fit\'s rate of fire, while a rotating turret still tracks the reticle',()=>{
+ for(const k of ['claser','claserH']){context.key=k;run('reset(key)');assert.equal(run('trial.turrets[0].pilot'),true);assert.equal(run('trial.turrets[0].cycle'),run('C.CRAFT_FIRE.cycles[key]'));/* 2026-11-24: one shot a second a barrel (was a 0.12-0.18 s period); the cadence is the fit's rateHz */assert.equal(run('trial.turrets[0].cycle'),1);run('reset(key,{rateHz:5})');assert.equal(run('trial.turrets[0].pilot'),true);assert.ok(Math.abs(run('trial.turrets[0].cycle')-.2)<1e-12);assert.deepEqual(plain(run('trialLimits(trial.turrets[0])')),{yaw:0,lo:0,hi:0});}
  run('reset("htl");trial.turrets[0].rateRad=20;aimPoint=[10000,0,10000];trialGunnery(.1)');assert.equal(run('trial.turrets[0].pilot'),false);assert.ok(Math.abs(run('trial.turrets[0].yaw'))>.5);
 });
 
@@ -89,7 +92,7 @@ test('actual aircraft model barrels and tiny affordability limits preserve compl
  // (user decision 2026-11-15, docs/handoff-2026-11-15/README.md:122,135; js/app.js trialGunnery comment). The twin
  // turret's first step fires one barrel and the other follows within a period (was: both barrels in the same step).
  // Bolts move forward within the step, so the two barrels' spacing is compared across the mount (z), not as a distance.
- run('reset("cturret");trial.energy.E=1e-5;trial.turrets[0].reload=0;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),1);assert.equal(run('trial.bolts.length'),1);run('trialGunnery(trial.turrets[0].cycle*.6)');assert.equal(run('trial.gun.shots'),2);assert.equal(run('trial.bolts.length'),2);for(const bolt of plain(run('trial.bolts')))near(bolt.tt,Number(run('C.FITS.cturret.boltTT')),1e-20);near(run('Math.abs(trial.bolts[0].pos[2]-trial.bolts[1].pos[2])'),Number(run('C.FITS.cturret.wm'))*.28,1e-6);
+ run('reset("cturret");trial.energy.E=1e-5;trial.turrets[0].reload=0;trialGunnery(.016)');assert.equal(run('trial.gun.shots'),1);assert.equal(run('trial.bolts.length'),1);/* 2026-11-24: the light laser's bolt is gone at its 860 m range (0.19 s of flight), before the other barrel's turn half a second later, so the two bolts are taken as they are emitted (advance) instead of read from trial.bolts after one long step */run('trial.emitted=trial.bolts.slice();for(const b of trial.emitted)trial.seenBolts.add(b);advance(trial.turrets[0].cycle*.6,.016)');assert.equal(run('trial.gun.shots'),2);assert.equal(run('trial.emitted.length'),2);for(const bolt of plain(run('trial.emitted')))near(bolt.tt,Number(run('C.FITS.cturret.boltTT')),1e-20);near(run('Math.abs(trial.emitted[0].pos[2]-trial.emitted[1].pos[2])'),Number(run('C.FITS.cturret.wm'))*.28,1e-6);
 });
 
 test('a physical laser pulse requires its complete gas budget and preserves an insufficient remainder',()=>{

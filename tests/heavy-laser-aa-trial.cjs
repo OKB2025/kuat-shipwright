@@ -26,13 +26,22 @@ section('function trialShotGeometry(','// Missiles leave');
 
 
 // Traverse ratings remain available for aimed fire, but only designated PD fires autonomously.
-for(const key of ['single6MT'])test(key+' keeps its 6 MT shot for manual fire and does not automatically intercept',()=>{
+// 2026-11-24 gun rules: these guns are lasers and a laser's shot is its bore's: 20 + 780 x (bore^2 - 0.01) / 0.15 kt (C.laserShotKt). Was 6 MT,
+// 500 MT and 100 kt a barrel by the table.
+const laserBolt=key=>{const r=C.FITS[key].gunRule;assert.equal(r.kind,'laser',key);const kt=r.perBarrel.map(b=>{assert.ok(Math.abs(b.kt-C.laserShotKt(b.bore))<=1e-9*b.kt,key);return b.kt;});const mean=kt.reduce((a,b)=>a+b,0)/kt.length;assert.ok(kt.every(v=>Math.abs(v-mean)<=1e-4*mean),key+' barrels alike (the measured bores of one mount differ in the sixth figure)');assert.ok(Math.abs(C.FITS[key].boltTT-mean/C.KT_PER_TT)<=1e-12*C.FITS[key].boltTT,key);return C.FITS[key].boltTT;};
+// 2026-11-25 gun rules (user: a laser is its barrel alone, a turbolaser has a feed compartment; single6MT a 100 MT light turbolaser, twin500MT
+// and quad500MT 200 GT medium turbolasers, sphyrnaTwin500MT a 200 MT light turbolaser): those four fire the shot of
+// C.GUN_RULES.turbolaserShot; pd, monCalPD, twin6MT and single500MT stay lasers at the shot of their bores. Recorded in
+// docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md.
+const gunBolt=key=>{const d=C.FITS[key],r=d.gunRule,shot=C.GUN_RULES.turbolaserShot[key];if(!(shot>0))return laserBolt(key);assert.equal(r.kind,'turbolaser',key);assert.equal(d.boltTT,shot,key);assert.equal(d.tt,shot*d.barrels,key);assert.ok(Math.abs(r.shotKt-shot*C.KT_PER_TT)<=1e-12*r.shotKt,key);assert.equal(C.needsCapacitor({k:key}),true,key+' has a feed compartment');return shot;};
+assert.deepEqual(plain(C.GUN_RULES.turbolaserShot),{single6MT:1e-4,twin500MT:.2,quad500MT:.2,sphyrnaTwin500MT:2e-4});
+for(const key of ['single6MT'])test(key+' fires its 100 MT light-turbolaser shot on the manual trigger and does not automatically intercept',()=>{
  const roles=plain(C.weaponRoles(C.FITS[key]));assert.equal(roles.pointDefense,false);assert.equal(roles.dualPurpose,false);assert.equal(roles.purePointDefense,false);
  for(const kind of ['missile','craft']){
   cx.key=key;cx.kind=kind;run('reset(key);trial.fire=false;threat(kind);var aaEnergyBefore=trial.energy.E;trialGunnery(.01)');
   assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.turrets[0].pd'),false);assert.equal(run('trial.turrets[0].pdTarget'),null);assert.equal(run('trial.gun.pd||0'),0);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.energy.E'),run('aaEnergyBefore'));
-  run('trial.fire=true;trialGunnery(.01)');const t=plain(run('trial.turrets[0]')),shot=C.FITS[key].barrels*6e-6;
-  assert.equal(run('trial.gun.shots'),C.FITS[key].barrels);assert.ok(Math.abs(run('trialShotEnergyTT(trial.turrets[0])')-shot)<1e-18);assert.ok(Math.abs(run('aaEnergyBefore-trial.energy.E')-shot*t.costK)<shot*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-6e-6)<1e-18)'));
+  run('trial.fire=true;trialGunnery(.01)');const t=plain(run('trial.turrets[0]')),bolt=gunBolt(key),shot=C.FITS[key].barrels*bolt;assert.equal(bolt,1e-4,'100 MT (was the 117 kt laser shot of its bore)');cx.bolt=bolt;
+  assert.equal(run('trial.gun.shots'),C.FITS[key].barrels);assert.ok(Math.abs(run('trialShotEnergyTT(trial.turrets[0])')-shot)<1e-18);assert.ok(Math.abs(run('aaEnergyBefore-trial.energy.E')-shot*t.costK)<shot*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-bolt)<1e-18)'));
  }
 });
 test('the forward-fixed twin 6 MT laser cannot follow a fighter, so it stays a manual ship weapon',()=>{
@@ -42,13 +51,13 @@ test('the forward-fixed twin 6 MT laser cannot follow a fighter, so it stays a m
 // 2026-11-15, user decision「連射は全門含め1発ずつ射撃する形に(各門ではなく)」: in rapid fire a mount fires one barrel a
 // shot (its energy the volley's over the barrels, the next cycle ÷ barrels later). These cases stated every barrel in
 // one shot; each barrel's packet (500 MT, 100 kt) is unchanged.
-test('corvette light turbolasers preserve traverse and 500 MT barrels while requiring the manual trigger',()=>{
+test('the corvette guns once rated 500 MT preserve traverse, fire their own shot (the single a laser of its bore, the others turbolasers) and require the manual trigger',()=>{
  for(const key of ['single500MT','twin500MT','quad500MT','sphyrnaTwin500MT']){
-  cx.key=key;assert.ok(C.FITS[key].aa>0);assert.equal(C.weaponRoles(C.FITS[key]).dualPurpose,false);run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);assert.equal(C.FITS[key].boltTT,.0005);
-  run('trial.energy.E=trial.energy.cap=1;var manualEnergyBefore=trial.energy.E;trial.fire=true;trialGunnery(.01)');const shot=.0005,cost=shot*run('trial.turrets[0].costK');assert.equal(run('trial.gun.shots'),1,'one barrel a shot');assert.ok(Math.abs(run('manualEnergyBefore-trial.energy.E')-cost)<cost*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-.0005)<1e-18)'));
+  cx.key=key;assert.ok(C.FITS[key].aa>0);assert.equal(C.weaponRoles(C.FITS[key]).dualPurpose,false);run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.turrets[0].pdCapable'),false);assert.equal(run('trial.gun.shots'),0);assert.equal(run('trial.bolts.length'),0);const shot=gunBolt(key);cx.bolt=shot;assert.equal(C.FITS[key].gunRule.kind,key==='single500MT'?'laser':'turbolaser',key);assert.equal(Math.round(shot*C.KT_PER_TT),{single500MT:613,twin500MT:2e8,quad500MT:2e8,sphyrnaTwin500MT:2e5}[key],key+' (2026-11-25: 613 kt laser, 200 GT, 200 GT, 200 MT; were 613, 285, 279, 261 kt)');
+  /* the store is 16 shots (was 1e-5 TT, 16 to 38 of the laser shots; before that 1 TT): the 200 GT shots need more than 1e-5 TT, and a shot taken from a far larger store is lost in the rounding of the difference (the unchanged 1e-10 relative tolerance) */cx.store=16*shot;run('trial.energy.E=trial.energy.cap=store;var manualEnergyBefore=trial.energy.E;trial.fire=true;trialGunnery(.01)');const cost=shot*run('trial.turrets[0].costK');assert.equal(run('trial.gun.shots'),1,'one barrel a shot');assert.ok(Math.abs(run('manualEnergyBefore-trial.energy.E')-cost)<cost*1e-10);assert.ok(run('trial.bolts.every(b=>!b.pd&&Math.abs(b.tt-bolt)<1e-18)'));
  }
 });
 
-test('dedicated twin and spherical PD packets retain 100 kt per physical barrel while intercepting',()=>{
- for(const key of ['pd','monCalPD']){cx.key=key;run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.gun.pd'),1,'one barrel a shot');assert.equal(run('trial.bolts.length'),1);assert.ok(run('trial.bolts.every(b=>b.pd&&Math.abs(b.tt-1e-7)<1e-20)'));}
+test('dedicated twin and spherical PD packets carry the laser shot of their bores (800 kt, 133 kt) per physical barrel while intercepting',()=>{
+ for(const key of ['pd','monCalPD']){cx.key=key;run('reset(key);trial.fire=false;threat("craft");trialGunnery(.01)');assert.equal(run('trial.gun.pd'),1,'one barrel a shot');assert.equal(run('trial.bolts.length'),1);cx.bolt=laserBolt(key);assert.equal(Math.round(cx.bolt*C.KT_PER_TT),{pd:800,monCalPD:133}[key],key);assert.ok(run('trial.bolts.every(b=>b.pd&&Math.abs(b.tt-bolt)<1e-20)'));}
 });

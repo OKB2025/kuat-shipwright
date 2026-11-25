@@ -21,7 +21,7 @@ function setup({deferredFrames=false}={}){
  const TEMPLATE_SKIP=${app.match(/const TEMPLATE_SKIP = (\[[^;]+\]);/)[1]};
  const userPartFind=()=>null,importResult=()=>null;
  const draws=[];Gfx.Renderer=class {constructor(){this.uploads={};this.cam={};}upload(k,g){this.uploads[k]=g;}draw(){draws.push(this);}dispose(){}};
- `);run(app.match(/^const xfUnion=.*;$/m)[0]);for(const name of ['weaponTiltMode','weaponLocalMount','weaponPlacementNormal','templateFor','activeTemplate','carryToPlace','designUIFitDraft','designUISchedulePreview'])run(fn(name));
+ `);run(app.match(/^const xfUnion=.*;$/m)[0]);for(const name of ['weaponTiltMode','weaponLocalMount','weaponPlacementNormal','templateFor','activeTemplate','carryToPlace','craftLaserOptions'/* 2026-11-24 the fit draft carries a craft laser's cylinder settings */,'designUIFitDraft','designUISchedulePreview'])run(fn(name));
  return {run,C:run('C'),G:run('Gfx')};
 }
 function snapshot(t){t.run('designUISchedulePreview()');assert.equal(t.run('canvas.hidden'),false);assert.ok(t.run('draws.length')>0,'the actual miniature generated render buffers');const renderer=t.run('designUI.preview');assert.ok(Number.isFinite(renderer.cam.r)&&renderer.off.every(Number.isFinite),'the real mounting mode produces a finite preview camera');return renderer;}

@@ -1,0 +1,17 @@
+# CR-90 対 CR-90、5 km から互いを攻撃。性能表は保存設計から作ったもの（saved-profiles.cjs）。
+# KS_FRESH=<性能表のフォルダ> node cr90-head-on.cjs <root> cr90:cr90 300 5000
+# 行：時刻、両艦の位置 [x,y,z]（m）、通り抜けの状態。BUMP の行が出れば船体の接触（1 行も出ていない）。
+t 9.25 pos [[-393,15,0],[393,-15,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 9.5 pos [[-340,15,0],[340,-15,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 9.75 pos [[-289,15,0],[289,-15,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 10 pos [[-238,16,0],[238,-16,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 10.25 pos [[-189,16,0],[189,-16,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 10.5 pos [[-142,16,0],[142,-16,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 10.75 pos [[-95,17,0],[95,-17,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 11 pos [[-49,17,0],[49,-17,0]] pass [{"target":"s1_0","phase":"in","side":1},{"target":"s0_0","phase":"in","side":-1}]
+t 11.25 pos [[-5,18,0],[5,-18,0]] pass [{"target":"s1_0","phase":"out","side":1,"dir":[1,0,-2.660308995253879e-16]},{"target":"s0_0","phase":"out","side":-1,"dir":[-1,0,1.2246467991473532e-16]}]
+t 11.5 pos [[38,19,0],[-38,-19,0]] pass [{"target":"s1_0","phase":"out","side":1,"dir":[1,0,-2.660308995253879e-16]},{"target":"s0_0","phase":"out","side":-1,"dir":[-1,0,1.2246467991473532e-16]}]
+cr90:cr90 | neither at 11.5s | left 0/1 : 0/1 | first fire A 5.75s @2.7km, B 5.75s @2.7km | closest 0.04km | press false,false
+  standoff: cr90->cr90 0.8km; cr90->cr90 0.8km
+  A cr90         shield 87% hull NaN% OUT hull at 11.5s
+  B cr90         shield 87% hull NaN% OUT hull at 11.5s

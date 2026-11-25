@@ -1,0 +1,8 @@
+== 1 x craft_tie_in vs 1 x craft_xwing, 10 runs of 120 s (craft cannot be lost)
+craft_tie_in [6 barrels, 118 kt, 861 m]: mean separation 5305 m, nearest 27 m; per craft per run: guns bearing 15.2 s, within range 2.5 s, shots 15.3, hits 0.3 (2%), mean shot distance 391 m, mean hit distance 33 m, energy on target 31 kt (101.7 kt a hit), game kills that would have happened 404.8
+   hits by distance (m): 0-100: 0.3, 100-200: 0.0, 200-300: 0.0, 300-400: 0.0, 400-500: 0.0, 500-600: 0.0, 600-700: 0.0, 700-800: 0.0, 800-900: 0.0
+craft_xwing [4 barrels, 136 kt, 2390 m]: mean separation 5305 m, nearest 27 m; per craft per run: guns bearing 27.4 s, within range 17.3 s, shots 69.3, hits 1.3 (2%), mean shot distance 1164 m, mean hit distance 85 m, energy on target 158 kt (120.4 kt a hit), game kills that would have happened 0.0
+   hits by distance (m): 0-100: 1.1, 100-200: 0.1, 200-300: 0.0, 300-400: 0.0, 400-500: 0.0, 500-600: 0.0, 600-700: 0.0, 700-800: 0.0, 800-900: 0.0, 900-1000: 0.0, 1000-1100: 0.0, 1100-1200: 0.0, 1200-1300: 0.0, 1300-1400: 0.0, 1400-1500: 0.0, 1500-1600: 0.0, 1600-1700: 0.0, 1700-1800: 0.0, 1800-1900: 0.0, 1900-2000: 0.0, 2000-2100: 0.0, 2100-2200: 0.0, 2200-2300: 0.0, 2300-2400: 0.0
+range 861 50m:7.2% 100m:1.9% 200m:0.5% 300m:0.2% 500m:0.1% 800m:0.0%
+range 2390 50m:39.5% 100m:13.1% 200m:3.6% 300m:1.6% 500m:0.6% 800m:0.2%
+range 9000 50m:98.3% 100m:74.9% 200m:36.4% 300m:19.5% 500m:7.8% 800m:3.2%

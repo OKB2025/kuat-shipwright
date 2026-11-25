@@ -8,7 +8,7 @@ const fitting=(k,id,extra={})=>({id,k,p:[60+id*40,120,id%2?30:-30],a:2,ped:0,bas
 
 test('the spherical four-barrel40TT ion gun has one160TT ion salvo and no turbolaser output',()=>{
  const d=C.FITS.quad40Ion;
- assert.equal(d.name,'40TT 4連装イオン砲');assert.equal(d.asset,'family_quad40_ion');assert.equal(d.barrels,4);assert.equal(d.boltTT,40);assert.equal(d.tt,0);assert.equal(d.ion,160);assert.equal(d.cycle,1);assert.equal(d.power,160*C.TT);assert.equal(C.fitBand(d),'long');
+ assert.equal(d.name,'40TT 4連装イオン砲');assert.equal(d.asset,'family_quad40_ion');assert.equal(d.barrels,4);assert.equal(d.boltTT,40);assert.equal(d.tt,0);assert.equal(d.ion,160);/* 2026-11-24 gun rules: an ion gun fires as fast as it charges; the charge of a shot is E x (1 + barrel / 19 m) and the charging rate is 0.00062 TT/s per m3 of the turret plus its default charge volume (was a 1 s cycle and 160 TT/s) */assert.equal(d.gunLegacy.cycle,1);assert.equal(d.gunRule.kind,'ion');near(d.gunRule.shotChargeTT,40*(1+d.gunRule.barrelM/19));near(d.gunRule.chargeRateTT,C.GUN_RULES.ion.chargePerM3*(d.fm*d.wm*d.hm+C.weaponChargeSpec({k:d.key}).targetVolume));assert.equal(d.cycle,d.gunRule.cycle);near(d.cycle,4*d.gunRule.shotChargeTT/d.gunRule.chargeRateTT);near(d.power,d.gunRule.chargeRateTT*C.TT);assert.equal(C.fitBand(d),'long');
  assert.equal(C.weaponModelScale({k:d.key}),1);assert.equal(C.fitCanRotate(d.key),true);
  const bank=C.weaponChargeSpec({k:d.key});assert.equal(bank.volleyTT,160);assert.equal(bank.boltTT,40);assert.equal(bank.targetVolume,3200);
  assert.equal(C.weaponRoles(d).pointDefense,false);assert.equal(C.weaponRoles(d).dualPurpose,false);
@@ -20,7 +20,7 @@ test('the actual engineering and fleet mount keep spherical ion damage separate 
  const h=C.rayEnv(s,[160,400,0],[0,-1,0],{structOnly:true});assert.ok(h);const result=C.placeFit(s,'quad40Ion',h.p,h.n,0,false);assert.ok(result.fit,result.err);const f=result.fit;f.chargeDepth=12;
  s.surfaces={version:4,mode:'compat',patches:[]};const S=C.computeStats(s),q=S.chargeInfo[f.id],p=C.fleetProfile(S,s.name,s),m=p.surface.mounts.find(m=>m.id===f.id);
  assert.ok(q);near(q.capacityRatio,1);near(q.storedTT,160);assert.equal(S.alphaTot,0);near(S.ionTot,160);assert.ok(S.ionRate.some(v=>v>0));assert.ok(S.alphaRate.every(v=>v===0));
- assert.ok(m);assert.equal(m.gun,0);near(m.ion,160);assert.equal(m.volleyTT,160);assert.equal(m.boltTT,40);assert.equal(m.barrels,4);assert.equal(m.cycle,1);near(m.capacity,160);assert.ok(p.gunArcs.every(v=>v===0));assert.ok(p.ionArcs.some(v=>v>0));
+ assert.ok(m);assert.equal(m.gun,0);/* 2026-11-24: the mount's ion output per second is its volley over its charging cycle (was 160 TT every second) */near(m.ion,160/C.FITS.quad40Ion.gunRule.cycle);assert.equal(m.volleyTT,160);assert.equal(m.boltTT,40);assert.equal(m.barrels,4);assert.equal(m.cycle,C.FITS.quad40Ion.gunRule.cycle);near(m.capacity,160);assert.ok(p.gunArcs.every(v=>v===0));assert.ok(p.ionArcs.some(v=>v>0));
 });
 
 test('retired overlapping weapons migrate to current types while retaining saved fitting identity and settings',()=>{
@@ -28,7 +28,7 @@ test('retired overlapping weapons migrate to current types while retaining saved
  assert.deepEqual(raw,before);assert.equal(s.fits.length,3);
  for(let i=0;i<old.length;i++){const from=old[i],to=s.fits[i];assert.equal(C.FITS[from.k],undefined,'retired names are migration inputs only');assert.equal(C.canonicalWeaponKind(from.k),retired[from.k]);assert.equal(to.k,retired[from.k]);for(const field of ['id','p','a','ped','tw','assetYaw','chargeSalvos','chargeDepth','chargeScale','batteryZone'])if(Object.hasOwn(from,field))assert.deepEqual(plain(to[field]),from[field],field);}
  const saved=plain(C.serialize(s));assert.deepEqual(plain(C.serialize(C.deserialize(saved))),saved);assert.deepEqual(saved.fits.map(f=>f.k),['twin40','twin40','quad40Ion']);
- for(const k of ['twin40','quad40Ion'])assert.equal(C.FITS[k].cycle,1,'migrated weapons use the canonical cadence');
+ for(const k of ['twin40','quad40Ion']){assert.equal(C.FITS[k].gunLegacy.cycle,1,'the table cadence the canonical kinds had');assert.equal(C.FITS[k].cycle,C.FITS[k].gunRule.cycle,'migrated weapons use the canonical cadence (2026-11-24: the charging time of the canonical gun)');}
 });
 
 test('retired Venator side skins cannot restore their old model or pose offsets after migration',()=>{

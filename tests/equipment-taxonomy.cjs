@@ -10,10 +10,13 @@ test('catalogue consolidation preserves the saved legacy equipment kinds',()=>{
  assert.equal(C.placementCapability({k:'shield'}).space,'interior');
 });
 
-test('unmarked landing gear retains mechanical support without acquiring repulsor support',()=>{
+// 2026-11-24 (user: the craft part landingGear is the craft's repulsorlift, listed again as リパルサーリフト): it keeps its ground support and
+// now also holds the craft up by its volume, at the same support per m3 as the ship's gravity control (the part `repulsor`). Was: no lift support.
+test('unmarked landing gear retains mechanical support and lifts as a repulsorlift of its volume',()=>{
+ const ref=model({k:'repulsor'}),lift=C.computeStats(ref).repulsorSupport/C.partVolume(ref.parts.find(p=>p.k==='repulsor'));assert.ok(lift>0,'the gravity control part supports mass by its volume');
  for(const ship of [model({k:'landingGear'}),restored(model({k:'landingGear'}))]){
   const part=ship.parts.find(p=>p.k==='landingGear'),stats=C.computeStats(ship);
-  near(C.partVolume(part),1,'legacy gear volume');near(stats.craftSystems.landingSupport,300,'legacy mechanical support');near(stats.repulsorSupport,0,'no invented lift support');
+  near(C.partVolume(part),1,'legacy gear volume');near(stats.craftSystems.landingSupport,300,'legacy mechanical support');near(stats.repulsorSupport,lift*C.partVolume(part),'the same lift per m3 as the repulsor part');
   assert.equal(part.landingEquipment,undefined);
  }
 });
@@ -70,11 +73,13 @@ test('new shield placement keeps its fixed dimensions and validates actual inter
 test('equipment replacement offers the unified catalogue while retaining an existing hidden legacy kind',()=>{
  const modern={k:'command',c:[0,0,0],d:1},options=Array.from(C.replacementOptions(modern));
  assert.ok(options.includes('firecontrol'),'combined fire control remains available');
- for(const kind of ['landingGear','targetComputer','vls'])assert.ok(!options.includes(kind),kind+' is not offered as a new replacement');
+ // 2026-11-24: landingGear is back in the catalogue as リパルサーリフト, so it is an ordinary replacement choice; the other two stay hidden.
+ assert.ok(options.includes('landingGear'),'the craft repulsorlift (landingGear) is offered');assert.equal(C.PARTS.landingGear.name,'リパルサーリフト');
+ for(const kind of ['targetComputer','vls'])assert.ok(!options.includes(kind),kind+' is not offered as a new replacement');
  for(const kind of ['landingGear','targetComputer']){
   const legacy={k:kind,c:[0,0,0],d:1},before=C.publicJSON(legacy),choices=Array.from(C.replacementOptions(legacy));
   assert.ok(choices.includes(kind),'existing '+kind+' remains editable without conversion');
-  assert.ok(!choices.includes(kind==='landingGear'?'targetComputer':'landingGear'),'a different hidden kind is not introduced');
+  for(const hidden of ['targetComputer','vls'])if(hidden!==kind)assert.ok(!choices.includes(hidden),'a different hidden kind ('+hidden+') is not introduced');
   assert.equal(C.publicJSON(legacy),before,'opening replacement choices is non-destructive');
  }
 });

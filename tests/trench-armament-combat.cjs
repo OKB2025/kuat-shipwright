@@ -32,7 +32,11 @@ function unit(profile, id = 'attacker', team = 0) {
   u.order = {...u.order, type: 'hold', power: 'weapons', fire: true};
   return u;
 }
-function target(profile, z = 8000) {const t = unit(profile, 'target', 1); t.pos = [0, 0, z]; t.order.fire = false; return t;}
+// 2026-11-24 gun rules: each gun reaches its own range. The 34 TT ball gun of these rows holds its bolt to 4.4 km and is gone at
+// 7.4 km (its 10.3 m barrel is barely over its least coil), so the targets stand 4 km off the centre line (they stood at 8 km,
+// inside the old 40 km band) and the bow target, which tests the arc and not the range, at 7 km.
+const RANGE = 4000, BOW_RANGE = 7000;
+function target(profile, z = RANGE) {const t = unit(profile, 'target', 1); t.pos = [0, 0, z]; t.order.fire = false; return t;}
 
 test('100 to 10000 mounts retain bounded groups, physical rows and runtime modules while totals scale exactly once', () => {
   const {small: a, large: b} = fixtures();
@@ -62,20 +66,24 @@ test('odd mixed totals share one actual capacitor per side without duplicating i
     assert.equal(rows.reduce((n, f) => n + f.aggregateCount, 0), wanted);
     assert.equal(rows[0].aggregateCount - rows[1].aggregateCount, 1);
   }
-  near(x.profile.surface.mounts.reduce((n, m) => n + m.capacity, 0), caps.reduce((n, p) => n + C.partVolume(p), 0) * C.CHARGE_TT_M3);
+  // 2026-11-25 a laser has no feed compartment (user decision): the charge rows hold the turbolasers' volleys alone, and a point
+  // defence group's capacity is its own volley, with no room behind it.
+  { const fed = new Set(x.ship.fits.filter(f => C.needsCapacitor(f)).map(f => f.id)), cap = keep => x.profile.surface.mounts.filter(m => fed.has(m.id) === keep).reduce((n, m) => n + m.capacity, 0);
+    near(cap(true), caps.reduce((n, p) => n + C.partVolume(p), 0) * C.CHARGE_TT_M3); near(cap(false), x.ship.fits.filter(f => !fed.has(f.id)).reduce((n, f) => n + C.fitSpec(f).tt, 0)); for (const p of caps) assert.equal(p.weaponIds.length, 1); }
   const capModules = x.profile.modules.filter(m => m.k === 'capacitor');
   assert.equal(capModules.length, 2);
-  assert.ok(capModules.every(m => m.links.length === 2));
-  assert.equal(new Set(capModules.flatMap(m => m.links)).size, 4);
+  /* 2026-11-25 each row is linked to the one group it feeds (the turbolasers of its side) */assert.ok(capModules.every(m => m.links.length === 1));
+  assert.equal(new Set(capModules.flatMap(m => m.links)).size, 2);
 });
 
 test('port and starboard rows use the real opening, range and bounded per-muzzle obstruction rather than one center ray', () => {
   const {small: x} = fixtures(), u = unit(x.profile), mounts = x.profile.surface.mounts;
-  const port = target(x.profile, -8000), stbd = target(x.profile, 8000), fore = target(x.profile); fore.pos = [12000, 0, 0];
-  assert.ok(C.fleetFire(u, port, 8000).gun > 0); assert.ok(C.fleetFire(u, stbd, 8000).gun > 0);
-  assert.equal(C.fleetFire(u, fore, 12000).gun, 0);
+  const port = target(x.profile, -RANGE), stbd = target(x.profile, RANGE), fore = target(x.profile); fore.pos = [BOW_RANGE, 0, 0];
+  for (const kind of ['monCal34']) {const r = C.FITS[kind].gunRule; assert.ok(RANGE < r.holdM && BOW_RANGE < r.rangeM && r.rangeM < 8000, kind + ' reach');}
+  assert.ok(C.fleetFire(u, port, RANGE).gun > 0); assert.ok(C.fleetFire(u, stbd, RANGE).gun > 0); assert.equal(C.fleetFire(u, stbd, 8000).gun, 0, 'beyond the gun\'s own range nothing is fired');
+  assert.equal(C.fleetFire(u, fore, BOW_RANGE).gun, 0);
   assert.equal(C.fleetFire(u, target(x.profile, 100000), 100000).gun, 0);
-  const mount = mounts.find(m => m.normal[2] > 0), probe = {...u, p: {...x.profile, surface: {...x.profile.surface, mounts: [mount]}}}, open = C.fleetFire(probe, stbd, 8000).gun;
+  const mount = mounts.find(m => m.normal[2] > 0), probe = {...u, p: {...x.profile, surface: {...x.profile.surface, mounts: [mount]}}}, open = C.fleetFire(probe, stbd, RANGE).gun;
   assert.ok(open > 0);
   // Four sample bins are moved inside the opposite wall. Their integer
   // populations differ because eight bins represent fifty actual mounts.
@@ -84,7 +92,7 @@ test('port and starboard rows use the real opening, range and bounded per-muzzle
   const totalWeight = mount.muzzleWeights.reduce((n, weight) => n + weight, 0);
   const openWeight = mount.muzzleWeights.reduce((n, weight, i) => n + (i % 2 ? 0 : weight), 0);
   near(totalWeight, 1); near(mount.aggregateCount, 50); near(openWeight * mount.aggregateCount, 24);
-  const reduced = C.fleetFire(probe, stbd, 8000); near(reduced.gun, open * openWeight / totalWeight);
+  const reduced = C.fleetFire(probe, stbd, RANGE); near(reduced.gun, open * openWeight / totalWeight);
   C.fleetPowerStep(probe, C.fleetSystems(probe), stbd, reduced.cost, .25);
   const fired = probe.surfaceLastFire.gun; assert.ok(fired > 0);
   for (let serial = 0; serial < 8; serial++) {
@@ -98,12 +106,15 @@ test('port and starboard rows use the real opening, range and bounded per-muzzle
 test('actual reactor input charges empty shared banks and funds firing and weapon waste heat through one ledger', () => {
   const {small: x} = fixtures(), u = unit(x.profile), t = target(x.profile), dt = .25;
   u.energy = 0; u.surfaceBanks = Object.fromEntries(x.profile.surface.mounts.map(m => [m.id, 0]));
-  const beforeFuel = C.shipFuelAvailableEnergyJ(u), F = C.fleetFire(u, t, 8000);
+  const beforeFuel = C.shipFuelAvailableEnergyJ(u), F = C.fleetFire(u, t, RANGE);
   assert.ok(F.gun > 0 && F.runtime); C.fleetPowerStep(u, C.fleetSystems(u), t, F.cost, dt);
   assert.ok(u.pw.wpn > 0); assert.ok(u.surfaceLastFire.spent > 0); assert.ok(u.surfaceLastFire.charged > 0);
   near(u.surfaceLastFire.charged * C.weaponInputFactor(x.profile) * C.TT / dt, u.pw.wpn);
   near(u.energy, u.surfaceLastFire.charged - u.surfaceLastFire.spent);
-  near(u.ht.e.weapon, C.HEAT.waste.weapon * u.pw.wpn * dt);
+  // 2026-11-24 (user「艦内に行く熱は圧縮分のエネルギーの5%で」): a turbolaser's firing heat is 5% of the confinement's share of its
+  // input, 0.05 x c / (1 + c) with c = barrel / 19 m, carried by the profile as weaponWaste (was HEAT.waste.weapon, 5% of the input).
+  {const r = C.FITS.monCal34.gunRule, c = r.barrelM / C.GUN_RULES.turbolaser.chargeLen; near(r.heatFrac, C.GUN_RULES.turbolaser.heat * c / (1 + c)); near(x.profile.weaponWaste, r.heatFrac); assert.ok(x.profile.weaponWaste < C.HEAT.waste.weapon);}
+  near(u.ht.e.weapon, x.profile.weaponWaste * u.pw.wpn * dt);
   assert.ok(C.shipFuelAvailableEnergyJ(u) < beforeFuel);
   const depleted = unit(x.profile); depleted.energy = 0; depleted.surfaceBanks = Object.fromEntries(x.profile.surface.mounts.map(m => [m.id, 0]));
   for (const fuel of depleted.fuel?.sources || []) fuel.remainingJ = 0;
@@ -118,7 +129,7 @@ test('one shared-row hit reduces both weapon shares once, while weapon destructi
   const {mixed: x} = fixtures(), u = unit(x.profile), mounts = x.profile.surface.mounts;
   C.surfaceMountEnergy(u, mounts[0].id); const ci = x.profile.modules.findIndex(m => m.k === 'capacitor'), cap = x.profile.modules[ci];
   const affected = mounts.filter(m => cap.links.includes(m.module)), other = mounts.filter(m => !cap.links.includes(m.module));
-  assert.equal(affected.length, 2); const lost = affected.reduce((n, m) => n + m.capacity / 2, 0);
+  /* 2026-11-25 the row serves the turbolasers of its side alone (a laser has no feed compartment): one group is affected, and the point defence groups keep their charge with the others. Two fed kinds sharing a row is checked in tests/trench-armament-core.cjs (monCal34 with monCal80). */assert.equal(affected.length, 1); assert.ok(affected.every(m => C.needsCapacitor(x.ship.fits.find(f => f.id === m.id)))); assert.ok(other.some(m => !C.needsCapacitor(x.ship.fits.find(f => f.id === m.id)))); const lost = affected.reduce((n, m) => n + m.capacity / 2, 0);
   u.mods[ci] = .5; C.surfacePowerStep(u, null, null, 0, 0, 0);
   for (const m of affected) near(C.surfaceMountEnergy(u, m.id), m.capacity / 2);
   for (const m of other) near(C.surfaceMountEnergy(u, m.id), m.capacity);
@@ -140,7 +151,7 @@ test('actual trench patch hits damage its shared logical weapon module without a
 });
 
 test('bounded actual trench-origin packets conserve gun and ion totals in direct damage routing and fleet combat', () => {
-  const {small: x} = fixtures(), u = unit(x.profile), t = target(x.profile), F = C.fleetFire(u, t, 8000), dt = .25;
+  const {small: x} = fixtures(), u = unit(x.profile), t = target(x.profile), F = C.fleetFire(u, t, RANGE), dt = .25;
   C.fleetPowerStep(u, C.fleetSystems(u), t, F.cost, dt);
   const packets = C.fleetWeaponPackets(u, 17, 3);
   assert.ok(packets.length <= x.profile.surface.mounts.length + 1);
@@ -164,7 +175,7 @@ test('RTS battle uses the same compact firing and profile-local muzzle packets a
   const {small: x} = fixtures(), designOf = key => ({key, p: x.profile, info: {mass: x.stats.mass, hyper: null, capital: true, sensor: 0}});
   const a = designOf('trench-a'), b = designOf('trench-b'), w = R.createWorld({mode: 'test', sensors: false, convoyMode: false, designs: [a, b], sides: [{faction: 'empire', ai: false}, {faction: 'rebel', ai: false}], fleets: [[{design: a.key}], [{design: b.key}]]});
   const u = [...w.units.values()].find(q => q.side === 0), t = [...w.units.values()].find(q => q.side === 1);
-  t.sys = u.sys; w.groups.get(t.group).sys = u.sys; u.pos = [0, 0, 0]; t.pos = [0, 0, 8000]; u.yaw = 0;
+  t.sys = u.sys; w.groups.get(t.group).sys = u.sys; u.pos = [0, 0, 0]; t.pos = [0, 0, RANGE]; u.yaw = 0;
   u.crew = x.profile.crewNeed; t.crew = x.profile.crewNeed;
   u.order = {...u.order, type: 'attack', target: t.id, power: 'weapons'}; t.order = {...t.order, type: 'hold', fire: false};
   R.battleTick(w, u.sys, .25);

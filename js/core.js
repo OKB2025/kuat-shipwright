@@ -249,10 +249,10 @@ const CRAFT_PRICE_CATALOG={
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1hvu5qh",
-   "build": 243383,
+   "signature": "1pb8k4d",
+   "build": 243380,
    "crew": 2000,
-   "total": 245383,
+   "total": 245380,
    "by": {
     "hull": 46,
     "armor": 31,
@@ -260,7 +260,7 @@ const CRAFT_PRICE_CATALOG={
     "drive": 81637,
     "defense": 16503,
     "command": 35506,
-    "weapons": 32402,
+    "weapons": 32399,
     "systems": 20501,
     "crew": 2000
    },
@@ -277,7 +277,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.4980245457619755,
+    "navDemand": 0.4982049566893417,
     "navReady": true,
     "targetDemand": 6,
     "targetCapacity": 6.097249999999999,
@@ -286,17 +286,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 48.668000000000006,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 2.4000000000000004,
+    "laserUnits": 3.7010483598241457,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 462.9824999999999,
+    "laserGasSeconds": 300.22790625,
     "landingSupport": 49.384800000000006,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 1.729858618900739e-16,
+    "upS": 1.729858618900739e-16,
     "down": 0.01,
     "T": 1
    },
@@ -307,13 +307,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 39,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 0.8812800000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.000000176,
+      "weaponPowerW": 736384000000000.2,
+      "shotW": 1.76e-7,
+      "bolt": 1.76e-7,
       "stock": 0,
       "at": 0.688,
       "pd": false,
@@ -321,8 +321,8 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": -0.78,
       "z": 0.93,
-      "r": 0.102,
-      "share": 0.2500000006,
+      "r": 0.08,
+      "share": 0.25000001663999816,
       "domain": "main",
       "port": "f39",
       "powerConnected": true
@@ -331,13 +331,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 40,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 0.8812800000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.000000176,
+      "weaponPowerW": 736384000000000.2,
+      "shotW": 1.76e-7,
+      "bolt": 1.76e-7,
       "stock": 0,
       "at": 0.688,
       "pd": false,
@@ -345,8 +345,8 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": -0.78,
       "z": -0.93,
-      "r": 0.102,
-      "share": 0.2500000006,
+      "r": 0.08,
+      "share": 0.25000001663999816,
       "domain": "main",
       "port": "f40",
       "powerConnected": true
@@ -358,10 +358,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.152,
       "pd": false,
@@ -370,7 +370,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.71,
       "z": 0,
       "r": 0.087,
-      "share": 0.2499999994,
+      "share": 0.24999998336000184,
       "domain": "main",
       "port": "f41",
       "powerConnected": true
@@ -382,10 +382,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.152,
       "pd": false,
@@ -394,7 +394,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.15,
       "z": 0,
       "r": 0.087,
-      "share": 0.2499999994,
+      "share": 0.24999998336000184,
       "domain": "main",
       "port": "f42",
       "powerConnected": true
@@ -1404,7 +1404,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 21.058009942147716,
+      "w": 20.917465942147714,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -1471,11 +1471,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 6222493118042805000,
-     "fixed": 63191938336970690,
-     "cooling": 25974592543329936,
+     "fixed": 63183218447051740,
+     "cooling": 25965872653410996,
      "De": 6222493118042805000,
      "Ds": 2572503387922988000,
-     "Dw": 2502080000000000,
+     "Dw": 3831587840000000.5,
      "domains": [
       {
        "id": "main",
@@ -2579,14 +2579,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 99.55486513062569,
        "efficiency": 0.5011140783439924,
        "wasteFraction": 0.49888592165600765,
-       "profileWattsPerNewton": 2357476622.3831887,
-       "shaftWattsPerNewton": 2239602791.264029,
-       "wattsPerNewton": 4469247399.045616,
+       "profileWattsPerNewton": 2357396352.788478,
+       "shaftWattsPerNewton": 2239526535.149054,
+       "wattsPerNewton": 4469095225.88132,
        "ratedShaftPowerW": 1559089451924927700,
        "ratedWasteHeatW": 1552157107096475000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 46363.25599202208,
+       "conversionMassKg": 46346.48859791149,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -2607,7 +2607,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 3111246559021402600,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 696145520.9854332,
+       "ratedThrustN": 696169224.813923,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2651,14 +2651,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 99.55486513062569,
        "efficiency": 0.5011140783439924,
        "wasteFraction": 0.49888592165600765,
-       "profileWattsPerNewton": 2357476622.3831887,
-       "shaftWattsPerNewton": 2239602791.264029,
-       "wattsPerNewton": 4469247399.045616,
+       "profileWattsPerNewton": 2357396352.788478,
+       "shaftWattsPerNewton": 2239526535.149054,
+       "wattsPerNewton": 4469095225.88132,
        "ratedShaftPowerW": 1559089451924927700,
        "ratedWasteHeatW": 1552157107096475000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 46363.25599202208,
+       "conversionMassKg": 46346.48859791149,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -2679,7 +2679,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 3111246559021402600,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 696145520.9854332,
+       "ratedThrustN": 696169224.813923,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2725,14 +2725,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 99.55486513062569,
        "efficiency": 0.5011140783439924,
        "wasteFraction": 0.49888592165600765,
-       "profileWattsPerNewton": 2357476622.3831887,
-       "shaftWattsPerNewton": 2239602791.264029,
-       "wattsPerNewton": 4469247399.045616,
+       "profileWattsPerNewton": 2357396352.788478,
+       "shaftWattsPerNewton": 2239526535.149054,
+       "wattsPerNewton": 4469095225.88132,
        "ratedShaftPowerW": 1559089451924927700,
        "ratedWasteHeatW": 1552157107096475000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 46363.25599202208,
+       "conversionMassKg": 46346.48859791149,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -2753,7 +2753,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 3111246559021402600,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 696145520.9854332,
+       "ratedThrustN": 696169224.813923,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2799,14 +2799,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 99.55486513062569,
        "efficiency": 0.5011140783439924,
        "wasteFraction": 0.49888592165600765,
-       "profileWattsPerNewton": 2357476622.3831887,
-       "shaftWattsPerNewton": 2239602791.264029,
-       "wattsPerNewton": 4469247399.045616,
+       "profileWattsPerNewton": 2357396352.788478,
+       "shaftWattsPerNewton": 2239526535.149054,
+       "wattsPerNewton": 4469095225.88132,
        "ratedShaftPowerW": 1559089451924927700,
        "ratedWasteHeatW": 1552157107096475000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 46363.25599202208,
+       "conversionMassKg": 46346.48859791149,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -2827,7 +2827,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 3111246559021402600,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 696145520.9854332,
+       "ratedThrustN": 696169224.813923,
        "effectiveMachineryVolumeM3": 0.09191640369946479,
        "machineryVolumeM3": 0.09191640369946479,
        "machineryShape": "frustum",
@@ -2868,19 +2868,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 2165824675431418600
       }
      ],
-     "massKg": 46363.25599202208,
-     "ratedThrustN": 1129055506.1344178,
-     "ratedAccelMps2": 24352.37737247572,
-     "structuralAccelerationLimitMps2": 1180876.9224375386,
+     "massKg": 46346.48859791149,
+     "ratedThrustN": 1129093950.5936093,
+     "ratedAccelMps2": 24362.017161414245,
+     "structuralAccelerationLimitMps2": 1180876.3680989838,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 24352.37737247572,
+     "accelerationLimitMps2": 24362.017161414245,
      "conversionModelVersion": 1,
-     "conversionMassKg": 46363.25599202208,
+     "conversionMassKg": 46346.48859791149,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[6222493118042805000,[[\"main\",6222493118042805000,[[10,3111246559021402600],[11,3111246559021402600]]]],[[10,\"reactor\",28,\"p28\",\"main\",0.5940890498265744,0.5],[11,\"reactor\",29,\"p29\",\"main\",0.5940890498265744,0.5]]]"
     },
-    "profileVersion": 26,
-    "maxSpeed": 1182.7587900746732,
+    "profileVersion": 28,
+    "maxSpeed": 1183.2389351937863,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -2963,7 +2963,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f39",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.483278,
+       "sh": 0.453176,
        "m": [
         0,
         4
@@ -2978,7 +2978,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f40",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.483278,
+       "sh": 0.453176,
        "m": [
         1,
         5
@@ -2993,7 +2993,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f41",
        "n": "武装（艦尾区画）",
        "g": "high",
-       "sh": 0.0334442,
+       "sh": 0.0936478,
        "m": [
         2,
         3
@@ -3034,7 +3034,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>hotel",
        "n": "送電損失 p28>hotel",
        "g": "high",
-       "sh": 0.00410989,
+       "sh": 0.00410606,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3047,7 +3047,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p9",
        "n": "送電損失 p28>p9",
        "g": "high",
-       "sh": 0.0000065613,
+       "sh": 0.00000655555,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3060,7 +3060,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p10",
        "n": "送電損失 p29>p10",
        "g": "high",
-       "sh": 0.00000671318,
+       "sh": 0.0000067073,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3073,7 +3073,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p11",
        "n": "送電損失 p28>p11",
        "g": "high",
-       "sh": 0.00000691184,
+       "sh": 0.00000690578,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3086,7 +3086,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p12",
        "n": "送電損失 p29>p12",
        "g": "high",
-       "sh": 0.00000691184,
+       "sh": 0.00000690578,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3099,7 +3099,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p13",
        "n": "送電損失 p28>p13",
        "g": "high",
-       "sh": 0.0000038552,
+       "sh": 0.00000385182,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3112,7 +3112,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p14",
        "n": "送電損失 p29>p14",
        "g": "high",
-       "sh": 0.00000368997,
+       "sh": 0.00000368674,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3125,7 +3125,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p15",
        "n": "送電損失 p28>p15",
        "g": "high",
-       "sh": 0.00000376322,
+       "sh": 0.00000375992,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3138,7 +3138,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p16",
        "n": "送電損失 p29>p16",
        "g": "high",
-       "sh": 0.00000362597,
+       "sh": 0.0000036228,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3502,7 +3502,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p32",
        "n": "送電損失 p28>p32",
        "g": "high",
-       "sh": 0.506517,
+       "sh": 0.506044,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3515,7 +3515,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f39",
        "n": "送電損失 p28>f39",
        "g": "high",
-       "sh": 0.0000753667,
+       "sh": 0.000265043,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3528,7 +3528,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f40",
        "n": "送電損失 p28>f40",
        "g": "high",
-       "sh": 0.000116296,
+       "sh": 0.000408981,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3541,7 +3541,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f41",
        "n": "送電損失 p28>f41",
        "g": "high",
-       "sh": 0.0000110503,
+       "sh": 0.0000264945,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -3554,7 +3554,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f42",
        "n": "送電損失 p28>f42",
        "g": "high",
-       "sh": 0.0000107566,
+       "sh": 0.0000257903,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -3567,7 +3567,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f43",
        "n": "送電損失 p28>f43",
        "g": "high",
-       "sh": 0.000156967,
+       "sh": 0.00015682,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3580,7 +3580,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p32",
        "n": "送電損失 p29>p32",
        "g": "high",
-       "sh": 0.137337,
+       "sh": 0.137209,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3593,7 +3593,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f39",
        "n": "送電損失 p29>f39",
        "g": "high",
-       "sh": 0.0000930371,
+       "sh": 0.000327185,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3606,7 +3606,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f40",
        "n": "送電損失 p29>f40",
        "g": "high",
-       "sh": 0.0000602934,
+       "sh": 0.000212034,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3619,7 +3619,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f41",
        "n": "送電損失 p29>f41",
        "g": "high",
-       "sh": 0.00000884025,
+       "sh": 0.0000264945,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -3632,7 +3632,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f42",
        "n": "送電損失 p29>f42",
        "g": "high",
-       "sh": 0.00000860526,
+       "sh": 0.0000257903,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -3645,7 +3645,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f43",
        "n": "送電損失 p29>f43",
        "g": "high",
-       "sh": 0.000146775,
+       "sh": 0.000146638,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3658,7 +3658,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p37",
        "n": "送電損失 p28>p37",
        "g": "high",
-       "sh": 0.0000696676,
+       "sh": 0.0000696066,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3671,7 +3671,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p61",
        "n": "送電損失 p28>p61",
        "g": "high",
-       "sh": 0.0000937728,
+       "sh": 0.0000936907,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3684,7 +3684,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p62",
        "n": "送電損失 p28>p62",
        "g": "high",
-       "sh": 0.000125102,
+       "sh": 0.000124993,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3697,7 +3697,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p63",
        "n": "送電損失 p28>p63",
        "g": "high",
-       "sh": 0.000147504,
+       "sh": 0.000147375,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3710,7 +3710,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p64",
        "n": "送電損失 p28>p64",
        "g": "high",
-       "sh": 0.000152396,
+       "sh": 0.000152262,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3723,7 +3723,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p65",
        "n": "送電損失 p28>p65",
        "g": "high",
-       "sh": 0.00017685,
+       "sh": 0.000176696,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3736,7 +3736,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p66",
        "n": "送電損失 p28>p66",
        "g": "high",
-       "sh": 0.0000245944,
+       "sh": 0.0000245729,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3840,7 +3840,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>f68",
        "n": "送電損失 p28>f68",
        "g": "high",
-       "sh": 0.000183468,
+       "sh": 0.000183297,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3853,7 +3853,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>f68",
        "n": "送電損失 p29>f68",
        "g": "high",
-       "sh": 0.000125573,
+       "sh": 0.000125456,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3866,7 +3866,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p150",
        "n": "送電損失 p28>p150",
        "g": "high",
-       "sh": 0.00162182,
+       "sh": 0.0016204,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3892,7 +3892,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p152",
        "n": "送電損失 p28>p152",
        "g": "high",
-       "sh": 0.000672546,
+       "sh": 0.000671957,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3918,7 +3918,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p155",
        "n": "送電損失 p28>p155",
        "g": "high",
-       "sh": 0.00000187087,
+       "sh": 0.00000186913,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -3931,7 +3931,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p30",
        "n": "送電損失 p28>p30",
        "g": "high",
-       "sh": 0.0209252,
+       "sh": 0.0209057,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3944,7 +3944,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p30",
        "n": "送電損失 p29>p30",
        "g": "high",
-       "sh": 0.175575,
+       "sh": 0.175411,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3957,7 +3957,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p28>p31",
        "n": "送電損失 p28>p31",
        "g": "high",
-       "sh": 0.121063,
+       "sh": 0.12095,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -3970,7 +3970,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p29>p31",
        "n": "送電損失 p29>p31",
        "g": "high",
-       "sh": 0.0303484,
+       "sh": 0.0303201,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -12533,7 +12533,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 59.13793950373366,
+    "mglt": 59.161946759689314,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -12562,14 +12562,16 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "pos": [
-      10.05,
-      0.26149999999999995,
+      9.77,
+      0.23949999999999996,
       9.5355
      ],
      "k": "claser",
-     "gun": 0.25000000029999997,
+     "gun": 0.2500000083199995,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.2,
+     "barrelM": 2.04
     },
     {
      "fixed": true,
@@ -12584,19 +12586,21 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "pos": [
-      10.05,
-      0.26149999999999995,
+      9.77,
+      0.23949999999999996,
       -9.5355
      ],
      "k": "claser",
-     "gun": 0.25000000029999997,
+     "gun": 0.2500000083199995,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.2,
+     "barrelM": 2.04
     },
     {
      "fixed": true,
      "dir": [
-      -1,
+      1,
       0,
       0
      ],
@@ -12606,19 +12610,19 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "pos": [
-      0.8374999999999999,
+      3.0375,
       3.393,
       0
      ],
      "k": "claserL",
-     "gun": 0.24999999969999998,
+     "gun": 0.24999999168000042,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
      "dir": [
-      -1,
+      1,
       0,
       0
      ],
@@ -12628,14 +12632,14 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "pos": [
-      0.8374999999999999,
+      3.0375,
       1.482,
       0
      ],
      "k": "claserL",
-     "gun": 0.24999999969999998,
+     "gun": 0.24999999168000042,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -12678,10 +12682,10 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 23.328,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 0.4,
+    "laserUnits": 0.7250591816029757,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 329.2800000000001,
+    "laserGasSeconds": 181.6568955223882,
     "landingSupport": 14.0625,
     "landingRatio": 1,
     "landingReady": true
@@ -12702,10 +12706,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.486,
       "pd": false,
@@ -12726,10 +12730,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.486,
       "pd": false,
@@ -13567,11 +13571,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1303427790620720600,
-     "fixed": 27787592717222000,
-     "cooling": 5935475592401072,
+     "fixed": 27788057159085092,
+     "cooling": 5935940034264164,
      "De": 1303427790620720600,
      "Ds": 815957959928498300,
-     "Dw": 83680000000000,
+     "Dw": 358819840000000,
      "domains": [
       {
        "id": "main",
@@ -14410,7 +14414,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1303427790620720600,[[\"main\",1303427790620720600,[[6,1303427790620720600]]]],[[6,\"reactor\",14,\"p14\",\"main\",0.24888807844627275,1]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1885.3246089271279,
     "heat": {
      "v": 5,
@@ -14481,7 +14485,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.0204913,
+       "sh": 0.0823204,
        "m": [
         0,
         1
@@ -14496,7 +14500,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f27",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.979509,
+       "sh": 0.91768,
        "m": [
         2,
         3,
@@ -14525,7 +14529,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.00984107,
+       "sh": 0.00983888,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -14785,7 +14789,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p18",
        "n": "送電損失 p14>p18",
        "g": "high",
-       "sh": 0.375554,
+       "sh": 0.37547,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14798,7 +14802,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p19",
        "n": "送電損失 p14>p19",
        "g": "high",
-       "sh": 0.375554,
+       "sh": 0.37547,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14811,7 +14815,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f25",
        "n": "送電損失 p14>f25",
        "g": "high",
-       "sh": 6.99164e-7,
+       "sh": 0.0000120413,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -14824,7 +14828,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f26",
        "n": "送電損失 p14>f26",
        "g": "high",
-       "sh": 6.99164e-7,
+       "sh": 0.0000120413,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -14837,7 +14841,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f27",
        "n": "送電損失 p14>f27",
        "g": "high",
-       "sh": 0.0000176993,
+       "sh": 0.0000710883,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14850,7 +14854,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f28",
        "n": "送電損失 p14>f28",
        "g": "high",
-       "sh": 0.0000176993,
+       "sh": 0.0000710883,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14863,7 +14867,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p24",
        "n": "送電損失 p14>p24",
        "g": "high",
-       "sh": 0.000462087,
+       "sh": 0.000461984,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -14876,7 +14880,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p44",
        "n": "送電損失 p14>p44",
        "g": "high",
-       "sh": 0.0023881,
+       "sh": 0.00238756,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14889,7 +14893,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p45",
        "n": "送電損失 p14>p45",
        "g": "high",
-       "sh": 0.00129073,
+       "sh": 0.00129044,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -14902,7 +14906,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f47",
        "n": "送電損失 p14>f47",
        "g": "high",
-       "sh": 0.0000154797,
+       "sh": 0.0000621733,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14915,7 +14919,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f48",
        "n": "送電損失 p14>f48",
        "g": "high",
-       "sh": 0.0000154795,
+       "sh": 0.0000621724,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14928,7 +14932,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p49",
        "n": "送電損失 p14>p49",
        "g": "high",
-       "sh": 0.000879105,
+       "sh": 0.000878909,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -14941,7 +14945,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p15",
        "n": "送電損失 p14>p15",
        "g": "high",
-       "sh": 0.116982,
+       "sh": 0.116955,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -14954,7 +14958,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p16",
        "n": "送電損失 p14>p16",
        "g": "high",
-       "sh": 0.116982,
+       "sh": 0.116955,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -16042,7 +16046,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -16064,7 +16068,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -16131,10 +16135,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.941,
       "pd": false,
@@ -16155,10 +16159,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.941,
       "pd": false,
@@ -17089,11 +17093,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 8779600162331654000,
-     "fixed": 89205636924192220,
-     "cooling": 28302274888089830,
+     "fixed": 89206194670143550,
+     "cooling": 28302832634041160,
      "De": 8779600162331655000,
      "Ds": 4175778387003131000,
-     "Dw": 2418400000000000,
+     "Dw": 2989767040000000.5,
      "domains": [
       {
        "id": "main",
@@ -18569,7 +18573,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[8779600162331654000,[[\"main\",8779600162331654000,[[7,3502440116209721000],[8,3502440116209721000],[11,1774719929912212200]]]],[[7,\"reactor\",12,\"p12\",\"main\",0.6687870219350224,0.3989293420487108],[8,\"reactor\",13,\"p13\",\"main\",0.6687870219350224,0.3989293420487108],[11,\"reactor\",16,\"p16\",\"main\",0.3388807851993121,0.2021413159025785]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1233.6882793754623,
     "heat": {
      "v": 5,
@@ -18581,7 +18585,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p12",
        "n": "ナセル反応炉 #12",
        "g": "high",
-       "sh": 0.457027,
+       "sh": 0.457017,
        "m": [
         7
        ],
@@ -18595,7 +18599,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p13",
        "n": "ナセル反応炉 #13",
        "g": "high",
-       "sh": 0.388586,
+       "sh": 0.3886,
        "m": [
         8
        ],
@@ -18609,7 +18613,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "主反応炉 #16",
        "g": "high",
-       "sh": 0.154387,
+       "sh": 0.154383,
        "m": [
         11
        ],
@@ -18709,7 +18713,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.000925375,
+       "sh": 0.00092528,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -18722,7 +18726,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p3",
        "n": "送電損失 p16>p3",
        "g": "high",
-       "sh": 0.00000228182,
+       "sh": 0.00000228164,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -18735,7 +18739,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p4",
        "n": "送電損失 p16>p4",
        "g": "high",
-       "sh": 0.00000228182,
+       "sh": 0.00000228164,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19060,7 +19064,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.459219,
+       "sh": 0.459172,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -19073,7 +19077,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f22",
        "n": "送電損失 p12>f22",
        "g": "high",
-       "sh": 0.0000509864,
+       "sh": 0.0000611658,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19086,7 +19090,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f23",
        "n": "送電損失 p12>f23",
        "g": "high",
-       "sh": 0.0000515537,
+       "sh": 0.0000618462,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19099,7 +19103,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f25",
        "n": "送電損失 p12>f25",
        "g": "high",
-       "sh": 0.000181381,
+       "sh": 0.000181362,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19112,7 +19116,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f26",
        "n": "送電損失 p12>f26",
        "g": "high",
-       "sh": 0.000183168,
+       "sh": 0.000183149,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19125,7 +19129,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p17",
        "n": "送電損失 p13>p17",
        "g": "high",
-       "sh": 0.230925,
+       "sh": 0.230901,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -19138,7 +19142,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f22",
        "n": "送電損失 p13>f22",
        "g": "high",
-       "sh": 0.000041243,
+       "sh": 0.0000618462,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19151,7 +19155,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f23",
        "n": "送電損失 p13>f23",
        "g": "high",
-       "sh": 0.0000407891,
+       "sh": 0.0000611658,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19164,7 +19168,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f25",
        "n": "送電損失 p13>f25",
        "g": "high",
-       "sh": 0.000146534,
+       "sh": 0.000146519,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19177,7 +19181,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f26",
        "n": "送電損失 p13>f26",
        "g": "high",
-       "sh": 0.000145105,
+       "sh": 0.00014509,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19190,7 +19194,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.0121105,
+       "sh": 0.0121092,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19203,7 +19207,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0,
+       "sh": 0.000020498,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -19216,7 +19220,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0,
+       "sh": 0.000020498,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -19255,7 +19259,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p20",
        "n": "送電損失 p12>p20",
        "g": "high",
-       "sh": 0.000336097,
+       "sh": 0.000336069,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19268,7 +19272,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p44",
        "n": "送電損失 p12>p44",
        "g": "high",
-       "sh": 0.000264812,
+       "sh": 0.00026479,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19281,7 +19285,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p45",
        "n": "送電損失 p12>p45",
        "g": "high",
-       "sh": 0.000248217,
+       "sh": 0.000248197,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19294,7 +19298,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p46",
        "n": "送電損失 p12>p46",
        "g": "high",
-       "sh": 0.000242471,
+       "sh": 0.000242451,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19307,7 +19311,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p47",
        "n": "送電損失 p12>p47",
        "g": "high",
-       "sh": 0.000142282,
+       "sh": 0.00014227,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -19320,7 +19324,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p48",
        "n": "送電損失 p12>p48",
        "g": "high",
-       "sh": 0.000135516,
+       "sh": 0.000135505,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -19333,7 +19337,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p49",
        "n": "送電損失 p12>p49",
        "g": "high",
-       "sh": 0.000139101,
+       "sh": 0.00013909,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -19346,7 +19350,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p50",
        "n": "送電損失 p12>p50",
        "g": "high",
-       "sh": 0.000146246,
+       "sh": 0.000146234,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -19359,7 +19363,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p51",
        "n": "送電損失 p12>p51",
        "g": "high",
-       "sh": 0.000206716,
+       "sh": 0.000206699,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -19606,7 +19610,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p153",
        "n": "送電損失 p12>p153",
        "g": "high",
-       "sh": 0.00107046,
+       "sh": 0.00107037,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19645,7 +19649,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p155",
        "n": "送電損失 p12>p155",
        "g": "high",
-       "sh": 0.000265805,
+       "sh": 0.000265783,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19684,7 +19688,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p14",
        "n": "送電損失 p12>p14",
        "g": "high",
-       "sh": 0.00473754,
+       "sh": 0.00473705,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19697,7 +19701,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p14",
        "n": "送電損失 p13>p14",
        "g": "high",
-       "sh": 0.098329,
+       "sh": 0.0983189,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19710,7 +19714,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p14",
        "n": "送電損失 p16>p14",
        "g": "high",
-       "sh": 0.0570696,
+       "sh": 0.0570638,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19723,7 +19727,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p15",
        "n": "送電損失 p12>p15",
        "g": "high",
-       "sh": 0.0688001,
+       "sh": 0.0687931,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19736,7 +19740,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p15",
        "n": "送電損失 p13>p15",
        "g": "high",
-       "sh": 0.00677138,
+       "sh": 0.00677069,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -19749,7 +19753,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p15",
        "n": "送電損失 p16>p15",
        "g": "high",
-       "sh": 0.0570696,
+       "sh": 0.0570638,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -26924,7 +26928,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -26946,7 +26950,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -26987,17 +26991,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 37.044,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 0.8,
+    "laserUnits": 1.4501183632059513,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 321.5624999999999,
+    "laserGasSeconds": 177.39931203358213,
     "landingSupport": 39.321600000000004,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 1.8368921141564724e-17,
+    "upS": 1.8368921141564724e-17,
     "down": 0.01,
     "T": 0
    },
@@ -27011,10 +27015,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -27035,10 +27039,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -27059,10 +27063,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -27083,10 +27087,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.754,
       "pd": false,
@@ -28025,11 +28029,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1364844606665076200,
-     "fixed": 33012496364698852,
-     "cooling": 1734811950515387.2,
+     "fixed": 33013350585145810,
+     "cooling": 1735666170962342.5,
      "De": 1364844606665076200,
      "Ds": 0,
-     "Dw": 2167360000000000,
+     "Dw": 2717639680000000,
      "domains": [
       {
        "id": "main",
@@ -29904,7 +29908,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1364844606665076200,[[\"main\",1364844606665076200,[[12,549154690872754800],[13,549131231086495170],[18,133279342352913120],[19,133279342352913120]]]],[[12,\"reactor\",17,\"p17\",\"main\",0.10486047387096742,0.4023569336692362],[13,\"reactor\",18,\"p18\",\"main\",0.10485599425102611,0.4023397450558621],[18,\"reactor\",23,\"p23\",\"main\",0.02544954131981675,0.09765166063745086],[19,\"reactor\",24,\"p24\",\"main\",0.02544954131981675,0.09765166063745086]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 919.8752145718723,
     "heat": {
      "v": 5,
@@ -30078,7 +30082,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>hotel",
        "n": "送電損失 p24>hotel",
        "g": "high",
-       "sh": 0.0144106,
+       "sh": 0.014403,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -30091,7 +30095,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p3",
        "n": "送電損失 p17>p3",
        "g": "high",
-       "sh": 0.0000199243,
+       "sh": 0.0000199137,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30104,7 +30108,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p4",
        "n": "送電損失 p18>p4",
        "g": "high",
-       "sh": 0.0000199243,
+       "sh": 0.0000199137,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30117,7 +30121,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p5",
        "n": "送電損失 p17>p5",
        "g": "high",
-       "sh": 0.0000307211,
+       "sh": 0.0000307047,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30130,7 +30134,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p6",
        "n": "送電損失 p24>p6",
        "g": "high",
-       "sh": 0.0000300988,
+       "sh": 0.0000300828,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -30390,7 +30394,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f25",
        "n": "送電損失 p17>f25",
        "g": "high",
-       "sh": 0.00000353399,
+       "sh": 0.0000167759,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30403,7 +30407,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f26",
        "n": "送電損失 p17>f26",
        "g": "high",
-       "sh": 0.0000400996,
+       "sh": 0.000190353,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30416,7 +30420,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f27",
        "n": "送電損失 p17>f27",
        "g": "high",
-       "sh": 0.00000361023,
+       "sh": 0.0000171378,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30429,7 +30433,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f28",
        "n": "送電損失 p17>f28",
        "g": "high",
-       "sh": 0.0000401064,
+       "sh": 0.000190386,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30442,7 +30446,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f29",
        "n": "送電損失 p17>f29",
        "g": "high",
-       "sh": 0.000207041,
+       "sh": 0.000229204,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30455,7 +30459,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f30",
        "n": "送電損失 p17>f30",
        "g": "high",
-       "sh": 0.000768463,
+       "sh": 0.000850725,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30468,7 +30472,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f31",
        "n": "送電損失 p17>f31",
        "g": "high",
-       "sh": 0.000408806,
+       "sh": 0.000452567,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30481,7 +30485,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f32",
        "n": "送電損失 p17>f32",
        "g": "high",
-       "sh": 0.000511064,
+       "sh": 0.000565772,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -30806,7 +30810,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p14",
        "n": "送電損失 p17>p14",
        "g": "high",
-       "sh": 0.00119843,
+       "sh": 0.00119779,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -30819,7 +30823,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p46",
        "n": "送電損失 p17>p46",
        "g": "high",
-       "sh": 0.00124635,
+       "sh": 0.00124569,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -30910,7 +30914,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p104",
        "n": "送電損失 p17>p104",
        "g": "high",
-       "sh": 0.00101887,
+       "sh": 0.00101833,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -30962,7 +30966,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p106",
        "n": "送電損失 p17>p106",
        "g": "high",
-       "sh": 0.000812542,
+       "sh": 0.00081211,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -31014,7 +31018,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p19",
        "n": "送電損失 p17>p19",
        "g": "high",
-       "sh": 0.0126686,
+       "sh": 0.0126618,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31027,7 +31031,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.179723,
+       "sh": 0.179627,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31040,7 +31044,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.0967374,
+       "sh": 0.096686,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31053,7 +31057,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.142914,
+       "sh": 0.142838,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31066,7 +31070,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p19",
        "n": "送電損失 p18>p19",
        "g": "high",
-       "sh": 0.181189,
+       "sh": 0.181092,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31079,7 +31083,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.0127719,
+       "sh": 0.0127651,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31092,7 +31096,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.144326,
+       "sh": 0.144249,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31105,7 +31109,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.0971624,
+       "sh": 0.0971108,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31118,7 +31122,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p19",
        "n": "送電損失 p23>p19",
        "g": "high",
-       "sh": 0.0187379,
+       "sh": 0.0187279,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31131,7 +31135,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p20",
        "n": "送電損失 p23>p20",
        "g": "high",
-       "sh": 0.0297476,
+       "sh": 0.0297318,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31144,7 +31148,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p21",
        "n": "送電損失 p23>p21",
        "g": "high",
-       "sh": 0.00112291,
+       "sh": 0.00112231,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -31157,7 +31161,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p23>p22",
        "n": "送電損失 p23>p22",
        "g": "high",
-       "sh": 0.0137655,
+       "sh": 0.0137582,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -31170,7 +31174,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p19",
        "n": "送電損失 p24>p19",
        "g": "high",
-       "sh": 0.0227114,
+       "sh": 0.0226994,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31183,7 +31187,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p20",
        "n": "送電損失 p24>p20",
        "g": "high",
-       "sh": 0.0142645,
+       "sh": 0.0142569,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -31196,7 +31200,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p21",
        "n": "送電損失 p24>p21",
        "g": "high",
-       "sh": 0.0105295,
+       "sh": 0.0105239,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -31209,7 +31213,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p24>p22",
        "n": "送電損失 p24>p22",
        "g": "high",
-       "sh": 0.000858931,
+       "sh": 0.000858475,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -36049,7 +36053,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -36071,7 +36075,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -36093,7 +36097,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -36115,7 +36119,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -36182,10 +36186,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.856,
       "pd": false,
@@ -36194,7 +36198,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.34,
       "z": -0.95,
       "r": 0.135,
-      "share": 0.16666666666666663,
+      "share": 0.16666666666666666,
       "panelOwner": 100,
       "domain": "main",
       "port": "f400",
@@ -36207,10 +36211,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.856,
       "pd": false,
@@ -36219,7 +36223,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.34,
       "z": 0.95,
       "r": 0.135,
-      "share": 0.16666666666666663,
+      "share": 0.16666666666666666,
       "panelOwner": 120,
       "domain": "main",
       "port": "f401",
@@ -36232,10 +36236,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.856,
       "pd": false,
@@ -36244,7 +36248,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.34,
       "z": -0.95,
       "r": 0.135,
-      "share": 0.16666666666666663,
+      "share": 0.16666666666666666,
       "panelOwner": 100,
       "domain": "main",
       "port": "f402",
@@ -36257,10 +36261,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.856,
       "pd": false,
@@ -36269,7 +36273,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.34,
       "z": 0.95,
       "r": 0.135,
-      "share": 0.16666666666666663,
+      "share": 0.16666666666666666,
       "panelOwner": 120,
       "domain": "main",
       "port": "f403",
@@ -36282,10 +36286,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.306,
       "pd": false,
@@ -36294,7 +36298,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.3,
       "z": -0.15,
       "r": 0.135,
-      "share": 0.16666666666666663,
+      "share": 0.16666666666666666,
       "domain": "main",
       "port": "f404",
       "powerConnected": true
@@ -36306,10 +36310,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.306,
       "pd": false,
@@ -36318,7 +36322,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.3,
       "z": 0.15,
       "r": 0.135,
-      "share": 0.16666666666666663,
+      "share": 0.16666666666666666,
       "domain": "main",
       "port": "f405",
       "powerConnected": true
@@ -37073,11 +37077,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2065254397952084200,
-     "fixed": 61671713034104010,
-     "cooling": 3278126280640355.5,
+     "fixed": 61672134538691640,
+     "cooling": 3278547785227981.5,
      "De": 2065254397952084000,
      "Ds": 0,
-     "Dw": 2255200000000000,
+     "Dw": 3969301120000001,
      "domains": [
       {
        "id": "main",
@@ -38095,7 +38099,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2065254397952084200,[[\"main\",2065254397952084200,[[41,25794834030720270],[42,25794834030720270],[8,2013664729890643700]]]],[[8,\"reactor\",252,\"p252\",\"main\",0.38450702744249743,1],[41,\"dissipator\",100,\"p100\",\"main\",3.4393155002323974,0.4548947704448637],[42,\"dissipator\",120,\"p120\",\"main\",3.4393155001186537,0.45489477042981963]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1892.8730162300485,
     "heat": {
      "v": 5,
@@ -38151,7 +38155,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f400",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.371054,
+       "sh": 0.400648,
        "m": [
         0,
         1,
@@ -38168,7 +38172,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f404",
        "n": "武装（後部区画）",
        "g": "high",
-       "sh": 0.185527,
+       "sh": 0.200335,
        "m": [
         4,
         5
@@ -38183,7 +38187,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f430",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.44342,
+       "sh": 0.399017,
        "m": [
         6
        ],
@@ -38209,7 +38213,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>hotel",
        "n": "送電損失 p252>hotel",
        "g": "high",
-       "sh": 0.0867271,
+       "sh": 0.0866047,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38495,7 +38499,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p259",
        "n": "送電損失 p252>p259",
        "g": "high",
-       "sh": 0.00110953,
+       "sh": 0.00110797,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38508,7 +38512,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p260",
        "n": "送電損失 p252>p260",
        "g": "high",
-       "sh": 0.00109458,
+       "sh": 0.00109304,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38521,7 +38525,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p261",
        "n": "送電損失 p252>p261",
        "g": "high",
-       "sh": 0.000925626,
+       "sh": 0.00092432,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38534,7 +38538,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p262",
        "n": "送電損失 p252>p262",
        "g": "high",
-       "sh": 0.00132997,
+       "sh": 0.00132809,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -38547,7 +38551,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p278",
        "n": "送電損失 p252>p278",
        "g": "high",
-       "sh": 0.000789033,
+       "sh": 0.000787919,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38560,7 +38564,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p279",
        "n": "送電損失 p252>p279",
        "g": "high",
-       "sh": 0.000874812,
+       "sh": 0.000873578,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38573,7 +38577,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p280",
        "n": "送電損失 p252>p280",
        "g": "high",
-       "sh": 0.0012264,
+       "sh": 0.00122467,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -38586,7 +38590,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p281",
        "n": "送電損失 p252>p281",
        "g": "high",
-       "sh": 0.000762776,
+       "sh": 0.000761699,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38599,7 +38603,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f400",
        "n": "送電損失 p252>f400",
        "g": "high",
-       "sh": 0.00161302,
+       "sh": 0.00193276,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38612,7 +38616,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f401",
        "n": "送電損失 p252>f401",
        "g": "high",
-       "sh": 0.00161302,
+       "sh": 0.00193276,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38625,7 +38629,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f402",
        "n": "送電損失 p252>f402",
        "g": "high",
-       "sh": 0.00160922,
+       "sh": 0.00192821,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38638,7 +38642,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f403",
        "n": "送電損失 p252>f403",
        "g": "high",
-       "sh": 0.00160922,
+       "sh": 0.00192821,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -38651,7 +38655,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f404",
        "n": "送電損失 p252>f404",
        "g": "high",
-       "sh": 0.000312481,
+       "sh": 0.000374443,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38664,7 +38668,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f405",
        "n": "送電損失 p252>f405",
        "g": "high",
-       "sh": 0.000312481,
+       "sh": 0.000374443,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38677,7 +38681,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f430",
        "n": "送電損失 p252>f430",
        "g": "high",
-       "sh": 0.00155317,
+       "sh": 0.00155098,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -38690,7 +38694,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p253",
        "n": "送電損失 p252>p253",
        "g": "high",
-       "sh": 0.347164,
+       "sh": 0.346674,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38703,7 +38707,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p254",
        "n": "送電損失 p252>p254",
        "g": "high",
-       "sh": 0.347164,
+       "sh": 0.346674,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -38716,7 +38720,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p253",
        "n": "送電損失 p100>p253",
        "g": "high",
-       "sh": 0.0473636,
+       "sh": 0.0472968,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38729,7 +38733,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p253",
        "n": "送電損失 p120>p253",
        "g": "high",
-       "sh": 0.0537413,
+       "sh": 0.0536654,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38742,7 +38746,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p254",
        "n": "送電損失 p100>p254",
        "g": "high",
-       "sh": 0.0537413,
+       "sh": 0.0536654,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -38755,7 +38759,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p254",
        "n": "送電損失 p120>p254",
        "g": "high",
-       "sh": 0.0473636,
+       "sh": 0.0472968,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -41851,9 +41855,9 @@ const CRAFT_PRICE_CATALOG={
       -3.8500000000000005
      ],
      "k": "claser",
-     "gun": 0.16666666666666666,
+     "gun": 0.16666666666666669,
      "aa": 0.16666666666666666,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -41873,9 +41877,9 @@ const CRAFT_PRICE_CATALOG={
       3.8500000000000005
      ],
      "k": "claser",
-     "gun": 0.16666666666666666,
+     "gun": 0.16666666666666669,
      "aa": 0.16666666666666666,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -41895,9 +41899,9 @@ const CRAFT_PRICE_CATALOG={
       -3.8500000000000005
      ],
      "k": "claser",
-     "gun": 0.16666666666666666,
+     "gun": 0.16666666666666669,
      "aa": 0.16666666666666666,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -41917,9 +41921,9 @@ const CRAFT_PRICE_CATALOG={
       3.8500000000000005
      ],
      "k": "claser",
-     "gun": 0.16666666666666666,
+     "gun": 0.16666666666666669,
      "aa": 0.16666666666666666,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -41939,9 +41943,9 @@ const CRAFT_PRICE_CATALOG={
       -0.62
      ],
      "k": "claser",
-     "gun": 0.16666666666666666,
+     "gun": 0.16666666666666669,
      "aa": 0.16666666666666666,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -41961,9 +41965,9 @@ const CRAFT_PRICE_CATALOG={
       0.62
      ],
      "k": "claser",
-     "gun": 0.16666666666666666,
+     "gun": 0.16666666666666669,
      "aa": 0.16666666666666666,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -42030,10 +42034,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.483,
       "pd": false,
@@ -42054,10 +42058,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.483,
       "pd": false,
@@ -42721,11 +42725,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1364516437052976000,
-     "fixed": 35953627439789788,
-     "cooling": 1855446614802031,
+     "fixed": 35953767634142790,
+     "cooling": 1855586809155037.5,
      "De": 1364516437052976000,
      "Ds": 0,
-     "Dw": 1418400000000000,
+     "Dw": 1989767040000000.5,
      "domains": [
       {
        "id": "main",
@@ -43637,7 +43641,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1364516437052976000,[[\"main\",1364516437052976000,[[33,30285964800000000],[34,30285964800000000],[4,1303944507452976000]]]],[[4,\"reactor\",252,\"p252\",\"main\",0.2489867449473297,1],[33,\"dissipator\",100,\"p100\",\"main\",4.038124633679271,0.4610625009789848],[34,\"dissipator\",120,\"p120\",\"main\",4.0381246336792715,0.46106250097898493]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1789.0635220079469,
     "heat": {
      "v": 5,
@@ -43693,7 +43697,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f404",
        "n": "武装（後部区画）",
        "g": "high",
-       "sh": 0.29498,
+       "sh": 0.334253,
        "m": [
         0,
         1
@@ -43708,7 +43712,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f430",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.70502,
+       "sh": 0.665747,
        "m": [
         2
        ],
@@ -43734,7 +43738,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>hotel",
        "n": "送電損失 p252>hotel",
        "g": "high",
-       "sh": 0.0728562,
+       "sh": 0.0728431,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -43968,7 +43972,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p259",
        "n": "送電損失 p252>p259",
        "g": "high",
-       "sh": 0.000889998,
+       "sh": 0.000889838,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -43981,7 +43985,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p260",
        "n": "送電損失 p252>p260",
        "g": "high",
-       "sh": 0.000878007,
+       "sh": 0.000877849,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -43994,7 +43998,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p261",
        "n": "送電損失 p252>p261",
        "g": "high",
-       "sh": 0.000742479,
+       "sh": 0.000742346,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44007,7 +44011,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p262",
        "n": "送電損失 p252>p262",
        "g": "high",
-       "sh": 0.00106682,
+       "sh": 0.00106663,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44020,7 +44024,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p278",
        "n": "送電損失 p252>p278",
        "g": "high",
-       "sh": 0.000632912,
+       "sh": 0.000632799,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44033,7 +44037,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p279",
        "n": "送電損失 p252>p279",
        "g": "high",
-       "sh": 0.000701719,
+       "sh": 0.000701593,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44046,7 +44050,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p280",
        "n": "送電損失 p252>p280",
        "g": "high",
-       "sh": 0.000983741,
+       "sh": 0.000983564,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -44059,7 +44063,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p281",
        "n": "送電損失 p252>p281",
        "g": "high",
-       "sh": 0.000611851,
+       "sh": 0.000611741,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44072,7 +44076,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f404",
        "n": "送電損失 p252>f404",
        "g": "high",
-       "sh": 0.000449541,
+       "sh": 0.000539344,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44085,7 +44089,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f405",
        "n": "送電損失 p252>f405",
        "g": "high",
-       "sh": 0.000449541,
+       "sh": 0.000539344,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44098,7 +44102,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>f430",
        "n": "送電損失 p252>f430",
        "g": "high",
-       "sh": 0.00223442,
+       "sh": 0.00223401,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -44111,7 +44115,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p253",
        "n": "送電損失 p252>p253",
        "g": "high",
-       "sh": 0.32456,
+       "sh": 0.324502,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44124,7 +44128,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p252>p254",
        "n": "送電損失 p252>p254",
        "g": "high",
-       "sh": 0.32456,
+       "sh": 0.324502,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44137,7 +44141,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p253",
        "n": "送電損失 p100>p253",
        "g": "high",
-       "sh": 0.0609523,
+       "sh": 0.0609413,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44150,7 +44154,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p253",
        "n": "送電損失 p120>p253",
        "g": "high",
-       "sh": 0.0732388,
+       "sh": 0.0732256,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44163,7 +44167,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p254",
        "n": "送電損失 p100>p254",
        "g": "high",
-       "sh": 0.0732388,
+       "sh": 0.0732256,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -44176,7 +44180,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p120>p254",
        "n": "送電損失 p120>p254",
        "g": "high",
-       "sh": 0.0609523,
+       "sh": 0.0609413,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -46746,7 +46750,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -46768,7 +46772,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -46835,10 +46839,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.771,
       "pd": false,
@@ -46859,10 +46863,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.771,
       "pd": false,
@@ -47601,11 +47605,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 3468953411477502500,
-     "fixed": 52905494168663450,
-     "cooling": 6825720291784802,
+     "fixed": 52906454313575720,
+     "cooling": 6826680436697069,
      "De": 3468953411477503000,
      "Ds": 0,
-     "Dw": 1418400000000000,
+     "Dw": 1989767040000000.5,
      "domains": [
       {
        "id": "main",
@@ -48639,7 +48643,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[3468953411477502500,[[\"main\",3468953411477503000,[[36,27468571124384332],[37,27468571124384332],[4,1707008134614367000],[5,1707008134614367000]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.32595129363783293,0.5],[5,\"reactor\",15,\"p15\",\"main\",0.32595129363783293,0.5],[36,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.4498764462380255],[37,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.4498764462380257]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1097.9011911480025,
     "heat": {
      "v": 5,
@@ -48737,7 +48741,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>hotel",
        "n": "送電損失 p14>hotel",
        "g": "high",
-       "sh": 0.010581,
+       "sh": 0.0105776,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -48958,7 +48962,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f20",
        "n": "送電損失 p14>f20",
        "g": "high",
-       "sh": 0.0000830183,
+       "sh": 0.0000995872,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48971,7 +48975,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f21",
        "n": "送電損失 p14>f21",
        "g": "high",
-       "sh": 0.0000830183,
+       "sh": 0.0000995872,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48984,7 +48988,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>f22",
        "n": "送電損失 p14>f22",
        "g": "high",
-       "sh": 0.000552156,
+       "sh": 0.000551979,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -48997,7 +49001,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f20",
        "n": "送電損失 p15>f20",
        "g": "high",
-       "sh": 0,
+       "sh": 0.000131809,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -49010,7 +49014,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f21",
        "n": "送電損失 p15>f21",
        "g": "high",
-       "sh": 0,
+       "sh": 0.000155705,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -49036,7 +49040,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p36",
        "n": "送電損失 p14>p36",
        "g": "high",
-       "sh": 0.000426892,
+       "sh": 0.000426755,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -49049,7 +49053,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p37",
        "n": "送電損失 p14>p37",
        "g": "high",
-       "sh": 0.000426892,
+       "sh": 0.000426755,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -49062,7 +49066,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p38",
        "n": "送電損失 p14>p38",
        "g": "high",
-       "sh": 0.000299702,
+       "sh": 0.000299606,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -49075,7 +49079,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p39",
        "n": "送電損失 p15>p39",
        "g": "high",
-       "sh": 0.000237028,
+       "sh": 0.000236952,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49088,7 +49092,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p40",
        "n": "送電損失 p15>p40",
        "g": "high",
-       "sh": 0.000235431,
+       "sh": 0.000235355,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49101,7 +49105,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p41",
        "n": "送電損失 p14>p41",
        "g": "high",
-       "sh": 0.000442189,
+       "sh": 0.000442047,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -49114,7 +49118,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p42",
        "n": "送電損失 p14>p42",
        "g": "high",
-       "sh": 0.000442189,
+       "sh": 0.000442047,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -49127,7 +49131,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p43",
        "n": "送電損失 p15>p43",
        "g": "high",
-       "sh": 0.000213903,
+       "sh": 0.000213835,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49140,7 +49144,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p44",
        "n": "送電損失 p15>p44",
        "g": "high",
-       "sh": 0.00019914,
+       "sh": 0.000199076,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49153,7 +49157,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p45",
        "n": "送電損失 p14>p45",
        "g": "high",
-       "sh": 0.00045697,
+       "sh": 0.000456823,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -49166,7 +49170,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p46",
        "n": "送電損失 p14>p46",
        "g": "high",
-       "sh": 0.000093209,
+       "sh": 0.0000931792,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -49179,7 +49183,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p16",
        "n": "送電損失 p14>p16",
        "g": "high",
-       "sh": 0.146468,
+       "sh": 0.146421,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49192,7 +49196,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p14>p17",
        "n": "送電損失 p14>p17",
        "g": "high",
-       "sh": 0.324284,
+       "sh": 0.32418,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49205,7 +49209,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p16",
        "n": "送電損失 p15>p16",
        "g": "high",
-       "sh": 0.334269,
+       "sh": 0.334162,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49218,7 +49222,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p17",
        "n": "送電損失 p15>p17",
        "g": "high",
-       "sh": 0.150977,
+       "sh": 0.150929,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49231,7 +49235,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>p16",
        "n": "送電損失 p11>p16",
        "g": "high",
-       "sh": 0.00515265,
+       "sh": 0.005151,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49244,7 +49248,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p16",
        "n": "送電損失 p12>p16",
        "g": "high",
-       "sh": 0.0094619,
+       "sh": 0.00945887,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49257,7 +49261,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p11>p17",
        "n": "送電損失 p11>p17",
        "g": "high",
-       "sh": 0.0094619,
+       "sh": 0.00945887,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -49270,7 +49274,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.00515265,
+       "sh": 0.005151,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -53217,7 +53221,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -53239,7 +53243,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -53306,10 +53310,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.755,
       "pd": false,
@@ -53330,10 +53334,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.755,
       "pd": false,
@@ -54282,11 +54286,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2584996906495322600,
-     "fixed": 31199277671761496,
-     "cooling": 4780799670076448,
+     "fixed": 31200215090735290,
+     "cooling": 4781737089050241,
      "De": 2584996906495323000,
      "Ds": 0,
-     "Dw": 418400000000000,
+     "Dw": 989767040000000.4,
      "domains": [
       {
        "id": "main",
@@ -55711,7 +55715,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2584996906495322600,[[\"main\",2584996906495322600,[[5,1264605477301719000],[6,1264605257748333800],[7,55786171445269980]]]],[[5,\"reactor\",16,\"p16\",\"main\",0.2414750011493678,0.489209667572191],[6,\"reactor\",17,\"p17\",\"main\",0.24147495922589454,0.48920958263847814],[7,\"reactor\",18,\"p18\",\"main\",0.010652307028282303,0.021580749789330906]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 2077.1716100286535,
     "heat": {
      "v": 5,
@@ -55851,7 +55855,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00926435,
+       "sh": 0.00925996,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -55864,7 +55868,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p7",
        "n": "送電損失 p16>p7",
        "g": "high",
-       "sh": 0.0000514323,
+       "sh": 0.0000514079,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -55877,7 +55881,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p8",
        "n": "送電損失 p17>p8",
        "g": "high",
-       "sh": 0.0000514323,
+       "sh": 0.0000514079,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -55890,7 +55894,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p9",
        "n": "送電損失 p18>p9",
        "g": "high",
-       "sh": 0.0000134621,
+       "sh": 0.0000134557,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56189,7 +56193,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.0000384802,
+       "sh": 0.000174102,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56202,7 +56206,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f26",
        "n": "送電損失 p16>f26",
        "g": "high",
-       "sh": 0.0000623564,
+       "sh": 0.00028213,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56215,7 +56219,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f27",
        "n": "送電損失 p16>f27",
        "g": "high",
-       "sh": 0.0000440794,
+       "sh": 0.0000843066,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56228,7 +56232,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f28",
        "n": "送電損失 p16>f28",
        "g": "high",
-       "sh": 0.0000858737,
+       "sh": 0.000164243,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56345,7 +56349,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.000380788,
+       "sh": 0.000380608,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56358,7 +56362,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p44",
        "n": "送電損失 p16>p44",
        "g": "high",
-       "sh": 0.00129248,
+       "sh": 0.00129187,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -56371,7 +56375,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p45",
        "n": "送電損失 p16>p45",
        "g": "high",
-       "sh": 0.000266619,
+       "sh": 0.000266493,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56384,7 +56388,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p46",
        "n": "送電損失 p16>p46",
        "g": "high",
-       "sh": 0.000563696,
+       "sh": 0.000563429,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56501,7 +56505,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p94",
        "n": "送電損失 p16>p94",
        "g": "high",
-       "sh": 0.00233861,
+       "sh": 0.0023375,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56540,7 +56544,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p96",
        "n": "送電損失 p16>p96",
        "g": "high",
-       "sh": 0.000979686,
+       "sh": 0.000979222,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56579,7 +56583,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p19",
        "n": "送電損失 p16>p19",
        "g": "high",
-       "sh": 0.0396879,
+       "sh": 0.0396691,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56592,7 +56596,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.301086,
+       "sh": 0.300943,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56605,7 +56609,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p84",
        "n": "送電損失 p16>p84",
        "g": "high",
-       "sh": 0.129358,
+       "sh": 0.129297,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56618,7 +56622,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p19",
        "n": "送電損失 p17>p19",
        "g": "high",
-       "sh": 0.311338,
+       "sh": 0.31119,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56631,7 +56635,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.0410394,
+       "sh": 0.0410199,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56644,7 +56648,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p84",
        "n": "送電損失 p17>p84",
        "g": "high",
-       "sh": 0.133763,
+       "sh": 0.1337,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56657,7 +56661,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p19",
        "n": "送電損失 p18>p19",
        "g": "high",
-       "sh": 0.0139681,
+       "sh": 0.0139615,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56670,7 +56674,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.0139681,
+       "sh": 0.0139615,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -56683,7 +56687,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p84",
        "n": "送電損失 p18>p84",
        "g": "high",
-       "sh": 0.000358392,
+       "sh": 0.000358222,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -60811,7 +60815,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -60833,7 +60837,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -60874,17 +60878,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 26.042114,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 0.8,
+    "laserUnits": 1.4501183632059513,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 321.5624999999999,
+    "laserGasSeconds": 177.39931203358213,
     "landingSupport": 12.7776,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
-    "up": 9.511428993101998e-17,
-    "upS": 9.511428993101998e-17,
+    "up": 0,
+    "upS": 0,
     "down": 0.01,
     "T": 0
    },
@@ -60898,10 +60902,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.841,
       "pd": false,
@@ -60922,10 +60926,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.841,
       "pd": false,
@@ -60946,10 +60950,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.841,
       "pd": false,
@@ -60970,10 +60974,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.6864,
       "hits": 1,
       "crew": 0,
-      "size": 1.0000000012,
-      "weaponPowerW": 41840000000000,
-      "shotW": 1e-8,
-      "bolt": 1.2e-9,
+      "size": 1.00000004288,
+      "weaponPowerW": 179409920000000,
+      "shotW": 4.288e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.841,
       "pd": false,
@@ -61772,11 +61776,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 1015343017083278800,
-     "fixed": 23827565077141396,
-     "cooling": 2378789257784457,
+     "fixed": 23828481838035880,
+     "cooling": 2379706018678941,
      "De": 1015343017083278800,
      "Ds": 0,
-     "Dw": 2167360000000000,
+     "Dw": 2717639680000000,
      "domains": [
       {
        "id": "main",
@@ -62794,7 +62798,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1015343017083278800,[[\"main\",1015343017083278800,[[11,477414594045811200],[33,268964211518733820],[34,268964211518733820]]]],[[11,\"reactor\",16,\"p16\",\"main\",0.09116178263905461,0.47020030276788066],[33,\"reactor\",99,\"p99\",\"main\",0.051358415293443524,0.2648998486160596],[34,\"reactor\",100,\"p100\",\"main\",0.051358415293443524,0.2648998486160596]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1388.4182482378355,
     "heat": {
      "v": 5,
@@ -62878,7 +62882,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f19",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.34214,
+       "sh": 0.365506,
        "m": [
         0,
         2,
@@ -62894,7 +62898,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f20",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.34214,
+       "sh": 0.365506,
        "m": [
         1,
         3,
@@ -62910,7 +62914,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.31572,
+       "sh": 0.268988,
        "m": [
         6
        ],
@@ -62936,7 +62940,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.0115227,
+       "sh": 0.0115096,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -62949,7 +62953,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p4",
        "n": "送電損失 p100>p4",
        "g": "high",
-       "sh": 0.00000914185,
+       "sh": 0.00000913142,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -62962,7 +62966,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p5",
        "n": "送電損失 p99>p5",
        "g": "high",
-       "sh": 0.00000914185,
+       "sh": 0.00000913142,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -62975,7 +62979,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p6",
        "n": "送電損失 p100>p6",
        "g": "high",
-       "sh": 0.0000080766,
+       "sh": 0.00000806739,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -62988,7 +62992,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p7",
        "n": "送電損失 p99>p7",
        "g": "high",
-       "sh": 0.0000080766,
+       "sh": 0.00000806739,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63235,7 +63239,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f19",
        "n": "送電損失 p16>f19",
        "g": "high",
-       "sh": 0.0000760583,
+       "sh": 0.000348014,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63248,7 +63252,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f20",
        "n": "送電損失 p16>f20",
        "g": "high",
-       "sh": 0.0000760583,
+       "sh": 0.000348014,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63261,7 +63265,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f21",
        "n": "送電損失 p16>f21",
        "g": "high",
-       "sh": 0.0000750885,
+       "sh": 0.000343576,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63274,7 +63278,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0.0000750885,
+       "sh": 0.000343576,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -63287,7 +63291,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0.000350929,
+       "sh": 0.000374468,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63300,7 +63304,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f24",
        "n": "送電損失 p16>f24",
        "g": "high",
-       "sh": 0.000350929,
+       "sh": 0.000374468,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63313,7 +63317,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f25",
        "n": "送電損失 p16>f25",
        "g": "high",
-       "sh": 0.000169341,
+       "sh": 0.0001807,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63326,7 +63330,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p13",
        "n": "送電損失 p16>p13",
        "g": "high",
-       "sh": 0.000138903,
+       "sh": 0.000138745,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -63339,7 +63343,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p39",
        "n": "送電損失 p16>p39",
        "g": "high",
-       "sh": 0.000344643,
+       "sh": 0.000344249,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -63352,7 +63356,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p40",
        "n": "送電損失 p16>p40",
        "g": "high",
-       "sh": 0.00069524,
+       "sh": 0.000694447,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -63365,7 +63369,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p92",
        "n": "送電損失 p16>p92",
        "g": "high",
-       "sh": 0.00172368,
+       "sh": 0.00172172,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -63378,7 +63382,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p94",
        "n": "送電損失 p16>p94",
        "g": "high",
-       "sh": 0.00172368,
+       "sh": 0.00172172,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -63443,7 +63447,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.224526,
+       "sh": 0.224269,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63456,7 +63460,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p18",
        "n": "送電損失 p16>p18",
        "g": "high",
-       "sh": 0.224526,
+       "sh": 0.224269,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -63469,7 +63473,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p17",
        "n": "送電損失 p99>p17",
        "g": "high",
-       "sh": 0.193764,
+       "sh": 0.193543,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -63482,7 +63486,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p99>p18",
        "n": "送電損失 p99>p18",
        "g": "high",
-       "sh": 0.0730319,
+       "sh": 0.0729486,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -63495,7 +63499,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p17",
        "n": "送電損失 p100>p17",
        "g": "high",
-       "sh": 0.0730319,
+       "sh": 0.0729486,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -63508,7 +63512,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p100>p18",
        "n": "送電損失 p100>p18",
        "g": "high",
-       "sh": 0.193764,
+       "sh": 0.193543,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -66475,7 +66479,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -66497,7 +66501,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -66519,7 +66523,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -66541,7 +66545,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claserL",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
@@ -66584,17 +66588,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 37.706114,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 0.8,
+    "laserUnits": 1.4501183632059513,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 69.45749999999998,
+    "laserGasSeconds": 38.31825139925374,
     "landingSupport": 12.4416,
     "landingRatio": 0.9670508436103435,
     "landingReady": false
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
+    "up": 4.660755801308526e-16,
+    "upS": 4.660755801308526e-16,
     "down": 0.01,
     "T": 2.4
    },
@@ -66608,10 +66612,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.7500000024,
-      "weaponPowerW": 83680000000000,
-      "shotW": 2e-8,
-      "bolt": 1.2e-9,
+      "size": 0.75000008576,
+      "weaponPowerW": 358819840000000,
+      "shotW": 8.576e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.286,
       "pd": false,
@@ -66632,10 +66636,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 2.028,
       "hits": 1,
       "crew": 0,
-      "size": 0.7500000024,
-      "weaponPowerW": 83680000000000,
-      "shotW": 2e-8,
-      "bolt": 1.2e-9,
+      "size": 0.75000008576,
+      "weaponPowerW": 358819840000000,
+      "shotW": 8.576e-8,
+      "bolt": 4.288e-8,
       "stock": 0,
       "at": 0.286,
       "pd": false,
@@ -67620,11 +67624,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2262427443900434400,
-     "fixed": 31698239811309370,
-     "cooling": 8067086518878579,
+     "fixed": 31699157898869532,
+     "cooling": 8068004606438744,
      "De": 2262427443900434200,
      "Ds": 857560364491499900,
-     "Dw": 167360000000000,
+     "Dw": 717639680000000,
      "domains": [
       {
        "id": "main",
@@ -69702,7 +69706,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2262427443900434400,[[\"main\",2262427443900434400,[[4,35036041961471444],[5,123039852448631140],[6,66800558468748540],[7,80581775358041580],[8,80581775358041580],[19,938263174456162800],[20,938124265849337300]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.006690093016967921,0.015486040030114362],[5,\"reactor\",16,\"p16\",\"main\",0.023494322177732088,0.05438399926607587],[6,\"reactor\",17,\"p17\",\"main\",0.012755491908383449,0.029526055586376772],[7,\"reactor\",18,\"p18\",\"main\",0.015386999856049683,0.035617396515982086],[8,\"reactor\",19,\"p19\",\"main\",0.015386999856049683,0.035617396515982086],[19,\"reactor\",32,\"p32\",\"main\",0.17916030350717463,0.4147152550618787],[20,\"reactor\",33,\"p33\",\"main\",0.17913377906410136,0.4146538570235902]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 2549.457809482132,
     "heat": {
      "v": 5,
@@ -69924,7 +69928,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00257478,
+       "sh": 0.0025741,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -69937,7 +69941,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p1",
        "n": "送電損失 p33>p1",
        "g": "high",
-       "sh": 0.00000281207,
+       "sh": 0.00000281132,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -69950,7 +69954,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p2",
        "n": "送電損失 p32>p2",
        "g": "high",
-       "sh": 0.00000290739,
+       "sh": 0.00000290662,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -69963,7 +69967,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p3",
        "n": "送電損失 p33>p3",
        "g": "high",
-       "sh": 0.0000039069,
+       "sh": 0.00000390587,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -69976,7 +69980,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p4",
        "n": "送電損失 p32>p4",
        "g": "high",
-       "sh": 0.0000039069,
+       "sh": 0.00000390587,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -70301,7 +70305,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p22",
        "n": "送電損失 p15>p22",
        "g": "high",
-       "sh": 0.00752212,
+       "sh": 0.00751142,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70314,7 +70318,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p23",
        "n": "送電損失 p15>p23",
        "g": "high",
-       "sh": 0.00202686,
+       "sh": 0.00202398,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -70327,7 +70331,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p24",
        "n": "送電損失 p15>p24",
        "g": "high",
-       "sh": 0.00202686,
+       "sh": 0.00202398,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -70340,7 +70344,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f30",
        "n": "送電損失 p15>f30",
        "g": "high",
-       "sh": 0.0000259793,
+       "sh": 0.0000311662,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70353,7 +70357,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>f31",
        "n": "送電損失 p15>f31",
        "g": "high",
-       "sh": 0.0000259793,
+       "sh": 0.0000311662,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70366,7 +70370,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p22",
        "n": "送電損失 p16>p22",
        "g": "high",
-       "sh": 0.0114352,
+       "sh": 0.0114322,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70379,7 +70383,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p23",
        "n": "送電損失 p16>p23",
        "g": "high",
-       "sh": 0.00245371,
+       "sh": 0.00245306,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70392,7 +70396,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p24",
        "n": "送電損失 p16>p24",
        "g": "high",
-       "sh": 0.00245371,
+       "sh": 0.00245306,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70405,7 +70409,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f30",
        "n": "送電損失 p16>f30",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000465299,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70418,7 +70422,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f31",
        "n": "送電損失 p16>f31",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000465299,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70431,7 +70435,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p22",
        "n": "送電損失 p17>p22",
        "g": "high",
-       "sh": 0.00323347,
+       "sh": 0.00323261,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70444,7 +70448,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p23",
        "n": "送電損失 p17>p23",
        "g": "high",
-       "sh": 0.00342617,
+       "sh": 0.00342527,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70457,7 +70461,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p24",
        "n": "送電損失 p17>p24",
        "g": "high",
-       "sh": 0.00342617,
+       "sh": 0.00342527,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70470,7 +70474,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f30",
        "n": "送電損失 p17>f30",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000578627,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70483,7 +70487,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>f31",
        "n": "送電損失 p17>f31",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000578627,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70496,7 +70500,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p22",
        "n": "送電損失 p18>p22",
        "g": "high",
-       "sh": 0.0162979,
+       "sh": 0.0162936,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70509,7 +70513,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p23",
        "n": "送電損失 p18>p23",
        "g": "high",
-       "sh": 0.00280678,
+       "sh": 0.00280604,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70522,7 +70526,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p24",
        "n": "送電損失 p18>p24",
        "g": "high",
-       "sh": 0.0045447,
+       "sh": 0.0045435,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70535,7 +70539,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>f30",
        "n": "送電損失 p18>f30",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000148144,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70548,7 +70552,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>f31",
        "n": "送電損失 p18>f31",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000244509,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70561,7 +70565,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p22",
        "n": "送電損失 p19>p22",
        "g": "high",
-       "sh": 0.0162979,
+       "sh": 0.0162936,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70574,7 +70578,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p23",
        "n": "送電損失 p19>p23",
        "g": "high",
-       "sh": 0.0045447,
+       "sh": 0.0045435,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70587,7 +70591,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p24",
        "n": "送電損失 p19>p24",
        "g": "high",
-       "sh": 0.00280678,
+       "sh": 0.00280604,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70626,7 +70630,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p22",
        "n": "送電損失 p32>p22",
        "g": "high",
-       "sh": 0.215998,
+       "sh": 0.215941,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70639,7 +70643,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p23",
        "n": "送電損失 p32>p23",
        "g": "high",
-       "sh": 0.0828782,
+       "sh": 0.0828563,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70652,7 +70656,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p24",
        "n": "送電損失 p32>p24",
        "g": "high",
-       "sh": 0.0649046,
+       "sh": 0.0648874,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70691,7 +70695,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p22",
        "n": "送電損失 p33>p22",
        "g": "high",
-       "sh": 0.0757215,
+       "sh": 0.0757015,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -70704,7 +70708,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p23",
        "n": "送電損失 p33>p23",
        "g": "high",
-       "sh": 0.0227533,
+       "sh": 0.0227473,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70717,7 +70721,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p24",
        "n": "送電損失 p33>p24",
        "g": "high",
-       "sh": 0.0290543,
+       "sh": 0.0290466,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70730,7 +70734,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f30",
        "n": "送電損失 p33>f30",
        "g": "high",
-       "sh": 0.00000151502,
+       "sh": 0.00000227193,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70743,7 +70747,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>f31",
        "n": "送電損失 p33>f31",
        "g": "high",
-       "sh": 0.0000368662,
+       "sh": 0.0000552826,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70756,7 +70760,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p27",
        "n": "送電損失 p15>p27",
        "g": "high",
-       "sh": 0.0000802546,
+       "sh": 0.0000802333,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -70769,7 +70773,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p49",
        "n": "送電損失 p15>p49",
        "g": "high",
-       "sh": 0.000185668,
+       "sh": 0.000185619,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70782,7 +70786,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p50",
        "n": "送電損失 p15>p50",
        "g": "high",
-       "sh": 0.000073656,
+       "sh": 0.0000736366,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70795,7 +70799,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p51",
        "n": "送電損失 p15>p51",
        "g": "high",
-       "sh": 0.000073656,
+       "sh": 0.0000736366,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -70808,7 +70812,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p52",
        "n": "送電損失 p15>p52",
        "g": "high",
-       "sh": 0.000358187,
+       "sh": 0.000358093,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -71211,7 +71215,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p90",
        "n": "送電損失 p15>p90",
        "g": "high",
-       "sh": 0.000490801,
+       "sh": 0.000490671,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71302,7 +71306,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p92",
        "n": "送電損失 p15>p92",
        "g": "high",
-       "sh": 0.000490801,
+       "sh": 0.000490671,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71393,7 +71397,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p20",
        "n": "送電損失 p15>p20",
        "g": "high",
-       "sh": 0.000119812,
+       "sh": 0.00011978,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71406,7 +71410,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p15>p21",
        "n": "送電損失 p15>p21",
        "g": "high",
-       "sh": 0.00186274,
+       "sh": 0.00186225,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -71419,7 +71423,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p20",
        "n": "送電損失 p16>p20",
        "g": "high",
-       "sh": 0.00711458,
+       "sh": 0.0071127,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -71432,7 +71436,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p21",
        "n": "送電損失 p16>p21",
        "g": "high",
-       "sh": 0.00130285,
+       "sh": 0.00130251,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -71445,7 +71449,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p20",
        "n": "送電損失 p17>p20",
        "g": "high",
-       "sh": 0.00550096,
+       "sh": 0.00549951,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -71458,7 +71462,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p17>p21",
        "n": "送電損失 p17>p21",
        "g": "high",
-       "sh": 0.00243559,
+       "sh": 0.00243494,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -71471,7 +71475,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p20",
        "n": "送電損失 p18>p20",
        "g": "high",
-       "sh": 0.00242941,
+       "sh": 0.00242877,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71484,7 +71488,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p18>p21",
        "n": "送電損失 p18>p21",
        "g": "high",
-       "sh": 0.00288399,
+       "sh": 0.00288323,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -71497,7 +71501,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p20",
        "n": "送電損失 p19>p20",
        "g": "high",
-       "sh": 0.00242941,
+       "sh": 0.00242877,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71510,7 +71514,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p19>p21",
        "n": "送電損失 p19>p21",
        "g": "high",
-       "sh": 0.00288399,
+       "sh": 0.00288323,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -71523,7 +71527,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p20",
        "n": "送電損失 p32>p20",
        "g": "high",
-       "sh": 0.0492791,
+       "sh": 0.0492661,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71536,7 +71540,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p32>p21",
        "n": "送電損失 p32>p21",
        "g": "high",
-       "sh": 0.0772209,
+       "sh": 0.0772005,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71549,7 +71553,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p20",
        "n": "送電損失 p33>p20",
        "g": "high",
-       "sh": 0.102646,
+       "sh": 0.102619,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -71562,7 +71566,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p33>p21",
        "n": "送電損失 p33>p21",
        "g": "high",
-       "sh": 0.160847,
+       "sh": 0.160804,
        "m": [],
        "pc": [],
        "sec": 2,
@@ -81079,7 +81083,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "cturret",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": false,
@@ -81101,16 +81105,16 @@ const CRAFT_PRICE_CATALOG={
      "k": "cturret",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "h7478c",
-   "build": 190600,
+   "signature": "6t4yce",
+   "build": 190880,
    "crew": 1000,
-   "total": 191600,
+   "total": 191880,
    "by": {
     "hull": 36,
     "armor": 13,
@@ -81118,7 +81122,7 @@ const CRAFT_PRICE_CATALOG={
     "drive": 86197,
     "defense": 13502,
     "command": 23502,
-    "weapons": 33600,
+    "weapons": 33880,
     "systems": 17001,
     "crew": 1000
    },
@@ -81135,7 +81139,7 @@ const CRAFT_PRICE_CATALOG={
     "ejectionCoverage": 1,
     "ejectionSurvival": 0.9,
     "navCapacity": 2.331,
-    "navDemand": 0.7169227261121216,
+    "navDemand": 0.6778095027104469,
     "navReady": true,
     "targetDemand": 6,
     "targetCapacity": 7.44775,
@@ -81144,17 +81148,17 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 129.336,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 4,
+    "laserUnits": 4.615488670950286,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 64.31249999999999,
+    "laserGasSeconds": 55.73624340562721,
     "landingSupport": 53.387100000000004,
     "landingRatio": 1,
     "landingReady": true
    },
    "heat": {
     "up": 0,
-    "upS": 2.471263575969027e-16,
+    "upS": 0,
     "down": 0.01,
     "T": 1
    },
@@ -81165,13 +81169,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 42,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 1.3608,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000013648,
+      "weaponPowerW": 571032320000000,
+      "shotW": 1.3648e-7,
+      "bolt": 1.365e-7,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -81179,7 +81183,7 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": 0.81,
       "z": 0.94,
-      "r": 0.097,
+      "r": 0.131,
       "share": 0.25,
       "domain": "main",
       "port": "f42",
@@ -81189,13 +81193,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 43,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 1.3608,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000013648,
+      "weaponPowerW": 571032320000000,
+      "shotW": 1.3648e-7,
+      "bolt": 1.365e-7,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -81203,7 +81207,7 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": 0.81,
       "z": -0.94,
-      "r": 0.097,
+      "r": 0.131,
       "share": 0.25,
       "domain": "main",
       "port": "f43",
@@ -81213,13 +81217,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 44,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 1.3608,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000013648,
+      "weaponPowerW": 571032320000000,
+      "shotW": 1.3648e-7,
+      "bolt": 1.365e-7,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -81227,7 +81231,7 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": -0.81,
       "z": 0.94,
-      "r": 0.097,
+      "r": 0.131,
       "share": 0.25,
       "domain": "main",
       "port": "f44",
@@ -81237,13 +81241,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 45,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 1.3608,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000013648,
+      "weaponPowerW": 571032320000000,
+      "shotW": 1.3648e-7,
+      "bolt": 1.365e-7,
       "stock": 0,
       "at": 0.574,
       "pd": false,
@@ -81251,7 +81255,7 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": -0.81,
       "z": -0.94,
-      "r": 0.097,
+      "r": 0.131,
       "share": 0.25,
       "domain": "main",
       "port": "f45",
@@ -82183,7 +82187,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 17.721156105652458,
+      "w": 18.590916105652457,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -82250,11 +82254,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 2600959974835937000,
-     "fixed": 84857188717812260,
-     "cooling": 10111189474480432,
+     "fixed": 84857454138601920,
+     "cooling": 10111454895270102,
      "De": 2600959974835937000,
      "Ds": 1576851232218251000,
-     "Dw": 2836800000000000,
+     "Dw": 4284129280000000,
      "domains": [
       {
        "id": "main",
@@ -83012,14 +83016,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83039,7 +83043,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83082,14 +83086,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83109,7 +83113,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83152,14 +83156,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83179,7 +83183,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83222,14 +83226,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83249,7 +83253,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83294,14 +83298,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83321,7 +83325,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83367,14 +83371,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83394,7 +83398,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83440,14 +83444,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83467,7 +83471,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83513,14 +83517,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 2.832013478950761,
        "efficiency": 0.9158570638890173,
        "wasteFraction": 0.08414293611098267,
-       "profileWattsPerNewton": 2279557983.803799,
-       "shaftWattsPerNewton": 2165580084.6136093,
-       "wattsPerNewton": 2364539369.732952,
+       "profileWattsPerNewton": 2291613703.0132546,
+       "shaftWattsPerNewton": 2177033017.8625917,
+       "wattsPerNewton": 2377044523.3213844,
        "ratedShaftPowerW": 595526891461523300,
        "ratedWasteHeatW": 54713102247460830,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 32442.05658048628,
+       "conversionMassKg": 34311.82856996711,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -83540,7 +83544,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 650239993708984200,
        "driveProfileId": "standard",
        "machineryGradeId": "dense",
-       "ratedThrustN": 274996475.8600832,
+       "ratedThrustN": 273549774.659004,
        "effectiveMachineryVolumeM3": 0.6753041904450475,
        "machineryVolumeM3": 0.6753041904450475,
        "machineryShape": "frustum",
@@ -83581,19 +83585,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 2600959974835937000
       }
      ],
-     "massKg": 32442.05658048628,
-     "ratedThrustN": 1099966801.8143203,
-     "ratedAccelMps2": 33905.581758831664,
-     "structuralAccelerationLimitMps2": 296807.3114169127,
+     "massKg": 34311.82856996711,
+     "ratedThrustN": 1094180097.4998195,
+     "ratedAccelMps2": 31889.297163764313,
+     "structuralAccelerationLimitMps2": 273202.5039285141,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 33905.581758831664,
+     "accelerationLimitMps2": 31889.297163764313,
      "conversionModelVersion": 1,
-     "conversionMassKg": 32442.05658048628,
+     "conversionMassKg": 34311.82856996711,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2600959974835937000,[[\"main\",2600959974835937000,[[6,2600959974835937000]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.4966503974449563,1]]]"
     },
-    "profileVersion": 26,
-    "maxSpeed": 1616.8624753959161,
+    "profileVersion": 28,
+    "maxSpeed": 1518.3331887639713,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -83737,7 +83741,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>hotel",
        "n": "送電損失 p30>hotel",
        "g": "high",
-       "sh": 0.0214675,
+       "sh": 0.0214653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -83750,7 +83754,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p2",
        "n": "送電損失 p30>p2",
        "g": "high",
-       "sh": 0.0000215324,
+       "sh": 0.0000215301,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -83763,7 +83767,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p3",
        "n": "送電損失 p30>p3",
        "g": "high",
-       "sh": 0.0000220575,
+       "sh": 0.0000220553,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -83776,7 +83780,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p16",
        "n": "送電損失 p30>p16",
        "g": "high",
-       "sh": 0.0000216499,
+       "sh": 0.0000216477,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -83789,7 +83793,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p17",
        "n": "送電損失 p30>p17",
        "g": "high",
-       "sh": 0.0000211344,
+       "sh": 0.0000211323,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -84153,7 +84157,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p39",
        "n": "送電損失 p30>p39",
        "g": "high",
-       "sh": 0.827654,
+       "sh": 0.827568,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84166,7 +84170,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f42",
        "n": "送電損失 p30>f42",
        "g": "high",
-       "sh": 0.000129648,
+       "sh": 0.000155549,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84179,7 +84183,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f43",
        "n": "送電損失 p30>f43",
        "g": "high",
-       "sh": 0.000129648,
+       "sh": 0.000155549,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84192,7 +84196,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f44",
        "n": "送電損失 p30>f44",
        "g": "high",
-       "sh": 0.000128624,
+       "sh": 0.000154321,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84205,7 +84209,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f45",
        "n": "送電損失 p30>f45",
        "g": "high",
-       "sh": 0.000128624,
+       "sh": 0.000154321,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84218,7 +84222,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f46",
        "n": "送電損失 p30>f46",
        "g": "high",
-       "sh": 0.00049726,
+       "sh": 0.000497209,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84231,7 +84235,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>f47",
        "n": "送電損失 p30>f47",
        "g": "high",
-       "sh": 0.00049726,
+       "sh": 0.000497209,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84244,7 +84248,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p41",
        "n": "送電損失 p30>p41",
        "g": "high",
-       "sh": 0.000832716,
+       "sh": 0.00083263,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -84257,7 +84261,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p82",
        "n": "送電損失 p30>p82",
        "g": "high",
-       "sh": 0.00124056,
+       "sh": 0.00124043,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84270,7 +84274,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p83",
        "n": "送電損失 p30>p83",
        "g": "high",
-       "sh": 0.000769904,
+       "sh": 0.000769824,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84283,7 +84287,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p84",
        "n": "送電損失 p30>p84",
        "g": "high",
-       "sh": 0.000381591,
+       "sh": 0.000381552,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84296,7 +84300,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p85",
        "n": "送電損失 p30>p85",
        "g": "high",
-       "sh": 0.000361941,
+       "sh": 0.000361904,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84309,7 +84313,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p172",
        "n": "送電損失 p30>p172",
        "g": "high",
-       "sh": 0.00000613423,
+       "sh": 0.0000061336,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -84322,7 +84326,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p31",
        "n": "送電損失 p30>p31",
        "g": "high",
-       "sh": 0.0381559,
+       "sh": 0.0381519,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -84335,7 +84339,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p32",
        "n": "送電損失 p30>p32",
        "g": "high",
-       "sh": 0.0381559,
+       "sh": 0.0381519,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -84348,7 +84352,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p33",
        "n": "送電損失 p30>p33",
        "g": "high",
-       "sh": 0.0346883,
+       "sh": 0.0346848,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -84361,7 +84365,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p30>p34",
        "n": "送電損失 p30>p34",
        "g": "high",
-       "sh": 0.0346883,
+       "sh": 0.0346848,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -87586,7 +87590,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 80.84312376979581,
+    "mglt": 75.91665943819856,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -87615,14 +87619,16 @@ const CRAFT_PRICE_CATALOG={
       -0.10452846326765346
      ],
      "pos": [
-      9,
-      3.663502728202768,
-      5.46229943555451
+      9.45,
+      3.6656906763725785,
+      5.462069472935321
      ],
      "k": "claser",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.18,
+     "barrelM": 3.5
     },
     {
      "fixed": true,
@@ -87637,14 +87643,16 @@ const CRAFT_PRICE_CATALOG={
       0.10452846326765346
      ],
      "pos": [
-      9,
-      3.663502728163105,
-      -5.462299435558679
+      9.45,
+      3.6656906763329156,
+      -5.46206947293949
      ],
      "k": "claser",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.18,
+     "barrelM": 3.5
     },
     {
      "fixed": true,
@@ -87659,14 +87667,16 @@ const CRAFT_PRICE_CATALOG={
       -0.10452846326765346
      ],
      "pos": [
-      9,
-      0.0004973350497581297,
-      5.462299442202618
+      9.45,
+      -0.0016906131200520869,
+      5.4620694795834295
      ],
      "k": "claser",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.18,
+     "barrelM": 3.5
     },
     {
      "fixed": true,
@@ -87681,14 +87691,16 @@ const CRAFT_PRICE_CATALOG={
       0.10452846326765346
      ],
      "pos": [
-      9,
-      0.0004973350710397728,
-      -5.462299442204855
+      9.45,
+      -0.0016906130987704437,
+      -5.462069479585666
      ],
      "k": "claser",
      "gun": 0.25,
      "aa": 0.25,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.18,
+     "barrelM": 3.5
     }
    ]
   },
@@ -87755,10 +87767,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.941,
       "pd": false,
@@ -87779,10 +87791,10 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.9984000000000001,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000011828,
+      "weaponPowerW": 494883520000000.2,
+      "shotW": 1.1828e-7,
+      "bolt": 1.183e-7,
       "stock": 0,
       "at": 0.941,
       "pd": false,
@@ -88679,11 +88691,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 6954950566995398000,
-     "fixed": 76585708371573730,
-     "cooling": 22301517052396884,
+     "fixed": 76586670921552320,
+     "cooling": 22302479602375480,
      "De": 6954950566995398000,
      "Ds": 3302059966746075600,
-     "Dw": 2418400000000000,
+     "Dw": 2989767040000000.5,
      "domains": [
       {
        "id": "main",
@@ -90133,7 +90145,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[6954950566995398000,[[\"main\",6954950566995398000,[[6,2620536393687163400],[7,2620536393687163400],[10,1713877779621071000]]]],[[6,\"reactor\",12,\"p12\",\"main\",0.5003884927240365,0.376787206241677],[7,\"reactor\",13,\"p13\",\"main\",0.5003884927240365,0.376787206241677],[10,\"reactor\",16,\"p16\",\"main\",0.3272630446666432,0.246425587516646]]]"
     },
-    "profileVersion": 26,
+    "profileVersion": 28,
     "maxSpeed": 1231.7244639419037,
     "heat": {
      "v": 5,
@@ -90145,7 +90157,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p12",
        "n": "ナセル反応炉 #12",
        "g": "high",
-       "sh": 0.421638,
+       "sh": 0.421627,
        "m": [
         6
        ],
@@ -90159,7 +90171,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p13",
        "n": "ナセル反応炉 #13",
        "g": "high",
-       "sh": 0.394522,
+       "sh": 0.394539,
        "m": [
         7
        ],
@@ -90173,7 +90185,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "主反応炉 #16",
        "g": "high",
-       "sh": 0.183839,
+       "sh": 0.183834,
        "m": [
         10
        ],
@@ -90273,7 +90285,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>hotel",
        "n": "送電損失 p16>hotel",
        "g": "high",
-       "sh": 0.00206173,
+       "sh": 0.00206136,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -90286,7 +90298,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p3",
        "n": "送電損失 p12>p3",
        "g": "high",
-       "sh": 0.00000182162,
+       "sh": 0.00000182134,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -90299,7 +90311,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p4",
        "n": "送電損失 p13>p4",
        "g": "high",
-       "sh": 0.00000184591,
+       "sh": 0.00000184562,
        "m": [],
        "pc": [],
        "sec": 0,
@@ -90598,7 +90610,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p17",
        "n": "送電損失 p12>p17",
        "g": "high",
-       "sh": 0.348936,
+       "sh": 0.348861,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90611,7 +90623,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f22",
        "n": "送電損失 p12>f22",
        "g": "high",
-       "sh": 0.0000741943,
+       "sh": 0.0000890071,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90624,7 +90636,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f23",
        "n": "送電損失 p12>f23",
        "g": "high",
-       "sh": 0.0000766042,
+       "sh": 0.0000918978,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90637,7 +90649,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f25",
        "n": "送電損失 p12>f25",
        "g": "high",
-       "sh": 0.000212284,
+       "sh": 0.000212246,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90650,7 +90662,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>f26",
        "n": "送電損失 p12>f26",
        "g": "high",
-       "sh": 0.000221664,
+       "sh": 0.000221624,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90663,7 +90675,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p17",
        "n": "送電損失 p13>p17",
        "g": "high",
-       "sh": 0.205475,
+       "sh": 0.205438,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90676,7 +90688,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f22",
        "n": "送電損失 p13>f22",
        "g": "high",
-       "sh": 0.0000612834,
+       "sh": 0.0000918978,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90689,7 +90701,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f23",
        "n": "送電損失 p13>f23",
        "g": "high",
-       "sh": 0.0000593554,
+       "sh": 0.0000890071,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90702,7 +90714,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f25",
        "n": "送電損失 p13>f25",
        "g": "high",
-       "sh": 0.000177331,
+       "sh": 0.000177299,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90715,7 +90727,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>f26",
        "n": "送電損失 p13>f26",
        "g": "high",
-       "sh": 0.000169828,
+       "sh": 0.000169797,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90728,7 +90740,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p17",
        "n": "送電損失 p16>p17",
        "g": "high",
-       "sh": 0.0295107,
+       "sh": 0.0295053,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90741,7 +90753,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f22",
        "n": "送電損失 p16>f22",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000512272,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90754,7 +90766,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>f23",
        "n": "送電損失 p16>f23",
        "g": "high",
-       "sh": 0,
+       "sh": 0.0000512269,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90793,7 +90805,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p20",
        "n": "送電損失 p12>p20",
        "g": "high",
-       "sh": 0.000362825,
+       "sh": 0.000362769,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90806,7 +90818,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p44",
        "n": "送電損失 p12>p44",
        "g": "high",
-       "sh": 0.000332201,
+       "sh": 0.000332149,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -90819,7 +90831,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p45",
        "n": "送電損失 p12>p45",
        "g": "high",
-       "sh": 0.000304149,
+       "sh": 0.000304101,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90832,7 +90844,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p46",
        "n": "送電損失 p12>p46",
        "g": "high",
-       "sh": 0.000280791,
+       "sh": 0.000280747,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90845,7 +90857,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p47",
        "n": "送電損失 p12>p47",
        "g": "high",
-       "sh": 0.000146279,
+       "sh": 0.000146256,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90858,7 +90870,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p48",
        "n": "送電損失 p12>p48",
        "g": "high",
-       "sh": 0.000110858,
+       "sh": 0.000110841,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90871,7 +90883,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p49",
        "n": "送電損失 p12>p49",
        "g": "high",
-       "sh": 0.000130615,
+       "sh": 0.000130595,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90884,7 +90896,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p50",
        "n": "送電損失 p12>p50",
        "g": "high",
-       "sh": 0.000132583,
+       "sh": 0.000132563,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -90897,7 +90909,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p51",
        "n": "送電損失 p12>p51",
        "g": "high",
-       "sh": 0.000260028,
+       "sh": 0.000259987,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -91144,7 +91156,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p181",
        "n": "送電損失 p12>p181",
        "g": "high",
-       "sh": 0.00195654,
+       "sh": 0.00195623,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -91183,7 +91195,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p183",
        "n": "送電損失 p12>p183",
        "g": "high",
-       "sh": 0.000283226,
+       "sh": 0.000283181,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -91222,7 +91234,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p14",
        "n": "送電損失 p12>p14",
        "g": "high",
-       "sh": 0.00886042,
+       "sh": 0.00885881,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -91235,7 +91247,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p14",
        "n": "送電損失 p13>p14",
        "g": "high",
-       "sh": 0.157096,
+       "sh": 0.157067,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -91248,7 +91260,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p14",
        "n": "送電損失 p16>p14",
        "g": "high",
-       "sh": 0.0516059,
+       "sh": 0.0515966,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -91261,7 +91273,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p12>p15",
        "n": "送電損失 p12>p15",
        "g": "high",
-       "sh": 0.128674,
+       "sh": 0.128651,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -91274,7 +91286,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p13>p15",
        "n": "送電損失 p13>p15",
        "g": "high",
-       "sh": 0.0108183,
+       "sh": 0.0108164,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -91287,7 +91299,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p16>p15",
        "n": "送電損失 p16>p15",
        "g": "high",
-       "sh": 0.0516059,
+       "sh": 0.0515966,
        "m": [],
        "pc": [],
        "sec": 1,
@@ -98306,7 +98318,7 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     },
     {
      "fixed": true,
@@ -98328,16 +98340,16 @@ const CRAFT_PRICE_CATALOG={
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1
     }
    ]
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "6o6n1y",
-   "build": 162607,
+   "signature": "8hl43u",
+   "build": 162092,
    "crew": 1000,
-   "total": 163607,
+   "total": 163092,
    "by": {
     "hull": 41,
     "armor": 11,
@@ -98345,7 +98357,7 @@ const CRAFT_PRICE_CATALOG={
     "drive": 49633,
     "defense": 13500,
     "command": 17502,
-    "weapons": 21800,
+    "weapons": 21285,
     "systems": 17001,
     "crew": 1000
    },
@@ -98371,13 +98383,13 @@ const CRAFT_PRICE_CATALOG={
     "maneuverSupport": 41.814114,
     "maneuverRatio": 1,
     "turnK": 1,
-    "laserUnits": 2,
+    "laserUnits": 0.33818058843422394,
     "laserGunShare": 1,
     "laserAaShare": 1,
-    "laserGasSeconds": 65.85600000000002,
+    "laserGasSeconds": 389.4723840000001,
     "landingSupport": 29.491200000000006,
-    "landingRatio": 0.9613475116048829,
-    "landingReady": false
+    "landingRatio": 1,
+    "landingReady": true
    },
    "heat": {
     "up": 0,
@@ -98392,13 +98404,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 29,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 0.22464000000000003,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000002,
+      "weaponPowerW": 83680000000000.05,
+      "shotW": 2e-8,
+      "bolt": 2e-8,
       "stock": 0,
       "at": 0.311,
       "pd": false,
@@ -98406,7 +98418,7 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": -0.06,
       "z": 0.96,
-      "r": 0.078,
+      "r": 0.031,
       "share": 0.5,
       "domain": "main",
       "port": "f29",
@@ -98416,13 +98428,13 @@ const CRAFT_PRICE_CATALOG={
       "k": "weapon",
       "fit": 30,
       "name": "レーザー砲",
-      "w": 0.9984000000000001,
+      "w": 0.22464000000000003,
       "hits": 1,
       "crew": 0,
-      "size": 1.000000006,
-      "weaponPowerW": 209200000000000,
-      "shotW": 5e-8,
-      "bolt": 6e-9,
+      "size": 1.00000002,
+      "weaponPowerW": 83680000000000.05,
+      "shotW": 2e-8,
+      "bolt": 2e-8,
       "stock": 0,
       "at": 0.311,
       "pd": false,
@@ -98430,7 +98442,7 @@ const CRAFT_PRICE_CATALOG={
       "band": "close",
       "y": -0.06,
       "z": -0.96,
-      "r": 0.078,
+      "r": 0.031,
       "share": 0.5,
       "domain": "main",
       "port": "f30",
@@ -99240,7 +99252,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 12.074345317146479,
+      "w": 11.14583331714648,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -99277,11 +99289,11 @@ const CRAFT_PRICE_CATALOG={
     },
     "grid": {
      "P": 4954306485338557000,
-     "fixed": 53489006852774900,
-     "cooling": 21211435341906988,
+     "fixed": 53488588242411470,
+     "cooling": 21211016731543564,
      "De": 4954306485338557000,
      "Ds": 1544026234043037200,
-     "Dw": 418400000000000,
+     "Dw": 167360000000000.1,
      "domains": [
       {
        "id": "main",
@@ -100062,14 +100074,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 137.23148041447035,
        "efficiency": 0.4142707954727066,
        "wasteFraction": 0.5857292045272934,
-       "profileWattsPerNewton": 2268493175.6883607,
-       "shaftWattsPerNewton": 2155068516.9039426,
-       "wattsPerNewton": 5202076855.176061,
+       "profileWattsPerNewton": 2253449106.279122,
+       "shaftWattsPerNewton": 2140776650.9651656,
+       "wattsPerNewton": 5167578005.40204,
        "ratedShaftPowerW": 1026212244348396800,
        "ratedWasteHeatW": 1450940998320882000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 30807.722449486933,
+       "conversionMassKg": 28705.24257185732,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -100090,7 +100102,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2477153242669278700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 476185437.3997789,
+       "ratedThrustN": 479364460.50349563,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -100134,14 +100146,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 137.23148041447035,
        "efficiency": 0.4142707954727066,
        "wasteFraction": 0.5857292045272934,
-       "profileWattsPerNewton": 2268493175.6883607,
-       "shaftWattsPerNewton": 2155068516.9039426,
-       "wattsPerNewton": 5202076855.176061,
+       "profileWattsPerNewton": 2253449106.279122,
+       "shaftWattsPerNewton": 2140776650.9651656,
+       "wattsPerNewton": 5167578005.40204,
        "ratedShaftPowerW": 1026212244348396800,
        "ratedWasteHeatW": 1450940998320882000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 30807.722449486933,
+       "conversionMassKg": 28705.24257185732,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -100162,7 +100174,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2477153242669278700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 476185437.3997789,
+       "ratedThrustN": 479364460.50349563,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -100208,14 +100220,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 137.23148041447035,
        "efficiency": 0.4142707954727066,
        "wasteFraction": 0.5857292045272934,
-       "profileWattsPerNewton": 2268493175.6883607,
-       "shaftWattsPerNewton": 2155068516.9039426,
-       "wattsPerNewton": 5202076855.176061,
+       "profileWattsPerNewton": 2253449106.279122,
+       "shaftWattsPerNewton": 2140776650.9651656,
+       "wattsPerNewton": 5167578005.40204,
        "ratedShaftPowerW": 1026212244348396800,
        "ratedWasteHeatW": 1450940998320882000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 30807.722449486933,
+       "conversionMassKg": 28705.24257185732,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -100236,7 +100248,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2477153242669278700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 476185437.3997789,
+       "ratedThrustN": 479364460.50349563,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -100282,14 +100294,14 @@ const CRAFT_PRICE_CATALOG={
        "densityFactor": 137.23148041447035,
        "efficiency": 0.4142707954727066,
        "wasteFraction": 0.5857292045272934,
-       "profileWattsPerNewton": 2268493175.6883607,
-       "shaftWattsPerNewton": 2155068516.9039426,
-       "wattsPerNewton": 5202076855.176061,
+       "profileWattsPerNewton": 2253449106.279122,
+       "shaftWattsPerNewton": 2140776650.9651656,
+       "wattsPerNewton": 5167578005.40204,
        "ratedShaftPowerW": 1026212244348396800,
        "ratedWasteHeatW": 1450940998320882000,
        "thermalStoreJ": 0,
        "conversionModelVersion": 1,
-       "conversionMassKg": 30807.722449486933,
+       "conversionMassKg": 28705.24257185732,
        "driveModelVersion": 5,
        "version": 1,
        "inputModelVersion": 2,
@@ -100310,7 +100322,7 @@ const CRAFT_PRICE_CATALOG={
        "ratedInputW": 2477153242669278700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
-       "ratedThrustN": 476185437.3997789,
+       "ratedThrustN": 479364460.50349563,
        "effectiveMachineryVolumeM3": 0.05309091477681084,
        "machineryVolumeM3": 0.05309091477681084,
        "machineryShape": "frustum",
@@ -100351,19 +100363,19 @@ const CRAFT_PRICE_CATALOG={
        "pathCapacityW": 4954306485338557000
       }
      ],
-     "massKg": 30807.722449486933,
-     "ratedThrustN": 952360074.4683865,
-     "ratedAccelMps2": 30913.030848998933,
-     "structuralAccelerationLimitMps2": 1200302.345562853,
+     "massKg": 28705.24257185732,
+     "ratedThrustN": 958718048.572602,
+     "ratedAccelMps2": 33398.70917908672,
+     "structuralAccelerationLimitMps2": 1200189.1578191787,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 30913.030848998933,
+     "accelerationLimitMps2": 33398.70917908672,
      "conversionModelVersion": 1,
-     "conversionMassKg": 30807.722449486933,
+     "conversionMassKg": 28705.24257185732,
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[4954306485338557000,[[\"main\",4954306485338557000,[[4,2477153242669278700],[5,2477153242669278700]]]],[[4,\"reactor\",21,\"p21\",\"main\",0.4730096404429919,0.5],[5,\"reactor\",22,\"p22\",\"main\",0.4730096404429919,0.5]]]"
     },
-    "profileVersion": 26,
-    "maxSpeed": 1515.65527214373,
+    "profileVersion": 28,
+    "maxSpeed": 1640.7635616009243,
     "heat": {
      "v": 5,
      "mode": "strict",
@@ -100446,7 +100458,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f29",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.0865035,
+       "sh": 0.0386092,
        "m": [
         0
        ],
@@ -100460,7 +100472,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f30",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.0865035,
+       "sh": 0.0386092,
        "m": [
         1
        ],
@@ -100474,7 +100486,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f31",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.413497,
+       "sh": 0.461391,
        "m": [
         2
        ],
@@ -100488,7 +100500,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "f32",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.413497,
+       "sh": 0.461391,
        "m": [
         3
        ],
@@ -100528,7 +100540,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>hotel",
        "n": "送電損失 p21>hotel",
        "g": "high",
-       "sh": 0.00503636,
+       "sh": 0.00503687,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -100541,7 +100553,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p7",
        "n": "送電損失 p21>p7",
        "g": "high",
-       "sh": 0.00000876564,
+       "sh": 0.00000876652,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100554,7 +100566,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p8",
        "n": "送電損失 p22>p8",
        "g": "high",
-       "sh": 0.00000827866,
+       "sh": 0.00000827949,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100840,7 +100852,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f29",
        "n": "送電損失 p21>f29",
        "g": "high",
-       "sh": 0.00000963966,
+       "sh": 0.00000172116,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100853,7 +100865,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f30",
        "n": "送電損失 p21>f30",
        "g": "high",
-       "sh": 0.000020143,
+       "sh": 0.00000359653,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100866,7 +100878,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f31",
        "n": "送電損失 p21>f31",
        "g": "high",
-       "sh": 0.0000234023,
+       "sh": 0.0000104462,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100879,7 +100891,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>f32",
        "n": "送電損失 p21>f32",
        "g": "high",
-       "sh": 0.0000329095,
+       "sh": 0.00001469,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100892,7 +100904,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>f29",
        "n": "送電損失 p22>f29",
        "g": "high",
-       "sh": 0.0000161144,
+       "sh": 0.00000287723,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100905,7 +100917,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>f30",
        "n": "送電損失 p22>f30",
        "g": "high",
-       "sh": 0.00000771173,
+       "sh": 0.00000137693,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100918,7 +100930,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>f31",
        "n": "送電損失 p22>f31",
        "g": "high",
-       "sh": 0.0000263276,
+       "sh": 0.000011752,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100931,7 +100943,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>f32",
        "n": "送電損失 p22>f32",
        "g": "high",
-       "sh": 0.0000187219,
+       "sh": 0.00000835698,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100944,7 +100956,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p28",
        "n": "送電損失 p21>p28",
        "g": "high",
-       "sh": 0.000399621,
+       "sh": 0.000399661,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -100957,7 +100969,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p47",
        "n": "送電損失 p21>p47",
        "g": "high",
-       "sh": 0.000447567,
+       "sh": 0.000447612,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -100970,7 +100982,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p48",
        "n": "送電損失 p21>p48",
        "g": "high",
-       "sh": 0.000284109,
+       "sh": 0.000284137,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -100983,7 +100995,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p49",
        "n": "送電損失 p21>p49",
        "g": "high",
-       "sh": 0.000254867,
+       "sh": 0.000254892,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101048,7 +101060,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p59",
        "n": "送電損失 p21>p59",
        "g": "high",
-       "sh": 0.305665,
+       "sh": 0.305696,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101061,7 +101073,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p59",
        "n": "送電損失 p22>p59",
        "g": "high",
-       "sh": 0.104604,
+       "sh": 0.104615,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101074,7 +101086,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p98",
        "n": "送電損失 p21>p98",
        "g": "high",
-       "sh": 0.00301114,
+       "sh": 0.00301144,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101100,7 +101112,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p100",
        "n": "送電損失 p21>p100",
        "g": "high",
-       "sh": 0.000524108,
+       "sh": 0.00052416,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101126,7 +101138,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p105",
        "n": "送電損失 p21>p105",
        "g": "high",
-       "sh": 0.0000031182,
+       "sh": 0.00000311851,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -101139,7 +101151,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p23",
        "n": "送電損失 p21>p23",
        "g": "high",
-       "sh": 0.0427508,
+       "sh": 0.0427551,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101152,7 +101164,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p21>p24",
        "n": "送電損失 p21>p24",
        "g": "high",
-       "sh": 0.145232,
+       "sh": 0.145247,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101165,7 +101177,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p23",
        "n": "送電損失 p22>p23",
        "g": "high",
-       "sh": 0.302554,
+       "sh": 0.302585,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -101178,7 +101190,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "feed:p22>p24",
        "n": "送電損失 p22>p24",
        "g": "high",
-       "sh": 0.0890604,
+       "sh": 0.0890694,
        "m": [],
        "pc": [],
        "sec": 3,
@@ -104152,7 +104164,7 @@ const CRAFT_PRICE_CATALOG={
      "continuity": "canon",
      "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
     },
-    "mglt": 75.7827636071865,
+    "mglt": 82.03817808004621,
     "motionResistance": {
      "version": 4,
      "model": "global-mass-power-law",
@@ -104181,14 +104193,16 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "pos": [
-      6.5,
-      1.2180000098678236,
+      5.720000000000001,
+      1.1410000098678237,
       8.01
      ],
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.1,
+     "barrelM": 1.04
     },
     {
      "fixed": true,
@@ -104203,14 +104217,16 @@ const CRAFT_PRICE_CATALOG={
       0
      ],
      "pos": [
-      6.5,
-      1.2180000089282348,
+      5.720000000000001,
+      1.1410000089282348,
       -8.01
      ],
      "k": "claser",
      "gun": 0.5,
      "aa": 0.5,
-     "cycle": 0.12
+     "cycle": 1,
+     "boreM": 0.1,
+     "barrelM": 1.04
     }
    ]
   }
@@ -104251,7 +104267,19 @@ const ARMOR_MAX = {hull: 3, cit: 4};
 // ---------- fittings (physical sizes in metres) ----------
 // Output per barrel per second of each class of aircraft laser (claserH heavy, claser medium, claserL and cturret light), in kt/s
 // and in TT/s (1 kt = 1e-9 TT).
-const CRAFT_LASER_OUTPUT_KT=Object.freeze({heavy:400,medium:50,light:10}),KT_PER_TT=1e9;
+// 2026-11-24 Gun rules for aircraft lasers (docs/handoff-2026-11-20/gun-energy-model-2026-11-24.md): a shot by the barrel's
+// bore, 20 kt + 780 kt × (bore² − 0.10²) ÷ (0.40² − 0.10²); about one shot a second a barrel; the range is 0.86 km at the
+// 1 m barrel and grows 125 m per metre of barrel per ln(kt). A placed laser carries its bore and barrel length (boreM,
+// barrelM); otherwise its type's: a medium laser is the Tri-TIE wing-tip laser (0.17 m, the bore of every TIE's chin laser,
+// whose pods are embedded: user 2026-11-24), a light laser 0.12 m, a heavy laser the Tri-TIE centre gun (0.30 m, 1.44 m).
+const CRAFT_LASER_GEOMETRY=Object.freeze({claser:Object.freeze({bore:.17,length:1}),claserL:Object.freeze({bore:.12,length:1}),claserH:Object.freeze({bore:.30,length:1.44}),cturret:Object.freeze({bore:.12,length:1})});
+// Measured barrels of the example craft (bore, length in metres; user 2026-11-24 table).
+const CRAFT_LASER_EXAMPLES=Object.freeze({craft_xwing:{claser:[.18,3.5]},craft_arc170:{claser:[.20,2.04]},craft_z95:{claser:[.10,1.04]}});
+const craftLaserKt=bore=>20+780*(Math.max(.10,bore)**2-.01)/.15;
+const craftLaserRangeM=(kt,length)=>860+125*Math.max(0,length-1)*Math.log(Math.max(1,kt));
+function craftLaserBarrel(src){const g=CRAFT_LASER_GEOMETRY[src?.k];if(!g)return null;const bore=src.boreM>0?clamp(src.boreM,.10,.40)/* a laser ends at 800 kt, the 0.40 m bore */:g.bore,length=src.barrelM>0?clamp(src.barrelM,.2,10):g.length,rate=src.rateHz>0?clamp(src.rateHz,.2,10):1;return {bore,length,rate};}
+function craftLaserRule(src){const b=craftLaserBarrel(src);if(!b)return null;const kt=craftLaserKt(b.bore),length=Math.max(1,b.length),rangeM=craftLaserRangeM(kt,length);return {kind:'laser',boreM:b.bore,barrelM:b.length,rateHz:b.rate,shotKt:kt,holdM:0,rangeM,fadeM:rangeM/Math.log(Math.max(1.0001,kt)),cycle:1/b.rate,heatFrac:null};}
+const CRAFT_LASER_OUTPUT_KT=Object.freeze({heavy:craftLaserKt(.30),medium:craftLaserKt(.17),light:craftLaserKt(.12)}),KT_PER_TT=1e9;
 const CRAFT_LASER_OUTPUT=Object.freeze(Object.fromEntries(Object.entries(CRAFT_LASER_OUTPUT_KT).map(([k,kt])=>[k,kt/KT_PER_TT])));
 const FITS = {
   pd:  {cat: 'w', name: '点防御レーザー砲', short: '点防御', fm: 9, wm: 9, hm: 6, tt: 0.5, aa: 6, mass: 250, crew: 3, cost: 20e3, desc: '戦闘機とミサイルを迎撃する。'},
@@ -104270,10 +104298,10 @@ const FITS = {
   brT: {cat: 'b', name: '塔型艦橋', short: '塔型', fm: 50, wm: 44, hm: 110, sensor: 1.0, pw: 3e21, mass: 45000, crew: 120, cost: 1.5e6, desc: '高さ110m級。視界が広いが標的になりやすい。'},
   brL: {cat: 'b', name: '大型司令塔', short: '大型', fm: 70, wm: 110, hm: 150, sensor: 1.25, pw: 6e21, mass: 110000, crew: 250, cost: 4e6, desc: '旗艦向けの指揮能力。'},
   // v21 Starfighter and small-craft weapons (metres; the pilot fires them, so no gun crew). Fixed guns point to the bow.
-  claser: {cat:'w',craft:true,fixed:true,name:'固定式レーザー砲',short:'レーザー砲',fm:2.6,wm:.32,hm:.32,barrels:1,outputClass:'medium',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:1.2,crew:0,cost:400,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（中型 50 kt/s）',desc:'機首方向に固定した戦闘機用レーザー砲（中型）。1門あたり毎秒50 kt、0.12秒ごとに1発6 kt。'},
-  claserL: {cat:'w',craft:true,fixed:true,name:'固定式軽レーザー砲',short:'軽レーザー',fm:2.2,wm:.26,hm:.26,barrels:1,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:.8,crew:0,cost:300,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）',desc:'機首方向に固定した戦闘機用の軽レーザー砲（軽）。1門あたり毎秒10 kt、0.12秒ごとに1発1.2 kt。'},
-  claserH: {cat:'w',craft:true,fixed:true,name:'重レーザー砲',short:'重レーザー',fm:3.6,wm:.5,hm:.5,barrels:1,outputClass:'heavy',cycle:.18,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:1,mass:3,crew:0,cost:1200,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（重 400 kt/s）',desc:'重戦闘機・ガンシップ用のレーザー砲（重）。1門あたり毎秒400 kt、0.18秒ごとに1発72 kt。'},
-  cturret: {cat:'w',craft:true,name:'小型旋回砲塔',short:'旋回砲塔',fm:1.3,wm:1.3,hm:.7,barrels:2,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,dualPurpose:true,aa:1.5,mass:2,crew:0,cost:900,evidence:'ユーザー指定：航空機レーザーは1砲身あたり毎秒出力で定義（軽 10 kt/s）',desc:'後部銃座・上部砲塔などの小型連装レーザー砲塔（軽）。2門が各毎秒10 kt、0.12秒ごとに各1発1.2 kt（一斉射2.4 kt）。'},
+  claser: {cat:'w',craft:true,fixed:true,name:'固定式レーザー砲',short:'レーザー砲',fm:2.6,wm:.32,hm:.32,barrels:1,outputClass:'medium',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:1.2,crew:0,cost:400,evidence:'ユーザー指定 2026-11-24：航空レーザーは口径で1発が決まる（口径 0.17 m で 118 kt）、連射は毎秒1発が目安',desc:'機首方向に固定した戦闘機用レーザー砲（中）。口径・長さ・連射速度を設置時に決める円柱の砲身。既定は口径 0.17 m・長さ 1 m で1発118 kt、毎秒1発。'},
+  claserL: {cat:'w',craft:true,fixed:true,name:'固定式軽レーザー砲',short:'軽レーザー',fm:2.2,wm:.26,hm:.26,barrels:1,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:2,mass:.8,crew:0,cost:300,evidence:'ユーザー指定 2026-11-24：航空レーザーは口径で1発が決まる（口径 0.12 m で 43 kt）、連射は毎秒1発が目安',desc:'機首方向に固定した戦闘機用の軽レーザー砲。口径・長さ・連射速度を設置時に決める円柱の砲身。既定は口径 0.12 m・長さ 1 m で1発43 kt、毎秒1発。'},
+  claserH: {cat:'w',craft:true,fixed:true,name:'重レーザー砲',short:'重レーザー',fm:3.6,wm:.5,hm:.5,barrels:1,outputClass:'heavy',cycle:.18,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,aa:1,mass:3,crew:0,cost:1200,evidence:'ユーザー指定 2026-11-24：航空レーザーは口径で1発が決まる（口径 0.30 m で 436 kt）、連射は毎秒1発が目安',desc:'重戦闘機・ガンシップ用の重レーザー砲。口径・長さ・連射速度を設置時に決める円柱の砲身。既定は口径 0.30 m・長さ 1.44 m で1発436 kt、毎秒1発。'},
+  cturret: {cat:'w',craft:true,name:'小型旋回砲塔',short:'旋回砲塔',fm:1.3,wm:1.3,hm:.7,barrels:2,outputClass:'light',cycle:.12,fixedPerBarrelEnergy:true,energyBasis:'per-barrel-second',pointDefense:false,dualPurpose:true,aa:1.5,mass:2,crew:0,cost:900,evidence:'ユーザー指定 2026-11-24：航空レーザーは口径で1発が決まる（口径 0.12 m で 43 kt）、連射は毎秒1発が目安',desc:'後部銃座・上部砲塔などの小型連装レーザー砲塔（軽）。2門が各1発43 kt、毎秒1発（一斉射86 kt）。'},
   // v22 Ordnance is carried as stores (ORDNANCE): these fittings are the stations that hold it — launch tubes with
   // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
   // are chosen in the order of battle (the default is the craft's canon loadout).
@@ -104286,7 +104314,10 @@ const FITS = {
 // Aircraft lasers are defined by their output per barrel per second (user decision 2026-11-11, docs/dev-status-2026-11.md
 // §1 4-2): heavy 400 kt/s, medium 50 kt/s, light 10 kt/s (1 kt = 1e-9 TT). Each shot carries that output over one firing
 // period (boltTT = rate × cycle), so a slower gun fires bigger shots and the per-second output stays the defined figure.
-for(const d of Object.values(FITS)){if(!d.outputClass)continue;const kt=CRAFT_LASER_OUTPUT_KT[d.outputClass];d.barrelTTs=kt/KT_PER_TT;d.boltTT=kt*d.cycle/KT_PER_TT;d.tt=d.barrels*d.boltTT;}
+for(const [k,d] of Object.entries(FITS)){if(!d.outputClass)continue;const rule=craftLaserRule({k}),kt=rule?rule.shotKt:CRAFT_LASER_OUTPUT_KT[d.outputClass];d.cycle=1;d.barrelTTs=kt/KT_PER_TT;d.boltTT=kt*d.cycle/KT_PER_TT;d.tt=d.barrels*d.boltTT;if(rule)d.gunRule=Object.freeze(rule);}
+// A placed aircraft laser with its own bore or barrel (user editing, the example craft's measured barrels).
+// The rate is the user's (shots a second a barrel): the rated input is a shot times the rate, and gas, power and heat rise with it.
+function craftLaserSpec(d,f){const rule=craftLaserRule(f);if(!rule)return d;const per=rule.shotKt/KT_PER_TT,barrels=Math.max(1,d.barrels||1),tt=per*barrels;const fm=Math.max(.3,rule.barrelM),wm=Math.max(.12,rule.boreM*1.8),k=fm*wm*wm/Math.max(1e-6,(d.fm||1)*(d.wm||1)*(d.hm||1))/* a cylinder of that barrel: its size, mass and cost by its volume */;return {...d,fm,wm,hm:wm,r:Math.max(fm,wm)/2,mass:(d.mass||0)*k,cost:(d.cost||0)*Math.sqrt(k),cycle:rule.cycle,barrelTTs:per*rule.rateHz,boltTT:per,tt,power:tt*TT*rule.rateHz,gunRule:Object.freeze(rule)};}
 // One shot of a weapon fired every `cycle` seconds (TT, all barrels). An aircraft laser carries its per-second output
 // over the period it actually fires at (a custom cadence or the catalogue's); other weapons keep their catalogue volley.
 function craftShotTT(d,cycle){const c=Number.isFinite(cycle)&&cycle>0?cycle:d?.cycle;return d?.outputClass&&d.barrelTTs>0&&c>0?d.barrelTTs*c*Math.max(1,d.barrels||1):Math.max(0,d?.tt||0);}
@@ -105150,6 +105181,8 @@ function normalizeFitMount(f){
 }
 function fitFrameOf(f) {
   f=migrateWeaponFit(f);
+  // 2026-11-24 (user「正面に向けてのみの配置」): an aircraft laser always points ahead (+X), its up the mounting normal less any forward part.
+  if(CRAFT_LASER_GEOMETRY[f.k]&&FITS[f.k]?.fixed/* the turret (cturret) turns as before */){const base=fitFrame(f.a),n=f.tilt||base.up;let up=[0,n[1],n[2]];if(len(up)<1e-3)up=[0,1,0];up=norm(up);const saved=f.frameForward||f.localForward,fw=[Array.isArray(saved)&&saved[0]<-.5?-1:1,0,0]/* a saved gun that faces astern (the ARC-170's tail guns) keeps facing astern: the rule is for new placements (save review 2026-11-25) */;return {up,fw,rt:cross(fw,up)};}
   const surface=isSurfaceBattery(f)||isBroadsideBattery(f),base=fitFrame(f.a),up=surface?fitUp(f):f.tilt||base.up;
   let fw=f.tilt||surface?sub(base.fw,mul(up,dot(base.fw,up))):base.fw;
   if (len(fw) < 1e-3) fw = sub(base.rt, mul(up, dot(base.rt, up)));
@@ -105735,7 +105768,7 @@ function baseComputeStats(ship,options={}) {
     if(overlapParts(a,b)){invalid.add(a.id);invalid.add(b.id);}
   }
   let crew = 0, cost = 0, hpSum = 0;const costBy = {hull: 0, armor: 0, power: 0, drive: 0, defense: 0, hangar: 0, command: 0, weapons: 0, systems: 0};   // PLAN-002 the build cost by category (costCategory)
-  let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
+  let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, engNoSource = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
   const reactorVolumes=[];let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,shieldDissipationW,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [],countedMachinery=new Set();
@@ -105786,7 +105819,7 @@ function baseComputeStats(ship,options={}) {
       engN++; Veng += V;
       const spec=resolveEngineSpec(pt,ship),source=ship.parts.find(r=>isReactor(r)&&r.id===spec.reactorId),path=enginePaths(ship).find(r=>r.nozzle===spec.machineryId);
       let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id))&&!invalid.has(pt.id)&&!detached.has(pt.id);/* thrust follows the placement connection judgment exactly (no separate geometric test) *//* user decision 2026-11-13: a placed engine that does not stand on its body gives no thrust */
-      info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;
+      info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;if(!source)engNoSource++;
       if(ok){ventEng+=V;if(!countedMachinery.has(spec.machineryId)){countedMachinery.add(spec.machineryId);availableThrust+=spec.ratedThrustN;engineDemand+=spec.valid?spec.ratedInputW:0;}info[pt.id].powerRatio=1;}
     }
   }
@@ -105836,8 +105869,8 @@ function baseComputeStats(ship,options={}) {
   let Vacc = 0; for (const H of hangars) { info[H.pt.id].acc = H.acc; info[H.pt.id].doors = [...H.doors].map(id => hatchInfo[id]?.opening).filter(Boolean); if (H.acc&&H.pt.k==='hangar') Vacc += partVolume(H.pt); }
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid),vlsInfo=missileStatus(ship,invalid);
   // fittings
-  const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]};
-  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, clashFits = 0, pedVol = 0, clashFitIds = [], weaponCrew = 0;
+  const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]},bandRules={long:{},mid:{},close:{}},ionRules={}/* 2026-11-24 the gun rules in each band, weighted by rate (gunRuleRows) */;
+  let allGunVolleyTT = 0, alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, wWaste = 0, wOut = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, clashFits = 0, pedVol = 0, clashFitIds = [], weaponCrew = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};let aaCh=AA_CHANNELS.base;
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
@@ -105851,13 +105884,14 @@ function baseComputeStats(ship,options={}) {
     bins[binOf(f.p[0])] += m;
     if (d.cat === 'w') {
       if(f.float)continue;
-      if(isConcussionLauncher(f))bPower+=d.power;else wPower+=d.power;
+      if(isConcussionLauncher(f))bPower+=d.power;else{wPower+=d.power;wWaste+=(d.power||0)*weaponWasteFrac(d);wOut+=(d.power||0)/weaponChargeFactor(d);}
       if (d.tt || d.ion || d.aa) {
         // Stock engineering passes need the same physical mass and loads but
         // no firing survey. The final editor/fleet calculation always surveys.
         const arc = options.engineeringOnly ? [0,0,0,0,0,0] : fireArcs(ship, f, hf, obst); fitInfo[f.id] = arc;
         const mean = arc.reduce((a, b) => a + b, 0) / 6;
         const br = bandRate[fitBand(FITS[f.k] || d)];
+        if(d.gunRule&&(d.tt||d.ion)){const rows=d.ion?ionRules:bandRules[fitBand(FITS[f.k]||d)],w=(d.tt||d.ion)/(d.cycle||K.cycle),r=rows[f.k]||(rows[f.k]={w:0,kind:d.gunRule.kind,holdM:d.gunRule.holdM,rangeM:d.gunRule.rangeM,fadeM:d.gunRule.fadeM||0,...(d.gunRule.parts?{parts:d.gunRule.parts.map(q=>({...q}))}:{})});r.w+=w;}
         const automaticAA=weaponRoles(d).pointDefense?d.aa||0:0;
         for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);br[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);}if (automaticAA) aaArc[k] += automaticAA * arc[k]; }
         if (d.tt) alphaTot += d.tt; if (d.ion) ionTot += d.ion; if (automaticAA) aa += automaticAA * Math.min(1, mean * 1.6);
@@ -105961,10 +105995,10 @@ function baseComputeStats(ship,options={}) {
     power: P, xISD: P / ISD_W, draw: {weapons: Dw, shields: Ds, engines: De, hotel: Dh, systems:systemsPower, ray: Dr, jump: Dj},
     rc, coreRate,weaponBudget,chargeInfo,vlsInfo, rm, jumpOK, jumpChargeS, jumpChargeJ, jumpSpareW, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
     weakAt: worstX, cutSection: cut, structLimited: aStruct < aThrust, MGLT: Math.round(aEff / G0 / 30),
-    engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
+    engN, ventEng, engNoSource, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
     shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate,...(shieldDissipationW!=null?{shieldDissipationW}:{}), shieldTarget:ship.shieldTarget||1, armorHull:ship.surfaces?surfaceArmor.average:ship.armor.hull,armorCit:cit,armorAvg:surfaceArmor.average+(area>0?plateAT/area:0),armorPlate:plateA>0?plateAT/plateA:0,plateArea:plateA,plateShare:area>0?Math.min(1,plateA/area):0,plateMass:plateM,
     slots, aviation, deployableSlots:aviation.combatDeployable, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
-    allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
+    weaponWasteFrac:wPower>0?wWaste/wPower:HEAT.waste.weapon,weaponChargeFactor:wOut>0?wPower/wOut:1,allGunVolleyTT,alphaRate,ionRate,aaArc,bandRate,gunBandRules:Object.fromEntries(Object.entries(bandRules).map(([k,v])=>[k,Object.values(v)])),ionRules:Object.values(ionRules),alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, fireControl:ship.parts.some(p=>p.k==='firecontrol'&&!p.surfaceUnplaced&&!info[p.id]?.overlap)||Object.values(commandInfo).some(c=>c.fireControl&&c.ratio>0),tractorControl:ship.parts.some(p=>isTractorControl(p)&&!info[p.id]?.overlap&&!info[p.id]?.detached),fireControlVolume:ship.parts.filter(p=>['firecontrol','targetComputer'].includes(p.k)&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0),bridgeVolume:ship.parts.filter(p=>(equipmentSpec(p)?.group==='bridge'||['bridge','command'].includes(p.k))&&!p.surfaceUnplaced&&!info[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0)+commandCompartments(ship).reduce((n,p)=>n+partVolume(p),0),aimGuns:ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w'&&!FITS[f.k].msl&&!FITS[f.k].craft).reduce((n,f)=>n+(f.aggregateCount||1),0), sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Number.isFinite(ship.airControl)?Math.max(1,Math.round(ship.airControl))/* the design states its air control (EXAMPLE_AIR_CONTROL) */:Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost:Math.round(cost), costBy:costBreakdown(cost,costBy),
@@ -106000,7 +106034,7 @@ function warnings(S) {
   if (S.Vgen <= 0) add2('bad', S.invalidReactorIds?.length ? '反応炉 '+S.invalidReactorIds.map(id=>'#'+id).join('、')+' は配置が無効（船内に収まらない、または他の設備と重なる）なため出力に数えていません。配置の問題を解消してください。出力ゼロでは何も動きません。' : 'ジェネレーターがありません。出力ゼロでは何も動きません。');
   if (S.engN === 0) add2('bad', 'エンジンがありません。');
   else if (S.ventEng <= 0) add2('bad', 'どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。');
-  else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
+  else if (S.ventEng < S.Veng * 0.999) add2('warn', S.engNoSource > 0 ? /* 2026-11-25 the engine's nozzle is open; it has no reactor (the message named the nozzle for this too) */`反応炉に接続されていないエンジンが ${S.engNoSource} 基あります（推力に寄与しません）。「接続する炉」を選び直してください。` : '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
   if (S.bridges === 0) add2('bad', '艦橋がありません。命中率が大きく落ちます。');
   if (S.floating) add2('bad', `船体から離れて浮いている区画が ${S.floating} 個あります。`);
   // A fitting refused because it stands in another fitting or equipment is reported as that, not as a lost surface.
@@ -106263,7 +106297,8 @@ addComp('pump','反応物供給設備','cube',0.3,[197,155,95],'power','ポン�
 addComp('localShield','局所シールド発生器','sphere',0.5,[82,192,164],'support','船内に設置し、広域発生器とともに防御出力を担います。',{def:20,crit:true});
 addComp('inertial','慣性制御装置','cyl',0.4,[134,158,211],'support','艦の質量に応じた慣性制御能力。足りない場合は警告します。',{def:44});
 addComp('integrity','構造維持装置','cube',0.45,[127,156,177],'support','構造維持フィールドを支える装置。艦体規模との適合を確認できます。',{def:36});
-addComp('repulsor','リパルサーリフト','cyl',0.35,[112,199,202],'support','艦や機体を重力に抗して支えるリパルサーリフト（着陸脚を含む）。支えられる質量は容積で決まり、艦の質量ぶんを積みます。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
+// 2026-11-24 (user「今の艦艇に搭載してるリパルサーリフトを『重力制御装置』」): the ship's lift is its gravity control. The saved key stays 'repulsor'.
+addComp('repulsor','重力制御装置','cyl',0.35,[112,199,202],'support','艦内に1Gを合成し、艦を重力に抗して支える重力制御装置。支えられる質量は容積で決まり、艦の質量ぶんを積みます。合成した重力の起点は空間にしばらく残るため、動く艦は後ろへ引かれます（重い艦ほど少し強く減速する運動抵抗）。浮揚と接地の支持能力、給電をそれぞれ点検します。',{def:40});
 addComp('service','航空整備・補給区画','cube',0.1,[79,140,162],'air','航空機の整備・補給能力を確保します。格納庫とは別に空間を使います。',{def:60});
 addComp('cargo','貨物・物資庫','cube',0.05,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
 // Provisional game equipment: rooms reserve existing envelope living volume;
@@ -106346,12 +106381,12 @@ for(const [k,name,dens,col,def,cost,desc] of [
  ['targetComputer','照準コンピューター',.60,[216,137,128],.26,6,'武装の追跡と照準を処理します。対応できる武装数に対して不足すると命中率が下がります。既存の射撃管制区画も同じ処理能力に加わります。'],
  ['maneuver','姿勢制御スラスター',.55,[126,179,220],.35,4,'小型推進器と姿勢制御の配管。容積から対応質量を算出し、機体の旋回能力に反映します。主推進やリパルサーの代わりにはなりません。'],
  ['laserGas','レーザーガス供給装置',.30,[210,184,104],.24,4,'小型レーザー砲のガス槽と供給配管。搭載量と砲の出力から同時射撃できる秒数を算出し、母艦で補充します。イオン砲・艦用ターボレーザーは対象外です。'],
- ['landingGear','着陸脚',.65,[160,170,180],.45,3,'地上で機体を支える脚と格納・展開機構。対応質量が足りるかを確認します。飛行・揚陸に必要な推力やリパルサー支持力は別に必要です。']
+ ['landingGear','リパルサーリフト',.65,[160,170,180],.45,3,'小型機を浮かせて地上で支えるリパルサーリフト（着陸・浮上の支持装置）。容積から支えられる質量を算出し、機体の質量に足りるかを確認します。（2026-11-24、旧「着陸脚」）']
 ]){addComp(k,name,'cube',dens,col,'craft',desc,{def,min:.05,max:30,crew:0,cost,hp:.5});CRAFT_PART_SIZE[k]=[.05,30,def];}
 Object.assign(PARTS.navComputer,{group:'command'});
 // Retain old stable kinds for saved drawings; new installation has one entry
 // for each combined function. Launcher magazines remain generated equipment.
-PARTS.landingGear.catalogHidden=true;
+// 2026-11-24 (user「小型機に搭載してて今は呼び出せない着陸脚を小型機に移し『リパルサーリフト』」): listed again, for craft, as the repulsorlift.
 // User decision 2026-11-21 (「居住区は廃止する方針(余積を居住区扱いのみ)では無かったのか」「外面編集は装甲のみになりそれ以外は無くなったのでは？」):
 // the habitation compartment, added on 2026-11-03 for the equipment faces' habitation share, was left in the parts list when those
 // faces were retired (2026-11-05). It is retired like the crew quarters (v19): not offered, and a placed one is dropped on load.
@@ -106389,7 +106424,11 @@ function isReactor(p){return p.k==='gen'||p.k==='aux';}
 function reactorFor(ship,p){
   const rs=ship.parts.filter(isReactor);
   if(p.reactor===0)return null;
-  if(p.reactor!=null)return rs.find(r=>r.id===p.reactor)||null;
+  // 2026-11-25 A reactor that is no longer in the ship is no choice any more: the engine (or other consumer) is fed as one
+  // with no reactor chosen, by the nearest. It was left with none: the user's GR-75, rebuilt inside with one reactor in place of
+  // four, kept its two side engines on auxiliary reactors #48 and #49, which were gone, and they gave no thrust (user「エンジンは
+  // 何も手を加えてないのでバグでは？」). 0 still means none on purpose.
+  if(p.reactor!=null){const chosen=rs.find(r=>r.id===p.reactor);if(chosen)return chosen;}
   return rs.sort((a,b)=>len(sub(a.c,p.c))-len(sub(b.c,p.c)))[0]||null;
 }
 function frameAxis(axis){const u=norm(axis),v=norm(cross(Math.abs(u[1])<0.9?[0,1,0]:[0,0,1],u));return {u,v,w:cross(u,v)};}
@@ -106770,7 +106809,7 @@ function engineeringStats(ship,S){
   S.fuelVolume=v('fuel');S.fuelHours=0;
   // v24 Craft need feed equipment too; the ratio already limits the reactor output (reactorPower).
   S.supplyRatio=reactantSupplyRatio(ship);
-  S.fieldGain=craftFieldGain(Math.max(.001,S.dims?.[0]||0));S.inertialSupport=v('inertial')*120*S.fieldGain;S.integritySupport=v('integrity')*180*S.fieldGain;S.repulsorSupport=v('repulsor')*70;
+  S.fieldGain=craftFieldGain(Math.max(.001,S.dims?.[0]||0));S.inertialSupport=v('inertial')*120*S.fieldGain;S.integritySupport=v('integrity')*180*S.fieldGain;S.repulsorSupport=(v('repulsor')+v('landingGear'))*70/* 2026-11-24 a craft's repulsorlift holds it up as the ship's gravity control does */;
   S.crewCapacity=0;S.troopCapacity=0;S.vehicleCapacity=(S.aviation?.vehicles||[]).reduce((n,r)=>n+r.embarked,0);S.vehicleSizeCapacity=(S.aviation?.vehicleSize||0)+(S.aviation?.freeSize||0);S.cargoCapacity=v('cargo')*.4;S.serviceCapacity=Math.floor(v('service')/1500);
   S.airControl=Object.values(S.commandInfo).filter(c=>c.role==='air'&&c.ratio>=.5).length;S.hangarControl=Object.values(S.commandInfo).filter(c=>c.role==='hangar'&&c.ratio>=.5).length;
   // Field-strength gain is a common game coefficient, not a class-name override.
@@ -106989,7 +107028,7 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 // (v25 the Executor is the user's whole design: its machinery, reactors and engines are kept as built, not refitted)
-const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems; 2026-11-24 the Venator is the user's design too */'acclamator','arquitens','cr90','dreadnaught','gozanti','gr75','hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
+const SHIP_SYSTEM_REFIT_KEYS=Object.freeze(['deathstar',/* 2026-11-23 the Imperial I / II remodels carry their own systems; 2026-11-24 the Venator is the user's design too */'acclamator','arquitens','cr90','dreadnaught','gozanti',/* 2026-11-25 the GR-75 is the user's design too */'hammerhead','heraklon','lucrehulk','lh3210','mandator2','mc30c','mc75','mc80home','mc80liberty','munificent','nebulonb','onager','providence','providenceDn','recusant','recusantDn','reptransport','subjugator']);
 let stockShipLauncherBuild=false;
 // v24 A measured structure whose shape touches nothing grounded (a layer that floats over the one below it) gets
 // a strut to the nearest grounded structure or the hull below it (or above it, for one hanging under the ship), so example ships pass the grounding check
@@ -107026,7 +107065,7 @@ function bridgeLooseStructures(ship){
 const EXAMPLE_CLASS_NAMES=Object.freeze({"acclamator": "アクラメイター級", "arquitens": "アークワイテンス級", "cr90": "CR-90", "dreadnaught": "ドレッドノート級", "executor": "エグゼクター級", "gozanti": "ゴザンティ級", "gr75": "GR-75", "hammerhead": "スフィルナ級", "heraklon": "ヘラクロン級", "imperial": "インペリアルI級", "imperial2": "インペリアルII級", "lh3210": "LH-3210", "lucrehulk": "ルクレハルク級", "mandator2": "マンデイターII級", "mc30c": "MC-30C", "mc75": "MC-75", "mc80home": "MC-80A", "mc80liberty": "MC-80", "munificent": "ミュニフィセント級", "nebulonb": "ネビュロン-B", "onager": "オナガー級", "providence": "プロヴィデンス級", "providenceDn": "プロヴィデンス級ドレッドノート", "recusant": "レキューザント級", "recusantDn": "レキューザント級ドレッドノート", "subjugator": "サブジュゲイター級", "venator": "ヴェネター級"});
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild,previousSupportLift=legacySupportLiftBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');legacySupportLiftBuild=true;/* the builders were authored under the older turret lift */try{
-  const finish=s=>{if(EXAMPLE_CLASS_NAMES[key])s.name=EXAMPLE_CLASS_NAMES[key];seatIsdCommandAssets(s);dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);if(!s._craftRemodel)settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key]&&!s._craftRemodel)installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
+  const finish=s=>{if(EXAMPLE_CLASS_NAMES[key])s.name=EXAMPLE_CLASS_NAMES[key];{const ex=CRAFT_LASER_EXAMPLES[key];if(ex)for(const f of s.fits||[])if(ex[f.k]){f.boreM=ex[f.k][0];f.barrelM=ex[f.k][1];}}/* 2026-11-24 the example craft's measured barrels */seatIsdCommandAssets(s);dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);if(!s._craftRemodel)settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key]&&!s._craftRemodel)installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -107047,7 +107086,7 @@ STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
 addComp('sensor','センサー・標的追跡装置','sphere',.36,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
 // Active electronics draw and reject heat through the common hotel network.
 PARTS.sensor.power=2e15;PARTS.scanner.power=2e15;
-function partLabel(p){return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':isStructuralPart(p)&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
+function partLabel(p){if(p?.k==='repulsor'&&typeof p.label==='string'&&/^分散リパルサーリフト/.test(p.label))return p.label.replace(/^分散リパルサーリフト/,'分散重力制御装置');return p.label||equipmentSpec(p)?.name||(isAeroPart(p)?PARTS[p.k].name:isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':isStructuralPart(p)&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
 // Default stations for the section table: they fall on the plan's own corners.
 function planStations(h){if(h.plan==='arrow'){const m=clamp(h.maxAt??.3,.05,.9);return [0,m/2,m,m+(1-m)/3,m+(1-m)*2/3,1];}if(h.plan==='rect')return [0,.35,.7,.8,.9,1];return [0,.2,.4,.6,.8,1];}
 function profileAt(h,t){
@@ -107641,9 +107680,9 @@ function structureArmorFaces(ship,part){
  surfaceArmorOnly(ship);const id=typeof part==='object'?part?.id:part,p=ship?.parts?.find(p=>p.id===id);if(!isStructuralPart(p))return [];
  return surfacePatches(ship,false,true).filter(q=>q.host==='p'+p.id).map(q=>({...q,thickness:surfaceArmor(q.config).thickness}));
 }
-function setStructureFaceArmor(ship,part,face,thickness){
+function setStructureFaceArmor(ship,part,face,thickness,only=null/* 2026-11-25 a test on the face's patches: only those it passes are set */){
  if(!Object.hasOwn(SURFACE_FACE,face)||!Number.isFinite(thickness)||thickness<0||thickness>SURFACE_LIMITS.armorThickness)return {ok:false,why:'装甲厚は0〜100 mで指定してください'};
- const faces=structureArmorFaces(ship,part).filter(q=>q.face===face);if(!faces.length)return {ok:false,why:'装甲厚を変更する構造物の面がありません'};
+ const faces=structureArmorFaces(ship,part).filter(q=>q.face===face&&(!only||only(q)));if(!faces.length)return {ok:false,why:'装甲厚を変更する構造物の面がありません'};
  if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,armorOnly:1,mode:'strict',compatAllowed:false,legacyArmor:ship.armor?.hull||0,patches:[]};
  const ids=new Set(ship.surfaces.patches.map(q=>q.id));if(ids.size+faces.filter(q=>!ids.has(q.id)).length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
  for(const p of faces){const current=surfaceConfig(ship,p.id),record={...current,authored:true,functionMode:'armor',armor:{...current.armor,thickness},boundArea:p.area},clean=normalizeSurfaces({version:SURFACE_VERSION,armorOnly:1,patches:[record]}).patches[0],i=ship.surfaces.patches.findIndex(q=>q.id===p.id);if(i<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[i]=clean;}
@@ -107971,7 +108010,7 @@ function surfaceProfile(ship,S,p){
  // The collision shell is the exposed patches' triangles in patch order. It is
  // not stored on the profile (it doubled every profile message and cache record);
  // surfaceShell derives the identical array where a battle needs it.
- for(const f of ship.fits){const d=fitSpec(f);if(FITS[f.k]?.cat!=='w'||f.float||!((d.tt||0)+(d.ion||0)+(d.aa||0)+(d.msl||0)>0))continue;const mi=(p.modules||[]).findIndex(m=>m.fit===f.id),cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,capacity=needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(d.tt||d.ion||d.aa||0),mount={id:f.id,module:mi,patch:f.surfacePatch||null,cell:f.surfaceCell||null,name:d.short||d.name,volleyTT:(d.tt||0)+(d.ion||0),boltTT:((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1),...(isTrenchBatteryGroup(f)?{}:surfaceWeaponGeometry(f,offset)),center:local(f.surfacePoint||f.p),normal:(f.n||AXES[f.a]||[0,1,0]).slice(),footprint:f.surfaceFootprint?.slice()||[d.fm,d.wm],arcs:Array.isArray(S.fitInfo?.[f.id])?S.fitInfo[f.id].slice():[0,0,0,0,0,0],gun:(d.tt||0)*cr/(d.cycle||K.cycle),ion:(d.ion||0)*cr/(d.cycle||K.cycle),capacity:Math.max(0,capacity),housingCapacity:needsCapacitor(f)?Math.max(0,(S.chargeInfo?.[f.id]?.housingUsed||0)*CHARGE_TT_M3):undefined/* user report 2026-11-16「武装の充電ができない」: a weapon without a charging plant (a craft laser) held 0 in its housing, so its whole charge counted as an internal capacitor that does not exist (蓄電設備破壊) and it never charged */,power:Math.max(0,d.power||0)*weaponInputFactor(p),barrels:Math.max(1,d.barrels||1),crewNeed:(d.crew||0)*WEAPON_CREW_K,crew:(d.crew||0)*WEAPON_CREW_K,cycle:d.cycle||K.cycle,band:fitBand(d),dualPurpose:weaponRoles(d).dualPurpose,aaTier:antiAirTier(d),missile:!!d.msl,roundKind:d.roundKind||null};if(isTrenchBatteryGroup(f))trenchProfileMount(ship,S,p,mount,f,groups.get(f.id));p.surface.mounts.push(mount);if(f.surfacePatch&&!isTrenchBatteryGroup(f)){const port=surfaceBatteryGeometry(f);p.surface.devices.push({...mount,...(port?{center:local(port.mouth),wallPoint:local(port.wallPoint),wallOffset:port.armorOffset,footprint:[port.width,port.height],u:port.u.slice(),v:port.v.slice(),normal:port.normal.slice(),lip:port.lip}:{}),kind:'weapon',external:true});}}
+ for(const f of ship.fits){const d=fitSpec(f);if(FITS[f.k]?.cat!=='w'||f.float||!((d.tt||0)+(d.ion||0)+(d.aa||0)+(d.msl||0)>0))continue;const mi=(p.modules||[]).findIndex(m=>m.fit===f.id),cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,capacity=needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(d.tt||d.ion||d.aa||0),mount={id:f.id,module:mi,patch:f.surfacePatch||null,cell:f.surfaceCell||null,name:d.short||d.name,volleyTT:(d.tt||0)+(d.ion||0),boltTT:((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1),...(isTrenchBatteryGroup(f)?{}:surfaceWeaponGeometry(f,offset)),center:local(f.surfacePoint||f.p),normal:(f.n||AXES[f.a]||[0,1,0]).slice(),footprint:f.surfaceFootprint?.slice()||[d.fm,d.wm],arcs:Array.isArray(S.fitInfo?.[f.id])?S.fitInfo[f.id].slice():[0,0,0,0,0,0],gun:(d.tt||0)*cr/(d.cycle||K.cycle),ion:(d.ion||0)*cr/(d.cycle||K.cycle),capacity:Math.max(0,capacity),housingCapacity:needsCapacitor(f)?Math.max(0,(S.chargeInfo?.[f.id]?.housingUsed||0)*weaponChargeSpec(f).ttPerM3/* physics review 2026-11-25: at the density the room holds its volleys at (below CHARGE_TT_M3 for a gun at the least volume or with feedK), as storedTT is; at the fixed 0.05 the gunhouse's share came out larger than the whole charge */):undefined/* user report 2026-11-16「武装の充電ができない」: a weapon without a charging plant (a craft laser) held 0 in its housing, so its whole charge counted as an internal capacitor that does not exist (蓄電設備破壊) and it never charged */,power:Math.max(0,d.power||0)*weaponInputFactor(p)/(p?.weaponCharge>1?p.weaponCharge:1)/* physics review 2026-11-25: d.power is already the charging rate of E(1+c); only the plant's efficiency is added */,inputK:p?.energyModel?.version===1?weaponChargeFactor(d)/clamp(p.energyModel.eta||ENERGY_MODEL.eta,.05,1):1/* physics review 2026-11-25: the input this gun takes for the energy it delivers, its own charge factor over the plant's efficiency (the ship's mean, weaponInputFactor, is the same weighted over its guns) */,barrels:Math.max(1,d.barrels||1),crewNeed:(d.crew||0)*WEAPON_CREW_K,crew:(d.crew||0)*WEAPON_CREW_K,cycle:d.cycle||K.cycle,band:fitBand(d),...(d.gunRule?{rule:{kind:d.gunRule.kind,holdM:d.gunRule.holdM,rangeM:d.gunRule.rangeM,fadeM:d.gunRule.fadeM||0,...(d.gunRule.parts?{parts:d.gunRule.parts.map(q=>({...q}))}:{})}}:{}),dualPurpose:weaponRoles(d).dualPurpose,aaTier:antiAirTier(d),missile:!!d.msl,roundKind:d.roundKind||null};if(isTrenchBatteryGroup(f))trenchProfileMount(ship,S,p,mount,f,groups.get(f.id));p.surface.mounts.push(mount);if(f.surfacePatch&&!isTrenchBatteryGroup(f)){const port=surfaceBatteryGeometry(f);p.surface.devices.push({...mount,...(port?{center:local(port.mouth),wallPoint:local(port.wallPoint),wallOffset:port.armorOffset,footprint:[port.width,port.height],u:port.u.slice(),v:port.v.slice(),normal:port.normal.slice(),lip:port.lip}:{}),kind:'weapon',external:true});}}
  for(const q of ship.parts)if(q.surfacePatch&&!q.surfaceUnplaced){const mi=(p.modules||[]).findIndex(m=>m.part===q.id);if(q._surfaceAdapter){for(const r of q._surfaceAdapter.cells)if(r[3]===0)p.surface.devices.push({id:r[0],module:mi,patch:q.surfacePatch,cell:r[26],center:local(r.slice(14,17)),normal:r.slice(10,13),footprint:r.slice(17,19),kind:q.k,external:q.k!=='hdis'});}else p.surface.devices.push({id:q.id,module:mi,patch:q.surfacePatch,cell:q.surfaceCell,center:local(q.surfacePoint||q.c),normal:q.surfaceNormal?.slice()||[0,1,0],footprint:q.surfaceFootprint?.slice()||[q.d,q.d],kind:q.k,external:q.k!=='hdis'});}
  if(p.zT&&p.zA){
   const cuts=[0,...(p.sectionCuts||[.2,.4,.6,.8]),1],L=Math.max(1,span[1]-span[0]);p.zT=p.zT.map(t=>Math.max(0,t-(S.armorHull||0)));p.armorHull=0;
@@ -108085,7 +108124,7 @@ function surfaceMountArc(u,t,m,d,query){
   return total>0?visible/total:0;
  }
  const q=query||surfaceFireQuery(u,t),band=GUN_BANDS[m.band]||GUN_BANDS.mid,origin=m.muzzle||m.center||[0,0,0],vx=q.x-origin[0],vy=q.y-origin[1],vz=q.z-origin[2],distance=Math.hypot(vx,vy,vz);
- if(distance>band.range&&m.gun>0&&!m.ion||distance>GUN_BANDS.long.range)return 0;const inverse=distance>1e-12?1/distance:0;let dir=[vx*inverse,vy*inverse,vz*inverse];
+ if(m.rule?distance>m.rule.rangeM:distance>band.range&&m.gun>0&&!m.ion||distance>GUN_BANDS.long.range)return 0;const inverse=distance>1e-12?1/distance:0;let dir=[vx*inverse,vy*inverse,vz*inverse];
  if(m.embedded&&m.casemate&&!surfaceBatteryInArc({normal:m.normal||m.dir,v:m.v},dir,m.trenchArc?TRENCH_BATTERY_ARC.yawDeg:65))return 0;
  if(m.fixed){const fixed=norm(m.dir||[1,0,0]),gate=Math.cos(CRAFT_FIRE.fixedCone*Math.PI/180);if(dot(fixed,dir)<gate){const world=[u.pos[0]+origin[0]*q.c-origin[2]*q.s,u.pos[1]+origin[1],u.pos[2]+origin[0]*q.s+origin[2]*q.c],forward=[fixed[0]*q.c-fixed[2]*q.s,fixed[1],fixed[0]*q.s+fixed[2]*q.c];if(!hullSegment(t,world,surfaceAdd(world,forward,distance+Math.max(t.p.len||1,t.p.width||1)),.98))return 0;}dir=fixed;}
  const shell=surfaceShellBVH(u.p);if(m.authored){const want=sub([q.x,q.y,q.z],m.authored.elevationPivot);if(!authoredTurretInArc(m.authored,want))return 0;const pose=aimAuthoredTurretAt(m.authored,want);if(shell&&pose.muzzles.some(p=>surfaceCachedRay(shell,surfaceAdd(p,pose.fw,.02),pose.fw,Math.max(.1,len(sub([q.x,q.y,q.z],p))-.1),true,m)!=null))return 0;}else if(shell&&surfaceCachedRay(shell,surfaceAdd(origin,dir,m.embedded?.001:.05),dir,Math.max(.1,distance-.1),true,m)!=null)return 0;
@@ -108093,20 +108132,21 @@ function surfaceMountArc(u,t,m,d,query){
 }
 function surfaceFleetFire(u,t,d){
  const query=surfaceFireQuery(u,t),control=fleetSystems(u).fire,hits={},shared={};let gun=0,ion=0,gunLanded=0,ionLanded=0;
- const chance=band=>hits[band]??(hits[band]=gunHitChance(u,t,d,GUN_BANDS[band]?.range||GUN_BANDS.long.range,control));
- for(const m of u.p.surface.mounts){if(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose&&(u.dualWeights?.[m.aaTier??0]??1)>=.5)continue;const state=surfaceMountState(u,m,shared),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),g=m.gun*a*k,i=m.ion*a*k;gun+=g;ion+=i;gunLanded+=g*chance(m.band||'mid');ionLanded+=i*chance('long');}
- return {gun,ion,cost:(gun+ion)*weaponInputFactor(u.p),gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0,runtime:true};
+ const chance=band=>hits[band]??(hits[band]=gunHitChance(u,t,d,GUN_BANDS[band]?.range||GUN_BANDS.long.range,control)),ruleChance=(r,band)=>hits['r'+r+band]??(hits['r'+r+band]=gunHitChance(u,t,d,r,control,gunSpreadRange(r,band)));let raw=0,rawInput=0;
+ // 2026-11-24 A mount with gun rules lands the share of its bolt still there at d, with the scatter of a gun of its own reach.
+ for(const m of u.p.surface.mounts){if(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose&&(u.dualWeights?.[m.aaTier??0]??1)>=.5)continue;const state=surfaceMountState(u,m,shared),k=state.operable;if(!(k>0))continue;const a=surfaceMountArc(u,t,m,d,query),share=m.rule?gunShotShare(m.rule,d):1,g=m.gun*a*k*share,i=m.ion*a*k*share;raw+=(m.gun+m.ion)*a*k;rawInput+=(m.gun+m.ion)*a*k*(m.inputK>0?m.inputK:weaponInputFactor(u.p));gun+=g;ion+=i;const p=m.rule?ruleChance(m.rule.rangeM,m.band||'mid'):null,pi=m.rule&&i>0?ruleChance(m.rule.rangeM,'long'):p;gunLanded+=g*(p??chance(m.band||'mid'));ionLanded+=i*(pi??chance('long'));}
+ return {gun,ion,cost:rawInput/* each mount's own input for what it fires (physics re-review 2026-11-25) */,gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0,runtime:true};
 }
 function surfacePowerStep(u,s,t,raw,dt,chargingW,volley=1){
  surfaceCapacitorSync(u);
- const mounts=u.p.surface.mounts||[],banks=surfaceBanks(u),factor=weaponInputFactor(u.p),shared={},state=mounts.map(m=>surfaceMountState(u,m,shared)),domain=m=>u.p.modules?.[m.module]?.domain||'main',domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0}],limits=new Map(domains.map(d=>[d.id,Math.max(0,powerDomainWatts(u,d.id))*dt/TT/factor])),cellLimits=mounts.map((m,i)=>Math.max(0,m.power)*state[i].operable*state[i].capacitorK*dt/TT/factor);let charge=Math.max(0,chargingW)*dt/TT/factor;
+ const mounts=u.p.surface.mounts||[],banks=surfaceBanks(u),factor=weaponInputFactor(u.p),shared={},state=mounts.map(m=>surfaceMountState(u,m,shared)),domain=m=>u.p.modules?.[m.module]?.domain||'main',domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0}],kOf=m=>m.inputK>0?m.inputK:factor/* physics re-review 2026-11-25: the domain's power, the charge offered and each module's grant are kept as input; a mount turns input into charge by its own factor, so a laser beside turbolasers fills at its own rate and a turbolaser is charged its own input (a profile without inputK keeps the ship's mean) */,limits=new Map(domains.map(d=>[d.id,Math.max(0,powerDomainWatts(u,d.id))*dt/TT])),cellLimits=mounts.map((m,i)=>Math.max(0,m.power)*state[i].operable*state[i].capacitorK*dt/TT/kOf(m)/* what a mount can take in a step, as charge: its own charging rate over its own input factor, so that it fills as fast as it fires (m.gun) */);const offered=Math.max(0,chargingW)*dt/TT;let charge=offered;
  // Grants already share their source and trunk with propulsion and cooling.
  // A full bank cannot lend its unused grant to a different electrical branch,
  // and repeated calls consume the same finite joule ledger.
- const grants=u.pw?.weaponInputs,moduleLimits=grants?new Map(Object.entries(u.pw.weaponInputRemainingJ||(u.pw.weaponInputRemainingJ=Object.fromEntries(Object.entries(grants).map(([id,W])=>[id,Number.isFinite(W)?Math.max(0,W)*Math.max(0,dt):0])))).map(([id,J])=>[+id,Number.isFinite(J)?Math.max(0,J)/TT/factor:0])):null;
- const distribute=()=>{for(let pass=0;pass<4&&charge>0;pass++){const weights=mounts.map((m,i)=>banks[m.id]<state[i].effectiveCapacity-weaponEnergyEpsilon(state[i].effectiveCapacity)&&(limits.get(domain(m))||0)>0&&cellLimits[i]>0&&(!moduleLimits||(moduleLimits.get(m.module)||0)>0)?m.power*state[i].operable:0),sum=weights.reduce((a,b)=>a+b,0);if(!(sum>0))break;let spent=0;for(let i=0;i<mounts.length;i++){const m=mounts[i],name=domain(m),n=Math.min(Math.max(0,state[i].effectiveCapacity-banks[m.id]),charge*weights[i]/sum,limits.get(name)||0,cellLimits[i],moduleLimits?moduleLimits.get(m.module)||0:Infinity);banks[m.id]+=n;limits.set(name,Math.max(0,(limits.get(name)||0)-n));cellLimits[i]-=n;if(moduleLimits)moduleLimits.set(m.module,Math.max(0,(moduleLimits.get(m.module)||0)-n));spent+=n;}charge-=spent;if(!(spent>0))break;}};distribute();
- let spent=0,gun=0,ion=0;const cells=[];if(t&&raw>0&&dt>0){const d=len(sub(t.pos,u.pos));for(let i=0;i<mounts.length;i++){const m=mounts[i],wanted=(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose?1-(u.dualWeights?.[m.aaTier??0]??1):1)*(m.gun+m.ion)*surfaceMountArc(u,t,m,d)*state[i].operable*dt*Math.max(0,volley),amount=(banks[m.id]||0)>0&&(banks[m.id]||0)+weaponEnergyEpsilon(m.boltTT)>=Math.max(0,m.boltTT||0)?Math.min(Math.max(0,banks[m.id]),Math.max(0,wanted)):0,total=m.gun+m.ion;banks[m.id]-=amount;spent+=amount;if(total>0&&amount>0){const g=amount*m.gun/total/dt,i=amount*m.ion/total/dt;gun+=g;ion+=i;cells.push({fit:m.id,module:m.module,energy:amount,gun:g,ion:i});}}}
- distribute();if(moduleLimits)for(const [mi,left] of moduleLimits)u.pw.weaponInputRemainingJ[mi]=left*TT*factor;u.energy=mounts.reduce((n,m)=>n+Math.max(0,banks[m.id]||0),0);u.surfaceLastFire={spent,gun,ion,cells,...(t?{targetPoint:t.pos.slice()}:{}),charged:Math.max(0,chargingW)*dt/TT/factor-charge,unusedInputTT:charge*factor};if(spent>0&&mounts.some(m=>m.trenchAggregate))u.trenchShotSerial=(u.trenchShotSerial||0)+1;return raw>0&&dt>0?clamp(spent*factor/(raw*dt),0,1):0;
+ const grants=u.pw?.weaponInputs,moduleLimits=grants?new Map(Object.entries(u.pw.weaponInputRemainingJ||(u.pw.weaponInputRemainingJ=Object.fromEntries(Object.entries(grants).map(([id,W])=>[id,Number.isFinite(W)?Math.max(0,W)*Math.max(0,dt):0])))).map(([id,J])=>[+id,Number.isFinite(J)?Math.max(0,J)/TT:0])):null;
+ const distribute=()=>{for(let pass=0;pass<4&&charge>0;pass++){const weights=mounts.map((m,i)=>banks[m.id]<state[i].effectiveCapacity-weaponEnergyEpsilon(state[i].effectiveCapacity)&&(limits.get(domain(m))||0)>0&&cellLimits[i]>0&&(!moduleLimits||(moduleLimits.get(m.module)||0)>0)?m.power*state[i].operable:0),sum=weights.reduce((a,b)=>a+b,0);if(!(sum>0))break;let spent=0;for(let i=0;i<mounts.length;i++){const m=mounts[i],name=domain(m),k=kOf(m),n=Math.min(Math.max(0,state[i].effectiveCapacity-banks[m.id]),charge*weights[i]/sum/k,(limits.get(name)||0)/k,cellLimits[i],moduleLimits?(moduleLimits.get(m.module)||0)/k:Infinity),input=n*k;banks[m.id]+=n;limits.set(name,Math.max(0,(limits.get(name)||0)-input));cellLimits[i]-=n;if(moduleLimits)moduleLimits.set(m.module,Math.max(0,(moduleLimits.get(m.module)||0)-input));spent+=input;}charge-=spent;if(!(spent>0))break;}};distribute();
+ let spent=0,spentInput=0,gun=0,ion=0;const cells=[];if(t&&raw>0&&dt>0){const d=len(sub(t.pos,u.pos));for(let i=0;i<mounts.length;i++){const m=mounts[i],wanted=(automaticPointDefenseEnabled(u)&&u.dualDefense&&m.dualPurpose?1-(u.dualWeights?.[m.aaTier??0]??1):1)*(m.gun+m.ion)*surfaceMountArc(u,t,m,d)*state[i].operable*dt*Math.max(0,volley),amount=(banks[m.id]||0)>0&&(banks[m.id]||0)+weaponEnergyEpsilon(m.boltTT)>=Math.max(0,m.boltTT||0)?Math.min(Math.max(0,banks[m.id]),Math.max(0,wanted)):0,total=m.gun+m.ion;banks[m.id]-=amount;spent+=amount;spentInput+=amount*kOf(m);if(total>0&&amount>0){const g=amount*m.gun/total/dt,i=amount*m.ion/total/dt;gun+=g;ion+=i;cells.push({fit:m.id,module:m.module,energy:amount,gun:g,ion:i});}}}
+ distribute();if(moduleLimits)for(const [mi,left] of moduleLimits)u.pw.weaponInputRemainingJ[mi]=left*TT;u.energy=mounts.reduce((n,m)=>n+Math.max(0,banks[m.id]||0),0);u.surfaceLastFire={spent,spentInput,gun,ion,cells,...(t?{targetPoint:t.pos.slice()}:{}),charged:(offered-charge)/factor/* the input accepted, in the ship's mean terms as its readers take it (x weaponInputFactor = the input) */,acceptedInputTT:offered-charge,unusedInputTT:charge};if(spent>0&&mounts.some(m=>m.trenchAggregate))u.trenchShotSerial=(u.trenchShotSerial||0)+1;return raw>0&&dt>0?clamp(spentInput/(raw*dt),0,1):0;
 }
 function surfaceRayHit(u,from,aim){const shell=surfaceShellBVH(u.p);if(!shell)return null;const a=hullLocal(u,from),b=hullLocal(u,aim||u.pos),d=norm(sub(b,a)),t=surfaceCachedRay(shell,a,d);return t==null?null:surfaceAdd(a,d,t);}
 // One armour load algorithm serves the semantic patches and the legacy derived
@@ -108377,10 +108417,12 @@ function normalizeDecals(rawDecals,rawImages){
  const used=new Set(out.filter(d=>d.image).map(d=>d.image));for(const k of Object.keys(images))if(!used.has(k))delete images[k];
  return {decals:out,images};
 }
-// The decal's frame: n out of the surface, u along its width and v along its height. u starts from the ship's
-// length axis projected on the surface plane (its height axis on a surface facing along x), turned by rot.
+// The decal's frame: n out of the surface, u along its width and v along its height (the picture's up).
+// 2026-11-24 (user「向きはカメラベースではなく艦の向きをベースに0度で」): at 0° the picture's up is the ship's up (+Y) on a wall, and
+// the ship's bow (+X) on a deck or the bottom (a surface facing up or down); u = v × n, so the picture reads the right way round
+// seen from outside on either side of the ship. rot turns it about n.
 function decalFrame(d){
- const n=norm(d.n),ref=Math.abs(n[0])>.9?[0,1,0]:[1,0,0];let u=norm(sub(ref,mul(n,dot(ref,n))));let v=cross(n,u);const a=(d.rot||0)*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
+ const n=norm(d.n),ref=Math.abs(n[1])>.9?[1,0,0]:Math.abs(n[0])>.9?[0,1,0]:[0,1,0];let v=norm(sub(ref,mul(n,dot(ref,n))));let u=cross(v,n);const a=(d.rot||0)*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
  const uu=add(mul(u,ca),mul(v,sa)),vv=add(mul(u,-sa),mul(v,ca));return {n,u:uu,v:vv};
 }
 // The decal and, when mirrored, its image across the ship's centre plane (z → −z, the picture itself not reversed).
@@ -108586,7 +108628,7 @@ function deserialize(o,internalOptions=null){
   migrateLegacyPropulsion(s);adoptEquipment(s);migrateCockpitSeats(s);convertCraftOrdnance(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis','station'].includes(o.paint)?o.paint:'neutral';if(o.batteries!=null){const b=normalizeBatteries(o.batteries);if(b.length)s.batteries=b;}if(o.decals!=null||o.decalImages!=null){const z=normalizeDecals(o.decals,o.decalImages);if(z.decals.length){s.decals=z.decals;if(Object.keys(z.images).length)s.decalImages=z.images;}}if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);/* 2026-11-22 a gun's own colour */if(typeof q.paint==='string'&&/^#[0-9a-f]{6}$/i.test(q.paint))f.paint=q.paint.toLowerCase();else delete f.paint;/* 2026-11-23 the older turret lift (TURRET_SUPPORT_RULE) */if(q.supportLift===true&&FITS[f.k]?.cat==='w')f.supportLift=true;else delete f.supportLift;if(o.turretSupportRule!==TURRET_SUPPORT_RULE&&FITS[f.k]?.cat==='w'&&!f.supportLift)f._supportLiftCheck=true;if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(isShipLauncher(f)){const z=shipLauncherConfig(q);f.launcherCols=z.cols;f.launcherRows=z.rows;f.launchYaw=z.yaw;if(z.roll)f.launchRoll=z.roll;f.launcherEmbedded=z.embedded;if(z.heavy){f.launcherHeavy=true;if(q.round==='msl')f.round='msl';if(z.colSpacing!==HEAVY_LAUNCHER.cell)f.launcherColSpacing=z.colSpacing;if(z.rowSpacing!==HEAVY_LAUNCHER.cell)f.launcherRowSpacing=z.rowSpacing;}/* regression review 2026-11-19: the heavy cells and their load were dropped on every load, so Undo, autosave and a reload turned them back into small cells. A load on small cells is not kept */}if(['top','bottom','auto','trench'].includes(q.mountMode))f.mountMode=q.mountMode;if(craftFixedGun(f)&&Number.isFinite(q.sink)&&q.sink>0)f.sink=Math.min(q.sink,craftGunSinkMax(f.k));if(validTurretSupport(q.mountSupport))f.mountSupport=JSON.parse(JSON.stringify(q.mountSupport));else if(q.mountSupport&&q.mountSupport.version!==TURRET_SUPPORT_VERSION)f._supportRemake=true;/* an older support is made again below */if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(Array.isArray(q.referencePlan)&&q.referencePlan.length===2&&q.referencePlan.every(v=>Number.isFinite(v)&&v>=0&&v<=DESIGN_LIMITS.coordinate))f.referencePlan=q.referencePlan.slice();if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(q.trenchAggregate===true){if(!Number.isSafeInteger(q.aggregateCount)||q.aggregateCount<1||q.aggregateCount>TRENCH_ARMAMENT_MAX||!q.trenchRef||!(['port','stbd'].includes(q.trenchRef.side)||q.trenchRef.hostId==='battery'&&q.trenchRef.side==='wall'))throw new Error('トレンチ砲列の保存データが不正です');if(!Array.isArray(q.trenchMuzzles)||q.trenchMuzzles.length>8||q.trenchMuzzles.some(m=>!Array.isArray(m.p)||m.p.length!==3||!m.p.every(Number.isFinite)||!Array.isArray(m.normal)||m.normal.length!==3||!m.normal.every(Number.isFinite)||!Number.isFinite(m.weight)||m.weight<=0))throw new Error('トレンチ砲列の射線が不正です');if(q.trenchLocalMuzzles&&(!Array.isArray(q.trenchLocalMuzzles)||q.trenchLocalMuzzles.length>8||q.trenchLocalMuzzles.some(m=>!Array.isArray(m.p)||m.p.length!==3||!m.p.every(Number.isFinite)||!Array.isArray(m.normal)||m.normal.length!==3||!m.normal.every(Number.isFinite)||!Number.isFinite(m.weight)||m.weight<=0)))throw new Error('トレンチ砲列のローカル射線が不正です');if(q.trenchCharge){const r=q.trenchCharge;if(!Number.isFinite(r.volume)||r.volume<=0||!Array.isArray(r.c)||r.c.length!==3||!r.c.every(Number.isFinite)||!Array.isArray(r.boxSize)||r.boxSize.length!==3||r.boxSize.some(v=>!Number.isFinite(v)||v<=0)||Math.abs(r.boxSize.reduce((a,b)=>a*b,1)-r.volume)>Math.max(1e-6,r.volume*1e-6))throw new Error('トレンチ充電区画の形状が不正です');if(r.localCenter&&(!Array.isArray(r.localCenter)||r.localCenter.length!==3||!r.localCenter.every(Number.isFinite)))throw new Error('トレンチ充電区画の基準点が不正です');for(const k of ['fw','up','rt'])if(!Array.isArray(r.boxFrame?.[k])||r.boxFrame[k].length!==3||!r.boxFrame[k].every(Number.isFinite)||Math.abs(len(r.boxFrame[k])-1)>1e-5)throw new Error('トレンチ充電区画の姿勢が不正です');}for(const key of ['trenchAggregate','aggregateCount','trenchRef','noModel','trenchMuzzles','trenchRowSpan','trenchValid','trenchError','trenchCharge','trenchLocalMuzzles','trenchPacking'])if(q[key]!=null)f[key]=JSON.parse(JSON.stringify(q[key]));}for(const key of ['frameForward','localForward'])if(Array.isArray(q[key])&&q[key].length===3&&q[key].every(Number.isFinite)&&len(q[key])>1e-12)f[key]=q[key].slice();if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(isBallTurret(f)&&Number.isFinite(q.assetPitch))f.assetPitch=finite(q.assetPitch,-90,90,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  s.paint=['republic','neutral','dark','cis','station'].includes(o.paint)?o.paint:'neutral';if(o.batteries!=null){const b=normalizeBatteries(o.batteries);if(b.length)s.batteries=b;}if(o.decals!=null||o.decalImages!=null){const z=normalizeDecals(o.decals,o.decalImages);if(z.decals.length){s.decals=z.decals;if(Object.keys(z.images).length)s.decalImages=z.images;}}if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);/* 2026-11-24 an aircraft laser's own bore and barrel (gun rules) */for(const [key,lo,hi] of [['boreM',.10,.40],['barrelM',.2,10],['rateHz',.2,10]]/* the editor's and craftLaserBarrel's limits */){if(CRAFT_LASER_GEOMETRY[f.k]&&Number.isFinite(q?.[key])&&q[key]>0)f[key]=clamp(q[key],lo,hi);else delete f[key];}/* 2026-11-22 a gun's own colour */if(typeof q.paint==='string'&&/^#[0-9a-f]{6}$/i.test(q.paint))f.paint=q.paint.toLowerCase();else delete f.paint;/* 2026-11-23 the older turret lift (TURRET_SUPPORT_RULE) */if(q.supportLift===true&&FITS[f.k]?.cat==='w')f.supportLift=true;else delete f.supportLift;if(o.turretSupportRule!==TURRET_SUPPORT_RULE&&FITS[f.k]?.cat==='w'&&!f.supportLift)f._supportLiftCheck=true;if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(isShipLauncher(f)){const z=shipLauncherConfig(q);f.launcherCols=z.cols;f.launcherRows=z.rows;f.launchYaw=z.yaw;if(z.roll)f.launchRoll=z.roll;f.launcherEmbedded=z.embedded;if(z.heavy){f.launcherHeavy=true;if(q.round==='msl')f.round='msl';if(z.colSpacing!==HEAVY_LAUNCHER.cell)f.launcherColSpacing=z.colSpacing;if(z.rowSpacing!==HEAVY_LAUNCHER.cell)f.launcherRowSpacing=z.rowSpacing;}/* regression review 2026-11-19: the heavy cells and their load were dropped on every load, so Undo, autosave and a reload turned them back into small cells. A load on small cells is not kept */}if(['top','bottom','auto','trench'].includes(q.mountMode))f.mountMode=q.mountMode;if(craftFixedGun(f)&&Number.isFinite(q.sink)&&q.sink>0)f.sink=Math.min(q.sink,craftGunSinkMax(f.k));if(validTurretSupport(q.mountSupport))f.mountSupport=JSON.parse(JSON.stringify(q.mountSupport));else if(q.mountSupport&&q.mountSupport.version!==TURRET_SUPPORT_VERSION)f._supportRemake=true;/* an older support is made again below */if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(Array.isArray(q.referencePlan)&&q.referencePlan.length===2&&q.referencePlan.every(v=>Number.isFinite(v)&&v>=0&&v<=DESIGN_LIMITS.coordinate))f.referencePlan=q.referencePlan.slice();if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(q.trenchAggregate===true){if(!Number.isSafeInteger(q.aggregateCount)||q.aggregateCount<1||q.aggregateCount>TRENCH_ARMAMENT_MAX||!q.trenchRef||!(['port','stbd'].includes(q.trenchRef.side)||q.trenchRef.hostId==='battery'&&q.trenchRef.side==='wall'))throw new Error('トレンチ砲列の保存データが不正です');if(!Array.isArray(q.trenchMuzzles)||q.trenchMuzzles.length>8||q.trenchMuzzles.some(m=>!Array.isArray(m.p)||m.p.length!==3||!m.p.every(Number.isFinite)||!Array.isArray(m.normal)||m.normal.length!==3||!m.normal.every(Number.isFinite)||!Number.isFinite(m.weight)||m.weight<=0))throw new Error('トレンチ砲列の射線が不正です');if(q.trenchLocalMuzzles&&(!Array.isArray(q.trenchLocalMuzzles)||q.trenchLocalMuzzles.length>8||q.trenchLocalMuzzles.some(m=>!Array.isArray(m.p)||m.p.length!==3||!m.p.every(Number.isFinite)||!Array.isArray(m.normal)||m.normal.length!==3||!m.normal.every(Number.isFinite)||!Number.isFinite(m.weight)||m.weight<=0)))throw new Error('トレンチ砲列のローカル射線が不正です');if(q.trenchCharge){const r=q.trenchCharge;if(!Number.isFinite(r.volume)||r.volume<=0||!Array.isArray(r.c)||r.c.length!==3||!r.c.every(Number.isFinite)||!Array.isArray(r.boxSize)||r.boxSize.length!==3||r.boxSize.some(v=>!Number.isFinite(v)||v<=0)||Math.abs(r.boxSize.reduce((a,b)=>a*b,1)-r.volume)>Math.max(1e-6,r.volume*1e-6))throw new Error('トレンチ充電区画の形状が不正です');if(r.localCenter&&(!Array.isArray(r.localCenter)||r.localCenter.length!==3||!r.localCenter.every(Number.isFinite)))throw new Error('トレンチ充電区画の基準点が不正です');for(const k of ['fw','up','rt'])if(!Array.isArray(r.boxFrame?.[k])||r.boxFrame[k].length!==3||!r.boxFrame[k].every(Number.isFinite)||Math.abs(len(r.boxFrame[k])-1)>1e-5)throw new Error('トレンチ充電区画の姿勢が不正です');}for(const key of ['trenchAggregate','aggregateCount','trenchRef','noModel','trenchMuzzles','trenchRowSpan','trenchValid','trenchError','trenchCharge','trenchLocalMuzzles','trenchPacking'])if(q[key]!=null)f[key]=JSON.parse(JSON.stringify(q[key]));}for(const key of ['frameForward','localForward'])if(Array.isArray(q[key])&&q[key].length===3&&q[key].every(Number.isFinite)&&len(q[key])>1e-12)f[key]=q[key].slice();if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(isBallTurret(f)&&Number.isFinite(q.assetPitch))f.assetPitch=finite(q.assetPitch,-90,90,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -109917,7 +109959,7 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 FITS.quad500={...FITS.mtl,key:'quad500',name:'500GT 4連装中型ターボレーザー',short:'500GT 4連装中型TL',barrels:4,boltTT:.5,tt:2,cycle:.2,power:2*TT/.2,mass:2250,crew:10,cost:200e3,source:null,evidence:'砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。'};
 // XX-9 and NK-7 survive only as migration inputs for the unified photo family.
 for(const k of ['itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
-function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f);d={...d,msl:launcherRound(f).tt*q.cells,...(q.heavy?{fm:HEAVY_LAUNCHER.depth,hm:q.spaced?HEAVY_LAUNCHER.cell+q.rowSpacing*(q.rows-1):HEAVY_LAUNCHER.cell*q.rows,wm:q.spaced?HEAVY_LAUNCHER.cell+q.colSpacing*(q.cols-1):HEAVY_LAUNCHER.cell*q.cols,r:(q.spaced?Math.max(HEAVY_LAUNCHER.depth,HEAVY_LAUNCHER.cell+q.colSpacing*(q.cols-1),HEAVY_LAUNCHER.cell+q.rowSpacing*(q.rows-1)/* spaced rows can be taller than the box is wide (regression review) */):Math.max(HEAVY_LAUNCHER.depth,HEAVY_LAUNCHER.cell*q.cols))/2,mass:SHIP_TORPEDO.mass*HEAVY_LAUNCHER.massK*q.cells,cost:FITS.shipMsl.cost*HEAVY_LAUNCHER.costK*q.cells,power:FITS.shipMsl.power*HEAVY_LAUNCHER.costK*q.cells}:{fm:2.4,hm:.9*q.rows,wm:.9*q.cols,r:Math.max(2.4,.9*q.cols)/2,mass:FITS.shipMsl.mass*q.cells,cost:FITS.shipMsl.cost*q.cells,power:FITS.shipMsl.power*q.cells}),store:{...FITS.shipMsl.store,slots:(q.perCell||6)*q.cells},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
+function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(d?.outputClass&&(f.boreM>0||f.barrelM>0||f.rateHz>0))d=craftLaserSpec(d,f);if(isTrenchBatteryGroup(f)){const count=f.aggregateCount;d={...d,mass:d.mass*count,cost:d.cost*count,crew:d.crew*count,power:d.power*count,tt:d.tt?d.tt*count:undefined,ion:d.ion?d.ion*count:undefined,aa:d.aa?d.aa*count:undefined,barrels:Math.max(1,d.barrels||1)*count};}if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}if(isShipLauncher(f)){const q=shipLauncherConfig(f);d={...d,msl:launcherRound(f).tt*q.cells,...(q.heavy?{fm:HEAVY_LAUNCHER.depth,hm:q.spaced?HEAVY_LAUNCHER.cell+q.rowSpacing*(q.rows-1):HEAVY_LAUNCHER.cell*q.rows,wm:q.spaced?HEAVY_LAUNCHER.cell+q.colSpacing*(q.cols-1):HEAVY_LAUNCHER.cell*q.cols,r:(q.spaced?Math.max(HEAVY_LAUNCHER.depth,HEAVY_LAUNCHER.cell+q.colSpacing*(q.cols-1),HEAVY_LAUNCHER.cell+q.rowSpacing*(q.rows-1)/* spaced rows can be taller than the box is wide (regression review) */):Math.max(HEAVY_LAUNCHER.depth,HEAVY_LAUNCHER.cell*q.cols))/2,mass:SHIP_TORPEDO.mass*HEAVY_LAUNCHER.massK*q.cells,cost:FITS.shipMsl.cost*HEAVY_LAUNCHER.costK*q.cells,power:FITS.shipMsl.power*HEAVY_LAUNCHER.costK*q.cells}:{fm:2.4,hm:.9*q.rows,wm:.9*q.cols,r:Math.max(2.4,.9*q.cols)/2,mass:FITS.shipMsl.mass*q.cells,cost:FITS.shipMsl.cost*q.cells,power:FITS.shipMsl.power*q.cells}),store:{...FITS.shipMsl.store,slots:(q.perCell||6)*q.cells},missileSalvo:q.cells};}const s=f.scale||1;if(s===1)return d;const k=s*s*s,energyScale=d.fixedPerBarrelEnergy?1:k;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*energyScale:undefined,ion:d.ion?d.ion*energyScale:undefined,power:d.power*energyScale,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 // v24 The Executor-only bridge and domes are retired (docs/executor-stl-rebuild.md). Their mesh data stays
@@ -109946,6 +109988,24 @@ function decodeReference(id){
  for(let i=0;i<pos.length;i++)pos[i]=dv.getInt16(i*2,true)/65532;
  for(let i=0;i<uv.length;i++)uv[i]=dv.getUint16(a.n*6+i*2,true)/65535;
  for(let i=0;i<idx.length;i++)idx[i]=a.indexBytes===2?dv.getUint16(a.n*10+i*2,true):dv.getUint32(a.n*10+i*4,true);
+ // 2026-11-24 (user「点防御の砲身を太くする」): a model whose barrels the user had made thicker (barrelRadiusScale) has each
+ // barrel component's vertices moved out from its centre line by that factor, in metres (c + pos × size), the rest as modelled.
+ // Also (user 2026-11-24): a Mon Calamari ball gun's exposed barrel drawn out to its drawing (barrelExposedScale, along +X
+ // from where the barrel leaves the ball). Vertices outside a barrel component are never moved.
+ if(Array.isArray(a.barrelCenters)&&Array.isArray(a.c)&&Array.isArray(a.size)&&(a.barrelRadiusScale>0&&a.barrelRadiusScale!==1||a.barrelExposedScale>0&&a.barrelExposedScale!==1)){const k=a.barrelRadiusScale>0?a.barrelRadiusScale:1,ka=a.barrelExposedScale>0?a.barrelExposedScale:1;
+  for(const b of a.barrelCenters){if(!(b.vertices>0)||!Array.isArray(b.root))continue;const front=b._sourceFront??b.exposedStartX??b.root[0];
+   if(b._neckFill&&k!==1){const rad=v=>Math.hypot(a.c[1]+pos[v*3+1]*a.size[1]-b.root[1],a.c[2]+pos[v*3+2]*a.size[2]-b.root[2]),tol=a.size[0]*1e-4;let from=null,thin=0;for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++)if(Math.abs(a.c[0]+pos[v*3]*a.size[0]-front)<=tol)thin=Math.max(thin,rad(v));/* the tube's outside where the thickening starts */const R=thin*k;for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){const x=a.c[0]+pos[v*3]*a.size[0];if(x>=front-tol)continue;if(rad(v)>=R*(1-1e-3)&&(from==null||x>from))from=x;}b._neckFrom=thin>0?from:null;b._neckThin=thin;}
+   for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){
+   const x=a.c[0]+pos[v*3]*a.size[0],tol=a.size[0]*1e-4;
+   /* thicker only where the barrel is outside its housing: the root inside the ball or shield keeps its modelled size */
+   if(k!==1&&x>=front-tol)for(const ax of [1,2]){const m=a.c[ax]+pos[v*3+ax]*a.size[ax],r=m-b.root[ax];pos[v*3+ax]=(b.root[ax]+r*k-a.c[ax])/a.size[ax];}
+   /* reference review 2026-11-25: between the last ring already as wide as the thickened barrel and where the thickening starts,
+      a ring thinner than it is brought up to it, so the barrel never narrows and widens again (barrelNeckFill; the point defence
+      twin, whose barrel is in the open behind exposedStartX). A ring at least that wide, and the bore inside, keep their size. */
+   else if(k!==1&&b._neckFrom!=null&&x>=b._neckFrom-tol){const dy=a.c[1]+pos[v*3+1]*a.size[1]-b.root[1],dz=a.c[2]+pos[v*3+2]*a.size[2]-b.root[2],r=Math.hypot(dy,dz),R=b._neckThin*k;if(r>=b._neckThin*(1-1e-3)&&r<R){pos[v*3+1]=(b.root[1]+dy*R/r-a.c[1])/a.size[1];pos[v*3+2]=(b.root[2]+dz*R/r-a.c[2])/a.size[2];}}
+   /* longer by its first plain length of shaft only: every ring past where it leaves the housing (the band, the bore's floor,
+      the muzzle collar) moves forward by the added length and keeps its modelled size */
+   if(ka!==1&&(b._stretchFrom==null?x>front+tol:x>b._stretchFrom+tol||x>front+tol&&(()=>{const r=Math.hypot(a.c[1]+pos[v*3+1]*a.size[1]-b.root[1],a.c[2]+pos[v*3+2]*a.size[2]-b.root[2]);return x>=b._stretchFrom-tol?r>b.shaftRadiusM*1.02/* the muzzle collar's first ring, at the taper's end */:r<=b.boreRadiusM*1.02/* the bore's floor */;})()))pos[v*3]=(x+(b._sourceReach??0)*(ka-1)-a.c[0])/a.size[0];}}}
  a._decoded={pos,uv,idx};return a._decoded;
 }
 STRUCT_SHAPES.reference='参照モデル構造物';
@@ -110160,7 +110220,7 @@ function authoredTurretAngles(g,dir){
 }
 function aimAuthoredTurretAt(g,dir){return aimAuthoredTurret(g,...authoredTurretAngles(g,dir));}
 function authoredTurretInArc(g,dir){const [yaw,elevation]=authoredTurretAngles(g,dir),limits=g.limits||AUTHORED_TURRET_LIMITS;return elevation>=limits.lo-1e-10&&elevation<=limits.hi+1e-10&&(!Number.isFinite(limits.yaw)||Math.abs(yaw)<=limits.yaw+1e-10);}
-function referenceFitAABB(f){const points=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));const support=turretSupportGeometry(f);if(support){points.push(support.bounds.slice(0,3),support.bounds.slice(3));const s0=f.mountSupport,fr=fitFrameOf(f),lowWhole=Number.isFinite(s0.outlineLow)?s0.outlineLow:(f.low||0);for(const q of turretSupportFootprint(f,true))for(const z of [s0.top,lowWhole])points.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,z))));}else if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrameOf(f).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
+function referenceFitAABB(f){const points=[],ext=REFERENCE_ASSETS[f.skinAsset||FITS[f.k]?.asset]?.drawnExtent;for(const x of ext?[ext[0][0],ext[1][0]]:[-.5,.5])for(const y of ext?[ext[0][1],ext[1][1]]:[-.5,.5])for(const z of ext?[ext[0][2],ext[1][2]]:[-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));const support=turretSupportGeometry(f);if(support){points.push(support.bounds.slice(0,3),support.bounds.slice(3));const s0=f.mountSupport,fr=fitFrameOf(f),lowWhole=Number.isFinite(s0.outlineLow)?s0.outlineLow:(f.low||0);for(const q of turretSupportFootprint(f,true))for(const z of [s0.top,lowWhole])points.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,z))));}else if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrameOf(f).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
 
 function clipReferenceBox(d,b){
  const pp=[],uv=[],idx=[];
@@ -110464,7 +110524,7 @@ function turretCompartment(ship,f,allocated){
  if(!f||!FITS[f.k])return {required:0,plannedVolume:0,housingVolume:0,externalVolume:0,housingUsed:0,internalRequired:0,internalVolume:0,volume:0,ratio:0,capacityRatio:0,storedTT:0};
  if(isTrenchBatteryGroup(f))return trenchGroupCompartment(ship,f,allocated);
  const q=weaponChargeSpec(f),plannedVolume=q.targetVolume*clamp(Number.isFinite(f.chargeScale)?f.chargeScale:1,.25,4),geometry=turretCompartmentProjection(ship,f),externalUsed=f.float?0:Math.min(plannedVolume,geometry.externalVolume),embeddedUsed=f.float?0:Math.min(plannedVolume-externalUsed,geometry.embeddedVolume),housingUsed=externalUsed+embeddedUsed,internalRequired=Math.max(0,plannedVolume-housingUsed),part=ship?._capacitors?.parts?.find(p=>p.weaponId===f.id),ready=(allocated??turretAllocationReady(ship))&&part?._allocationReady,internalVolume=ready?Math.min(internalRequired,partVolume(part)):0,volume=Math.min(plannedVolume,housingUsed+internalVolume);
- return {required:q.targetVolume,plannedVolume,housingVolume:geometry.housingVolume,externalVolume:geometry.externalVolume,embeddedVolume:geometry.embeddedVolume,externalUsed,embeddedUsed,housingUsed,internalRequired,internalVolume,internalOccupiedVolume:geometry.embeddedVolume+internalVolume,volume,ratio:clamp(volume/Math.max(1e-9,q.volleyVolume),0,1),capacityRatio:clamp(volume/Math.max(1e-9,q.targetVolume),0,1),storedTT:volume*CHARGE_TT_M3,allocationPending:internalRequired>1e-8&&!ready};
+ return {required:q.targetVolume,plannedVolume,housingVolume:geometry.housingVolume,externalVolume:geometry.externalVolume,embeddedVolume:geometry.embeddedVolume,externalUsed,embeddedUsed,housingUsed,internalRequired,internalVolume,internalOccupiedVolume:geometry.embeddedVolume+internalVolume,volume,ratio:clamp(volume/Math.max(1e-9,q.volleyVolume),0,1),capacityRatio:clamp(volume/Math.max(1e-9,q.targetVolume),0,1),storedTT:volume*q.ttPerM3,allocationPending:internalRequired>1e-8&&!ready};
 }
 function turretIntrusions(ship){
  if(!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return turretIntrusions(surfaceWorkingShip(ship));
@@ -110569,7 +110629,7 @@ function batteryFitsAndRow(ship,q,old,fits){
  for(const r of counts){const prior=old.get(rowKey+':'+r.kind),id=prior?.id||nid(ship),normal=rail.ok?rail.n:[0,0,1],muzzles=valid?batteryPackedMuzzles(ship,rail,packing.placements.get(r.kind),r.count):[],groupValid=valid&&!!muzzles,p=muzzles?.[Math.min(3,muzzles.length-1)]?.p||(rail.ok?rail.point(rail.span/2):q.pts[0].slice()),
   f={id,k:r.kind,p:p.slice(),n:normal.slice(),tilt:normal.slice(),a:4,ped:0,base:0,low:0,slope:0,localMount:true,mountMode:'trench',float:!groupValid,noModel:true,trenchAggregate:true,aggregateCount:r.count,trenchRef:{...ref},trenchMuzzles:muzzles||[],trenchPacking:packing.placements?.get(r.kind)||[],trenchRowSpan:layout.rowSpan||null,trenchValid:groupValid,...(error||!groupValid?{trenchError:error||'砲座の列の射線が砲列の外へ通りません'}:{})};
   if(rail.ok&&rail.host){const h=rail.host;f.host=h.id;f.local=fitAttachmentLocal(h,f.p);f.localNormal=fitAttachmentNormal(h,f.n);f.frameForward=rail.u.slice();const fw=localStruct({...h,c:[0,0,0]},f.frameForward);f.localForward=[fw[0]/h.s[0],fw[1]/h.s[2],fw[2]/h.s[1]];}else f.frameForward=rail.ok?rail.u.slice():[1,0,0];
-  fits.push(f);volume+=weaponChargeSpec(f).targetVolume;}
+  fits.push(f);if(needsCapacitor(f))volume+=weaponChargeSpec(f).targetVolume;/* 2026-11-25 a row's lasers have no feed compartment: they add nothing to the charge row */}
  if(!(layout.ok&&volume>0))return null;
  const nominal=Math.cbrt(volume),height=Math.min(rail.height*.8,nominal*2),length=Math.min(rail.span*.9,volume/(height*Math.min(.1,nominal))),depth=volume/(length*height),center=add(rail.point(rail.span/2),mul(rail.frame(rail.span/2).n,-(depth/2+.1))),inside=insideOriginalEnvelope(ship,center)&&depth+.1<=rail.depth;
  return {key:rowKey,ref,volume,c:center,boxSize:[length,height,depth],boxFrame:{fw:rail.u.slice(),up:rail.up.slice(),rt:rail.n.slice()},valid:valid&&inside,error:inside?error:'砲列の充電区画を収容できる船内の奥行きがありません'};
@@ -110593,7 +110653,7 @@ function syncTrenchArmament(ship){
  if(!ship||ship._client||ship._trenchSyncing)return;const scopes=trenchArmamentScopes(ship),has=scopes.some(s=>s.trenches.some(t=>t.armament))||(ship.batteries||[]).some(q=>q.armament?.counts?.length);if(!has&&!ship.fits.some(isTrenchBatteryGroup))return;const key=surfaceHash(scopes.map(s=>[s.hostId,s.parent&&placementDependencyKey(s.parent),s.local.hull,s.local.cuts,s.local.subs,s.local.solidCuts,s.trenches]).concat([(ship.parts||[]).filter(isShapePart).map(placementDependencyKey),ship.batteries||null]));if(ship._trenchArmamentKey===key&&ship._trenchPackingModel==='shelf-v1'&&ship._trenchGroupsKey===trenchArmamentDerivedKey(ship))return;ship._trenchSyncing=true;
  try{const old=new Map(ship.fits.filter(isTrenchBatteryGroup).map(f=>[trenchArmamentKey(f.trenchRef)+':'+f.k,f])),fits=ship.fits.filter(f=>!isTrenchBatteryGroup(f)),rows=[];
  for(const scope of scopes)for(const t of scope.trenches){if(!t.armament)continue;t.armament=normalizeTrenchArmament(t.armament);for(const side of ['port','stbd']){if(t.side!=='both'&&t.side!==side)continue;const counts=t.armament.counts.map(q=>({...q,count:t.side==='both'?(side==='port'?Math.ceil(q.count/2):Math.floor(q.count/2)):q.count})).filter(q=>q.count);if(!counts.length)continue;const layout=trenchArmamentLayout(ship,scope,t,side),ref={hostId:scope.hostId,trenchId:t.id,side},rowKey=trenchArmamentKey(ref),packing=layout.ok?trenchArmamentPacking(layout.span,t.height,counts):{ok:false},valid=layout.ok&&packing.ok,error=layout.error||packing.error||null;let volume=0;
- for(const q of counts){const prior=old.get(rowKey+':'+q.kind),id=prior?.id||nid(ship),normal=layout.normal||trenchArmamentVector(scope,[0,0,side==='port'?-1:1]),muzzles=valid?trenchPackedMuzzles(ship,scope,t,side,packing.placements.get(q.kind),q.count,normal):[],groupValid=valid&&!!muzzles,p=muzzles?.[Math.min(3,muzzles.length-1)]?.p||trenchArmamentPoint(scope,[LerpTrenchX(scope,t),trenchArmamentCenter(scope,t,LerpTrenchX(scope,t)),0]),f={id,k:q.kind,p:p.slice(),n:normal.slice(),tilt:normal.slice(),a:side==='port'?5:4,ped:0,base:0,low:0,slope:0,localMount:true,mountMode:'trench',float:!groupValid,noModel:true,trenchAggregate:true,aggregateCount:q.count,trenchRef:{...ref},trenchMuzzles:muzzles||[],trenchPacking:packing.placements?.get(q.kind)||[],...(scope.parent?{trenchLocalMuzzles:(muzzles||[]).map(m=>({p:hullLocalPoint(scope.parent,m.p),normal:side==='port'?[0,0,-1]:[0,0,1],weight:m.weight}))}:{}),trenchRowSpan:layout.rowSpan||null,trenchValid:groupValid,...(error||!groupValid?{trenchError:error||'砲座の列の射線がトレンチの外へ通りません'}:{})};if(scope.parent){f.host=scope.parent.id;f.local=fitAttachmentLocal(scope.parent,f.p);f.localNormal=fitAttachmentNormal(scope.parent,f.n);f.frameForward=trenchArmamentVector(scope,[1,0,0]);const fw=localStruct({...scope.parent,c:[0,0,0]},f.frameForward);f.localForward=[fw[0]/scope.parent.s[0],fw[1]/scope.parent.s[2],fw[2]/scope.parent.s[1]];}fits.push(f);volume+=weaponChargeSpec(f).targetVolume;}
+ for(const q of counts){const prior=old.get(rowKey+':'+q.kind),id=prior?.id||nid(ship),normal=layout.normal||trenchArmamentVector(scope,[0,0,side==='port'?-1:1]),muzzles=valid?trenchPackedMuzzles(ship,scope,t,side,packing.placements.get(q.kind),q.count,normal):[],groupValid=valid&&!!muzzles,p=muzzles?.[Math.min(3,muzzles.length-1)]?.p||trenchArmamentPoint(scope,[LerpTrenchX(scope,t),trenchArmamentCenter(scope,t,LerpTrenchX(scope,t)),0]),f={id,k:q.kind,p:p.slice(),n:normal.slice(),tilt:normal.slice(),a:side==='port'?5:4,ped:0,base:0,low:0,slope:0,localMount:true,mountMode:'trench',float:!groupValid,noModel:true,trenchAggregate:true,aggregateCount:q.count,trenchRef:{...ref},trenchMuzzles:muzzles||[],trenchPacking:packing.placements?.get(q.kind)||[],...(scope.parent?{trenchLocalMuzzles:(muzzles||[]).map(m=>({p:hullLocalPoint(scope.parent,m.p),normal:side==='port'?[0,0,-1]:[0,0,1],weight:m.weight}))}:{}),trenchRowSpan:layout.rowSpan||null,trenchValid:groupValid,...(error||!groupValid?{trenchError:error||'砲座の列の射線がトレンチの外へ通りません'}:{})};if(scope.parent){f.host=scope.parent.id;f.local=fitAttachmentLocal(scope.parent,f.p);f.localNormal=fitAttachmentNormal(scope.parent,f.n);f.frameForward=trenchArmamentVector(scope,[1,0,0]);const fw=localStruct({...scope.parent,c:[0,0,0]},f.frameForward);f.localForward=[fw[0]/scope.parent.s[0],fw[1]/scope.parent.s[2],fw[2]/scope.parent.s[1]];}fits.push(f);if(needsCapacitor(f))volume+=weaponChargeSpec(f).targetVolume;/* 2026-11-25 a row's lasers have no feed compartment: they add nothing to the charge row */}
  if(layout.ok&&volume>0){const nominal=Math.cbrt(volume),height=Math.min(t.height*.8,scope.local.hull.H*.1,nominal*2),length=Math.min(layout.span*.9,volume/(height*Math.min(.1,nominal))),depth=volume/(length*height),sg=side==='port'?-1:1,outer=Math.min(...layout.points.map(p=>Math.abs(p[2])))-.1,
   // v24 The charge row lies along the trench's inner wall. On a tapering hull (a wedge plan) the wall runs at an
   // angle, so the row follows the chord from the first to the last wall point instead of the ship's axis,
@@ -110608,10 +110668,10 @@ function trenchGroupFireArcs(ship,f,obst){
  if(!f.trenchValid||!f.trenchMuzzles?.length)return [0,0,0,0,0,0];const d=FITS[f.k],maxT=ship.hull.L*2.2+400,c=cache(ship);if(!c.trenchBVH||c.trenchBVHKey!==c.hfKey){const tris=[...launcherRecessTriangles(ship,'hull',hullGeo(ship).tris)];for(const p of ship.parts)if(isShapePart(p))for(const n of launcherRecessTriangles(ship,p.id,structTriangles(p)))tris.push(n);c.trenchBVH=buildBVH(Float32Array.from(tris));c.trenchBVHKey=c.hfKey;}obst=obst||obstacles(ship);const offs=[-.55,0,.55];return SECTORS.map(S=>{let free=0;for(const a of offs)for(const b of offs){const dir=norm(add(S.d,add(mul(S.u,a),mul(S.v,b))));for(const m of f.trenchMuzzles){const facing=dot(dir,m.normal);if(facing<0||d.casemate&&(facing<Math.cos(65*Math.PI/180)||Math.abs(dot(dir,[0,1,0]))>Math.sin(20*Math.PI/180)))continue;const start=add(m.p,mul(m.normal,.03));if(rayBVH(c.trenchBVH,start,dir,maxT))continue;if(obst.some(o=>{const h=o.part?rayPart(start,dir,o.part):o.sphere?raySphere(start,dir,o.c,o.r):rayAABB(start,dir,o.b);return h&&h.t<maxT;}))continue;free+=m.weight;}}return clamp(free/9,0,1);});
 }
 function LerpTrenchX(scope,t){return (t.from+t.to)*scope.local.hull.L/2;}
-function trenchChargeCompartments(ship){syncTrenchArmament(ship);return (ship._trenchRows||ship.fits.filter(f=>isTrenchBatteryGroup(f)&&f.trenchCharge).map(f=>f.trenchCharge)).map(row=>{const fits=ship.fits.filter(f=>isTrenchBatteryGroup(f)&&trenchArmamentKey(f.trenchRef)===row.key);if(!fits.length)return null;const id=-9000000000-fits[0].id,parent=ship.parts.find(p=>p.id===fits[0].trenchRef.hostId&&isHullStructure(p)),scope=parent&&{parent},center=parent&&row.localCenter?hullWorldPoint(parent,row.localCenter):row.c,lf=row.localFrame||{fw:[1,0,0],up:[0,1,0],rt:[0,0,1]},boxFrame=parent&&row.localCenter?{fw:trenchArmamentVector(scope,lf.fw),up:trenchArmamentVector(scope,lf.up),rt:trenchArmamentVector(scope,lf.rt)}:row.boxFrame;return {id,k:'capacitor',label:row.ref.side==='port'?'左舷トレンチ充電区画':'右舷トレンチ充電区画',c:center.slice(),d:Math.cbrt(row.volume),boxSize:row.boxSize.slice(),boxFrame,autoFit:false,trenchChargeRow:true,trenchRef:{...fits[0].trenchRef},weaponIds:fits.map(f=>f.id),requiredVolume:row.volume,targetVolume:row.volume,nominalTT:row.volume*CHARGE_TT_M3,_trenchValid:row.valid,_trenchError:row.error,_allocationReady:false};}).filter(Boolean);}
-function trenchGroupCompartment(ship,f,allocated){const q=weaponChargeSpec(f),part=weaponCapacitors(ship).find(p=>p.weaponIds?.includes(f.id)),share=q.targetVolume/Math.max(1e-9,part?.targetVolume||0),ready=(allocated??turretAllocationReady(ship))&&part?._allocationReady,internalVolume=ready&&part?Math.min(q.targetVolume,partVolume(part)*share):0;return {required:q.targetVolume,plannedVolume:q.targetVolume,housingVolume:0,externalVolume:0,embeddedVolume:0,externalUsed:0,embeddedUsed:0,housingUsed:0,internalRequired:q.targetVolume,internalVolume,internalOccupiedVolume:internalVolume,volume:internalVolume,ratio:clamp(internalVolume/Math.max(1e-9,q.volleyVolume),0,1),capacityRatio:clamp(internalVolume/Math.max(1e-9,q.targetVolume),0,1),storedTT:internalVolume*CHARGE_TT_M3,allocationPending:!ready};}
+function trenchChargeCompartments(ship){syncTrenchArmament(ship);return (ship._trenchRows||ship.fits.filter(f=>isTrenchBatteryGroup(f)&&f.trenchCharge).map(f=>f.trenchCharge)).map(row=>{const fits=ship.fits.filter(f=>isTrenchBatteryGroup(f)&&needsCapacitor(f)&&trenchArmamentKey(f.trenchRef)===row.key);if(!fits.length)return null;const id=-9000000000-fits[0].id,parent=ship.parts.find(p=>p.id===fits[0].trenchRef.hostId&&isHullStructure(p)),scope=parent&&{parent},center=parent&&row.localCenter?hullWorldPoint(parent,row.localCenter):row.c,lf=row.localFrame||{fw:[1,0,0],up:[0,1,0],rt:[0,0,1]},boxFrame=parent&&row.localCenter?{fw:trenchArmamentVector(scope,lf.fw),up:trenchArmamentVector(scope,lf.up),rt:trenchArmamentVector(scope,lf.rt)}:row.boxFrame;return {id,k:'capacitor',label:row.ref.side==='port'?'左舷トレンチ充電区画':'右舷トレンチ充電区画',c:center.slice(),d:Math.cbrt(row.volume),boxSize:row.boxSize.slice(),boxFrame,autoFit:false,trenchChargeRow:true,trenchRef:{...fits[0].trenchRef},weaponIds:fits.map(f=>f.id),requiredVolume:row.volume,targetVolume:row.volume,_trenchValid:row.valid,_trenchError:row.error,_allocationReady:false};}).filter(Boolean);}
+function trenchGroupCompartment(ship,f,allocated){const q=weaponChargeSpec(f),part=weaponCapacitors(ship).find(p=>p.weaponIds?.includes(f.id)),share=q.targetVolume/Math.max(1e-9,part?.targetVolume||0),ready=(allocated??turretAllocationReady(ship))&&part?._allocationReady,internalVolume=ready&&part?Math.min(q.targetVolume,partVolume(part)*share):0;return {required:q.targetVolume,plannedVolume:q.targetVolume,housingVolume:0,externalVolume:0,embeddedVolume:0,externalUsed:0,embeddedUsed:0,housingUsed:0,internalRequired:q.targetVolume,internalVolume,internalOccupiedVolume:internalVolume,volume:internalVolume,ratio:clamp(internalVolume/Math.max(1e-9,q.volleyVolume),0,1),capacityRatio:clamp(internalVolume/Math.max(1e-9,q.targetVolume),0,1),storedTT:internalVolume*q.ttPerM3,allocationPending:!ready};}
 function trenchGroupMuzzles(ship,f){const parent=ship.parts.find(p=>p.id===f.trenchRef?.hostId&&isHullStructure(p));return parent&&f.trenchLocalMuzzles?f.trenchLocalMuzzles.map(m=>({p:hullWorldPoint(parent,m.p),normal:trenchArmamentVector({parent},m.normal),weight:m.weight})):f.trenchMuzzles||[];}
-function trenchArmamentGroups(ship,S){syncTrenchArmament(ship);if(!ship.fits.some(isTrenchBatteryGroup))return [];const cap=weaponCapacitors(ship),ready=turretAllocationReady(ship);return ship.fits.filter(isTrenchBatteryGroup).map(f=>{const part=cap.find(p=>p.weaponIds?.includes(f.id)),muzzles=trenchGroupMuzzles(ship,f),q=S?.chargeInfo?.[f.id]||trenchGroupCompartment(ship,f,ready);return {...f,stableId:f.id,fitId:f.id,weapon:f.k,count:f.aggregateCount,enabledCount:f.trenchValid?f.aggregateCount:0,valid:!!f.trenchValid&&!!part?._trenchValid,reason:f.trenchError||part?._trenchError||null,muzzles:muzzles.map(q=>q.p.slice()),muzzleNormals:muzzles.map(q=>q.normal.slice()),muzzleWeights:muzzles.map(q=>q.weight),rowSpan:f.trenchRowSpan,normal:f.n.slice(),p:f.p.slice(),chargePartId:part?.id,chargeVolume:q.internalVolume,storedTT:q.storedTT,ratio:q.ratio,domain:f.powerDomain||'main'};});}
+function trenchArmamentGroups(ship,S){syncTrenchArmament(ship);if(!ship.fits.some(isTrenchBatteryGroup))return [];const cap=weaponCapacitors(ship),ready=turretAllocationReady(ship);return ship.fits.filter(isTrenchBatteryGroup).map(f=>{const fed=needsCapacitor(f)/* 2026-11-25 a group of lasers has no charge row: it is valid by its own seats, and fires its volley without one (it was left invalid, without turrets in the trial) */,part=fed?cap.find(p=>p.weaponIds?.includes(f.id)):null,muzzles=trenchGroupMuzzles(ship,f),q=fed?S?.chargeInfo?.[f.id]||trenchGroupCompartment(ship,f,ready):{internalVolume:0,storedTT:weaponChargeSpec(f).volleyTT,ratio:1};return {...f,stableId:f.id,fitId:f.id,weapon:f.k,count:f.aggregateCount,enabledCount:f.trenchValid?f.aggregateCount:0,valid:!!f.trenchValid&&(!fed||!!part?._trenchValid),reason:f.trenchError||(fed?part?._trenchError:null)||null,muzzles:muzzles.map(q=>q.p.slice()),muzzleNormals:muzzles.map(q=>q.normal.slice()),muzzleWeights:muzzles.map(q=>q.weight),rowSpan:f.trenchRowSpan,normal:f.n.slice(),p:f.p.slice(),chargePartId:part?.id,chargeVolume:q.internalVolume,storedTT:q.storedTT,ratio:q.ratio,domain:f.powerDomain||'main'};});}
 function bulkTrenchGroups(ship,S){return trenchArmamentGroups(ship,S);}
 // Adds, changes or removes a wall battery on a copy of the design, checks its rows and charge rooms as a trench battery is
 // checked, and on success patches the design. request.battery: {op:'set'|'delete', id?, host?, world?: {pts, n} (ship
@@ -110639,8 +110699,17 @@ function configureTrenchArmament(ship,request={}){
  }catch(e){return {ok:false,code:'trench-armament',error:e.message};}
 }
 
-function needsCapacitor(f){if(f&&typeof f==='object')f=migrateWeaponFit(f);const d=FITS[f?.k];return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&!d.msl&&Math.max(d.tt||0,d.ion||0)>0;}
-function weaponChargeSpec(f){const d=fitSpec(f),barrels=Math.max(1,d.barrels||1),boltTT=Math.max(d.tt||0,d.ion||0)/barrels,salvos=clamp(f.chargeSalvos??1,1,20),volleyTT=boltTT*barrels;return {barrels,boltTT,salvos,volleyTT,volleyVolume:volleyTT/CHARGE_TT_M3,targetVolume:volleyTT*salvos/CHARGE_TT_M3};}
+// 2026-11-25 (user): a laser is its barrel alone, with its gas kept elsewhere; only a turbolaser or an ion cannon has a feed compartment.
+function needsCapacitor(f){if(f&&typeof f==='object')f=migrateWeaponFit(f);const d=FITS[f?.k];return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&!d.msl&&Math.max(d.tt||0,d.ion||0)>0&&d.gunRule?.kind!=='laser';}
+// 2026-11-25 The seats of the examples' guns were chosen where a column under the gun was free: 12 m deep, as wide as the gun's
+// charging room of that time (volley ÷ CHARGE_TT_M3; a laser's was a needle). That is how the authored positions were found, so
+// the builders keep asking the same question whatever a gun's feed compartment is now (a laser has none, a turbolaser's is at
+// least 50 m³): otherwise the point defence guns of five examples moved 8 to 27 m to seats the rule had passed over.
+function exampleSeatRoom(f){if(f&&typeof f==='object')f=migrateWeaponFit(f);const d0=FITS[f?.k];if(!d0||d0.cat!=='w'||d0.craft||d0.fixed||d0.msl||!(Math.max(d0.tt||0,d0.ion||0)>0))return null;const d=fitSpec(f),salvos=clamp(f.chargeSalvos??1,1,20);return {targetVolume:Math.max(d.tt||0,d.ion||0)*salvos/CHARGE_TT_M3};}
+// The feed compartment of a gun: 1 m³ for CHARGE_TT_M3 of its volley, more by the gun's feedK (a barrel or bore under the least),
+// and never under GUN_RULES.feedMinM3 for a gun under the gun rules. ttPerM3 is what a cubic metre of it holds, so that a room at
+// the least volume holds its volleys and no more.
+function weaponChargeSpec(f){const d=fitSpec(f),barrels=Math.max(1,d.barrels||1),boltTT=Math.max(d.tt||0,d.ion||0)/barrels,salvos=clamp(f.chargeSalvos??1,1,20),volleyTT=boltTT*barrels,least=d.gunRule&&d.gunRule.kind!=='laser'?GUN_RULES.feedMinM3*Math.max(1,f?.trenchAggregate?f.aggregateCount||1:1)/* physics review 2026-11-25: the least is for each gun; a battery's record stands for aggregateCount of them */:0,k=d.gunRule?.feedK>1?d.gunRule.feedK:1,targetVolume=Math.max(least,volleyTT*k*salvos/CHARGE_TT_M3),ttPerM3=targetVolume>0?volleyTT*salvos/targetVolume:CHARGE_TT_M3,volleyVolume=ttPerM3>0?volleyTT/ttPerM3:targetVolume/* the room one volley takes at the density the whole holds its volleys at: with several volleys kept in a room at the least, a volley's share, not the least again */;return {barrels,boltTT,salvos,volleyTT,volleyVolume,targetVolume,ttPerM3};}
 // Read-only catalogue/preview ratings use the same barrel, range, electrical
 // input and local waste-heat rules as the operational profiles. Unknown
 // payloads and reactor-dependent emitters remain unknown until resolved.
@@ -110657,9 +110726,9 @@ function weaponPreviewStats(value,options={}){
  const f=migrateWeaponFit({...part}),definition=FITS[f.k];if(!definition||definition.cat!=='w')return null;
  const d=fitSpec(f),missile=!!d.msl||isConcussionLauncher(f),payload=!!d.store&&!isConcussionLauncher(f),energy=(d.tt||0)+(d.ion||0)>0,q=weaponChargeSpec(f),
   factor=weaponInputFactor({energyModel:{version:strict?1:0,eta:ENERGY_MODEL.eta}}),maxPowerW=Math.max(0,d.power||0)*factor,
-  maxHeatW=heatWaste({draw:maxPowerW,weapon:maxPowerW,shield:0,engine:0,fixed:0,sw:[],swShot:[]}).weapon,
+  maxHeatW=heatWaste({draw:maxPowerW,weapon:maxPowerW,shield:0,engine:0,fixed:0,sw:[],swShot:[],weaponWaste:weaponWasteFrac(d)}).weapon,
   round=payload&&ORDNANCE[f._store?.k],outputTT=payload?(round?.tt??null):isConcussionLauncher(f)?launcherRound(f).tt:missile?(d.msl||0)/8:q.boltTT,
-  rangeM=payload?(Number.isFinite(round?.range)?round.range:null):missile?(launcherHeavy(f)?HEAVY_LAUNCHER.range:missileRange(isShipLauncher(f)?'shipMsl':isConcussionLauncher(f)?'cmsl':d)):energy?GUN_BANDS[fitBand(d)].range:null;
+  rangeM=payload?(Number.isFinite(round?.range)?round.range:null):missile?(launcherHeavy(f)?HEAVY_LAUNCHER.range:missileRange(isShipLauncher(f)?'shipMsl':isConcussionLauncher(f)?'cmsl':d)):energy?(d.gunRule?.rangeM??GUN_BANDS[fitBand(d)].range):null;
  return {kind:payload?'payload':missile?'missile':energy?'energy':'utility',barrels:payload||missile?isShipLauncher(f)?shipLauncherConfig(f).cells:1:q.barrels,outputTT,
   traverseDegS:energy?weaponTraverseDegS(d):0,rangeM,maxPowerW,maxHeatW,variableReason:payload?'payload':null};
 }
@@ -110730,7 +110799,7 @@ function settleMissileMounts(ship){if(!ship.fits.some(f=>FITS[f.k]?.msl&&missile
 function missileStatus(ship,invalid=new Set()){const byFit={};for(const p of missileCells(ship)){const V=partVolume(p),ratio=invalid.has(p.id)?0:clamp(V/Math.max(1e-9,p.requiredVolume),0,1);byFit[p.weaponId]={id:p.id,volume:V,required:p.requiredVolume,ratio,blocked:invalid.has(p.id)};}return byFit;}
 function chargingStatus(ship,invalid=new Set()){
  const byFit={},parts=new Map(weaponCapacitors(ship).flatMap(p=>p.weaponIds?p.weaponIds.map(id=>[id,p]):[[p.weaponId,p]])),ready=turretAllocationReady(ship);
- for(const f of ship.fits){if(!needsCapacitor(f)||f.float)continue;const p=parts.get(f.id),a=turretCompartment(ship,f,ready),blocked=!!p&&invalid.has(p.id),internalVolume=p&&!blocked&&ready&&p._allocationReady?Math.min(a.internalRequired,partVolume(p)*(isTrenchBatteryGroup(f)?weaponChargeSpec(f).targetVolume/Math.max(1e-9,p.targetVolume):1)):0,volume=Math.min(a.plannedVolume,a.housingUsed+internalVolume),q=weaponChargeSpec(f);byFit[f.id]={...a,id:p?.id??null,internalVolume,internalOccupiedVolume:a.embeddedVolume+internalVolume,volume,ratio:clamp(volume/Math.max(1e-9,q.volleyVolume),0,1),capacityRatio:clamp(volume/Math.max(1e-9,q.targetVolume),0,1),storedTT:volume*CHARGE_TT_M3,blocked};}
+ for(const f of ship.fits){if(!needsCapacitor(f)||f.float)continue;const p=parts.get(f.id),a=turretCompartment(ship,f,ready),blocked=!!p&&invalid.has(p.id),internalVolume=p&&!blocked&&ready&&p._allocationReady?Math.min(a.internalRequired,partVolume(p)*(isTrenchBatteryGroup(f)?weaponChargeSpec(f).targetVolume/Math.max(1e-9,p.targetVolume):1)):0,volume=Math.min(a.plannedVolume,a.housingUsed+internalVolume),q=weaponChargeSpec(f);byFit[f.id]={...a,id:p?.id??null,internalVolume,internalOccupiedVolume:a.embeddedVolume+internalVolume,volume,ratio:clamp(volume/Math.max(1e-9,q.volleyVolume),0,1),capacityRatio:clamp(volume/Math.max(1e-9,q.targetVolume),0,1),storedTT:volume*q.ttPerM3,blocked};}
  return byFit;
 }
 function outfittingStats(ship,S){
@@ -111162,7 +111231,7 @@ function referenceDesign(key){
       const bay=room('hangar','側方ドッキング・戦闘機格納庫',[471,54,sg*115],[64,44,50]);const mouth=openBay(s,bay,sg<0?'port':'stbd','ray');mouth.aperture=.90;
       room('cargo','前部補給倉庫',[900,62,sg*70],[120,34,22],{foreWidth:.6});
       part('localShield','前部局所シールド',[960,60,sg*53],12);
-      part('repulsor','腹部リパルサー',[405,24,sg*69],18,{dir:[0,1,0],length:10});
+      part('repulsor','腹部重力制御装置',[405,24,sg*69],18,{dir:[0,1,0],length:10});
     }
     part('hyper','細長い尾部ハイパードライブ',[120,72,0],23,{length:160});
     part('inertial','艦尾主慣性圧縮器',[228,95,0],14,{length:30});
@@ -111192,7 +111261,7 @@ function referenceDesign(key){
       room('vehicle','重車両整備庫',[332,55,z*96],[110,48,24],{foreWidth:.85});
       room('service','ガンシップ整備レール',[480,88,z*47],[110,28,12],{foreWidth:.7});
       const bay=room('hangar','前方揚陸・降下艇格納庫',[570,66,z*28],[110,36,26],{foreWidth:.5});openBay(s,bay,'bottom','ray');
-      part('repulsor','着陸支持リパルサー',[295,28,z*85],22,{dir:[0,1,0],length:12});
+      part('repulsor','着陸支持重力制御装置',[295,28,z*85],22,{dir:[0,1,0],length:12});
       room('integrity','縦通構造維持幹線',[245,82,z*115],[140,12,12]);
       room('battery','パワーセル',[180,94,z*75],[25,18,16]);
     }
@@ -111452,6 +111521,130 @@ function initializeWeaponSizing(){
  }
 }
 initializeWeaponSizing();
+// 2026-11-24 Gun rules (user decisions; docs/handoff-2026-11-20/gun-energy-model-2026-11-24.md). Each ship gun's numbers come from
+// its barrels (bore and length, read from its model) instead of per-family settings:
+//  - Laser (below 1 MT a shot): a shot = 20 kt + 780 kt × (bore² − 0.10²) ÷ (0.40² − 0.10²), each barrel by its own bore (the
+//    Sphyrna's 0.554 m barrel stays a laser above 800 kt, user 2026-11-24). It fades from the muzzle and is gone at 1 kt; the
+//    range is 0.86 km at the 1 m barrel (where a 1 MT, 1 m laser is gone) and grows 125 m per metre of barrel per ln(kt).
+//    About one shot a second a barrel.
+//  - Turbolaser (1 MT a shot and up, bore at least 0.45 m): compressed so it holds all its energy to a distance set by its
+//    coil (the whole barrel). Least coil = 1 m × (1 + 0.5 × ln((laser bore for that energy ÷ bore)²)); held to 0.86 km +
+//    25.3 km × ln(1 + (barrel − least coil) ÷ 4.51 m) (ISD 40TT 30 km, 175TT 40 km); past it the bolt falls about 25 dB a
+//    kilometre and is gone at 1 MT. A shot is charged with E × (1 + barrel ÷ 19.0 m); the charging rate is the default
+//    charge volume × 0.0631 TT/s/m³ (the CIS 1TT rapid gun charges 2 TT a second); barrels fire one at a time, each when
+//    its charge is in. No turret cooling: 5% of the compression energy (E × barrel ÷ 19.0 m) goes into the ship as heat.
+//  - Ion gun: charged and held as a turbolaser; past the hold it disperses at once. Charging rate = (turret volume + default
+//    charge volume) × 0.00062 TT/s/m³ (twice the Subjugator's rate per volume).
+// Barrel length: fixed mounts 2/3 of the body, ball turrets the exposed barrel + 3/4 of the body inside, the Mon Calamari
+// ball guns from the user's drawings (exposed barrel = ratio × ball diameter), the ISD octuple root to muzzle (19.0 m).
+const GUN_RULES=Object.freeze({
+ laser:Object.freeze({minBore:.10,refBore:.40,minKt:20,refKt:800,minBarrel:1,floor:860,perMetre:125,goneKt:1,shotsPerBarrel:1}),
+ turbolaser:Object.freeze({minKt:1e3,minBore:.45,coilBase:1,coilK:.5,hold0:860,holdA:25300,holdX:4.51,fadeM:171,chargeLen:19.0,chargePerM3:.06313782219884272,heat:.05}),
+ ion:Object.freeze({chargePerM3:.00062}),
+ monCalRatio:Object.freeze({monCal200Triple:1.45,monCal200:1.75,monCal150Ion:1.5,monCal80:1.55,monCal34:1.0}),
+ borrowedBore:.6/* a model barrel without a bore: 0.6 of its outer diameter */,
+ laserBore:Object.freeze({pd:.40}),
+ // 2026-11-25 (user, above): the shot of each barrel, TT. The models keep their drawn barrels.
+ turbolaserShot:Object.freeze({single6MT:1e-4,twin500MT:.2,quad500MT:.2,sphyrnaTwin500MT:2e-4}),
+ // These barrels are as drawn (not thickened to the least bore): the bore is the drawn outer diameter, as it was for the laser.
+ turbolaserDrawnBore:Object.freeze({single6MT:true,twin500MT:true,quad500MT:true,sphyrnaTwin500MT:true}),
+ // 2026-11-25 (user「ターボレーザー化に必要な給電区画は今の作例の航空機にはほぼ乗り切らない大きさにして」, asked which: 「50 m³」): the least
+ // volume of a turbolaser's or ion cannon's feed compartment (the charging room), m³, whatever its shot.
+ feedMinM3:50
+});
+const laserShotKt=bore=>{const L=GUN_RULES.laser,b=Math.max(L.minBore,bore||0);return L.minKt+(L.refKt-L.minKt)*(b*b-L.minBore**2)/(L.refBore**2-L.minBore**2);};
+const laserBoreFor=kt=>{const L=GUN_RULES.laser;return Math.sqrt(L.minBore**2+Math.max(0,kt-L.minKt)*(L.refBore**2-L.minBore**2)/(L.refKt-L.minKt));};
+const laserRangeM=(kt,barrel)=>{const L=GUN_RULES.laser;return L.floor+L.perMetre*Math.max(0,(barrel||0)-L.minBarrel)*Math.log(Math.max(1,kt/L.goneKt));};
+function turbolaserCoil(kt,bore){const R=GUN_RULES.turbolaser;return R.coilBase*(1+R.coilK*Math.log((laserBoreFor(kt)/Math.max(R.minBore,bore))**2));}
+function turbolaserHoldM(kt,bore,barrel){const R=GUN_RULES.turbolaser,least=turbolaserCoil(kt,bore);return barrel>=least?R.hold0+R.holdA*Math.log(1+(barrel-least)/R.holdX):0;}
+// The share of a shot left at distance d (1 within the hold): what decides the damage a bolt does where it lands.
+function gunShotShare(rule,d){if(!rule)return 1;
+ /* barrels of unequal bore (the Sphyrna's twin): each fades over its own range, weighted by its shot (physics review 2026-11-24) */
+ if(rule.kind==='laser'&&rule.parts?.length){let v=0;for(const q of rule.parts)if(d<q.rangeM)v+=q.w*Math.exp(-Math.max(0,d)/q.fadeM);return v;}
+ if(rule.kind==='laser')return d>=rule.rangeM?0:Math.exp(-Math.max(0,d)/rule.fadeM);
+ if(d<=rule.holdM)return 1;if(rule.kind==='ion'||d>=rule.rangeM)return 0;return Math.exp(-(d-rule.holdM)/GUN_RULES.turbolaser.fadeM);}
+// The barrels of a gun as its model has them: [{bore, length}] in metres.
+function gunModelBarrels(d){
+ const a=REFERENCE_ASSETS[d.asset],bs=a?.barrelCenters||[];if(!bs.length)return null;
+ const front=b=>b.exposedStartX??b.root[0],body=b=>front(b)-(a.bounds?.[0]?.[0]??front(b)),full=b=>b.fullLengthM??Math.hypot(...b.muzzle.map((v,i)=>v-b.root[i])),seen=b=>b.photoVisibleReachM??(b.muzzle[0]-front(b));
+ const ion=(d.ion||0)>0,ball=isBallTurret(d.key),mc=GUN_RULES.monCalRatio[d.key];
+ return bs.map(b=>{let length;
+  if(d.key==='oct40')length=GUN_RULES.turbolaser.chargeLen;
+  else if(mc)length=mc*d.wm+.75*body(b);
+  else if(ball)length=(b.muzzle[0]-front(b))+.75*body(b);
+  else if(!ion&&Math.abs(seen(b)-full(b))<.01)length=d.fm*2/3;
+  else length=full(b);
+  const bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*GUN_RULES.borrowedBore:null;
+  return {bore,outer:b.outerRadiusM>0?2*b.outerRadiusM:bore,length,full:full(b)/* a laser's barrel: root to muzzle as drawn */};});
+}
+function gunRuleKind(k,d){if((d.ion||0)>0)return 'ion';return /^pd$|^monCalPD$|^twin6MT$|^single500MT$/.test(k)?'laser':'turbolaser';/* 2026-11-25 (user「レーザーとターボレーザーの違いは『砲身のみでガスを別で置く』か『給電用の艦内区画が出来る』にして」「CR-90の単装中レーザーを軽ターボレーザー(100MT) 2連装と同じモデルの4連装は中ターボレーザー(200GT)に ハンマーヘッドは2連装中レーザーのみ200MTの軽ターボレーザーに」): single6MT, twin500MT, quad500MT and sphyrnaTwin500MT are turbolasers again, at the shots of GUN_RULES.turbolaserShot; their models are not changed. Earlier: *//* 2026-11-24 (user「500MT系は変えずに、『重レーザー』に変更。この口径通りのレーザーにして」): the corvettes' 500MT guns are heavy lasers by their drawn bores */}
+function applyGunRules(){
+ for(const [k,d] of Object.entries(FITS)){
+  if(d.cat!=='w'||d.craft||d.fixed&&!d.asset||d.msl||!(d.barrels>0)||!((d.tt||0)+(d.ion||0)>0)||!d.asset)continue;
+  const barrels=gunModelBarrels(d);if(!barrels)continue;const kind=gunRuleKind(k,d),n=d.barrels,legacy=Object.freeze({tt:d.tt,ion:d.ion,boltTT:d.boltTT,cycle:d.cycle,power:d.power,name:d.name,short:d.short});
+  let rule;
+  if(kind==='laser'){
+   // A laser's bore is its barrel's outer diameter as measured (2026-11-24: CR-90 0.169 m, ball PD 0.178 m, Sphyrna 0.364 / 0.554 m);
+   // the point defence twin's barrels are thickened to 0.40 m (800 kt, user 2026-11-24 「点防御の砲身を太くする」).
+   const per=barrels.slice(0,n).map(b=>{const bore=Math.max(GUN_RULES.laser.minBore,GUN_RULES.laserBore[k]??b.outer??b.bore??GUN_RULES.laser.minBore),kt=laserShotKt(bore),length=Math.max(GUN_RULES.laser.minBarrel,b.full);return {bore,length,kt,rangeM:laserRangeM(kt,length)};});
+   while(per.length<n)per.push(per[per.length-1]);
+   const volleyKt=per.reduce((t,b)=>t+b.kt,0),rangeM=Math.max(...per.map(b=>b.rangeM)),best=per.reduce((x,b)=>b.rangeM>x.rangeM?b:x,per[0]),cycle=1/GUN_RULES.laser.shotsPerBarrel;
+   rule={kind,perBarrel:Object.freeze(per.map(Object.freeze)),boreM:best.bore,barrelM:best.length,shotKt:volleyKt/n,rangeM,holdM:0,fadeM:best.rangeM/Math.log(Math.max(1.0001,best.kt/GUN_RULES.laser.goneKt)),intervalS:cycle/n,cycle,heatFrac:null/* the usual waste of the weapon input (HEAT.waste.weapon) */,...(per.some(b=>b.kt!==per[0].kt||b.rangeM!==per[0].rangeM)?{parts:Object.freeze(per.map(b=>Object.freeze({w:b.kt/volleyKt,rangeM:b.rangeM,fadeM:b.rangeM/Math.log(Math.max(1.0001,b.kt/GUN_RULES.laser.goneKt))})))}:{})};
+   d.tt=volleyKt/KT_PER_TT;d.boltTT=d.tt/n;d.cycle=cycle;d.power=d.tt*TT/cycle;
+  }else{
+   const R=GUN_RULES.turbolaser,shot=GUN_RULES.turbolaserShot[k];if(shot>0){d.tt=shot*n;d.boltTT=shot;}
+   const bolt=d.boltTT??((d.tt||d.ion)/n),kt=bolt*KT_PER_TT,b=barrels.reduce((x,y)=>y.length>x.length?y:x,barrels[0]),drawn=GUN_RULES.turbolaserDrawnBore[k]?b.outer:b.bore,bore=Math.max(R.minBore,drawn||R.minBore),length=b.length,least=turbolaserCoil(kt,bore);
+   // 2026-11-25 (user「最低コイル長、コイル口径よりも小さいとその分電力供給量を増やさないといけなくする」): a barrel shorter than its shot's least
+   // coil, or a bore under the least bore, still carries the shot, as a coil of exactly the least length and bore would, and pays
+   // for it in power: the charge of a shot and the rate it is fed at both rise by feedK = (least coil ÷ barrel) × (least bore ÷
+   // bore)², each at least 1 (★ the two factors are ours: the length short in proportion, the bore by its area, as the
+   // compression ratio is). The feed compartment grows by the same factor (weaponChargeSpec). It was: no hold at all.
+   const coilShortK=kind==='ion'?1:Math.max(1,least/Math.max(1e-6,length)),boreShortK=kind==='ion'||!(drawn>0)?1:Math.max(1,(R.minBore/drawn)**2),feedK=coilShortK*boreShortK,holdM=turbolaserHoldM(kt,bore,Math.max(length,kind==='ion'?length:least));
+   const c=length/R.chargeLen,shotCharge=bolt*(1+c)*feedK,defaultVolume=bolt*n/CHARGE_TT_M3,rate=kind==='ion'?GUN_RULES.ion.chargePerM3*(d.fm*d.wm*d.hm+defaultVolume):R.chargePerM3*defaultVolume*feedK,interval=shotCharge/rate,over=(1+c)*feedK-1;
+   rule={kind,boreM:bore,...(drawn>0&&drawn<bore?{drawnBoreM:drawn}:{}),barrelM:length,leastCoilM:least,shotKt:kt,holdM,rangeM:kind==='ion'?holdM:holdM+R.fadeM*Math.log(Math.max(1,kt/R.minKt)),shotChargeTT:shotCharge,chargeRateTT:rate,intervalS:interval,cycle:interval*n,heatFrac:R.heat*over/(1+over),...(feedK>1?{feedK,coilShortK,boreShortK}:{})};
+   d.cycle=rule.cycle;d.power=rate*TT;
+  }
+  d.gunRule=Object.freeze(rule);d.gunLegacy=legacy;
+  const label=GUN_RULE_LABELS[k];if(label)Object.assign(d,label);
+ }
+}
+// The lasers' names follow their new shots (LLC up to 50 kt, MLC to 400 kt, HLC above; user's table LC.png). The CR-90's gun
+// is a medium laser (user 2026-11-24「CR-90の6MT重レーザーは300kt 中レーザーに」; its 0.169 m barrel gives 117 kt).
+const GUN_RULE_LABELS={
+ pd:{name:'800kt 2連装点防御レーザー',short:'800kt 点防御2連装',desc:'中央の機器ケースの左右に、円形の俯仰軸とレーザー砲身を1門ずつ取り付けた2連装PD。砲身 0.40 m・長さ 6 m で1発800 kt、射程5 km。艦載機・ミサイル迎撃と対艦射撃を兼ねる。'},
+ monCalPD:{name:'133kt 3連装球状点防御レーザー',short:'133kt 球状PD 3連装',desc:'図の寸法に合わせた小型球状砲塔に点防御レーザー3門を収める。砲身 0.178 m で1発133 kt、射程1.7 km。球体全体が旋回・俯仰し、対艦射撃と艦載機・ミサイル迎撃を兼ねる。'},
+ single6MT:{name:'100MT 単装軽ターボレーザー',short:'軽TL単装（100MT）',desc:'CR90標準型の小型単装の軽ターボレーザー。1発100 MT、100%を保つ距離0.86 km・射程1.6 km。描かれた砲身（外径 0.169 m・コイル 3.0 m）は最低口径 0.45 m・最低コイル 3.3 m に足りないので、充電と給電が7.7倍要る。給電区画は最小の50 m³。提供されたSTLを船体と同じ縮尺で使用する。'},
+ // 2026-11-25 (user): the CR-90's single and the twin and quad of its model, and the Sphyrna's twin, are turbolasers (100 MT, 200 GT,
+ // 200 MT); the single 613 kt and the Sphyrna's bow twin stay lasers. Their models are not changed.
+ // Earlier: the corvettes' 500MT guns are lasers at their drawn bores (user 2026-11-24); their models are not changed. Named by their actual
+ // shots (user「実際の出力に合わせた呼称を行って」: LLC to 50 kt, MLC to 400 kt, HLC above).
+ quad500MT:{name:'200GT 4連装中ターボレーザー',short:'中TL4連装（200GT）',desc:'CR90型の4連装の中ターボレーザー。1発200 GT、100%を保つ距離0.86 km・射程3.0 km。描かれた砲身（外径 0.245 m・コイル 6.6 m）は最低口径 0.45 m・最低コイル 7.1 m に足りないので、充電と給電が3.6倍要る。提供されたSTLを船体と同じ縮尺で使用する。'},
+ twin500MT:{name:'200GT 2連装中ターボレーザー（CR90型）',short:'中TL2連装（200GT・CR90型）',desc:'CR90型の2連装の中ターボレーザー。1発200 GT、100%を保つ距離0.86 km・射程3.0 km。描かれた砲身（外径 0.247 m・コイル 6.7 m）は最低口径 0.45 m・最低コイル 7.1 m に足りないので、充電と給電が3.5倍要る。'},
+ single500MT:{name:'613kt 単装重レーザー',short:'重レーザー単装',desc:'単装の重レーザー砲。砲身 0.352 m・長さ 11.1 m で1発613 kt、射程9.0 km。'},
+ sphyrnaTwin500MT:{name:'200MT 2連装軽ターボレーザー（スフィルナ型）',short:'軽TL2連装（200MT・スフィルナ型）',desc:'スフィルナ型の2連装の軽ターボレーザー。1発200 MT、100%を保つ距離13 km・射程14 km。描かれた砲身（外径 0.237 m）は最低口径 0.45 m に足りないので、充電と給電が3.6倍要る。給電区画は最小の50 m³。'},
+ twin6MT:{name:'2連装重レーザー砲（658kt・1.57MT）',short:'重レーザー2連装',desc:'スフィルナ型船体の艦首側面にある上下2本の砲身。細い砲身（0.364 m）は1発658 kt・射程3.9 km、太い砲身（0.554 m）は1発1.57 MT・射程7.9 km（ターボレーザーではなくレーザーとして扱う）。'}
+};
+// The point defence twin's barrels thickened to 0.40 m outside (user 2026-11-24; 800 kt by the laser rule): from 0.231 m.
+// The turbolasers drawn below the 0.45 m least bore are thickened to it (user 2026-11-24, 0.6 of the outer diameter where no bore is
+// modelled), and the Mon Calamari ball guns' exposed barrels drawn out to the user's drawings (exposed barrel ÷ ball diameter:
+// 200TT triple 1.45, single 1.75, 150TT ion 1.5, 80TT 1.55, 34TT 1.0). The barrel records follow the drawn shape.
+function reshapeGunBarrels(id,{radius=1,exposedTarget=null,neckFill=false}={}){const a=REFERENCE_ASSETS[id];if(!a||a._reshaped)return;a._reshaped=true;
+ const b0=a.barrelCenters?.[0];if(!b0)return;const front0=b0.exposedStartX??b0.root[0],
+  /* reference review 2026-11-25: the drawing's ratio is the barrel seen past the ball's outline in the side view (centre + radius),
+     not past exposedStartX, which lies inside the ball; the added length still goes into the shaft from exposedStartX on */
+  exit0=a.sphereRadiusM>0&&Array.isArray(a.sphereCenterM)?a.sphereCenterM[0]+a.sphereRadiusM:front0,ka=exposedTarget>0?Math.max(1,(exit0+exposedTarget-front0)/Math.max(1e-6,b0.muzzle[0]-front0)):1;
+ if(radius!==1)a.barrelRadiusScale=radius;if(ka!==1)a.barrelExposedScale=ka;
+ for(const b of a.barrelCenters){const front=b.exposedStartX??b.root[0];b._sourceFront=front;b._sourceReach=b.muzzle[0]-front;/* a tapered barrel keeps its taper: the length is added to the straight tube past the taper's end */if(b.taperEndXM>front&&b.shaftRadiusM>0&&b.boreRadiusM>0)b._stretchFrom=b.taperEndXM;if(neckFill&&radius!==1)b._neckFill=true;if(radius!==1){if(b.outerRadiusM>0)b.outerRadiusM*=radius;if(b.boreRadiusM>0)b.boreRadiusM*=radius;}
+  if(ka!==1){b.muzzle=[front+(b.muzzle[0]-front)*ka,b.muzzle[1],b.muzzle[2]];if(b.fullLengthM>0)b.fullLengthM=Math.hypot(...b.muzzle.map((v,i)=>v-b.root[i]));if(b.photoVisibleReachM>0)b.photoVisibleReachM=b.muzzle[0]-front;}}
+ if(ka!==1&&Array.isArray(a.muzzlePoints))a.muzzlePoints=a.barrelCenters.map(b=>b.muzzle.slice());
+ /* the reshaped barrels may reach past the model's box: the fit's box (referenceFitAABB) takes the drawn extent */
+ const d=decodeReference(id);if(d){const lo=[-.5,-.5,-.5],hi=[.5,.5,.5];for(let i=0;i<d.pos.length;i+=3)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],d.pos[i+k]);hi[k]=Math.max(hi[k],d.pos[i+k]);}a.drawnExtent=[lo,hi];}}
+reshapeGunBarrels('pd_twin_side_laser',{radius:.20/.1155,neckFill:true});
+{const MC={moncal_single34:1.0,moncal_single80:1.55,moncal_single200:1.75,moncal_triple200:1.45,moncal_single150_ion:1.5},MCK={moncal_single34:'monCal34',moncal_single80:'monCal80',moncal_single200:'monCal200',moncal_triple200:'monCal200Triple',moncal_single150_ion:'monCal150Ion'};
+ for(const id of ['light_quad200','light_twin200','light_single200','light_twin200_fast','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion']){const a=REFERENCE_ASSETS[id],b=a?.barrelCenters?.[0];if(!b)continue;
+  const ion=id==='moncal_single150_ion',bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*.6:null,radius=!ion&&bore>0&&bore<.45?.45/bore:1,d=MCK[id]?FITS[MCK[id]]:null;
+  reshapeGunBarrels(id,{radius,exposedTarget:MC[id]&&d?MC[id]*d.wm:null});}}
+applyGunRules();
 // Keep internal recipes readable while the editor exposes one canonical entry.
 for(const key of ['mtl','htl','ltl','casemate40','casemateMid','casemateLight','casemateIon','casemateIonL'])Object.defineProperty(FITS,key,{enumerable:false,configurable:true,get:()=>FITS[canonicalWeaponKind(key)]});
 // Where a casemate's barrels end: model casemates by their asset, the others at their muzzles.
@@ -111958,8 +112151,8 @@ function accBuild(opt={}){
  part('shield','区域シールド発生器ノード（後部）',[170,51.9,150],12,{},true);
  part('shield','区域シールド発生器ノード（前部）',[575,51.9,57],12,{},true);
  // Antigrav repulsorlifts: generators in the aft brim corners and under the forward brim carry the ship's weight on landing.
- part('repulsor','反重力リパルサーリフト発生装置（後部）',[163,51.9,186],30,{dir:[0,1,0],length:13},true);
- part('repulsor','反重力リパルサーリフト発生装置（前部）',[600,51.9,52],20,{dir:[0,1,0],length:13},true);
+ part('repulsor','重力制御装置（後部）',[163,51.9,186],30,{dir:[0,1,0],length:13},true);
+ part('repulsor','重力制御装置（前部）',[600,51.9,52],20,{dir:[0,1,0],length:13},true);
  // Annihilation reactant silos and the reactant valve module forward of the tower.
  for(const x of [315,340])part('fuel','反応物凝縮サイロ',[x,76,34],18,{dir:[0,1,0],length:18},true);
  room('pump','反応物バルブ・モジュール',[360,71,0],[14,14,8]);
@@ -114305,6 +114498,7 @@ function refitShipThermal(ship,key,options={}){
  // so its reserved charging input cannot disappear from the cooling budget.
  if(ship.parts.some(isSuperweapon))superweaponStats(ship,S);
  const sw=(S.superweapons||[]).filter(w=>w.ok),E=positive(options.engineInputW??options.E,S.draw?.engines),W=positive(options.weaponInputW??options.W,S.draw?.weapons),Q=positive(options.shieldInputW??options.S,S.draw?.shields),H=positive(options.fixedInputW??options.H,(S.draw?.hotel||0)+(S.draw?.ray||0)-(S.dissipatorPower||0)),SW=positive(options.superweaponInputW,sw.reduce((n,w)=>n+Math.max(0,w.chargeW||0),0));
+ const WW=S.weaponWasteFrac;
  const modes=Object.values(HEAT_PRESETS),weaponFactor=Math.max(1,...modes.map(p=>(POWER_MODES[p.mode]?.weapons||1)*(p.wpn||0))),shieldFactor=Math.max(1,...modes.map(p=>p.sh||0)),reactorFactor=Math.max(1,...modes.map(p=>POWER_MODES[p.mode]?.max||1));
  // The installed plant limits the operating load. A ship cannot turn the
  // sum of every engine, gun and shield nameplate into simultaneous output.
@@ -114319,7 +114513,7 @@ function refitShipThermal(ship,key,options={}){
   // Converter input follows the heat converted (user decision 2026-11-12): the peak load, not the rating.
   const coolingInputW=(requestedCapacityW/margin)*HEAT.disPowerK.hdis,presets={};let peak=0,peakBase=0;
   for(const pr of HEAT_SIZING){
-   const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
+   const X=HEAT_PRESETS[pr],chargeW=X.sw?Math.min(P,SW):0,load=heatLoads({P:Math.max(0,P-chargeW),fixed:H+coolingInputW,De:E,Dw:W,Ds:Q,strict:true,weaponWaste:WW},pr),waste=heatWaste(load);waste.engine=engineSpecs.reduce((n,e)=>n+engineOperatingPoint(e,load.engine*e.ratedInputW/Math.max(1e-30,engineRated)).wasteHeatW,0);
    const feedHeatW=load.engine>0?Math.min(feedBound.heatW,load.engine*feedBound.maxFraction/Math.max(1e-12,1-feedBound.maxFraction)):0,generatedW=waste.reactor+waste.engine+waste.weapon+waste.shield+waste.hotel+feedHeatW+(HEAT.waste.reactor+HEAT.waste.sw)*chargeW;
    // A superweapon that fires gives up its firing loss while it burns or cools (it is not charging then): the
    // converters are sized for whichever is larger (user decision 2026-11-15「発射の熱も排熱」).
@@ -114385,7 +114579,7 @@ function refitShipThermal(ship,key,options={}){
   else if(p.k==='shield'||p.k==='localShield')put('p'+p.id,HEAT.waste.shield*shieldLoad(p)*shieldFactor);
   else if(p.k==='engine'){const e=resolveEngineSpec(p,ship);if(e.valid)put(e.heatNode,e.ratedWasteHeatW);}
  }
- for(const f of ship.fits)if(!f.float&&FITS[f.k]?.cat==='w')put('f'+f.id,HEAT.waste.weapon*(fitSpec(f).power||0)*weaponFactor/ENERGY_MODEL.eta);
+ for(const f of ship.fits)if(!f.float&&FITS[f.k]?.cat==='w')put('f'+f.id,weaponWasteFrac(fitSpec(f))*(fitSpec(f).power||0)*weaponFactor/ENERGY_MODEL.eta);
  for(const w of sw)put('p'+w.id,HEAT.waste.sw*Math.max(0,w.chargeW||0));
  // Manual heat paths replace automatic ones for their source. Every new path
  // has a finite watt rating, and the bank split lets shared sources use the
@@ -114615,8 +114809,13 @@ registerShipExample({
  title:'Star Wars: GR-75 Medium Transport',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
  source:'https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a',license:'CC-BY-4.0',
  credit:'This work is based on "Star Wars: GR-75 Medium Transport" (https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'90 m・装甲殻の下に開いた貨物架。上部殻を通常船体（断面表）とし、貨物架・機関・操縦室は原型モデルから実測した構造物',
- build(){
+ note:'90 m・装甲殻の下に開いた貨物架。上部殻を通常船体（断面表）とし、貨物架・機関・操縦室は原型モデルから実測した構造物。内部（反応炉・シールド・貨物倉など）はユーザーが作り直した設計（docs/handoff-2026-11-20/refs/gr75-remodel-2026-11-25.json）。',
+ // 2026-11-25 The example is the user's design (GR75_REMODEL in data/imperial2.js; user「GR-75が輸送船にしては反応炉もシールドも大きすぎる」
+ // 「GR-75を内部作り直した」), taken as it is: the hull, the 54 structures and the two turrets are those of the measured build
+ // below (measuredBuild, kept as the record of how the shape was measured), the interior is the user's. It carries its own
+ // systems, so no systems refit follows.
+ build(){if(typeof GR75_REMODEL!=='object'||!GR75_REMODEL)throw new Error('GR-75 の設計がありません');const ship=deserialize(JSON.parse(JSON.stringify(GR75_REMODEL)));ship.reference='gr75';return ship;},
+ measuredBuild(){
   // Upper shell: a domed section (warship section with a full-width keel and
   // a narrow deck) measured every 4 m; its underside stays flat at y 6.6.
   const SHELL=[[0,3.43,7.15,8.95],[5,5.34,6.5,8.93],[9,6.36,6.54,8.92],[13,7.11,6.62,9.3],[17,7.91,6.62,9.88],[21,8.7,6.64,10.44],[25,9.4,6.66,11.05],[29,10.21,6.68,11.6],[33,10.91,6.67,12.19],[37,11.74,6.67,12.77],[41,12.43,6.67,13.27],[45,12.73,6.68,13.91],[49,13.24,6.68,14.31],[53,13.68,6.68,14.64],[57,13.78,6.68,14.71],[61,13.58,6.69,14.59],[65,13.52,6.6,14.5],[69,12.85,6.79,14.13],[73,12.2,6.75,13.81],[77,10.1,7.4,13.06],[81,8.89,7.8,12.43],[85,6.62,7.84,10.98],[88,4.6,7.7,9.8],[90,2.2,7.9,9]];
@@ -114679,7 +114878,7 @@ registerShipExample({
 // at their original poses. Plant, machinery, feeds, shafts and cooling are
 // ordinary finite installed hardware; the source mesh grants none of them.
 {
-const SPHYRNA_HYPER_LENGTH=7.1;
+const SPHYRNA_HYPER_LENGTH=7.1,SPHYRNA_HAMMER=Object.freeze({fromX:88,fore:2,side:.6});
 const SPHYRNA_GROUND=[{id:'ground-1',name:'乗客（便乗者）',kind:'troops',count:125}];
 const SPHYRNA_SOURCE_SCALE=1.0710669372091561;
 const sphyrnaPoint=q=>[(60.848838806152344-q[1])*SPHYRNA_SOURCE_SCALE,(q[2]+15.68941879272461)*SPHYRNA_SOURCE_SCALE,-q[0]*SPHYRNA_SOURCE_SCALE];
@@ -114720,7 +114919,14 @@ function hhBuild(opt={}){
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  s.airWings=[];s.groundForces=normalizeGroundForces(SPHYRNA_GROUND);
- delete s._building;remount(s);syncCompartments(s);return s;
+ delete s._building;remount(s);syncCompartments(s);
+ // 2026-11-25 (user「ハンマーヘッドはハンマー部分の装甲を厚くして体当たり攻撃も視野に入れて」): the plating of the hammer (the hull's
+ // armour patches forward of SPHYRNA_HAMMER.fromX, where the neck widens into the head) is thicker: its forward faces, which
+ // strike, SPHYRNA_HAMMER.fore, its top, bottom and sides SPHYRNA_HAMMER.side. The rest of the hull and the back of the head
+ // keep 0.2 m. The shape is not changed. ★ The two thicknesses and the line are ours.
+ // Set after the rooms are allotted, which are then allotted again: set before, the gun's feed compartment was left without its room.
+ {const hull=s.parts.find(p=>p.skinAsset==='sphyrna_hull'),head=q=>q.center[0]>=SPHYRNA_HAMMER.fromX;for(const [face,t] of [['fore',SPHYRNA_HAMMER.fore],['top',SPHYRNA_HAMMER.side],['bottom',SPHYRNA_HAMMER.side],['port',SPHYRNA_HAMMER.side],['stbd',SPHYRNA_HAMMER.side]]){const r=setStructureFaceArmor(s,hull,face,t,head);if(!r.ok)throw new Error('スフィルナ級のハンマー部分の装甲を設定できません: '+face+' '+r.why);}}
+ remount(s);syncCompartments(s);return s;
 }
 registerShipExample({
  key:'hammerhead',name:'スフィルナ級コルベット',side:'反乱同盟',role:'コルベット（武装輸送・護衛）',length:116.7,
@@ -114859,12 +115065,12 @@ function lucrehulkBuild(opt={}){
  // ---- core ship interior: droid control computer core, monitoring stations, repulsorlifts ----
  part('command','ドロイド制御コンピューター・コア',[X(1609),470,0],30,{room:[90,90,70]});
  for(const sg of [-1,1])part('command','制御コンピューター・コア配電監視ステーション',[X(1609),470,sg*120],30,{room:[60,50,40]});
- part('repulsor','コアシップ着陸用リパルサーリフト',[X(1609),140,0],140,{dir:[0,1,0],length:30});
+ part('repulsor','コアシップ着陸用重力制御装置',[X(1609),140,0],140,{dir:[0,1,0],length:30});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115098,7 +115304,7 @@ function mc30Plate(s,label,pts,thick,opt={},mirror=false){
 // Weapon placement with charging plant checks (as for the other Mon Calamari ships).
 function mc30MountKit(s,opt={}){
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [4,6,8,10,13,16]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115273,7 +115479,7 @@ function mc75MountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115430,7 +115636,7 @@ function hoMountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115575,7 +115781,7 @@ function libMountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115742,7 +115948,7 @@ function munificentBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115991,7 +116197,7 @@ function onaPrism(s,label,x0,x1,poly,opt={}){
 // ('top') and ventral ('bottom') rows mount as mirrored pairs at |z| offsets.
 function onaMountKit(s,opt={}){
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),allocation=turretCompartment(s,f,false),V=allocation.internalRequired;if(!(V>1e-8))return true;const side=Math.sqrt(q.targetVolume/12),depth=V/(side*side),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const allocation=turretCompartment(s,f,false),V=Math.max(0,q.targetVolume-Math.min(q.targetVolume,(allocation.externalVolume||0)+(allocation.embeddedVolume||0)))/* the room below deck by the authored seat rule (exampleSeatRoom), not by the feed compartment's present size */;if(!(V>1e-8))return true;const side=Math.sqrt(q.targetVolume/12),depth=V/(side*side),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [.04,.08,.15,.25,.5,1,2,3,4,6,8,10,13]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -116402,7 +116608,7 @@ function providenceBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -116569,7 +116775,7 @@ function recusantBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -116867,7 +117073,7 @@ function subjDrumZ(s,label,x,y,prof,opt={},mirror=false){
 // offsets; 'beam' rows take heights and mount one a side.
 function subjMountKit(s,opt={}){
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -117125,8 +117331,8 @@ const GUN_BOLT_MPS=4500,GUN_TRACK_S=10;
 function observeMotion(units,dt,now){if(!(dt>0))return;for(const u of units){if(!Array.isArray(u.pos)||!Array.isArray(u.velocity))continue;const k=u._track||(u._track=[]);if(u.warp||u.docked||Number.isFinite(now)&&Number.isFinite(u._trackAt)&&Math.abs(now-u._trackAt)>dt*1.5+1e-9)k.length=0;if(Number.isFinite(now))u._trackAt=now;const T=u._trackT=(u._trackT||0)+dt;k.push({t:T,pos:u.pos.slice(),vel:u.velocity.slice()});while(k.length>2&&k[1].t<T-GUN_TRACK_S)k.shift();}}
 // Where the target is now relative to where a shot fired a time of flight ago was aimed.
 function gunAimOffset(t,d){const k=t?._track;if(!k?.length||!(d>0))return null;const T=t._trackT,want=T-d/GUN_BOLT_MPS;let s=k[0];for(let i=k.length-1;i>=0;i--)if(k[i].t<=want+1e-9){s=k[i];break;}const e=T-s.t;if(!(e>0))return null;return sub(t.pos,add(s.pos,mul(s.vel,e)));}
-function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState){
- if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),state=fireState??(u.p?.modules?fleetSystems(u).fire:1),sigma=d*gunDispersion(u.p||u,range,state)*aimFactor(u),off=gunAimOffset(t,d);
+function gunHitChance(u,t,d,range=GUN_BANDS.long.range,fireState,spreadRange/* 2026-11-24 the range the spread is set by, when it is not the gun's own reach (an aircraft's short laser) */){
+ if(d>range)return 0;if(!(d>0))return 1;const direction=sub(t.pos||[d,0,0],u.pos||[0,0,0]),state=fireState??(u.p?.modules?fleetSystems(u).fire:1),sigma=d*gunDispersion(u.p||u,spreadRange>0?spreadRange:range,state)*aimFactor(u),off=gunAimOffset(t,d);
  if(off){const n=norm(direction),right=norm(cross(Math.abs(n[1])>.99?[1,0,0]:[0,1,0],n)),up=cross(n,right),ox=dot(off,right),oy=dot(off,up);
   if(Math.hypot(ox,oy)>1e-6*Math.max(1,t.p?.len||1)){
    // The hull's shadow across the line of fire is the ellipse q.M^-1.q<=1 in (right, up), M=[[A,B],[B,C]]. The spread is integrated in
@@ -117169,18 +117375,30 @@ function fleetWeaponPackets(u,gun,ion,target=null){
  const g=Math.max(0,gun-assignedGun),i=Math.max(0,ion-assignedIon);if(g+i>Math.max(1,gun+ion)*1e-12)rows.push({gun:g,ion:i,point:u.pos.slice()});return rows;
 }
 function combatAddWeapons(incoming,target,u,amount,gun,ion,seconds,aim){
+ if(amount.air>0)combatAdd(incoming,target,u.pos,{sf:amount.air,hull:amount.air,shot:FLEET_AIR_GUN_BOLT},aim,u.id);if('air' in amount){amount={...amount};delete amount.air;}
  const packets=fleetWeaponPackets(u,gun,ion,target);if(!packets){combatAdd(incoming,target,u.pos,{...amount,shot:fleetShotTT(u)},aim,u.id);return null;}
  const used={sf:0,hull:0,direct:0,ion:0};
  const shot=fleetShotTT(u);for(const p of packets){const a={sf:(p.gun+COMBAT.ionShield*p.ion)*seconds,hull:(p.gun+COMBAT.ionHull*p.ion)*seconds,ion:p.ion*seconds};for(const k of Object.keys(a))used[k]+=a[k];combatAdd(incoming,target,p.point,{...a,shot},aim,u.id);}
  const rest=Object.fromEntries(['sf','hull','direct','ion','ionDirect'].map(k=>[k,Math.max(0,(amount[k]||0)-(used[k]||0))]));if(Object.values(rest).some(v=>v>0))combatAdd(incoming,target,u.pos,{...rest,shot,...(amount.directShot>0?{directShot:amount.directShot}:{})},aim,u.id);return packets;
 }
+// 2026-11-24 Gun rules in battle: how far a band's (or the ion guns') rules reach, and the share of their energy that is
+// still there at d (rate-weighted over the guns in it). A profile made before the rules has none: the band's range, all of it.
+function gunRulesReach(rows,fallback){if(!rows?.length)return fallback;let r=0;for(const x of rows)if(x.w>0)r=Math.max(r,x.rangeM||0);return r||fallback;}
+function gunRulesShare(rows,d){if(!rows?.length)return 1;let w=0,v=0;for(const x of rows){if(!(x.w>0))continue;w+=x.w;v+=x.w*gunShotShare(x,d);}return w>0?v/w:1;}
+// 2026-11-25 The range a gun's spread is set by: its own reach, but never less than its band's nominal range. The spread
+// (an angle) is inversely proportional to this range, so a gun whose rule gives it a short reach (a laser, a turbolaser on a short
+// barrel) scattered several times as widely at the same distance as a long gun: a CR-90's 3 km turbolaser landed 1% of its shots
+// on another CR-90 at 1.5 km. It was so for aircraft only (2026-11-24); the unit's kind does not decide it any more (user
+// 「航空機と艦船に明確な隔絶を設けない」, handoff 2026-11-25 「部隊の種類では分けない」). ★ The band's range as the floor is ours: before
+// the gun rules every gun of a band took its spread from the band's range.
+function gunSpreadRange(reach,band){return Math.max(reach||0,GUN_BANDS[band]?.range||0)||GUN_BANDS.long.range;}
 function fleetFire(u,t,d){
  if(u.p.surface?.mounts&&typeof surfaceFleetFire==='function')return surfaceFleetFire(u,t,d);
- const p=u.p,B=p.gunBands,control=fleetSystems(u).fire;let gun=0,ion=0,cost=0,gunLanded=0,ionLanded=0;
- if(B){for(const k in GUN_BANDS){if(d>GUN_BANDS[k].range||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunBands?.[k]||[]):0));gun+=g;gunLanded+=g*gunHitChance(u,t,d,GUN_BANDS[k].range,control);cost+=g*COMBAT.bandCost[k];}}
- else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunArcs||[]):0));cost=gun;gunLanded=gun*gunHitChance(u,t,d,GUN_BANDS.long.range,control);}
- if(d<=GUN_BANDS.long.range){ion=fleetArc(u,t,p.ionArcs);ionLanded=ion*gunHitChance(u,t,d,GUN_BANDS.long.range,control);cost+=ion;}
- if(p.energyModel?.version===1)cost=(gun+ion)*weaponInputFactor(p);
+ const p=u.p,B=p.gunBands,control=fleetSystems(u).fire;let gun=0,ion=0,cost=0,gunLanded=0,ionLanded=0,rawGun=0,rawIon=0;
+ if(B){for(const k in GUN_BANDS){const rows=p.gunBandRules?.[k],reach=gunRulesReach(rows,GUN_BANDS[k].range);if(d>reach||!B[k])continue;const g=Math.max(0,fleetArc(u,t,B[k])-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunBands?.[k]||[]):0)),share=gunRulesShare(rows,d);rawGun+=g;gun+=g*share;gunLanded+=g*share*gunHitChance(u,t,d,reach,control,gunSpreadRange(reach,k));cost+=g*COMBAT.bandCost[k];}}
+ else if(d<=GUN_BANDS.long.range){gun=Math.max(0,fleetArc(u,t,p.gunArcs)-(automaticPointDefenseEnabled(u)&&u.dualDefense?fleetArc(u,t,u.dualDivert?.gunArcs||[]):0));cost=gun;rawGun=gun;gunLanded=gun*gunHitChance(u,t,d,GUN_BANDS.long.range,control);}
+ const ionReach=gunRulesReach(p.ionRules,GUN_BANDS.long.range);if(d<=ionReach){const raw=fleetArc(u,t,p.ionArcs);ion=raw*gunRulesShare(p.ionRules,d);ionLanded=ion*gunHitChance(u,t,d,ionReach,control,gunSpreadRange(ionReach,'long'));cost+=raw;rawIon=raw;}
+ if(p.energyModel?.version===1)cost=(rawGun+rawIon)*weaponInputFactor(p)/* the input is drawn whatever share of the bolt arrives */;
  return {gun,ion,cost,gunHit:gun>0?gunLanded/gun:0,ionHit:ion>0?ionLanded/ion:0,fall:gun+ion>0?(gunLanded+ionLanded)/(gun+ion):0};
 }
 // Fire control is independent of the course being steered. An assigned target
@@ -117192,18 +117410,46 @@ function fleetTargetCandidates(u,pool,reach,priority,requireGun=true){
  rows.sort((a,b)=>(b.target===priority)-(a.target===priority)||((b.F.cost>0)-(a.F.cost>0))||(b.ahead-a.ahead)||a.score-b.score);return rows;
 }
 // The longest reach among the bands a ship actually carries.
-function fleetReach(p){const B=p.gunBands;if(!B)return GUN_BANDS.long.range;let r=0;for(const k in GUN_BANDS)if(B[k]&&B[k].some(v=>v>0))r=Math.max(r,GUN_BANDS[k].range);if((p.ionArcs||[]).some(v=>v>0))r=Math.max(r,GUN_BANDS.long.range);return r||GUN_BANDS.mid.range;}
+function fleetReach(p){const B=p.gunBands;if(!B)return GUN_BANDS.long.range;let r=0;for(const k in GUN_BANDS)if(B[k]&&B[k].some(v=>v>0))r=Math.max(r,gunRulesReach(p.gunBandRules?.[k],GUN_BANDS[k].range));if((p.ionArcs||[]).some(v=>v>0))r=Math.max(r,gunRulesReach(p.ionRules,GUN_BANDS.long.range));return r||GUN_BANDS.mid.range;}
 // Best-arc fire a profile lands at a distance (TT/s), as far as its reactor can
 // feed the guns in reach (for choosing where to fight).
 function bandFireAt(p,d){
- const B=p.gunBands,best=a=>a?Math.max(...a):0,source={p,pos:[0,0,0]},target={p:GUN_ACCURACY.reference,pos:[0,0,d],yaw:0},chance=range=>gunHitChance(source,target,d,range,1);let gun=0,cost=0;
- if(B){for(const k in GUN_BANDS)if(d<=GUN_BANDS[k].range){const g=best(B[k]);gun+=g*chance(GUN_BANDS[k].range);cost+=g*COMBAT.bandCost[k];}}else if(d<=GUN_BANDS.long.range){const g=best(p.gunArcs);gun=g*chance(GUN_BANDS.long.range);cost=g;}
- if(d<=GUN_BANDS.long.range){const i=best(p.ionArcs);gun+=i*chance(GUN_BANDS.long.range);cost+=i;}
+ // 2026-11-25 (handoff item 2): the same cost and the same spread as fleetFire. Under the energy model the input is the raw
+ // rate x weaponInputFactor (a shot's whole charge over the efficiency), whatever share of the bolt arrives; the spread is
+ // gunSpreadRange's, as when it fires.
+ const B=p.gunBands,best=a=>a?.length?Math.max(...a):0,source={p,pos:[0,0,0]},target={p:GUN_ACCURACY.reference,pos:[0,0,d],yaw:0},chance=(range,spread=range)=>gunHitChance(source,target,d,range,1,spread);let gun=0,cost=0,raw=0;
+ if(B){for(const k in GUN_BANDS){const rows=p.gunBandRules?.[k],reach=gunRulesReach(rows,GUN_BANDS[k].range);if(d<=reach){const g=best(B[k]);gun+=g*gunRulesShare(rows,d)*chance(reach,gunSpreadRange(reach,k));cost+=g*COMBAT.bandCost[k];raw+=g;}}}else if(d<=GUN_BANDS.long.range){const g=best(p.gunArcs);gun=g*chance(GUN_BANDS.long.range);cost=g;raw=g;}
+ {const reach=gunRulesReach(p.ionRules,GUN_BANDS.long.range);if(d<=reach){const i=best(p.ionArcs);gun+=i*gunRulesShare(p.ionRules,d)*chance(reach,gunSpreadRange(reach,'long'));cost+=i;raw+=i;}}
+ if(p.energyModel?.version===1)cost=raw*weaponInputFactor(p);
  const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity,fed=cost>0?Math.min(1,budget/cost):0;return gun*fed;
 }
 // Where u wants to fight t: the distance that best weighs its own fire against
 // the target's, never closer than the two hulls allow.
+// 2026-11-25 (user「艦隊戦の間合いも実際に判断して自動で決める形に。この辺は航空機と同じ」「艦隊戦は小型艦同士の戦闘も成立するように」):
+// the distances weighed are no longer a fixed table (6.5-39 km, which lay outside every gun of a ship that carries lasers only)
+// but the distances at which the two ships' own guns change: where each gun of u's still carries its whole shot (holdM), just
+// inside the end of its range, points along a laser's fade, just outside each of the target's ranges, the launchers' ranges,
+// and as near as the two hulls allow. A ship ordered to attack weighs only distances from which it lands something; among
+// them it takes the one with the best own fire less .8 of the target's (the further one when two are equal). The judgement is
+// one function of the two profiles (fleetStandoffJudge), so that a later behaviour preset can call it with its own aim.
+// A profile made before the gun rules has no ranges of its own: it keeps the earlier table.
 const STANDOFFS=[6500,8500,12000,16000,21000,27000,34000,39000],standoffCache=new WeakMap();
+function gunRuleRows(p){const rows=[];for(const k in GUN_BANDS)if(p?.gunBands?.[k]?.some(v=>v>0))for(const x of p.gunBandRules?.[k]||[])if(x?.w>0&&x.rangeM>0)rows.push(x);if((p?.ionArcs||[]).some(v=>v>0))for(const x of p.ionRules||[])if(x?.w>0&&x.rangeM>0)rows.push(x);return rows;}
+function fleetStandoffDistances(p,q,floor){
+ const own=gunRuleRows(p),theirs=gunRuleRows(q),set=new Set(),add=d=>{if(Number.isFinite(d)&&d>0)set.add(Math.max(floor,Math.round(d/50)*50));};
+ if(!own.length&&(p?.gunBands||p?.gunArcs))for(const d of STANDOFFS)add(d);
+ for(const x of own){if(x.holdM>0)add(x.holdM);add(x.rangeM*.97);if(x.kind==='laser')for(const f of [.25,.5,.75])add(x.rangeM*f);}
+ for(const x of theirs){add(x.rangeM*1.03);if(x.holdM>0)add(x.holdM*1.03);}
+ for(const m of p?.modules||[])if(m.k==='launcher')add(missileRange(m)*.9);
+ add(floor);return [...set].sort((a,b)=>a-b);
+}
+function fleetStandoffJudge(p,q,floor){
+ const rows=fleetStandoffDistances(p,q,floor).map(d=>{const mine=bandFireAt(p,d)+missileFireAt(p,d),theirs=q?bandFireAt(q,d)+missileFireAt(q,d):0;return {d,mine,theirs,score:mine-.8*theirs};}),able=rows.filter(r=>r.mine>0);
+ // Equal scores (to a millionth of the largest fire weighed): the further distance. The earlier tie-break added d x 1e-9 TT/s
+ // to the score, which outweighed the whole fire of a ship of lasers (about 1e-7 TT/s) and sent it to the furthest distance.
+ const scale=Math.max(1e-300,...rows.map(r=>Math.max(r.mine,r.theirs))),top=Math.max(-Infinity,...able.map(r=>r.score));let best=null;for(const r of able)if(r.score>=top-scale*1e-6&&(!best||r.d>best.d))best=r;/* against the best score itself (physics review 2026-11-25): against the last row chosen, the tolerance could add up along a slowly falling run */
+ return {distance:best?best.d:null,rows};
+}
 function fleetStandoff(u,t){
  const floor=(u.p.len+(t?.p.len||0))*.7;if(!t)return Math.max(floor,14000);
  // Depends only on the two designs: worked out once per pair.
@@ -117211,9 +117457,7 @@ function fleetStandoff(u,t){
  // v21.1 Against a ship far larger than itself, point-blank range, inside the reach of its heaviest guns' best
  // distance and close enough to hold an aim on its bridge (canon: 「至近距離で交戦しろ」 at Endor).
  if(t.p.len>=COMBAT.bigAim*(u.p.len||1)&&(u.p.len||0)<=COMBAT.smallShip){const r=Math.max(t.p.width||t.p.len*.35,t.p.height||t.p.len*.2)*.5+u.p.len*.5+1500;m.set(t.p,r);return r;}
- const distances=[...STANDOFFS,...(u.p.modules||[]).filter(m=>m.k==='launcher').map(m=>missileRange(m)*.9)];
- let best=null,bs=-Infinity;for(const d of distances){if(d<floor)continue;const mine=bandFireAt(u.p,d)+missileFireAt(u.p,d),theirs=bandFireAt(t.p,d)+missileFireAt(t.p,d),sc=mine-.8*theirs+d*1e-9;if(sc>bs){bs=sc;best=d;}}
- const r=best??Math.max(floor,14000);m.set(t.p,r);return r;
+ const r=fleetStandoffJudge(u.p,t.p,floor).distance??Math.max(floor,14000);m.set(t.p,r);return r;
 }
 // v30 Pressing for a decision (user decision 2026-11-19「艦隊側のAIは拘束目的の砲撃ではなく勝てると考えて決めにかかる場合うんと距離を詰めて
 // 対向戦、さらにはボーディングまで仕掛けるようにしよう」). A ship whose order carries .press (or that the strategic AI has marked u.press)
@@ -117238,7 +117482,7 @@ function fleetPressJudge(own,foes,was=false){
 // A ship that lands more fire with its beam than with its bow at its fighting
 // distance (as far as its reactor can feed the guns that bear) turns its side
 // to the enemy there: +1 starboard, -1 port, 0 bow-on.
-function arcFireAt(p,k,d){const B=p.gunBands;let gun=0,cost=0;if(B){for(const b in GUN_BANDS)if(d<=GUN_BANDS[b].range){const g=B[b][k]||0;gun+=g;cost+=g*COMBAT.bandCost[b];}}else if(d<=GUN_BANDS.long.range){gun=p.gunArcs?.[k]||0;cost=gun;}if(d<=GUN_BANDS.long.range){const i=p.ionArcs?.[k]||0;gun+=i;cost+=i;}const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity;return cost>0?gun*Math.min(1,budget/cost):0;}
+function arcFireAt(p,k,d){const B=p.gunBands;let gun=0,cost=0,raw=0;if(B){for(const b in GUN_BANDS){const rows=p.gunBandRules?.[b];if(d<=gunRulesReach(rows,GUN_BANDS[b].range)){const g=B[b][k]||0;gun+=g*gunRulesShare(rows,d);cost+=g*COMBAT.bandCost[b];raw+=g;}}}else if(d<=GUN_BANDS.long.range){gun=p.gunArcs?.[k]||0;cost=gun;raw=gun;}if(d<=gunRulesReach(p.ionRules,GUN_BANDS.long.range)){const i=p.ionArcs?.[k]||0;gun+=i*gunRulesShare(p.ionRules,d);cost+=i;raw+=i;}if(p.energyModel?.version===1)cost=raw*weaponInputFactor(p)/* 2026-11-25 the input of the fire, as in fleetFire and bandFireAt */;const budget=p.grid?.P>0?p.grid.P*.9/TT:Infinity;return cost>0?gun*Math.min(1,budget/cost):0;}
 const broadsideCache=new WeakMap();
 function fleetBroadside(p,d=GUN_BANDS.close.range*.75){if(!p.gunBands)return 0;let m=broadsideCache.get(p);if(!m)broadsideCache.set(p,m=new Map());const k=Math.round(d/250);if(m.has(k))return m.get(k);const fore=arcFireAt(p,0,d),st=arcFireAt(p,2,d),po=arcFireAt(p,3,d),side=Math.max(st,po),r=side>fore*1.1&&side>0?(st>=po?1:-1):0;m.set(k,r);return r;}
 // The heading for u fighting t at distance d with standoff sd: bow-on while
@@ -117267,14 +117511,18 @@ const ENERGY_MODEL={version:1,eta:.95,superEta:.88,unit:'TT',assumption:true};
 // User decision 2026-11-16「シールドの吸収熱は無くして、単にシールドを生成する時に作動熱のみで」: a shield makes heat only by
 // running (HEAT.waste.shield × its load); what it absorbs makes none. The 6% of the absorbed beam that was heat leaves
 // the ship with the rest (beamExternal .82 → .88; beamHeat .06 → 0; the 12% held for a moment is unchanged).
-const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,returnK:6.5,debit:.25/* user instructions 2026-11-19「シールドの削り値を減らして」(asked which: 「砲火がシールドを減らす量そのもの」) and「航空機による対艦攻撃ができるくらいまで引き伸ばす形に」: what a field absorbs of the fire on it takes this share off its strength. It was 1, then .5. ★ The figure is ours: in the fleet action of scripts/sim-fleet-air.cjs (two ISDs against five Rebel ships, 80 km) the ships-only action lasted 224 s at .5, 570 s at .25 and 833 s at .15; at .25 both fleets fly their strike (Rebel from 71 s, Imperial from 376 s) and the action is still undecided at 1,200 s */,debitSmall:2,debitSmallTT:1e-6,debitLargeTT:1/* user decision 2026-11-20「小型機のシールドをさらに弱くなるような曲線にする」: the debit follows the field's capacity. A field of debitLargeTT (1 TT; the smallest ship, the Gozanti, has 3.8 TT) or more keeps `debit`; below it the debit rises along a straight line in log-log to debitSmall at debitSmallTT (1e-6 TT; the X-wing's field is 4.7e-8 TT) and stays there. ★ The three figures are ours: the base before the debit was lowered had 1 for every field, so 2 makes a craft's field half as lasting as it was then */,wear:.0126/* user instruction 2026-11-19「シールドの削り値を減らして」: the part of what a shield takes that wears its ceiling down. It is left at .0126: the instruction meant the strength a field loses to fire (debit), not this; a halving tried here changed a fleet action's length by 3 s in 144 */,wearRecoverS:600,assumption:true};
+const SHIELD_MODEL={version:3,unit:'J',transientShare:.35,processSeconds:2,ionExternal:.95,ionShieldCost:.05,ionHeat:0,ionStore:0,beamExternal:.88,beamHeat:0,beamStore:.12,deflectMax:.82,leakK:2,holdWhileUp:true,returnK:6.5,debit:.25/* user instructions 2026-11-19「シールドの削り値を減らして」(asked which: 「砲火がシールドを減らす量そのもの」) and「航空機による対艦攻撃ができるくらいまで引き伸ばす形に」: what a field absorbs of the fire on it takes this share off its strength. It was 1, then .5. ★ The figure is ours: in the fleet action of scripts/sim-fleet-air.cjs (two ISDs against five Rebel ships, 80 km) the ships-only action lasted 224 s at .5, 570 s at .25 and 833 s at .15; at .25 both fleets fly their strike (Rebel from 71 s, Imperial from 376 s) and the action is still undecided at 1,200 s */,debitSmall:2,debitSmallTT:1e-6,debitLargeTT:1/* user decision 2026-11-20「小型機のシールドをさらに弱くなるような曲線にする」: the debit follows the field's capacity. A field of debitLargeTT (1 TT; the smallest ship, the Gozanti, has 3.8 TT) or more keeps `debit`; below it the debit rises along a straight line in log-log to debitSmall at debitSmallTT (1e-6 TT; the X-wing's field is 4.7e-8 TT) and stays there. ★ The three figures are ours: the base before the debit was lowered had 1 for every field, so 2 makes a craft's field half as lasting as it was then */,wear:.05/* 2026-11-24 (user「新しい砲による艦の艦隊戦も回して結果によってはシールドの防御値も変えて」): .0126 → .04, then .05 once the battle drew a shot's whole charge (E×(1+c); physics review): 612 s at .04, 513 s at .05 against 497 s with the old guns. With the gun rules a ship's reactor feeds about 0.4 of the fire it did, and a field that is up loses only this share of what it takes from its ceiling: the ships-only action of scripts/sim-fleet-air.cjs (two ISDs against five Rebel ships) ended at 497 s with the earlier guns, was undecided at 900 s with the new ones at .0126, and ends at 764 s at .025, 596 s at .032 and 514 s at .04 (★ the figure is ours; raising debit to 1 or lowering returnK to 1 did not shorten it). Earlier note: user instruction 2026-11-19「シールドの削り値を減らして」: the part of what a shield takes that wears its ceiling down. It is left at .0126: the instruction meant the strength a field loses to fire (debit), not this; a halving tried here changed a fleet action's length by 3 s in 144 */,wearRecoverS:600,assumption:true};
 const ION_MODEL={version:2,unit:'J',blockedExternal:.95,shieldCost:.05,hullHeat:1,assumption:true};
 function weaponEnergy(spec,outputTT,shots=1){
  if(spec?.energyUnit==='effect')return {outputJ:null,inputJ:null,lossJ:null,eta:null,unit:'effect',outputEffect:Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0),assumption:false};
  const eta=clamp(Number.isFinite(spec?.efficiency)?spec.efficiency:spec?.superweapon?ENERGY_MODEL.superEta:ENERGY_MODEL.eta,.05,1),outputJ=Math.max(0,Number(outputTT)||0)*Math.max(0,Number(shots)||0)*TT,inputJ=outputJ/eta;
  return {outputJ,inputJ,lossJ:inputJ-outputJ,eta,unit:spec?.energyUnit==='effect'?'effect':'energy',assumption:!Number.isFinite(spec?.efficiency)};
 }
-function weaponInputFactor(p){return p?.energyModel?.version===1?1/clamp(p.energyModel.eta||ENERGY_MODEL.eta,.05,1):1;}
+// 2026-11-24 (physics review): a turbolaser or ion cannon charges its shot and the confinement that carries it, E×(1+c)
+// (gunRule.shotChargeTT), so the input for the energy that leaves the barrel is that much more. A profile carries its guns'
+// input-weighted figure (weaponCharge); the design screen, the trial and the fleet battle draw the same input for a shot.
+function weaponChargeFactor(d){const r=d?.gunRule,e=r?.shotKt/KT_PER_TT;return r?.shotChargeTT>0&&e>0?Math.max(1,r.shotChargeTT/e):1;}
+function weaponInputFactor(p){return p?.energyModel?.version===1?(p.weaponCharge>1?p.weaponCharge:1)/clamp(p.energyModel.eta||ENERGY_MODEL.eta,.05,1):1;}
 const powerDomainName=p=>p?.powerIsolation===true?'isolated:'+p.id:typeof p?.powerDomain==='string'&&/^[\w:.-]{1,60}$/.test(p.powerDomain)?p.powerDomain:'main';
 const electricalSourcePower=p=>isReactor(p)?reactorPower(p):p?.wing?.solar?solarPower(p):0;
 function powerDomainGroups(ship){
@@ -117409,7 +117657,7 @@ function coolingDemandW(u,H,want){
  const dis=H?.dis||[],src=H?.src||[];if(!dis.some(d=>d.power>0&&d.cap>0))return u&&(u._coolingDemandW=dis.map(()=>0)),dis.map(()=>0);
  if(!want&&Array.isArray(u?._coolingDemandW)&&u._coolingDemandW.length===dis.length)return u._coolingDemandW.slice();
  const p=u?.p||{},g=p.grid||{},W=HEAT.waste,w=want||{},fixed=Math.max(0,(g.fixed||0)-(g.cooling||0)),shields=Math.max(0,w.shields||0),weapons=Array.isArray(w.weaponLoads)?w.weaponLoads.reduce((n,r)=>n+Math.max(0,r.requestedInputW||0),0):Math.max(0,w.weapons||0),engines=clamp(w.throttle??u?.maneuver??0,0,1)*Math.max(0,g.De||0);
- const kind={hotel:W.hotel*fixed,shield:W.shield*shields,weapon:W.weapon*weapons,engine:(p.propulsion&&(p.propulsion.cores||p.propulsion.engines)?.length&&engines>0?engineHeatForInput(p.propulsion.cores||p.propulsion.engines,engines).wasteHeatW:PROPULSION.wasteFraction*engines),reactor:W.reactor*(fixed+shields+weapons+engines)},weights={};
+ const kind={hotel:W.hotel*fixed,shield:W.shield*shields,weapon:(p.weaponWaste??W.weapon)*weapons,engine:(p.propulsion&&(p.propulsion.cores||p.propulsion.engines)?.length&&engines>0?engineHeatForInput(p.propulsion.cores||p.propulsion.engines,engines).wasteHeatW:PROPULSION.wasteFraction*engines),reactor:W.reactor*(fixed+shields+weapons+engines)},weights={};
  for(const s of src)weights[s.k]=(weights[s.k]||0)+Math.max(0,s.sh??1);
  // A charging superweapon heats the ship whether or not the guns fire (found 2026-11-15: an Onager with no target in
  // reach, or holding fire, reserved cooling for its idle guns only and shut down from charge heat in 5 s). Its source
@@ -117461,7 +117709,7 @@ function hyperChargeHeatCapW(u,dt){
  // The governor as read at the start of this step (u.heatGov, as for the engines and weapons): read after the step's heat is
  // booked but before any of it is rejected, a coarse step looks full (a 20 s step of a CR90's services is five stores).
  const gov=u.heatGov||heatGovernor(u),k=clamp(gov.weapon??1,0,1);if(!(k>0))return 0;if(gov.mode!=='balance'||!Number.isFinite(gov.roomJ))return Infinity;
- const De=Math.max(0,u.p.grid?.De||0),hb=engineHeatThrottleCap(u,gov,dt),x=De>0?clamp(Math.max(0,u.propulsion?.actualInputW??(u.maneuver||0)*De)/De,0,1):0,wpnW=Math.max(0,u.pw?.wpn||0)*(HEAT.waste.weapon+HEAT.waste.reactor);
+ const De=Math.max(0,u.p.grid?.De||0),hb=engineHeatThrottleCap(u,gov,dt),x=De>0?clamp(Math.max(0,u.propulsion?.actualInputW??(u.maneuver||0)*De)/De,0,1):0,wpnW=Math.max(0,u.pw?.wpn||0)*((u.p.weaponWaste??HEAT.waste.weapon)+HEAT.waste.reactor);
  const rej=Math.max(0,heatDeliverableRejectionW(u)),covered=Number.isFinite(h.cap)?clamp(h.cap,0,rej):0,spareW=Math.max(0,hb.spareW-(rej-covered));
  // The engines' and weapons' heat take the covered rejection first; the covered rejection is a reading
  // of the last heat solve, extrapolated over at most one heat interval.
@@ -117519,12 +117767,12 @@ function fleetPowerStep(u,s,t,raw,dt,volley=1){
  // step; without the spare rejection a ship with ample converters was held to its store's room, propulsion-surface-power).
  const hb=gov.mode==='balance'&&Number.isFinite(gov.roomJ)&&dt>0?engineHeatThrottleCap(u,gov,dt):null,throttle=hb?Math.min(man*gov.engine,hb.cap()):man*gov.engine,
   weaponHeatW=hb?Math.max(0,hb.budget-hb.heatAt(throttle)):Infinity;
- const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),shieldGovernor:gov.shield,weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)),weaponHeatW/(HEAT.waste.weapon+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
+ const want={throttle,shields:u.out?0:nominalShield*heatLim(u,'shield'),shieldGovernor:gov.shield,weapons:u.out?0:Math.min(g.Dw*s.weapon,TT*(raw+Math.max(0,cap-(u.energy||0))*weaponInputFactor(p)/* physics review 2026-11-25: the bank's room in input terms, the plant's efficiency included *//Math.max(1e-9,dt)),weaponHeatW/((u.p.weaponWaste??HEAT.waste.weapon)+HEAT.waste.reactor))*heatLim(u,'weapon')*gov.weapon,weaponFireW:u.out?0:Math.max(0,raw)*TT*gov.weapon,weaponTarget:t,weaponVolley:volley,deferHeat:true};
  const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);ionPowerCut(u,got,dt);if(u.propulsion)u._engineHeatLast={x:want.throttle,wasteW:Math.max(0,u.propulsion.wasteHeatW||0),inputW:Math.max(0,u.propulsion.actualInputW||0)};let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
  heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+(cooling.sourceDraw??cooling.draw))/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+(cooling.sourceDraw??cooling.draw);u.pw.wpn=got.weapons;
  {const jw=hyperChargeStep(u,P,u.pw.draw,dt);u.pw.hyper=jw;if(P>0)u.load+=jw/P;}
- if(surfaceFire!=null){const spent=Math.max(0,u.surfaceLastFire?.spent||0);if(spent>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,spent*weaponInputFactor(p)*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}return surfaceFire;}
+ if(surfaceFire!=null){const spent=Math.max(0,u.surfaceLastFire?.spent||0);if(spent>0&&dt>0){u.pw.requestedWeaponFireW=Math.max(u.pw.requestedWeaponFireW||0,(u.surfaceLastFire?.spentInput??spent*weaponInputFactor(p))*TT/dt);u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}return surfaceFire;}
   // User decision 2026-11-19「点防御の給電を優先」: the guns leave in the store what the ship's point defence can fire in this step
  // (POINT_DEFENSE.output of its working point-defence and dual-purpose modules, once against craft and once against rounds), so a ship
  // that is firing its guns can still shoot rounds and craft down.
@@ -117834,8 +118082,8 @@ function shipCombatPowerDemand(u,want={},dt=0){
   const mounts=p.surface.mounts,banks=surfaceBanks(u),factor=weaponInputFactor(p),shared={},states=mounts.map(m=>surfaceMountState(u,m,shared)),target=want.weaponTarget,query=target?surfaceFireQuery(u,target):null,distance=target?len(sub(target.pos,u.pos)):0,weights=mounts.map((m,i)=>positive(m.power)*states[i].operable*states[i].capacitorK),total=weights.reduce((a,b)=>a+b,0),byModule=new Map();
   let actualFireW=0;
   for(let i=0;i<mounts.length;i++){
-   const m=mounts[i],state=states[i],maxW=weights[i],roomTT=Math.max(0,state.effectiveCapacity-(banks[m.id]||0)),room=roomTT>weaponEnergyEpsilon(state.effectiveCapacity)?roomTT*TT*factor/step:0;
-   const firing=fireW>0?(target?(u.dualDefense&&m.dualPurpose?1-(u.dualWeights?.[m.aaTier??0]??1):1)*positive(m.gun+m.ion)*surfaceMountArc(u,target,m,distance,query)*state.operable*Math.max(0,want.weaponVolley??1)*TT*factor:total>0?fireW*maxW/total:0):0;
+   const m=mounts[i],state=states[i],maxW=weights[i],roomTT=Math.max(0,state.effectiveCapacity-(banks[m.id]||0)),kIn=m.inputK>0?m.inputK:factor/* physics re-review 2026-11-25: a mount asks for its own input */,room=roomTT>weaponEnergyEpsilon(state.effectiveCapacity)?roomTT*TT*kIn/step:0;
+   const firing=fireW>0?(target?(u.dualDefense&&m.dualPurpose?1-(u.dualWeights?.[m.aaTier??0]??1):1)*positive(m.gun+m.ion)*surfaceMountArc(u,target,m,distance,query)*state.operable*Math.max(0,want.weaponVolley??1)*TT*kIn:total>0?fireW*maxW/total:0):0;
    actualFireW+=Math.min(maxW,firing);
    const requestedInputW=Math.min(maxW,room+firing);if(!(requestedInputW>0))continue;
    const mi=m.module,mod=p.modules?.[mi],id='weapons:'+mi,previous=byModule.get(id);
@@ -118027,7 +118275,7 @@ function referenceSpeedProfile(profile,key){
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
 // Physical nozzle foundations now contribute their real material and thermal
 // mass. Saved combat figures need rebuilding without changing engine ratings.
-const FLEET_PROFILE_VERSION=26;/* 26 (2026-11-24): a ship profile carries trackModel 1 and its tracking slots as aaCh (1 per 5,000 m³ of sensor volume outside the structure, the anti-air channels too), a craft profile carries its stations for the mission load at launch; a profile made before it kept the stored aaCh without the sensor rule and is rebuilt (regression review 2026-11-24). 25 (2026-11-18, PR #117): weapon efficiency .75 → .95 and weapon heat share .25 → .05 (docs/weapon-heat-share.md). A craft record or profile made before it carries eta .75 and is rebuilt (regression review: saved craft records are judged by this number alone). 24 (2026-11-15, PR #107): heat model - no hull-skin cooling, converters charged for the heat converted, wing coefficient curve, heat paths without a capacity limit. A craft record or profile made before it is rebuilt. */
+const FLEET_PROFILE_VERSION=28;/* 28 (2026-11-25): the CR-90's and the Sphyrna's guns are turbolasers (100 MT, 200 GT, 200 MT), a barrel or bore under the least pays in charge and feed (feedK), a laser has no feed compartment and a turbolaser's is at least 50 m³; 27 (2026-11-24): gun rules (each gun's range, hold and fade in gunBandRules / ionRules and on surface mounts, charge-time cycles, laser shots by bore), weaponWaste (firing heat 5% of compression), one shield curve by generator volume, mass and thrust turning, aircraft lasers by bore, barrel and rate; 26 (2026-11-24): a ship profile carries trackModel 1 and its tracking slots as aaCh (1 per 5,000 m³ of sensor volume outside the structure, the anti-air channels too), a craft profile carries its stations for the mission load at launch; a profile made before it kept the stored aaCh without the sensor rule and is rebuilt (regression review 2026-11-24). 25 (2026-11-18, PR #117): weapon efficiency .75 → .95 and weapon heat share .25 → .05 (docs/weapon-heat-share.md). A craft record or profile made before it carries eta .75 and is rebuilt (regression review: saved craft records are judged by this number alone). 24 (2026-11-15, PR #107): heat model - no hull-skin cooling, converters charged for the heat converted, wing coefficient curve, heat paths without a capacity limit. A craft record or profile made before it is rebuilt. */
 // Calculation-model version of everything derived from a saved design: statistics,
 // fleet and combat profiles, catalogue rows (data/fleet.js, data/examples/<key>/combat.json)
 // and the engine's derived-data cache. Examples are ordinary saved designs; their stored
@@ -118039,7 +118287,7 @@ const FLEET_PROFILE_VERSION=26;/* 26 (2026-11-24): a ship profile carries trackM
 // statistics read, and the tables they use. Then regenerate the stored rows
 // (scripts/refresh-examples.cjs). tests/example-profile-version.cjs recomputes small
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
-const EXAMPLE_PROFILE_VERSION=9/* 2026-11-23: refit systems take whole rooms where they fit, an overlapping structure no longer lifts a turret (supportLift keeps the older lift), a room fitted into the ship obstructs fire with the boxes it was cut to, and a trench's battery made a wall battery keeps the trench's packing. */ /* 2026-11-22: every cut of an example is baked into the structures it reaches (bakeAllCuts; a hull keeps its hull material and stores its shape), and an armed trench becomes a wall battery. Was 7: */;void 7/* 2026-11-21 (next PR): a room crossing the ship's boundary is clipped by joining its faces with the hull's and the structures' (clipCompartmentByMesh) instead of the marching-tetrahedra rebuild, so clipped rooms keep slightly more volume (the grid lost corners; up to a few % on a room). Was 6: */;void 6/* 2026-11-21: hangar hatches open where the compartment overlaps the skin, through its whole depth (user decision; no measured opening for a bay that does not reach the skin), and the builder adds two more rounds of systems volume only when the usual ones fall short (the two Recusants rebuilt); older saved designs load differently (the body they name is dropped; a weapon is re-seated from its own pose; the support-only pass does not ask about interference), which changes syncCompartments/remount results; the Mandator II on the user's second model. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
+const EXAMPLE_PROFILE_VERSION=11/* 2026-11-25: the corvettes' turbolasers, feedK, no feed compartment for a laser, the least feed compartment of 50 m³; 10: 2026-11-24: gun rules, the shield curve, the gravity-control labels and the craft lasers' measured barrels; 9: 2026-11-23: refit systems take whole rooms where they fit, an overlapping structure no longer lifts a turret (supportLift keeps the older lift), a room fitted into the ship obstructs fire with the boxes it was cut to, and a trench's battery made a wall battery keeps the trench's packing. */ /* 2026-11-22: every cut of an example is baked into the structures it reaches (bakeAllCuts; a hull keeps its hull material and stores its shape), and an armed trench becomes a wall battery. Was 7: */;void 7/* 2026-11-21 (next PR): a room crossing the ship's boundary is clipped by joining its faces with the hull's and the structures' (clipCompartmentByMesh) instead of the marching-tetrahedra rebuild, so clipped rooms keep slightly more volume (the grid lost corners; up to a few % on a room). Was 6: */;void 6/* 2026-11-21: hangar hatches open where the compartment overlaps the skin, through its whole depth (user decision; no measured opening for a bay that does not reach the skin), and the builder adds two more rounds of systems volume only when the usual ones fall short (the two Recusants rebuilt); older saved designs load differently (the body they name is dropped; a weapon is re-seated from its own pose; the support-only pass does not ask about interference), which changes syncCompartments/remount results; the Mandator II on the user's second model. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
@@ -118058,7 +118306,7 @@ function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
  const p=profile({...S,accelG:planningG},name),accel=planningAcceleration*FLEET_RULES.accelScale,dr=S.draw||{},mglt=S.craft?craftSpeed(planningG)/MGLT.ms:sublightMGLT(planningG,engineDepthRatio(ship));   // assumed fallback; published reference speeds are applied below
- const out={...p,profileVersion:FLEET_PROFILE_VERSION,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?(globalThis.KS_TURN_MASS&&S.craftSystems?.managed?craftMassTurnRate(S,p.len):clamp(.11*Math.sqrt(Math.max(1,planningG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24)*(S.craftSystems?.turnK??1)):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
+ const out={...p,profileVersion:FLEET_PROFILE_VERSION,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?(turnMassOn()&&S.craftSystems?.managed?craftMassTurnRate(S,p.len):clamp(.11*Math.sqrt(Math.max(1,planningG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24)*(S.craftSystems?.turnK??1)):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  if(ship?._referencePhysicalRevision)out.referencePhysicalRevision={...ship._referencePhysicalRevision};
  if(S.craftSystems)out.systems=cleanCraftSystems(S.craftSystems);
  out.energyModel={version:ship?.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta,unit:ship?.surfaces?.mode==='strict'?'energy':'legacy-effect',assumption:true};
@@ -118073,7 +118321,7 @@ function fleetProfile(S,name,ship){
  {let n=0,G=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0))continue;n+=r.deployable;G+=r.deployable*airWingGunRate(r);}if(n>0)out.airGun=G/n;}
  out.aaCh=S.aaChannels||AA_CHANNELS.base;out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewCapacity=Math.max(0,S.crew||0);out.fuel=fuelProfileFromStats(S);out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);out.autoCrew=S.autoCrew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
- if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
+ if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};if(S.gunBandRules)out.gunBandRules=JSON.parse(JSON.stringify(S.gunBandRules));if(Number.isFinite(S.weaponWasteFrac))out.weaponWaste=S.weaponWasteFrac;if(S.weaponChargeFactor>1)out.weaponCharge=S.weaponChargeFactor;if(S.ionRules)out.ionRules=JSON.parse(JSON.stringify(S.ionRules));
  if(ship){const blank=()=>({gunBands:Object.fromEntries(Object.keys(GUN_BANDS).map(k=>[k,Array(6).fill(0)])),gunArcs:Array(6).fill(0),aaArcs:Array(6).fill(0),aa:0}),dp=blank(),tiers=AA_MODEL.tiers.map(blank).concat([blank()]);for(const f of ship.fits){const d=fitSpec(f);if(f.float||!weaponRoles(d).dualPurpose)continue;const arc=S.fitInfo?.[f.id];if(!Array.isArray(arc))continue;const cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,rate=(d.tt||0)*cr/(d.cycle||K.cycle),band=fitBand(d),aa=(d.aa||0)*Math.min(1,arc.reduce((a,b)=>a+b,0)/6*1.6);for(const g of [dp,tiers[antiAirTier(d)]]){for(let i=0;i<6;i++){g.gunBands[band][i]+=rate*arc[i];g.gunArcs[i]+=rate*arc[i];g.aaArcs[i]+=(d.aa||0)*arc[i];}g.aa+=aa;}}if(dp.aa>0){dp.tiers=tiers;out.dualPurpose=dp;}}
  if(ship){out.modules=fleetModules(ship,S);attachShipPowerProfile(out,ship,S);if(S.cls?.craft)out.stations=JSON.parse(JSON.stringify(craftStations(ship)))/* 2026-11-24 a craft's launch stations, for the load of its mission at launch (missionOrdnance) */;if(!S.cls?.craft){out.trackModel=1;out.aaCh=shipTrackSlots({p:out})/* 2026-11-24 user「枠は対空交戦枠と同一」「対空交戦枠もセンサー外容積で」: a ship's anti-air channels are its tracking slots */;}const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
   // Armour zones: the exposed skin of each section and face with its thickness
@@ -118455,7 +118703,18 @@ const CRAFT_SHIELD_EXP=Math.log(CRAFT_SHIELD.refScale)/Math.log(CRAFT_SHIELD.ref
 const craftShieldTrial=()=>{const k=+globalThis.KS_CRAFT_SHIELD;return Number.isFinite(k)&&k>0?k:1;};
 function shieldGeneratorLength(p){const S=CRAFT_SHIELD,mods=Array.isArray(p?.modules)?p.modules.filter(m=>m&&(m.k==='shield'||m.k==='localShield')):[];
  const V=mods.reduce((n,m)=>n+(Number.isFinite(m.size)&&m.size>0?m.size:0),0);return V>0?Math.max(S.minLen,S.refLen*Math.cbrt(V/S.refGenV)):null;}
-function fieldScale(p){const S=CRAFT_SHIELD,L=Math.max(S.minLen,p?.len||S.refLen);if(L>=S.fullLen)return 1;
+// 2026-11-24 (user「シールドはヴェネターとXウイングをつなぐ曲線で決まるはずだ」, 「ヴェネターレベルのシールドでデバフがほとんどかけられないレベルに」):
+// craft and ships on one curve by the volume of their shield generators, joining the X-wing's (0.333 m³, 6.158e-6: the figure
+// derived below, user 2026-11-24) to the Venator's (61,561 m³, the whole field); above the Venator's, the whole field.
+// A profile without generator modules (a legacy or table-only one) keeps the length curve below.
+// The X-wing's point (user 2026-11-24「交戦距離でのTIE/inの4秒間の投射分に合わせて」, then「交戦距離ではなく実際の被弾距離で」): with mass
+// and thrust turning the X-wing is hit at 413 m on average (the TIE/in's mean hit distance, docs/benchmarks/gun-model-2026-11-24/dodge/
+// natural.txt); there the TIE/in's six 118 kt lasers (1 shot a second, fading over 180 m) carry 286.8 kt in 4 s, the X-wing's field.
+const SHIELD_CURVE=Object.freeze({refGenV:4/3*Math.PI*.43**3,refScale:6.158e-6,fullGenV:61561.1});
+const SHIELD_CURVE_EXP=Math.log(SHIELD_CURVE.refScale)/Math.log(SHIELD_CURVE.refGenV/SHIELD_CURVE.fullGenV);
+function shieldGeneratorVolume(p){const mods=Array.isArray(p?.modules)?p.modules.filter(m=>m&&(m.k==='shield'||m.k==='localShield')):[];return mods.reduce((n,m)=>n+(Number.isFinite(m.size)&&m.size>0?m.size:0),0);}
+function fieldScale(p){const V=shieldGeneratorVolume(p);if(V>0)return Math.min(1,Math.pow(V/SHIELD_CURVE.fullGenV,SHIELD_CURVE_EXP))*(p?.cls?.craft||p?.craftShield===true?craftShieldTrial():1);return lengthFieldScale(p);}
+function lengthFieldScale(p){const S=CRAFT_SHIELD,L=Math.max(S.minLen,p?.len||S.refLen);if(L>=S.fullLen)return 1;
  const G=L<S.blendLen&&(p?.cls?.craft||p?.craftShield===true)?shieldGeneratorLength(p)??L:L,craft=Math.min(0,Math.log(G/S.fullLen))*CRAFT_SHIELD_EXP,ship=Math.log(S.scale)*(1-Math.log(L/S.craftLen)/Math.log(S.fullLen/S.craftLen));
  if(L<=S.craftLen)return Math.exp(craft)*craftShieldTrial();if(L>=S.blendLen)return Math.exp(ship);
  const t=Math.log(L/S.craftLen)/Math.log(S.blendLen/S.craftLen),w=t*t*(3-2*t);return Math.exp(craft*(1-w)+ship*w);}
@@ -118800,7 +119059,7 @@ function combatMerge(o,t,x){
  if(x.by)for(const k in x.by)o.by[k]=(o.by[k]||0)+x.by[k];else if(x.src!=null&&w>0)o.by[x.src]=(o.by[x.src]||0)+w;return o;
 }
 // Copies of a unit's combat state (for the fleet screen's planning copies).
-function combatClone(u){const physical={};for(const k of ['powerLossDisabled','liftHold','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.sortie?{sortie:JSON.parse(JSON.stringify(u.sortie))}:{}),...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:{...u.pass}}:{}),...(u._track?{_track:u._track.map(x=>Array.isArray(x)?x.slice():x&&typeof x==='object'?JSON.parse(JSON.stringify(x)):x)}:{})/* extra review 2026-11-19: the track history was shared with the plan, so a second commit of one plan saw the first one's track */,...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
+function combatClone(u){const physical={};for(const k of ['powerLossDisabled','liftHold','fuelState','missileLoadCaps','gridState','shieldTransient','shieldLedger','lastShieldHit','ionLedger','lastIonHit','weaponLedger',...Object.keys(u).filter(k=>k.startsWith('surface'))])if(u[k]!==undefined)physical[k]=u[k]&&typeof u[k]==='object'?JSON.parse(JSON.stringify(u[k])):u[k];return {...physical,launcherT:(u.launcherT||[]).slice(),launcherCellAmmo:(u.launcherCellAmmo||[]).map(row=>Array.isArray(row)?row.slice():row),vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>({...x})),over:(u.over||[]).map(x=>({...x})),down:u.down?{...u.down}:null,sec:(u.sec||[]).map(x=>({...x})),secLost:[...(u.secLost||[])],secOf:u.secOf,...(u.sortie?{sortie:JSON.parse(JSON.stringify(u.sortie))}:{}),...(u.ionOff?{ionOff:u.ionOff.map(x=>({...x}))}:{}),...(u.pass?{pass:JSON.parse(JSON.stringify(u.pass))}:{}),...(u.ram?{ram:{...u.ram,...(u.ram.dir?{dir:u.ram.dir.slice()}:{})}}:{})/* regression review 2026-11-25: the ramming state is the copy's own, as the pass is (a commit changed the plan's) */,...(u._track?{_track:u._track.map(x=>Array.isArray(x)?x.slice():x&&typeof x==='object'?JSON.parse(JSON.stringify(x)):x)}:{})/* extra review 2026-11-19: the track history was shared with the plan, so a second commit of one plan saw the first one's track */,...(u.att?{att:JSON.parse(JSON.stringify(u.att))}:{}),zl:(u.zl||[]).slice(),zi:(u.zi||[]).slice(),zq:(u.zq||[]).slice(),fire:(u.fire||[]).slice(),hitLog:(u.hitLog||[]).slice(),...(u.crewIn?{crewIn:u.crewIn.slice()}:{}),ht:u.ht?JSON.parse(JSON.stringify(u.ht)):undefined};}
 // ---------- v21 superweapons in battle ----------
 // Both draw their shot from the reactor they are wired to: the charge takes the shot's energy over a share of
 // that reactor's output (split between the superweapons on it, never under tMin). A shot overloads that reactor:
@@ -118851,6 +119110,7 @@ function ionReach(E,d){const r=Math.sqrt(Math.max(0,E)/(ION_BOLT.fade*Math.PI/4*
 function ionGlow(b){const rho=ionDensity(b.E,b.d,b.x);return rho>ION_BOLT.fade?clamp(Math.log(rho/ION_BOLT.fade)/Math.log(ION_BOLT.fadeRef/ION_BOLT.fade),0,1):0;}
 // A superweapon's reach now: the composite beam's is fixed; the hyper-ion cannon's is what its charge carries
 // (held ready = full; charging = what it holds so far).
+const HION_CHARGE_K=2;
 function swRange(u,w,i){const C=SW_COMBAT[w.k];if(w.k!=='hion'||!w.Emax)return C.range;const x=u?.sw?.[i??(u.p?.sw||[]).indexOf(w)],c=x?(x.st==='charge'?clamp(x.c,0,1):1):1;return ionReach(w.Emax*c,w.d||SUPERWEAPONS.hion.d);}
 // A ship's area seen along a direction (its box, filled to `fill`).
 function ionArea(t,dir){const c=Math.cos(t.yaw||0),sn=Math.sin(t.yaw||0),nx=Math.abs(dir[0]*c+dir[2]*sn),ny=Math.abs(dir[1]),nz=Math.abs(-dir[0]*sn+dir[2]*c),L=t.p.len||100,H=t.p.height||L*.2,W=t.p.width||L*.35;return ION_BOLT.fill*(H*W*nx+L*W*ny+L*H*nz);}
@@ -119216,6 +119476,34 @@ function hullImpact(inc,u,other,c){
  combatAdd(inc,u,c.point,{direct:tt,shot:tt},null,other.id);
  const n=(u.sec?.length||HULL_SECTIONS)*6;if(!inc.zw)inc.zw=new Array(n).fill(0);if(z<n)inc.zw[z]+=tt;return tt;
 }
+// 2026-11-25 Ramming (user「ハンマーヘッドはハンマー部分の装甲を厚くして体当たり攻撃も視野に入れて」). A collision already hurts each hull by
+// the plating where it is struck (hullImpact). A ship ordered to attack takes ramming into account: fleetRamJudge is true when
+// - a blow at its top speed costs the target at least RAM.margin times the share of its structure that it costs the ship itself
+//   (its own bow plating against the target's mean plating, each hull by the other's share of the mass, as hullImpact counts it),
+// - that own share is no more than RAM.ownMax of its structure, and
+// - its guns and missiles, from where it would fight, do not outrun what the target's field brings back (with the field down, or
+//   with guns that can decide the fight, it shoots).
+// It is judged from the ships' characteristics, not their kind (a craft is left out: its passes are flown by other rules).
+// The ship then runs in bow on at full speed without steering clear of its target (fleetRamStep), and after the blow runs out
+// RAM.run metres to come in again. ★ The figures are ours.
+const RAM=Object.freeze({margin:3,ownMax:.03,run:2500,near:.75,leadS:20});
+function ramPlate(u,bow){const p=u.p,Z=combatZones(p,u.sec?.length||HULL_SECTIONS);if(bow){const z=combatZoneAt(p,[hullHalf(p)[0],0,0],hullHalf(p));return Math.max(0,(Z.T[z]||0)*(u.zi?.[z]??1));}let a=0,t=0;for(let z=0;z<Z.T.length;z++){const A=Z.A?.[z]??1;a+=A;t+=A*Math.max(0,(Z.T[z]||0)*(u.zi?.[z]??1));}return a>0?t/a:0;}
+function ramShare(speed,mine,other,plate){return Math.min(HULL_HIT.max,HULL_HIT.k*Math.max(0,speed-HULL_HIT.min)*2*other/(mine+other))*HULL_HIT.bare/(1+plate/HULL_HIT.plate);}
+function fleetRamJudge(u,t){
+ if(!u||!t||u.dead||t.dead||craftUnit(u)||craftUnit(t)||!(u.p?.maxSpeed>0))return false;
+ const mu=hullMass(u),mt=hullMass(t),v=u.p.maxSpeed,own=ramShare(v,mu,mt,ramPlate(u,true)),theirs=ramShare(v,mt,mu,ramPlate(t,false));
+ if(!(theirs>0)||theirs<RAM.margin*own||own>RAM.ownMax)return false;
+ const d=fleetStandoff(u,t),mine=(bandFireAt(u.p,d)+missileFireAt(u.p,d))*clamp(fleetSystems(u).weapon??1,0,1),back=t.shield>0?(t.p.D||0)*fieldScale(t.p)*SHIELD_MODEL.returnK*COMBAT.fireGen*clamp(fleetSystems(t).shield??1,0,1):0;
+ return !(mine>back);
+}
+// Where a ramming ship steers: at its target until the hulls meet (or it has passed within RAM.near of the two hulls' clearance),
+// then straight on for RAM.run metres, then round and in again. Returns null when it does not ram.
+function fleetRamStep(u,t){
+ if(!fleetRamJudge(u,t)){if(u.ram)delete u.ram;return null;}
+ const r=u.ram&&u.ram.target===t.id?u.ram:(u.ram={target:t.id,phase:'in'}),d=len(sub(t.pos,u.pos)),touch=(u.p.len+(t.p.len||0))*.5*RAM.near;
+ if(r.phase==='in'&&d<touch){r.phase='out';r.dir=[Math.cos(u.yaw||0),0,Math.sin(u.yaw||0)];}else if(r.phase==='out'&&d>RAM.run)r.phase='in';
+ return r.phase==='in'?{phase:'in',dest:t.pos.slice()}:{phase:'out',dest:add(u.pos,mul(r.dir,RAM.run))};
+}
 // A disabled ship without power is pulled down toward the planet: it sinks
 // ever faster with its bow dropping (fall.pitch) until it burns up.
 const HULL_FALL={g:.6,depth:60000,pitch:.55};
@@ -119299,6 +119587,8 @@ function hullBoxGap(u,h,x,hx){
 // v18 How hard a ship's drives burn, for the engine glow (0–1): the share of
 // full acceleration it is using, over a cruise floor that rises with speed.
 function engineLevel(u){const main=u?.manual&&Number.isFinite(u.mainThrustShare)?clamp(u.mainThrustShare,0,1):1;return !u||u.out||u.dead||u.ht?.online===false?0:clamp(u.propulsion?.outputRatio??0,0,1)*main;}
+// 2026-11-24 This resistance is the gravity control's (docs/calibrated-propulsion-and-power-loss.md): the 1 G a ship synthesises
+// aboard leaves its source in space for a while, and the moving ship is pulled back by it. The law is unchanged.
 // One common resistance law is calibrated from the TIE/ln and Venator
 // reference points. It never follows a design's reactor, throttle or name.
 // Drag force is mass * rate(mass) * velocity; the weak positive mass exponent
@@ -119512,7 +119802,7 @@ function craftGunsBear(u,t){if(!craftUnit(u)||!t?.pos)return true;const d=sub(t.
 //    bow on the space ahead (the only way into the gun's envelope);
 //  - with the heading crossing angle within .match (45 degrees) it matches the opponent's speed; turning, it holds its corner speed.
 // Out-of-plane moves (the yo-yos, the two-second roll out of plane) are not flown: hulls here turn in yaw only.
-const CRAFT_DOGFIGHT=Object.freeze({roleMargin:.17,bracket:1500,outsideOff:600,astern:20,jinkS:1.2,pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
+const CRAFT_DOGFIGHT=Object.freeze({mergeT:3,mergeClear:15,roleMargin:.17,bracket:1500,outsideOff:600,astern:20,jinkS:1.2,pullAt:.7,yaw:.6,barrelS:3.2,barrelWait:6,threat:25,roll:4,push:.35,oopS:2,oopClose:25,cone:15,gun:914,outside:3700,match:45,losRate:.12,leadS:2.5,lag:.25,lagMax:300,hold:200,closeS:5,boltSpeed:4500,oneCircle:.95});
 // Roll and pull toward a point. f is the bow, up the lift vector. It rolls at CRAFT_DOGFIGHT.roll rad/s until the lift vector points
 // at the side the point is on, and pitches up toward it at up to `rate`; a point a little below its bow it reaches by pitching
 // down (at half the rate) instead of rolling over.
@@ -119545,6 +119835,16 @@ function dogfightAim(u,t,st,dt,mates=null){
  // engaged: it does not hurry its shot but sits deep in lag and keeps the opponent turning the same way. The other is free: it
  // comes in from outside the opponent's turn and shoots. They change over as the angles change. Meeting it head-on they open to
  // either side first (the bracket), so that it can turn into only one of them.
+ // 2026-11-24 (user「すれ違いはそれこそバレルロールやバンクで避けるようにして」): about to pass the opponent too close (the nearest
+ // approach on the present courses within .mergeT seconds and inside the two hulls plus .mergeClear), it dodges: a barrel roll
+ // around its line to the opponent, or a bank to one side. The two craft start their rolls half a turn apart (by id), so they
+ // pass on opposite sides. The shot is not given up: the aim point stays ahead of the opponent by the clearance only.
+ {const rel=sub(t.pos,u.pos),vrel=sub(t.velocity||[0,0,0],u.velocity||[0,0,0]),v2=dot(vrel,vrel),tca=v2>1e-6?-dot(rel,vrel)/v2:-1;
+  if(tca>0&&tca<CRAFT_DOGFIGHT.mergeT){const miss=len(add(rel,mul(vrel,tca))),clear=((u.p?.len||10)+(t.p?.len||10))*.5+CRAFT_DOGFIGHT.mergeClear;
+   if(miss<clear){if(!st.dodge){const roll=((Number.parseInt(String(u.id).replace(/\D/g,''),10)||0)*2.399963)%2,a=String(u.id)<String(t.id)?0:Math.PI;st.dodge={barrel:roll<1,a,left:CRAFT_DOGFIGHT.barrelS};}
+    const d=st.dodge,line=norm(rel),side0=norm(len(cross(line,[0,1,0]))>.1?cross(line,[0,1,0]):cross(line,[0,0,1])),up0=norm(cross(side0,line));if(d.barrel)d.a+=2*Math.PI*dt/CRAFT_DOGFIGHT.barrelS;d.left-=dt;
+    const off=add(mul(side0,Math.cos(d.a)),mul(up0,Math.sin(d.a)*(d.barrel?1:.35)));return add(t.pos,mul(off,clear*2));}}
+  if(st.dodge&&!(st.dodge.left>0))st.dodge=null;}
  const mate=mates&&mates.length?mates.slice().sort((a,z)=>String(a.id).localeCompare(String(z.id)))[0]:null,first=mate?String(u.id)<String(mate.id):true;let role=null;
  if(mate){const gm=dogfightGeometry(mate,t);role=g.aspect<gm.aspect-CRAFT_DOGFIGHT.roleMargin||Math.abs(g.aspect-gm.aspect)<=CRAFT_DOGFIGHT.roleMargin&&first?'engaged':'free';st.role=role;}
  st.turn=st.tyaw!=null?Math.sign(fleetAngle((t.yaw||0)-st.tyaw))||st.turn||0:0;st.tyaw=t.yaw||0;
@@ -119609,7 +119909,9 @@ function turnRadiusAt(acc,speed,maxRate){const w=Math.min(maxRate>0?maxRate:Infi
 // without the former common cap of 0.24. The lateral-acceleration bound in flight (acceleration ÷ speed) is unchanged.
 function craftMassTurnRate(S,length){const cs=S.craftSystems||{},r=Math.max(0,cs.maneuverSupport||0)/Math.max(1e-9,S.mass||0);return clamp(.24*Math.sqrt(r)*Math.sqrt(12/Math.max(1,length||12)),.015,1);}
 // Opt-in for the Node simulators (globalThis.KS_TURN_VECTOR; the game never sets it): a craft turns by pointing its thrust.
-function craftVectorTurn(u){return !!globalThis.KS_TURN_VECTOR&&craftUnit(u);}
+// 2026-11-24 (user「旋回は質量も推力も」): both are the game's rule now; a simulator may still switch either off (= false).
+function turnMassOn(){return globalThis.KS_TURN_MASS!==false&&globalThis.KS_TURN_MASS!==0&&globalThis.KS_TURN_MASS!=='0';}
+function craftVectorTurn(u){return globalThis.KS_TURN_VECTOR!==false&&globalThis.KS_TURN_VECTOR!==0&&globalThis.KS_TURN_VECTOR!=='0'&&craftUnit(u);}
 // 2026-11-23 Trial (user: 「ミサイルが飛んでくると回避運動を行うようにしよう」). Opt-in for the Node simulators (globalThis.KS_MISSILE_EVADE; the
 // game never sets it): a craft with a guided round closing on it (aimed at it, within MISSILE_EVADE.range, arriving within
 // MISSILE_EVADE.tgo seconds) turns hard onto the beam: square to the line of sight from the round, on the side its way already
@@ -119799,7 +120101,7 @@ const FLAK=Object.freeze({radius:60,couple:2e-10});/* a burst of an Imperial-cla
 // 「点防御の威力を下げた分さらに連射速度とばら撒きを増やしてミサイルは落とせるようにする」(2026-11-19): the same output in .split times as many bolts,
 // each a .split-th of the energy, laid in a pattern .barrage times a round's size across: a round is downed by any bolt of the
 // pattern that covers it. Against craft the pattern does not add energy: what lands is still the common hit chance on the craft.
-const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.5/* user decision 2026-11-19「点防御をナーフ。命中率を下げて」: was .85 (★ the figure is ours) */,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
+const POINT_DEFENSE=Object.freeze({split:50,barrage:6,hit:.85/* user decision 2026-11-24「点防御の命中率を強化する形で」: back to .85 from the .5 of 2026-11-19「点防御をナーフ。命中率を下げて」 (★ the figure is ours) */,output:.06/* user decision 2026-11-19「点防御は6%で」, once its power reached it (it was .08, tuned while the guns took its energy; before that .05) */,roundLen:4,ffHold:150,ffRisk:600,ffBeyond:1500,stray:.05});
 // v30 Anti-air fire and the ship's sensors (user decisions 2026-11-19「Xウィングなどでセンサー類を破壊して対空能力を落とせないか」
 // 「超近距離の対ミサイル、対魚雷は自動迎撃、対航空機と近中距離にISD72xセンサーが必要という形にしよう」):
 // - against missiles and torpedoes within ANTI_AIR.close m of the hull (plus half its length from its centre), point defence
@@ -120175,16 +120477,17 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   // v29 A small craft flying as a ship attacks in passes (user decision 2026-11-16: craft are designed small ships that launch,
   // fly, fire and land): it runs in on its target at its pass speed with its bow (its fixed guns) on it, skims over or under the
   // hull, flies on until it has room to turn, and comes round again. A ship stands off and holds; a craft never stops to shoot.
-  let pass=null;
+  let pass=null,ramming=null;
   // v30 Craft against craft: a turning fight (user decision 2026-11-18「航空機は実際にAI同士で空中戦をさせてみて」「旋回の左右方向は、水平面上で
   // 対抗機が存在する側へ行う」). It turns toward the side its opponent is on in the horizontal plane and keeps turning onto it; there is
   // no run past and out. Its fixed guns fire only while the opponent is before its bow (craftGunsBear).
   if(o.type==='attack'&&t&&!t.dead&&craftUnit(u)&&craftUnit(t)){pass=u.pass&&u.pass.target===t.id&&u.pass.phase==='dogfight'?u.pass:(u.pass={target:t.id,phase:'dogfight',side:0});dest=dogfightAim(old,t,pass,dt,before.filter(x=>x.id!==u.id&&x.team===u.team&&!x.dead&&craftUnit(x)&&x.order?.type==='attack'&&x.order.target===t.id));}
-  else if(o.type==='attack'&&t&&!t.dead&&passFighter(u,t)){const hu=hullHalf(u.p),ht=hullHalf(t.p),big=Math.max(ht[0],ht[2]),R=craftWantSpeed({...old,pos:t.pos},t)/Math.max(1e-6,nominalTurn||1)/* the turn at the speed it fights at */,d=len(sub(t.pos,old.pos));let run=0;
+  else if(o.type==='attack'&&t&&!t.dead&&passFighter(u,t)){const hu=hullHalf(u.p),ht=hullHalf(t.p),big=Math.max(ht[0],ht[2]),R=craftWantSpeed({...old,pos:t.pos},t)/Math.max(1e-6,nominalTurn||1)/* the turn at the speed it fights at */,d=len(sub(t.pos,old.pos)),ramP=!craftUnit(u)&&fleetRamJudge(u,t)/* 2026-11-25 a small ship that judges it should ram runs in at the hull itself, not over it, and does not steer clear of it */;let run=0;
    pass=u.pass&&u.pass.target===t.id?u.pass:(u.pass={target:t.id,phase:'in',side:old.pos[1]-t.pos[1]>1?1:old.pos[1]-t.pos[1]<-1?-1:String(u.id)<String(t.id)?1:-1/* level with each other, one goes over and the other under */});
-   run=len(sub(add(t.pos,[0,(ht[1]+hu[1]+passClear(u))*pass.side,0]),old.pos));/* to the point over the hull it runs in on: a tall target's centre is never that near */
-   if(pass.phase==='in'&&run<big*CRAFT_PASS.break+CRAFT_PASS.near){pass.phase='out';pass.dir=[Math.cos(u.yaw),0,Math.sin(u.yaw)];}else if(pass.phase==='out'&&d>big+CRAFT_PASS.extend+R*CRAFT_PASS.turns)pass.phase='in';
-   const over=(ht[1]+hu[1]+passClear(u))*pass.side;dest=pass.phase==='in'?add(t.pos,[0,over,0]):[old.pos[0]+pass.dir[0]*4000,t.pos[1]+over,old.pos[2]+pass.dir[2]*4000];
+   run=len(sub(add(t.pos,[0,ramP?0:(ht[1]+hu[1]+passClear(u))*pass.side,0]),old.pos));/* to the point over the hull it runs in on: a tall target's centre is never that near */
+   if(ramP)u.ram={target:t.id,phase:pass.phase};else if(u.ram)delete u.ram;if(ramP&&pass.phase==='in')ramming=t.id;
+   if(pass.phase==='in'&&run<(ramP?(u.p.len+(t.p.len||0))*.5*RAM.near:big*CRAFT_PASS.break+CRAFT_PASS.near)){pass.phase='out';pass.dir=[Math.cos(u.yaw),0,Math.sin(u.yaw)];}else if(pass.phase==='out'&&d>big+CRAFT_PASS.extend+R*CRAFT_PASS.turns)pass.phase='in';
+   const over=ramP?0:(ht[1]+hu[1]+passClear(u))*pass.side,lead=ramP?mul(t.velocity||[0,0,0],Math.min(RAM.leadS,d/Math.max(50,len(old.velocity||[0,0,0]))))/* where the target will be when it gets there: two ships that steer at each other's present place only circle */:[0,0,0];dest=pass.phase==='in'?add(add(t.pos,lead),[0,over,0]):[old.pos[0]+pass.dir[0]*4000,t.pos[1]+over,old.pos[2]+pass.dir[2]*4000];
    // v30 Evasion on an attack run (user 2026-11-19「回避軌道を対艦攻撃にも取り入れたりして」; Shaw's guns defence, notes table 2-A A4):
    // inside the reach of the ship's point defence the craft jinks, each .jinkS seconds into a plane at least a quarter turn from
    // the last, CRAFT_PASS.jink metres off its line. Point defence aims where the craft was heading (gunAimOffset), so a craft
@@ -120211,17 +120514,18 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
    const pullRate=craftVectorTurn(u)?nominalTurn*turn:Math.min(nominalTurn*turn,turnRateAt(acc,len(old.velocity))),A=craftAttitudeStep(u,old,dest,pullRate,dt);u.att={f:A.f,up:A.up};u.yaw=Math.atan2(A.f[2],A.f[0]);u.turned3=A.angle;turnNeed=Math.max(turnNeed,A.need);want=mul(A.f,craftWantSpeed(old,null));
   }else if(dest&&pass){const delta=sub(dest,old.pos),d=len(delta),yaw=Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);turnToward(yaw);
    // (off its heading it slows, so the turn back is tighter than the run in)
-   if(d>1){want=mul(norm(delta),pass.phase==='dogfight'?dogfightSpeed(old,t,err,d):craftWantSpeed(old,t)*Math.max(CRAFT_PASS.slow,Math.cos(err)));const hor=Math.hypot(want[0],want[2]);want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}
+   if(d>1){want=mul(norm(delta),pass.phase==='dogfight'?dogfightSpeed(old,t,err,d):(ramming?Math.max(craftWantSpeed(old,t),u.p.maxSpeed||0)/* 2026-11-25 the run in to ram is at full speed */:craftWantSpeed(old,t))*Math.max(CRAFT_PASS.slow,Math.cos(err)));const hor=Math.hypot(want[0],want[2]);want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}
   }else if(dest){
    // Attacking ships close to the distance their guns favour; broadside ships turn their beam to the target there.
    // A ship never backs away to open the range (it could not fire while running): closer in, it holds where it is.
-   const delta=sub(dest,old.pos),d=len(delta),attack=o.type==='attack',floor=attack?(u.p.len+(t?.p.len||0))*.7:0,stop=attack?Math.min(fleetFightRange(u,t),Math.max(floor,d)):0,head=swYaw??(attack&&!(fleetPressing(u)&&d>stop*1.25)/* pressing: bow on until it is there */?fleetHeading(old,t,d,stop):null),yaw=head??Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);turnToward(yaw);
-   const signed=attack?d-stop:d,remaining=attack?Math.max(0,Math.abs(signed)-(head!=null?600:2500)):Math.max(0,signed),direction=attack&&signed<0&&head==null?-1:1,speed=Math.min((craftUnit(u)?craftWantSpeed(old,t):u.p.maxSpeed)*(head!=null?.4:1),Math.sqrt((attack?1:2)*acc0*remaining))*Math.max(.08,Math.cos(err));
+   /* 2026-11-25 a ship that judges it should ram runs at its target (or out for another run) at full speed, bow on */const ram=o.type==='attack'&&t&&!t.dead&&swYaw==null?fleetRamStep(u,t):null;if(ram){dest=ram.dest;ramming=ram.phase==='in'?t.id:null;}else if(u.ram)delete u.ram;
+   const delta=sub(dest,old.pos),d=len(delta),attack=o.type==='attack'&&!ram,floor=attack?(u.p.len+(t?.p.len||0))*.7:0,stop=attack?Math.min(fleetFightRange(u,t),Math.max(floor,d)):0,head=swYaw??(attack&&!(fleetPressing(u)&&d>stop*1.25)/* pressing: bow on until it is there */?fleetHeading(old,t,d,stop):null),yaw=head??Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);turnToward(yaw);
+   const signed=attack?d-stop:d,remaining=ram?Number.MAX_VALUE/* no slowing for the blow (not Infinity: with no acceleration figure 0 x Infinity is NaN) */:attack?Math.max(0,Math.abs(signed)-(head!=null?600:2500)):Math.max(0,signed),direction=attack&&signed<0&&head==null?-1:1,speed=Math.min((craftUnit(u)?craftWantSpeed(old,t):u.p.maxSpeed)*(head!=null?.4:1),Math.sqrt((attack?1:2)*acc0*remaining))*Math.max(.08,Math.cos(err));
    if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
   // v30 Turning costs way (user decision 2026-11-19「慣性エネルギーは旋回により失われる形に」): each radian turned takes TURN_BLEED.energy of
   // the hull's kinetic energy; its engines have to win the speed back.
   let accLeft=acc;{const dy=u.turned3??Math.abs(fleetAngle(u.yaw-old.yaw));if(dy>0){const side=len(v0)*dy/dt;accLeft=Math.sqrt(Math.max(0,acc*acc-side*side));/* the thrust that holds the turn is not there to win speed back */const k=Math.exp(-.5*(craftUnit(u)?TURN_BLEED.craft:TURN_BLEED.energy)*dy);v0[0]*=k;v0[1]*=k;v0[2]*=k;}}
-  want=hullAvoid(old,before,want,x=>fleetDockingPair(old,x)/* v29 a docking ship and its host do not steer clear of each other (as on the strategic map) */);
+  want=hullAvoid(old,before,want,x=>x.id===ramming||fleetDockingPair(old,x)/* v29 a docking ship and its host do not steer clear of each other (as on the strategic map) */);
   if(craftUnit(u)&&!u.att&&len(want)>1){const f=norm(want),r=cross(f,[0,1,0]);u.att={f,up:len(r)>1e-6?norm(cross(norm(r),f)):[0,1,0]};}/* v30 physics review 2026-11-19: outside the fight and the dash too (an attack run over a ship, a climb to a station) a craft's way follows the pitch it steers at, not the level heading */
   // 2026-11-23 Trial (user: 「旋回に必要なのは質量、全長で、推力と姿勢制御スラスタの動きで迎角が変わり加速方向が変わりさらに旋回速度が上がる」):
   // with KS_TURN_VECTOR a craft's main thrust acts along its nose. The nose swings as fast as its thrusters turn its mass and
@@ -120305,13 +120609,13 @@ function fleetTick(b,dt,opts={}){observeMotion((b.units||[]).filter(u=>!u.dead),
   if(craftUnit(t)&&!craftUnit(u)&&!boltOnly&&gun>0&&gunHit>0){const shot=fleetShotTT(u),firedRate=gun/gunHit,near=quality*antiAirGunTrack(u)*gunHitChance(u,{pos:t.pos,velocity:t.velocity,_track:t._track,_trackT:t._trackT,p:{len:FLAK.radius*2,width:FLAK.radius*2,height:FLAK.radius*2}},distance,fleetReach(p),fleetSystems(u).fire),E=firedRate*near*FLAK.couple*dt*DMG;
    if(E>0)for(const c of alive){if(c.dead||c.docked||!craftUnit(c)||len(sub(c.pos,t.pos))>FLAK.radius)continue;const inc=incoming.get(c.id);if(inc)combatAdd(inc,c,u.pos,{sf:E,hull:E,shot:shot*FLAK.couple},null,u.id);if(c.team===u.team)c.ffTaken=(c.ffTaken||0)+E;}
    if(E>0)shots.push({from:u.id,to:t.id,team:u.team,ion:false,gun:E/Math.max(1e-12,DMG),msl:0,flak:true});u.flakBursts=(u.flakBursts||0)+firedRate*near*dt/Math.max(1e-30,shot);gun=0;ion=0;}
-  const hd=dt*DMG,inside=!boltOnly&&t.shield>0&&shieldShellInside(t,u.pos)/* v30 firing from inside the target's field (user decision 2026-11-16: the field stands around the ship and what gets inside strikes the ship itself) */,amt=inside?{sf:0,hull:0,direct:(gun+msl+fd)*hd,ion:0,ionDirect:(ion+imsl+iord)*hd}:{sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,direct:(msl+fd)*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd};if(dN>0)amt.directShot=(msl+ord+fd)/dN;if(ord>0){const oShot=p.airOrdShot>0?p.airOrdShot:p.airOrd>0?p.airOrd:RULES_MISSILE_TT;combatBlastAdd(incoming.get(t.id),ord*hd/oShot,oShot,u.id);}/* v30 the craft's torpedoes and bombs are warheads */
+  const hd=dt*DMG,inside=!boltOnly&&t.shield>0&&shieldShellInside(t,u.pos)/* v30 firing from inside the target's field (user decision 2026-11-16: the field stands around the ship and what gets inside strikes the ship itself) */,amt=inside?{sf:0,hull:0,direct:(gun+msl+fd)*hd,ion:0,ionDirect:(ion+imsl+iord)*hd}:{sf:(gun+COMBAT.ionShield*ion)*hd,hull:(gun+COMBAT.ionHull*ion)*hd,air:fd*hd/* the craft's lasers as their own bolts (FLEET_AIR_GUN_BOLT), not as the ship's gun shots (physics review 2026-11-24) */,direct:msl*hd,ion:ion*hd,ionDirect:(imsl+iord)*hd}/* 2026-11-24 (user「シールドに当たる場合はシールドに防がれる。スレスレを飛行してシールドの内側に入ると直接ダメージ」): the embarked craft's lasers (fd) meet the field as the guns do; only from inside it do they strike the ship itself. A craft flown as a unit already goes by where it is (inside). */;if(dN>0)amt.directShot=(msl+ord+(inside?fd:0))/Math.max(1e-30,inside?dN:dN-(fd>0?fd/FLEET_AIR_GUN_BOLT:0))||undefined;if(!(amt.directShot>0))delete amt.directShot;if(ord>0){const oShot=p.airOrdShot>0?p.airOrdShot:p.airOrd>0?p.airOrd:RULES_MISSILE_TT;combatBlastAdd(incoming.get(t.id),ord*hd/oShot,oShot,u.id);}/* v30 the craft's torpedoes and bombs are warheads */
   // v27 At a bolt-resolved target the ship's missiles land when they arrive: their damage rides on the launch record and the
   // trial delivers it as the missiles reach the ship (point defence has already taken its share above).
-  let mdmg=null;if(boltOnly&&msl+imsl>0){const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0);mdmg={direct:msl*hd,ionDirect:imsl*hd,shot:mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,src:u.id,from:u.pos.slice()};amt.direct=(ord+fd)*hd;amt.ionDirect=iord*hd;if(!(ord+fd>0))delete amt.directShot;}
+  let mdmg=null;if(boltOnly&&msl+imsl>0){const mN=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n),0),mE=missilePackets.reduce((a,q)=>a+(q.ion?0:q.n*q.tt),0);mdmg={direct:msl*hd,ionDirect:imsl*hd,shot:mN>0&&mE>0?mE/mN:RULES_MISSILE_TT,src:u.id,from:u.pos.slice()};amt.direct=ord*hd/* fd meets the field (above) */;amt.ionDirect=iord*hd;if(!(ord>0))delete amt.directShot;}
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
-  if(scr){const k=screenShare(scr,t,aim);const part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
+  if(scr){const k=screenShare(scr,t,aim);const part=f=>({sf:amt.sf*f,hull:amt.hull*f,air:(amt.air||0)*f,direct:amt.direct*f,ion:amt.ion*f,ionDirect:amt.ionDirect*f,...(amt.directShot>0?{directShot:amt.directShot}:{})});combatAddWeapons(incoming.get(scr.id),scr,u,part(k),gun*k,ion*k,hd,null);combatAddWeapons(incoming.get(t.id),t,u,part(1-k),gun*(1-k),ion*(1-k),hd,null);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
   else{combatAddWeapons(incoming.get(t.id),t,u,amt,gun,ion,hd,aim);}
   // What misses may strike a ship of our own close to the target.
   const miss=Math.max(0,1-hit);if(!boltOnly&&miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k,craft:small} of fireStray(alive,u,t,distance)){let g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*(1-gunHit)*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*(1-ionHit)*k;if(!(g2+i2>0))continue;
@@ -121843,7 +122147,8 @@ function superweaponStats(ship,S){
  // between the superweapons on that reactor, never under the weapon's floor.
  for(const w of list){const C=SW_COMBAT[w.k],owner=ship.parts.find(p=>p.id===w.id),strict=ship.surfaces?.mode==='strict',n=list.filter(x=>x.reactor===w.reactor).length,P=w.reactorPower*clamp(owner?.chargePowerFraction??C.share,.01,1)/Math.max(1,n),eta=strict?clamp(owner?.conversionEfficiency??ENERGY_MODEL.superEta,.05,1):1;w.efficiency=eta;w.chargeW=P;w.initialCharge=clamp(owner?.initialCharge||0,0,1);
   // v21.2 The hyper-ion cannon holds five minutes of its reactor's full output (its share of it) and fills at its draw.
-  if(w.k==='hion'){w.Emax=Number.isFinite(owner?.chargeCapacityTT)?clamp(owner.chargeCapacityTT,.001,1e12):w.reactorPower*C.holdS/Math.max(1,n)/TT;w.E=w.Emax;w.chargeT=P>0?w.Emax*TT/(P*eta):Infinity;continue;}
+  // 2026-11-24 (user「サブジュゲイターと合わせて充電速度を2倍にして」): it charges at twice that draw (1,136 s → 568 s), as the ion guns' rate per volume.
+  if(w.k==='hion'){w.Emax=Number.isFinite(owner?.chargeCapacityTT)?clamp(owner.chargeCapacityTT,.001,1e12):w.reactorPower*C.holdS/Math.max(1,n)/TT;w.E=w.Emax;w.chargeW=Math.min(P*HION_CHARGE_K,w.reactorPower/Math.max(1,n))/* physics review 2026-11-24: twice its share, but never more than its reactor gives it (share .6 × 2 would be 1.2 of the reactor) */;w.chargeT=P>0?w.Emax*TT/(w.chargeW*eta):Infinity;continue;}
   const E=w.k==='slaser'?slaserEnergyTT(owner?.d):C.E;w.Emax=E;w.E=E;w.chargeT=P>0?Math.max(C.tMin,E*TT/(P*eta)):Infinity;w.chargeW=P>0?Math.min(P,E*TT/(w.chargeT*eta)):0;}
  S.superweapons=list;
  // Main and secondary reactor output (what is left when an ion wave stops the main reactors).
@@ -122133,7 +122438,7 @@ function craftSystemsStats(ship,S){
  if(targetRatio<1-1e-8)warn('warn',`照準処理能力が不足しています（武装 ${+targetCapacity.toFixed(1)} 基分／必要 ${+R.targetDemand.toFixed(1)} 基分）。命中率が下がります。`,['targetComputer','firecontrol']);
  if(maneuverRatio<1-1e-8)warn('warn',`姿勢制御の対応質量が不足しています（${+maneuverSupport.toFixed(1)} t／機体 ${+(S.mass||0).toFixed(1)} t）。旋回能力が下がります。`,['maneuver']);
  if(R.laserUnits>0&&!(systems.laserGasSeconds>0))warn('warn','小型レーザー砲に供給するレーザーガスがありません。母艦で補給できるガス供給装置を追加してください。',['laserGas']);
- if(!systems.landingReady)warn('info',`着陸脚の支持質量が不足しています（${+landingSupport.toFixed(1)} t／機体 ${+(S.mass||0).toFixed(1)} t）。地上で脚による支持ができません。`,['landingGear','repulsor']);
+ if(!systems.landingReady)warn('info',`リパルサーリフトの支持質量が不足しています（${+landingSupport.toFixed(1)} t／機体 ${+(S.mass||0).toFixed(1)} t）。地上で脚による支持ができません。`,['landingGear','repulsor']);
  return S;
 }
 // ---------- v22 ordnance as stores ----------
@@ -122331,11 +122636,11 @@ const craftSpeed=G=>Number.isFinite(G)&&G>0?Math.round(clamp(2070*Math.pow(G/370
 const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機':'fighter','重戦闘機':'fighter','ドロイド戦闘機':'fighter','ガンシップ':'transport','揚陸艇':'transport','シャトル':'transport','非武装艇':'transport'};
 // A fixed fighter cannon only fires near its physical barrel axis. Its catalogue
 // shot energy (output per barrel per second × its period) stays fixed; a faster cadence draws more electrical power.
-const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserL:.12,claserH:.18,cturret:.12})});
+const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:1,cycles:Object.freeze({claser:1,claserL:1,claserH:1,cturret:1})/* 2026-11-24 one shot a second a barrel (gun rules) */});
 // Sustained gun output in TT/s of a set of craft fire arcs: each arc's weapon at its own cadence, as the RTS squadrons
 // fire them (Rts.squadWeaponEnergy): an aircraft laser gives barrels × its output per barrel per second at any cadence.
 function craftArcsGunRate(arcs){
- let rate=0;for(const a of Array.isArray(arcs)?arcs:[]){const d=FITS[canonicalWeaponKind(a?.k)];if(!d||d.retired||d.store||!(d.tt>0))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||CRAFT_FIRE.defaultCycle;rate+=craftShotTT(d,cycle)/cycle;}return rate;
+ let rate=0;for(const a of Array.isArray(arcs)?arcs:[]){const k=canonicalWeaponKind(a?.k),d=FITS[k];if(!d||d.retired||d.store||!(d.tt>0))continue;if(d.outputClass){/* 2026-11-24 one shot a second a barrel, each by its bore */const rule=craftLaserRule({k,boreM:a.boreM,barrelM:a.barrelM,rateHz:a.rateHz});rate+=(rule?rule.shotKt/KT_PER_TT*rule.rateHz:d.barrelTTs)*Math.max(1,d.barrels||1);continue;}const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||CRAFT_FIRE.defaultCycle;rate+=craftShotTT(d,cycle)/cycle;}return rate;
 }
 // Sustained laser output of one craft of a type in TT/s. A modelled type uses its offline fire-arc snapshot
 // (CRAFT_PRICE_CATALOG); a table-only type uses the RTS's estimated equipment (round(aa × 2) fixed medium lasers,
@@ -122344,7 +122649,7 @@ const RULES_MISSILE_TT=10;/* TT of a legacy missile packet's round (fleetTick le
 const FLEET_AIR_GUN_DEFAULT=2*CRAFT_LASER_OUTPUT.medium,FLEET_AIR_GUN_BOLT=CRAFT_LASER_OUTPUT.medium*CRAFT_FIRE.defaultCycle;/* TT of one medium craft bolt (output per second × firing period), for the per-shot casualty rule */
 function craftLaserRate(type){
  if(typeof type!=='string')return null;const entry=CRAFT_PRICE_CATALOG.entries[type]||CRAFT_PRICE_CATALOG.entries[craftTypeOf(type)];
- if(Array.isArray(entry?.fireArcs))return craftArcsGunRate(entry.fireArcs);
+ if(Array.isArray(entry?.fireArcs)){const ex=CRAFT_LASER_EXAMPLES[type]||CRAFT_LASER_EXAMPLES['craft_'+craftTypeOf(type)]||CRAFT_LASER_EXAMPLES[craftTypeOf(type)];return craftArcsGunRate(ex?entry.fireArcs.map(a=>ex[a.k]&&!(a.boreM>0)?{...a,boreM:ex[a.k][0],barrelM:ex[a.k][1]}:a):entry.fireArcs);}
  const R=typeof Rts!=='undefined'?Rts:null,c=R?.CRAFT?.[type];if(c&&typeof R.craftLaserArcs==='function')return craftArcsGunRate(R.craftLaserArcs(c));
  return null;
 }
@@ -122355,7 +122660,7 @@ function airWingGunRate(r){const arcs=r?.design?.craft?.fireArcs;if(Array.isArra
 const fleetAirGun=p=>Number.isFinite(p?.airGun)&&p.airGun>=0?p.airGun:FLEET_AIR_GUN_DEFAULT;
 function cleanCraftFireArcs(raw){
  if(!Array.isArray(raw))return null;const vec=(v,fallback)=>{if(!Array.isArray(v)||v.length!==3||!v.every(Number.isFinite))return fallback;if(Math.abs(Math.hypot(...v)-1)<1e-12)return v.slice();const scale=Math.max(...v.map(Math.abs));return scale>1e-8?norm(v.map(n=>n/scale)):fallback;};
- return raw.slice(0,128).filter(a=>a&&typeof a==='object'&&!retiredAircraftIon(a.k)&&vec(a.dir,null)).map(a=>{const k=canonicalWeaponKind(a.k);return {fixed:!!a.fixed,dir:vec(a.dir,[1,0,0]),up:vec(a.up,[0,1,0]),...(Array.isArray(a.pos)&&a.pos.length===3&&a.pos.every(Number.isFinite)?{pos:a.pos.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate))}:{}),...(typeof k==='string'&&FITS[k]?{k}:{}),gun:Number.isFinite(a.gun)?clamp(a.gun,0,1):0,aa:Number.isFinite(a.aa)?clamp(a.aa,0,1):0,cycle:Number.isFinite(a.cycle)?clamp(a.cycle,.03,10):CRAFT_FIRE.cycles[k]||FITS[k]?.cycle||CRAFT_FIRE.defaultCycle};});
+ return raw.slice(0,128).filter(a=>a&&typeof a==='object'&&!retiredAircraftIon(a.k)&&vec(a.dir,null)).map(a=>{const k=canonicalWeaponKind(a.k);return {fixed:!!a.fixed,dir:vec(a.dir,[1,0,0]),up:vec(a.up,[0,1,0]),...(Array.isArray(a.pos)&&a.pos.length===3&&a.pos.every(Number.isFinite)?{pos:a.pos.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate))}:{}),...(typeof k==='string'&&FITS[k]?{k}:{}),gun:Number.isFinite(a.gun)?clamp(a.gun,0,1):0,aa:Number.isFinite(a.aa)?clamp(a.aa,0,1):0,cycle:Number.isFinite(a.cycle)?clamp(a.cycle,.03,10):CRAFT_FIRE.cycles[k]||FITS[k]?.cycle||CRAFT_FIRE.defaultCycle,...(Number.isFinite(a.boreM)&&a.boreM>0?{boreM:clamp(a.boreM,.10,.40)}:{}),...(Number.isFinite(a.barrelM)&&a.barrelM>0?{barrelM:clamp(a.barrelM,.2,10)}:{}),...(Number.isFinite(a.rateHz)&&a.rateHz>0?{rateHz:clamp(a.rateHz,.2,10)}:{})};});
 }
 // Muzzles remain in blueprint coordinates, like fitOrigin; a renderer subtracts
 // its loaded model's centre. Weights are shares of the complete installed battery.
@@ -122364,7 +122669,7 @@ function craftGunMounts(ship,S={}){
   const port=surfaceBatteryGeometry(f),fr=fitFrameOf(f),r=spec.asset?(f.assetYaw||0)*Math.PI/180:0,dir=port?port.normal.slice():norm(add(mul(fr.fw,Math.cos(r)),mul(fr.rt,Math.sin(r)))),g=Math.max(0,d.tt||0)+Math.max(0,d.ion||0)/3+Math.max(0,spec.aa||0)*(f.scale||1)**2,a=Math.max(0,spec.aa||0)*(f.scale||1)**2;
   let pos;try{pos=port?port.mouth.slice():add(fitOrigin(f),add(mul(fr.up,d.hm*.55),mul(dir,d.fm*.5)));}catch(e){pos=f.p||[0,0,0];}
   // Nonfixed fire-arc gates use up as the outward mounting normal.
-  arcs.push({fixed:!!spec.fixed,dir,up:port?port.normal.slice():fr.up.slice(),pos,k:f.k,gun:g,aa:a,cycle:CRAFT_FIRE.cycles[f.k]||spec.cycle||CRAFT_FIRE.defaultCycle});gun+=g;aa+=a;
+  arcs.push({fixed:!!spec.fixed,dir,up:port?port.normal.slice():fr.up.slice(),pos,k:f.k,gun:g,aa:a,cycle:CRAFT_FIRE.cycles[f.k]||spec.cycle||CRAFT_FIRE.defaultCycle,...(f.boreM>0?{boreM:f.boreM}:{}),...(f.barrelM>0?{barrelM:f.barrelM}:{}),...(f.rateHz>0?{rateHz:f.rateHz}:{})});gun+=g;aa+=a;
  }
  for(const a of arcs){a.gun=gun>0?a.gun/gun:0;a.aa=aa>0?a.aa/aa:0;}return cleanCraftFireArcs(arcs);
 }
@@ -124187,10 +124492,12 @@ function heatLoads(g,pr,sw=[]){
  const X=pr&&typeof pr==='object'?pr:HEAT_PRESETS[pr]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],P0=Math.max(0,g.P||0),swDraw=sw.map(w=>{if(!X.sw)return 0;const share=SW_COMBAT[w.k].share*(w.Pshare||0)*P0/Math.max(1,w.n||1);/* never more than the weapon actually draws (a superlaser charges for 24 hours: physics review 2026-11-15) */return w.chargeW>0?Math.min(share,w.chargeW):share;}),swk=swDraw.reduce((a,b)=>a+b,0);
  const P=Math.max(0,P0-swk),want={engines:Math.max(0,g.De||0)*X.eng,shields:(g.Ds||0)*X.sh,weapons:(g.Dw||0)*M.weapons*X.wpn},got=powerSplit(P,g.fixed||0,want,X.mode);
  const shot=sw.map(w=>!g.strict&&X.sw&&w.chargeT>0&&Number.isFinite(w.chargeT)?HEAT.swShot*(w.E||0)*TT/(w.chargeT+SW_COMBAT[w.k].over.T):0);
- return {P,draw:got.draw,weapon:got.weapons,shield:got.shields,engine:got.engines,fixed:Math.min(g.fixed||0,got.draw),sw:swDraw,swShot:shot,want};
+ return {P,draw:got.draw,weapon:got.weapons,shield:got.shields,engine:got.engines,fixed:Math.min(g.fixed||0,got.draw),sw:swDraw,swShot:shot,want,weaponWaste:g.weaponWaste};
 }
 // Waste heat (W) of each kind at a load: what the drawn power leaves aboard.
-function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon:W.weapon*L.weapon,shield:W.shield*L.shield,engine:W.engine*L.engine,feed:Number.isFinite(L.feedLossW)?Math.max(0,L.feedLossW):0,hotel:W.hotel*L.fixed,sw:L.sw.map((d,i)=>W.sw*d+(L.swShot[i]||0))};}
+// 2026-11-24 A gun's firing heat is 5% of its compression energy (gunRule.heatFrac of its input); other weapons keep HEAT.waste.weapon.
+function weaponWasteFrac(d){return d?.gunRule?.heatFrac??HEAT.waste.weapon;}
+function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon:(Number.isFinite(L.weaponWaste)?L.weaponWaste:W.weapon)*L.weapon,shield:W.shield*L.shield,engine:W.engine*L.engine,feed:Number.isFinite(L.feedLossW)?Math.max(0,L.feedLossW):0,hotel:W.hotel*L.fixed,sw:L.sw.map((d,i)=>W.sw*d+(L.swShot[i]||0))};}
 // The flow through the heat network: sources with a demand D (W), dissipators with a capacity, links s→d
 // with their own capacity. Each source offers what is left of its demand over its open paths (in proportion to
 // what each can still take), each dissipator accepts as much of what is offered as it has room for (the same
@@ -124238,7 +124545,7 @@ function heatNetwork(ship,S){
  const sws=(S.superweapons||[]).filter(w=>w.ok),swIn=sws.map(w=>({k:w.k,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),n:sws.filter(x=>x.reactor===w.reactor).length,E:w.k==='hion'?w.Emax:w.E,chargeT:w.chargeT,chargeW:w.chargeW}));
  // S.draw.hotel carries the converters' own input once the statistics are complete; the presets below
  // charge that input from the heat each preset actually converts, so it is taken out of the fixed load here.
- const g={P:S.power||0,fixed:Math.max(0,(S.draw?.hotel||0)+(S.draw?.ray||0)-Math.max(0,S.dissipatorPower||0)),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict};
+ const g={P:S.power||0,fixed:Math.max(0,(S.draw?.hotel||0)+(S.draw?.ray||0)-Math.max(0,S.dissipatorPower||0)),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0,strict,weaponWaste:S.weaponWasteFrac};
  const W={},presetLoads={};for(const pr in HEAT_PRESETS){presetLoads[pr]=heatLoads(g,pr,swIn);W[pr]=heatWaste(presetLoads[pr]);}
  const addSrc=(k,id,name,at,w,extra={})=>src.push({k,id,name,at,w,grade:HEAT.grade[k],sec:sec(at),...extra});
  for(const p of ship.parts){if(bad(p.id))continue;
@@ -124326,9 +124633,9 @@ function heatNetwork(ship,S){
   // ledger, but its input is still low-grade heat aboard the ship. Size the
   // hotel paths/stores for that real connected input as well as ordinary
   // fixed loads, matching heatTick's cooling.inputJ/heatJ accounting.
-  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,feedLossW:power.feedLossW,fixed:power.fixed+power.cooling,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0)});
+  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,feedLossW:power.feedLossW,fixed:power.fixed+power.cooling,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0),weaponWaste:S.weaponWasteFrac});
   W[pr].engine=[...engineHeat.values()].reduce((n,w)=>n+w,0);const generatedElectricalW=power.sources.reduce((n,r)=>n+(ship.parts.some(p=>'p'+p.id===r.id&&isReactor(p))?Math.max(0,r.drawW||0):0),0);fuelPresets[pr]=fuelOperatingSummary(fuelProfileFromStats(S),generatedElectricalW,HEAT.waste.reactor*generatedElectricalW);
-  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='feed')s.rated[pr]=feedHeat.get(s.routeId)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=HEAT.waste.weapon*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*((power.granted['fixed:'+s.id]||0)+power.cooling*s.w/Math.max(1e-30,tot.hotel||1));}
+  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='feed')s.rated[pr]=feedHeat.get(s.routeId)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=weaponWasteFrac(fitSpec(ship.fits.find(f=>'f'+f.id===s.id)||{}))*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*((power.granted['fixed:'+s.id]||0)+power.cooling*s.w/Math.max(1e-30,tot.hotel||1));}
   presetPower[pr]={supplyW:Math.max(0,power.P||0),drawW:Math.max(0,power.draw||0),coolingW:Math.max(0,power.cooling||0),coolingRequestedW:loads.filter(l=>l.kind==='cooling').reduce((n,l)=>n+l.requestedInputW,0),fixedW:Math.max(0,power.fixed||0),shieldsW:Math.max(0,power.shields||0),weaponsW:Math.max(0,power.weapons||0),enginesW:Math.max(0,power.engines||0),enginesRequestedW:Math.max(0,propulsion.totalRequestedInputW||0)};
  }
  if(pass===0){
@@ -124682,7 +124989,7 @@ function heatAccrueInner(u,got,fixed,dt,h,H){
    acceptedRatios[load.id]=ratio;for(const [id,watts]of Object.entries(funding[load.id]||{}))reactorInputHeat(h,H,sources.get(id),watts*ratio*dt);
   }
  }else reactorInputHeat(h,H,null,Math.max(0,got.draw||0)*dt);
- e.weapon=(e.weapon||0)+W.weapon*Math.max(0,got.weapons||0)*dt;e.shield=(e.shield||0)+W.shield*Math.max(0,got.shields||0)*dt;
+ e.weapon=(e.weapon||0)+(u.p?.weaponWaste??W.weapon)/* the guns' own firing heat (gun rules), the figure the budget and the design use */*Math.max(0,got.weapons||0)*dt;e.shield=(e.shield||0)+W.shield*Math.max(0,got.shields||0)*dt;
  if(got.propulsion?.engines||got.propulsion?.cores){for(const engine of got.propulsion.cores||got.propulsion.engines){const spec=u.p.propulsion?.cores?.find(s=>s.id===engine.id)||u.p.propulsion?.engines?.find(s=>s.id===engine.id),i=H.src.findIndex(s=>s.k==='engine'&&(s.id===(engine.heatNode||spec?.heatNode||'p'+engine.id)||s.m?.includes(spec?.moduleIndex))),Q=Math.max(0,engine.wasteHeatW||0)*dt;if(i>=0)h.engineE[i]=(h.engineE[i]||0)+Q;else e.engine=(e.engine||0)+Q;}}
  else {const specs=[...new Map((u.p.propulsion?.cores||u.p.propulsion?.engines||[]).map(s=>[s.machineryId??s.id,s])).values()],input=Math.max(0,got.engines||0),rated=specs.reduce((n,s)=>n+Math.max(0,s.ratedInputW||0),0),waste=specs.reduce((n,s)=>n+(typeof engineOperatingPoint==='function'?engineOperatingPoint(s,input*Math.max(0,s.ratedInputW||0)/Math.max(1e-30,rated)).wasteHeatW:input*Math.max(0,s.ratedInputW||0)/Math.max(1e-30,rated)*W.engine),0);e.engine=(e.engine||0)+(specs.length?waste:input*W.engine)*dt;}
  e.hotel=(e.hotel||0)+W.hotel*Math.max(0,Math.min(fixed||0,got.draw||0))*dt;const losses=power?.edgeLosses?.map(loss=>{if(!loss.byConsumer)return loss;let heatW=0;for(const [id,W]of Object.entries(loss.byConsumer)){const load=power.consumers.find(l=>l.id===id);if(load?.kind!=='cooling')heatW+=W*(acceptedRatios[id]??1);}return {...loss,heatW,byKind:{}};});accrueFeedHeat(h,H,losses,dt);shipFuelSyncThermalLedger(u);
@@ -125379,7 +125686,7 @@ deriveAntiAir();
 initializePlacementCapabilities();
 return {BROADSIDE_BATTERY_CALIBERS,automaticPointDefenseEnabled,setAutomaticPointDefense,fundAutomaticPointDefense,dualIdle,AA_MODEL,weaponTraverseDegS,antiAirRating,antiAirTier,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,ionShieldEnergyJ,shieldPacketEnergyJ,ionPulseInteractionJ,shieldTransientTick,shieldReceive,shieldDebitK,shieldRechargeStep,shieldStatus,ionOverloadJ,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceShell,fleetPrepareCollision,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,ENGINE_INPUT_MODEL_VERSION,ENGINE_CONVERSION_MODEL_VERSION,ENGINE_CONVERSION,engineConversionCoefficient,enginePowerPerKgG,reactorSupplyProfile,shipElectricalAvailableW,syncPowerLossDisabled,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,engineDensityModel,engineOperatingPoint,engineInputForUsefulPower,engineHeatForInput,propulsionForceLimit,limitPropulsionRequests,resolveEngineSpec,updateEngineSpec,migratePropulsionDistribution,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- RETIRED_CRAFT_TYPES,SHIP_MSL_GUIDE,shipTrackSlots,shipTrackKeep,shipMissileMode,shipMissileModeFor,shipMissileRelease,manualMissileFire,heatSeekerPick,LAUNCHER_ROUNDS,missionLoad,missionOrdnance,MISSILE_SEEK,craftMissileChoice,craftHeatLockStep,unitHasSensor,missileSeekerAim,TORPEDO_TURN,TORPEDO_FLIGHT,ROUND_SPEED,proxBodyRadius,craftFuseRadius,fieldScale,shieldGeneratorLength,CRAFT_SHIELD,isCraftRemodel:k=>Object.hasOwn(CRAFT_REMODEL_KEYS,k),FLEET_AIR,fleetAirRelease,craftMissileEvade,craftTurnSupport,craftLockStep,craftInSight,roundTrialRange,ROUND_TRIAL,roundTrialReloadS,craftLineClear,fleetAirSetup,fleetAirStep,fleetAirStrikeWeight,fleetAirFirst,FLEET_AIR_FIRST,fleetAirLoad,fleetAirControl,trackingSensor,CRAFT_ENERGY,craftEnergyStep,GRAVITY,planetGravity,potentialEnergyJ,liftStep,liftPowerless,planetFall,ANTI_AIR,antiAirTrack,antiAirChannels,ION_ROUND,ionPowerLoss,ionPowerCut,EXAMPLE_AIR_CONTROL,AIR_ROUNDS,airRound,SHIP_TORPEDO,SHIP_MISSILE,HEAVY_LAUNCHER,launcherHeavy,launcherTorpedo,launcherRound,BRIDGE,bridgeRuns,bridgeLost,ionRestarting,PRESS,fleetPressRange,fleetPressing,fleetFightRange,fleetPressJudge,SHIELD_RECHARGE_K,DOCK,dockState,TURN_BLEED,craftBarrelStep,craftAttitudeStep,dogfightGeometry,dogfightAim,dogfightSpeed,turnRateAt,turnRadiusAt,cornerSpeed,CRAFT_DOGFIGHT,craftGunsBear,SHIELD_SHELL,shieldShellInside,CRAFT_PASS,passFighter,craftUnit,craftPassSpeed,craftCruiseSpeed,craftWantSpeed,ORDNANCE_BASIS,ordnanceBody,SHIP_TORPEDO,AIR_ROUND,BLAST,blastOpenTT,combatIonRounds,blastMassT,combatBlastAdd,combatBlast,ROUND_SPEED,roundSpeed,isTorpedoRound,CRAFT_SHIELD,craftShieldScale,fieldScale,FLAK,POINT_DEFENSE,pointDefenseGuns,PEN,holeArea,modVol,modDens,modBreakTT,hullStructure,hullBreakTT,hullBulk,boreLayer,armorBore,MISSILE_FLIGHT,dockResupplyStep,dockStep,dockNeed,dockWorldToLocal,dockLocalToWorld,engineDesignLimits,giantShip,nozzleShaftCapacity,nominalProfileSources,aviationConnected,surfaceMountState,surfaceCapacitorFactor,engineWasteFraction,CRUISE_SPEED_TARGET,CRUISE_SIZING_MARGIN,shipSustainedCruise,CRUISE_SPEED_TARGET,ENGINE_HEAT_CURVE,outOfAction,fleetActs,hullRadialMap,hullRadialAt,setHullRadial,hullRadialOf,hullRadialDepth,hullRefine,HULL_RADIAL,fleetBoltTT,fleetShotTT,penCrewSurvive,combatShotTT,combatPenetrate,heatRunThrottle,withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swCoolDone,swShipShotTT,exampleFleetHidden,heatRunMode,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
+ CRAFT_LASER_EXAMPLES,SHIELD_CURVE,shieldGeneratorVolume,lengthFieldScale,CRAFT_LASER_GEOMETRY,craftLaserRule,GUN_RULES,laserShotKt,laserBoreFor,laserRangeM,turbolaserCoil,turbolaserHoldM,gunShotShare,gunRulesReach,gunRulesShare,weaponWasteFrac,weaponChargeFactor,KT_PER_TT,RETIRED_CRAFT_TYPES,SHIP_MSL_GUIDE,shipTrackSlots,shipTrackKeep,shipMissileMode,shipMissileModeFor,shipMissileRelease,manualMissileFire,heatSeekerPick,LAUNCHER_ROUNDS,missionLoad,missionOrdnance,MISSILE_SEEK,craftMissileChoice,craftHeatLockStep,unitHasSensor,missileSeekerAim,TORPEDO_TURN,TORPEDO_FLIGHT,ROUND_SPEED,proxBodyRadius,craftFuseRadius,fieldScale,shieldGeneratorLength,CRAFT_SHIELD,isCraftRemodel:k=>Object.hasOwn(CRAFT_REMODEL_KEYS,k),FLEET_AIR,fleetAirRelease,craftMissileEvade,craftTurnSupport,craftLockStep,craftInSight,roundTrialRange,ROUND_TRIAL,roundTrialReloadS,craftLineClear,fleetAirSetup,fleetAirStep,fleetAirStrikeWeight,fleetAirFirst,FLEET_AIR_FIRST,fleetAirLoad,fleetAirControl,trackingSensor,CRAFT_ENERGY,craftEnergyStep,GRAVITY,planetGravity,potentialEnergyJ,liftStep,liftPowerless,planetFall,ANTI_AIR,antiAirTrack,antiAirChannels,ION_ROUND,ionPowerLoss,ionPowerCut,EXAMPLE_AIR_CONTROL,AIR_ROUNDS,airRound,SHIP_TORPEDO,SHIP_MISSILE,HEAVY_LAUNCHER,launcherHeavy,launcherTorpedo,launcherRound,BRIDGE,bridgeRuns,bridgeLost,ionRestarting,PRESS,fleetPressRange,fleetPressing,fleetFightRange,fleetPressJudge,SHIELD_RECHARGE_K,DOCK,dockState,TURN_BLEED,craftBarrelStep,craftAttitudeStep,dogfightGeometry,dogfightAim,dogfightSpeed,turnRateAt,turnRadiusAt,cornerSpeed,CRAFT_DOGFIGHT,craftGunsBear,SHIELD_SHELL,shieldShellInside,CRAFT_PASS,passFighter,craftUnit,craftPassSpeed,craftCruiseSpeed,craftWantSpeed,ORDNANCE_BASIS,ordnanceBody,SHIP_TORPEDO,AIR_ROUND,BLAST,blastOpenTT,combatIonRounds,blastMassT,combatBlastAdd,combatBlast,ROUND_SPEED,roundSpeed,isTorpedoRound,CRAFT_SHIELD,craftShieldScale,fieldScale,FLAK,POINT_DEFENSE,pointDefenseGuns,PEN,holeArea,modVol,modDens,modBreakTT,hullStructure,hullBreakTT,hullBulk,boreLayer,armorBore,MISSILE_FLIGHT,dockResupplyStep,dockStep,dockNeed,dockWorldToLocal,dockLocalToWorld,engineDesignLimits,giantShip,nozzleShaftCapacity,nominalProfileSources,aviationConnected,surfaceMountState,surfaceCapacitorFactor,engineWasteFraction,CRUISE_SPEED_TARGET,CRUISE_SIZING_MARGIN,shipSustainedCruise,CRUISE_SPEED_TARGET,ENGINE_HEAT_CURVE,outOfAction,fleetActs,hullRadialMap,hullRadialAt,setHullRadial,hullRadialOf,hullRadialDepth,hullRefine,HULL_RADIAL,fleetBoltTT,fleetShotTT,penCrewSurvive,combatShotTT,combatPenetrate,heatRunThrottle,withFrozenStructures,withHullCacheScope,relocateImperialHangarControl,partPlacementMode,isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,refitShipThermal,refitShipSystems,refitShipPropulsion,SHIP_SYSTEM_REFIT_KEYS,SHIP_ENGINE_ACCEL_TARGETS,SHIP_MILITARY_ACCEL_TARGETS,stockAccelerationPayload,straightenShipMachineryRooms,sizeStockMilitaryEngines,shipRefitMilitaryEngineVolume,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT,craftHeat,cleanCraftHeat,squadFireK,squadHeatStep,SOLAR,solarPower,solarCap,solarArea,wingCap,WING,FOIL_AXES,WING_PARTS,normalizeWing,isWing,isFoil,foilHandles,wingPivot,wingMembers,wingMap,foilSweep,foilPose,foilAt,foilFrame,wingStats,EMIT,BANDS,BAND_NAMES,emitBands,EMCON,EMCON_LOW_MAX,emconOf,SENSOR_BANDS,sensorSuite,SENS,sensSNR,sensStageCap,foilInit,foilStep,foilState,HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatReadoutRates,heatProfile,heatProfileOf,heatLegacy,FUEL_MODEL,fuelSpecificEnergyJPerKg,fuelProfileFromStats,fuelOperatingSummary,shipFuelState,shipFuelAvailableEnergyJ,shipFuelAvailableElectricalJ,shipFuelAccrueGeneration,reactorSourceEnergyJ,shipFuelReserveGeneration,shipFuelCommitReservation,shipFuelReleaseReservation,shipFuelLimitSources,shipFuelSyncThermalLedger,heatInit,heatOf,shipHeatMassKg,shipHeatCapacity,shipHeatThermalLimit,shipHeatAdd,shipHeatUpdate,shipHeatOutputFactor,shipHeatBlackout,shipHeatCrewFraction,shipHeatRecoveryTick,shipHeatRepairNeed,shipHeatRepairProgress,shipHeatRepairComplete,heatAccrue,heatTick,EXAMPLE_RAW_BUILDERS,heatGovernor,HYPER_CHARGE,hyperChargeStep,hyperCharged,hyperChargeNeedJ,heatStatus,heatLim,heatSwLim,normalizeLinks,LINK_LIMIT,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swEnergyTT,swRange,swFree,swAxis,swBeamTrace,superweaponSelection,superweaponCommand,superweaponSetAuto,MGLT,engineDepthRatio,sublightMGLT,SUBLIGHT_REFERENCE_VERSION,SUBLIGHT_REFERENCE,sublightReference,referenceSublightMGLT,referenceSublightSpeed,referenceSpeedProfile,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,weaponRoles,fleetDefense,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,designCraftSnapshot,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swCoolDone,swShipShotTT,exampleFleetHidden,heatRunMode,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponShape,superweaponBodyTriangles,superweaponMuzzle,superweaponAxis,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitCanRotate,isBallTurret,ballTurretPitch,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,groundingStats,engineMountSamples,engineAppearance,engineSkinMesh,engineCasingSections,engineCasingCapacity,engineCasingFit,fitEngineCasing,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,SHIP_LIMITS,designLimitsFor,ensureSuperlaserExhaust,exhaustPortFor,meridianTrenches,slaserEnergyTT,EXHAUST_PORT_LABEL,swFireHeat,referencePhysicalProfileCurrent,canopyShape,setCanopyShape,canopyTriangles,canopyMountPosition,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,SOLID_CUT_POLY_MAX,solidCutDisplayTriangles,solidCutVolume,solidCutConvexOK,convexHullFaces,solidCutThinWalls,SOLID_THIN_WALL_M,compiledSolidCut,STRUCT_MESH_LIMITS,meshTopology,meshFaceTriangles,meshTriangles,MESH_IMPORT_UNITS,MESH_IMPORT_AXES,parseMeshFile,meshImportPart,simplifyMesh,ASSEMBLY_LIMITS,ASSEMBLY_MOUNTS,ASSEMBLY_ORIGINS,ASSEMBLY_CATEGORIES,assemblyLinks,assemblyCapture,normalizeAssemblyTemplate,assemblyPlace,placeRotationalCopies,placeLinearCopies,rotationalArray,linearArray,assemblyIssues,assemblyMirrorFit,assemblyPreview,solidCutWorld,solidCutLocal,solidCutFromLocal,solidCutLocalVerts,solidCutToPoly,normalizeStructMesh,meshStructTriangles,inMeshStruct,mirrorStructMesh,structToMesh,refitStructMesh,meshEditCheck,meshPlanarMoves,meshMoveVertices,meshSetVertex,meshLocalVolume,meshFacePlanar,meshAddEdge,meshRemoveEdge,meshSplitEdge,meshCollapseVertex,meshExtrudeFace,meshLocalTris,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,weaponPreviewStats,turretCompartment,turretCompartmentProjection,chargingStatus,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,FLIGHT_POWER_POLICY,shipCombatPowerDemand,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetWeaponPackets,combatAddWeapons,fleetFire,fleetReach,fleetStandoff,fleetStandoffJudge,fleetStandoffDistances,gunSpreadRange,RAM,fleetRamJudge,fleetRamStep,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,GUN_ACCURACY,gunDispersion,gunTargetEllipse,gunHitChance,gunScatter,TRENCH_BATTERY_ARC,NAV_MODEL,uncutRoomInside,settleUncutRooms,bombBayOpen,bombBayBox,convertCraftOrdnance,craftFixedGun,craftGunSink,craftGunSinkMax,craftGunMuzzle,craftMuzzleBlocked,COCKPIT_SEAT,cockpitSeatFits,normalizeCockpitSeat,migrateCockpitSeats,REACTANT_SUPPLY,REACTANT_BURN,reactorBurnEfficiency,reactantBurnEfficiency,reactantSupplyRatio,ratedReactorPower,AIM_MODEL,aimSpread,aimRate,aimAfter,aimMotion,aimFireControlRatio,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox,referenceEnginePoint,fitSpec,weaponSizing,weaponModelScale,CORVETTE_WEAPON_KEYS,VENATOR_SIDE_WEAPON_KEYS,TURRET_FAMILY_KEYS,LIGHT_TURRET_KEYS,CAPITAL_TURRET_KEYS,weaponWallOnly,weaponMountAllowed,authoredTurretGeometry,aimAuthoredTurret,authoredTurretAngles,aimAuthoredTurretAt,AUTHORED_TURRET_LIMITS,authoredTurretInArc,WEAPON_NOTES,referenceFitPoint,REFERENCE_ASSETS,decodeReference,referencePartPoint,referenceHullGeometry,refPartBounds,attachReferenceSkin,syncCompartments,isInternal,openingHalf,openingPlanes,clipOpening,ISD_PLANT,ISD_REACTOR_VOLUME,loftProfile,loftRing,fitRoomToEnvelope,insideOriginalEnvelope,clipPoly,triangulateFan,originalSurface,originalInHull:v3InHull,openingSurfacePoint,profileAt,roomShape,openingBounds,subtractBoxMesh,openingInterior,openBay,setRoomSize,partLabel,meshVolume,STRUCT_SHAPES,GROUPS,integratedEngine,nozzleShaftCapacity,propulsionOwners,engineOwner,engineMachineryPaths,enginePaths,engineTransmission,engineDriveRoutes,ENGINE_FEED_LOSS_PER_M,ENGINE_SHAFT_FLUX,ENGINE_TRANSMISSION_VERSION,allOccupied,reactorFor,isReactor,inRoute,inStruct,structTriangles,worldStruct,localStruct,frameAxis,windowFrame,windowBay,engineVented,mirrorPart,conflicts,overlapParts,volSamples,exposedSurface,COST_CATS,COST_K,COST_MODEL,COST_INSTALL,COST_MOUNT_INSTALL,costCategory,partBuildCost,fitBuildCost,costBreakdown,costSignature,costModelSignature,CRAFT_PRICE_CATALOG,craftCatalogPrice,quoteCostBOM,designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts, CRAFT_LASER_OUTPUT, CRAFT_LASER_OUTPUT_KT, WEAPON_PROFILE_VERSION, craftShotTT, craftArcsGunRate, craftLaserRate, airWingGunRate, fleetAirGun, FLEET_AIR_GUN_DEFAULT, converterPowerW, wingPowerK, converterShortfall, coolingDemandW, towHeatRelief, wingConverterM3, wingDischargeArea, wingDischargeW,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   loadedShipProfile, motionMassKg, missileRange, missileMaxRange, missileFlightLife, missileCellAmmo, missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, EXAMPLE_PROFILE_VERSION, profileModelKey, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher,isShipLauncher,shipLauncherConfig, launcherStateKey, isSurfaceVLS, launcherPitch, launcherGeometry,launcherRecessTriangles,launcherClearance, missileLauncherSpec, migrateLegacyConcussionVLS,
@@ -126015,7 +126322,7 @@ function craftLaserArcs(c){
  if(!BUILTIN_CRAFT.has(c))return [];
  const key=Object.keys(CRAFT).find(k=>CRAFT[k]===c),catalog=C.craftCatalogPrice(key);
  if(Array.isArray(catalog?.fireArcs)){
-  const arcs=C.cleanCraftFireArcs(catalog.fireArcs)||[];for(const a of arcs){for(const k of ['dir','up','pos'])if(Array.isArray(a[k]))Object.freeze(a[k]);Object.freeze(a);}return c.fireArcs=Object.freeze(arcs);
+  const ex=C.CRAFT_LASER_EXAMPLES?.['craft_'+key],arcs=(C.cleanCraftFireArcs(catalog.fireArcs)||[]).map(a=>ex?.[a.k]&&!(a.boreM>0)?{...a,boreM:ex[a.k][0],barrelM:ex[a.k][1]}:a)/* 2026-11-24 the example craft's measured barrels */;for(const a of arcs){for(const k of ['dir','up','pos'])if(Array.isArray(a[k]))Object.freeze(a[k]);Object.freeze(a);}return c.fireArcs=Object.freeze(arcs);
  }
  // A modeled stock craft needs its offline geometry snapshot. Missing or stale
  // data cannot trigger a synchronous factory build on the combat main thread.
@@ -126029,7 +126336,7 @@ function craftLaserArcs(c){
 function squadWeaponEnergy(s,target,seconds=C.CRAFT_HEAT.strafeS){
  const c=CRAFT[s?.craft],aim=squadArcAim(s,target),energy={gun:0,ion:0};if(!c||!aim||!(seconds>0)||!Number.isFinite(seconds))return energy;
  const emptyGas=c.systems?.managed&&s.laserGas===0;
- for(const a of craftLaserArcs(c)){const d=C.FITS[a.k];if(!d||d.retired||!(d.tt>0||d.ion>0)||d.store||emptyGas&&d.craft&&d.tt>0||!squadArcBears(s,target,a,aim))continue;const cycle=Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||C.CRAFT_FIRE.defaultCycle;energy.gun+=(d.tt>0?C.craftShotTT(d,cycle):0)*seconds/cycle;if(d.tt>0)energy.gunShots=(energy.gunShots||0)+seconds/cycle*Math.max(1,d.barrels||1);/* craftShotTT is a volley of all barrels */energy.ion+=(d.ion||0)*seconds/cycle;}
+ for(const a of craftLaserArcs(c)){const d=C.FITS[a.k];if(!d||d.retired||!(d.tt>0||d.ion>0)||d.store||emptyGas&&d.craft&&d.tt>0||!squadArcBears(s,target,a,aim))continue;const rule=d.outputClass?C.craftLaserRule({k:a.k,boreM:a.boreM,barrelM:a.barrelM,rateHz:a.rateHz}):null,cycle=rule?rule.cycle:Number.isFinite(a.cycle)&&a.cycle>0?a.cycle:d.cycle||C.CRAFT_FIRE.defaultCycle;energy.gun+=(d.tt>0?rule?rule.shotKt/1e9*Math.max(1,d.barrels||1):C.craftShotTT(d,cycle):0)*seconds/cycle;if(d.tt>0)energy.gunShots=(energy.gunShots||0)+seconds/cycle*Math.max(1,d.barrels||1);/* 2026-11-24 an aircraft laser by its own bore, barrel and rate *//* craftShotTT is a volley of all barrels */energy.ion+=(d.ion||0)*seconds/cycle;}
  // A geometry-only query is nominal. Once an allocation exists, the shared
  // laser/ion battery can emit only the useful energy its received watts fund.
  // This limits firing duty, leaving every catalogue projectile's yield intact.

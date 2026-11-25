@@ -1,0 +1,18 @@
+// Same-scale side views of the first barrel of each reshaped gun, main above the candidate, drawn from the decoded vertices
+// (outer radius against x; the ball's outline where the model records one). usage: node sideview.cjs <mainRoot> <candidateRoot> <out.png>
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const [mainRoot,candRoot,out]=process.argv.slice(2),IDS=['pd_twin_side_laser','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion','light_quad200','light_twin200','light_single200','light_twin200_fast'];
+function load(root){const cx=vm.createContext({console:{log(){},warn(){},error(){}}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});const C=vm.runInContext('Core',cx);
+ return id=>{const a=C.REFERENCE_ASSETS[id],d=C.decodeReference(id),b=a.barrelCenters[0],rings=new Map();for(let v=b.firstVertex;v<b.firstVertex+b.vertices;v++){const x=Math.round((a.c[0]+d.pos[v*3]*a.size[0])*1000)/1000,r=Math.hypot(a.c[1]+d.pos[v*3+1]*a.size[1]-b.root[1],a.c[2]+d.pos[v*3+2]*a.size[2]-b.root[2]);rings.set(x,Math.max(rings.get(x)||0,r));}
+  return {pts:[...rings].sort((p,q)=>p[0]-q[0]),ball:a.sphereRadiusM>0?{x:a.sphereCenterM[0],r:a.sphereRadiusM}:null,front:b._sourceFront??b.exposedStartX??b.root[0],muzzle:b.muzzle[0]};};}
+const M=load(mainRoot),K=load(candRoot),PX=22/* px per metre, the same for every drawing */,W=1400,rowH=150,pad=150;let y=30,svg='';
+const draw=(g,label,color,y0)=>{const x0=pad-(g.ball?(g.ball.x-g.ball.r)*PX:g.pts[0][0]*PX-20),X=x=>x0+x*PX;let s=`<text x="8" y="${y0+4}" font-size="13" fill="#222">${label}</text>`;
+ if(g.ball)s+=`<circle cx="${X(g.ball.x)}" cy="${y0}" r="${g.ball.r*PX}" fill="none" stroke="#999" stroke-dasharray="4 3"/>`;
+ const up=g.pts.map(p=>`${X(p[0]).toFixed(1)},${(y0-p[1]*PX).toFixed(1)}`),dn=g.pts.slice().reverse().map(p=>`${X(p[0]).toFixed(1)},${(y0+p[1]*PX).toFixed(1)}`);
+ s+=`<polygon points="${up.concat(dn).join(' ')}" fill="${color}" fill-opacity=".55" stroke="${color}"/>`;
+ s+=`<line x1="${X(g.front)}" y1="${y0-28}" x2="${X(g.front)}" y2="${y0+28}" stroke="#c33" stroke-width="1"/><line x1="${X(g.muzzle)}" y1="${y0-28}" x2="${X(g.muzzle)}" y2="${y0+28}" stroke="#36c" stroke-width="1"/>`;
+ s+=`<text x="${X(g.muzzle)+6}" y="${y0+4}" font-size="12" fill="#36c">muzzle ${g.muzzle.toFixed(2)} m${g.ball?`, past the outline ${(g.muzzle-g.ball.x-g.ball.r).toFixed(2)} m = ${((g.muzzle-g.ball.x-g.ball.r)/(2*g.ball.r)).toFixed(3)} x diameter`:''}</text>`;return s;};
+for(const id of IDS){const a=M(id),b=K(id),h=Math.max(rowH,(a.ball?a.ball.r*2*PX+30:0));svg+=`<text x="8" y="${y}" font-size="15" font-weight="bold" fill="#000">${id}</text>`;svg+=draw(a,'main',"#777",y+h/2+6);svg+=draw(b,'candidate',"#d80",y+h/2+6+Math.max(70,(a.ball?a.ball.r*2*PX+20:70)));y+=h+Math.max(90,(a.ball?a.ball.r*2*PX+40:90))+20;}
+svg+=`<line x1="8" y1="${y}" x2="${8+PX*5}" y2="${y}" stroke="#000" stroke-width="2"/><text x="8" y="${y-6}" font-size="12">5 m (every drawing at ${PX} px/m); red: where the barrel leaves its housing in the model (exposedStartX); blue: muzzle; dashed: the ball's outline</text>`;y+=30;
+const html=`<html><body style="margin:0;background:#fff"><svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${y}" font-family="sans-serif">${svg}</svg></body></html>`;
+(async()=>{const {chromium}=require('playwright'),br=await chromium.launch({args:['--no-sandbox']}),pg=await br.newPage({viewport:{width:W,height:Math.min(y,16000)},deviceScaleFactor:1});await pg.setContent(html);await pg.screenshot({path:out,fullPage:true});await br.close();console.log('wrote',out,W,y);})();

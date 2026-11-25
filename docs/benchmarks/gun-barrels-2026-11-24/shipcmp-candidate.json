@@ -1,0 +1,2292 @@
+{
+ "acclamator": {
+  "name": "アクラメイター級",
+  "parts": 74,
+  "fits": 28,
+  "guns": 28,
+  "kinds": {
+   "quad200": 12,
+   "shipMsl": 4,
+   "pd": 12
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 2682009.8054406727,
+  "power": 1.49999989529946e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    192.69,
+    59.34,
+    -200.55
+   ],
+   [
+    666.24,
+    67.21,
+    200.55
+   ]
+  ],
+  "feed": {
+   "n": 12,
+   "required": 600,
+   "volume": 600,
+   "short": 0
+  },
+  "warnings": [
+   "warn:戦闘負荷で廃熱 3.36e23 W に対し変換 2.41e23 W、不足 9.53e22 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 36,956 m³ 追加すると解"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 7
+ },
+ "arquitens": {
+  "name": "アークワイテンス級",
+  "parts": 112,
+  "fits": 17,
+  "guns": 17,
+  "kinds": {
+   "quad500": 4,
+   "pd": 8,
+   "shipMsl": 4,
+   "trc": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 490954.98551297956,
+  "power": 5.041775721820583e+22,
+  "accel": null,
+  "gunBox": [
+   [
+    132.57,
+    1.55,
+    -34.33
+   ],
+   [
+    303.3,
+    41.38,
+    34.33
+   ]
+  ],
+  "feed": {
+   "n": 4,
+   "required": 200,
+   "volume": 200,
+   "short": 0
+  },
+  "warnings": [
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 86%）。",
+   "warn:シールドが目標強度の 86% です。発生器の容量と給電を確認してください。",
+   "info:最大出力で廃熱 2.21e22 W に対し変換 5.32e21 W、不足 1.68e22 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 6,507 m³ 追加すると解消"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 13
+ },
+ "bc": {
+  "name": "巡洋戦艦",
+  "parts": 12,
+  "fits": 39,
+  "guns": 38,
+  "kinds": {
+   "utl": 8,
+   "stl": 18,
+   "pd": 12
+  },
+  "interference": 11,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 389837242.3040352,
+  "power": 0,
+  "accel": null,
+  "gunBox": [
+   [
+    434.55,
+    -20.43,
+    -677.19
+   ],
+   [
+    2280.15,
+    405.04,
+    677.19
+   ]
+  ],
+  "feed": {
+   "n": 26,
+   "required": 356400,
+   "volume": 356400,
+   "short": 0
+  },
+  "warnings": [
+   "bad:どのエンジンも噴射口が船内に埋まっています。後端を船外に出してください。",
+   "warn:重なり合っている区画があります（11 区画）。",
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "warn:シールド発生器がありません。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:ジェネレーターの表面の 14% が露出しています。構造物で覆うか集中防御で守れます。",
+   "bad:自動推進機関と 4 区画が干渉しています。重複区画は稼働しません。",
+   "bad:反応物供給能力 0%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。",
+   "warn:慣性制御装置の対応質量が不足しています。",
+   "warn:構造維持装置の対応質量が不足しています。",
+   "warn:船内の空き容積から武装の配電路 0 m³ を除いた居住容積に乗れるのは 146,514 名（1名あたり 3,997 m³）で、必要な乗員 248,807 名（うち武装 2,112 "
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 2
+ },
+ "carrier": {
+  "name": "打撃キャリア",
+  "parts": 64,
+  "fits": 27,
+  "guns": 26,
+  "kinds": {
+   "refVen": 6,
+   "pd": 20
+  },
+  "interference": 6,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 13385287.416301792,
+  "power": 0,
+  "accel": null,
+  "gunBox": [
+   [
+    212.18,
+    10.43,
+    -193.17
+   ],
+   [
+    870.6,
+    110,
+    193.17
+   ]
+  ],
+  "feed": {
+   "n": 6,
+   "required": 16800,
+   "volume": 16800,
+   "short": 0
+  },
+  "warnings": [
+   "warn:噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "warn:重なり合っている区画があります（6 区画）。",
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "warn:シールド発生器がありません。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "bad:自動推進機関と 3 区画が干渉しています。重複区画は稼働しません。",
+   "bad:反応物供給能力 0%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。",
+   "warn:慣性制御装置の対応質量が不足しています。",
+   "warn:構造維持装置の対応質量が不足しています。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 2
+ },
+ "cr90": {
+  "name": "CR-90",
+  "parts": 53,
+  "fits": 6,
+  "guns": 6,
+  "kinds": {
+   "single6MT": 4,
+   "twin500MT": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 53266.33303727299,
+  "power": 1.277054338601343e+22,
+  "accel": null,
+  "gunBox": [
+   [
+    93.69,
+    0.78,
+    -13.91
+   ],
+   [
+    125.3,
+    28.47,
+    13.99
+   ]
+  ],
+  "feed": {
+   "n": 6,
+   "required": 300,
+   "volume": 300,
+   "short": 0
+  },
+  "warnings": [
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 89%）。",
+   "warn:シールドが目標強度の 89% です。発生器の容量と給電を確認してください。",
+   "info:最大出力で廃熱 5.55e21 W に対し変換 1.83e21 W、不足 3.72e21 W（最短 0 秒 で出力制限）。熱エネルギー変換装置を約 1,443 m³ 追加すると解消"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 6
+ },
+ "craft_arc170": {
+  "name": "ARC-170 Starfighter",
+  "parts": 136,
+  "fits": 6,
+  "guns": 6,
+  "kinds": {
+   "claser": 2,
+   "claserL": 2,
+   "ctorp": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 46.34648859791149,
+  "power": 6222493118042805000,
+  "accel": null,
+  "gunBox": [
+   [
+    1.06,
+    0.11,
+    -9.69
+   ],
+   [
+    10.46,
+    3.49,
+    9.69
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 14
+ },
+ "craft_awing": {
+  "name": "RZ-1 Aウィング",
+  "parts": 96,
+  "fits": 6,
+  "guns": 6,
+  "kinds": {
+   "claserL": 2,
+   "cmsl": 4
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 13.596288025401284,
+  "power": 1303427790620720600,
+  "accel": null,
+  "gunBox": [
+   [
+    2.48,
+    0.52,
+    -2.49
+   ],
+   [
+    5.36,
+    1.19,
+    2.49
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 4
+ },
+ "craft_btlb": {
+  "name": "BTL-B Y-wing",
+  "parts": 138,
+  "fits": 4,
+  "guns": 4,
+  "kinds": {
+   "claser": 2,
+   "ctorp": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 75.90571081299333,
+  "power": 8779600162331654000,
+  "accel": null,
+  "gunBox": [
+   [
+    16.3,
+    0.07,
+    -0.64
+   ],
+   [
+    23.45,
+    1.6,
+    0.64
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 16
+ },
+ "craft_hyena": {
+  "name": "ハイエナ級ドロイド爆撃機",
+  "parts": 85,
+  "fits": 8,
+  "guns": 8,
+  "kinds": {
+   "claserL": 4,
+   "ctorp": 2,
+   "cmsl": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 27.27870901447122,
+  "power": 1364844606665076200,
+  "accel": null,
+  "gunBox": [
+   [
+    7.3,
+    1.07,
+    -4.6
+   ],
+   [
+    10.54,
+    2.46,
+    4.6
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 6
+ },
+ "craft_tie_d": {
+  "name": "TIE/D",
+  "parts": 85,
+  "fits": 10,
+  "guns": 10,
+  "kinds": {
+   "claser": 8,
+   "cmsl": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 25.607991103957147,
+  "power": 3413979088587090000,
+  "accel": null,
+  "gunBox": [
+   [
+    3.17,
+    2.19,
+    -3.63
+   ],
+   [
+    9.2,
+    8.53,
+    3.63
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 7
+ },
+ "craft_tie_in": {
+  "name": "TIE/in インターセプター",
+  "parts": 74,
+  "fits": 7,
+  "guns": 7,
+  "kinds": {
+   "claser": 6,
+   "ctorp": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 19.900987254147942,
+  "power": 2065254397952084200,
+  "accel": null,
+  "gunBox": [
+   [
+    1.9,
+    1.92,
+    -3.97
+   ],
+   [
+    9.6,
+    4.82,
+    3.97
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+   "info:ハイパードライブがありません（星系内専用艦）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 4
+ },
+ "craft_tie_ln": {
+  "name": "TIE/ln 制宙戦闘機",
+  "parts": 62,
+  "fits": 3,
+  "guns": 3,
+  "kinds": {
+   "claser": 2,
+   "ctorp": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 15.179928406921043,
+  "power": 1364516437052976000,
+  "accel": null,
+  "gunBox": [
+   [
+    1.9,
+    1.92,
+    -0.75
+   ],
+   [
+    4.32,
+    2.74,
+    0.75
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+   "info:ハイパードライブがありません（星系内専用艦）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 4
+ },
+ "craft_tie_sa": {
+  "name": "TIE/sa Bomber",
+  "parts": 132,
+  "fits": 3,
+  "guns": 3,
+  "kinds": {
+   "claser": 2,
+   "ctorp": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 42.98143709649733,
+  "power": 3468953411477502500,
+  "accel": null,
+  "gunBox": [
+   [
+    1.28,
+    -0.24,
+    -1.49
+   ],
+   [
+    3.7,
+    0.5,
+    2.21
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+   "info:宇宙服で生命を維持する乗員が 1 名います（無補給 4 時間）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 15
+ },
+ "craft_v19": {
+  "name": "V-19 トレント迎撃戦闘機",
+  "parts": 87,
+  "fits": 4,
+  "guns": 4,
+  "kinds": {
+   "claser": 2,
+   "cmsl": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 18.963012988676383,
+  "power": 2584996906495322600,
+  "accel": null,
+  "gunBox": [
+   [
+    3.02,
+    -2.26,
+    -6.46
+   ],
+   [
+    5.91,
+    1.21,
+    6.46
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+   "info:リパルサーリフトの支持質量が不足しています（17.7 t／機体 18.7 t）。地上で脚による支持ができません。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 6
+ },
+ "craft_vulture": {
+  "name": "ヴァルチャー級ドロイド・スターファイター",
+  "parts": 76,
+  "fits": 7,
+  "guns": 7,
+  "kinds": {
+   "claserL": 4,
+   "ctorp": 2,
+   "cmsl": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 10.536386385135456,
+  "power": 1015343017083278800,
+  "accel": null,
+  "gunBox": [
+   [
+    2.3,
+    0.4,
+    -1.94
+   ],
+   [
+    7.34,
+    1.37,
+    1.94
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:シールド発生器がありません（TIE のように機動と数で補う機体もあります）。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 5
+ },
+ "craft_vwing": {
+  "name": "アルファ3 ニンバス級 Vウイング",
+  "parts": 81,
+  "fits": 2,
+  "guns": 2,
+  "kinds": {
+   "cturret": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 12.901266904131704,
+  "power": 2262427443900434400,
+  "accel": null,
+  "gunBox": [
+   [
+    1.59,
+    -0.1,
+    -2.46
+   ],
+   [
+    3.12,
+    1.2,
+    2.46
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。",
+   "info:リパルサーリフトの支持質量が不足しています（12.4 t／機体 12.9 t）。地上で脚による支持ができません。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 6
+ },
+ "craft_xwing": {
+  "name": "T-65B Xウイング",
+  "parts": 143,
+  "fits": 6,
+  "guns": 6,
+  "kinds": {
+   "claser": 4,
+   "ctorp": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 34.31182856996711,
+  "power": 2600959974835937000,
+  "accel": null,
+  "gunBox": [
+   [
+    6.3,
+    -0.14,
+    -5.61
+   ],
+   [
+    9.55,
+    3.8,
+    5.61
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 5
+ },
+ "craft_ywing": {
+  "name": "BTL-A4 Y-wing (Rebel Alliance)",
+  "parts": 152,
+  "fits": 4,
+  "guns": 4,
+  "kinds": {
+   "claser": 2,
+   "ctorp": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 56.32216063230404,
+  "power": 6954950566995398000,
+  "accel": null,
+  "gunBox": [
+   [
+    16.3,
+    0.07,
+    -0.64
+   ],
+   [
+    23.45,
+    1.6,
+    0.64
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 18
+ },
+ "craft_z95": {
+  "name": "クローン Z-95 ヘッドハンター",
+  "parts": 90,
+  "fits": 4,
+  "guns": 4,
+  "kinds": {
+   "claser": 2,
+   "cmsl": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 28.705242571857323,
+  "power": 4954306485338557000,
+  "accel": null,
+  "gunBox": [
+   [
+    4,
+    0,
+    -8.09
+   ],
+   [
+    5.75,
+    1.21,
+    8.09
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 4
+ },
+ "deathstar": {
+  "name": "デス・スター",
+  "parts": 164,
+  "fits": 276,
+  "guns": 276,
+  "kinds": {
+   "utl": 138,
+   "pd": 138
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 1092606963425082.4,
+  "power": 3.381994842131097e+32,
+  "accel": null,
+  "gunBox": [
+   [
+    7116.4,
+    1790.37,
+    -72942.02
+   ],
+   [
+    152881.74,
+    158209.64,
+    72942.02
+   ]
+  ],
+  "feed": {
+   "n": 138,
+   "required": 3974400,
+   "volume": 3974400,
+   "short": 0
+  },
+  "warnings": [
+   "info:主射界に指向できる火力が 41% です。支持台を高くするか舷側に寄せると射界が開けます。",
+   "warn:自動化装置が持ち場 142,725,669,900 名分（全持ち場 150,237,547,264 名の 95%）を受け持ち、電力 8.1×10³⁰ W を常に使っています。装置の",
+   "warn:戦闘負荷で熱エネルギー変換装置への給電が 5.99e29 W 不足し、その分の熱を変換できません。",
+   "warn:自由多面体 #1 は閉じていません（開いた辺 19663 本）。容積・質量は近似値です。",
+   "warn:自由多面体 #2 は閉じていません（開いた辺 19847 本）。容積・質量は近似値です。",
+   "warn:自由多面体 #3 は閉じていません（開いた辺 6 本）。容積・質量は近似値です。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 80
+ },
+ "destroyer": {
+  "name": "軽デストロイヤー",
+  "parts": 32,
+  "fits": 27,
+  "guns": 26,
+  "kinds": {
+   "refVen": 10,
+   "quad200": 8,
+   "pd": 8
+  },
+  "interference": 2,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 16006527.202225585,
+  "power": 0,
+  "accel": null,
+  "gunBox": [
+   [
+    196.98,
+    14.69,
+    -214.09
+   ],
+   [
+    810.02,
+    151.62,
+    214.09
+   ]
+  ],
+  "feed": {
+   "n": 18,
+   "required": 28400,
+   "volume": 28400,
+   "short": 0
+  },
+  "warnings": [
+   "warn:噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "warn:重なり合っている区画があります（2 区画）。",
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "warn:シールドが目標強度の 0% です。発生器の容量と給電を確認してください。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:ジェネレーターの表面の 19% が露出しています。構造物で覆うか集中防御で守れます。",
+   "warn:ハッチに通じていない航空区画があります。",
+   "bad:自動推進機関と 1 区画が干渉しています。重複区画は稼働しません。",
+   "bad:反応物供給能力 0%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。",
+   "warn:慣性制御装置の対応質量が不足しています。",
+   "warn:構造維持装置の対応質量が不足しています。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 2
+ },
+ "dreadnaught": {
+  "name": "ドレッドノート級",
+  "parts": 75,
+  "fits": 40,
+  "guns": 40,
+  "kinds": {
+   "monCal34": 10,
+   "monCalPD": 20,
+   "single6MT": 10
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 1575568.2562440205,
+  "power": 3.325807442303026e+23,
+  "accel": null,
+  "gunBox": [
+   [
+    50.92,
+    2.66,
+    -46.13
+   ],
+   [
+    559.72,
+    88.84,
+    46.13
+   ]
+  ],
+  "feed": {
+   "n": 20,
+   "required": 7300,
+   "volume": 7300,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 8%。余剰電力に応じて再充電します。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 12
+ },
+ "executor": {
+  "name": "エグゼクター級",
+  "parts": 120,
+  "fits": 2045,
+  "guns": 2044,
+  "kinds": {
+   "trc": 2000,
+   "pd": 14,
+   "quad70Side": 14,
+   "triple40": 14,
+   "oct40": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 10117902050.707514,
+  "power": 1.9999999999999998e+27,
+  "accel": null,
+  "gunBox": [
+   [
+    3545.1,
+    237.66,
+    -2260.73
+   ],
+   [
+    12958.8,
+    1300.03,
+    2271.3
+   ]
+  ],
+  "feed": {
+   "n": 30,
+   "required": 16800000,
+   "volume": 16499248.4,
+   "short": 2
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 20%。余剰電力に応じて再充電します。",
+   "info:主射界に指向できる火力が 43% です。支持台を高くするか舷側に寄せると射界が開けます。",
+   "warn:主砲充電装置 2 基の必要容積を確保できません。自動統合の範囲内に空間を空けるか、構造を追加してください。",
+   "warn:自動化装置が持ち場 6,748,359 名分（全持ち場 7,103,536 名の 95%）を受け持ち、電力 3.6×10²⁶ W を常に使っています。装置の損傷・炉の出力低下・イオ",
+   "info:最大出力で廃熱 5.69e26 W に対し変換 3.45e26 W、不足 2.25e26 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 87,097,445 m³ 追加",
+   "warn:戦闘負荷で熱エネルギー変換装置への給電が 1.41e24 W 不足し、その分の熱を変換できません。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 39
+ },
+ "frigate": {
+  "name": "哨戒艦",
+  "parts": 9,
+  "fits": 10,
+  "guns": 9,
+  "kinds": {
+   "pd": 9
+  },
+  "interference": 2,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 706678.0640975283,
+  "power": 0,
+  "accel": null,
+  "gunBox": [
+   [
+    77.6,
+    29.18,
+    -49.12
+   ],
+   [
+    246.6,
+    76.12,
+    49.12
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "warn:噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "warn:重なり合っている区画があります（2 区画）。",
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "warn:シールドが目標強度の 0% です。発生器の容量と給電を確認してください。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "bad:自動推進機関と 1 区画が干渉しています。重複区画は稼働しません。",
+   "bad:反応物供給能力 0%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。",
+   "warn:慣性制御装置の対応質量が不足しています。",
+   "warn:構造維持装置の対応質量が不足しています。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 1
+ },
+ "gozanti": {
+  "name": "ゴザンティ級",
+  "parts": 58,
+  "fits": 2,
+  "guns": 2,
+  "kinds": {
+   "pd": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 5734.291582337093,
+  "power": 1.0702701368713591e+21,
+  "accel": null,
+  "gunBox": [
+   [
+    12.95,
+    -2.72,
+    -2.72
+   ],
+   [
+    22,
+    14.52,
+    2.55
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 81%）。",
+   "warn:シールドが目標強度の 81% です。発生器の容量と給電を確認してください。",
+   "warn:戦闘負荷で廃熱 6.52e20 W に対し変換 6.16e20 W、不足 3.69e19 W（最短 3 秒 で出力制限）。熱エネルギー変換装置を約 15 m³ 追加すると解消します"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 5
+ },
+ "gr75": {
+  "name": "GR-75",
+  "parts": 77,
+  "fits": 2,
+  "guns": 2,
+  "kinds": {
+   "cturret": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 12833.132548828373,
+  "power": 2.7420887312492554e+21,
+  "accel": null,
+  "gunBox": [
+   [
+    78.12,
+    6.96,
+    -8.41
+   ],
+   [
+    79.7,
+    7.66,
+    8.41
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 69%）。",
+   "warn:シールドが目標強度の 31% です。発生器の容量と給電を確認してください。",
+   "warn:無窓式指揮室 #70 は外殻内の容積が不足しています（有効 79%）。",
+   "warn:戦闘負荷で廃熱 1.32e21 W に対し変換 1.22e21 W、不足 1.02e20 W（最短 3 秒 で出力制限）。熱エネルギー変換装置を約 40 m³ 追加すると解消します"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 8
+ },
+ "hammerhead": {
+  "name": "スフィルナ級",
+  "parts": 28,
+  "fits": 3,
+  "guns": 3,
+  "kinds": {
+   "twin6MT": 2,
+   "sphyrnaTwin500MT": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 49784.82410047851,
+  "power": 7.524291478547955e+21,
+  "accel": null,
+  "gunBox": [
+   [
+    29.1,
+    20.63,
+    -6.94
+   ],
+   [
+    106.11,
+    36.68,
+    6.94
+   ]
+  ],
+  "feed": {
+   "n": 1,
+   "required": 50,
+   "volume": 50,
+   "short": 0
+  },
+  "warnings": [
+   "warn:戦闘負荷で廃熱 2.20e21 W に対し変換 1.13e21 W、不足 1.07e21 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 416 m³ 追加すると解消しま"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 6
+ },
+ "heavy": {
+  "name": "重デストロイヤー",
+  "parts": 37,
+  "fits": 35,
+  "guns": 34,
+  "kinds": {
+   "stl": 12,
+   "quad200": 10,
+   "ion": 2,
+   "pd": 10
+  },
+  "interference": 6,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 63400310.15397951,
+  "power": 0,
+  "accel": null,
+  "gunBox": [
+   [
+    197.75,
+    19.53,
+    -350.85
+   ],
+   [
+    1292.03,
+    211.03,
+    350.85
+   ]
+  ],
+  "feed": {
+   "n": 24,
+   "required": 98500,
+   "volume": 98500,
+   "short": 0
+  },
+  "warnings": [
+   "warn:噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "warn:重なり合っている区画があります（6 区画）。",
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "warn:シールド発生器がありません。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:ジェネレーターの表面の 27% が露出しています。構造物で覆うか集中防御で守れます。",
+   "warn:ハッチに通じていない航空区画があります。",
+   "bad:自動推進機関と 3 区画が干渉しています。重複区画は稼働しません。",
+   "bad:反応物供給能力 0%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。",
+   "warn:慣性制御装置の対応質量が不足しています。",
+   "warn:構造維持装置の対応質量が不足しています。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 3
+ },
+ "heraklon": {
+  "name": "ヘラクロン級",
+  "parts": 69,
+  "fits": 0,
+  "guns": 0,
+  "kinds": {},
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 235524.24117594957,
+  "power": 3.1652412832426855e+22,
+  "accel": null,
+  "gunBox": [
+   [
+    null,
+    null,
+    null
+   ],
+   [
+    null,
+    null,
+    null
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 90%）。",
+   "warn:シールドが目標強度の 90% です。発生器の容量と給電を確認してください。",
+   "warn:戦闘負荷で廃熱 1.36e22 W に対し変換 8.65e21 W、不足 4.90e21 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 1,903 m³ 追加すると解消"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 3
+ },
+ "imperial": {
+  "name": "インペリアルI級",
+  "parts": 180,
+  "fits": 50,
+  "guns": 49,
+  "kinds": {
+   "ion": 2,
+   "stl": 6,
+   "triple40": 9,
+   "pd": 20,
+   "trc": 10,
+   "quad70Side": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 52106228.382814355,
+  "power": 1e+25,
+  "accel": null,
+  "gunBox": [
+   [
+    257.6,
+    64.48,
+    -388.9
+   ],
+   [
+    1591.46,
+    247.02,
+    388.9
+   ]
+  ],
+  "feed": {
+   "n": 19,
+   "required": 200800,
+   "volume": 200800,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 26%。余剰電力に応じて再充電します。",
+   "warn:航行・艦隊指揮区画 #723 は外殻内の容積が不足しています（有効 94%）。",
+   "info:最大出力で廃熱 1.70e24 W に対し変換 1.25e24 W、不足 4.47e23 W（最短 3 秒 で出力制限）。熱エネルギー変換装置を約 173,234 m³ 追加すると",
+   "warn:戦闘負荷で熱エネルギー変換装置への給電が 1.91e21 W 不足し、その分の熱を変換できません。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 81
+ },
+ "imperial2": {
+  "name": "インペリアルII級",
+  "parts": 172,
+  "fits": 50,
+  "guns": 49,
+  "kinds": {
+   "oct40": 8,
+   "triple40": 9,
+   "pd": 20,
+   "trc": 10,
+   "quad70Side": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 51970204.33393053,
+  "power": 1e+25,
+  "accel": null,
+  "gunBox": [
+   [
+    257.6,
+    64.48,
+    -388.9
+   ],
+   [
+    1591.46,
+    247.02,
+    388.9
+   ]
+  ],
+  "feed": {
+   "n": 19,
+   "required": 186400,
+   "volume": 186400,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 24%。余剰電力に応じて再充電します。",
+   "warn:航行・艦隊指揮区画 #723 は外殻内の容積が不足しています（有効 94%）。",
+   "info:最大出力で廃熱 1.68e24 W に対し変換 1.25e24 W、不足 4.29e23 W（最短 3 秒 で出力制限）。熱エネルギー変換装置を約 166,473 m³ 追加すると",
+   "warn:戦闘負荷で熱エネルギー変換装置への給電が 1.65e21 W 不足し、その分の熱を変換できません。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 77
+ },
+ "lh3210": {
+  "name": "LH-3210",
+  "parts": 237,
+  "fits": 8,
+  "guns": 6,
+  "kinds": {
+   "trc": 6
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 567628710.0245004,
+  "power": 5e+25,
+  "accel": null,
+  "gunBox": [
+   [
+    1561.9,
+    461.2,
+    -757.4
+   ],
+   [
+    1619.5,
+    478.8,
+    758.14
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "info:最大出力で廃熱 1.42e25 W に対し変換 1.30e25 W、不足 1.20e24 W（最短 11 秒 で出力制限）。熱エネルギー変換装置を約 465,702 m³ 追加する"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 25
+ },
+ "lucrehulk": {
+  "name": "ルクレハルク級",
+  "parts": 237,
+  "fits": 54,
+  "guns": 52,
+  "kinds": {
+   "quad1Rapid": 14,
+   "monCal34": 28,
+   "monCalPD": 4,
+   "trc": 6
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 573698570.0579965,
+  "power": 5e+25,
+  "accel": null,
+  "gunBox": [
+   [
+    -1042.62,
+    408.6,
+    -1395.98
+   ],
+   [
+    1619.5,
+    678.1,
+    1395.93
+   ]
+  ],
+  "feed": {
+   "n": 42,
+   "required": 20160,
+   "volume": 20160,
+   "short": 0
+  },
+  "warnings": [
+   "info:主射界に指向できる火力が 42% です。支持台を高くするか舷側に寄せると射界が開けます。",
+   "info:最大出力で廃熱 1.47e25 W に対し変換 1.30e25 W、不足 1.63e24 W（最短 8 秒 で出力制限）。熱エネルギー変換装置を約 630,807 m³ 追加すると"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 27
+ },
+ "mandator2": {
+  "name": "マンデイターII級",
+  "parts": 434,
+  "fits": 194,
+  "guns": 194,
+  "kinds": {
+   "utl": 61,
+   "quad175": 48,
+   "ball175QuadIon": 16,
+   "pd": 63,
+   "shipMsl": 6
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 2029223683.519566,
+  "power": 7.699999757945096e+26,
+  "accel": null,
+  "gunBox": [
+   [
+    298.65,
+    199.52,
+    -1408.52
+   ],
+   [
+    7899.83,
+    976.99,
+    1408.52
+   ]
+  ],
+  "feed": {
+   "n": 125,
+   "required": 2652800,
+   "volume": 2652800,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 68%。余剰電力に応じて再充電します。",
+   "info:ジェネレーターの表面の 2% が露出しています。構造物で覆うか集中防御で守れます。",
+   "warn:自動化装置が持ち場 874,146 名分（全持ち場 920,155 名の 95%）を受け持ち、電力 4.8×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で",
+   "warn:戦闘負荷で廃熱 1.58e26 W に対し変換 8.40e25 W、不足 7.43e25 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 28,819,050 m³ 追加"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 477
+ },
+ "mc30c": {
+  "name": "MC-30C",
+  "parts": 116,
+  "fits": 34,
+  "guns": 34,
+  "kinds": {
+   "shipMsl": 8,
+   "monCalPD": 10,
+   "single500": 16
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 207599.2778088489,
+  "power": 4.9667453189117754e+22,
+  "accel": null,
+  "gunBox": [
+   [
+    196.2,
+    -0.02,
+    -32.14
+   ],
+   [
+    367.24,
+    35.4,
+    32.14
+   ]
+  ],
+  "feed": {
+   "n": 16,
+   "required": 800,
+   "volume": 800,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 11%。余剰電力に応じて再充電します。",
+   "info:最大出力で廃熱 1.71e22 W に対し変換 6.32e21 W、不足 1.08e22 W（最短 0 秒 で出力制限）。熱エネルギー変換装置を約 4,176 m³ 追加すると解消"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 10
+ },
+ "mc75": {
+  "name": "MC-75",
+  "parts": 51,
+  "fits": 66,
+  "guns": 66,
+  "kinds": {
+   "monCal34": 12,
+   "monCal150Ion": 16,
+   "shipMsl": 12,
+   "trc": 6,
+   "monCalPD": 20
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 8777874.284679562,
+  "power": 2.3726964740852054e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    118.2,
+    205.18,
+    -119.92
+   ],
+   [
+    1117,
+    329.12,
+    119.92
+   ]
+  ],
+  "feed": {
+   "n": 28,
+   "required": 56160,
+   "volume": 56160,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 43%。余剰電力に応じて再充電します。",
+   "info:最大出力で廃熱 5.00e23 W に対し変換 2.32e23 W、不足 2.68e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 103,901 m³ 追加すると"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 5
+ },
+ "mc80home": {
+  "name": "MC-80A",
+  "parts": 90,
+  "fits": 107,
+  "guns": 106,
+  "kinds": {
+   "monCalPD": 56,
+   "monCal80": 12,
+   "monCal34": 28,
+   "monCal150Ion": 4,
+   "trc": 6
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 12977820.134426123,
+  "power": 4.74602911275606e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    136.32,
+    6.49,
+    -137.05
+   ],
+   [
+    1253.78,
+    186.69,
+    143.89
+   ]
+  ],
+  "feed": {
+   "n": 44,
+   "required": 50240,
+   "volume": 50240,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 21%。余剰電力に応じて再充電します。",
+   "info:最大出力で廃熱 1.05e24 W に対し変換 6.32e23 W、不足 4.15e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 161,105 m³ 追加すると"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 28
+ },
+ "mc80liberty": {
+  "name": "MC-80",
+  "parts": 112,
+  "fits": 106,
+  "guns": 106,
+  "kinds": {
+   "monCalPD": 88,
+   "monCal200Triple": 4,
+   "monCal200": 4,
+   "monCal150Ion": 4,
+   "trc": 6
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 11578488.485866172,
+  "power": 2.5681086854289524e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    51.73,
+    5.9,
+    -263.9
+   ],
+   [
+    1134.23,
+    136.76,
+    259.84
+   ]
+  ],
+  "feed": {
+   "n": 12,
+   "required": 76000,
+   "volume": 76000,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 5%。余剰電力に応じて再充電します。",
+   "info:最大出力で廃熱 6.45e23 W に対し変換 2.69e23 W、不足 3.76e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 145,758 m³ 追加すると"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 72
+ },
+ "munificent": {
+  "name": "ミュニフィセント級",
+  "parts": 262,
+  "fits": 79,
+  "guns": 77,
+  "kinds": {
+   "munBow": 1,
+   "munTwin": 18,
+   "pd": 58
+  },
+  "interference": 0,
+  "loose": 2,
+  "looseFits": 0,
+  "mass": 5350856.902223749,
+  "power": 1.3431935320739267e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    185.6,
+    17.45,
+    -77.12
+   ],
+   [
+    710.93,
+    185.69,
+    77.12
+   ]
+  ],
+  "feed": {
+   "n": 19,
+   "required": 100900,
+   "volume": 100900,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 2%。余剰電力に応じて再充電します。",
+   "info:ジェネレーターの表面の 33% が露出しています。構造物で覆うか集中防御で守れます。",
+   "warn:航行・艦隊指揮区画 #62 は外殻内の容積が不足しています（有効 60%）。",
+   "info:最大出力で廃熱 4.54e23 W に対し変換 3.45e23 W、不足 1.10e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 42,627 m³ 追加すると解"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 45
+ },
+ "nebulonb": {
+  "name": "ネビュロン-B",
+  "parts": 80,
+  "fits": 10,
+  "guns": 10,
+  "kinds": {
+   "twin200": 3,
+   "pd": 5,
+   "trc": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 226784.8079490567,
+  "power": 3.79066346207897e+22,
+  "accel": null,
+  "gunBox": [
+   [
+    11.6,
+    52.8,
+    -17.55
+   ],
+   [
+    294.8,
+    131.5,
+    17.55
+   ]
+  ],
+  "feed": {
+   "n": 3,
+   "required": 150,
+   "volume": 150,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 5%。余剰電力に応じて再充電します。",
+   "info:最大出力で廃熱 2.42e22 W に対し変換 1.93e22 W、不足 4.92e21 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 1,911 m³ 追加すると解消"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 19
+ },
+ "onager": {
+  "name": "オナガー級",
+  "parts": 89,
+  "fits": 54,
+  "guns": 54,
+  "kinds": {
+   "triple40": 8,
+   "quad200": 16,
+   "pd": 30
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 19108595.805573013,
+  "power": 3.600000033762754e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    357.6,
+    32.88,
+    -362.55
+   ],
+   [
+    1226.6,
+    101.77,
+    362.55
+   ]
+  ],
+  "feed": {
+   "n": 24,
+   "required": 20000,
+   "volume": 20000,
+   "short": 0
+  },
+  "warnings": [
+   "warn:噴射口が塞がったエンジンがあります（推力に寄与しません）。",
+   "info:兵装の充電速度は機械的な最大連射の 45%。余剰電力に応じて再充電します。",
+   "warn:艦内高エネルギー散逸区画 9 #146 の自動統合後の容積が不足しています（8%）。近くの空間を空けるか構造を追加してください。",
+   "warn:艦内高エネルギー散逸区画 9 #163 の自動統合後の容積が不足しています（2%）。近くの空間を空けるか構造を追加してください。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 14
+ },
+ "providence": {
+  "name": "プロヴィデンス級",
+  "parts": 118,
+  "fits": 113,
+  "guns": 110,
+  "kinds": {
+   "monCal200Triple": 14,
+   "monCalPD": 58,
+   "shipMsl": 34,
+   "trc": 4
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 8448549.475461137,
+  "power": 3.1248042471896667e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    278.2,
+    67.03,
+    -86.19
+   ],
+   [
+    672.24,
+    219.2,
+    86.19
+   ]
+  ],
+  "feed": {
+   "n": 14,
+   "required": 168000,
+   "volume": 162149.1,
+   "short": 1
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 4%。余剰電力に応じて再充電します。",
+   "warn:主砲充電装置 1 基の必要容積を確保できません。自動統合の範囲内に空間を空けるか、構造を追加してください。",
+   "warn:航行・艦隊指揮区画 #39 は外殻内の容積が不足しています（有効 40%）。",
+   "info:最大出力で廃熱 9.71e23 W に対し変換 8.10e23 W、不足 1.61e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 62,499 m³ 追加すると解"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 23
+ },
+ "providenceDn": {
+  "name": "プロヴィデンス級ドレッドノート",
+  "parts": 124,
+  "fits": 119,
+  "guns": 116,
+  "kinds": {
+   "monCal200Triple": 14,
+   "monCal80": 34,
+   "shipMsl": 34,
+   "monCalPD": 24,
+   "trc": 10
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 80723849.44705836,
+  "power": 2.504499151718958e+25,
+  "accel": null,
+  "gunBox": [
+   [
+    558.55,
+    146.84,
+    -168.34
+   ],
+   [
+    1217.92,
+    436.02,
+    168.35
+   ]
+  ],
+  "feed": {
+   "n": 48,
+   "required": 222400,
+   "volume": 222400,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 24%。余剰電力に応じて再充電します。",
+   "warn:ハッチに通じていない航空区画があります。",
+   "warn:自動化装置が持ち場 26,371 名分（全持ち場 40,483 名の 65%）を受け持ち、電力 1.3×10²⁴ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け",
+   "warn:航行・艦隊指揮区画 #39 は外殻内の容積が不足しています（有効 81%）。",
+   "info:最大出力で廃熱 8.78e24 W に対し変換 7.79e24 W、不足 9.88e23 W（最短 2 秒 で出力制限）。熱エネルギー変換装置を約 383,479 m³ 追加すると"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 28
+ },
+ "recusant": {
+  "name": "レキューザント級",
+  "parts": 183,
+  "fits": 66,
+  "guns": 63,
+  "kinds": {
+   "recProw": 1,
+   "recTwin": 1,
+   "recKeel": 1,
+   "refVen": 4,
+   "monCal34": 16,
+   "monCalPD": 10,
+   "pd": 30
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 4130474.6397377346,
+  "power": 1.9089461378212354e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    467.6,
+    0.03,
+    -80.87
+   ],
+   [
+    1127.29,
+    107.8,
+    80.87
+   ]
+  ],
+  "feed": {
+   "n": 23,
+   "required": 90880,
+   "volume": 90880,
+   "short": 0
+  },
+  "warnings": [
+   "bad:接地していない部品が 2 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。",
+   "info:兵装の充電速度は機械的な最大連射の 4%。余剰電力に応じて再充電します。",
+   "info:ジェネレーターの表面の 31% が露出しています。構造物で覆うか集中防御で守れます。",
+   "warn:航行・艦隊指揮区画 #34 は外殻内の容積が不足しています（有効 93%）。",
+   "warn:艦載機待機区画（中空構造内のラック） 8 #133 の自動統合後の容積が不足しています（27%）。近くの空間を空けるか構造を追加してください。",
+   "warn:構造維持装置 2 #141 の自動統合後の容積が不足しています（77%）。近くの空間を空けるか構造を追加してください。",
+   "warn:艦内高エネルギー散逸区画 1 #146 の自動統合後の容積が不足しています（14%）。近くの空間を空けるか構造を追加してください。",
+   "info:最大出力で廃熱 5.95e23 W に対し変換 4.93e23 W、不足 1.01e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 39,274 m³ 追加すると解"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 36
+ },
+ "recusantDn": {
+  "name": "レキューザント級ドレッドノート",
+  "parts": 180,
+  "fits": 125,
+  "guns": 122,
+  "kinds": {
+   "stl": 9,
+   "refVen": 21,
+   "pd": 90,
+   "monCal34": 2
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 37548628.21088795,
+  "power": 1.527156910293435e+25,
+  "accel": null,
+  "gunBox": [
+   [
+    393.6,
+    -3,
+    -158.18
+   ],
+   [
+    2369.75,
+    317.72,
+    158.18
+   ]
+  ],
+  "feed": {
+   "n": 32,
+   "required": 123160,
+   "volume": 123160,
+   "short": 0
+  },
+  "warnings": [
+   "bad:接地していない部品が 2 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。",
+   "info:兵装の充電速度は機械的な最大連射の 26%。余剰電力に応じて再充電します。",
+   "info:ジェネレーターの表面の 31% が露出しています。構造物で覆うか集中防御で守れます。",
+   "warn:自動化装置が持ち場 11,841 名分（全持ち場 12,465 名の 95%）を受け持ち、電力 7.4×10²³ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け",
+   "warn:艦内高エネルギー散逸区画 2 #224 の自動統合後の容積が不足しています（33%）。近くの空間を空けるか構造を追加してください。",
+   "info:最大出力で廃熱 5.16e24 W に対し変換 2.97e24 W、不足 2.18e24 W（最短 0 秒 で出力制限）。熱エネルギー変換装置を約 847,314 m³ 追加すると"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 36
+ },
+ "reptransport": {
+  "name": "共和国輸送艦",
+  "parts": 28,
+  "fits": 1,
+  "guns": 1,
+  "kinds": {
+   "pd": 1
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 9056.833350106746,
+  "power": 2.2775350267559312e+21,
+  "accel": null,
+  "gunBox": [
+   [
+    38.7,
+    15.84,
+    -2.55
+   ],
+   [
+    47.7,
+    19.21,
+    2.55
+   ]
+  ],
+  "feed": {
+   "n": 0,
+   "required": 0,
+   "volume": 0,
+   "short": 0
+  },
+  "warnings": [
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 86%）。",
+   "warn:シールドが目標強度の 86% です。発生器の容量と給電を確認してください。",
+   "warn:戦闘負荷で廃熱 1.03e21 W に対し変換 6.55e20 W、不足 3.73e20 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 145 m³ 追加すると解消しま"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 3
+ },
+ "sample": {
+  "name": "試作デストロイヤー SY-01",
+  "parts": 103,
+  "fits": 31,
+  "guns": 30,
+  "kinds": {
+   "refVen": 8,
+   "quad200": 10,
+   "pd": 12
+  },
+  "interference": 7,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 10331288.93448862,
+  "power": 0,
+  "accel": null,
+  "gunBox": [
+   [
+    172.18,
+    8.75,
+    -212.91
+   ],
+   [
+    772.2,
+    127.92,
+    212.91
+   ]
+  ],
+  "feed": {
+   "n": 18,
+   "required": 22900,
+   "volume": 22900,
+   "short": 0
+  },
+  "warnings": [
+   "warn:重なり合っている区画があります（7 区画）。",
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 0%）。",
+   "warn:シールドが目標強度の 0% です。発生器の容量と給電を確認してください。",
+   "info:ハイパードライブがありません（星系内専用艦）。",
+   "info:ジェネレーターの表面の 10% が露出しています。構造物で覆うか集中防御で守れます。",
+   "bad:自動推進機関と 2 区画が干渉しています。重複区画は稼働しません。",
+   "bad:反応物供給能力 0%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。",
+   "warn:慣性制御装置の対応質量が不足しています。",
+   "warn:構造維持装置の対応質量が不足しています。"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 3
+ },
+ "subjugator": {
+  "name": "サブジュゲイター級",
+  "parts": 117,
+  "fits": 1151,
+  "guns": 1150,
+  "kinds": {
+   "monCal200Triple": 20,
+   "monCal80": 20,
+   "shipMsl": 10,
+   "trc": 2,
+   "monCal34": 700,
+   "monCalPD": 398
+  },
+  "interference": 0,
+  "loose": 0,
+  "looseFits": 0,
+  "mass": 418300374.3598408,
+  "power": 1.1034638887479762e+26,
+  "accel": null,
+  "gunBox": [
+   [
+    698.2,
+    -1.21,
+    -580
+   ],
+   [
+    4703.33,
+    606.53,
+    580
+   ]
+  ],
+  "feed": {
+   "n": 740,
+   "required": 748000,
+   "volume": 748000,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 26%。余剰電力に応じて再充電します。",
+   "warn:自動化装置が持ち場 284,729 名分（全持ち場 299,715 名の 95%）を受け持ち、電力 1.5×10²⁵ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 148
+ },
+ "venator": {
+  "name": "ヴェネター級",
+  "parts": 269,
+  "fits": 58,
+  "guns": 58,
+  "kinds": {
+   "refVen": 8,
+   "shipMsl": 4,
+   "venSide70": 2,
+   "single200": 10,
+   "pd": 28,
+   "trc": 6
+  },
+  "interference": 0,
+  "loose": 8,
+  "looseFits": 0,
+  "mass": 12016575.736609109,
+  "power": 3.546714808148381e+24,
+  "accel": null,
+  "gunBox": [
+   [
+    248.8,
+    23.2,
+    -209.14
+   ],
+   [
+    1062.6,
+    132.87,
+    209.14
+   ]
+  ],
+  "feed": {
+   "n": 20,
+   "required": 28500,
+   "volume": 28500,
+   "short": 0
+  },
+  "warnings": [
+   "info:兵装の充電速度は機械的な最大連射の 25%。余剰電力に応じて再充電します。",
+   "info:最大出力で廃熱 1.11e24 W に対し変換 9.25e23 W、不足 1.80e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 69,954 m³ 追加すると解"
+  ],
+  "statKeys": [
+   "floating",
+   "floatFits",
+   "overlap"
+  ],
+  "seconds": 53
+ }
+}

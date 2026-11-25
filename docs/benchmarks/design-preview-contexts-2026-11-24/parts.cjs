@@ -1,0 +1,26 @@
+// New design, then pick parts one after another in the design drawer; count WebGL contexts and watch for context loss.
+const {chromium}=require('playwright'),http=require('http'),fs=require('fs'),path=require('path');const [rootArg,out,nArg]=process.argv.slice(2),root=path.resolve(rootArg);
+const types={'.html':'text/html','.js':'text/javascript','.json':'application/json','.css':'text/css','.gz':'application/gzip','.png':'image/png','.svg':'image/svg+xml','.jpg':'image/jpeg'};
+const server=http.createServer((req,res)=>{const pn=decodeURIComponent(new URL(req.url,'http://l').pathname),f=path.resolve(root,'.'+(pn==='/'?'/index.html':pn));if(!f.startsWith(root+path.sep)||!fs.existsSync(f)||!fs.statSync(f).isFile()){res.writeHead(404);res.end();return;}res.writeHead(200,{'content-type':types[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(res);});
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const url='http://127.0.0.1:'+server.address().port+'/?splash';const br=await chromium.launch({args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-precise-memory-info','--js-flags=--expose-gc']});const pg=await br.newPage({viewport:{width:1280,height:800},deviceScaleFactor:1});const logs=[];const t0=Date.now(),ts=()=>((Date.now()-t0)/1000).toFixed(1);
+ pg.on('console',m=>{const t=m.text();if(/GL Driver/.test(t))return;if(m.type()==='error'||m.type()==='warning')logs.push(ts()+' '+m.type()+' '+t.slice(0,300));});pg.on('pageerror',e=>logs.push(ts()+' pageerror '+e.message));pg.on('crash',()=>logs.push(ts()+' PAGE CRASH'));
+ await pg.addInitScript(()=>{try{localStorage.clear();localStorage.setItem('yard.language','ja');}catch(e){}window.__gl={made:0,lost:0};const g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){const had=this.__ctx;const c=g.call(this,t,o);if(/webgl/.test(t)&&c&&!had){this.__ctx=1;window.__gl.made++;this.addEventListener('webglcontextlost',()=>{window.__gl.lost++;window.__gl.lostIds=(window.__gl.lostIds||[]).concat(this.id||this.className||'?');});}return c;};});
+ await pg.goto(url,{waitUntil:'domcontentloaded'});await pg.locator('#splash.ready .splash-start').waitFor({timeout:180000});await pg.evaluate(()=>document.querySelector('#splash .splash-start').click());
+ await pg.waitForFunction(()=>{const b=document.querySelector('[data-title="new"]');return b&&!b.disabled;},null,{timeout:180000});await pg.evaluate(()=>document.querySelector('[data-title-mode="design"]').click());await pg.waitForTimeout(500);await pg.evaluate(()=>document.querySelector('[data-title="new"]').click());await pg.waitForTimeout(500);await pg.evaluate(()=>document.querySelector('[data-title-start]').click());await pg.waitForTimeout(4000);
+ await pg.evaluate(()=>document.querySelector('[data-design-open="new"]').click());await pg.waitForTimeout(1500);
+ const N=+(nArg||40);const seen=[];
+ const cats=await pg.evaluate(()=>[...document.querySelectorAll('[data-design-category]')].map(b=>b.dataset.designCategory));
+ for(const c of cats){await pg.evaluate(c=>document.querySelector('[data-design-category="'+c+'"]')?.click(),c);await pg.waitForTimeout(600);
+  const items=await pg.evaluate(()=>[...document.querySelectorAll('#panel [data-pal],#panel [data-design-pick],#panel [data-k],#panel .design-catalog button,#panel [data-pk]')].map((b,i)=>i));
+  const attrs=await pg.evaluate(()=>{const o={};for(const el of document.querySelectorAll('#panel button'))for(const a of el.getAttributeNames())if(a.startsWith('data-'))o[a]=(o[a]||0)+1;return o;});
+  if(!seen.length)console.log('panel buttons',JSON.stringify(attrs));
+  const sel=await pg.evaluate(()=>{for(const q of ['[data-palpick]','[data-pal]','[data-design-item]','[data-pick]','[data-key]'])if(document.querySelector('#panel '+q))return q;return null;});
+  if(!sel){seen.push(c+':no-items');continue;}
+  const n=await pg.evaluate(q=>document.querySelectorAll('#panel '+q).length,sel);
+  for(let i=0;i<n&&seen.length<N;i++){await pg.evaluate(([q,i])=>document.querySelectorAll('#panel '+q)[i]?.click(),[sel,i]);await pg.waitForTimeout(400);const g=await pg.evaluate(()=>{if(window.gc)gc();return 0;}).then(()=>pg.evaluate(()=>({...window.__gl,canv:document.querySelectorAll('canvas').length,heap:performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576):null})));seen.push(c+'#'+i+' made'+g.made+' lost'+g.lost+' canvases'+g.canv+' heap'+g.heap);}
+  if(seen.length>=N)break;}
+ console.log(seen.join('\n'));await pg.screenshot({path:out+'/after-parts.png'});await pg.locator('#designPartPreview').screenshot({path:out+'/preview.png'}).catch(e=>console.log('noprev',String(e).slice(0,100)));
+ // what can be clicked in the drawer
+ const dump=await pg.evaluate(()=>{const attrs={};for(const el of document.querySelectorAll('button,[role=button]')){if(el.offsetParent===null)continue;for(const a of el.getAttributeNames())if(a.startsWith('data-'))attrs[a]=(attrs[a]||0)+1;}return attrs;});
+ console.log('buttons',JSON.stringify(dump));
+ console.log(JSON.stringify({gl:await pg.evaluate(()=>window.__gl),logs}));await br.close();server.close();})().catch(e=>{console.error(e);process.exit(1);});

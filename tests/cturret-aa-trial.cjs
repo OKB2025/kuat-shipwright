@@ -56,10 +56,21 @@ test('the rear twin aircraft turret stays idle without a trigger and fires its b
  near(run('energyBefore-trial.energy.E'),Cvalue('tt'),1e-16);near(run('gasBefore-trial.systemsRuntime.gasSeconds'),run('need'),1e-10);
 });
 function Cvalue(key){return Number(run('C.FITS.cturret.'+key));}
-test('changing manual turret cadence keeps the requested power while each shot and its gas follow the actual period',()=>{
- // Spec 2026-11-11: each barrel fires 10 kt/s; a period's volley carries that output over the turret's actual period,
- // now in one shot a barrel (2026-11-15).
- for(const cycle of [.06,.24]){context.cycle=cycle;run('aaReset();trial.turrets[0].cycle=cycle;var before=trial.energy.E,gasBefore=trial.systemsRuntime.gasSeconds,need=trialCraftGasNeed(trial.turrets[0]);trialGunnery(.01)');const volley=2*Number(run('C.CRAFT_LASER_OUTPUT.light'))*cycle;near(run('before-trial.energy.E'),volley/2,1e-16);near(run('gasBefore-trial.systemsRuntime.gasSeconds'),run('need')/2,1e-10);near(run('need'),Number(run('trialCraftGasNeed({...trial.turrets[0],cycle:C.FITS.cturret.cycle})'))*cycle/Cvalue('cycle'),1e-12);near(run('powerDemands.at(-1)'),Cvalue('power'),1);assert.equal(run('trial.bolts.length'),1);for(const b of plain(run('trial.bolts')))near(b.tt,volley/2,1e-20);}
+// 2026-11-24 gun rules (expectation-changes.md, 2026-11-25 final tree): an aircraft laser's shot is the shot of its bore whatever the
+// rate of fire, and the rate is the fit's rateHz (one shot a second a barrel by default). Electricity and gas follow the shots fired, so
+// a faster turret asks for that many times the power and gas a second. This case stated the 2026-11-11 rule (a period's volley is
+// the per-second output over the period, so a shorter period fired weaker shots at the same power) by overwriting the turret's cycle.
+test('changing the turret\'s rate of fire keeps each shot (the shot of its bore) while power and gas follow the shots fired',()=>{
+ const shot=Number(run('C.laserShotKt(C.CRAFT_LASER_GEOMETRY.cturret.bore)/C.KT_PER_TT'));near(Cvalue('boltTT'),shot,shot*1e-12);assert.equal(Cvalue('cycle'),1);assert.equal(Cvalue('cycle'),Number(run('C.CRAFT_FIRE.cycles.cturret')));
+ run('aaReset();var baseNeed=trialCraftGasNeed(trial.turrets[0])');assert.ok(run('baseNeed')>0);
+ for(const rate of [1,4]){context.rate=rate;run('aaReset();trial.turrets[0]={...stateFromFit(makeFit("cturret",{id:2,rateHz:rate})),reload:0};var before=trial.energy.E,gasBefore=trial.systemsRuntime.gasSeconds,need=trialCraftGasNeed(trial.turrets[0]);trialGunnery(.01)');
+  near(run('trial.turrets[0].cycle'),1/rate,1e-12);assert.equal(run('trial.turrets[0].rule.rateHz'),rate);
+  // One barrel a shot: half the volley's energy and gas, the shot itself unchanged by the rate.
+  near(run('before-trial.energy.E'),shot,1e-16);assert.equal(run('trial.bolts.length'),1);for(const b of plain(run('trial.bolts')))near(b.tt,shot,1e-20);
+  // A volley's gas is the same at every rate, so the gas a second is rate times as much.
+  near(run('need'),run('baseNeed'),1e-12);near(run('gasBefore-trial.systemsRuntime.gasSeconds'),run('need')/2,1e-10);
+  near(run('powerDemands.at(-1)'),Cvalue('tt')*Number(run('C.TT'))*rate/Cvalue('cycle'),1);near(run('trial.turrets[0].reload'),1/rate/2,.05/rate);
+ }
 });
 test('zero and partial electricity or gas cannot fund a manually triggered shot; an exact budget funds only one',()=>{
  for(const resource of ['electricity','gas'])for(const fraction of [0,.99,1]){context.resource=resource;context.fraction=fraction;run('aaReset();var need=trialCraftGasNeed(trial.turrets[0])/2;if(resource==="electricity"){trial.energy.E=C.FITS.cturret.tt/2*fraction;trial.systemsUnit.energy=trial.energy.E;trial.systemsUnit.surfaceBanks[2]=trial.energy.E;}else trial.systemsRuntime.gasSeconds=need*fraction;var before=trial.energy.E,gasBefore=trial.systemsRuntime.gasSeconds;trialGunnery(.01)');assert.equal(run('trial.gun.shots||0'),fraction===1?1:0,resource+' '+fraction);if(fraction<1){assert.equal(run('trial.energy.E'),run('before'));assert.equal(run('trial.systemsRuntime.gasSeconds'),run('gasBefore'));}else{run('trial.turrets[0].reload=0;trialGunnery(.01)');assert.equal(run('trial.gun.shots'),1,'one exact budget cannot fund another shot');}}

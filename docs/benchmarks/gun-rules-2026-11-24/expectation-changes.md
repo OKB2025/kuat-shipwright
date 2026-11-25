@@ -1,0 +1,452 @@
+# 砲の新規則（2026-11-24）に伴うテスト期待値の変更記録
+
+対象：ユーザー決定（2026-11-24、docs/handoff-2026-11-20/gun-energy-model-2026-11-24.md の末尾）で意図して変えた砲の規則に合わせて、
+失敗するようになったテストの期待値を書き換えたもの。表は docs/benchmarks/gun-rules-2026-11-24/table.md。
+
+- 基準：`origin/main`（8c4bcab）の一時 worktree（/tmp/ks-verify/main-wt、作業後に削除）で同じ 11 ファイルを 1 つずつ実行し、
+  失敗がブランチ側の変更によるものか、main でも起きていたものかを分けた。ログ：/tmp/ks-verify/20261124-gun-tests-main/。
+- 候補：ブランチ `claude/jolly-cannon-psv61o`（47e7590 まで取り込み済み、テストのみ変更）。
+- js/、data/、index.html、scripts/ は変更していない。数値の決め打ちより、新しい規則との関係（`power = gunRule.chargeRateTT × TT`、
+  `cycle = gunRule.cycle`、`shotChargeTT = E × (1 + 砲身 ÷ 19 m)`、`boltTT = laserShotKt(口径)` など）で書き直した。
+- 「main で失敗」は、その期待値が main でも同じく失敗していたか（その行まで到達して失敗していたか）を示す。
+
+## 変更した期待値
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由（ユーザー決定） | main で失敗 |
+| --- | --- | --- | --- | --- |
+| craft-laser-output.cjs / aircraft laser classes carry 400 / 50 / 10 kt per barrel per second（新名 …carry the shot of their bore once a second per barrel） | CRAFT_LASER_OUTPUT heavy/medium/light = 400/50/10 kt、barrelTTs = 同値 | `laserShotKt(0.30/0.17/0.12)×1e-9`（436 / 118.28 / 42.88 kt）、`CRAFT_FIRE.cycles[k] = 1`、barrelTTs = 1 発 ÷ 周期 | 航空レーザーは毎秒 1 発・1 発は口径から（CRAFT_LASER_GEOMETRY） | いいえ |
+| craft-laser-output.cjs / per-shot energy is the per-second output times the firing period, barrel by barrel | 毎秒出力 400/50/10 kt、周期 [.18,.12,.12]、1 発 72/6/1.2 kt、cturret 一斉射 2.4 kt | 毎秒出力 = 口径の 1 発 ÷ 1 s、周期 [1,1,1]、1 発 = laserShotKt(口径)、cturret = 2 × 1 発 | 同上 | いいえ |
+| craft-laser-output.cjs / a craft type sums every laser barrel of its fire-arc snapshot at its defined rate | 種類ごとの合計 = 砲身数 × 目録の barrelTTs、TIE/ln 2×50、X ウイング 4×50、ARC-170 2×50+2×10、V ウイング 2×2×10 kt/s、既定 2×50 | 実測砲身の作例（X ウイング 0.18 m、ARC-170 0.20 m、Z-95 0.10 m：CRAFT_LASER_EXAMPLES）は口径の 1 発で数える。X ウイング 4×laserShotKt(.18)、Z-95 2×laserShotKt(.10)、ARC-170 2×laserShotKt(.20)+2×軽、TIE/ln・既定 2×中、V ウイング 2×2×軽 | 同上＋作例機の実測砲身（ユーザー表） | いいえ（**変更後も失敗：下の「疑わしい不具合」1**） |
+| craft-laser-output.cjs / fleet profile per-craft air attack averages the deployable combat craft by their actual lasers | (24×2×50 + 6×(2×50+2×10) + 2×既定)/32 kt/s | (24×craftLaserRate('tie_ln') + 6×craftLaserRate('arc170') + 2×既定)/32、tie_ln = 2×中 | 同上 | いいえ |
+| craft-laser-output.cjs / fleet battle craft attack scales with the per-craft laser output and is zero for unarmed craft | airGun 2e-8 と 4e-8 TT/s で損害比 2（許容 1e-4） | airGun = 中レーザー 1 発（FLEET_AIR_GUN_BOLT = 118 kt）とその 2 倍で損害比 2（**許容 1e-2**）。2e-8/4e-8 は 10 機 × 0.25 s で 1 発の 0.4/0.8 にしかならず、どちらも整数 1 発で同じ損害になる。118 kt の弾では CR90 の区画の貫通で損害が厳密には比例しない（比 1.992） | 同上（1 発が 6 kt → 118 kt）。許容差の変更はレビュー対象 | いいえ |
+| craft-laser-output.cjs / the fixed light laser claserL fires 10 kt/s per barrel like the light turret…（新名 …fires the light-class shot per barrel…） | barrelTTs 10 kt/s、boltTT 10 kt × 周期 | barrelTTs = laserShotKt(0.12)/1 s、boltTT = 同 × 周期 | 同上 | いいえ |
+| craft-laser-output.cjs / a shot is the per-second output over the actual period of the arc, not the catalogue period | craftShotTT = 砲身数 × 10/50/400/10 kt × 周期、claser 0.1 s で 5 kt | 砲身数 × (口径の 1 発 ÷ 1 s) × 周期（周期 1 s も追加）、claser 0.1 s で 118 kt × 0.1、1 s で 118 kt | 同上 | いいえ |
+| craft-laser-output.cjs / fleet airGun per craft equals the RTS squadron energy per second… | 2 × claserH = 2×400 kt/s、bwing = round(aa×2)×50 kt/s | 2 × claserH の毎秒出力、bwing = round(aa×2) × 中レーザーの毎秒出力 | 同上 | いいえ |
+| weapon-shot-calibration.cjs / 共通の `shot()` 検査（tests 1–3 で使用） | power × cycle ÷ TT = 砲身数 × 1 発 | レーザーは同じ。ターボレーザー・イオン砲は power = chargeRateTT × TT、cycle = gunRule.cycle、power × cycle ÷ TT = 砲身数 × shotChargeTT、shotChargeTT = E × (1 + 砲身 ÷ 19 m) | 砲の電力は充電の速さ、1 発の充電は閉じ込めを含む | いいえ |
+| weapon-shot-calibration.cjs / dedicated ship point defence fires 100 kt per actual barrel per shot（新名 …fires the shot of its bore…） | pd・monCalPD 1 発 1e-7 TT（100 kt） | 各砲身の口径の 1 発（pd 0.40 m = 800 kt、monCalPD 0.178 m = 133 kt）、cycle 1 s | 点防御 800 kt（0.40 m）、monCalPD 133 kt、レーザーは毎秒 1 発 | いいえ |
+| weapon-shot-calibration.cjs / aircraft lasers fire their per-barrel per-second output over one period… | 1 発 = 50/400/10 kt/s × 周期、0 < 周期 < 1 | 1 発 = laserShotKt(CRAFT_LASER_GEOMETRY.bore)、周期 = 1 | 航空レーザーは毎秒 1 発・口径から | いいえ |
+| weapon-shot-calibration.cjs / six native corvette weapons preserve their 500 MT and 6 MT shot energies… | 500 MT 系 1 発 0.0005 TT、single6MT・twin6MT 6e-6 TT、モデル記録 a.boltTT/volleyTT = 1 発 | 6 門すべてレーザー：1 発 = 各砲身の口径の laserShotKt（quad500MT 279、twin500MT 285、single500MT 613、sphyrnaTwin500MT 261、single6MT 117 kt、twin6MT 658 kt/1.57 MT）。モデル記録 a.boltTT は gunLegacy.boltTT（モデルの元の値。ゲームの弾ではない） | レーザーの改名と口径規則、500MT 砲は描かれた外径のレーザー（main セッションの 7efb2c9）。テスト名は旧のまま | いいえ |
+| weapon-shot-calibration.cjs / existing 500 GT guns remain one thousand times the new 500 MT guns per barrel（新名 existing 500 GT guns keep their 0.5 TT shot apart from the corvette lasers） | single500/quad500 ÷ single500MT = 1000 | 500 GT 砲は 0.5 TT のターボレーザーのまま、single500MT はレーザー、比は 0.5 ÷ laserBolt(single500MT)（約 815,000） | 500MT 砲をレーザーにした決定で 1000 倍の関係は意図的になくなった | いいえ |
+| weapon-shot-calibration.cjs / native 6 MT and 500 MT guns retain their actual shot yields… | twin6MT 6e-6、single6MT 6e-6、500MT 系 0.0005 | すべて laserBolt(k)、twin6MT は 658 kt・1.57 MT の 2 砲身 | 同上 | いいえ |
+| weapon-shot-calibration.cjs / sub-shot electrical increments accumulate into exactly one complete fixed-laser pulse | 最後の u.energy ≈ 0（絶対許容 1e-30） | \|u.energy\| ≤ 1 発 × 1e-12（8 回の加算の丸め残り 2.6e-23 TT = 1 発の 2e-16） | 1 発が 6 kt → 118 kt。許容差の変更はレビュー対象 | いいえ |
+| weapon-output-sizing.cjs / point defense adopts the photographed side-carrier model at its native scale | boltTT 1e-7、tt 2e-7、cycle 0.2 | boltTT = laserShotKt(0.40)×1e-9（800 kt）、tt = 2×boltTT、cycle = gunRule.cycle = 1 | 点防御 800 kt・毎秒 1 発 | 書き換えた行は main では通過。**このテストは main と同じ三角形数（176 ≠ 1904）の行で失敗し続ける（既存）** |
+| weapon-output-sizing.cjs / retired generic guns resolve to the canonical light quad, DBY and point-defense definitions | ltl→pd 一斉射 2e-7・cycle .2、mtl→quad200 cycle .2、htl→refVen cycle 1 | ltl→pd 一斉射 2×800 kt・cycle = pd.gunRule.cycle、mtl→quad200・htl→refVen の cycle = 各 gunRule.cycle | 発射間隔は充電時間（ターボレーザー）、レーザーは 1 s | いいえ |
+| weapon-preview-stats.cjs / テスト用 UI サンドボックス（tests 8, 10, 11 が使用） | designWeaponOutput と designWeaponPreviewHTML だけを app.js から読む | craftLaserOptions・craftLaserSummary・craftLaserHTML と selItem/curFit の空の代役を追加（designWeaponPreviewHTML が航空レーザーの円柱設定欄を呼ぶようになったため。期待値は変えていない） | 航空レーザーをユーザーが口径・長さ・連射速度で決める円柱部品に | いいえ |
+| weapon-preview-stats.cjs / maximum input and local heat match the existing shot-energy ledger at full sustained cadence | 最大入力 = 一斉射の入力 ÷ cycle、熱 = 変換損失 ÷ cycle、射程 = 帯の射程 | ターボレーザー・イオン砲は砲身数 × shotChargeTT の入力 ÷ cycle、熱 = gunRule.heatFrac × 入力（heatFrac = 0.05 × c/(1+c)、c = 砲身 ÷ 19 m も検査）、射程 = gunRule.rangeM。レーザーは従来どおり | 発射熱は圧縮分の 5%、射程は砲自身の rangeM、電力は充電の速さ | いいえ |
+| weapon-preview-stats.cjs / displaying a legacy electrical model retains its actual nameplate and waste-heat path | 熱 = power × HEAT.waste.weapon | 熱 = power × weaponWasteFrac(d)、weaponWasteFrac(d) = gunRule.heatFrac | 発射熱は圧縮分の 5% | いいえ |
+| capital-turret-core.cjs / nine capital entries use physical native models and exact per-barrel gun or ion energies | power = 砲身数 × 1 発 × TT ÷ cycle（絶対許容 1e9 W） | cycle = gunRule.cycle、power = chargeRateTT × TT = 砲身数 × shotChargeTT × TT ÷ cycle（相対許容 1e-12）、shotChargeTT = E × (1 + 砲身 ÷ 19 m) | 電力は充電の速さ・閉じ込め込みの充電 | 書き換えた行は main では通過。**このテストは main と同じ `pd.boltTT ≈ .02` の行で失敗し続ける（既存。値は main 1e-7、ブランチ 8e-7）** |
+| capital-turret-core.cjs / pitched native ball guns carry their physical joint, energy, electrical demand and heat owner into the fleet profile | m.gun = 720、m.power = 720 × TT ÷ eta | m.gun = 720 ÷ ball720.cycle（2.48 s）、m.power = chargeRateTT × TT ÷ eta。alphaTot・wCap・capacity・boltTT は 720 のまま | 発射間隔は充電時間、電力は充電の速さ | 書き換えた行は main では通過。**このテストは main と同じ `cleaned?.surface` の行で失敗し続ける（既存）。その後ろの `source.powerWeight ≈ 720×TT` は到達せず未確認** |
+| moncal-weapons-core.cjs / new catalog ratings preserve per-barrel energy and use real native-sized gun models | monCalPD・pd 1 発 1e-7・cycle .2、monCal34/80/200/200Triple/150Ion cycle 1、quad1Rapid cycle .2、power = 砲身数 × 1 発 × TT ÷ cycle | レーザーは口径の 1 発・cycle 1、ほかは cycle = gunRule.cycle、power = 砲身数 × (レーザーは 1 発、ほかは shotChargeTT) × TT ÷ cycle、さらに power = chargeRateTT × TT | 砲の発射間隔・電力・レーザーの 1 発は砲身モデルから | いいえ |
+| recusant-munificent-guns.cjs / catalog outputs follow the user (2 PT prow gun, 360 TT twins, 2.5 PT x2 bow gun, 300 GT rapid ventral twins) | power × cycle ÷ TT = 砲身数 × 1 発、munTwin cycle 0.2 | power × cycle ÷ TT = 砲身数 × shotChargeTT、cycle = gunRule.cycle、power = chargeRateTT × TT、munTwin の cycle = gunRule.cycle（1.36 s。式としては同語反復で、「速射」の数値の確認は残らない） | 同上 | いいえ |
+| dual-purpose-weapons.cjs / switching automatic interception ON shares one reload and one energy debit… | 0.01 s × 22 歩（旧 pd の 1 周期 0.2 s + 2 歩）で迎撃弾が出る | 歩数 = ceil(pd.cycle ÷ 0.01) + 2（1 周期 + 2 歩、今は 102 歩）。2 か所 | 点防御は毎秒 1 発 | いいえ |
+| light-turret-family.cjs / six light weapons use their requested per-barrel energies and native photo calibration | power × cycle ÷ TT = 砲身数 × 1 発、twin200Fast.cycle < twin200.cycle | cycle = gunRule.cycle、power = chargeRateTT × TT、shotChargeTT = E × (1 + 砲身 ÷ 19 m)、power × cycle ÷ TT = 砲身数 × shotChargeTT。「速射の方が間隔が短い」は外し、両連装とも cycle = 2 × shotChargeTT ÷ chargeRateTT、充電の速さは同じ、に置き換え（今は 1.45 s と 1.40 s で速射の方が遅い） | 「武装の表の新規則化を進めて。これにより中ターボレーザーの発射速度の話は解決で」：発射間隔は 1 発の充電時間 | いいえ |
+| trial-guidance.cjs / KS_TURN_MASS: a craft turns as its manoeuvring thrusters swing its mass (off by default)（新名 …(on by default, off with =false)） | 既定（切り替えなし）で TIE/ln の旋回率 0.24 | `KS_TURN_MASS:false` で 0.24、既定は `KS_TURN_MASS:true` と同じで 0.24 ではない | 「旋回は質量も推力も」：KS_TURN_MASS・KS_TURN_VECTOR を既定に | いいえ |
+| trial-guidance.cjs / KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed off its way (off by default)（新名 …(on by default, off with =false)） | 質量だけの比較は `{KS_TURN_MASS:true}` | 質量だけは `{KS_TURN_MASS:true, KS_TURN_VECTOR:false}`。既定（`{}`）は迎角あり・反転時間が推力の向きありと同じ、を追加 | 同上 | いいえ |
+
+## 変更していない失敗
+
+| テストファイル / テスト名 | 状態 | 理由 |
+| --- | --- | --- |
+| weapon-output-sizing.cjs / point defense adopts the photographed side-carrier model at its native scale | 失敗（三角形数 176 ≠ 1904） | main でも同じ行で失敗（既存） |
+| capital-turret-core.cjs / nine capital entries… | 失敗（`pd.boltTT ≈ .02`） | main でも同じ行で失敗（既存、main の値 1e-7） |
+| capital-turret-core.cjs / saved profile9 surface guns recompile… | 失敗（0 !== 1） | main でも同じ（既存） |
+| capital-turret-core.cjs / real profile10 saved designs rebuild… | 失敗（0 !== 1） | main でも同じ（既存） |
+| capital-turret-core.cjs / pitched native ball guns… | 失敗（`cleaned?.surface`） | main でも同じ行で失敗（既存） |
+| gunnery-accuracy.cjs / surface mounts share the same accuracy and retain their physical firing arcs | 失敗（0.8103 ≠ 0.8526） | main でも同じ値で失敗（既存） |
+| gunnery-accuracy.cjs / the production tactical and strategic fleet clocks apply the shared 50% law once | 失敗（20.258 ≠ 21.315） | main でも同じ値で失敗（既存） |
+| craft-laser-output.cjs / a craft type sums every laser barrel… | 失敗（X ウイング 4.73e-7 ≠ 5.46e-7） | 疑わしい不具合 1（下）。期待値は仕様どおりに書いた |
+| light-turret-family.cjs / decoded visible shaft lengths and separate shaft/muzzle diameters follow the controlling full-sheet photograph | 失敗（0.861 ≠ 0.692） | 砲の規則ではなく 44ed7bf（0.45 m 未満の砲身を 0.45 m に太くする形状変更）による。形状・原本照合の変更なので reference-fidelity の判断が要る。触っていない |
+| light-turret-family.cjs / draw, picking and physical muzzle transforms agree on every mount axis and tilted surfaces | 失敗（single200 の描画三角形が選択範囲の外） | 同じく 44ed7bf による。疑わしい不具合 2（下） |
+
+## 疑わしい不具合（期待値で隠していない）
+
+1. `craftLaserRate(type)`（js/core.js）が `CRAFT_LASER_EXAMPLES[type] || CRAFT_LASER_EXAMPLES[craftTypeOf(type)]` を引くが、
+   CRAFT_LASER_EXAMPLES のキーは `craft_xwing`・`craft_arc170`・`craft_z95`、引く側は `xwing`・`arc170`・`z95`（craftTypeOf は `xwing` を返す）なので、
+   実測砲身の上書きが種類の値に一度も効かない。X ウイングは 4 × 118.28 kt（0.17 m）= 4.73e-7 TT/s のまま（実測 0.18 m なら 5.46e-7）、
+   ARC-170 と Z-95 も同様。艦隊の airGun と RTS の推定がこの値を使う。
+2. 44ed7bf 以降、single200（ほか 200GT 系）の太くした砲身の頂点が `fitAABB`（選択範囲）からはみ出す。描画と選択範囲がずれている可能性がある。
+
+## 再実行の結果（変更後、1 ファイルずつ）
+
+ログ：/tmp/ks-verify/20261124-gun-tests-final/。報告の数値は最終実行のもの。
+
+| ファイル | 変更前（ブランチ、通過/失敗） | main | 変更後 | 残る失敗 |
+| --- | --- | --- | --- | --- |
+| light-turret-family | 6/3（依頼時 8/1） | 9/0 | 7/2 | 44ed7bf の形状変更による 2 件（上） |
+| weapon-output-sizing | 7/2 | 8/1 | 8/1 | 既存 1 件 |
+| craft-laser-output | 2/8 | 10/0 | 9/1 | 疑わしい不具合 1 |
+| weapon-shot-calibration | 4/5 | 9/0 | 9/0 | なし |
+| weapon-preview-stats | 8/5 | 13/0 | 13/0 | なし |
+| capital-turret-core | 8/4 | 8/4 | 8/4 | 既存 4 件（main と同じ行） |
+| moncal-weapons-core | 4/1 | 5/0 | 5/0 | なし |
+| recusant-munificent-guns | 2/1 | 3/0 | 3/0 | なし |
+| gunnery-accuracy | 6/2 | 6/2 | 6/2 | 既存 2 件（main と同じ値、触っていない） |
+| dual-purpose-weapons | 15/1 | 16/0 | 16/0 | なし |
+| trial-guidance | 9/2 | 11/0 | 11/0 | なし |
+
+## 主担当の追加（2026-11-24）
+
+| テスト | 旧期待値 | 新期待値 | 理由 | main で失敗 |
+| --- | --- | --- | --- | --- |
+| light-turret-family：decoded visible shaft lengths and separate shaft/muzzle diameters follow the controlling full-sheet photograph | 砲身・砲口の直径 = 写真の画素 × m/px | 写真の値 × 資産の barrelRadiusScale（口径 0.45 m まで太くした倍率） | ユーザー決定「口径 0.45 m 未満のターボレーザーを太くする」。砲身の長さは写真のまま | いいえ |
+
+不具合の修正（期待値は変えていない）：
+- craftLaserRate／RTS の編隊の射撃が作例機の実測砲身（CRAFT_LASER_EXAMPLES、キー craft_xwing 形式）を引けていなかった → craftLaserRate と craftLaserArcs が 'craft_'+型名で引く。RTS の 1 発も craftLaserRule（口径・砲身・連射）で数える。craft-laser-output 10/10。
+- 太く・長くした砲身が砲の箱（referenceFitAABB）からはみ出していた → 資産の描いた範囲（drawnExtent）で箱を作る。light-turret-family test 8 通過。
+
+## 全テスト実行後の追加（2026-11-24、2 回目）
+
+対象：全テストの実行結果（候補側の集計 /tmp/ks-verify/20261124-final-tests/summary.txt、基準側との比較 compare.txt。基準は `origin/main` 8c4bcab の
+worktree）で、基準より失敗が増えたテスト。1 ファイルずつ作業ツリーで実行し直した（ログ：/tmp/ks-verify/20261124-testfix/）。
+js/core.js・js/app.js・js/gfx.js・js/engine.js・data/ は変更していない。基準でも同じ数だけ失敗するテストは触っていない。
+
+### 変更した期待値
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由（ユーザー決定） | main で失敗 |
+| --- | --- | --- | --- | --- |
+| arquitens-turret.cjs / the medium quad keeps its existing 500 GT energy and key while adopting the new STL/photo native size | `power × cycle ÷ TT = 2`（4 門 × 0.5 TT） | 1 発は 0.5 TT のまま（`gunRule.shotKt`）、`shotChargeTT = 0.5 × (1 + 砲身 ÷ 19 m)`、`cycle = gunRule.cycle`、`power × cycle ÷ TT = 4 × shotChargeTT`（今は 3.61） | 砲の電力は充電の速さ、1 発の充電は閉じ込めを含む | いいえ |
+| broadside-battery-gfx.cjs / fleet descriptors use articulated balls and the same physical muzzle as design geometry | 80TT 単装球（monCal80）の `t.cycle = 1` | `t.cycle = FITS.monCal80.gunRule.cycle`、かつ `= shotChargeTT ÷ chargeRateTT`（今は 1.549 s）。`t.tt = 80` はそのまま | 発射間隔は 1 発の充電時間 | いいえ |
+| capital-turret-models.cjs / all nine capital weapons use their native physical models, requested barrel energies and real triangle budgets | `power × cycle ÷ TT = 門数 × 1 発` | 1 発は表の値のまま（`gunRule.shotKt`）、`shotChargeTT = 1 発 × (1 + 砲身 ÷ 19 m)`、`cycle = gunRule.cycle`、`power = chargeRateTT × TT`、`power × cycle ÷ TT = 門数 × shotChargeTT` | 同上 | いいえ |
+| capital-turret-models.cjs / adding capital weapons preserves all fourteen unaffected 40/70TT and 200/500GT model payloads and metadata | 14 資産の記録（`_` で始まるキャッシュを除く）の SHA-256 | **ハッシュ値は 14 個とも変えていない。** 200GT 系 4 資産（light_twin200・light_quad200・light_single200・light_twin200_fast）は読み込み時に砲身を太くした記録（barrelRadiusScale・drawnExtent、砲身の半径 × 倍率）を持つので、その分を取り除いた写しでハッシュを取る（半径 ÷ 倍率で元のハッシュに一致することを確認）。加えて、この 4 資産だけが変形されること、口径がちょうど 0.45 m になること、砲身の長さは変えていないこと（barrelExposedScale なし）、倍率が 1〜1.3 であることを検査 | 口径 0.45 m 未満のターボレーザーを 0.45 m に太くする（44ed7bf）。元データ（data の payload・UV・室・関節）は変えていない | いいえ |
+| capital-turret-trial.cjs / actual capital trial fire samples independent shared dispersion at each physical muzzle without changing shot energy | 散布の射程 = 40,000 m（公試共通の TRIAL_GUN.range）、弾の寿命 ≤ 40,000 ÷ 4,500 s | 散布の射程 = `FITS.ball175Quad.gunRule.rangeM`（今は 54,481 m）で、公試の砲の `reach` と同じ。寿命 ≤ その射程 ÷ 4,500 s。1 斉射 700 TT はそのまま | 射程は砲ごとの rangeM（保持距離 + 171 m の減衰） | いいえ |
+| capital-turret-trial.cjs / a real RTS carrier spool keeps its manually piloted physical guns fireable before departure | 4 発で使った蓄電 = 700 TT | 撃ち出した量は 700 TT のまま、使った蓄電 = 700 × `weaponChargeFactor(ball175Quad)`（= 1 + 砲身 38.1 m ÷ 19 m = 3.005、2,103.7 TT）。係数が 1 + 砲身 ÷ 19 であることも検査 | ターボレーザーは E × (1 + c) を充電して E を撃つ（公試・戦闘とも） | いいえ |
+| combat-point-defense-targeting.cjs / the real RTS missile step leaves missiles alone when only ordinary guns are installed | 敵艦を 5 km に置き、triple40・single500MT・single6MT のどれも敵艦を撃ち続ける | 射程が 5 km 以下の砲（レーザーであることも検査）は敵艦を自分の射程の 0.6 倍の距離に置く。single6MT は 117 kt の中レーザーで射程約 1.67 km なので約 1.0 km。ミサイルの位置と「ミサイルを迎撃しない」「敵艦は撃つ」の検査はそのまま | single6MT は中レーザー（射程 860 m + 125 × (砲身 − 1) × ln(kt)） | いいえ |
+| craft-shield-generator-scale.cjs / a generator of the X-wing remodel size gives the X-wing field whatever the hull length | X ウイングの発生器で `CRAFT_SHIELD.refScale`（3e-6） | `SHIELD_CURVE.refScale`（6.158e-6）。曲線の X ウイングの点が 6.158e-6 であること、発生器の容積が旧定義と同じことも検査 | 「シールドはヴェネターとXウイングをつなぐ曲線で決まるはずだ」「実際の被弾距離で」（X ウイングの点 6.158e-6） | いいえ |
+| craft-shield-generator-scale.cjs / a generator twice as wide stands for a craft twice as long, a smaller one for a shorter craft | 容積 8 倍の発生器 = 全長 26.8 m の航空機の曲線の値（3e-6 × 2^E） | 発生器の容積の曲線：`refScale × 8^EXP` = `(8 × refGenV ÷ fullGenV)^EXP`（EXP = ln(refScale) ÷ ln(refGenV ÷ fullGenV)）。「容積 8 倍 = 長さ 2 倍」「小さい発生器は小さい」「localShield も数える」はそのまま | 同上（発生器の容積で決める一本の曲線） | いいえ |
+| craft-shield-generator-scale.cjs / without generator modules the hull length is used, and ships of blendLen and over keep their curve（新名 …; with generators, ships and craft of any length read the one generator-volume curve） | 全長 100 m 以上の機体と艦（コルベット）は発生器があっても全長の曲線のまま（艦は元のまま）。全長 1,000 m は発生器 1e-3 m³ でも 1 | 発生器があれば全長・艦種によらず発生器の容積の曲線（1 m³、0.01 m³ の値で検査）。発生器のない全長 1,000 m は 1、ヴェネターの発生器（61,561.1 m³）で 1、その 4 倍でも 1 を超えない。発生器なしは全長の規則（lengthFieldScale）のまま | 同上（艦も航空機も同じ一本の曲線、ヴェネターの発生器でほぼ補正なし） | いいえ |
+| craft-shield-generator-scale.cjs / the examples: A-wing above, Z-95 below their length rule, X-wing unchanged（新名 …X-wing at the X-wing point of the curve） | X ウイングは全長の規則の値の 1% 以内 | X ウイングは曲線の X ウイングの点（6.158e-6）の 1% 以内。A ウイングは全長の規則より上・Z-95 は下、はそのまま。3 機とも発生器の容積の曲線の値であること、Z-95 < A ウイング < X ウイング（発生器の容積の順）を追加 | 同上 | いいえ |
+| design-placement-catalog-ui.cjs / the catalogue offers one landing and targeting entry while retaining legacy saved definitions（新名 the catalogue offers the craft repulsorlift again, one targeting entry, and retains legacy saved definitions） | landingGear・targetComputer・vls はカタログに出ず、選んでも struct のまま | landingGear はカタログに出て選べる（名前は「リパルサーリフト」、repulsor の名前は「重力制御装置」も検査）。targetComputer・vls は従来どおり出ない | 部品 landingGear を「リパルサーリフト」として再掲載、repulsor は「重力制御装置」 | いいえ |
+
+### テストの土台の変更（期待値は変えていない）
+
+| テストファイル | 変更 | 理由 |
+| --- | --- | --- |
+| design-placement-catalog-ui.cjs（テスト 2 が `craftLaserHTML is not defined`） | app.js から読む関数に craftLaserOptions・craftLaserSummary・craftLaserHTML を追加 | designWeaponPreviewHTML が航空レーザーの円柱設定欄を呼ぶようになった |
+
+### 英語の表示（js/lang-en.js）
+
+craft-systems-localization.cjs のテスト 1・4 が、新しい日本語の文（リパルサーリフトの説明、支持質量の警告）に英訳がなく失敗していた。
+js/lang-en.js の末尾に `<gun-rules-2026-11-24-catalog>` の区画を足した（既存の項目は消していない）。`git diff 8c4bcab -- js/core.js js/app.js js/gfx.js js/engine.js index.html` で
+増えた日本語の文字列を拾い、英訳のないものを足した：
+- 砲の名前・略称・説明（GUN_RULE_LABELS の 9 門）、「中レーザー」「中レーザー砲」（用語）。
+- 航空レーザー 4 種（claser・claserL・claserH・cturret）の説明と出典の文、円柱設定欄（レーザー砲身（円柱）・口径・連射速度・注記・「{0} 発/秒」・「1発 {0}・射程 {1}・定格入力 {2} kt/秒（1門）」・操作名「レーザー砲身を調整」）。
+- 重力制御装置（用語と部品の説明、作例の部品名 5 つ、「重力制御装置喪失」「重力制御装置喪失：撃墜」）、リパルサーリフト（旧 着陸脚）の説明、支持質量の警告（{0}・{1} の型）。
+- エンブレムの移動（「塗装・エンブレムを移動」、英語表示のときの aria-label「Fore/Aft X を減らす」ほか 6 つ）。
+確認：上の差分から拾った文字列のうち英訳が残らないのは、連結の一部だけの「喪失：撃墜」（表示は「リパルサーリフト喪失：撃墜」「重力制御装置喪失：撃墜」で、どちらも英訳あり）のみ。
+追記：fleet-localization.cjs のテスト 4 は main と同じ件数（2 件）で失敗するが、失敗する文字列が「中レーザー2連装（CR90型） #36 充電装置」に変わっていた（main は後ろの「トラクタービーム管制装置（ISD I 型）」）。砲の略称に「#36 充電装置」「×2」「#2」を付けた形は用語（terms）の組み合わせで訳されるので、新しい略称 8 つ（800kt 点防御2連装、133kt 球状PD 3連装、117kt 中レーザー、中レーザー4連装、中レーザー2連装（CR90型）、中レーザー2連装（スフィルナ型）、重レーザー単装、重レーザー2連装）を用語にも足した。全武装の略称・名前とこの 3 つの形を調べ、英訳が残らないのは牽引ビーム（「牽引 #36 充電装置」ほか、main と同じ・既存）だけになった（main では pd・monCalPD・quad500MT・single500MT の形も訳されていなかった）。
+
+### 変更した期待値（続き：航空レーザー・コルベットの砲・リパルサー）
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由（ユーザー決定） | main で失敗 |
+| --- | --- | --- | --- | --- |
+| equipment-taxonomy.cjs / unmarked landing gear retains mechanical support without acquiring repulsor support（新名 …and lifts as a repulsorlift of its volume） | landingGear 1 m³ の `repulsorSupport = 0` | 同じ容積の repulsor 部品と同じ 1 m³ あたりの支持（`repulsor の repulsorSupport ÷ 容積 × landingGear の容積`、今は 70）。接地の支持 300 と容積 1 はそのまま | landingGear は航空機のリパルサーリフトで、浮揚の支持に数える | いいえ |
+| equipment-taxonomy.cjs / equipment replacement offers the unified catalogue while retaining an existing hidden legacy kind | landingGear・targetComputer・vls は交換候補に出ない | landingGear は交換候補に出る（名前「リパルサーリフト」も検査）。targetComputer・vls は出ない。既存の landingGear・targetComputer を開いても、自分以外の隠し種類（targetComputer・vls）は出ない | landingGear を「リパルサーリフト」として再掲載 | いいえ |
+| example-weapon-families.cjs / curated CIS model-cut gun yields, cadences and native variant branches are retained | recProw・recTwin・recKeel の cycle 15、munBow 1.6、munTwin 0.2 | 表の値は `gunLegacy.cycle` に残る（15／15／15／1.6／0.2）。`cycle = gunRule.cycle = 門数 × shotChargeTT ÷ chargeRateTT`、`shotChargeTT = 1 発 × (1 + 砲身 ÷ 19 m)` | 発射間隔は 1 発の充電時間 | この行は main では通過。**このテストは main と同じ後ろの行（`0 !== 10`）で失敗し続ける（既存）** |
+| example-weapon-families.cjs / CR90 native light/heavy guns and the Dreadnaught armament from the user design retain their distinct rosters | twin500MT の 1 発 0.0005 TT、single6MT 6e-6 TT | どちらもレーザーで、1 発 = 各砲身の `laserShotKt(口径)` の平均（twin500MT 0.247 m・285 kt、single6MT 0.169 m・117 kt。口径の実測値でも 1% 以内で検査）。門数の検査はそのまま | 500MT 系は描かれた口径のレーザー、CR-90 の砲は中レーザー | いいえ |
+| example-weapon-families.cjs / Sphyrna uses two native bow twin heavy lasers and one aft twin light turbolaser | 艦首の twin6MT 1 発 6e-6 TT、艦尾の sphyrnaTwin500MT 0.0005 TT | twin6MT は 2 砲身が 658 kt・1,566 kt で boltTT はその平均、sphyrnaTwin500MT は 261 kt のレーザー。配置・門数の検査はそのまま（テスト名は旧のまま） | スフィルナの砲身ごとの威力、500MT 系はレーザー | いいえ |
+| fighter-pilot-guns.cjs / each pilot pulse retains its catalogue shot energy and gas cost when the firing cadence changes（新名 each pilot pulse is the shot of its bore, and energy and gas follow the shots fired when the rate of fire changes） | 既定の周期 0.08〜0.18 s、6 秒で 40 発以上。周期を 0.6 s に書き換えると 1 発 = 毎秒出力 × 0.6 s（craftShotTT）、ガスも 0.6 s 分 | 既定は毎秒 1 発（cycle = 1 = CRAFT_FIRE.cycles.claser、6 秒で 5〜6 発）、1 発 = `laserShotKt(0.17)`。連射速度は fit の rateHz：rateHz 4 で cycle 0.25、1 発は同じ、電力・ガスは発射数に比例（1 発につき claser.cycle = 1 s 分のガス） | 航空レーザーは口径で 1 発・毎秒 1 発、連射速度はユーザーが決め、ガス・電力は発射数に比例 | いいえ |
+| fighter-pilot-guns.cjs / normal and coarse frame steps keep the pulse stream steady without saving up idle shots | 既定の砲で 8 秒 60 発以上、刻み 0.016／0.04／0.1 s で ±1 発・±3% | 連射速度 10 発/秒（rateHz 10、fit の上限）の砲で同じ検査（60 発以上、±1 発、±3% はそのまま）。引き金を離した後・電力切れ後に溜めない検査は既定の砲のまま | 同上（既定は毎秒 1 発になり、8 秒で 8 発） | いいえ |
+| fighter-pilot-guns.cjs / several fixed guns stagger their pulses and the pilot trigger does not wait for a capital salvo | 4 門が 0.12 s（0.01 s × 12 歩）のうちに 1 門ずつ撃つ | 1 周期が 1 s になったので 0.01 s × 100 歩のうちに 1 門ずつ（[1,1,1,1] はそのまま） | 毎秒 1 発 | いいえ |
+| fighter-pilot-guns.cjs / all pilot weapon types share short cycles while a rotating turret still tracks the reticle（新名 pilot lasers fire once a second by default and at the fit's rate of fire, …） | claser・claserH の cycle ≤ 0.22 s | cycle = 1（= CRAFT_FIRE.cycles）、rateHz 5 の fit で 0.2 | 同上 | いいえ |
+| fighter-pilot-guns.cjs / actual aircraft model barrels and tiny affordability limits preserve complete physical shots | cturret の 2 門目は 1 歩（周期 × 0.6）進めた後に `trial.bolts` に 2 発ある | 弾を発射の時点で集める（0.016 s 刻みで周期 × 0.6 進め、出た弾 2 発の 1 発と砲身の間隔を検査。値は同じ）。軽レーザーの弾は射程 860 m（0.19 s）で消えるので、0.6 s 後の一覧には残らない | レーザーの射程 860 m + 125 × (砲身 − 1) × ln(kt) | いいえ |
+| fighter-pilot-damage.cjs / テストの土台 `reset(key, cycle)` → `reset(key, rateHz)` | 砲塔の cycle を直接 0.5／0.7 s に書き換えて遅くする | fit の rateHz を指定する（cycle = 1 ÷ rateHz であることも検査） | 連射速度は fit の rateHz | いいえ |
+| fighter-pilot-damage.cjs / actual catalogue pulses retain their per-shot fighter and missile hit probabilities at different cadences | 速い側 = 既定（0.12／0.18 s）、遅い側 = 0.5／0.7 s。速い側は `秒数 ÷ 遅い周期 × 3` 発より多い | 速い側 = rateHz 4、遅い側 = 既定の毎秒 1 発（5〜7 発、1 発は同じ）。速い側は `秒数 × 3` 発より多い。1 発あたりの命中確率が両方で同じ、の検査はそのまま | 同上 | いいえ |
+| fighter-pilot-damage.cjs / practice-target hit weight scales with the emitted pulse energy rather than the new bolt count | 同じ組み合わせ | 速い側 rateHz 4、遅い側 既定。重みの検査はそのまま | 同上 | いいえ |
+| fighter-pilot-damage.cjs / missile direct hits keep their existing guaranteed kill while laser misses still do no damage | 最初の 0.25 s に出た弾を使う | 最初の 1 s に出た弾を使う（毎秒 1 発なので 0.25 s では出ない） | 同上 | いいえ |
+| fighter-laser-visuals.cjs / fixed fighter lasers stream along their barrels, without snapping toward an offset target | 既定の機首 2 門が 1 秒に 15〜18 発、寿命の違う弾が 9 種類以上 | 既定の機首 2 門は 1 秒に 2 発（2 門は同時に撃たない）。周期 0.12 s を持つ 2 門（連射速度を上げた砲）で元の検査（15〜18 発、描画の刻みによらない、9 種類以上）を残した | 毎秒 1 発 | いいえ |
+| fighter-laser-visuals.cjs / a large nearby formation stays within both the per-frame and total bolt limits | 200 機の既定の砲で 2 秒後の弾が 900〜1,100 | 200 機に周期 0.12 s の 2 門を持たせて同じ検査（毎秒 1 発だと 2 秒で 800 発で上限に届かない） | 同上 | いいえ |
+| fighter-laser-arcs.cjs / a live custom aircraft carries its actual fitted barrel directions into an embarked blueprint snapshot | 艦首面（a:0）に付けた claserH の向き [0,1,0]、真上の目標に撃てる | 2 門とも [1,0,0]（fitFrameOf の fw も検査）。正面の目標に撃て、真上・真後ろには撃てない | 航空レーザーは正面向きにだけ配置 | いいえ |
+| heavy-laser-aa-trial.cjs / single6MT keeps its 6 MT shot for manual fire and does not automatically intercept（新名 …fires the laser shot of its bore (117 kt) on the manual trigger…） | 1 発 6e-6 TT | 1 発 = `laserShotKt(口径)`（117 kt）、弾・消費電力もその値。自動迎撃しない検査はそのまま | CR-90 の砲は中レーザー | いいえ |
+| heavy-laser-aa-trial.cjs / corvette light turbolasers preserve traverse and 500 MT barrels while requiring the manual trigger（新名 the corvette guns once rated 500 MT …fire the laser shot of their bores…） | 1 発 0.0005 TT、蓄電 1 TT から引く | 1 発 = 各砲の口径の値（613／285／279／261 kt）。蓄電は 1e-5 TT（1 TT から 0.3〜0.6 MT を引くと差の丸め 1e-16 が許容差（相対 1e-10、変更なし）を超えるため） | 500MT 系は描かれた口径のレーザー | いいえ |
+| heavy-laser-aa-trial.cjs / dedicated twin and spherical PD packets retain 100 kt per physical barrel while intercepting（新名 …carry the laser shot of their bores (800 kt, 133 kt)…） | 1 門 1e-7 TT | pd 800 kt、monCalPD 133 kt（`laserShotKt(口径)`） | 点防御 800 kt、球状 PD 133 kt | いいえ |
+| mandator-battery-layout.cjs / the archived v23 Mandator combines the batteries without changing main/ion or per-barrel PD energy | pd・monCalPD の 1 門 1e-7 TT、点防御の一斉射の合計 0.00005 TT（500 門 × 100 kt） | 1 門 = `laserShotKt(口径)`（pd 800 kt、monCalPD 133 kt）、合計 = 160 × pd.tt + 60 × monCalPD.tt（約 0.00028 TT）。主砲・イオン 317,520 TT、門数 500、基数 499 はそのまま | 点防御 800 kt、球状 PD 133 kt | 基準側の結果は未着（比較の実行待ち）。失敗の値 `8e-7 != 1e-7` は砲の規則によるもの |
+| weapon-catalog-migration.cjs / one canonical catalog describes the heavy twin, octuple and generic ion gun | stl・oct40 の `power = tt × TT ÷ cycle` | `cycle = gunRule.cycle`、`power = chargeRateTT × TT`、`shotChargeTT = 1 発 × (1 + 砲身 ÷ 19 m)`、`power × cycle ÷ TT = 門数 × shotChargeTT` | 電力は充電の速さ、1 発の充電は閉じ込めを含む | いいえ |
+| trench-armament-combat.cjs / port and starboard rows use the real opening, range and bounded per-muzzle obstruction rather than one center ray（ほか、同じ `target()` を使うテスト 4・7・8） | 目標を中心線から 8 km（艦首側の目標は 12 km）に置き、溝の 34TT 単装球（monCal34）の列が撃つ | 目標を 4 km（艦首側 7 km）に置く。monCal34 は保持距離 4.4 km・射程 7.4 km（砲身 10.3 m が最低コイル長 9.65 m をわずかに超えるだけ）。4 km が保持距離の内、7 km が射程の内、射程が 8 km 未満であること、8 km では撃たないことも検査。開口・遮蔽・弾の配分の検査はそのまま | ターボレーザーの射程は保持距離（コイル長）+ 171 m の減衰 | いいえ（テスト 9 の失敗は main と同じ・既存） |
+| trench-armament-combat.cjs / actual reactor input charges empty shared banks and funds firing and weapon waste heat through one ledger | 武装の熱 = `HEAT.waste.weapon × 入力 × dt`（入力の 5%） | 武装の熱 = `profile.weaponWaste × 入力 × dt`、`weaponWaste = monCal34 の gunRule.heatFrac = 0.05 × c ÷ (1 + c)`（c = 砲身 ÷ 19 m、今は 0.0176）。ほかの帳簿の検査はそのまま | 「艦内に行く熱は圧縮分のエネルギーの5%で」 | いいえ |
+| small-weapons-ui.cjs / catalog cards display total volleys while each weapon preview shows its per-barrel rating | 一斉射の表示：quad500MT 2 GT、twin500MT 1 GT、single500MT 500 MT、single6MT 6 MT、twin6MT 12 MT、sphyrnaTwin500MT 1 GT | 1.12 MT、570.33 kt、613.23 kt、116.9 kt、2.22 MT、521.83 kt（各砲身の `laserShotKt(口径)` の合計を fTT で表示した値と一致することも検査） | コルベットの砲は描かれた口径のレーザー | いいえ |
+| small-weapons-ui.cjs / dedicated PD and aircraft cards show calibrated per-shot units and the removed ion gun stays out of the catalog | 1 発：pd・monCalPD 100 kt、claser 6 kt、claserH 72 kt、cturret 1.2 kt。一斉射 200／300／6／72／2.4 kt | 1 発：800 kt、133.13 kt、118.28 kt、436 kt、42.88 kt。一斉射 1.6 MT、399.38 kt、118.28 kt、436 kt、85.76 kt。プレビューの 1 発 = `laserShotKt(口径)`（0.40／実測／0.17／0.30／0.12 m） | レーザーの 1 発は口径から、毎秒 1 発 | いいえ |
+| shield-deflection.cjs / missiles, bombs and craft strike the hull; ion ordnance works on the ship without the field（新名 missiles and bombs strike the hull, craft lasers meet the field unless fired from inside it; …） | core.js に `direct:(msl+fd)*hd`（搭載機の射撃 fd は常に直接損害） | シールドの外からは `air:fd*hd`（シールドに当たる）と `direct:msl*hd`、シールドの内側からは `direct:(gun+msl+fd)*hd`、搭載機の射撃は `sf`・`hull` として FLEET_AIR_GUN_BOLT の弾で数える、の 3 つの記述を検査。ほかの検査はそのまま | 「シールドに当たる場合はシールドに防がれる。スレスレを飛行してシールドの内側に入ると直接ダメージ」 | いいえ |
+| twin40-turret.cjs / the two photographed 40 TT twins have distinct houses while DBY-827 remains a 70 TT twin | `power × cycle ÷ TT = 80` | `shotChargeTT = 40 × (1 + 砲身 ÷ 19 m)`、`cycle = gunRule.cycle`、`power = chargeRateTT × TT`、`power × cycle ÷ TT = 2 × shotChargeTT` | 電力は充電の速さ、1 発の充電は閉じ込めを含む | いいえ |
+| weapon-family-models.cjs / all nine photographed weapons keep distinct regular models, barrel counts, energies and native scales | `power × cycle ÷ TT = 門数 × 1 発` | 同上の関係（1 発は表の値のまま） | 同上 | 書き換えた行は main では通過。このファイルの残り 3 件の失敗は main と同じ（既存） |
+| venator-side70.cjs / the restored side weapon has its own 70 TT-per-barrel identity without upgrading old 40 TT inventory | `power = 140 × TT ÷ cycle` | `cycle = gunRule.cycle`、`power = chargeRateTT × TT`、`shotChargeTT = 70 × (1 + 砲身 ÷ 19 m)`、`power × cycle ÷ TT = 2 × shotChargeTT` | 同上 | いいえ |
+| weapon-family-retirement.cjs / the spherical four-barrel40TT ion gun has one160TT ion salvo and no turbolaser output | quad40Ion の cycle 1、power 160 TT/s | 表の値は `gunLegacy.cycle = 1`。`shotChargeTT = 40 × (1 + 砲身 ÷ 19 m)`、充電の速さ = 0.00062 TT/s/m³ ×（砲塔の容積 fm×wm×hm + 既定の充電容積）、`cycle = gunRule.cycle = 4 × shotChargeTT ÷ chargeRateTT`（今は 50.6 s）、`power = chargeRateTT × TT` | イオン砲の充電の速さは容積から、間隔は充電時間だけ | いいえ |
+| weapon-family-retirement.cjs / the actual engineering and fleet mount keep spherical ion damage separate from gun damage | 砲台の `m.ion = 160`（TT/s）、`m.cycle = 1` | `m.ion = 160 ÷ gunRule.cycle`、`m.cycle = gunRule.cycle`。斉射 160・1 発 40・4 門はそのまま | 同上 | いいえ |
+| weapon-family-retirement.cjs / retired overlapping weapons migrate to current types while retaining saved fitting identity and settings | twin40・quad40Ion の cycle 1 | `gunLegacy.cycle = 1`、`cycle = gunRule.cycle` | 発射間隔は充電時間 | いいえ |
+| point-defense-toggle.cjs / OFF stops actual missile interception for both installed PD families without silencing aimed ship fire | 敵艦を 5 km に置き、pd・monCalPD とも敵艦を撃つ | 射程が 5 km 以下の砲は敵艦を射程の 0.6 倍に置く（monCalPD は射程約 1.7 km なので約 1.0 km。pd は射程 5.04 km で 5 km のまま）。「迎撃を切るとミサイルを撃たない」「敵艦は撃つ」はそのまま | レーザーの射程 860 m + 125 × (砲身 − 1) × ln(kt) | 基準側の結果は未着。失敗は monCalPD の射程による |
+| point-defense-minimum-render.cjs / minimum PD uses fixed explicit budgets, exact whole extents and one cached asset without changing the physical model | pd・monCalPD の 1 門 1e-7 TT | 1 門 = `laserShotKt(口径)`（800 kt、133 kt）。三角形・頂点数、範囲、元データのハッシュの検査はそのまま | 点防御 800 kt、球状 PD 133 kt | 基準側の結果は未着 |
+| point-defense-minimum-render.cjs / all 42 non-PD authored draw meshes remain byte-identical to the merged rendering baseline | 42 資産の描画メッシュ（pos・uv・idx）のハッシュが基準資料（tests/helpers/non-pd-render-geometry.json）と一致 | **基準資料は変えていない。** 読み込み時の砲身の変形（reshapeGunBarrels）をメモリ上でだけ無効にした 2 つ目のゲームの写しで、42 資産すべてが基準資料と一致することを検査（保存されたモデルと描画処理は元のまま）。実際のゲームでは、変形しない資産は従来どおり基準と一致、変形する資産（200GT 系 4 種とモン・カラマリの球形砲 5 種のうち基準資料にあるもの）は uv・idx が基準と一致し、pos は砲身の頂点範囲の中だけが変わっていることを 1 頂点ずつ検査。変形される資産がこの 9 種以外にないことも検査 | 口径 0.45 m 未満のターボレーザーを太くする、モン・カラマリの球形砲の砲身を図面の比に伸ばす | 基準側の結果は未着。失敗は `light_quad200 unchanged pos`（変形した資産の頂点） |
+
+### テストの土台の変更（続き、期待値は変えていない）
+
+| テストファイル | 変更 | 理由 |
+| --- | --- | --- |
+| gunnery-accuracy.cjs / `profile()`（テスト 6 mixed battery bands… が 140 ≠ 160） | ISD の性能表を写した土台から `gunBandRules`・`ionRules` を消す | 性能表が実際の砲の規則（帯ごとの射程・減衰）を持つようになり、土台が書き換える架空の帯（近距離 20 を 9 km で撃つ）と食い違う。規則のない性能表は帯の射程で撃つ（規則前の性能表と同じ扱い）。期待値 160 はそのまま。残る 2 件の失敗は main と同じ（既存） |
+| moncal-weapons-ui.cjs（テスト 4 が `craftLaserHTML is not defined`） | app.js から読む区間に `function craftLaserOptions(` 〜 `function changeCraftLaser(` を追加 | designWeaponPreviewHTML が航空レーザーの円柱設定欄を呼ぶようになった。テスト 5（英語名、`monCalPD name`）は js/lang-en.js の追加で通過 |
+| surface-energy-review.cjs / `battle()`（テスト 1・2 が「撃たない」） | CR90 の性能表を写した土台から `gunBandRules`・`ionRules` を消す | 性能表が CR90 の実際のレーザーの規則（射程 1.7〜4 km）を持つようになり、それが目標を探す距離を決めるため、土台の架空の砲台 2 基（規則なし・中射程帯）が 5 km の目標を撃たなくなった。規則のない性能表は帯の射程で撃つ。期待値は変えていない（10/10） |
+| small-weapons-ui.cjs（テスト 5 が `craftLaserHTML is not defined`） | app.js から読む区間に `function craftLaserOptions(` 〜 `function changeCraftLaser(` を追加、`st`・`selItem`・`curFit` の代役を追加 | 同上 |
+| weapon-support-preview.cjs（7 件が `Real miniature geometry must render`、原因は `craftLaserOptions is not defined`） | app.js から読む関数に craftLaserOptions を追加 | 設置前の砲の下書き（designUIFitDraft）が航空レーザーの円柱設定を持つようになった。期待値は変えていない（8/8） |
+| solo-shield-recharge.cjs / `fixture()` | シールド発生器の区画の大きさを 1 m³ → `SHIELD_CURVE.fullGenV`（61,561.1 m³、補正ちょうど 1） | fieldScale が艦でも発生器の容積の曲線を読むようになり、1 m³ では 200 TT のシールドが 0.004 TT になる（2026-11-19 に全長を 1,000 m にしたのと同じ理由）。期待値は変えていない。7 件中 4 件が通過。残る 3 件は下の「疑わしい不具合」4（期待値は変えていない） |
+
+### 疑わしい不具合・判断が要るもの（期待値で隠していない。js/core.js・js/app.js・js/gfx.js・js/engine.js・scripts/ は変更していない）
+
+番号は上の「疑わしい不具合」1・2（解決済み）の続き。
+
+3. **craft-as-ships.cjs テスト 8（X ウイングが止まっている TIE/ln を 10 分で撃墜できない）**。艦隊戦モデル（fleetFire）の命中率が、帯の射程（近距離 9 km）ではなく砲自身の射程で散布を決めるようになった（js/core.js fleetFire の `gunHitChance(u,t,d,reach,control)`、gunDispersion は射程に反比例）。X ウイングのレーザーは射程 2,396 m なので角度の散布が 9,000 ÷ 2,396 = 3.76 倍に広がり、300 m・照準が落ち着く前で TIE への命中率は 0.98%（9 km 基準なら 13%）。加えて 1 発が 6 kt → 136 kt になり（1 発ぶん溜まるまで当たらない：combatResolve の shotAcc）、レーザーガスは 55 秒ぶん（砲が目標を向いていない刻みも減る：core.js 120434 行付近）。実測（seed 1〜8 すべて同じ）：223 刻み（55 s）撃ってガス切れ、TIE に届いた期待値は 1 発の 0.23 倍、損害 0。main では 19 s で撃墜。docs/handoff の交戦の試算（300 m で命中 50%、120 s で 43 発中 6.7 発命中）と合わない。対応案：散布の基準距離を砲の射程と切り離す（航空レーザーは 300 m で 50% など実測に合わせる）、または目標を向いていない刻みではガスを減らさない。テストは変更していない（失敗のまま）。
+4. **solo-shield-recharge.cjs テスト 2・3・8（発生器の容積を直した後も残る 3 件）**。SHIELD_MODEL.wear が 0.05 になり、シールドが受け止めた量に対する「上限の減り」（5%）が「シールド自体の減り」（debit 0.25 × (1 − deflectMax 0.82) = 4.5%）を上回った。受け止めた直後からシールドは下がった上限に張り付き、被弾中の再充電では増えない。例：200 TT のシールドを 70% にする被弾（1,333 TT）で上限が 133.3 TT になり、テストの期待（70% + 再充電分 = 153 TT）に届かない（実測 133.37）。テスト 8 は払った再充電の電力（× returnK）より蓄えの増加が 0.0067 TT 少ない（上限で切られた分）。wear の値はユーザーの指示で艦隊戦の時間から決めた値なので、この副作用を受け入れるか（その場合はこの 3 件の期待値を「下がった上限まで」に書き換える）、wear を 4.5% 未満にするかの判断が要る。期待値は変えていない。
+5. **fighter-pilot-guns.cjs テスト 2（艦首面・艦尾面・傾いた面に付けた航空レーザー）**。C.fitFrameOf は航空レーザーの向きを常に +X にするが、公試用の砲の記録（js/gfx.js trialTurrets、3787 行 `if(d.fixed)return {pivot:…,axis:C.fitUp(f),fw:fr.fw}` と 3812 行の `fw − axis(fw·axis)`）は取付面の法線を軸にして fw をその面へ射影するため、艦首面・艦尾面（a:0／a:1）では fw が [0,0,0]、傾いた面（tilt [0.3,0.8,0.52]）では [0.954,−0.252,−0.163] になる（上面・下面・舷側は [1,0,0]）。公試では弾の向きがゼロまたは斜めになる。対応案：gfx.js 3787 行で航空レーザー（C.CRAFT_LASER_GEOMETRY[f.k]）は軸に fr.up を使う。テストは変更していない（期待値はもともと C.fitFrameOf の fw）。
+6. **turret-rotation-core.cjs テスト 2、turret-rotation-transform.cjs テスト 1（小型旋回砲塔 cturret の向き）**。fitFrameOf の「正面向きだけ」の規則（js/core.js 105169 行）が CRAFT_LASER_GEOMETRY にある cturret にも掛かり、設置時の向き（assetYaw）が効かなくなった（assetYaw 180° でも fw = [1,0,0]）。一方 fitCanRotate('cturret') は true のままで、説明も「後部銃座・上部砲塔」のまま。ユーザーの決定は円柱の航空レーザー（固定砲）を正面向きにだけ置くというもので、旋回砲塔を含むかは書かれていない。対応案：正面向きの枠を固定砲（claser・claserL・claserH）に限る。意図どおりなら fitCanRotate と説明・この 2 テストを直す。テストは変更していない。
+7. **weapon-snapshot-migration.cjs テスト 1・2（328 ≠ 327）**。対空の評価値（deriveAntiAir、js/core.js 125555 行）は点防御 2連装（pd）の「旋回 × 門数 ÷ 発射間隔」が 6 になるよう係数を決める。pd の間隔が 0.2 s → 1 s になったため係数が 5 倍（0.636 → 3.18）になり、レーザー以外の砲の対空の評価値が 2〜5 倍に上がった（oct40 0.69 → 2.18、triple40 0.42 → 1.59、single500MT 0.31 → 1.54。pd・monCalPD・single6MT は同じ）。設計機の射撃値（6 + 対空 + 斉射）や区画の大きさに入る。決定にない変化なので、表の旧間隔（gunLegacy.cycle）で評価するなどの対応が要るかの判断が要る。テストは変更していない。
+8. **ion-barrel-style.cjs テスト 1（150TT イオン単装球の砲身の先細り）**。砲身を図面の比に伸ばす処理（decodeReference、js/core.js 109975 行付近）は「砲室を出た先の輪を前へ送る」形で、ターボレーザーでは最初の直筒が伸びるが、イオン砲身は砲室を出た所から先細りが始まるので、先細りの区間そのものが 5.39 m → 16.07 m に伸びる（太い根元から砲口まで全体が長い円錐になる）。記録の taperEndXM（9.749）は伸ばす前のままで、描いた形（20.43）と合わない。先細りを保って直筒だけ伸ばすのか、今の形でよいのかは原本照合（reference-fidelity）の判断が要る。テストは変更していない。
+9. **fighter-interiors.cjs テスト 12（Z-95 の加速 3,406 G が建造目標 3,330 G を超える）**。Z-95 のレーザーが口径 0.10 m・長さ 1.04 m の円柱になり、質量が容積比で 1 門 1.2 t → 0.152 t になった（js/core.js craftLaserSpec）。機体が 30.81 t → 28.71 t に軽くなり、定格加速が 3,152 G → 3,406 G。テストの上限（目標 × 1.001）は「機関の曲線では目標を超えない」という前提で、砲の質量の変化は想定していない。作例の調整か上限の見直しかの判断が要る。テストは変更していない。
+10. **mandator-battery-layout.cjs テスト 2・4**。scripts/mandator-layout-evidence.cjs 92 行の `pdVolley: Math.abs(pdVolleyTT - .00005) < 1e-12`（点防御 500 門 × 100 kt）が旧い値のまま。新しい合計は 160 × pd.tt + 60 × monCalPD.tt = 約 0.00028 TT。scripts/ は今回の編集範囲の外なので変更していない（テスト 1 は tests/ 側で新しい値に直した）。
+
+### 再実行の結果（2 回目、最終。7ec9626 の作業ツリー + js/lang-en.js の追記、1 ファイルずつ）
+
+ログ：/tmp/ks-verify/20261124-testfix/final/。基準側（main 8c4bcab）の件数は /tmp/ks-verify/20261124-final-tests/compare.txt と、同じ worktree で実行し直した /tmp/ks-verify/20261124-testfix/base/。
+
+| ファイル | 依頼時（候補／main の失敗数） | 最終（通過／失敗） | 残る失敗 |
+| --- | --- | --- | --- |
+| arquitens-turret | 1／0 | 5／0 | なし |
+| authored-render-budget | 1／0 | 5／0 | なし（変更なしで通過） |
+| broadside-battery-gfx | 1／0 | 2／0 | なし |
+| capital-turret-models | 2／0 | 18／0 | なし |
+| capital-turret-trial | 3／0 | 6／0 | なし |
+| combat-point-defense-targeting | 1／0 | 8／0 | なし |
+| craft-shield-generator-scale | 5／0 | 5／0 | なし（テスト 5 は航空機の価格表の作り直し後に通過） |
+| craft-systems-localization | 2／0 | 6／0 | なし |
+| design-placement-catalog-ui | 2／0 | 10／0 | なし |
+| equipment-taxonomy | 2／0 | 9／0 | なし |
+| example-weapon-families | 6／4 | 11／4 | main と同じ 4 件（既存） |
+| fighter-laser-arcs | 1／0 | 10／0 | なし |
+| fighter-laser-visuals | 2／0 | 8／0 | なし |
+| fighter-pilot-damage | 3／0 | 3／0 | なし |
+| fighter-pilot-guns | 6／0 | 8／1 | テスト 2（疑わしい不具合 5） |
+| gunnery-accuracy | 3／2 | 6／2 | main と同じ 2 件（既存） |
+| heavy-laser-aa-trial | 3／0 | 4／0 | なし |
+| mandator-battery-layout | 3／0 | 4／2 | テスト 2・4（疑わしい不具合 10、scripts/ 側の値） |
+| moncal-turret-models | 1／0 | 3／0 | なし（変更なしで通過） |
+| moncal-weapons-ui | 2／0 | 5／0 | なし |
+| point-defense-minimum-render | 2／0 | 4／0 | なし |
+| point-defense-toggle | 1／0 | 6／0 | なし |
+| shield-deflection | 1／0 | 5／0 | なし |
+| small-weapons-ui | 3／0 | 5／0 | なし |
+| solo-shield-recharge | 7／0 | 5／3 | テスト 2・3・8（疑わしい不具合 4） |
+| surface-energy-review | 2／0 | 10／0 | なし |
+| trench-armament-combat | 5／1 | 8／1 | main と同じ 1 件（既存） |
+| twin40-turret | 1／0 | 5／0 | なし |
+| venator-side70 | 1／0 | 3／0 | なし |
+| weapon-catalog-migration | 1／0 | 8／0 | なし |
+| weapon-family-models | 4／3 | 9／3 | main と同じ 3 件（既存） |
+| weapon-family-retirement | 3／0 | 5／0 | なし |
+| weapon-support-preview | 7／0 | 8／0 | なし |
+| craft-as-ships | 1／0 | 8／1 | テスト 8（疑わしい不具合 3）。変更していない |
+| fighter-interiors | 1／0 | 13／1 | テスト 12（疑わしい不具合 9）。変更していない |
+| ion-barrel-style | 1／0 | 2／1 | テスト 1（疑わしい不具合 8）。変更していない |
+| turret-rotation-core | 1／0 | 4／1 | テスト 2（疑わしい不具合 6）。変更していない |
+| turret-rotation-transform | 4／3 | 1／4 | テスト 1（疑わしい不具合 6）＋ main と同じ 3 件。変更していない |
+| weapon-snapshot-migration | 5／3 | 2／5 | テスト 1・2（疑わしい不具合 7）＋ main と同じ 3 件。変更していない |
+| craft-cost-parity | 8／0 | 22／0 | なし（価格表の作り直し後。変更していない） |
+| fighter-air-superiority | 2／0 | 8／0 | なし（同上） |
+| fighter-attack-runs | 5／0 | 8／0 | なし（同上） |
+| fighter-follow-integration | 4／0 | 4／0 | なし（同上） |
+| fighter-hyper-retreat | 2／0 | 8／0 | なし（同上） |
+| raid-regressions | 3／0 | 5／0 | なし（同上） |
+| reference-sublight-speeds | 2／1 | 9／1 | main と同じ 1 件（既存。もう 1 件は価格表の作り直しで解消） |
+| fleet-loadout-separation | 時間切れ／0 | 10／0 | なし（5dbafe0 の作業ツリーで 20 分 20 秒。7ec9626 では実行し直していない） |
+| hull-outer-surface-contact | 時間切れ／0 | 4／0 | なし（7ec9626 の作業ツリーで 19 分 9 秒。変更していない） |
+| example-figures-regression | 時間切れ／強制終了 | 未完了 | 作業ツリーで 50 分の上限まで結果が出なかった（途中の使用メモリ 5.1 GB）。main 側の「1 件失敗」は 19 分でメモリ不足により強制終了されたもの（SIGKILL）で、検査の失敗ではない。どちらの側も有効な結果がない |
+
+補足：
+- 候補側の失敗数が main 以下だった 154 ファイル（compare.txt）は、失敗するテスト名が両側で同じことを確認し、触っていない。そのうち失敗の文言だけが変わっていたのは capital-turret-core（`pd.boltTT` 1e-7 → 8e-7、前回記録済み）、fleet-localization（上の英語の追記で main と同じ文言に戻った）、weapon-flush-bounds-core（main は航空レーザーの箱の幅 0.2688 ≠ 0.32、候補は「頂点が箱の外」。この行は当初 main と候補を逆に書いていたので訂正した。詳細は末尾の「判断結果の反映」）。
+- 航空機の価格表が古いこと（`profile is out of date … model 26, current 27`）で失敗していたテストは、7ec9626 の作り直しの後に上の表のとおり通過した。作り直しの前には、価格表だけを作り直した js/core.js の写し（/tmp/ks-verify/20261124-testfix/regenroot、リポジトリのファイルは変更なし）でも同じ結果を確認した。
+
+## 判断結果の反映（2026-11-25、HEAD 833ca35 の上）
+
+「疑わしい不具合」3（craft-as-ships）・5（fighter-pilot-guns）・6（cturret）・10（mandator のスクリプト）は主担当が js/・scripts/ を直して解消済み。
+残りは仕様として受け入れ、期待値を書き換えた。許容差は変えていない。ログ：/tmp/ks-verify/20261124-testfix/final/<名前>.accept.log。
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 根拠 | main で失敗 |
+| --- | --- | --- | --- | --- |
+| solo-shield-recharge.cjs / solo shield storage does not add electrical, fuel or operating heat a second time | 70% にする被弾の後、1 刻みでシールド = 設計値 ×（0.7 + 再充電分）= 153 TT | 下がった上限 = 設計値 − wear × 被弾量 + 設計値 × 0.1 s ÷ wearRecoverS（133.37 TT）で、`u.shieldMax` もシールドもその値（再充電後の値より低いことも検査）。電力・燃料・熱の検査はそのまま | SHIELD_MODEL.wear 0.05 を採用（艦隊戦の所要時間の調整）。上限の減り 5% がシールド自体の減り 4.5%（debit 0.25 × (1 − deflectMax 0.82)）を上回り、被弾後は下がった上限に張り付く | いいえ |
+| solo-shield-recharge.cjs / a battle-owned pilot receives no duplicate solo recharge before its world combat update | 共通の更新 1 回の後 = 被弾後の値 + 払った電力ぶん（153 TT） | 同じ下がった上限（133.37 TT）と払った電力ぶんの小さい方。公試の刻みでシールドが変わらない検査はそのまま | 同上 | いいえ |
+| solo-shield-recharge.cjs / field and reserve both finish their variable-step refill before idle power returns to navigation | 蓄えの増加 = 払った電力 × returnK（10.2767 TT） | 払った電力 × returnK − 最初の刻みで上限に切られた分（wear × 被弾 6 TT − シールドの減り 0.27 TT − 0.07 s の回復 0.0233 TT = 0.0067 TT）。切られた分が 0 より大きく 0.01 TT 未満であることも検査 | 同上 | いいえ |
+| weapon-snapshot-migration.cjs / an embarked model refreshes cached combat output…、engine transport retains a pending combat refresh… | 設計機の射撃値 327 | 328 = round(6 + oct40 の対空 2.179 + 320)。oct40 の対空の値も検査 | pd が毎秒 1 発になった結果の対空評価値の相対変化を受け入れ。**既知の影響：対空の係数が 5 倍（0.636 → 3.18）になり、レーザー以外の砲の aa が 2〜5 倍（oct40 0.69 → 2.18、triple40 0.42 → 1.59、single500MT 0.31 → 1.54）。設計機の射撃値と区画の大きさに入る** | いいえ（残る 3 件は main と同じ・既存） |
+| ion-barrel-style.cjs / all authored ion guns use a physically thick root tapering to a narrow tip with closed real bores | 先細りの区間 = 記録の taperStartXM〜taperEndXM | 砲身を伸ばした資産（monCal150Ion だけであることも検査）は、先細りの終わり = taperEndXM + 伸ばした長さ（露出砲身 × (倍率 − 1)）。閉じた筒・砲口の凹み・半径の検査はそのまま | モン・カラマリ球形砲の砲身延長（ユーザー指示）で、砲室を出た所から始まる先細りも伸びる（5.39 m → 16.07 m）ことを受け入れ。**既知の不整合（js 側未修正）：記録の taperEndXM（9.749）は伸ばす前のまま** | いいえ |
+
+変更していないもの：
+- fighter-interiors.cjs テスト 12（Z-95 の加速 3,406 G > 目標 3,330 G）：ユーザー判断待ち。失敗のまま。
+- weapon-flush-bounds-core.cjs テスト 3：**前回の記載は main と候補が逆だった。訂正する。**「箱の幅 0.2688 ≠ 0.32」で失敗するのは main の側。候補は、その手前の「描いた頂点が砲の箱（fitAABB）に入っている」検査で失敗する（`claser axis0 scale0.5 vertex … outside`）。
+  航空レーザーの箱より描いた円柱の方が太い：claser は箱 0.269 m・描画 0.320×0.304 m（scale 0.5 では箱 0.134 m・描画 0.283×0.269 m で、描画が縮尺に追従していない）、claserH は箱 0.420 m・描画 0.500×0.476 m（scale 0.5 でも描画は同じ）。
+  選択範囲・干渉の箱と描画が合っていない js 側の問題で、期待値では直せないため、テストは元のまま（失敗 1 件、件数は main と同じ）。対応案：fitAABB を描く円柱の寸法から作る、または描画を箱と同じ口径・縮尺にする。
+
+## 訂正（2026-11-25、2 回目のレビュー後の修正 2401f13 に合わせる）
+
+上の表のうち、次の 3 点は記載が古い。表の行は経過として残し、ここに今の状態を書く。
+
+| 対象 | 上の記載 | 今の状態 | 理由 |
+| --- | --- | --- | --- |
+| capital-turret-trial.cjs / a real RTS carrier spool keeps its manually piloted physical guns fireable before departure | 使った蓄電 = 700 × `weaponChargeFactor(ball175Quad)`（2,103.7 TT） | 使った蓄電 = **700 TT**（main と同じ値）。係数が 1 + 砲身 ÷ 19 m で 1 より大きいことの検査は残した | 物理レビュー（2 回目）の FAIL：公試の蓄電は「撃ち出す量」を貯める器で、充電係数 (1+c) は貯めるときの入力（`weaponInputFactor`）で払っている。`js/app.js` `trialTurretState` の `costK` に `weaponChargeFactor` も掛けていたので二重計上だった。2,103.7 TT はその二重計上を正解として固定した値で、誤り |
+| ion-barrel-style.cjs / all authored ion guns use a physically thick root tapering to a narrow tip with closed real bores | 先細りの終わり = taperEndXM + 伸ばした長さ、に書き換えた | **テストは main と同じ内容に戻した**（`git diff 8c4bcab HEAD -- tests/ion-barrel-style.cjs` は差分なし）。3／0 で通る | 原本照合レビュー（2 回目）の FAIL：150TT イオン球の先細り区間まで伸ばしていた。`js/core.js` の側を、先細り区間（4.357〜9.749 m）は元のまま、伸ばした分はその後ろに入れる形に直したので、期待値を変える必要がなくなった。「既知の不整合（taperEndXM が伸ばす前のまま）」も解消 |
+| 冒頭と「疑わしい不具合」の見出しの「scripts/ は変更していない」 | scripts/ は変更していない | `scripts/mandator-layout-evidence.cjs` の 1 行を主担当が変更した：`pdVolley` の検査値を固定の 0.00005 TT（500 門 × 100 kt）から、その艦の点防御の数 × 砲の 1 発（`counts.pd × FITS.pd.tt + counts.monCalPD × FITS.monCalPD.tt`）に変えた | 「疑わしい不具合 10」の解消。**注意：検査値を検査対象と同じ表から計算しているので、独立した期待値ではない**（砲の 1 発が誤っていても通る）。独立した期待値に戻すのは次の PR（申し送り PR B の 7） |
+
+- 確認（2401f13 の作業ツリー）：capital-turret-trial 6／0、ion-barrel-style 3／0。
+- 補助エージェントは `tests/**`・`js/lang-en.js`・この記録だけを編集した。`js/`・`scripts/`・`data/` の変更はすべて主担当による。
+
+## 2026-11-25 の砲の変更（コルベットのターボレーザー化、給電の割り増し、給電区画の最小容積）
+
+対象：ユーザー決定（2026-11-25、コミット 520bcf0 の `js/core.js`）で意図して変えた砲の規則に合わせ、変更前（f9b46e2）から新しく落ちるようになった 3 本の期待値を直したもの。
+
+- 決定の要点：レーザーは砲身だけで充電区画（給電区画）を持たない。single6MT は 100 MT の軽ターボレーザー、twin500MT・quad500MT は 1 発 200 GT の中ターボレーザー、sphyrnaTwin500MT は 1 発 200 MT の軽ターボレーザー（`GUN_RULES.turbolaserShot`）。砲身が最低コイル長より短い、または描かれた口径が 0.45 m より細い砲は、充電と給電が `feedK` 倍。ターボレーザー・イオン砲の給電区画は最小 50 m³（`GUN_RULES.feedMinM3`）。
+- 基準：f9b46e2 の写し（スクラッチパッドの wt-regen、読むだけ）で同じ 3 本を 1 本ずつ実行。候補：ブランチ `claude/inspiring-faraday-kn13yq` の 520bcf0 の作業ツリー（テストとこの記録だけ変更。`js/`・`data/`・`scripts/` は変更していない）。
+- ログ：スクラッチパッドの tests/agent1/（`before-old-*.log`＝f9b46e2、`before-new-*.log`＝520bcf0 で直す前、`after-*.log`＝直した後）。
+- 許容差は変えていない。数値の決め打ちより、規則との関係（`GUN_RULES.turbolaserShot`、`gunRule.feedK`、`GUN_RULES.feedMinM3`、`weaponChargeSpec`、`needsCapacitor`）で書いた。ユーザーが決めた値そのもの（100 MT・200 GT・200 MT、50 m³）だけは数値でも確かめている。
+
+### 変更した期待値
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由（ユーザー決定） | 変更前（f9b46e2）に失敗していたか |
+| --- | --- | --- | --- | --- |
+| heavy-laser-aa-trial.cjs / single6MT fires the laser shot of its bore (117 kt) on the manual trigger…（新名 single6MT fires its 100 MT light-turbolaser shot on the manual trigger…） | `gunRule.kind = 'laser'`、1 発 = 口径の `laserShotKt`（117 kt） | `gunRule.kind = 'turbolaser'`、1 発 = `GUN_RULES.turbolaserShot.single6MT`（1e-4 TT = 100 MT）、`FITS.boltTT`・`gunRule.shotKt` がそれと一致、`needsCapacitor` が true。「手動の引き金でだけ撃つ」「自動迎撃しない」「撃った分だけ蓄電が減る」はそのまま | single6MT は 100 MT の軽ターボレーザー | いいえ |
+| heavy-laser-aa-trial.cjs / the corvette guns once rated 500 MT preserve traverse, fire the laser shot of their bores and require the manual trigger（新名 …fire their own shot (the single a laser of its bore, the others turbolasers)…） | 4 門ともレーザー、1 発 613／285／279／261 kt。蓄電は 1e-5 TT | single500MT はレーザーのまま 613 kt。twin500MT・quad500MT は 200 GT、sphyrnaTwin500MT は 200 MT のターボレーザー（`GUN_RULES.turbolaserShot`）。蓄電は「1 発の 16 倍」（200 GT の弾は 1e-5 TT では撃てないため。旧の 1e-5 TT もレーザーの 1 発の 16〜38 倍だった）。蓄電の減りの許容差（相対 1e-10）は変えていない | 2 連装と 4 連装は中ターボレーザー（200 GT）、スフィルナの 2 連装は軽ターボレーザー（200 MT）、単装 613 kt はレーザーのまま | いいえ |
+| weapon-shot-calibration.cjs / ファイル冒頭の `laserBolt` と作例の表 `corvette`（読み込み時に落ちていた） | コルベットの 6 門すべてを `gunRule.perBarrel`（レーザーだけが持つ）から計算 | レーザー（twin6MT・single500MT）は従来どおり口径から。ターボレーザーの 4 門は `GUN_RULES.turbolaserShot[k]`（`gunRule.shotKt` と一致することも検査）。`laserBolt` はレーザー以外に使うと検査で止まる | コルベットの 4 門をターボレーザーに | いいえ（520bcf0 では読み込みで落ち、9 本とも実行されなかった） |
+| weapon-shot-calibration.cjs / 共通の `shot()` 検査（tests 1–3 で使用） | `shotChargeTT = E × (1 + 砲身 ÷ 19 m)`、`weaponChargeSpec.targetVolume = 斉射 ÷ 0.05` | `shotChargeTT = E × (1 + 砲身 ÷ 19 m) × feedK`、`feedK = max(1, 最低コイル ÷ 砲身) × (描かれた口径が 0.45 m 未満なら (0.45 ÷ 口径)²)`＝`coilShortK × boreShortK`、`chargeRateTT = 0.0631 × 斉射 ÷ 0.05 × feedK`（間隔は変わらない）、`heatFrac = 0.05 × over ÷ (1 + over)`、over = (1 + c) × feedK − 1。区画は `targetVolume = volleyVolume = max(最小, 斉射 × feedK ÷ 0.05)`、`ttPerM3 = 斉射 ÷ targetVolume`、最小はターボレーザー・イオン砲が 50 m³、レーザーは 0。`needsCapacitor` はレーザーで false、ほかで true | 給電の割り増し、給電区画の最小 50 m³、レーザーは充電区画なし | いいえ |
+| weapon-shot-calibration.cjs / six native corvette weapons preserve their 500 MT and 6 MT shot energies…（新名 six native corvette weapons fire their 2026-11-25 shots (four turbolasers, two lasers)…） | 6 門ともレーザーの 1 発（117〜658 kt／1.57 MT） | `GUN_RULES.turbolaserShot` が {single6MT 1e-4, twin500MT 0.2, quad500MT 0.2, sphyrnaTwin500MT 2e-4} TT、6 門の種類（twin6MT・single500MT だけレーザー）。1 発・斉射・電力・区画は上の `shot()` で検査。資産・`weaponFamily`・砲口数などの検査はそのまま（`weaponFamily` は single6MT が 'heavy-laser'、500MT 系が 'light-turbolaser' のまま＝モデルの系統名で、変わっていない） | 同上。3D モデルは変えない | いいえ |
+| weapon-shot-calibration.cjs / native 6 MT and 500 MT guns retain their actual shot yields and aimed fire without automatic interception | single6MT・500MT 系 4 門の `boltTT` = 口径のレーザーの 1 発 | single6MT・twin500MT・quad500MT・sphyrnaTwin500MT は `GUN_RULES.turbolaserShot`、single500MT は口径のレーザーの 1 発。twin6MT（658 kt・1.57 MT）と「自動迎撃しない」「艦隊の性能表に砲として載る」はそのまま | 同上 | いいえ |
+| turret-compartment-volume.cjs / 試験用の砲（`register`。テスト 2〜6・9・10・12・13 が使用） | `FITS.pd` の写しに 5 TT の斉射を持たせた砲 | `FITS.twin40`（ターボレーザー、2 門、feedK なし）の写しに同じ 5 TT の斉射。**各テストの期待値（100 m³、550 m³、5 TT など）は 1 つも変えていない。** 5 TT ÷ 0.05 = 100 m³ は最小 50 m³ より大きいので、最小容積で数値がずれたテストはなかった（9 本とも原因は「pd の写しがレーザーで、充電区画がなくなった」こと。試験用の砲を twin40 に替えるだけで 9 本とも通る） | レーザーは充電区画を持たない。区画の仕組みの検査はターボレーザーの砲で残す | いいえ |
+| turret-compartment-volume.cjs / all ordinary powered guns share compartment accounting while launchers, craft and tractors remain excluded（新名 turbolasers and ion cannons share compartment accounting while lasers, launchers, craft and tractors remain excluded） | pd・quad500・twin40・ltl・ionL が `needsCapacitor` true | quad500・twin40・ionL・single6MT・twin500MT・quad500MT・sphyrnaTwin500MT が true。pd・monCalPD・twin6MT・single500MT（`gunRule.kind = 'laser'`）と ltl（退役して pd として読まれる）が false。`gunRule` を持つ艦の砲すべてで `needsCapacitor = (kind ≠ 'laser')`。claser・cturret・cmsl・itl・trc が false はそのまま | レーザーは充電区画を持たない | いいえ |
+
+### 追加したテスト（新しい規則そのものの検査）
+
+| テストファイル / テスト名 | 内容 | 理由（ユーザー決定） |
+| --- | --- | --- |
+| turret-compartment-volume.cjs / a laser has no feed compartment: no bank room, no gunhouse reservation in the hull and no charging entry | pd の写し（レーザー）を船体に食い込ませても、`needsCapacitor` false、`chargingStatus`・`computeStats().chargeInfo` に載らない、`weaponCapacitors` が空、船内の砲塔区画（turretRoom）もできない、`chargingTotalVolume` = 0 | レーザーは砲身だけ |
+| turret-compartment-volume.cjs / a turbolaser feed compartment is never under the least volume, and a compartment at the least holds its volleys and no more | 斉射 1 TT の砲：斉射からは 20 m³ だが区画は `GUN_RULES.feedMinM3`（50 m³）、満たして 1 TT（`ttPerM3 = 1 ÷ 50`。以前の「容積 × 0.05」なら 2.5 TT）。2 斉射ぶんも 50 m³ で 2 TT、3 斉射ぶんは 60 m³ で 3 TT（0.05 TT/m³）。5 TT の砲は 100 m³ のまま | 給電区画は最小 50 m³。最小の区画が持つのは斉射ぶんだけ |
+| turret-compartment-volume.cjs / a gun with a feed factor needs that many times the compartment for the same stored volley | twin500MT（`feedK` ≒ 3.51）の写しに 5 TT の斉射：区画 = 5 × feedK ÷ 0.05、`ttPerM3 = 0.05 ÷ feedK`、満たして 5 TT | 給電の割り増しは区画にも同じ倍率でかかる |
+
+### 変更していない失敗
+
+| テストファイル / テスト名 | 状態 | 理由 |
+| --- | --- | --- |
+| turret-compartment-volume.cjs / an oversized exterior gunhouse retains the same finite bank and charges only through the shared power budget（テスト 14） | 失敗（`assert.ok(p.grid.P>0)`、`p.grid.P` = 0） | f9b46e2 でも同じ行・同じ値で失敗（既存）。520bcf0 で直す前は、その手前の `m.housingCapacity`（レーザーで区画なし → undefined）で先に落ちていた。試験用の砲を twin40 に替えたあとは、手前の `p.wCap = 5`・`m.capacity = 5`・`m.housingCapacity = 5` は通り、f9b46e2 と同じ `p.grid.P > 0` で落ちる（どちらも発電機 gen を 1 つ置いた試験用の艦で `p.grid.P`・`p.grid.Pgen`・`S.power` が 0）。砲の規則とは別の原因なので触っていない |
+
+新しい規則で説明できない失敗（不具合の疑い）と、`data/` の作り直しを待つ失敗は、この 3 本にはなかった。
+
+### 再実行の結果（1 本ずつ直列、`node --test tests/<名前>.cjs`）
+
+| ファイル | f9b46e2（通過/失敗） | 520bcf0 で直す前 | 直した後 | 残る失敗 |
+| --- | --- | --- | --- | --- |
+| heavy-laser-aa-trial | 4/0 | 2/2 | 4/0 | なし |
+| weapon-shot-calibration | 9/0 | 0/1（読み込みで失敗、9 本とも実行されず） | 9/0 | なし |
+| turret-compartment-volume | 13/1 | 3/11 | 16/1（テスト 3 本を追加） | 既存 1 件（テスト 14、f9b46e2 と同じ行） |
+
+## 2026-11-25 最終ツリー（fc06760）での切り分け
+
+対象：全テスト実行で main（8c4bcab）より結果が悪くなった 20 本。1 本ずつ、main のログ・最終ツリーのログ・必要なら 2026-11-25 より前の状態（f9b46e2 の写し）と比べて原因を分けた。
+
+- 基準：main の写し（スクラッチパッドの basewt）とそのログ（tests/main/logs/）。候補：ブランチ `claude/inspiring-faraday-kn13yq` の fc06760 の作業ツリー（`tests/**` とこの記録だけ変更。`js/`・`data/`・`scripts/` は変更していない）。
+- ログ：スクラッチパッドの tests/agent2/（`after-<名前>.log`＝直した後、`regen-<名前>.log`＝f9b46e2 の写しでの結果、`probe-*.cjs`＝再現用の小さなスクリプト）。
+- 実行はすべて 1 本ずつ直列、`node --test tests/<名前>.cjs`。許容差は 1 つも変えていない。
+- 下の「意図した変更」の番号は依頼書のもの：A＝2026-11-24 の砲の規則、B1＝レーザーは充電区画なし、B2＝コルベットの砲のターボレーザー化、B4＝給電区画の最小 50 m³ と `ttPerM3`、B6＝間合いは砲の射程から、B7＝ハンマーヘッドの装甲。
+
+### 変更した期待値
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由（ユーザー決定） | main で失敗 |
+| --- | --- | --- | --- | --- |
+| acclamator-weapon-mounts.cjs / MC30c spherical replacements retain clear native seats and full physically allocated firing charges | 蓄電 `storedTT` = 区画の容積 × `CHARGE_TT_M3`（0.05 TT/m³） | `storedTT` = 容積 × `weaponChargeSpec(f).ttPerM3`。あわせて `targetVolume ≥ GUN_RULES.feedMinM3`、`ttPerM3 = 斉射 × 斉射数 ÷ targetVolume ≤ 0.05`、区画の容積 = `targetVolume` を検査。「蓄電 = 1 斉射」「比 1」「塞がれていない」はそのまま | B4。500GT 単装（0.5 TT）は斉射からは 10 m³ だが区画は最小 50 m³。最小の区画が持つのは斉射ぶんだけ（0.5 TT。旧式だと 2.5 TT になり `0.5 != 2.5`） | いいえ |
+| combat-point-defense-targeting.cjs / the real RTS missile step leaves missiles alone when only ordinary guns are installed | 射程 5 km 以下の砲は `gunRule.kind = 'laser'` | 射程 5 km 以下の砲は、レーザーか、`GUN_RULES.turbolaserShot` に載っている砲。目標を射程の 0.6 倍に置く扱い、「ミサイルは 8 発のまま」「通常の砲は撃ち続ける」はそのまま | B2。single6MT は 100 MT の軽ターボレーザーになった（射程は約 1.6 km のまま短い） | いいえ（f9b46e2 でも通過） |
+| cturret-aa-trial.cjs / changing manual turret cadence keeps the requested power while each shot and its gas follow the actual period（新名 changing the turret's rate of fire keeps each shot (the shot of its bore) while power and gas follow the shots fired） | 砲塔の周期を 0.06 s・0.24 s に書き換えると、1 発 = 毎秒出力 × 周期（周期が短いほど弱い弾）、ガスも周期ぶん、要求電力は一定 | 連射速度は fit の `rateHz`（1 と 4）。周期 = 1 ÷ rateHz、1 発 = `laserShotKt(CRAFT_LASER_GEOMETRY.cturret.bore)`（= `FITS.cturret.boltTT`、連射速度によらず同じ）、1 斉射ぶんのガスも同じ（＝毎秒のガスは rateHz 倍）、要求電力 = 斉射 × TT × rateHz、次の砲身までの間隔 = 周期 ÷ 2 | A。航空レーザーは口径で 1 発が決まり、連射速度はユーザーが決め、電力・ガスは発射数に比例（fighter-pilot-guns.cjs の同じ内容の行と同じ直し方）。このテストだけ直し漏れていた | いいえ（f9b46e2 では同じ `4.288e-8 != 2.57e-9` で失敗） |
+| dual-purpose-weapons.cjs / 試験用の艦 `fleetProfile()`（テスト 8・10〜14 が使用） | CR90 の性能表の写しに、合成の中距離 30 TT/s の砲を載せる | 同じ。ただし CR90 自身の砲の射程の行（`gunBandRules`・`ionRules`）は引き継がない（合成の砲は距離帯の公称射程で撃つ）。CR90 の中距離の砲が 3 km に届かないこと（`gunRulesReach(...) < 3000`）も検査。**各テストの期待値（30、5、6 TT/s など）は 1 つも変えていない** | B2。CR90 の砲が 200 GT のターボレーザーになり、性能表の中距離の射程が約 2.9 km になった。試験の目標は 3 km・9 km・12 km にいるので、借りた射程の行のせいで合成の砲が 1 発も撃てなくなっていた（`0 != 30`） | いいえ（f9b46e2 でも通過） |
+| example-point-defense-stations.cjs / mc30c・munificent reserves the complete requested PD banks without bypassing allocation（新名 … PD lasers carry no feed compartment, charging entry or charging part） | 点防御の砲すべてに充電区画があり、比 1、蓄電 = 1 斉射、砲塔の中の区画を使っている | 点防御（`gunRule.kind = 'laser'`）は `needsCapacitor` false、`chargingStatus`・`computeStats().chargeInfo` に載らない、充電装置の部品もない。その艦の充電の一覧は「区画が要る砲（レーザー以外）」とちょうど一致 | B1 | いいえ |
+| example-weapon-families.cjs / CR90 native light/heavy guns and the Dreadnaught armament from the user design retain their distinct rosters | CR90 の twin500MT・single6MT は口径から決まるレーザー（285 kt・117 kt） | `GUN_RULES.turbolaserShot` のターボレーザー（200 GT・100 MT）、`gunRule.shotKt` がそれと一致、`needsCapacitor` true。描かれた口径（`gunRule.drawnBoreM` 0.2468 m・0.1692 m、許容 1%）は元のまま。門数・艦ごとの内訳はそのまま | B2 | いいえ |
+| example-weapon-families.cjs / Sphyrna uses two native bow twin heavy lasers and one aft twin light turbolaser | 艦尾の sphyrnaTwin500MT は 261 kt のレーザー | 200 MT のターボレーザー（`GUN_RULES.turbolaserShot`）。描かれた口径から出るレーザーの 1 発が 261 kt のまま（モデルは変えていない）ことも検査。艦首の twin6MT（658 kt・1.57 MT）はそのまま | B2 | いいえ |
+| moncal-reference-armament.cjs / mc80home・mc80liberty allocates the full firing charge for every diagram gun（新名 … for every diagram turbolaser and ion cannon, and none for its lasers） | 図面の砲 100 門すべてに充電の記録があり満充電 | monCalPD（レーザー）は `needsCapacitor` false・充電の記録なし。ほかの砲は従来どおり満充電・蓄電 = 1 斉射 | B1 | いいえ |
+| moncal-weapons-core.cjs / charging is backed by closed physical rooms and any missing volume by internal capacitors（新名 …; a laser has none） | 4 門（monCal200Triple・monCal150Ion・quad1Rapid・pd）とも、必要容積 = 斉射 ÷ 0.05、蓄電 = 容積 × 0.05 | pd は `needsCapacitor` false・充電の記録なし・充電装置なし。残り 3 門は必要容積 = `weaponChargeSpec.targetVolume`（= 斉射 × feedK ÷ 0.05、最小 50 m³ より大きい）、蓄電 = 容積 × `ttPerM3`。数値は 3 門とも以前と同じ | B1（pd）、B4（式の書き方） | いいえ |
+| named-example-armament.cjs / 共通の `verify()`（テスト 3〜6：ISD・ヴェネター・ネビュロン B・アクラメーター） | 「独立した砲塔」の一覧 = `needsCapacitor` が true の砲（pd を含む）。全門に満充電、`storedTT = 容積 × CHARGE_TT_M3` | 一覧 = 区画が要る砲 ＋ 艦のレーザー（`gunRule.kind = 'laser'`）。**門数の期待値（pd 20／28／5／12 など）は変えていない。** レーザーは充電の記録なし・充電装置なし。ほかは満充電、`storedTT = 容積 × ttPerM3`、`targetVolume ≥ feedMinM3`。座り・砲口・隣との隙間の検査は全門そのまま | B1（pd が一覧から消えていた）、B4 | テスト 3 だけ別の理由で失敗（下の表） |
+| ship-engineering-pass.cjs / capital engineering enters the shared surface model once and retains its physical results | 試験用の砲 12 門は pd | quad200（区画が最小 50 m³ のターボレーザー）。**期待値は変えていない**（2 つの計算の結果が一致、砲ごとの全艦照会が 12 回以上、新しい計算では半分未満） | B1。pd は区画を持たなくなり、このテストが測る「砲ごとの全艦照会」が起きなくなっていた | いいえ |
+| small-weapons-ui.cjs / catalog cards display total volleys while each weapon preview shows its per-barrel rating | コルベットの 6 門の一斉射：1.12 MT／570.33 kt／613.23 kt／116.9 kt／2.22 MT／521.83 kt（全門レーザー） | quad500MT 800 GT、twin500MT 400 GT、single6MT 100 MT、sphyrnaTwin500MT 400 MT（= `GUN_RULES.turbolaserShot` × 門数）。single500MT 613.23 kt と twin6MT 2.22 MT はレーザーのまま。レーザーかどうか・`needsCapacitor` との対応も検査。カードの英語表示・プレビューの 1 発の検査はそのまま | B2 | いいえ |
+| trench-armament-async-ui.cjs / aggregate trial energy uses its total volley once, independently of representative muzzle or mount counts | 試験用の代用 Core に `weaponChargeFactor` がなく、通常の砲の行で落ちていた | 代用 Core に js/core.js の `weaponChargeFactor`（1 行の関数をそのまま読み込む）を持たせた。**既存の期待値（875、0、3500、8、4）は変えていない。** 砲の規則を持つ砲（1 発 2 TT、充電 2.5 TT）では、貯めた 4 TT のうち砲身から出るのは 3.2 TT、の 1 行を追加 | A（2026-11-24 の物理レビュー：公試の `trialShotEnergyTT` は充電係数を外した「砲身から出る量」を返す） | いいえ |
+| trench-armament-dreadnoughts.cjs / executor・mandator2 native hull: opt-in compact trench rows retain count, real charging volume, power and v3 save contracts | 砲座の電力 `mount.power` = 砲の電力 × `weaponInputFactor(profile)`。全部の砲に充電の記録があり容量比 > 0.9999 | `mount.power` = 砲の電力 ÷ 効率（= 砲の電力 × `weaponInputFactor(profile)` ÷ `profile.weaponCharge`）。pd（レーザー）は充電の記録なし、utl は従来どおり容量比 > 0.9999 | 砲の電力はすでに E × (1 + c) の充電の速さなので、足すのは効率だけ（js/core.js の砲座の行、2026-11-25 の物理レビュー）。`weaponInputFactor` は艦の平均の充電係数（A で新設の `profile.weaponCharge`）も含むので、掛けると (1 + c) の二重計上。main では `weaponCharge` がなく同じ式が「÷ 効率」だったので、意味は main と同じ。pd は B1 | いいえ |
+| wall-batteries.cjs / a wall battery is created, saved, loaded, changed and removed without a trench | CR90 の左舷の壁、全長の 42〜46%（6 m）の帯に single6MT を 1 門 | 帯を 42〜50%（12 m）にした。砲列の充電区画が `GUN_RULES.feedMinM3` 以上あることも検査。作る・保存・読み込み・40 門は断られる・消す、はそのまま | B2＋B4。single6MT はターボレーザーになり、給電区画は最小 50 m³。6 m の帯だと区画の奥行きが約 3.9 m になって CR90 の設備とぶつかり、作成が断られる（「充電区画の実容積が船内に収まらないか…」）。12 m の帯なら奥行き約 1.9 m で収まる | いいえ |
+
+### 変更していない失敗
+
+| テストファイル / テスト名 | 状態 | 理由 |
+| --- | --- | --- |
+| acclamator-weapon-mounts.cjs / テスト 5（MC30c の魚雷発射管）、テスト 7（アクラメーターの発射管 4 基） | 失敗（`0 !== 2`、`0 !== 4`） | main と同じ行・同じ値。砲の規則とは別（発射機） |
+| example-point-defense-stations.cjs / munificent retains its curated full-size PD family on the native hull | 失敗（`14 !== 38`） | main と同じ |
+| example-weapon-families.cjs / テスト 6・7・10・12（レキューザント 2 種、CIS の砲、ルクレハルク） | 失敗 | main と同じ行・同じ値（`16 !== 26`、`2 !== 24`、`0 !== 10`、mirrored equatorial rapid battery） |
+| named-example-armament.cjs / ISD has six 175 TT twins…（テスト 3） | 失敗（`1050 != 350`） | main と同じ（蓄電が 1 斉射でなく 3 斉射ぶん）。直す前は、その手前の門数の比較（pd が一覧にない）で先に落ちていた |
+| mandator-example-refit.cjs / テスト 2・5 | 失敗（`full single-volley storage for gun 8649`、`999.99… !== 0`） | main と同じ行・同じ値。全テスト実行では 600 秒の制限で打ち切られていたが、単独で 608 秒かかって終わり、合格 3／失敗 2 は main と同じ（main は 556 秒。テスト 2 が 230→250 秒、テスト 3 が 325→357 秒）。新しい失敗ではなく時間切れ |
+| fighter-interiors.cjs / craft_z95: finite physical plant…（テスト 12） | 失敗（加速 3,406 G > 目標 3,330 G） | 既知。ユーザー決定「シールド等を増やして重量を上げて」で次の PR で作例を直す。期待値は変えない |
+| fleet-commit-twice.cjs / committing one plan twice gives the same turn and leaves the plan as it was | 失敗（2 回目の `fleetCommit` が null） | 下の「不具合の疑い 1」。テストは変えていない |
+| fleet-record-release.cjs / statsOnly then the trial model, in a fresh Worker, equals the first build | 失敗（モデルのハッシュが最初の構築と違う） | 下の「不具合の疑い 2」。テストは変えていない |
+| trench-armament-core.cjs / one real shared capacitor row per side is counted once and split proportionally between types | 失敗（`374 != 374.0016`） | 下の「不具合の疑い 3」。テストは変えていない |
+| trench-armament-manual-fire.cjs / テスト 1 | 失敗（`trialSystemsUnit is not defined`） | main と同じ（テストの土台に関数がない） |
+| trench-armament-manual-fire.cjs / テスト 2〜4 | 失敗（`reset("pd", …)` の中で `geometry.turrets[0]` がない） | 下の「不具合の疑い 4」。main ではテスト 2・3 はテスト 1 と同じ理由で失敗、テスト 4 は通過していた。テストは変えていない |
+
+### 不具合の疑い（期待値で隠していない）
+
+1. **CR90 どうしの攻撃で、両艦が間合いを通り越して衝突し、最初のターンで両方沈む（fleet-commit-twice）。** 5 km 離れた CR90 2 隻に互いを攻撃させると、12 秒で 78 m まですれ違い、両艦とも船体 1.0 → 0.60 で「撃沈（船体破断）」、勝敗は引き分け（-1）で戦闘が終わる。そのため 2 回目の `fleetCommit` が null を返し、テストは `one.units` で落ちる。
+   - 間合い（`fleetStandoff`）は main 6,500 m → 最終ツリー 850 m（B6：砲の射程から。CR90 の砲は 100% の距離 860 m）。main では 5 km は間合いの内側なので近づかなかった。
+   - 近づき方（js/core.js 120522〜120523 行）は main と同じ式で、止まる距離を「目標が動かない」前提で決める（`remaining = |距離 − 間合い| − 600`、速さ `√(加速 × remaining)`）。双方が近づくと閉じる速さは 2 倍で、850 m では止まりきれない。撃っている間は減速も鈍い（毎秒 20〜40 m/s。撃たない艦は 108 m/s まで落ちる）。回避（`hullAvoid`）は上下に ±20 m 逃げるだけで、相対 350 m/s の衝突（`hullCollide`、同 119475 行）で両艦が折れる。
+   - 再現：スクラッチパッドの tests/agent2/probe-commit.cjs（`node probe-commit.cjs /home/user/kuat-shipwright`）。
+   - テストが確かめたいこと（同じ計画を 2 回確定しても同じ結果・計画は変わらない）自体は、両艦が生き残る配置（2,500 m で両艦 hold）なら通ることを写しで確認した（probe-commit-twice.cjs）。配置を替えれば通せるが、衝突を隠すことになるので替えていない。対応案：近づく艦の止まる距離に相手の接近を入れる、または衝突の回避を強める。意図どおりならテストの配置を替える。
+2. **Worker が艦を作り直す順番で、ハンマーヘッドの外装の灯り 1 個の位置が約 1 mm 変わる（fleet-record-release）。** 最初から公試用モデルを作った場合と、「数値だけ（statsOnly）→ あとで公試用モデル」の場合で、`surfaceDevices` の頂点 312〜315（薄い装甲の灯りの四角 1 個、js/gfx.js `thinArmorLights`）が最大 1.1 mm ずれ、モデルのハッシュが一致しない。数値・性能表・砲塔の射線は一致。
+   - main のコードに最終ツリーのハンマーヘッドの設計を読ませても同じずれが出る。最終ツリーのコードに f9b46e2 の設計を読ませるとずれない。つまりコードの変更ではなく、**設計データに表面の区画（`surfaces.patches`、B7 のハンマー部分の装甲）が入ったこと**で、前からあった経路の違いが表に出た。
+   - Core と Gfx を直接呼んで作る（統計を先に計算する／しない、保存形式を往復する、のどれでも）と最初の構築と同じ値になる。ずれるのは Worker が「状態 ＋ 詰めたキャッシュ」から艦を戻す経路（js/engine.js `rehydrate`・`packCaches`）だけで、そのときの値は f9b46e2 の設計（表面の区画なし）の値と同じ。戻した艦の表面の区画の形が、区画の設定を反映していない疑い。
+   - 再現：tests/agent2/probe-record.cjs（`node probe-record.cjs /home/user/kuat-shipwright`）、設計とコードを入れ替えるのは probe-record2.cjs（`node probe-record2.cjs <コードの木> <設計の木>`）。
+3. **トレンチ砲列の充電区画が、レーザーの分も数えたまま（trench-armament-core）。** monCal34 × 11 ＋ pd × 1,000 のトレンチで、充電区画の容積（`targetVolume` 4080.016・3400.016 m³、`chargingVolume` 7480.032 m³）と `weaponIds` に pd の組が入っている。一方 pd は `needsCapacitor` false で `chargeInfo` に載らない（蓄電の合計は 374 TT）。js/core.js の砲列の行を作る所（110632 行と 110656 行付近）が `weaponChargeSpec(f).targetVolume` を全部の砲について足していて、`needsCapacitor` を見ていない。B1（レーザーは充電区画を持たない）と食い違う。容積の差は 0.032 m³ と小さいが、テストの「蓄電の合計 = 充電容積 × 0.05」が `374 != 374.0016` で落ちる。trench-armament-dreadnoughts の「砲座の容量の合計 = 区画の容積 × 0.05」は、レーザーの砲座の容量（1 斉射）とこの数え残しがちょうど同じ量なので通っている。再現：tests/agent2/probe-trench.cjs。
+4. **レーザーだけのトレンチ砲列・壁の砲列が「無効」になり、公試で砲塔が 1 つも出ない（trench-armament-manual-fire テスト 2〜4）。** pd × 200 だけのトレンチを作ると、作成は成功（`chargeRows: 0`）し、砲の組も `trenchValid: true` だが、`bulkTrenchGroups` の `valid` が false（理由は null）、`Gfx.fleetGeometry(ship,{trial:true}).turrets` が 0 件。js/core.js 110674 行 `trenchArmamentGroups` の `valid:!!f.trenchValid&&!!part?._trenchValid` が、充電区画の部品（レーザーにはもうない）を必須にしているため。f9b46e2 では充電区画 0.0032 m³ × 2 があり有効で、砲塔 2 件。monCal34 だけの砲列は最終ツリーでも有効。作例でレーザーだけの砲列を持つ艦はない（砲列があるのはエグゼクターだけで、該当の行は 0）ので、影響するのはユーザーの設計。再現：tests/agent2/probe-pdtrench.cjs。
+
+### 気づいた点（今回の 20 本の合否には関係しない）
+
+- ship-engineering-pass の試験用の艦に single6MT・twin500MT を載せると、`shipRefitMeasure` の側だけ充電が「割り当て待ち」（比 0、`draw.weapons` 0）になり、`baseComputeStats(engineeringOnly)` と食い違う。main でも single6MT で同じ（pd・twin40・quad200・single500 では一致）。試験用の砲を quad200 にしたのはこのため。再現：tests/agent2/probe-eng.cjs。
+- cturret-aa-trial の旧テストのように砲塔の `cycle` だけを直接書き換えると、1 発は変わらないのにガスは周期に比例して減る（js/app.js `trialCraftGasNeed` は `周期 × 電力` で数える）。実際の操作では連射速度は `rateHz` で決まり、電力も一緒に変わるので、ガスは発射数に比例する（新テストで確認）。関数の説明文（「毎秒出力 × 周期」）は古い規則のまま。
+- ハンマーヘッドの `surfaceDevices` の UV は 1,024 個すべて NaN（f9b46e2 の設計でも同じ）。
+
+### 再実行の結果（1 本ずつ直列、`node --test tests/<名前>.cjs`、通過/失敗）
+
+| ファイル | main | 最終ツリー（直す前） | 直した後 | 残る失敗 |
+| --- | --- | --- | --- | --- |
+| acclamator-weapon-mounts | 5/2 | 4/3 | 5/2 | main と同じ 2 件 |
+| combat-point-defense-targeting | 8/0 | 7/1 | 8/0 | なし |
+| cturret-aa-trial | 4/0 | 3/1 | 4/0 | なし |
+| dual-purpose-weapons | 16/0 | 10/6 | 16/0 | なし |
+| example-point-defense-stations | 3/1 | 1/3 | 3/1 | main と同じ 1 件 |
+| example-weapon-families | 11/4 | 9/6 | 11/4 | main と同じ 4 件 |
+| fighter-interiors | 14/0 | 13/1 | （変更なし）13/1 | 既知 1 件（Z-95 の加速） |
+| fleet-commit-twice | 1/0 | 0/1 | （変更なし）0/1 | 不具合の疑い 1 |
+| fleet-record-release | 8/0 | 7/1 | （変更なし）7/1 | 不具合の疑い 2 |
+| mandator-example-refit | 3/2（556 秒） | 時間切れ（600 秒） | （変更なし）3/2（単独で 608 秒） | main と同じ 2 件 |
+| moncal-reference-armament | 6/0 | 4/2 | 6/0 | なし |
+| moncal-weapons-core | 5/0 | 4/1 | 5/0 | なし |
+| named-example-armament | 5/1 | 2/4 | 5/1 | main と同じ 1 件 |
+| ship-engineering-pass | 2/0 | 1/1 | 2/0 | なし |
+| small-weapons-ui | 5/0 | 4/1 | 5/0 | なし |
+| trench-armament-async-ui | 10/0 | 9/1 | 10/0 | なし |
+| trench-armament-core | 9/0 | 8/1 | （変更なし）8/1 | 不具合の疑い 3 |
+| trench-armament-dreadnoughts | 2/0 | 0/2 | 2/0 | なし |
+| trench-armament-manual-fire | 1/3 | 0/4 | （変更なし）0/4 | main と同じ 1 件（テスト 1）＋ 不具合の疑い 4（テスト 2〜4） |
+| wall-batteries | 4/0 | 3/1 | 4/0 | なし |
+
+## 切り分けの後に主担当が行ったこと（2026-11-25）
+
+補助エージェントが「不具合の疑い」として残した 4 件を、主担当が再現して確かめた結果。
+
+| 疑い | 確かめた結果 | 対応 |
+| --- | --- | --- |
+| 1. CR-90 どうしが間合いを通り越して衝突し、両方沈む（fleet-commit-twice） | **衝突ではなかった**。5 km から正面で突っ込んだ 2 隻は、すれ違いの上下の間隔 36〜38 m（船体の高さ 32 m）を保ち、衝突の記録は 0 件。76 m まで近づいた 11.5 秒に、互いの 200 GT の砲（1 斉射 0.4 TT、相手のシールド 0.30 TT）で同時に船体を失う。新しい威力の帰結で、コードの誤りではない | テストの設定を変更：5 km から攻撃 → 2.5 km で保持して射撃（両艦が 2 回の確定を生き残る。主題の「同じ計画を 2 回確定しても同じ結果」と追跡履歴の検査はそのまま）。1／0 で合格。**ユーザーへの報告事項**：CR-90 は自分の 1 斉射で同型艦のシールドを抜ける |
+| 3. トレンチ砲列の充電区画がレーザーの分も数えたまま（trench-armament-core テスト 2） | **不具合**（「レーザーは給電区画を持たない」と食い違う） | `js/core.js` を修正：砲列の充電区画の容積と対象の砲に、給電区画が要る砲だけを数える。テスト 2 本の期待値を更新（下） |
+| 4. レーザーだけのトレンチ砲列が無効になり、公試で砲塔が出ない（trench-armament-manual-fire テスト 2〜4） | **不具合**（充電区画の部品を必須にしていた） | `js/core.js` を修正：給電区画が要らない砲の組は、自分の砲座だけで有効とし、充電の割合 1・蓄え＝自分の 1 斉射で撃つ。再現スクリプトで有効・砲塔 2 件を確認。テストは 1／3（main と同じ：3 件とも `trialSystemsUnit is not defined`） |
+| 2. Worker が艦を戻す経路でハンマーヘッドの灯り 1 個が最大 1.1 mm ずれる（fleet-record-release テスト 3） | **再現した。原因は特定できていない**。戻した艦では装甲の区画 3 個（底 #29、左舷 #30、右舷 #30）の露出面積が最初の構築より大きく（26.76 → 28.32 m²、57.32 → 57.59 m²、16.54 → 16.75 m²）、その区画に置く灯りの位置が変わる。区画の数（251）と、灯りが避ける箱は同じ。main のコードに今の設計を読ませても起きるので、今回のコードの変更で入った誤りではなく、面ごとの装甲を持つ設計で前から起きる経路の違いが、ハンマーヘッドの装甲で作例に現れたもの | **未修正。テストは失敗のまま**（7／1）。見た目だけの違い（灯りの四角 1 個、1.1 mm）で、統計・性能表・砲の射線の答えは一致する。回帰レビューに渡し、次の PR で原因を調べる |
+
+修正に伴うテストの変更：
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 理由 | 変更前に失敗していたか |
+| --- | --- | --- | --- | --- |
+| trench-armament-core.cjs / one real shared capacitor row per side is counted once and split proportionally between types | 充電区画の対象の砲 = 2 種（monCal34 と pd） | 対象は monCal34 だけ（1 種）で、区画の容積は monCal34 の必要容積に等しい。pd は充電の記録を持たない。「2 種で 1 つの区画を分け合う」検査は、給電区画が要る 2 種（monCal34 と monCal80）の構成を足して残した | レーザーは給電区画を持たない（ユーザー 2026-11-25） | いいえ |
+| trench-armament-dreadnoughts.cjs / executor・mandator2 native hull… | 区画の対象の砲 = 2 種。砲座の容量の合計 = 区画の容積 × 0.05 | 対象は給電区画が要る 1 種だけ。給電区画が要る砲座の容量の合計 = 区画の容積 × 0.05、レーザーの砲座の容量 = 自分の 1 斉射 | 同上 | いいえ |
+| fleet-commit-twice.cjs | 5 km から互いを攻撃 | 2.5 km で保持して射撃 | 上の 1 | いいえ |
+
+- エグゼクター（砲列に点防御とターボレーザーが混ざる唯一の作例）は、この修正の後に作り直した。
+
+| trench-armament-combat.cjs / odd mixed totals share one actual capacitor per side…、one shared-row hit reduces both weapon shares once… | 砲座の容量の合計 = 区画の容積 × 0.05。充電区画 1 つに砲の組 2 つが繋がる（monCal34 と pd）。区画の損傷で 2 組の蓄えが減る | 給電区画が要る砲座の容量の合計 = 区画の容積 × 0.05、レーザーの砲座の容量 = 自分の 1 斉射。区画に繋がるのは 1 組（monCal34）。区画の損傷で減るのはその 1 組で、点防御の組は減らない | レーザーは給電区画を持たない（ユーザー 2026-11-25）。砲列の充電区画からレーザーを外した修正（ebca11b）の帰結。fc06760 の全テストの後の修正だったので、ab1dc78 の全テストで見つかった | いいえ（テスト 9 は main と同じ失敗のまま） |

@@ -8,13 +8,18 @@ const load=k=>{const s=C.deserialize(JSON.parse(zlib.gunzipSync(fs.readFileSync(
 const plain=o=>JSON.parse(JSON.stringify(o));
 
 test('a wall battery is created, saved, loaded, changed and removed without a trench',()=>{
- const s=load('cr90'),L=s.hull.L,hits=[.42,.46].map(f=>C.rayEnv(s,[f*L,16,-5000],[0,0,1],{structOnly:true}));assert.ok(hits.every(h=>h?.part&&Math.abs(h.p[2]-hits[0].p[2])<.05),'a flat stretch of the port wall');
+ // 2026-11-25 fixture changed: single6MT is now a turbolaser (GUN_RULES.turbolaserShot) and a turbolaser's feed compartment is
+ // never under GUN_RULES.feedMinM3 (50 m3; the 6 MT laser's was a fraction of a litre). Behind the 6 m band this case used, the
+ // row's compartment would be 3.9 m deep and runs into the CR-90's equipment (the request is refused with the charging
+ // compartment's reason); behind a 12 m band it is 1.9 m deep and fits. The band is 12 m (42 % to 50 % of the length).
+ const s=load('cr90'),L=s.hull.L,hits=[.42,.50].map(f=>C.rayEnv(s,[f*L,16,-5000],[0,0,1],{structOnly:true}));assert.ok(hits.every(h=>h?.part&&Math.abs(h.p[2]-hits[0].p[2])<.05),'a flat stretch of the port wall');
  const r=C.configureTrenchArmament(s,{battery:{op:'set',host:hits[0].part.id,world:{pts:hits.map(h=>h.p),n:[0,0,-1]},height:3,depth:6,counts:[{kind:'single6MT',count:1}]}});assert.equal(r.ok,true,r.error);
  const groups=()=>C.bulkTrenchGroups(s).filter(f=>f.trenchRef.hostId==='battery');let g=groups();assert.equal(g.length,1);assert.equal(g[0].aggregateCount,1);assert.equal(g[0].valid,true,g[0].reason);
+ {const row=C.weaponCapacitors(s).find(p=>p.weaponIds?.includes(g[0].fitId));assert.ok(row,'the battery has its charging row');assert.equal(C.needsCapacitor({k:'single6MT'}),true);assert.ok(row.targetVolume>=C.GUN_RULES.feedMinM3&&C.partVolume(row)>=C.GUN_RULES.feedMinM3*(1-1e-6),'never under the least feed compartment');}
  assert.ok(g[0].muzzles.every(p=>p[2]<hits[0].p[2]+.2),'the muzzle stands on the port wall');
  const saved=plain(C.serialize(s));assert.equal(saved.batteries.length,1);assert.equal(saved.batteries[0].host,hits[0].part.id);assert.equal(saved.batteries[0].pts.length,2);
  const again=C.deserialize(saved);C.syncCompartments(again);assert.deepEqual(C.bulkTrenchGroups(again).map(f=>[f.k,f.aggregateCount,f.valid]),[['single6MT',1,true]]);
- const too=C.configureTrenchArmament(s,{battery:{op:'set',id:r.batteryId,counts:[{kind:'single6MT',count:40}]}});assert.equal(too.ok,false,'40 guns do not fit a 6 m by 3 m band');assert.match(too.error,/砲列の帯|射線|壁/);
+ const too=C.configureTrenchArmament(s,{battery:{op:'set',id:r.batteryId,counts:[{kind:'single6MT',count:40}]}});assert.equal(too.ok,false,'40 guns do not fit a 12 m by 3 m band');assert.match(too.error,/砲列の帯|射線|壁/);
  assert.equal(groups()[0].aggregateCount,1,'a refused change leaves the design as it was');
  const del=C.configureTrenchArmament(s,{battery:{op:'delete',id:r.batteryId}});assert.equal(del.ok,true);assert.equal(groups().length,0);assert.equal(s.batteries,undefined);
 });

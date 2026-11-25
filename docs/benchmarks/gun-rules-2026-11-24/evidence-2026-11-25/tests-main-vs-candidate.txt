@@ -1,0 +1,11 @@
+fighter-interiors	main 0|14|0	final 1|13|1
+fleet-commit-twice	main 0|1|0	final 0|4|0
+fleet-ram-judge	main (none)	final 0|6|0
+fleet-record-release	main 0|8|0	final 1|7|1
+fleet-standoff-judge	main (none)	final 0|6|0
+gr75-user-remodel	main (none)	final 0|4|0
+gun-feed-physics-review	main (none)	final 0|4|0
+hull-outer-surface-contact	main 124|?|?	final 1|0|1
+lowered-bays-capacity	main 1|1|1	final 0|2|0
+trench-armament-combat	main 1|8|1	final 1|6|3
+turret-compartment-volume	main 1|13|1	final 1|16|1

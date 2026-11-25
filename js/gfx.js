@@ -663,7 +663,11 @@ function craftWeaponMesh(g,f){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
  if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
  // v24 A fixed laser is a bare barrel (it may be sunk into the hull); no breech housing.
- if(k==='claser'||k==='claserL'||k==='claserH'){cyl(g,M,o,L*.065,h*.5,0,W*.34,W*.24,L*.93,0,B,8);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
+ if(k==='claser'||k==='claserL'||k==='claserH'){
+  /* 2026-11-24 (user「航空レーザーは円柱部品で」): a straight cylinder of the gun's bore and length. The bore is 0.6 of the
+     outside (the rule the ship guns use where no bore is modelled), so the tube is never drawn thinner than its bore. */
+  const bore=d.gunRule?.boreM;if(bore>0){const rm=W*.42/* the gun's own box (fitAABB) is 0.84 of its width: the drawn tube stays inside it, at any scale */,ro=Math.min(bore/1.2,rm),rb=Math.min(bore/2,ro*.8);cyl(g,M,o,L*.065,h*.5,0,ro,ro,L*.93,0,B,10);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,rm,rm,L*.05,0,R,10);cyl(g,M,o,L*.5,h*.5,0,rb,rb,L*.06,0,D,10);return;}
+  cyl(g,M,o,L*.065,h*.5,0,W*.34,W*.24,L*.93,0,B,8);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
  if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
@@ -1511,7 +1515,12 @@ class Renderer {
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
     if(this.sky)for(const k of ['dir','cor','col','idx'])gl.deleteBuffer(this.sky[k]);
     if(this.sh){gl.deleteFramebuffer(this.sh.fb);gl.deleteRenderbuffer(this.sh.rb);if(this.sh.prog?.p)gl.deleteProgram(this.sh.prog.p);}
+    // 2026-11-24 The context itself is let go at once instead of when the canvas is collected: browsers keep only a few
+    // (16 on desktop Chrome, fewer on phones) and lose the oldest, the 3D view's, past that.
+    try{gl.getExtension('WEBGL_lose_context')?.loseContext();}catch(e){}
   }
+  // A mesh no longer drawn: its buffers are deleted and its name is free.
+  drop(name){const m=this.meshes[name],gl=this.gl;if(!m)return;if(gl&&!gl.isContextLost())for(const k of ['pos','nor','uv','col','idx'])if(m[k])gl.deleteBuffer(m[k]);delete this.meshes[name];}
   // 2026-11-22 The decal atlas (see meshDecals): the shapes, then the player's images in the order given. A new set of
   // images rebuilds it once they have loaded; the shapes are there at once.
   setDecalImages(images){const key=decalImagesKey(images);if(this.decalKey===key&&this.tex.decals)return;this.decalKey=key;const t=this.makeDecalTexture(images,()=>{if(this.decalKey===key&&this.onDecalsReady)this.onDecalsReady();});if(t){const old=this.tex.decals;this.tex.decals=t;if(old){this.gl.deleteTexture(old.a);this.ownedTextures.delete(old.a);}}}
@@ -3775,7 +3784,7 @@ function turretPose(f){
  const bay=C.broadsideBatteryGeometry?.(f);if(bay)return {pivot:bay.pivot,axis:bay.v,fw:bay.normal};
  const embedded=C.surfaceBatteryGeometry?.(f);if(embedded)return {pivot:embedded.pivot,axis:embedded.v,fw:embedded.normal};
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
- if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:fr.fw};
+ if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.CRAFT_LASER_GEOMETRY?.[f.k]?fr.up:C.fitUp(f)/* 2026-11-24 an aircraft laser points forward whatever face it sits on: the face normal can be its own forward */,fw:fr.fw};
  if(d.casemate)return {pivot:C.fitOrigin(f),axis:[0,1,0],fw:C.AXES[f.a]};
  if(d.asset){const y=(f.assetYaw||0)*Math.PI/180;return {pivot:C.fitOrigin(f),axis:fr.up,fw:C.norm(C.add(C.mul(fr.fw,Math.cos(y)),C.mul(fr.rt,Math.sin(y))))};}
  return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};
@@ -3804,7 +3813,7 @@ function trialTurrets(model,put,ranges){
   let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain){appendPlainFit(geo,f);tintFitRange(geo,0,f);}mesh=(plain?'tur_':'refTur_')+f.id;const split=Number.isInteger(geo.drawElevationIndexStart)?geo.drawElevationIndexStart:g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  const embedded=C.surfaceBatteryGeometry?.(f),bay=C.broadsideBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),...(bay?{broadsideBattery:true,muzzles:bay.muzzles.map(p=>p.slice())}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:bay?.width??embedded?.width,portHeight:bay?.height??embedded?.height,port:bay?{width:bay.width,height:bay.height,depth:bay.depth}:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:bay?true:embedded?false:!!(spec.casemate||spec.fixed),barrels:d.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:d.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  const embedded=C.surfaceBatteryGeometry?.(f),bay=C.broadsideBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),...(bay?{broadsideBattery:true,muzzles:bay.muzzles.map(p=>p.slice())}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:bay?.width??embedded?.width,portHeight:bay?.height??embedded?.height,port:bay?{width:bay.width,height:bay.height,depth:bay.depth}:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:bay?true:embedded?false:!!(spec.casemate||spec.fixed),barrels:d.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:d.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f),rule:d.gunRule||null/* 2026-11-24 the placed gun's own rule (a craft laser's bore, barrel and rate) */});
  }
  return out;
 }

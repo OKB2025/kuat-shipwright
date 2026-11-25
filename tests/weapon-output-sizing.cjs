@@ -75,7 +75,9 @@ test('the photographed family and medium quad retain their own native size ancho
 
 test('point defense adopts the photographed side-carrier model at its native scale', () => {
  const f=fitting('pd'),d=C.FITS.pd,sizing=C.weaponSizing(f),a=C.REFERENCE_ASSETS[d.asset];
- assert.equal(d.asset,'pd_twin_side_laser');assert.equal(d.barrels,2);assert.equal(d.boltTT,1e-7);assert.equal(d.tt,2e-7);assert.equal(d.cycle,.2);assert.equal(d.aa,6);assert.equal(d.dualPurpose,true);
+ // 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): the 0.40 m barrels
+ // fire 800 kt (laserShotKt) once a second each (was 100 kt every 0.2 s).
+ assert.equal(d.asset,'pd_twin_side_laser');assert.equal(d.barrels,2);near(d.boltTT,C.laserShotKt(.40)*1e-9,'PD shot of its 0.40 m bore');near(d.tt,2*d.boltTT,'PD salvo');assert.equal(d.cycle,d.gunRule.cycle);assert.equal(d.cycle,1);assert.equal(d.aa,6);assert.equal(d.dualPurpose,true);
  near(d.power,d.tt*C.TT/d.cycle,'PD continuous electrical demand');near(sizing.factor,1,'PD photo scale');assert.equal(sizing.calibration,'point-defense-photo');
  const triangles=(G.meshFits({fits:[f]}).ni+G.meshReferenceFits({fits:[f]}).ni)/3;
  assert.equal(triangles,a.faces);assert.ok(triangles>0&&triangles<=5000,'PD remains within the modeled turret budget');
@@ -83,9 +85,11 @@ test('point defense adopts the photographed side-carrier model at its native sca
 });
 
 test('retired generic guns resolve to the canonical light quad, DBY and point-defense definitions', () => {
+  // 2026-11-24 expectation changed (gun rules): the canonical cycles are their gun rules' (pd 1 s, was .2; quad200 and refVen by
+  // their charging time, were .2 and 1) and the pd salvo is two 800 kt shots (was 2e-7 TT).
   for (const [k, canonical, salvo, barrels, cycle] of [
-    ['ltl', 'pd', 2e-7, 2, .2], ['mtl', 'quad200', .8, 4, .2],
-    ['htl', 'refVen', 140, 2, 1]
+    ['ltl', 'pd', 2*C.laserShotKt(.40)*1e-9, 2, C.FITS.pd.gunRule.cycle], ['mtl', 'quad200', .8, 4, C.FITS.quad200.gunRule.cycle],
+    ['htl', 'refVen', 140, 2, C.FITS.refVen.gunRule.cycle]
   ]) {
     const d = C.fitSpec(fitting(k));
     assert.equal(C.canonicalWeaponKind(k), canonical);

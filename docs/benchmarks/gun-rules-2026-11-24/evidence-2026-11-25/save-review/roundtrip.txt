@@ -1,0 +1,16 @@
+claser saved [0.33,4.2,2.5] after round trip [0.33,4.2,2.5] out-of-range saved [0.05,40,0.01] reloaded [0.1,10,0.2]
+rule equal true {"kind":"laser","boreM":0.33,"barrelM":4.2,"rateHz":2.5,"shotKt":534.2800000000001,"holdM":0,"rangeM":3372.368018443562,"fadeM":536.9226154268241,"cycle":0.4,"heatFrac":null}
+example laser fields stored in candidate x-wing [[42,0.18,3.5,null],[43,0.18,3.5,null],[44,0.18,3.5,null],[45,0.18,3.5,null]]
+cturret boreM after round trip 0.25
+x-wing serialize stable true
+set top armour true 15 
+hammerhead patches saved 88 after round trip same 88 changed 0 lost 0 new 0
+reloaded thickness of set faces 1.3 count 15
+example hammerhead stable after round trip true
+GR75_REMODEL round trip stable true parts 77 -> 77 fits 2 -> 2
+example gr75 vs GR75_REMODEL same part ids/kinds true example reference gr75 remodel reference gr75
+GR75_REMODEL dangling reactor refs [[74,"engineCore",48],[75,"engineCore",49]]
+example gr75 dangling reactor refs (as saved) [[74,"engineCore",48],[75,"engineCore",49]]
+reactor fields unchanged by stats true serialized keeps dangling [[74,48],[75,49]]
+ engine 74 fed by 47
+ engine 75 fed by 47

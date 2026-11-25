@@ -1,0 +1,66 @@
+== r50-c0.txt
+craft_tie_in: sep 216 m, nearest 6 m; guns bearing 41.5 s, within range 35.8 s, shots 214.5, hits 68.7 (32%), mean hit distance 214 m, energy on target 3592 kt, game kills that would have happened 0.0
+craft_xwing: sep 216 m, nearest 6 m; guns bearing 41.5 s, within range 41.5 s, shots 166.0, hits 54.7 (33%), mean hit distance 245 m, energy on target 4898 kt, game kills that would have happened 0.0
+== r50-c1.txt
+craft_tie_in: sep 210 m, nearest 12 m; guns bearing 41.5 s, within range 35.8 s, shots 214.5, hits 68.7 (32%), mean hit distance 214 m, energy on target 3584 kt, game kills that would have happened 315.7
+craft_xwing: sep 210 m, nearest 12 m; guns bearing 41.5 s, within range 41.5 s, shots 166.0, hits 54.7 (33%), mean hit distance 245 m, energy on target 4895 kt, game kills that would have happened 0.0
+== r75-c0.txt
+craft_tie_in: sep 219 m, nearest 1 m; guns bearing 28.0 s, within range 24.3 s, shots 145.5, hits 48.1 (33%), mean hit distance 205 m, energy on target 2654 kt, game kills that would have happened 0.0
+craft_xwing: sep 219 m, nearest 1 m; guns bearing 44.0 s, within range 44.0 s, shots 176.0, hits 67.5 (38%), mean hit distance 193 m, energy on target 6527 kt, game kills that would have happened 0.0
+== r75-c1.txt
+craft_tie_in: sep 184 m, nearest 12 m; guns bearing 28.0 s, within range 24.3 s, shots 145.5, hits 48.1 (33%), mean hit distance 206 m, energy on target 2638 kt, game kills that would have happened 369.7
+craft_xwing: sep 184 m, nearest 12 m; guns bearing 28.0 s, within range 28.0 s, shots 112.0, hits 38.1 (34%), mean hit distance 239 m, energy on target 3464 kt, game kills that would have happened 0.0
+== r100-c0.txt
+craft_tie_in: sep 207 m, nearest 4 m; guns bearing 35.3 s, within range 32.5 s, shots 195.0, hits 110.2 (57%), mean hit distance 164 m, energy on target 5981 kt, game kills that would have happened 0.0
+craft_xwing: sep 207 m, nearest 4 m; guns bearing 27.3 s, within range 27.3 s, shots 109.0, hits 34.7 (32%), mean hit distance 229 m, energy on target 3181 kt, game kills that would have happened 0.0
+== r100-c1.txt
+craft_tie_in: sep 196 m, nearest 12 m; guns bearing 21.0 s, within range 18.3 s, shots 109.5, hits 36.4 (33%), mean hit distance 207 m, energy on target 1999 kt, game kills that would have happened 397.7
+craft_xwing: sep 196 m, nearest 12 m; guns bearing 21.0 s, within range 21.0 s, shots 84.0, hits 28.9 (34%), mean hit distance 241 m, energy on target 2619 kt, game kills that would have happened 0.0
+== r125-c0.txt
+craft_tie_in: sep 205 m, nearest 5 m; guns bearing 16.8 s, within range 14.5 s, shots 87.0, hits 29.0 (33%), mean hit distance 209 m, energy on target 1592 kt, game kills that would have happened 0.0
+craft_xwing: sep 205 m, nearest 5 m; guns bearing 28.8 s, within range 28.8 s, shots 115.0, hits 40.7 (35%), mean hit distance 183 m, energy on target 4024 kt, game kills that would have happened 0.0
+== r125-c1.txt
+craft_tie_in: sep 208 m, nearest 12 m; guns bearing 17.0 s, within range 14.8 s, shots 88.5, hits 30.5 (35%), mean hit distance 200 m, energy on target 1749 kt, game kills that would have happened 413.6
+craft_xwing: sep 208 m, nearest 12 m; guns bearing 17.0 s, within range 17.0 s, shots 68.0, hits 23.7 (35%), mean hit distance 239 m, energy on target 2165 kt, game kills that would have happened 0.0
+== r150-c0.txt
+craft_tie_in: sep 218 m, nearest 8 m; guns bearing 14.0 s, within range 12.3 s, shots 73.5, hits 24.7 (34%), mean hit distance 210 m, energy on target 1367 kt, game kills that would have happened 0.0
+craft_xwing: sep 218 m, nearest 8 m; guns bearing 31.5 s, within range 31.5 s, shots 126.0, hits 60.7 (48%), mean hit distance 150 m, energy on target 6275 kt, game kills that would have happened 0.0
+== r150-c1.txt
+craft_tie_in: sep 223 m, nearest 12 m; guns bearing 14.9 s, within range 13.2 s, shots 79.2, hits 27.0 (34%), mean hit distance 197 m, energy on target 1570 kt, game kills that would have happened 424.6
+craft_xwing: sep 223 m, nearest 12 m; guns bearing 14.3 s, within range 14.3 s, shots 57.0, hits 20.2 (35%), mean hit distance 237 m, energy on target 1854 kt, game kills that would have happened 0.0
+== r200-c0.txt
+craft_tie_in: sep 472 m, nearest 8 m; guns bearing 10.5 s, within range 9.3 s, shots 55.5, hits 19.0 (34%), mean hit distance 214 m, energy on target 1047 kt, game kills that would have happened 0.0
+craft_xwing: sep 472 m, nearest 8 m; guns bearing 10.5 s, within range 10.5 s, shots 42.0, hits 15.0 (36%), mean hit distance 248 m, energy on target 1356 kt, game kills that would have happened 0.0
+== r200-c1.txt
+craft_tie_in: sep 473 m, nearest 12 m; guns bearing 10.5 s, within range 9.3 s, shots 55.5, hits 19.0 (34%), mean hit distance 214 m, energy on target 1043 kt, game kills that would have happened 0.0
+craft_xwing: sep 473 m, nearest 12 m; guns bearing 10.5 s, within range 10.5 s, shots 42.0, hits 15.0 (36%), mean hit distance 248 m, energy on target 1355 kt, game kills that would have happened 0.0
+== r250-c0.txt
+craft_tie_in: sep 410 m, nearest 10 m; guns bearing 8.5 s, within range 7.5 s, shots 45.0, hits 16.2 (36%), mean hit distance 210 m, energy on target 915 kt, game kills that would have happened 0.0
+craft_xwing: sep 410 m, nearest 10 m; guns bearing 10.8 s, within range 10.8 s, shots 43.0, hits 14.5 (34%), mean hit distance 231 m, energy on target 1341 kt, game kills that would have happened 0.0
+== r250-c1.txt
+craft_tie_in: sep 387 m, nearest 10 m; guns bearing 14.6 s, within range 13.6 s, shots 81.8, hits 37.0 (45%), mean hit distance 174 m, energy on target 2206 kt, game kills that would have happened 267.7
+craft_xwing: sep 387 m, nearest 10 m; guns bearing 11.2 s, within range 11.2 s, shots 44.9, hits 21.1 (47%), mean hit distance 194 m, energy on target 2069 kt, game kills that would have happened 0.0
+== r300-c0.txt
+craft_tie_in: sep 540 m, nearest 8 m; guns bearing 8.3 s, within range 7.5 s, shots 45.0, hits 16.6 (37%), mean hit distance 198 m, energy on target 974 kt, game kills that would have happened 0.0
+craft_xwing: sep 540 m, nearest 8 m; guns bearing 9.0 s, within range 9.0 s, shots 36.0, hits 11.9 (33%), mean hit distance 242 m, energy on target 1078 kt, game kills that would have happened 0.0
+== r300-c1.txt
+craft_tie_in: sep 615 m, nearest 11 m; guns bearing 7.5 s, within range 6.8 s, shots 40.5, hits 16.2 (40%), mean hit distance 195 m, energy on target 961 kt, game kills that would have happened 0.0
+craft_xwing: sep 615 m, nearest 11 m; guns bearing 9.0 s, within range 9.0 s, shots 36.0, hits 12.0 (33%), mean hit distance 241 m, energy on target 1088 kt, game kills that would have happened 0.0
+== r400-c0.txt
+craft_tie_in: sep 553 m, nearest 8 m; guns bearing 12.8 s, within range 12.3 s, shots 73.5, hits 18.4 (25%), mean hit distance 176 m, energy on target 1143 kt, game kills that would have happened 0.0
+craft_xwing: sep 553 m, nearest 8 m; guns bearing 8.5 s, within range 8.5 s, shots 34.0, hits 14.0 (41%), mean hit distance 194 m, energy on target 1373 kt, game kills that would have happened 0.0
+== r400-c1.txt
+craft_tie_in: sep 774 m, nearest 12 m; guns bearing 7.0 s, within range 6.5 s, shots 39.0, hits 18.1 (46%), mean hit distance 173 m, energy on target 1130 kt, game kills that would have happened 0.0
+craft_xwing: sep 774 m, nearest 12 m; guns bearing 10.5 s, within range 10.5 s, shots 42.0, hits 14.2 (34%), mean hit distance 197 m, energy on target 1379 kt, game kills that would have happened 0.0
+== r600-c0.txt
+craft_tie_in: sep 678 m, nearest 8 m; guns bearing 8.0 s, within range 7.8 s, shots 46.5, hits 22.7 (49%), mean hit distance 146 m, energy on target 1503 kt, game kills that would have happened 0.0
+craft_xwing: sep 678 m, nearest 8 m; guns bearing 10.3 s, within range 10.3 s, shots 41.0, hits 17.3 (42%), mean hit distance 153 m, energy on target 1808 kt, game kills that would have happened 0.0
+== r600-c1.txt
+craft_tie_in: sep 814 m, nearest 10 m; guns bearing 17.3 s, within range 7.8 s, shots 46.5, hits 22.0 (47%), mean hit distance 147 m, energy on target 1464 kt, game kills that would have happened 177.0
+craft_xwing: sep 814 m, nearest 10 m; guns bearing 8.6 s, within range 8.6 s, shots 34.2, hits 17.7 (52%), mean hit distance 147 m, energy on target 1865 kt, game kills that would have happened 0.0
+== r1000-c0.txt
+craft_tie_in: sep 27875 m, nearest 40 m; guns bearing 2.3 s, within range 2.0 s, shots 12.0, hits 6.0 (50%), mean hit distance 196 m, energy on target 337 kt, game kills that would have happened 0.0
+craft_xwing: sep 27875 m, nearest 40 m; guns bearing 2.3 s, within range 2.3 s, shots 9.0, hits 4.6 (51%), mean hit distance 226 m, energy on target 426 kt, game kills that would have happened 0.0
+== r1000-c1.txt
+craft_tie_in: sep 27875 m, nearest 40 m; guns bearing 2.3 s, within range 2.0 s, shots 12.0, hits 6.0 (50%), mean hit distance 196 m, energy on target 337 kt, game kills that would have happened 0.0
+craft_xwing: sep 27875 m, nearest 40 m; guns bearing 2.3 s, within range 2.3 s, shots 9.0, hits 4.6 (51%), mean hit distance 226 m, energy on target 426 kt, game kills that would have happened 0.0

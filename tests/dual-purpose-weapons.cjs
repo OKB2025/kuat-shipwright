@@ -65,11 +65,14 @@ test('a newly arrived missile takes priority over a farther craft without resett
 });
 
 test('switching automatic interception ON shares one reload and one energy debit; switching it OFF returns the gun to ship fire',()=>{
+ // 2026-11-24 expectation changed (gun rules; docs/benchmarks/gun-rules-2026-11-24/expectation-changes.md): the pd's cycle is 1 s
+ // (one 800 kt shot a second a barrel; was 0.2 s), so the 22 steps of 0.01 s (one old cycle and two steps) are now one cycle and two steps.
+ run('var STEPS=Math.ceil(C.FITS.pd.cycle/.01)+2');
  run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trialGunnery(.01);var firstEnergy=trial.energy.E,firstShots=trial.gun.shots;C.setAutomaticPointDefense(trial.systemsUnit,true);threat();trialGunnery(.01)');
  assert.equal(run('trial.turrets[0].pd'),true);assert.equal(run('trial.gun.pd||0'),0,'switching modes cannot reset the barrel reload');near(run('trial.energy.E'),run('firstEnergy'));
- run('for(let i=0;i<22;i++)trialGunnery(.01);var pdShots=trial.gun.pd||0,pdEnergy=trial.energy.E;trial.foeMissiles=[];trialGunnery(.01)');
+ run('for(let i=0;i<STEPS;i++)trialGunnery(.01);var pdShots=trial.gun.pd||0,pdEnergy=trial.energy.E;trial.foeMissiles=[];trialGunnery(.01)');
  assert.ok(run('pdShots')>0);assert.equal(run('trial.turrets[0].pd'),true,'still ON: kept for interception with no threat');assert.equal(run('trial.gun.shots'),run('firstShots'));near(run('trial.energy.E'),run('pdEnergy'));
- run('C.setAutomaticPointDefense(trial.systemsUnit,false);for(let i=0;i<22;i++)trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots>firstShots'));
+ run('C.setAutomaticPointDefense(trial.systemsUnit,false);for(let i=0;i<STEPS;i++)trialGunnery(.01)');assert.equal(run('trial.turrets[0].pd'),false);assert.ok(run('trial.gun.shots>firstShots'));
  const volleys=run('(trial.gun.shots+(trial.gun.pd||0))/trial.turrets[0].barrels'),cost=run('trial.turrets[0].power*trial.turrets[0].cycle*trial.turrets[0].costK/TT_J');near(1000-run('trial.energy.E'),volleys*cost);
 });
 
@@ -87,7 +90,12 @@ test('generated fleet profiles retain the dual-purpose rating and current revisi
  assert.equal(C.emptyDesignProfile({profileVersion:2,dualPurpose:{aa:6}}).dualPurpose.aa,6);
 });
 
-function fleetProfile(){const p=plain(D.cr90.p);Object.assign(p,{profileVersion:C.FLEET_PROFILE_VERSION,len:100,width:40,height:30,hp:1e9,acc:1,accel:0,maxSpeed:0,turnRate:0,D:0,shieldBuffer:0,reserve:0,gunArcs:Array(6).fill(30),ionArcs:Array(6).fill(0),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(30),close:Array(6).fill(0)},aa:6,aaArcs:Array(6).fill(6),aaCh:4,msl:0,imsl:0,slots:0,embarkedSlots:0,launch:0,crewNeed:0,crewMax:0,autoCrew:0,wCap:1000,modules:[],grid:{P:C.TT*1000,fixed:0,De:0,Ds:0,Dw:C.TT*100},dualPurpose:{gunArcs:Array(6).fill(25),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(25),close:Array(6).fill(0)},aaArcs:Array(6).fill(6),aa:6}});for(const k of ['hf','outline','heat','sw','mouths','surface'])delete p[k];return p;}
+function fleetProfile(){const p=plain(D.cr90.p);Object.assign(p,{profileVersion:C.FLEET_PROFILE_VERSION,len:100,width:40,height:30,hp:1e9,acc:1,accel:0,maxSpeed:0,turnRate:0,D:0,shieldBuffer:0,reserve:0,gunArcs:Array(6).fill(30),ionArcs:Array(6).fill(0),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(30),close:Array(6).fill(0)},aa:6,aaArcs:Array(6).fill(6),aaCh:4,msl:0,imsl:0,slots:0,embarkedSlots:0,launch:0,crewNeed:0,crewMax:0,autoCrew:0,wCap:1000,modules:[],grid:{P:C.TT*1000,fixed:0,De:0,Ds:0,Dw:C.TT*100},dualPurpose:{gunArcs:Array(6).fill(25),gunBands:{long:Array(6).fill(0),mid:Array(6).fill(25),close:Array(6).fill(0)},aaArcs:Array(6).fill(6),aa:6}});for(const k of ['hf','outline','heat','sw','mouths','surface'])delete p[k];
+ // 2026-11-25 fixture changed: the CR90's guns are now 200 GT turbolasers on short barrels (GUN_RULES.turbolaserShot), so its
+ // profile carries their reach (gunBandRules.mid, about 2.9 km). The battery of this fixture is a synthetic 30 TT/s mid-range
+ // one, not those guns, so it does not inherit their range rows: it fires at the band's nominal range as before.
+ assert.ok(C.gunRulesReach(p.gunBandRules.mid,C.GUN_BANDS.mid.range)<3000,'the CR90\'s own mid guns do not reach the 3 km target of these cases');
+ for(const k of ['gunBandRules','ionRules'])delete p[k];return p;}
 
 test('fleet role reservation removes only the shared battery while preserving other ship guns',()=>{
  const p=fleetProfile(),u=C.fleetUnit('own','own',p,0),target={pos:[3000,0,0]},missile={side:1,n:8,pos:[1000,0,0]};u.pos=[0,0,0];u.yaw=0;u.side=0;

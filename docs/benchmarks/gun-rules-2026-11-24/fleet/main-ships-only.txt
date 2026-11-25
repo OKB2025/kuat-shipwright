@@ -1,0 +1,39 @@
+fleet action with craft: Rebel mc75, mc80liberty, nebulonb, nebulonb, cr90 against Imperial imperial, imperial; 80 km apart at the start; the ships attack the nearest effective enemy ship and a fleet that judges it can win presses to 3000 m; 160 km above a planet of 6,120 km
+craft (the ships' stored wings x 0, commanded by Core.fleetAirStep; in the air beside their ship as its air control allows; the launch is not flown; nobody re-arms): Rebel 0 xwing (fighter, 6 rounds each), 0 ywing (bomber, 15 rounds each), 0 awing (fighter, 0 rounds each); Imperial 0 tie_ln (fighter, 6 rounds each), 0 tie_in (fighter, 4 rounds each), 0 tie_sa (bomber, 6 rounds each)
+rounds: itorp 0.0895 TT (3.14 t), cmsl 0.0471 TT (3.14 t), bomb 0.1885 TT (6.28 t); tactic {} (suppression and dive bombing are used when they apply unless switched off); 3 runs, limit 900 s
+
+run 1: ended 496.5s (7 units, 18 s to compute) | Imperial fleet; effective ships left: Rebel 0/5, Imperial 2/2 | ships' guns first fired on a ship at 39s, 39.5 km
+ Rebel craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 72 (first at 88.75s) (hit 33.4), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 38.6, lost with their craft 0
+   mc75 LOST at 204.25s; lift 0%; sections lost 2; out of action: engines 8/14, bridge 0/2, guns 11/34, sensors 0/0
+   mc80liberty LOST at 496.5s; lift 100%; sections lost 2; out of action: engines 7/11, bridge 0/2, guns 1/18, sensors 0/0
+   nebulonb LOST at 204.5s; lift 0%; sections lost 2; out of action: engines 11/14, bridge 0/1, guns 2/5, sensors 0/0
+   nebulonb LOST at 204.75s; lift 0%; sections lost 2; out of action: engines 8/14, bridge 0/1, guns 1/5, sensors 0/0
+   cr90 LOST at 39s; lift 0%; sections lost 2; out of action: engines 12/22, bridge 1/1, guns 4/6, sensors 0/0
+ Imperial craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 0 (hit 0.0), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+ pressing for a decision: 0s Imperial presses for a decision
+
+run 2: ended 496.5s (7 units, 18 s to compute) | Imperial fleet; effective ships left: Rebel 0/5, Imperial 2/2 | ships' guns first fired on a ship at 39s, 39.5 km
+ Rebel craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 72 (first at 88.75s) (hit 25.6), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 46.4, lost with their craft 0
+   mc75 LOST at 204s; lift 0%; sections lost 2; out of action: engines 10/14, bridge 0/2, guns 12/34, sensors 0/0
+   mc80liberty LOST at 496.5s; lift 100%; sections lost 2; out of action: engines 7/11, bridge 0/2, guns 3/18, sensors 0/0
+   nebulonb LOST at 204.25s; lift 0%; sections lost 2; out of action: engines 11/14, bridge 0/1, guns 1/5, sensors 0/0
+   nebulonb LOST at 204.5s; lift 0%; sections lost 2; out of action: engines 8/14, bridge 0/1, guns 1/5, sensors 0/0
+   cr90 LOST at 39s; lift 0%; sections lost 2; out of action: engines 14/22, bridge 1/1, guns 4/6, sensors 0/0
+ Imperial craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 0 (hit 0.0), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+ pressing for a decision: 0s Imperial presses for a decision
+
+run 3: ended 496.5s (7 units, 17 s to compute) | Imperial fleet; effective ships left: Rebel 0/5, Imperial 2/2 | ships' guns first fired on a ship at 39s, 39.5 km
+ Rebel craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 72 (first at 88.75s) (hit 25.5), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 46.5, lost with their craft 0
+   mc75 LOST at 204s; lift 0%; sections lost 2; out of action: engines 7/14, bridge 0/2, guns 9/34, sensors 0/0
+   mc80liberty LOST at 496.5s; lift 100%; sections lost 2; out of action: engines 7/11, bridge 0/2, guns 2/18, sensors 0/0
+   nebulonb LOST at 204.25s; lift 0%; sections lost 2; out of action: engines 8/14, bridge 0/1, guns 2/5, sensors 0/0
+   nebulonb LOST at 204.5s; lift 0%; sections lost 2; out of action: engines 8/14, bridge 0/1, guns 1/5, sensors 0/0
+   cr90 LOST at 39s; lift 0%; sections lost 2; out of action: engines 14/22, bridge 1/1, guns 4/6, sensors 0/0
+ Imperial craft lost: none flown | squadrons sent up 0/0 | rounds: carried 0, released at ships 0 (hit 0.0), of them bombs let go in a dive 0 by 0 bombers, fired at craft 0 (hit 0.0), shot down 0.0, lost with their craft 0
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+   imperial in action; lift 100%; sections lost 0; out of action: engines 0/10, bridge 0/2, guns 0/29, sensors 0/6
+ pressing for a decision: 0s Imperial presses for a decision
