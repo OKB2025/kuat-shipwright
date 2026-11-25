@@ -23,7 +23,7 @@ section('const TRIAL_PILOT_CYCLE=','// opts.design');
 section('const trialBarrel=','function trialAim(');
 section('function trialIntercept(','// The enemy a fixed battery');
 section('const TRIAL_PD=','// Small craft and missiles a pilot');
-section('function trialShotGeometry(','// Missiles leave');
+section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 // 2026-11-15, user decisions (rewritten with this record; the tests below stated the old rule, in which a
 // dual-purpose gun fired at ships and switched to interception only while a threat was near):
@@ -183,10 +183,17 @@ test('the shared battery is reserved while ON whatever the threat (independent A
 // carried across frames) and kicks the aim by one barrel's share of a volley.
 test('a twin gun in rapid fire keeps barrels ÷ cycle shots a second at 1/60, 1/30 and 1/20 s frames',()=>{
  for(const dt of [1/60,1/30,.05]){cx.dt=dt;run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trial.energy.E=trial.energy.cap=1e12;for(let i=0;i<Math.round(10/dt);i++)trialGunnery(dt)');
-  const d=run('C.FITS.pd'),want=d.barrels/d.cycle*10/1.008/* the harness fixes Math.random at 0.1: jitter 1+0.1×0.08 */,got=run('trial.gun.shots');assert.ok(Math.abs(got-want)<=want*.025,`dt ${dt}: ${got} shots in 10 s, about ${want.toFixed(0)} expected`);}
+  // 2026-11-25 expectation changed (user「点防御は1門0.1で約15秒間持続射撃でき、その後リチャージに30秒で」, docs/benchmarks/gun-rules-2026-11-24/followup-2026-11-25/README.md):
+  // the point-defence gun fires every gunRule.fireS (0.1 s) a barrel while its 15 s cartridge lasts, so the first 10 s hold barrels ÷ fireS
+  // shots a second (2 ÷ 0.1 × 10 = 200, less the jitter); FITS.pd.cycle (0.3 s) is now its mean period over fire and cartridge change. Was
+  // barrels ÷ cycle × 10 (about 66).
+  const d=run('C.FITS.pd');assert.equal(d.gunRule.fireS,.1);assert.ok(d.gunRule.burstS>10,'the 10 s lie inside one cartridge');const want=d.barrels/d.gunRule.fireS*10/1.008/* the harness fixes Math.random at 0.1: jitter 1+0.1×0.08 */,got=run('trial.gun.shots');assert.ok(Math.abs(got-want)<=want*.025,`dt ${dt}: ${got} shots in 10 s, about ${want.toFixed(0)} expected`);}
 });
 // High review 2026-11-15: time the gun could not fire (no energy) is not paid back as every barrel at once.
 test('after a second without energy a rapid-fire gun resumes one barrel at a time',()=>{
  run('reset();C.setAutomaticPointDefense(trial.systemsUnit,false);trial.turrets[0].barrels=4;trial.energy.E=trial.energy.cap=1e12;for(let i=0;i<90;i++)trialGunnery(1/30);trial.energy.E=0;trial.energy.cap=0;for(let i=0;i<30;i++)trialGunnery(1/30);trial.energy.E=trial.energy.cap=1e12;var perFrame=[];for(let i=0;i<10;i++){const before=trial.gun.shots;trialGunnery(1/30);perFrame.push(trial.gun.shots-before);}');
- const perFrame=plain(run('perFrame'));assert.ok(perFrame.every(n=>n<=1),`shots a frame after the energy returns: ${perFrame}`);assert.ok(perFrame.reduce((a,b)=>a+b,0)>=2);
+ // 2026-11-25 expectation changed (user「点防御は1門0.1で約15秒間持続射撃でき、その後リチャージに30秒で」): four barrels at 0.1 s a barrel are a shot every
+ // 0.025 s, which is 1.33 shots a 1/30 s frame in steady fire, so a frame holds one or two shots (was at most one: 0.3 s ÷ 4 = 0.075 s a
+ // shot). What this case guards is unchanged: the second without energy is not paid back as all four barrels at once.
+ const perFrame=plain(run('perFrame')),steady=Math.ceil(1/30/(run('C.FITS.pd.gunRule.fireS')/4));assert.equal(steady,2);assert.ok(perFrame.every(n=>n<=steady&&n<4),`shots a frame after the energy returns: ${perFrame}`);assert.ok(perFrame.reduce((a,b)=>a+b,0)<=Math.ceil(10/30/(.1/4)*1.01),'no more than the steady rate over the ten frames: '+perFrame);assert.ok(perFrame.reduce((a,b)=>a+b,0)>=2);
 });

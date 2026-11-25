@@ -14,8 +14,13 @@ function setup(){
  const trialThreatDown=q=>{q.alive=false;downs++;};
  // 2026-11-24 gun rules: a craft laser fires once a second by default and its cadence is the fit's rateHz (was a 0.12-0.18 s
  // catalogue period, slowed in this fixture by overwriting the turret's cycle). The fixture now sets the fit's rateHz.
+ // 2026-11-25 fixture changed (aircraft laser yield, user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」「面積比例で」; the gas unit kept at
+ // 118.28 kt/s = C.CRAFT_LASER_UNIT_W): the heavy laser's shot is 800 kt (was 436 kt) and the medium 276.29 kt (was 118.28 kt), so the
+ // 25 heavy shots of the 6.3 s stream take 2e-5 TT and, on a craft rated at one laser unit, 169 gas-seconds; the 1e-5 TT and 100 gas-seconds
+ // of this fixture stopped the stream at 12 shots ('claserH should emit a stream'). The fixture now holds 1e-4 TT (was 1e-5) and is rated
+ // for one medium laser at one shot a second as before, which is FITS.claser.power ÷ CRAFT_LASER_UNIT_W = 2.336 laser units (was 1). No expectation changed.
  function reset(key='claser',rateHz=null){
-  Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e-5,cap:1e-5},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+  Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:C.FITS.claser.power/C.CRAFT_LASER_UNIT_W,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e-4,cap:1e-4},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
   const ship=C.newShip({L:12,W:8,H:4,assembly:true});ship.parts=[];ship.fits=[{id:1,k:key,p:[0,0,0],a:2,ped:0,base:0,low:0,float:false,...(rateHz?{rateHz}:{})}];
   const t=trialTurretState(G.fleetGeometry(ship,{trial:true}).turrets[0]);if(Math.abs(t.cycle-1/(rateHz||1))>1e-12)throw Error('cycle '+t.cycle+' is not 1/rateHz');t.clear=true;t.clearDir=t.fw.slice();t.charge=1;trial.turrets=[t];trialCraftSystemsReset();
  }
@@ -29,7 +34,7 @@ function setup(){
  section('const trialBarrel=','function trialAim(');
  section('function trialCraftSystemsSpec()','function trialReset()');
  section('function trialPilotHit(','function trialThreatDown(');
- section('function trialShotGeometry(','// Missiles leave');
+ section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
  return run;
 }
 const near=(a,b,eps=1e-6)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);

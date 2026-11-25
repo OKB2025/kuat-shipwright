@@ -17,7 +17,7 @@ section('function trialFoilBase(','// These consumables');
 section('function trialIntercept(','// The enemy a fixed battery');
 for(const line of app.split('\n'))if(line.startsWith('const TRIAL_PD=')||line.startsWith('const trialPdColor='))run(line);
 section('function trialPdBoltHit(','// Small craft and missiles a pilot');
-section('function trialShotGeometry(','// Missiles leave');
+section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
 run(`function setup(k='ball720',frame={a:2},pitch=42,foil=false,pd=false,yaw=.2,elevation=3*Math.PI/180){
  if(frame.tilt)frame={...frame,tilt:C.norm(frame.tilt)};
  const f={id:7,k,p:[100,40,15],a:2,assetYaw:31,assetPitch:pitch,float:false,...frame},ship=C.newShip({assembly:true,L:200,W:200,H:100},'Actual ball trial aiming');ship.parts=[];ship.fits=[f];ship.detail=0;

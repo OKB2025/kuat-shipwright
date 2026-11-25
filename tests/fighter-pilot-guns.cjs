@@ -18,9 +18,13 @@ function stateFromFit(f){
  const t=G.fleetGeometry(ship,{trial:true}).turrets.find(t=>t.id===f.id);if(!t)throw Error('No trial weapon '+f.k);
  const s=trialTurretState(t);s.clear=true;s.clearDir=s.fw.slice();s.charge=1;return s;
 }
+// 2026-11-25 fixture changed (laser-gas unit; user's yield rule「では0.3を800kt、0.05を50ktと扱い…」, the gas unit kept at the 118.28 kt/s of the
+// standard laser before it = C.CRAFT_LASER_UNIT_W): this craft is rated for one medium laser at one shot a second, which is now
+// FITS.claser.power ÷ CRAFT_LASER_UNIT_W = 276.29 ÷ 118.28 = 2.336 laser units (laserUnits was 1 while FITS.claser.power was the unit),
+// so one medium shot a second still takes one gas-second of its 100.
 function reset(k='claser',extra={}){
  notices.length=0;sounds.length=0;aimPoint=[10000,0,0];salvo=null;
- Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:1,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],emitted:[],seenBolts:new WeakSet(),missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
+ Object.assign(trial,{systemsUnit:{p:{modules:[]}},on:true,craft:true,spectate:false,paused:false,p:{len:12},asset:{stats:{craftSystems:{v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:C.FITS.claser.power/C.CRAFT_LASER_UNIT_W,laserGasSeconds:100}},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'free',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1000,cap:1000},gun:{shots:0,hits:0,kills:0},bolts:[],emitted:[],seenBolts:new WeakSet(),missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  trial.turrets=[stateFromFit(makeFit(k,extra))];trialCraftSystemsReset();
 }
 function advance(duration,dt=.001){for(let i=0;i<Math.round(duration/dt);i++){trialGunnery(dt);for(const b of trial.bolts)if(!trial.seenBolts.has(b)){trial.seenBolts.add(b);trial.emitted.push(b);}}}
@@ -30,7 +34,7 @@ section('const TRIAL_PILOT_CYCLE=','// opts.design');
 section('function authoredTurretPose(','function trialAim(');
 section('const TRIAL_PD=','// Small craft and missiles a pilot');
 section('function trialCraftSystemsSpec()','function trialReset()');
-section('function trialShotGeometry(','// Missiles leave');
+section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`),vector=(a,b)=>a.forEach((x,i)=>near(x,b[i]));
 
 test('fixed pilot guns fire down the actual barrel even with the reticle to the side or behind',()=>{
@@ -56,7 +60,7 @@ test('side-mounted and sloped fixed guns use the model frame instead of an assum
 // carried the per-second output over the period (C.craftShotTT), so a slower gun fired bigger shots.
 test('each pilot pulse is the shot of its bore, and energy and gas follow the shots fired when the rate of fire changes',()=>{
  const sample=extra=>{context.extra=extra;run('reset("claser",extra);trial.energy.E=1e-5;globalThis.energy0=trial.energy.E;advance(6)');return plain(run('({shots:trial.gun.shots,energy:energy0-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds,cycle:trial.turrets[0].cycle,rate:trial.turrets[0].rule.rateHz,costK:trial.turrets[0].costK,boltEnergy:trial.emitted.reduce((n,b)=>n+b.tt,0),bolts:trial.emitted.map(b=>b.tt),hitScales:trial.emitted.map(b=>b.hitScale)})'));};
- const base=sample({}),bolt=Number(run('C.FITS.claser.boltTT'));near(bolt,Number(run('C.laserShotKt(C.CRAFT_LASER_GEOMETRY.claser.bore)/C.KT_PER_TT')),bolt*1e-12);
+ const base=sample({}),bolt=Number(run('C.FITS.claser.boltTT'));near(bolt,Number(run('C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.claser.bore)/C.KT_PER_TT')),bolt*1e-12);near(bolt,(50+750*(.17**2-.05**2)/(.30**2-.05**2))/1e9,bolt*1e-12);/* 2026-11-25 expectation changed (user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」「面積比例で」): the 0.17 m shot is C.craftLaserKt = 276.29 kt (was C.laserShotKt = 118.28 kt) */
  assert.equal(base.rate,1);assert.equal(base.cycle,1);assert.equal(base.cycle,run('C.CRAFT_FIRE.cycles.claser'));assert.ok(base.shots>=5&&base.shots<=6,'one shot a second for six seconds: '+base.shots);
  near(base.energy,base.shots*bolt*base.costK,base.energy*1e-9);near(base.boltEnergy,base.shots*bolt,base.boltEnergy*1e-10);assert.ok(base.hitScales.every(k=>k===1),'physical shots are not diluted by a former reference cycle');near(base.gas,base.shots*Number(run('C.FITS.claser.cycle')),1e-8);
  const rapid=sample({rateHz:4});assert.equal(rapid.rate,4);near(rapid.cycle,.25,1e-12);assert.ok(rapid.shots>=base.shots*3.5&&rapid.shots<=24,'four shots a second: '+rapid.shots);
@@ -67,7 +71,9 @@ test('each pilot pulse is the shot of its bore, and energy and gas follow the sh
 test('normal and coarse frame steps keep the pulse stream steady without saving up idle shots',()=>{
  const samples=[];
  // 2026-11-24: the default cadence is one shot a second; the rapid stream this case steps coarsely is a laser set to ten a second (rateHz, the most a fit allows).
- for(const dt of [.016,.04,.1]){context.dt=dt;run('reset("claser",{rateHz:10});trial.energy.E=1e-5;advance(8,dt)');samples.push(plain(run('({shots:trial.gun.shots,energy:1e-5-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds})')));}
+  // 2026-11-25 fixture changed (aircraft laser yield, user「では0.3を800kt、0.05を50ktと扱い…」): the 80 shots of 276.29 kt take 2.2e-5 TT, more than
+ // the 1e-5 TT this case started with (80 × 118.28 kt = 0.95e-5 TT fitted), so it starts with 1e-4 TT. The expectations are unchanged.
+ for(const dt of [.016,.04,.1]){context.dt=dt;run('reset("claser",{rateHz:10});trial.energy.E=1e-4;advance(8,dt)');samples.push(plain(run('({shots:trial.gun.shots,energy:1e-4-trial.energy.E,gas:100-trial.systemsRuntime.gasSeconds})')));}
  for(const sample of samples){assert.ok(sample.shots>=60);assert.ok(Math.abs(sample.shots-samples[0].shots)<=1);assert.ok(Math.abs(sample.energy/samples[0].energy-1)<.03);assert.ok(Math.abs(sample.gas/samples[0].gas-1)<.03);}
  run('reset();advance(1,.04);trial.fire=false;advance(10,.1);const idleCount=trial.gun.shots;trial.fire=true;trialGunnery(.1)');assert.ok(run('trial.gun.shots-idleCount')<=1,'releasing the trigger must not accumulate firing debt');
  run('reset();trial.energy.E=0;advance(10,.1);trial.energy.E=1000;trialGunnery(.04)');assert.ok(run('trial.gun.shots')<=1,'power starvation must not accumulate a backlog of pulses');

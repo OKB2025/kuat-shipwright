@@ -29,7 +29,7 @@ section('const TRIAL_PILOT_CYCLE=','// opts.design');
 section('function authoredTurretPose(','function trialAim(');
 section('const TRIAL_PD=','// Small craft and missiles a pilot');
 section('function trialCraftSystemsSpec()','function trialReset()');
-section('function trialShotGeometry(','// Missiles leave');
+section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`),vector=(a,b)=>a.forEach((x,i)=>near(x,b[i]));
 
 
@@ -61,7 +61,9 @@ function Cvalue(key){return Number(run('C.FITS.cturret.'+key));}
 // a faster turret asks for that many times the power and gas a second. This case stated the 2026-11-11 rule (a period's volley is
 // the per-second output over the period, so a shorter period fired weaker shots at the same power) by overwriting the turret's cycle.
 test('changing the turret\'s rate of fire keeps each shot (the shot of its bore) while power and gas follow the shots fired',()=>{
- const shot=Number(run('C.laserShotKt(C.CRAFT_LASER_GEOMETRY.cturret.bore)/C.KT_PER_TT'));near(Cvalue('boltTT'),shot,shot*1e-12);assert.equal(Cvalue('cycle'),1);assert.equal(Cvalue('cycle'),Number(run('C.CRAFT_FIRE.cycles.cturret')));
+ // 2026-11-25 expectation changed (user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」「面積比例で」): the 0.12 m barrel's shot is
+ // C.craftLaserKt(0.12) = 50 + 750 × (0.12² − 0.05²) ÷ (0.30² − 0.05²) = 152 kt (was C.laserShotKt(0.12) = 42.88 kt, the ship laser's rule).
+ const shot=Number(run('C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.cturret.bore)/C.KT_PER_TT'));near(shot,152e-9,152e-9*1e-12);near(Cvalue('boltTT'),shot,shot*1e-12);assert.equal(Cvalue('cycle'),1);assert.equal(Cvalue('cycle'),Number(run('C.CRAFT_FIRE.cycles.cturret')));
  run('aaReset();var baseNeed=trialCraftGasNeed(trial.turrets[0])');assert.ok(run('baseNeed')>0);
  for(const rate of [1,4]){context.rate=rate;run('aaReset();trial.turrets[0]={...stateFromFit(makeFit("cturret",{id:2,rateHz:rate})),reload:0};var before=trial.energy.E,gasBefore=trial.systemsRuntime.gasSeconds,need=trialCraftGasNeed(trial.turrets[0]);trialGunnery(.01)');
   near(run('trial.turrets[0].cycle'),1/rate,1e-12);assert.equal(run('trial.turrets[0].rule.rateHz'),rate);
