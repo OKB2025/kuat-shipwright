@@ -1,2 +1,2 @@
-# node fitpos.cjs <main 8c4bcab の写し> <候補 828f285 の作業ツリー>
+# node fitpos.cjs <main 8c4bcab の写し> <候補 e8efd655 の作業ツリー>
 0 examples differ in their fits (kind, position to 1 mm, axis, yaw, pitch, scale, base, pedestal; ids ignored)

@@ -21,4 +21,4 @@ for(;t<LIMIT;t+=STEP){
 const left=[0,1].map(k=>ships[k].filter(eff).length),res=left[0]&&left[1]?'UNDECIDED':left[0]?'A wins':left[1]?'B wins':'neither';
 console.log(`${process.argv[3]} | ${res} at ${t}s | left ${left[0]}/${FLEETS[0].length} : ${left[1]}/${FLEETS[1].length} | first fire A ${st.first[0]?st.first[0].t+'s @'+(st.first[0].d/1000).toFixed(1)+'km':'never'}, B ${st.first[1]?st.first[1].t+'s @'+(st.first[1].d/1000).toFixed(1)+'km':'never'} | closest ${(st.minD/1000).toFixed(2)}km | press ${press}`);
 console.log('  standoff: '+Object.values(st.sd).join('; '));
-for(const u of all){const o=st.out[u.id],z=s0.get(u.id);console.log(`  ${'AB'[u.team]} ${u.key.padEnd(12)} shield ${(100*Math.max(0,u.shield)/Math.max(1e-30,z.sh)).toFixed(0)}% hull ${(100*Math.max(0,u.hull??u.hp)/Math.max(1e-30,z.hp)).toFixed(0)}% ${o?'OUT '+o.why+' at '+o.t+'s':'in action'}`);}
+for(const u of all){const o=st.out[u.id],z=s0.get(u.id);console.log(`  ${'AB'[u.team]} ${u.key.padEnd(12)} shield ${(100*Math.max(0,u.shield)/Math.max(1e-30,z.sh)).toFixed(0)}% armour ${(100*Math.max(0,u.armor??1)).toFixed(0)}% ${o?'OUT '+o.why+' at '+o.t+'s':'in action'}`);}
