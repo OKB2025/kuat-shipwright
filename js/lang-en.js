@@ -11023,7 +11023,20 @@ Object.assign(root.KS_EN.messages,{
  "Up/Down Y を減らす": "Decrease Up/Down Y",
  "Up/Down Y を増やす": "Increase Up/Down Y",
  "Port/Starboard Z を減らす": "Decrease Port/Starboard Z",
- "Port/Starboard Z を増やす": "Increase Port/Starboard Z"
+ "Port/Starboard Z を増やす": "Increase Port/Starboard Z",
+ "ノズル": "Nozzle",
+ "そのまま（連射できる）": "Plain (can fire faster)",
+ "追尾ノズル（Xウイング型）": "Tracking nozzle (X-wing type)",
+ "口径（内径）": "Bore (inside diameter)",
+ "レーザーのノズルを変更": "Change laser nozzle",
+ "1発 {0}・射程 {1}・定格入力 {2} kt/秒（1門）・命中 {3}%": "Shot {0} · Range {1} · Rated input {2} kt/s (per barrel) · Hits {3}%",
+ "1発 {0}・射程 {1}・定格入力 {2} kt/秒（1門）・命中 {3}%（追尾 ±{4}°）": "Shot {0} · Range {1} · Rated input {2} kt/s (per barrel) · Hits {3}% (tracks ±{4}°)",
+ "正面（機首方向）にだけ向けて取り付けます。1発は口径（内径）で、射程は長さで決まります。砲身の外径は口径 ÷ 0.75 です。追尾ノズルはロックオンした標的へ数度だけ向きを変えて当てますが、毎秒1発より速く撃てません。そのままのノズルは連射できますが、速くするほど命中が下がり、電力・ガス・発熱が増えます。": "It can only be mounted facing forward. The bore (inside diameter) sets the shot and the length sets the range; the tube is the bore ÷ 0.75 across. A tracking nozzle turns the bolt a few degrees onto a locked target but cannot fire faster than once a second. A plain nozzle can fire faster, but the faster it fires the less it hits and the more power, gas and heat it takes.",
+ "ユーザー指定 2026-11-25：航空レーザーは口径（内径）で1発が決まる（0.05 m で 50 kt、0.30 m で 800 kt）": "User specification 2026-11-25: an aircraft laser's shot is set by its bore (inside diameter): 50 kt at 0.05 m, 800 kt at 0.30 m",
+ "機首方向に固定した戦闘機用レーザー砲。口径・長さ・連射速度・ノズルを砲ごとに決める円柱の砲身。既定は口径 0.17 m・長さ 1 m で1発276 kt、毎秒1発。": "A forward-fixed fighter laser: a cylindrical barrel whose bore, length, rate of fire and nozzle are set on each gun. Default: 0.17 m bore, 1 m long, 276 kt a shot, one shot a second.",
+ "機首方向に固定した戦闘機用レーザー砲。口径・長さ・連射速度・ノズルを砲ごとに決める円柱の砲身。既定は口径 0.12 m・長さ 1 m で1発152 kt、毎秒1発。": "A forward-fixed fighter laser: a cylindrical barrel whose bore, length, rate of fire and nozzle are set on each gun. Default: 0.12 m bore, 1 m long, 152 kt a shot, one shot a second.",
+ "機首方向に固定した戦闘機用レーザー砲。口径・長さ・連射速度・ノズルを砲ごとに決める円柱の砲身。既定は口径 0.30 m・長さ 1.44 m で1発800 kt、毎秒1発。": "A forward-fixed fighter laser: a cylindrical barrel whose bore, length, rate of fire and nozzle are set on each gun. Default: 0.30 m bore, 1.44 m long, 800 kt a shot, one shot a second.",
+ "後部銃座・上部砲塔などの小型連装レーザー砲塔。既定は口径 0.12 m で2門が各1発152 kt、毎秒1発（一斉射304 kt）。": "A compact twin laser turret for rear or dorsal positions. Default: 0.12 m bore, two barrels of 152 kt a shot each, one shot a second (304 kt a volley)."
 });
 // </gun-rules-2026-11-24-catalog>
 })(typeof window==="undefined"?globalThis:window);
