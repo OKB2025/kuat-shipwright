@@ -448,3 +448,5 @@ js/lang-en.js の末尾に `<gun-rules-2026-11-24-catalog>` の区画を足し�
 | fleet-commit-twice.cjs | 5 km から互いを攻撃 | 2.5 km で保持して射撃 | 上の 1 | いいえ |
 
 - エグゼクター（砲列に点防御とターボレーザーが混ざる唯一の作例）は、この修正の後に作り直した。
+
+| trench-armament-combat.cjs / odd mixed totals share one actual capacitor per side…、one shared-row hit reduces both weapon shares once… | 砲座の容量の合計 = 区画の容積 × 0.05。充電区画 1 つに砲の組 2 つが繋がる（monCal34 と pd）。区画の損傷で 2 組の蓄えが減る | 給電区画が要る砲座の容量の合計 = 区画の容積 × 0.05、レーザーの砲座の容量 = 自分の 1 斉射。区画に繋がるのは 1 組（monCal34）。区画の損傷で減るのはその 1 組で、点防御の組は減らない | レーザーは給電区画を持たない（ユーザー 2026-11-25）。砲列の充電区画からレーザーを外した修正（ebca11b）の帰結。fc06760 の全テストの後の修正だったので、ab1dc78 の全テストで見つかった | いいえ（テスト 9 は main と同じ失敗のまま） |

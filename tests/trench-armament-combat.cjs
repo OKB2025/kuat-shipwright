@@ -66,11 +66,14 @@ test('odd mixed totals share one actual capacitor per side without duplicating i
     assert.equal(rows.reduce((n, f) => n + f.aggregateCount, 0), wanted);
     assert.equal(rows[0].aggregateCount - rows[1].aggregateCount, 1);
   }
-  near(x.profile.surface.mounts.reduce((n, m) => n + m.capacity, 0), caps.reduce((n, p) => n + C.partVolume(p), 0) * C.CHARGE_TT_M3);
+  // 2026-11-25 a laser has no feed compartment (user decision): the charge rows hold the turbolasers' volleys alone, and a point
+  // defence group's capacity is its own volley, with no room behind it.
+  { const fed = new Set(x.ship.fits.filter(f => C.needsCapacitor(f)).map(f => f.id)), cap = keep => x.profile.surface.mounts.filter(m => fed.has(m.id) === keep).reduce((n, m) => n + m.capacity, 0);
+    near(cap(true), caps.reduce((n, p) => n + C.partVolume(p), 0) * C.CHARGE_TT_M3); near(cap(false), x.ship.fits.filter(f => !fed.has(f.id)).reduce((n, f) => n + C.fitSpec(f).tt, 0)); for (const p of caps) assert.equal(p.weaponIds.length, 1); }
   const capModules = x.profile.modules.filter(m => m.k === 'capacitor');
   assert.equal(capModules.length, 2);
-  assert.ok(capModules.every(m => m.links.length === 2));
-  assert.equal(new Set(capModules.flatMap(m => m.links)).size, 4);
+  /* 2026-11-25 each row is linked to the one group it feeds (the turbolasers of its side) */assert.ok(capModules.every(m => m.links.length === 1));
+  assert.equal(new Set(capModules.flatMap(m => m.links)).size, 2);
 });
 
 test('port and starboard rows use the real opening, range and bounded per-muzzle obstruction rather than one center ray', () => {
@@ -126,7 +129,7 @@ test('one shared-row hit reduces both weapon shares once, while weapon destructi
   const {mixed: x} = fixtures(), u = unit(x.profile), mounts = x.profile.surface.mounts;
   C.surfaceMountEnergy(u, mounts[0].id); const ci = x.profile.modules.findIndex(m => m.k === 'capacitor'), cap = x.profile.modules[ci];
   const affected = mounts.filter(m => cap.links.includes(m.module)), other = mounts.filter(m => !cap.links.includes(m.module));
-  assert.equal(affected.length, 2); const lost = affected.reduce((n, m) => n + m.capacity / 2, 0);
+  /* 2026-11-25 the row serves the turbolasers of its side alone (a laser has no feed compartment): one group is affected, and the point defence groups keep their charge with the others. Two fed kinds sharing a row is checked in tests/trench-armament-core.cjs (monCal34 with monCal80). */assert.equal(affected.length, 1); assert.ok(affected.every(m => C.needsCapacitor(x.ship.fits.find(f => f.id === m.id)))); assert.ok(other.some(m => !C.needsCapacitor(x.ship.fits.find(f => f.id === m.id)))); const lost = affected.reduce((n, m) => n + m.capacity / 2, 0);
   u.mods[ci] = .5; C.surfacePowerStep(u, null, null, 0, 0, 0);
   for (const m of affected) near(C.surfaceMountEnergy(u, m.id), m.capacity / 2);
   for (const m of other) near(C.surfaceMountEnergy(u, m.id), m.capacity);

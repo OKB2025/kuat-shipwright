@@ -16,3 +16,22 @@
 - **制限**：上面の区画 `p1:top:34`（341 m²）は、背中を x 40 m から頭の上面の縁（x 116 m）まで 1 枚で続いている。区画の中心が x 73.7 m なので「境目より後ろ」と数えられ、頭の上面の縁の部分は 0.2 m のまま（上面図で頭を囲む灰色の輪）。区画は分けられない（形を変えない）ので、この縁を厚くするには背中全体を厚くすることになる。そうしていない。
 - 首の上面の 1 区画（x 83〜91 m）は中心が境目より前なので 0.6 m になっている（上面図の破線をまたぐ橙の四角）。
 - 再読込の後も、境目より前の 90 区画の厚さは決めたとおり（前面 13 個 2.0 m、上 19・下 18・左舷 12・右舷 11 個 0.6 m、後面 17 個 0.2 m）。
+
+## 全テスト（main `8c4bcab` と候補 `ab1dc78`）
+
+- 実行：`run-tests.sh <root> <出力先> <並列数> <制限秒> <テストの一覧>`（各 `tests/*.cjs` をその木の中で `node --test` し、終了コード・合格数・失敗数・秒を 1 行ずつ記録）。main は 600 秒、候補は 700 秒の制限。
+- 結果：`tests-main-8c4bcab.tsv`（570 本）、`tests-candidate-ab1dc78.tsv`（574 本）、違い `tests-main-vs-candidate.txt`。
+- 失敗を含むファイル：main 166、候補 167。
+
+| main と結果が違うテスト | main（終了コード｜合格｜失敗） | 候補 | 理由 |
+| --- | --- | --- | --- |
+| fleet-standoff-judge、fleet-ram-judge、gr75-user-remodel、gun-feed-physics-review | なし | 0｜6｜0、0｜6｜0、0｜4｜0、0｜4｜0 | 新しいテスト（すべて合格） |
+| fleet-commit-twice | 0｜1｜0 | 0｜4｜0 | テストを 3 件追加 |
+| turret-compartment-volume | 1｜13｜1 | 1｜16｜1 | テストを 3 件追加。残る 1 件は main と同じ失敗 |
+| lowered-bays-capacity | 1｜1｜1 | 0｜2｜0 | 良くなった |
+| fighter-interiors | 0｜14｜0 | 1｜13｜1 | **既知**：Z-95 の加速 3,406 G が目標 3,330 G を超える。ユーザー決定で次の PR で作例を直す |
+| fleet-record-release | 0｜8｜0 | 1｜7｜1 | **未修正**：Worker が艦を戻す経路でハンマーヘッドの灯りが最大 1.1 mm ずれる（`restored-ship-lights-main-code.txt`。main のコードでも今の設計で再現） |
+| trench-armament-combat | 1｜8｜1 | 1｜6｜3 | この実行の後に期待値 2 件を更新（砲列の充電区画はレーザーを含まない）。更新後は 8／1 で main と同じ 1 件の失敗 |
+| hull-outer-surface-contact | 124（600 秒で打ち切り） | 1｜0｜1 | 候補は 521 秒で強制終了された（SIGKILL。作業プロセスの再起動と重なった）。完走していない点は main と同じ |
+
+- 600／700 秒の制限で打ち切り：main は example-figures-regression、fleet-loadout-separation、hull-outer-surface-contact。候補は example-figures-regression、fleet-loadout-separation（mandator-example-refit は候補で完走）。
