@@ -278,3 +278,16 @@ js/lang-en.js の末尾に `<gun-rules-2026-11-24-catalog>` の区画を足し�
 - weapon-flush-bounds-core.cjs テスト 3：**前回の記載は main と候補が逆だった。訂正する。**「箱の幅 0.2688 ≠ 0.32」で失敗するのは main の側。候補は、その手前の「描いた頂点が砲の箱（fitAABB）に入っている」検査で失敗する（`claser axis0 scale0.5 vertex … outside`）。
   航空レーザーの箱より描いた円柱の方が太い：claser は箱 0.269 m・描画 0.320×0.304 m（scale 0.5 では箱 0.134 m・描画 0.283×0.269 m で、描画が縮尺に追従していない）、claserH は箱 0.420 m・描画 0.500×0.476 m（scale 0.5 でも描画は同じ）。
   選択範囲・干渉の箱と描画が合っていない js 側の問題で、期待値では直せないため、テストは元のまま（失敗 1 件、件数は main と同じ）。対応案：fitAABB を描く円柱の寸法から作る、または描画を箱と同じ口径・縮尺にする。
+
+## 訂正（2026-11-25、2 回目のレビュー後の修正 2401f13 に合わせる）
+
+上の表のうち、次の 3 点は記載が古い。表の行は経過として残し、ここに今の状態を書く。
+
+| 対象 | 上の記載 | 今の状態 | 理由 |
+| --- | --- | --- | --- |
+| capital-turret-trial.cjs / a real RTS carrier spool keeps its manually piloted physical guns fireable before departure | 使った蓄電 = 700 × `weaponChargeFactor(ball175Quad)`（2,103.7 TT） | 使った蓄電 = **700 TT**（main と同じ値）。係数が 1 + 砲身 ÷ 19 m で 1 より大きいことの検査は残した | 物理レビュー（2 回目）の FAIL：公試の蓄電は「撃ち出す量」を貯める器で、充電係数 (1+c) は貯めるときの入力（`weaponInputFactor`）で払っている。`js/app.js` `trialTurretState` の `costK` に `weaponChargeFactor` も掛けていたので二重計上だった。2,103.7 TT はその二重計上を正解として固定した値で、誤り |
+| ion-barrel-style.cjs / all authored ion guns use a physically thick root tapering to a narrow tip with closed real bores | 先細りの終わり = taperEndXM + 伸ばした長さ、に書き換えた | **テストは main と同じ内容に戻した**（`git diff 8c4bcab HEAD -- tests/ion-barrel-style.cjs` は差分なし）。3／0 で通る | 原本照合レビュー（2 回目）の FAIL：150TT イオン球の先細り区間まで伸ばしていた。`js/core.js` の側を、先細り区間（4.357〜9.749 m）は元のまま、伸ばした分はその後ろに入れる形に直したので、期待値を変える必要がなくなった。「既知の不整合（taperEndXM が伸ばす前のまま）」も解消 |
+| 冒頭と「疑わしい不具合」の見出しの「scripts/ は変更していない」 | scripts/ は変更していない | `scripts/mandator-layout-evidence.cjs` の 1 行を主担当が変更した：`pdVolley` の検査値を固定の 0.00005 TT（500 門 × 100 kt）から、その艦の点防御の数 × 砲の 1 発（`counts.pd × FITS.pd.tt + counts.monCalPD × FITS.monCalPD.tt`）に変えた | 「疑わしい不具合 10」の解消。**注意：検査値を検査対象と同じ表から計算しているので、独立した期待値ではない**（砲の 1 発が誤っていても通る）。独立した期待値に戻すのは次の PR（申し送り PR B の 7） |
+
+- 確認（2401f13 の作業ツリー）：capital-turret-trial 6／0、ion-barrel-style 3／0。
+- 補助エージェントは `tests/**`・`js/lang-en.js`・この記録だけを編集した。`js/`・`scripts/`・`data/` の変更はすべて主担当による。
