@@ -37,7 +37,7 @@
 | 砲身の軸方向プロファイル（x ごとの外半径・内半径、main と候補） | `profiles/profiles-main.md`、`profiles/profiles-candidate.md` | `node profiles/prof.cjs <root> <モデル名,...>`。main は `8c4bcab` の写し、候補は `520bcf0` の作業ツリー |
 | 同じ縮尺の真横図（10 種、main が上・候補が下、22 px/m、球の輪郭つき） | `profiles/sideview.png` | `node profiles/sideview.cjs <main の写し> <候補> <出力.png>`。復号した頂点から描いた輪郭で、画面の撮影ではない |
 | 部品プレビューの前後 | `before-after.png` | `shots.cjs`。**形の大きさに合わせて縮尺が変わるので、寸法の比較には使えない**（2 回目の修正の前に撮ったもの。撮り直していない） |
-| 艦ごとの前後（部品数・装備数・干渉・浮き・質量・砲の外形の箱） | `ships.md` | 保存済み設計 → `Core.deserialize` → `computeStats` |
+| 艦ごとの前後（部品数・装備数・干渉・浮き・質量・給電区画・砲の外形の箱、49 件） | `ships.md` | 保存済み設計 → `Core.deserialize` → `computeStats`。候補は ebca11b の作例 |
 
 実測（`profiles/profiles-candidate.md`）：球の輪郭から砲口まで ÷ 球の直径 ＝ 34TT 1.0000、80TT 1.5500、200TT 1.7500、200TT 3連装 1.4500、150TT イオン 1.5000。main はどれも 0.4250。
 

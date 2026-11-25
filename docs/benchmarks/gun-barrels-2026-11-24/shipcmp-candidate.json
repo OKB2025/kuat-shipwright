@@ -41,7 +41,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 9
+  "seconds": 7
  },
  "arquitens": {
   "name": "アークワイテンス級",
@@ -88,7 +88,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 15
+  "seconds": 13
  },
  "bc": {
   "name": "巡洋戦艦",
@@ -142,7 +142,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 3
+  "seconds": 2
  },
  "carrier": {
   "name": "打撃キャリア",
@@ -282,7 +282,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 15
+  "seconds": 14
  },
  "craft_awing": {
   "name": "RZ-1 Aウィング",
@@ -325,7 +325,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 5
+  "seconds": 4
  },
  "craft_btlb": {
   "name": "BTL-B Y-wing",
@@ -368,7 +368,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 18
+  "seconds": 16
  },
  "craft_hyena": {
   "name": "ハイエナ級ドロイド爆撃機",
@@ -499,7 +499,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 5
+  "seconds": 4
  },
  "craft_tie_ln": {
   "name": "TIE/ln 制宙戦闘機",
@@ -589,7 +589,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 16
+  "seconds": 15
  },
  "craft_v19": {
   "name": "V-19 トレント迎撃戦闘機",
@@ -725,7 +725,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 7
+  "seconds": 6
  },
  "craft_xwing": {
   "name": "T-65B Xウイング",
@@ -768,7 +768,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 6
+  "seconds": 5
  },
  "craft_ywing": {
   "name": "BTL-A4 Y-wing (Rebel Alliance)",
@@ -811,7 +811,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 20
+  "seconds": 18
  },
  "craft_z95": {
   "name": "クローン Z-95 ヘッドハンター",
@@ -903,7 +903,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 79
+  "seconds": 80
  },
  "destroyer": {
   "name": "軽デストロイヤー",
@@ -957,7 +957,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 3
+  "seconds": 2
  },
  "dreadnaught": {
   "name": "ドレッドノート級",
@@ -1018,7 +1018,7 @@
   "interference": 0,
   "loose": 0,
   "looseFits": 0,
-  "mass": 10117902050.741951,
+  "mass": 10117902050.707514,
   "power": 1.9999999999999998e+27,
   "accel": null,
   "gunBox": [
@@ -1052,7 +1052,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 37
+  "seconds": 39
  },
  "frigate": {
   "name": "哨戒艦",
@@ -1150,7 +1150,7 @@
  },
  "gr75": {
   "name": "GR-75",
-  "parts": 86,
+  "parts": 77,
   "fits": 2,
   "guns": 2,
   "kinds": {
@@ -1159,8 +1159,8 @@
   "interference": 0,
   "loose": 0,
   "looseFits": 0,
-  "mass": 14643.315820425303,
-  "power": 4.207611764109075e+21,
+  "mass": 12833.132548828373,
+  "power": 2.7420887312492554e+21,
   "accel": null,
   "gunBox": [
    [
@@ -1181,15 +1181,17 @@
    "short": 0
   },
   "warnings": [
-   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 85%）。",
-   "warn:シールドが目標強度の 85% です。発生器の容量と給電を確認してください。"
+   "warn:生命維持・シールド・機関への給電が不足しています（稼働率 69%）。",
+   "warn:シールドが目標強度の 31% です。発生器の容量と給電を確認してください。",
+   "warn:無窓式指揮室 #70 は外殻内の容積が不足しています（有効 79%）。",
+   "warn:戦闘負荷で廃熱 1.32e21 W に対し変換 1.22e21 W、不足 1.02e20 W（最短 3 秒 で出力制限）。熱エネルギー変換装置を約 40 m³ 追加すると解消します"
   ],
   "statKeys": [
    "floating",
    "floatFits",
    "overlap"
   ],
-  "seconds": 7
+  "seconds": 8
  },
  "hammerhead": {
   "name": "スフィルナ級",
@@ -1232,7 +1234,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 5
+  "seconds": 6
  },
  "heavy": {
   "name": "重デストロイヤー",
@@ -1287,7 +1289,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 2
+  "seconds": 3
  },
  "heraklon": {
   "name": "ヘラクロン級",
@@ -1379,7 +1381,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 73
+  "seconds": 81
  },
  "imperial2": {
   "name": "インペリアルII級",
@@ -1428,7 +1430,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 70
+  "seconds": 77
  },
  "lh3210": {
   "name": "LH-3210",
@@ -1470,7 +1472,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 20
+  "seconds": 25
  },
  "lucrehulk": {
   "name": "ルクレハルク級",
@@ -1516,7 +1518,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 23
+  "seconds": 27
  },
  "mandator2": {
   "name": "マンデイターII級",
@@ -1565,7 +1567,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 418
+  "seconds": 477
  },
  "mc30c": {
   "name": "MC-30C",
@@ -1580,7 +1582,7 @@
   "interference": 0,
   "loose": 0,
   "looseFits": 0,
-  "mass": 207599.62861691113,
+  "mass": 207599.2778088489,
   "power": 4.9667453189117754e+22,
   "accel": null,
   "gunBox": [
@@ -1591,7 +1593,7 @@
    ],
    [
     367.24,
-    36.7,
+    35.4,
     32.14
    ]
   ],
@@ -1610,7 +1612,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 9
+  "seconds": 10
  },
  "mc75": {
   "name": "MC-75",
@@ -1704,7 +1706,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 26
+  "seconds": 28
  },
  "mc80liberty": {
   "name": "MC-80",
@@ -1751,11 +1753,11 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 65
+  "seconds": 72
  },
  "munificent": {
   "name": "ミュニフィセント級",
-  "parts": 249,
+  "parts": 262,
   "fits": 79,
   "guns": 77,
   "kinds": {
@@ -1766,7 +1768,7 @@
   "interference": 0,
   "loose": 2,
   "looseFits": 0,
-  "mass": 5350791.054008095,
+  "mass": 5350856.902223749,
   "power": 1.3431935320739267e+24,
   "accel": null,
   "gunBox": [
@@ -1777,7 +1779,7 @@
    ],
    [
     710.93,
-    182.52,
+    185.69,
     77.12
    ]
   ],
@@ -1798,7 +1800,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 43
+  "seconds": 45
  },
  "nebulonb": {
   "name": "ネビュロン-B",
@@ -1843,7 +1845,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 15
+  "seconds": 19
  },
  "onager": {
   "name": "オナガー級",
@@ -1890,7 +1892,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 12
+  "seconds": 14
  },
  "providence": {
   "name": "プロヴィデンス級",
@@ -1938,7 +1940,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 19
+  "seconds": 23
  },
  "providenceDn": {
   "name": "プロヴィデンス級ドレッドノート",
@@ -1988,7 +1990,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 24
+  "seconds": 28
  },
  "recusant": {
   "name": "レキューザント級",
@@ -2007,7 +2009,7 @@
   "interference": 0,
   "loose": 0,
   "looseFits": 0,
-  "mass": 4130378.736743153,
+  "mass": 4130474.6397377346,
   "power": 1.9089461378212354e+24,
   "accel": null,
   "gunBox": [
@@ -2033,9 +2035,9 @@
    "info:兵装の充電速度は機械的な最大連射の 4%。余剰電力に応じて再充電します。",
    "info:ジェネレーターの表面の 31% が露出しています。構造物で覆うか集中防御で守れます。",
    "warn:航行・艦隊指揮区画 #34 は外殻内の容積が不足しています（有効 93%）。",
-   "warn:艦載機待機区画（中空構造内のラック） 8 #141 の自動統合後の容積が不足しています（27%）。近くの空間を空けるか構造を追加してください。",
-   "warn:構造維持装置 2 #149 の自動統合後の容積が不足しています（77%）。近くの空間を空けるか構造を追加してください。",
-   "warn:艦内高エネルギー散逸区画 1 #154 の自動統合後の容積が不足しています（14%）。近くの空間を空けるか構造を追加してください。",
+   "warn:艦載機待機区画（中空構造内のラック） 8 #133 の自動統合後の容積が不足しています（27%）。近くの空間を空けるか構造を追加してください。",
+   "warn:構造維持装置 2 #141 の自動統合後の容積が不足しています（77%）。近くの空間を空けるか構造を追加してください。",
+   "warn:艦内高エネルギー散逸区画 1 #146 の自動統合後の容積が不足しています（14%）。近くの空間を空けるか構造を追加してください。",
    "info:最大出力で廃熱 5.95e23 W に対し変換 4.93e23 W、不足 1.01e23 W（最短 1 秒 で出力制限）。熱エネルギー変換装置を約 39,274 m³ 追加すると解"
   ],
   "statKeys": [
@@ -2043,7 +2045,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 32
+  "seconds": 36
  },
  "recusantDn": {
   "name": "レキューザント級ドレッドノート",
@@ -2059,18 +2061,18 @@
   "interference": 0,
   "loose": 0,
   "looseFits": 0,
-  "mass": 37549835.42199105,
+  "mass": 37548628.21088795,
   "power": 1.527156910293435e+25,
   "accel": null,
   "gunBox": [
    [
-    345.6,
+    393.6,
     -3,
     -158.18
    ],
    [
     2369.75,
-    317.71,
+    317.72,
     158.18
    ]
   ],
@@ -2085,15 +2087,15 @@
    "info:兵装の充電速度は機械的な最大連射の 26%。余剰電力に応じて再充電します。",
    "info:ジェネレーターの表面の 31% が露出しています。構造物で覆うか集中防御で守れます。",
    "warn:自動化装置が持ち場 11,841 名分（全持ち場 12,465 名の 95%）を受け持ち、電力 7.4×10²³ W を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け",
-   "warn:艦内高エネルギー散逸区画 2 #225 の自動統合後の容積が不足しています（33%）。近くの空間を空けるか構造を追加してください。",
-   "info:最大出力で廃熱 5.16e24 W に対し変換 2.97e24 W、不足 2.18e24 W（最短 0 秒 で出力制限）。熱エネルギー変換装置を約 847,281 m³ 追加すると"
+   "warn:艦内高エネルギー散逸区画 2 #224 の自動統合後の容積が不足しています（33%）。近くの空間を空けるか構造を追加してください。",
+   "info:最大出力で廃熱 5.16e24 W に対し変換 2.97e24 W、不足 2.18e24 W（最短 0 秒 で出力制限）。熱エネルギー変換装置を約 847,314 m³ 追加すると"
   ],
   "statKeys": [
    "floating",
    "floatFits",
    "overlap"
   ],
-  "seconds": 28
+  "seconds": 36
  },
  "reptransport": {
   "name": "共和国輸送艦",
@@ -2137,7 +2139,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 2
+  "seconds": 3
  },
  "sample": {
   "name": "試作デストロイヤー SY-01",
@@ -2207,7 +2209,7 @@
   "interference": 0,
   "loose": 0,
   "looseFits": 0,
-  "mass": 418300354.59661615,
+  "mass": 418300374.3598408,
   "power": 1.1034638887479762e+26,
   "accel": null,
   "gunBox": [
@@ -2237,7 +2239,7 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 144
+  "seconds": 148
  },
  "venator": {
   "name": "ヴェネター級",
@@ -2285,6 +2287,6 @@
    "floatFits",
    "overlap"
   ],
-  "seconds": 52
+  "seconds": 53
  }
 }
