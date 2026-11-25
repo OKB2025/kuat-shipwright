@@ -1,7 +1,7 @@
 // 索敵の検証（計算だけ。ゲーム本体には組み込まない）。ユーザーの指示 2026-11-25：
 //   docs/handoff-2026-11-25/sensing-trial-request-2026-11-25.md
 // 使い方: node scripts/sim-sensing-trial.cjs <出力先フォルダ> [場面=all] [回数=5]
-//   場面: e2 | e3 | e3only（分派）| aLock | cLock（ロックあり）| a | a2x12 | a12x2 | b | c | c2 | c2x12 | c12x2 | d | all（コンマで複数）（下の SCENES を参照）
+//   場面: f1 | f2 | f3 | g1 | g2（輸送艦と商船の見分け）| e2 | e3 | e3only（分派）| aLock | cLock（ロックあり）| a | a2x12 | a12x2 | b | c | c2 | c2x12 | c12x2 | d | all（コンマで複数）（下の SCENES を参照）
 //   出力先は必ず引数で渡す（既定でリポジトリの中には書かない）。図を作らないときは KS_NOFIG=1。
 // Core は読むだけ（性能表 YardFleetData と、既存の索敵の式 Core.sensSNR・定数 Core.SENS / EMIT / EMCON を使う）。
 // 検証用に足した式はこのファイルの「純粋な関数」の節にあり、★ を付けた定数は K に 1 か所でまとめてある。
@@ -62,6 +62,9 @@ const K = {
   QUIET_MARGIN: 0.3,             // ★ 目安の 0.3 倍でも映るはずの距離でだけ「熱なし」と言える
   QUIET_NEED_SNR: 2,             // ★ そのとき要る SNR
   MOVE_SPEED: 100,               // ★ 追跡中のレーダー光点がこの速さ m/s より速く動いていれば「動力あり」（小惑星は 42 m/s 以下で置いている）
+  CIVIL_TYPES: ['gr75', 'gozanti', 'reptransport', 'lh3210', 'cr90', 'heraklon'], // ★ 民間でも使われる艦種（仮の一覧）。艦種が分かっても所属は決まらない
+  ESCORT_RADIUS: 50 * KM,        // ★ 敵の軍艦と分かった艦からこの距離の中にいて…
+  ESCORT_WAIT: 120,              // ★ …この秒数つづけて一緒に動いていれば「軍艦と一緒に動いている」＝敵とみなす
   MISASSOC_HOLD: 300,            // ★ 熱源を別の光点に取り違えたとき、その印が残る時間 s
   // ---- 追跡枠 ----
   TRACK_PER_ENGAGE: 2,           // ユーザーの指示：同時追跡数 ＝ 同時交戦数 × 2
@@ -150,9 +153,23 @@ function classify(c) {
   if (c.quiet) return ST.DEBRIS;
   return c.hold.rad.on || c.hold.vis.on ? ST.BLIP : ST.NONE;
 }
+// 所属の判断（艦種が分かった後）。ユーザー 2026-11-25「GR-75は一般的な輸送艦の艦種なので敵も商船と誤認する可能性もある」。
+//  ・軍用にしか使われない艦種・航空機：艦種が分かれば所属の見当が付く ★（militarySide ＝ その艦種を使う陣営が相手か）
+//  ・民間でも使われる艦種（K.CIVIL_TYPES）：艦種だけでは決まらない。軍艦と一緒に動いていれば敵、船籍表示があれば商船とみなす、無ければ不審
+//  ・自分をロックしてきた相手は敵
+// 戻り値: 'hostile' | 'civil'（商船・非敵対とみなす）| 'suspect'（不審。敵とはマークしない）| 'neutral' | 'rock' | null（艦種がまだ分からない）
+function allegiance(c, t) {
+  if (c.lockMark) return 'hostile';
+  if (!c.id) return null;
+  if (c.id.kind === 'rock') return 'rock';
+  if (!c.id.civilType) return c.id.militarySide ? 'hostile' : 'neutral';
+  if (c.escortSince != null && t - c.escortSince >= K.ESCORT_WAIT) return 'hostile';
+  if (c.xpdr === 'shown') return 'civil';
+  return 'suspect';
+}
 // 追跡枠が足りないときの優先度（大きいほど先に枠をもらう）。★
 function trackPriority(c) {
-  if (c.id) return c.id.hostile ? (c.id.kind === 'flight' ? 60 : 100) : 0; // 識別済の敵艦 100、敵機 60、識別済の非敵（商船・小惑星・中立）は枠を返す
+  if (c.id) return c.id.hostile ? (c.id.kind === 'flight' ? 60 : 100) : c.alleg === 'suspect' ? 85 : 0; // 敵と確定した艦 100、敵機 60、艦種は分かったが不審 85、商船・小惑星・中立とみなしたものは枠を返す
   switch (c.stage) { case ST.SUSPECT: return 90; case ST.POWERED: return 80; case ST.BLIP: return 70; case ST.DEBRIS: return 30; case ST.CIVIL: return 20; default: return 0; }
 }
 // 同時追跡数：同時交戦数（性能表の aaCh ＝ Core.shipTrackSlots。0 なら ★1）× 2。艦も航空機も同じ式。
@@ -210,13 +227,32 @@ const SCENES = {
   e2: {title: '(e2) 【仮定】ネビュロン B 2 隻に偵察機を載せ替えて分派 ＋ 本隊から 4 機 × 4 編隊', enemy: EMPIRE, enemyMode: 'patrol', detach: {carrier: true, assumeTransfer: true, forward: 5000 * KM, spread: 50, search: 15000 * KM}, recon: [{flights: 4, size: 4, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
   e3: {title: '(e3) 速い小型艦（CR90）を偵察に分派 ＋ 本隊から 4 機 × 6 編隊', enemy: EMPIRE, enemyMode: 'patrol', detach: {fast: true, search: 15000 * KM}, recon: [{flights: 6, size: 4, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
   e3only: {title: '(e3only) 速い小型艦（CR90）だけで偵察（偵察機なし）', enemy: EMPIRE, enemyMode: 'patrol', detach: {fast: true, search: 15000 * KM}, recon: [null, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
+  f1: {title: '(f1) 味方の GR-75 × 3 ＋ 護衛（ネビュロン B）が敵の見張りのそばを通る。輸送艦は船籍表示を出す', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75', 'nebulonb'], picket: ['imperial', 'arquitens'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
+  f2: {title: '(f2) (f1) で、輸送艦が船籍表示を出さない', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75', 'nebulonb'], picket: ['imperial', 'arquitens'], xpdr: false, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
+  f3: {title: '(f3) 味方の GR-75 × 3 だけ（護衛なし）、船籍表示を出す', layout: 'convoy', convoy: {side: 0, ships: ['gr75', 'gr75', 'gr75'], picket: ['imperial', 'arquitens'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
+  g1: {title: '(g1) 敵のゴザンティ × 3 ＋ 護衛（アークワイテンス）が味方の見張りのそばを通る。輸送艦は船籍表示を出す', layout: 'convoy', convoy: {side: 1, ships: ['gozanti', 'gozanti', 'gozanti', 'arquitens'], picket: ['mc80liberty', 'nebulonb'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
+  g2: {title: '(g2) 敵のゴザンティ × 3 だけ（護衛なし）、船籍表示を出す', layout: 'convoy', convoy: {side: 1, ships: ['gozanti', 'gozanti', 'gozanti'], picket: ['mc80liberty', 'nebulonb'], xpdr: true, pass: [20 * KM, 45 * KM]}, recon: [null, null]},
   d: {title: '(d) 双方とも偵察機なし', enemy: EMPIRE, enemyMode: 'patrol', recon: [null, null]}
 };
 const SIDE_NAME = ['味方（反乱同盟）', '敵（帝国）'];
 const polar = (r, deg, y = 0) => [r * Math.cos(deg * Math.PI / 180), y, r * Math.sin(deg * Math.PI / 180)];
 const angleOf = p => Math.atan2(p[2], p[0]) * 180 / Math.PI;
 
+// 輸送艦の列が、相手の見張り（止まっている艦）のそばを、商船の航路に沿って通り過ぎる場面 ★
+function setupConvoy(sceneKey, seed) {
+  const sc = SCENES[sceneKey], cv = sc.convoy, R = rng(seed * 7919 + 13), ents = [], notes = [], P0 = polar(30000 * KM, 0), pass = R.range(cv.pass[0], cv.pass[1]);
+  const mk = o => { const e = {wake: [], accelNow: 0, emcon: 'normal', radarOn: true, xpdr: false, n: 1, vel: [0, 0, 0], path: [], ...o}; ents.push(e); return e; };
+  const pre = s => s ? 'B' : 'A', speed = Math.min(...cv.ships.map(k => shipTraits(k).maxSpeed)) * K.CRUISE;
+  cv.ships.forEach((key, i) => { const tr = shipTraits(key), civil = K.CIVIL_TYPES.includes(key), o = [pass + (i % 2) * 2 * KM, 0, -6000 * KM - i * 2 * KM]; mk({id: pre(cv.side) + i + '_' + key, kind: 'ship', side: cv.side, key, tr, pos: add(P0, o), goal: add(P0, [o[0], 0, 40000 * KM]), speed, xpdr: civil && cv.xpdr, convoy: true}); });
+  cv.picket.forEach((key, i) => mk({id: pre(1 - cv.side) + i + '_' + key, kind: 'ship', side: 1 - cv.side, key, tr: shipTraits(key), pos: add(P0, [-i * 5 * KM, 0, i * 3 * KM]), speed: 0}));
+  const noX = new Map([[1, '出し忘れ'], [5, '怪しい商船']]);
+  MERCHANT_KEYS.forEach((key, i) => { const tr = shipTraits(key), dir = R() < 0.5 ? -1 : 1, x = (R() < 0.5 ? -1 : 1) * R.range(60, 1500) * KM, pos = add(P0, [x, R.range(-50, 50) * KM, R.range(-8000, 8000) * KM]); mk({id: 'M' + i + '_' + key, kind: 'ship', side: 2, key, tr, pos, goal: add(pos, [0, 0, dir * 60000 * KM]), speed: tr.maxSpeed * K.CRUISE * 0.5, xpdr: !noX.has(i), xpdrWhy: noX.get(i) || null}); });
+  for (let i = 0; i < 10; i++) { const d = Math.round(R.range(30, 400)); mk({id: 'R' + String(i).padStart(2, '0') + '_' + d + 'm', kind: 'rock', side: 3, key: 'rock', tr: rockTraits(d), pos: add(P0, [R.range(-1500, 1500) * KM, R.range(-200, 200) * KM, R.range(-3000, 3000) * KM]), vel: [R.range(-30, 30), 0, R.range(-30, 30)], radarOn: false}); }
+  notes.push(`${SIDE_NAME[cv.side]}の列（${cv.ships.map(k => shipTraits(k).name).join('、')}）が ${Math.round(speed)} m/s で、${SIDE_NAME[1 - cv.side]}の見張り（${cv.picket.map(k => shipTraits(k).name).join('、')}）のそばを通る。輸送艦の船籍表示：${cv.xpdr ? '出す【仮定：商船に紛れる】' : '出さない'}`);
+  return {sc, sceneKey, seed, ents, notes, lock: false, R: rng(seed * 104729 + 7), eCentre: P0, investigateQuiet: false};
+}
 function setup(sceneKey, seed) {
+  if (SCENES[sceneKey].layout === 'convoy') return setupConvoy(sceneKey, seed);
   const sc = SCENES[sceneKey], R = rng(seed * 7919 + 13), ents = [];
   const mk = o => { const e = {wake: [], accelNow: 0, emcon: 'normal', radarOn: true, xpdr: false, n: 1, vel: [0, 0, 0], path: [], ...o}; ents.push(e); return e; };
   // 味方艦隊：+x 側の縁の近く（惑星の中心から 48,000 km）から入り、惑星へ向かって進む
@@ -361,11 +397,19 @@ function senseSide(W, sideIx, t, dt) {
     if (c.tracker && c.hold.rad.on && !c.moving && !c.hold.heat.on && !c.hold.grav.on && !(c.falseHeatUntil > t) && c.xpdr !== 'shown' && quietOK) { c.quietSince ??= t; if (t - c.quietSince >= K.QUIET_WAIT) c.quiet = true; } else { c.quietSince = null; if (c.hold.heat.on || c.hold.grav.on || c.xpdr === 'shown') c.quiet = false; }
     // 識別：目視で近づく（枠は不要）か、追跡中にレーダーの像（SNR 20）・赤外の像（SNR 40）
     if (!c.id) { const by = idVis ? 'vis' : c.tracker && measured(radImg, R) >= K.SENS.idRad ? 'rad' : c.tracker && measured(irImg, R) >= K.SENS.idIr ? 'heat' : null;
-      if (by) c.id = {t, by, d: dMin, kind: tg.kind === 'rock' ? 'rock' : tg.kind === 'flight' ? 'flight' : tg.side === 2 ? 'merchant' : 'warship', hostile: tg.side === 1 - sideIx, finder: dMinObs ? (dMinObs.kind === 'flight' ? (dMinObs.home?.detached ? '分派した艦の偵察機' : '本隊の偵察機') : dMinObs.detached ? '分派した艦' : '本隊の艦') : null, name: tg.tr.name || '小惑星', homeD: Math.min(...obs.filter(o => o.kind === 'ship').map(o => len(sub(o.pos, tg.pos))))}; }
+      if (by) c.id = {t, by, d: dMin, kind: tg.kind === 'rock' ? 'rock' : tg.kind === 'flight' ? 'flight' : 'ship', typeKey: tg.key, civilType: tg.kind === 'ship' && K.CIVIL_TYPES.includes(tg.key), militarySide: tg.side === 1 - sideIx, hostile: false, finder: dMinObs ? (dMinObs.kind === 'flight' ? (dMinObs.home?.detached ? '分派した艦の偵察機' : '本隊の偵察機') : dMinObs.detached ? '分派した艦' : '本隊の艦') : null, name: tg.tr.name || '小惑星', homeD: Math.min(...obs.filter(o => o.kind === 'ship').map(o => len(sub(o.pos, tg.pos))))}; }
     const st = anyOn || c.id ? classify(c) : (c.id ? ST.ID : ST.NONE);
     if (st !== c.stage) { c.stage = st; c.stageLog.push({t, stage: st}); if (st > c.maxStage) c.maxStage = st; }
     if (c.tracker) c.trackedTime += dt;
   }
+}
+// 所属の判断を更新する（艦種が分かった接触について）。「軍艦と一緒に動いている」は、敵の軍艦と分かった別の接触の近くに居続けること
+function judgeAllegiance(W, sideIx, t) {
+  const side = W.sides[sideIx], all = [...side.contacts.values()], precise = c => c.est && (c.hold.rad.on || c.hold.vis.on || c.xpdr === 'shown');
+  const warships = all.filter(m => m.id && m.id.kind === 'ship' && !m.id.civilType && m.id.militarySide && precise(m));
+  for (const c of all) { if (c.id?.civilType) { const near = precise(c) && warships.some(m => len(sub(m.est, c.est)) <= K.ESCORT_RADIUS); if (near) c.escortSince ??= t; else if (!(c.alleg === 'hostile')) c.escortSince = null; }
+    const a = allegiance(c, t); if (a !== c.alleg) { c.alleg = a; (c.allegLog ||= []).push({t, a}); if (a === 'hostile' && c.hostileT == null) { c.hostileT = t; c.hostileWhy = c.lockMark ? 'ロックされた' : c.id?.civilType ? '軍艦と一緒に動いている' : '軍用の艦種'; } if (a === 'civil' && c.civilT == null) c.civilT = t; }
+    if (c.id) c.id.hostile = a === 'hostile'; }
 }
 // 追跡枠の割り当て（艦隊で共有）。ユーザーの記録 docs/handoff-2026-11-25/README.md に合わせた形：
 //  ・見つけた光点を 1 つずつ追い続けない。近くに固まっている光点は「ひとまとまり」として 1 枠で追跡する（§2）
@@ -387,8 +431,8 @@ function allocateTracks(W, sideIx, t) {
     // 掛けられた側：ロック元の位置が分かり、敵とマークする
     const other = W.sides[c.target.side], locker = by[0]; let x = other.contacts.get(locker.id); const knew = !!(x && (x.first || x.id)); if (!x) { x = newContact(locker, t); other.contacts.set(locker.id, x); }
     x.est = locker.pos.slice(); x.err = 100; x.estAt = t; const d = len(sub(locker.pos, c.target.pos));
-    if (!x.lockMark) { x.lockMark = {t, knewBefore: knew, d}; x.firstBy.lock = {t, d}; if (!x.first) x.first = {t, means: ['lock'], d}; }
-    if (!x.id) { x.id = {t, by: 'lock', d, kind: locker.kind === 'flight' ? 'flight' : 'warship', hostile: true, name: 'ロック元', homeD: d}; x.stage = ST.ID; x.stageLog.push({t, stage: ST.ID}); } }
+    if (!x.lockMark) { x.lockMark = {t, knewBefore: knew, d}; if (x.hostileT == null) { x.hostileT = t; x.hostileWhy = 'ロックされた'; x.alleg = 'hostile'; } x.firstBy.lock = {t, d}; if (!x.first) x.first = {t, means: ['lock'], d}; }
+    if (!x.id) { x.id = {t, by: 'lock', d, kind: locker.kind === 'flight' ? 'flight' : 'ship', civilType: false, militarySide: true, hostile: true, name: 'ロック元', homeD: d}; x.stage = ST.ID; x.stageLog.push({t, stage: ST.ID}); } }
   const indiv = [...side.contacts.values()].filter(c => c.tracker).length;
   side.log.trackCap = Math.max(side.log.trackCap, cap); side.log.trackMax = Math.max(side.log.trackMax, used); side.log.trackWant = Math.max(side.log.trackWant, used + dropped); side.log.indivMax = Math.max(side.log.indivMax, indiv + locks); side.log.groupMax = Math.max(side.log.groupMax, groups); side.log.lockMax = Math.max(side.log.lockMax, locks); side.log.freeMin = Math.min(side.log.freeMin, cap - used); if (dropped) side.log.shortSteps++; side.log.allocs++;
   // 目標にできるようになった時刻
@@ -400,7 +444,7 @@ function allocateTracks(W, sideIx, t) {
 // ====================================================================================================
 function run(sceneKey, seed) {
   const W = setup(sceneKey, seed); W.sides = [0, 1].map(() => ({contacts: new Map(), claims: new Map(), log: {misassoc: [], diverts: 0, trackMax: 0, trackWant: 0, trackCap: 0, shortSteps: 0, allocs: 0, indivMax: 0, groupMax: 0, lockMax: 0, freeMin: Infinity}}));
-  for (let t = 0; t <= K.LIMIT; t += K.DT) { moveAll(W, t, K.DT); for (const s of [0, 1]) senseSide(W, s, t, K.DT); if (t % K.TRACK_EVERY < K.DT) for (const s of [0, 1]) allocateTracks(W, s, t); }
+  for (let t = 0; t <= K.LIMIT; t += K.DT) { moveAll(W, t, K.DT); for (const s of [0, 1]) senseSide(W, s, t, K.DT); if (t % K.TRACK_EVERY < K.DT) for (const s of [0, 1]) { judgeAllegiance(W, s, t); allocateTracks(W, s, t); } }
   return summarize(W);
 }
 const firstStage = (c, st) => c.stageLog.find(x => x.stage === st)?.t ?? null;
@@ -408,22 +452,24 @@ function summarize(W) {
   const out = {scene: W.sceneKey, seed: W.seed, notes: W.notes, sides: []};
   for (const s of [0, 1]) { const side = W.sides[s], rows = [];
     for (const e of W.ents) { if (e.side === s) continue; const c = side.contacts.get(e.id);
-      rows.push({id: e.id, truth: e.kind === 'rock' ? '小惑星' : e.kind === 'flight' ? `${s === e.side ? '' : '敵'}機の編隊 ${e.tr.name}×${e.n}` : e.side === 2 ? `商船 ${e.tr.name}${e.xpdr ? '' : '（船籍表示なし：' + e.xpdrWhy + '）'}` : `敵艦 ${e.tr.name}`, kind: e.kind, hostile: e.side === 1 - s, detached: e.detached || null, merchant: e.side === 2, noXpdr: e.side === 2 && !e.xpdr,
-        first: c?.first || null, firstBy: c?.firstBy || {}, wakeFirst: !!c?.wakeFirst, tPowered: c ? firstStage(c, ST.POWERED) : null, tDebris: c ? firstStage(c, ST.DEBRIS) : null, tCivil: c ? firstStage(c, ST.CIVIL) : null, tSuspect: c ? firstStage(c, ST.SUSPECT) : null, id: c?.id || null, targetT: c?.targetT ?? null, targetPresumedT: c?.targetPresumedT ?? null, lockT: c?.lockT ?? null, lockMark: c?.lockMark || null, trackedTime: c?.trackedTime || 0, dropped: c?.droppedCount || 0, finalStage: c ? c.stage : 0}); }
+      rows.push({id: e.id, truth: e.kind === 'rock' ? '小惑星' : e.kind === 'flight' ? `${s === e.side ? '' : '敵'}機の編隊 ${e.tr.name}×${e.n}` : e.side === 2 ? `商船 ${e.tr.name}${e.xpdr ? '' : '（船籍表示なし：' + e.xpdrWhy + '）'}` : `敵艦 ${e.tr.name}`, kind: e.kind, hostile: e.side === 1 - s, civilTruth: e.kind === 'ship' && K.CIVIL_TYPES.includes(e.key), convoy: !!e.convoy, detached: e.detached || null, merchant: e.side === 2, noXpdr: e.side === 2 && !e.xpdr,
+        first: c?.first || null, firstBy: c?.firstBy || {}, wakeFirst: !!c?.wakeFirst, tPowered: c ? firstStage(c, ST.POWERED) : null, tDebris: c ? firstStage(c, ST.DEBRIS) : null, tCivil: c ? firstStage(c, ST.CIVIL) : null, tSuspect: c ? firstStage(c, ST.SUSPECT) : null, id: c?.id || null, alleg: c?.alleg || null, hostileT: c?.hostileT ?? null, hostileWhy: c?.hostileWhy || null, civilT: c?.civilT ?? null, targetT: c?.targetT ?? null, targetPresumedT: c?.targetPresumedT ?? null, lockT: c?.lockT ?? null, lockMark: c?.lockMark || null, trackedTime: c?.trackedTime || 0, dropped: c?.droppedCount || 0, finalStage: c ? c.stage : 0}); }
     const foes = rows.filter(r => r.hostile && r.kind === 'ship'), min = xs => { const v = xs.filter(x => x != null); return v.length ? Math.min(...v) : null; };
     out.sides.push({rows, log: side.log,
       tBlip: min(foes.map(r => r.first?.t)), blipMeans: (() => { const r = foes.filter(r => r.first).sort((a, b) => a.first.t - b.first.t)[0]; return r ? {means: r.first.means, d: r.first.d, wake: r.wakeFirst && r.first.means.includes('grav')} : null; })(),
-      tSuspect: min(foes.map(r => r.tSuspect)), tConfirm: min(foes.map(r => r.id?.t)), tLockMarkShip: min(foes.filter(r => r.lockMark).map(r => r.lockMark.t)), confirmBy: (() => { const r = foes.filter(r => r.id).sort((a, b) => a.id.t - b.id.t)[0]; return r ? {by: r.id.by, d: r.id.d, homeD: r.id.homeD, finder: r.id.finder} : null; })(), blipFinder: foes.filter(r => r.first).sort((a, b) => a.first.t - b.first.t)[0]?.first.finder || null,
+      tSuspect: min(foes.map(r => r.tSuspect)), tType: min(foes.map(r => r.id?.t)), tConfirm: min(foes.map(r => r.hostileT)), tLockMarkShip: min(foes.filter(r => r.lockMark).map(r => r.lockMark.t)), confirmBy: (() => { const r = foes.filter(r => r.hostileT != null && r.id).sort((a, b) => a.hostileT - b.hostileT)[0]; return r ? {by: r.id.by, d: r.id.d, homeD: r.id.homeD, finder: r.id.finder} : null; })(), blipFinder: foes.filter(r => r.first).sort((a, b) => a.first.t - b.first.t)[0]?.first.finder || null,
       // 分派した相手の艦と、相手の本隊を、それぞれいつ見つけたか（相手から見れば「分派した艦が先に見つかったか」）
-      detSeen: min(foes.filter(r => r.detached).map(r => r.first?.t)), detId: min(foes.filter(r => r.detached).map(r => r.id?.t)), mainSeen: min(foes.filter(r => !r.detached).map(r => r.first?.t)), mainId: min(foes.filter(r => !r.detached).map(r => r.id?.t)), hasDet: foes.some(r => r.detached), tTarget: min(foes.map(r => r.targetT)), tTargetPresumed: min(foes.map(r => r.targetPresumedT)),
-      foes: foes.length, foesSeen: foes.filter(r => r.first).length, foesConfirmed: foes.filter(r => r.id).length, foesAsDebris: foes.filter(r => r.tDebris != null && !r.id).length,
+      detSeen: min(foes.filter(r => r.detached).map(r => r.first?.t)), detId: min(foes.filter(r => r.detached).map(r => r.hostileT)), mainSeen: min(foes.filter(r => !r.detached).map(r => r.first?.t)), mainId: min(foes.filter(r => !r.detached).map(r => r.hostileT)), hasDet: foes.some(r => r.detached), tTarget: min(foes.map(r => r.targetT)), tTargetPresumed: min(foes.map(r => r.targetPresumedT)),
+      foes: foes.length, foesSeen: foes.filter(r => r.first).length, foesTyped: foes.filter(r => r.id).length, foesConfirmed: foes.filter(r => r.hostileT != null).length,
+      // 民間でも使われる艦種の敵艦：商船とみなした数、そのうち後で敵と確定した数と、それまでの時間、最後まで商船とみなしたままの数、不審のまま
+      foesAsCivil: foes.filter(r => r.civilT != null).length, foesCivilResolved: foes.filter(r => r.civilT != null && r.hostileT != null).map(r => r.hostileT - r.civilT), foesCivilEnd: foes.filter(r => r.alleg === 'civil').length, foesSuspectEnd: foes.filter(r => r.alleg === 'suspect').length, merchHostile: rows.filter(r => r.merchant && r.hostileT != null).length, rocksHostile: rows.filter(r => r.kind === 'rock' && r.hostileT != null).length, foesAsDebris: foes.filter(r => r.tDebris != null && !r.id).length,
       tLock: min(foes.map(r => r.lockT)), lockMarks: rows.filter(r => r.lockMark).map(r => ({t: r.lockMark.t, knewBefore: r.lockMark.knewBefore, who: r.truth, d: r.lockMark.d})),
       tFlightSeen: min(rows.filter(r => r.hostile && r.kind === 'flight').map(r => r.first?.t)),
       rocksSeen: rows.filter(r => r.kind === 'rock' && r.first).length, rocksId: rows.filter(r => r.kind === 'rock' && r.id).length, rocksSuspect: rows.filter(r => r.kind === 'rock' && r.tSuspect != null).length,
       merchSeen: rows.filter(r => r.merchant && r.first).length, merchCivil: rows.filter(r => r.merchant && r.tCivil != null).length, merchSuspect: rows.filter(r => r.merchant && r.tSuspect != null).length, merchSuspectNoX: rows.filter(r => r.noXpdr && r.tSuspect != null).length, merchId: rows.filter(r => r.merchant && r.id).length}); }
   out.map = {ents: W.ents.map(e => ({id: e.id, kind: e.kind, side: e.side, xpdr: e.xpdr, n: e.n, path: e.path, end: [e.pos[0], e.pos[2]], name: e.tr.name}))};
   // 敵艦が識別された瞬間の位置（図に使う）
-  out.map.confirms = out.sides[0].rows.filter(r => r.hostile && r.kind === 'ship' && r.id).map(r => ({id: r.id, t: r.id.t}));
+  out.map.confirms = out.sides[0].rows.filter(r => r.hostile && r.kind === 'ship' && r.hostileT != null).map(r => ({id: r.id, t: r.hostileT}));
   return out;
 }
 
@@ -436,26 +482,30 @@ const med = xs => { const v = xs.filter(x => x != null).sort((a, b) => a - b); r
 const meansJa = ks => ks.map(k => MEANS[k]).join('＋');
 function timelineMd(r, s) {
   const rows = r.sides[s].rows.slice().sort((a, b) => (a.first?.t ?? 1e12) - (b.first?.t ?? 1e12));
-  let md = `| 真の姿（${SIDE_NAME[s]}には見えない） | 初探知 | 手段 | 距離 | 動力あり | 浮遊物（推定） | 船籍あり | 不審 | 識別（手段・距離） | 目標にできる | 追跡した時間 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
-  for (const x of rows) md += `| ${x.truth} | ${hm(x.first?.t)} | ${x.first ? meansJa(x.first.means) + (x.wakeFirst && x.first.means.includes('grav') ? '（航跡波）' : '') : '見つからず'} | ${km(x.first?.d)} | ${hm(x.tPowered)} | ${hm(x.tDebris)} | ${hm(x.tCivil)} | ${hm(x.tSuspect)} | ${x.id ? hm(x.id.t) + '（' + MEANS[x.id.by] + '、' + km(x.id.d) + '）' : '—'} | ${x.hostile ? hm(x.targetT) : '—'} | ${Math.round(x.trackedTime / 60)} 分 |\n`;
+  let md = `| 真の姿（${SIDE_NAME[s]}には見えない） | 初探知 | 手段 | 距離 | 動力あり | 浮遊物（推定） | 船籍あり | 不審 | 艦種が分かった（手段・距離） | 所属の判断（最後） | 商船とみなした | 敵と確定（理由） | 目標にできる | 追跡した時間 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
+  const AL = {hostile: '敵', civil: '商船・非敵対とみなす', suspect: '不審（所属不明）', neutral: '中立', rock: '小惑星'};
+  for (const x of rows) md += `| ${x.truth} | ${hm(x.first?.t)} | ${x.first ? meansJa(x.first.means) + (x.wakeFirst && x.first.means.includes('grav') ? '（航跡波）' : '') : '見つからず'} | ${km(x.first?.d)} | ${hm(x.tPowered)} | ${hm(x.tDebris)} | ${hm(x.tCivil)} | ${hm(x.tSuspect)} | ${x.id ? hm(x.id.t) + '（' + MEANS[x.id.by] + '、' + km(x.id.d) + '）' : '—'} | ${AL[x.alleg] || '—'} | ${hm(x.civilT)} | ${x.hostileT != null ? hm(x.hostileT) + '（' + x.hostileWhy + '）' : '—'} | ${x.hostile ? hm(x.targetT) : '—'} | ${Math.round(x.trackedTime / 60)} 分 |\n`;
   return md;
 }
 function sceneSummary(key, runs) {
-  const sc = SCENES[key]; let md = `### ${sc.title}\n\n| 種 | 味方が敵艦を：初探知（手段・距離） | 不審と判断 | 識別＝敵と確定（手段・距離） | 目標にできる | 敵が味方艦を：初探知（手段・距離） | 識別＝敵と確定 | 目標にできる | 先に確定した側（差） | 確定時の自艦隊からの距離：味方→敵／敵→味方 | 攻撃隊が届く時刻（確定＋飛行）：味方／敵 | 先に攻撃隊が届く側（差） |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
+  const sc = SCENES[key]; let md = `### ${sc.title}\n\n| 種 | 味方が敵艦を：初探知（手段・距離） | 不審と判断 | 敵と確定（艦種が分かった手段・距離） | 目標にできる | 敵が味方艦を：初探知（手段・距離） | 敵と確定 | 目標にできる | 先に確定した側（差） | 確定時の自艦隊からの距離：味方→敵／敵→味方 | 攻撃隊が届く時刻（確定＋飛行）：味方／敵 | 先に攻撃隊が届く側（差） |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
   const strike = (S, type) => S.tConfirm == null ? null : S.tConfirm + S.confirmBy.homeD / reconRange(craftTraits(type)).speed;
   const lead = (a, b) => a == null && b == null ? 'どちらもなし' : b == null ? '味方（敵はなし）' : a == null ? '敵（味方はなし）' : a === b ? '同時' : a < b ? `味方（${Math.round((b - a) / 60)} 分）` : `敵（${Math.round((a - b) / 60)} 分）`;
   for (const r of runs) { const [A, B] = r.sides; md += `| ${r.seed} | ${hm(A.tBlip)}${A.blipMeans ? '（' + meansJa(A.blipMeans.means) + (A.blipMeans.wake ? '・航跡波' : '') + '、' + km(A.blipMeans.d) + '）' : ''} | ${hm(A.tSuspect)} | ${hm(A.tConfirm)}${A.confirmBy ? '（' + MEANS[A.confirmBy.by] + '、' + km(A.confirmBy.d) + '）' : ''} | ${hm(A.tTarget)} | ${hm(B.tBlip)}${B.blipMeans ? '（' + meansJa(B.blipMeans.means) + (B.blipMeans.wake ? '・航跡波' : '') + '、' + km(B.blipMeans.d) + '）' : ''} | ${hm(B.tConfirm)} | ${hm(B.tTarget)} | ${lead(A.tConfirm, B.tConfirm)} | ${km(A.confirmBy?.homeD)}／${km(B.confirmBy?.homeD)} | ${hm(strike(A, 'xwing'))}／${hm(strike(B, 'tie_ln'))} | ${lead(strike(A, 'xwing'), strike(B, 'tie_ln'))} |\n`; }
-  md += `\n| 種 | 味方：敵艦を識別／全数 | 敵艦を浮遊物と誤判定 | 小惑星：映った／識別／不審扱い（誤認） | 商船：映った／船籍で商船／不審扱い（うち船籍なしの 2 隻）／識別 | 熱源の取り違え | 追跡枠：最大使用（まとまり＋ロック）／1 つずつ追った場合／持ち数／空きの最小 | 枠が足りなかった割合 | 偵察が光点へ向かった回数 | 敵：味方艦を識別／全数 | 敵の追跡枠：最大使用／1 つずつ追った場合／持ち数 | ロック：味方が掛けた時刻／敵が掛けた時刻 | ロック元としてマークされた相手（時刻、それまで知っていたか） |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
+  md += `\n| 種 | 味方：敵艦の艦種が分かった／敵と確定／全数 | 敵艦を商船とみなした（うち後で敵と確定／最後まで商船扱い）・最後まで不審 | 商船・小惑星を敵とした（誤認） | 敵艦を浮遊物と誤判定 | 小惑星：映った／識別／不審扱い（誤認） | 商船：映った／船籍で商船／不審扱い（うち船籍なしの 2 隻）／識別 | 熱源の取り違え | 追跡枠：最大使用（まとまり＋ロック）／1 つずつ追った場合／持ち数／空きの最小 | 枠が足りなかった割合 | 偵察が光点へ向かった回数 | 敵：味方艦の艦種が分かった／敵と確定／全数 | 敵の追跡枠：最大使用／1 つずつ追った場合／持ち数 | ロック：味方が掛けた時刻／敵が掛けた時刻 | ロック元としてマークされた相手（時刻、それまで知っていたか） |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
   const lm = (S, who) => S.lockMarks.map(x => `${who}が ${x.who} を ${hm(x.t)}（${x.knewBefore ? '既に映っていた' : '知らなかった'}）`).join('；');
-  for (const r of runs) { const [A, B] = r.sides; md += `| ${r.seed} | ${A.foesConfirmed}/${A.foes} | ${A.foesAsDebris} | ${A.rocksSeen}／${A.rocksId}／${A.rocksSuspect} | ${A.merchSeen}／${A.merchCivil}／${A.merchSuspect}（${A.merchSuspectNoX}）／${A.merchId} | ${A.log.misassoc.length} | ${A.log.trackMax}／${A.log.indivMax}／${A.log.trackCap}／${A.log.freeMin} | ${Math.round(100 * A.log.shortSteps / Math.max(1, A.log.allocs))}% | ${A.log.diverts} | ${B.foesConfirmed}/${B.foes} | ${B.log.trackMax}／${B.log.indivMax}／${B.log.trackCap} | ${hm(A.tLock)}／${hm(B.tLock)} | ${[lm(A, '味方'), lm(B, '敵')].filter(Boolean).join('；') || '—'} |\n`; }
+  for (const r of runs) { const [A, B] = r.sides; md += `| ${r.seed} | ${A.foesTyped}／${A.foesConfirmed}／${A.foes} | ${A.foesAsCivil}（${A.foesCivilResolved.length}／${A.foesCivilEnd}）・${A.foesSuspectEnd} | 商船 ${A.merchHostile}、小惑星 ${A.rocksHostile} | ${A.foesAsDebris} | ${A.rocksSeen}／${A.rocksId}／${A.rocksSuspect} | ${A.merchSeen}／${A.merchCivil}／${A.merchSuspect}（${A.merchSuspectNoX}）／${A.merchId} | ${A.log.misassoc.length} | ${A.log.trackMax}／${A.log.indivMax}／${A.log.trackCap}／${A.log.freeMin} | ${Math.round(100 * A.log.shortSteps / Math.max(1, A.log.allocs))}% | ${A.log.diverts} | ${B.foesTyped}／${B.foesConfirmed}／${B.foes} | ${B.log.trackMax}／${B.log.indivMax}／${B.log.trackCap} | ${hm(A.tLock)}／${hm(B.tLock)} | ${[lm(A, '味方'), lm(B, '敵')].filter(Boolean).join('；') || '—'} |\n`; }
   if (runs.some(r => r.sides[1].hasDet)) { md += `\n| 種 | 味方の初探知をした側 | 味方の確定をした側 | 分派した艦：敵に映った／識別された | 本隊：敵に映った／識別された | 先に敵に見つかったのは |\n| --- | --- | --- | --- | --- | --- |\n`;
     for (const r of runs) { const [A, B] = r.sides, first = B.detSeen == null && B.mainSeen == null ? 'どちらも見つからず' : B.mainSeen == null || (B.detSeen != null && B.detSeen < B.mainSeen) ? '分派した艦' : '本隊'; md += `| ${r.seed} | ${A.blipFinder || '—'} | ${A.confirmBy?.finder || '—'} | ${hm(B.detSeen)}／${hm(B.detId)} | ${hm(B.mainSeen)}／${hm(B.mainId)} | ${first} |\n`; } }
+  if (sc.layout === 'convoy') { const ps = 1 - sc.convoy.side; md += `\n見張り側（${SIDE_NAME[ps]}）から見た、列の艦の判断：\n\n| 種 | 輸送艦：艦種が分かった時刻（最初） | 商船とみなした隻数 | 敵と確定した隻数（理由） | 商船とみなしてから敵と確定するまで | 最後まで商船扱い | 最後まで不審 | 護衛を敵と確定 | 本物の商船を敵とした数 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
+    for (const r of runs) { const S = r.sides[ps], tr = S.rows.filter(x => x.convoy && x.civilTruth), esc = S.rows.filter(x => x.convoy && !x.civilTruth), ty = tr.filter(x => x.id).map(x => x.id.t), res = tr.filter(x => x.civilT != null && x.hostileT != null).map(x => x.hostileT - x.civilT);
+      md += `| ${r.seed} | ${ty.length ? hm(Math.min(...ty)) : '—'} | ${tr.filter(x => x.civilT != null).length}/${tr.length} | ${tr.filter(x => x.hostileT != null).length}/${tr.length}${tr.some(x => x.hostileWhy) ? '（' + [...new Set(tr.map(x => x.hostileWhy).filter(Boolean))].join('、') + '）' : ''} | ${res.length ? Math.round(Math.min(...res) / 60) + '〜' + Math.round(Math.max(...res) / 60) + ' 分' : '—'} | ${tr.filter(x => x.alleg === 'civil').length} | ${tr.filter(x => x.alleg === 'suspect').length} | ${esc.length ? hm(Math.min(...esc.map(x => x.hostileT ?? Infinity))) : '護衛なし'} | ${S.merchHostile} |\n`; } }
   const notes = [...new Set(runs.flatMap(r => r.notes))]; if (notes.length) md += `\n注：${notes.join('；')}\n`;
   return md + '\n';
 }
 function overallRow(key, runs) { const A = runs.map(r => r.sides[0]), B = runs.map(r => r.sides[1]), n = runs.length, cnt = f => runs.filter(f).length, sum = (xs, f) => xs.reduce((s, x) => s + f(x), 0);
   const firstA = cnt(r => r.sides[0].tConfirm != null && (r.sides[1].tConfirm == null || r.sides[0].tConfirm < r.sides[1].tConfirm)), firstB = cnt(r => r.sides[1].tConfirm != null && (r.sides[0].tConfirm == null || r.sides[1].tConfirm < r.sides[0].tConfirm));
-  return `| ${SCENES[key].title} | ${n} | ${cnt(r => r.sides[0].tBlip != null)}/${n}、${hm(med(A.map(x => x.tBlip)))} | ${cnt(r => r.sides[0].tConfirm != null)}/${n}、${hm(med(A.map(x => x.tConfirm)))} | ${sum(A, x => x.foesConfirmed)}/${sum(A, x => x.foes)} | ${cnt(r => r.sides[1].tConfirm != null)}/${n}、${hm(med(B.map(x => x.tConfirm)))} | 味方 ${firstA}・敵 ${firstB}・なし ${n - firstA - firstB} | ${sum(A, x => x.foesAsDebris)} | 小惑星 ${sum(A, x => x.rocksSuspect)}、商船 ${sum(A, x => x.merchSuspect)}（うち船籍なし ${sum(A, x => x.merchSuspectNoX)}） | ${Math.max(...A.map(x => x.log.trackMax))}／${Math.max(...A.map(x => x.log.indivMax))}／${Math.max(...A.map(x => x.log.trackCap))} |\n`; }
+  return `| ${SCENES[key].title} | ${n} | ${cnt(r => r.sides[0].tBlip != null)}/${n}、${hm(med(A.map(x => x.tBlip)))} | ${cnt(r => r.sides[0].tConfirm != null)}/${n}、${hm(med(A.map(x => x.tConfirm)))} | ${sum(A, x => x.foesTyped)}／${sum(A, x => x.foesConfirmed)}／${sum(A, x => x.foes)} | ${cnt(r => r.sides[1].tConfirm != null)}/${n}、${hm(med(B.map(x => x.tConfirm)))} | 味方 ${firstA}・敵 ${firstB}・なし ${n - firstA - firstB} | ${sum(A, x => x.foesAsDebris)} | 小惑星 ${sum(A, x => x.rocksSuspect)}、商船 ${sum(A, x => x.merchSuspect)}（うち船籍なし ${sum(A, x => x.merchSuspectNoX)}） | ${Math.max(...A.map(x => x.log.trackMax))}／${Math.max(...A.map(x => x.log.indivMax))}／${Math.max(...A.map(x => x.log.trackCap))} |\n`; }
 
 function traitsMd(keys, craftTypes) {
   let md = `| 艦・機体 | 全長×幅×高さ m | 反射断面積 m² | 反応炉出力 W | 排熱（出力×${K.WASTE_SHARE}）W | ニュートリノ：赤外の割合 | 質量 kg | 重力波の源 N（等速） | センサー開口 ν／赤外／レーダー | 同時交戦数（性能表） | 同時追跡数 | 最高速度 m/s |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
@@ -531,7 +581,7 @@ function mapSvg(r, title) {
 (async () => {
   const keys = SCENE_ARG === 'all' ? Object.keys(SCENES) : SCENE_ARG.split(','); for (const k of keys) if (!SCENES[k]) { console.error('場面がない: ' + k + '（' + Object.keys(SCENES).join(' | ') + '）'); process.exit(2); }
   fs.mkdirSync(OUT, {recursive: true}); const t00 = Date.now(), figs = [];
-  let summary = `# 索敵の検証：結果（scripts/sim-sensing-trial.cjs の出力）\n\n場面 ${keys.join(', ')}、各 ${RUNS} 回（種 1〜${RUNS}）。時刻は 時:分:秒。1 回の計算は ${K.LIMIT / 3600} 時間、刻み ${K.DT} 秒。\n\n`, overall = `| 場面 | 回数 | 味方が敵艦を初探知（回数、時刻の中央値） | 味方が敵と確定（回数、中央値） | 識別した敵艦／全数（合計） | 敵が味方を確定（回数、中央値） | 先に確定した側 | 敵艦を浮遊物と誤判定（合計） | 不審扱い（＝推定で敵とするなら誤認）合計 | 味方の追跡枠：最大使用／1 つずつ追った場合／持ち数 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`, detail = '';
+  let summary = `# 索敵の検証：結果（scripts/sim-sensing-trial.cjs の出力）\n\n場面 ${keys.join(', ')}、各 ${RUNS} 回（種 1〜${RUNS}）。時刻は 時:分:秒。1 回の計算は ${K.LIMIT / 3600} 時間、刻み ${K.DT} 秒。\n\n`, overall = `| 場面 | 回数 | 味方が敵艦を初探知（回数、時刻の中央値） | 味方が敵と確定（回数、中央値） | 艦種が分かった／敵と確定／全数（合計） | 敵が味方を確定（回数、中央値） | 先に確定した側 | 敵艦を浮遊物と誤判定（合計） | 不審扱い（＝推定で敵とするなら誤認）合計 | 味方の追跡枠：最大使用／1 つずつ追った場合／持ち数 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`, detail = '';
   for (const key of keys) { const runs = [], t0 = Date.now(); for (let s = 1; s <= RUNS; s++) runs.push(run(key, s));
     const dir = path.join(OUT, key); fs.mkdirSync(dir, {recursive: true});
     for (const r of runs) fs.writeFileSync(path.join(dir, `run-${r.seed}.json`), JSON.stringify({scene: r.scene, seed: r.seed, notes: r.notes, sides: r.sides}, null, 1));

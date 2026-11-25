@@ -38,7 +38,7 @@
   },
   "cr90": {
    "combat": {
-    "sha256": "0ac4c58ba8fa75188da254dd823687049d06f17d8be2b898d3d9f81c9d91294c"
+    "sha256": "53b2e2fe38b91ae46f8fa5a7546732f8395cee8e5e3077611d273c7c4a4c8198"
    },
    "design": {
     "sha256": "fd10ea73e0179c63c5d8f7367bf45c78d141d1d115da197ef4491f95e20b643d",
@@ -163,7 +163,7 @@
   },
   "dreadnaught": {
    "combat": {
-    "sha256": "9bce26d26fb37bc7715771f2edb56a65c18f1641f60af196f29c17a71cc03535"
+    "sha256": "81b2c329d420c6a40da845ccfee442a60f05699101660357710afa320d9957f0"
    },
    "design": {
     "sha256": "fdf881d3294a7001dd1b5e5f054762630c1c952942453c04a50942bd8163b7d9",
@@ -210,7 +210,7 @@
   },
   "hammerhead": {
    "combat": {
-    "sha256": "5046d03b036712eb5cf342d057d89b3f81434195a938b01e8b68731509cad26c"
+    "sha256": "d1e56652c8456884c1c4837bb20b99273410f33ef536065901528c6b55727c93"
    },
    "design": {
     "sha256": "7b1b9c050c5c9bd70ab092aeff50b7e6a2888de535da0bfab47cfc03c20032be",
