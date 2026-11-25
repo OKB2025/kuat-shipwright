@@ -35,7 +35,7 @@ test('a craft type sums every laser barrel of its fire-arc snapshot at its defin
  // 2026-11-24 (gun rules) the X-wing, ARC-170 and Z-95 examples carry their measured barrels (CRAFT_LASER_EXAMPLES: X-wing 0.18 m
  // × 3.5 m, ARC-170 0.20 m × 2.04 m, Z-95 0.10 m × 1.04 m; user table), which craftLaserRate maps onto the type's snapshot.
  near(C.craftLaserRate('xwing'),4*C.laserShotKt(.18)*KT,'X-wing: four medium lasers of its measured 0.18 m bore');
- near(C.craftLaserRate('z95'),2*C.laserShotKt(.10)*KT*C.CRAFT_LASER_RATE.hz,'Z-95: two lasers of its measured 0.10 m bore, 0.25 s apart (2026-11-25: was one shot a second)');
+ near(C.craftLaserRate('z95'),2*C.laserShotKt(.10)*KT,'Z-95: two lasers of its measured 0.10 m bore, one shot a second (the user\'s refit of 2026-11-25 keeps its guns at 1.00 s)');
  for(const [type,entry]of Object.entries(E)){if(!Array.isArray(entry.fireArcs))continue;
   // 2026-11-24 expectation changed (gun rules): an example with measured barrels (MEASURED, the user's table) fires the shot of its bore.
   const expected=entry.fireArcs.reduce((n,a)=>{const d=C.FITS[a.k],bore=MEASURED[type]?.[a.k];return n+(d?.craft&&d.tt>0&&!d.store?d.barrels*(bore?C.laserShotKt(bore)*KT:d.barrelTTs)*(a.rateHz>0?a.rateHz:1)/* 2026-11-25 expectation changed (user: the example craft fire every 0.25 s, the A-wing 0.1 s, wing-tip guns of the X-wing, TIE/in and TIE/D 1 s): each arc at its own rate */:0);},0);near(C.craftLaserRate(type),expected,type);}
