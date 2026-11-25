@@ -110697,6 +110697,11 @@ function configureTrenchArmament(ship,request={}){
 
 // 2026-11-25 (user): a laser is its barrel alone, with its gas kept elsewhere; only a turbolaser or an ion cannon has a feed compartment.
 function needsCapacitor(f){if(f&&typeof f==='object')f=migrateWeaponFit(f);const d=FITS[f?.k];return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&!d.msl&&Math.max(d.tt||0,d.ion||0)>0&&d.gunRule?.kind!=='laser';}
+// 2026-11-25 The seats of the examples' guns were chosen where a column under the gun was free: 12 m deep, as wide as the gun's
+// charging room of that time (volley ÷ CHARGE_TT_M3; a laser's was a needle). That is how the authored positions were found, so
+// the builders keep asking the same question whatever a gun's feed compartment is now (a laser has none, a turbolaser's is at
+// least 50 m³): otherwise the point defence guns of five examples moved 8 to 27 m to seats the rule had passed over.
+function exampleSeatRoom(f){if(f&&typeof f==='object')f=migrateWeaponFit(f);const d0=FITS[f?.k];if(!d0||d0.cat!=='w'||d0.craft||d0.fixed||d0.msl||!(Math.max(d0.tt||0,d0.ion||0)>0))return null;const d=fitSpec(f),salvos=clamp(f.chargeSalvos??1,1,20);return {targetVolume:Math.max(d.tt||0,d.ion||0)*salvos/CHARGE_TT_M3};}
 // The feed compartment of a gun: 1 m³ for CHARGE_TT_M3 of its volley, more by the gun's feedK (a barrel or bore under the least),
 // and never under GUN_RULES.feedMinM3 for a gun under the gun rules. ttPerM3 is what a cubic metre of it holds, so that a room at
 // the least volume holds its volleys and no more.
@@ -115056,7 +115061,7 @@ function lucrehulkBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115290,7 +115295,7 @@ function mc30Plate(s,label,pts,thick,opt={},mirror=false){
 // Weapon placement with charging plant checks (as for the other Mon Calamari ships).
 function mc30MountKit(s,opt={}){
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [4,6,8,10,13,16]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115465,7 +115470,7 @@ function mc75MountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115622,7 +115627,7 @@ function hoMountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115767,7 +115772,7 @@ function libMountKit(s,opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -115934,7 +115939,7 @@ function munificentBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -116183,7 +116188,7 @@ function onaPrism(s,label,x0,x1,poly,opt={}){
 // ('top') and ventral ('bottom') rows mount as mirrored pairs at |z| offsets.
 function onaMountKit(s,opt={}){
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),allocation=turretCompartment(s,f,false),V=allocation.internalRequired;if(!(V>1e-8))return true;const side=Math.sqrt(q.targetVolume/12),depth=V/(side*side),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const allocation=turretCompartment(s,f,false),V=Math.max(0,q.targetVolume-Math.min(q.targetVolume,(allocation.externalVolume||0)+(allocation.embeddedVolume||0)))/* the room below deck by the authored seat rule (exampleSeatRoom), not by the feed compartment's present size */;if(!(V>1e-8))return true;const side=Math.sqrt(q.targetVolume/12),depth=V/(side*side),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [.04,.08,.15,.25,.5,1,2,3,4,6,8,10,13]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -116594,7 +116599,7 @@ function providenceBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -116761,7 +116766,7 @@ function recusantBuild(opt={}){
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12,side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
@@ -117059,7 +117064,7 @@ function subjDrumZ(s,label,x,y,prof,opt={},mirror=false){
 // offsets; 'beam' rows take heights and mount one a side.
 function subjMountKit(s,opt={}){
  let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+ const plantFits=f=>{const q=exampleSeatRoom(f);if(!q)return true;const depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
