@@ -257,5 +257,24 @@ js/lang-en.js の末尾に `<gun-rules-2026-11-24-catalog>` の区画を足し�
 | example-figures-regression | 時間切れ／強制終了 | 未完了 | 作業ツリーで 50 分の上限まで結果が出なかった（途中の使用メモリ 5.1 GB）。main 側の「1 件失敗」は 19 分でメモリ不足により強制終了されたもの（SIGKILL）で、検査の失敗ではない。どちらの側も有効な結果がない |
 
 補足：
-- 候補側の失敗数が main 以下だった 154 ファイル（compare.txt）は、失敗するテスト名が両側で同じことを確認し、触っていない。そのうち失敗の文言だけが変わっていたのは capital-turret-core（`pd.boltTT` 1e-7 → 8e-7、前回記録済み）、fleet-localization（上の英語の追記で main と同じ文言に戻った）、weapon-flush-bounds-core（main は「頂点が箱の外」、候補は航空レーザーの箱の幅 0.2688 ≠ 0.32。件数は同じ 1 件で、触っていない）。
+- 候補側の失敗数が main 以下だった 154 ファイル（compare.txt）は、失敗するテスト名が両側で同じことを確認し、触っていない。そのうち失敗の文言だけが変わっていたのは capital-turret-core（`pd.boltTT` 1e-7 → 8e-7、前回記録済み）、fleet-localization（上の英語の追記で main と同じ文言に戻った）、weapon-flush-bounds-core（main は航空レーザーの箱の幅 0.2688 ≠ 0.32、候補は「頂点が箱の外」。この行は当初 main と候補を逆に書いていたので訂正した。詳細は末尾の「判断結果の反映」）。
 - 航空機の価格表が古いこと（`profile is out of date … model 26, current 27`）で失敗していたテストは、7ec9626 の作り直しの後に上の表のとおり通過した。作り直しの前には、価格表だけを作り直した js/core.js の写し（/tmp/ks-verify/20261124-testfix/regenroot、リポジトリのファイルは変更なし）でも同じ結果を確認した。
+
+## 判断結果の反映（2026-11-25、HEAD 833ca35 の上）
+
+「疑わしい不具合」3（craft-as-ships）・5（fighter-pilot-guns）・6（cturret）・10（mandator のスクリプト）は主担当が js/・scripts/ を直して解消済み。
+残りは仕様として受け入れ、期待値を書き換えた。許容差は変えていない。ログ：/tmp/ks-verify/20261124-testfix/final/<名前>.accept.log。
+
+| テストファイル / テスト名 | 旧期待値 | 新期待値 | 根拠 | main で失敗 |
+| --- | --- | --- | --- | --- |
+| solo-shield-recharge.cjs / solo shield storage does not add electrical, fuel or operating heat a second time | 70% にする被弾の後、1 刻みでシールド = 設計値 ×（0.7 + 再充電分）= 153 TT | 下がった上限 = 設計値 − wear × 被弾量 + 設計値 × 0.1 s ÷ wearRecoverS（133.37 TT）で、`u.shieldMax` もシールドもその値（再充電後の値より低いことも検査）。電力・燃料・熱の検査はそのまま | SHIELD_MODEL.wear 0.05 を採用（艦隊戦の所要時間の調整）。上限の減り 5% がシールド自体の減り 4.5%（debit 0.25 × (1 − deflectMax 0.82)）を上回り、被弾後は下がった上限に張り付く | いいえ |
+| solo-shield-recharge.cjs / a battle-owned pilot receives no duplicate solo recharge before its world combat update | 共通の更新 1 回の後 = 被弾後の値 + 払った電力ぶん（153 TT） | 同じ下がった上限（133.37 TT）と払った電力ぶんの小さい方。公試の刻みでシールドが変わらない検査はそのまま | 同上 | いいえ |
+| solo-shield-recharge.cjs / field and reserve both finish their variable-step refill before idle power returns to navigation | 蓄えの増加 = 払った電力 × returnK（10.2767 TT） | 払った電力 × returnK − 最初の刻みで上限に切られた分（wear × 被弾 6 TT − シールドの減り 0.27 TT − 0.07 s の回復 0.0233 TT = 0.0067 TT）。切られた分が 0 より大きく 0.01 TT 未満であることも検査 | 同上 | いいえ |
+| weapon-snapshot-migration.cjs / an embarked model refreshes cached combat output…、engine transport retains a pending combat refresh… | 設計機の射撃値 327 | 328 = round(6 + oct40 の対空 2.179 + 320)。oct40 の対空の値も検査 | pd が毎秒 1 発になった結果の対空評価値の相対変化を受け入れ。**既知の影響：対空の係数が 5 倍（0.636 → 3.18）になり、レーザー以外の砲の aa が 2〜5 倍（oct40 0.69 → 2.18、triple40 0.42 → 1.59、single500MT 0.31 → 1.54）。設計機の射撃値と区画の大きさに入る** | いいえ（残る 3 件は main と同じ・既存） |
+| ion-barrel-style.cjs / all authored ion guns use a physically thick root tapering to a narrow tip with closed real bores | 先細りの区間 = 記録の taperStartXM〜taperEndXM | 砲身を伸ばした資産（monCal150Ion だけであることも検査）は、先細りの終わり = taperEndXM + 伸ばした長さ（露出砲身 × (倍率 − 1)）。閉じた筒・砲口の凹み・半径の検査はそのまま | モン・カラマリ球形砲の砲身延長（ユーザー指示）で、砲室を出た所から始まる先細りも伸びる（5.39 m → 16.07 m）ことを受け入れ。**既知の不整合（js 側未修正）：記録の taperEndXM（9.749）は伸ばす前のまま** | いいえ |
+
+変更していないもの：
+- fighter-interiors.cjs テスト 12（Z-95 の加速 3,406 G > 目標 3,330 G）：ユーザー判断待ち。失敗のまま。
+- weapon-flush-bounds-core.cjs テスト 3：**前回の記載は main と候補が逆だった。訂正する。**「箱の幅 0.2688 ≠ 0.32」で失敗するのは main の側。候補は、その手前の「描いた頂点が砲の箱（fitAABB）に入っている」検査で失敗する（`claser axis0 scale0.5 vertex … outside`）。
+  航空レーザーの箱より描いた円柱の方が太い：claser は箱 0.269 m・描画 0.320×0.304 m（scale 0.5 では箱 0.134 m・描画 0.283×0.269 m で、描画が縮尺に追従していない）、claserH は箱 0.420 m・描画 0.500×0.476 m（scale 0.5 でも描画は同じ）。
+  選択範囲・干渉の箱と描画が合っていない js 側の問題で、期待値では直せないため、テストは元のまま（失敗 1 件、件数は main と同じ）。対応案：fitAABB を描く円柱の寸法から作る、または描画を箱と同じ口径・縮尺にする。
