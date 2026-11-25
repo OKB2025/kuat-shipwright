@@ -1,0 +1,52 @@
+craft_arc170 39 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_arc170 40 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_arc170 41 claserL a 2 assetYaw 0 fw main -1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 180.00 bore undefined undefined
+craft_arc170 42 claserL a 3 assetYaw 0 fw main -1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 180.00 bore undefined undefined
+craft_awing 25 claserL a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_awing 26 claserL a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_btlb 22 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_btlb 23 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_hyena 25 claserL a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_hyena 26 claserL a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_hyena 27 claserL a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_hyena 28 claserL a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 400 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 401 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 402 claser a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 403 claser a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 404 claser a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 405 claser a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 1008 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_d 1009 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_in 400 claser a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_in 401 claser a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_in 402 claser a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_in 403 claser a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_in 404 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_in 405 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_ln 404 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_ln 405 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_sa 20 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_tie_sa 21 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_v19 25 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_v19 26 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_vulture 19 claserL a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_vulture 20 claserL a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_vulture 21 claserL a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_vulture 22 claserL a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_vwing 30 cturret a 4 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_vwing 31 cturret a 5 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_xwing 42 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_xwing 43 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_xwing 44 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_xwing 45 claser a 3 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_ywing 22 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_ywing 23 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_z95 29 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+craft_z95 30 claser a 2 assetYaw 0 fw main 1.000,0.000,0.000 cand 1.000,0.000,0.000 diff° 0.00 bore undefined undefined
+axis 0 main fw [ 0, 1, 0 ] cand fw [ 1, 0, 0 ]
+axis 1 main fw [ 0, 1, 0 ] cand fw [ 1, 0, 0 ]
+axis 2 main fw [ 1, 0, 0 ] cand fw [ 1, 0, 0 ]
+axis 3 main fw [ 1, 0, 0 ] cand fw [ 1, 0, 0 ]
+axis 4 main fw [ 1, 0, 0 ] cand fw [ 1, 0, 0 ]
+axis 5 main fw [ 1, 0, 0 ] cand fw [ 1, 0, 0 ]
