@@ -20,10 +20,10 @@ const CLASSES=[['claserH','heavy'],['claser','medium'],['cturret','light']];
 test('aircraft laser classes carry the shot of their bore once a second per barrel',()=>{
  // 2026-11-25 expectation changed (aircraft laser yield, user as above): the classes follow C.craftLaserKt (was C.laserShotKt:
  // heavy 436 kt, medium 118.28 kt, light 42.88 kt).
- near(C.CRAFT_LASER_OUTPUT.heavy,C.craftLaserKt(.30)*KT,'heavy');near(C.CRAFT_LASER_OUTPUT.medium,C.craftLaserKt(.17)*KT,'medium');near(C.CRAFT_LASER_OUTPUT.light,C.craftLaserKt(.12)*KT,'light');
+ /* 2026-11-25, later the same day (user「同じ威力と置き換え」): the types' own bores and the example craft's were replaced by the bores that give the same shot under the new rule (C.craftLaserBoreOf20261124), so the shots are 118.28 / 42.88 / 436 kt again; the figures of 276.29 / 152 / 800 kt in the notes around here held only between the two decisions */near(C.CRAFT_LASER_OUTPUT.heavy,C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.claserH.bore)*KT,'heavy');near(C.CRAFT_LASER_OUTPUT.medium,C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.claser.bore)*KT,'medium');near(C.CRAFT_LASER_OUTPUT.light,C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.claserL.bore)*KT,'light');near(C.CRAFT_LASER_OUTPUT_KT.heavy,436,'heavy keeps 436 kt');near(C.CRAFT_LASER_OUTPUT_KT.medium,118.28,'medium keeps 118.28 kt');near(C.CRAFT_LASER_OUTPUT_KT.light,42.88,'light keeps 42.88 kt');for(const [old,now]of [[.17,C.CRAFT_LASER_GEOMETRY.claser.bore],[.12,C.CRAFT_LASER_GEOMETRY.claserL.bore],[.30,C.CRAFT_LASER_GEOMETRY.claserH.bore]]){near(C.craftLaserBoreOf20261124(old),now,'bore of the same shot');near(C.craftLaserKt(now),C.laserShotKt(old),'same shot as the 2026-11-24 rule gave at '+old+' m');}near(C.craftLaserBoreOf20261124(.10),.02,'20 kt is below the new rule: the least bore');
  for(const bore of [.02,.05,.12,.17,.30,.40])near(C.craftLaserKt(bore),craftKt(bore),`craftLaserKt(${bore}) is the user's rule`);
  near(C.craftLaserKt(.05),50,'0.05 m = 50 kt');near(C.craftLaserKt(.30),800,'0.30 m = 800 kt');near(C.craftLaserKt(.40),1400,'0.40 m = 1,400 kt: no cap at 800 kt');near(C.craftLaserKt(.01),C.craftLaserKt(.02),'bores stop at 0.02 m');
- near(C.CRAFT_LASER_OUTPUT_KT.heavy,800,'heavy 0.30 m = 800 kt (was 436)');near(C.CRAFT_LASER_OUTPUT_KT.medium,craftKt(.17),'medium 0.17 m = 276.29 kt (was 118.28)');assert.equal(C.CRAFT_LASER_OUTPUT_KT.medium.toFixed(2),'276.29');near(C.CRAFT_LASER_OUTPUT_KT.light,152,'light 0.12 m = 152 kt (was 42.88)');
+ near(craftKt(.30),800,'a 0.30 m bore is 800 kt');near(craftKt(.17),276.2857142857143,'a 0.17 m bore would be 276.29 kt');near(craftKt(.12),152,'a 0.12 m bore would be 152 kt');assert.equal(C.CRAFT_LASER_OUTPUT_KT.medium.toFixed(2),'118.28');
  near(C.laserShotKt(.17),118.28,'the ship laser rule is unchanged');
  for(const [k,cls]of CLASSES){const d=C.FITS[k];assert.equal(d.outputClass,cls,k);assert.equal(C.CRAFT_FIRE.cycles[k],1,k+' one shot a second');near(d.barrelTTs,perSecond(k),k+' per barrel per second');}
 });
@@ -51,8 +51,8 @@ test('a craft type sums every laser barrel of its fire-arc snapshot at its defin
  const hitK=hz=>hz>1?1/Math.sqrt(hz):1;near(C.craftLaserHitK(4),.5,'four shots a second land half');near(C.craftLaserHitK(1),1);near(C.craftLaserHitK(4,'track'),1);
  // 2026-11-24 (gun rules) the X-wing, ARC-170 and Z-95 examples carry their measured barrels (CRAFT_LASER_EXAMPLES: X-wing 0.18 m
  // × 3.5 m, ARC-170 0.20 m × 2.04 m, Z-95 0.10 m × 1.04 m; user table), which craftLaserRate maps onto the type's snapshot.
- near(C.craftLaserRate('xwing'),4*C.craftLaserKt(.18)*KT,'X-wing: four medium lasers of its measured 0.18 m bore');
- near(C.craftLaserRate('z95'),2*C.craftLaserKt(.10)*KT,'Z-95: two lasers of its measured 0.10 m bore, one shot a second (the user\'s refit of 2026-11-25 keeps its guns at 1.00 s)');
+ near(C.craftLaserRate('xwing'),4*C.craftLaserKt(C.craftLaserBoreOf20261124(.18))*KT,'X-wing: four medium lasers of its measured 0.18 m bore');
+ near(C.craftLaserRate('z95'),2*C.craftLaserKt(C.craftLaserBoreOf20261124(.10))*KT/* 32 kt at the least bore 0.02 m (the old 20 kt cannot be had) */,'Z-95: two lasers of its measured 0.10 m bore, one shot a second (the user\'s refit of 2026-11-25 keeps its guns at 1.00 s)');
  for(const [type,entry]of Object.entries(E)){if(!Array.isArray(entry.fireArcs))continue;
   // 2026-11-24 expectation changed (gun rules): an example with measured barrels (MEASURED, the user's table) fires the shot of its bore.
   const expected=entry.fireArcs.reduce((n,a)=>{const d=C.FITS[a.k],bore=MEASURED[type]?.[a.k];return n+(d?.craft&&d.tt>0&&!d.store?d.barrels*(bore||a.boreM>0?C.craftLaserKt(a.boreM>0?a.boreM:bore)*KT:d.barrelTTs)*(hz=>hz*hitK(hz))(a.nozzle==='track'&&d.fixed?Math.min(1,a.rateHz>0?a.rateHz:1):a.rateHz>0?a.rateHz:1)/* 2026-11-25 expectation changed (user: the example craft fire every 0.25 s, the A-wing 0.1 s, wing-tip guns of the X-wing, TIE/in and TIE/D 1 s): each arc at its own rate */:0);},0);near(C.craftLaserRate(type),expected,type);}
@@ -62,7 +62,7 @@ test('a craft type sums every laser barrel of its fire-arc snapshot at its defin
  // 2026-11-24 expectation changed: the ARC-170 example is the user's remodel, armed with two medium and two light fixed lasers
  // (claser #39/#40, claserL #41/#42) where the old example had two heavy lasers and two light twin turrets (2*400+2*2*10).
  // 2026-11-24 (gun rules) its medium pair has the measured 0.20 m bore; the light lasers keep 0.12 m.
- near(C.craftLaserRate('arc170'),(2*C.craftLaserKt(.20)*KT+2*perSecond('claserL'))*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'ARC-170: two measured 0.20 m medium and two light fixed lasers, 0.25 s apart');
+ near(C.craftLaserRate('arc170'),(2*C.craftLaserKt(C.craftLaserBoreOf20261124(.20))*KT+2*perSecond('claserL'))*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'ARC-170: two measured 0.20 m medium and two light fixed lasers, 0.25 s apart');
  near(C.craftLaserRate('vwing'),2*2*perSecond('cturret')*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'V-wing: two light twin turrets, 0.25 s apart');
  assert.equal(C.craftLaserRate('no-such-craft'),null);assert.equal(C.craftLaserRate(undefined),null);
  near(C.FLEET_AIR_GUN_DEFAULT,2*perSecond('claser'),'unknown types fly as a standard two-medium-laser fighter');
@@ -152,7 +152,7 @@ test('a version-1 design craft snapshot with aircraft lasers is rebuilt once wit
  near(rebuilt.craft.systems.laserUnits,forced.craft.systems.laserUnits,'laser units');// 2026-11-25 expectation changed (aircraft laser yield and the kept gas unit; user「では0.3を800kt、0.05を50ktと扱い…」, the gas unit stays the
  // 118.28 kt/s of the standard laser before the rule changed = C.CRAFT_LASER_UNIT_KT): laser units = output ÷ 118.28 kt/s, so two
  // 276.29 kt lasers at four shots a second are 2 × 4 × 276.29 ÷ 118.28 = 18.69 units (was 8 = 2 × 4, when a 0.17 m laser was one unit).
- near(rebuilt.craft.systems.laserUnits,2*C.CRAFT_LASER_RATE.hz*C.craftLaserKt(.17)/C.CRAFT_LASER_UNIT_KT,'two medium lasers firing every 0.25 s are 18.69 laser units of 118.28 kt/s');assert.equal(C.CRAFT_LASER_UNIT_KT,118.28);near(C.CRAFT_LASER_UNIT_W,118.28*KT*C.TT,'the unit in watts');
+ near(rebuilt.craft.systems.laserUnits,2*C.CRAFT_LASER_RATE.hz*C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.claser.bore)/C.CRAFT_LASER_UNIT_KT,'two medium lasers firing every 0.25 s are 8 laser units of 118.28 kt/s (18.69 between the two decisions of 2026-11-25)');assert.equal(C.CRAFT_LASER_UNIT_KT,118.28);near(C.CRAFT_LASER_UNIT_W,118.28*KT*C.TT,'the unit in watts');
  const weaponW=q=>(q.craft.powerProfile.modules||[]).reduce((n,m)=>n+(m.weaponPowerW||0),0);// 2026-11-23 expectation changed: the TIE/ln example is the user's remodel, which also carries a torpedo tube (its 1e15 W draw).
  near(weaponW(rebuilt),2*C.FITS.claser.power*C.CRAFT_LASER_RATE.hz+C.FITS.ctorp.pw,'weapon power is two medium lasers at four shots a second and the torpedo tube (2026-11-25 expectation changed: was one shot a second)');
  assert.equal(C.cleanDesignCraft(fresh).weaponProfileVersion,C.WEAPON_PROFILE_VERSION);

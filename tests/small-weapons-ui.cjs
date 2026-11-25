@@ -33,7 +33,7 @@ test('dedicated PD and aircraft cards show calibrated per-shot units and the rem
  // 2026-11-25 expectation changed (user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」「面積比例で」; expectation-changes-2026-11-25.md): an aircraft
  // laser's shot is C.craftLaserKt(bore): claser 0.17 m 276.29 kt (was 118.28 kt), claserH 0.30 m 800 kt (was 436 kt), cturret 0.12 m 152 kt a
  // barrel, 304 kt a volley (was 42.88 / 85.76 kt). The ship's point defence (pd, monCalPD: C.laserShotKt) is unchanged.
- for(const [key,unit,volley]of [['pd','800 kt','1.6 MT'],['monCalPD','133.13 kt','399.38 kt'],['claser','276.29 kt','276.29 kt'],['claserH','800 kt','800 kt'],['cturret','152 kt','304 kt']]){
+ for(const [key,unit,volley]of [['pd','800 kt','1.6 MT'],['monCalPD','133.13 kt','399.38 kt'],['claser','118.28 kt','118.28 kt'],['claserH','436 kt','436 kt'],['cturret','42.88 kt','85.76 kt']]/* 2026-11-25, later (user「同じ威力と置き換え」): the types' bores were replaced by those of the same shot, so the cards read as before the yield rule changed (276.29 / 800 / 152 kt held only between the two decisions) */){
   const html=run('fitBtn('+JSON.stringify(key)+',false,"fit")');assert.ok(html.includes('1発・1砲身 '+unit));assert.ok(html.includes('一斉射 '+volley));
   for(const field of ['name','short','desc','evidence'])assert.doesNotMatch(run('KSI18n.t(C.FITS['+JSON.stringify(key)+']['+JSON.stringify(field)+'])'),/[\u3040-\u30ff\u3400-\u9fff]/,key+' '+field);
  }

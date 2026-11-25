@@ -63,7 +63,7 @@ function Cvalue(key){return Number(run('C.FITS.cturret.'+key));}
 test('changing the turret\'s rate of fire keeps each shot (the shot of its bore) while power and gas follow the shots fired',()=>{
  // 2026-11-25 expectation changed (user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」「面積比例で」): the 0.12 m barrel's shot is
  // C.craftLaserKt(0.12) = 50 + 750 × (0.12² − 0.05²) ÷ (0.30² − 0.05²) = 152 kt (was C.laserShotKt(0.12) = 42.88 kt, the ship laser's rule).
- const shot=Number(run('C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.cturret.bore)/C.KT_PER_TT'));near(shot,152e-9,152e-9*1e-12);near(Cvalue('boltTT'),shot,shot*1e-12);assert.equal(Cvalue('cycle'),1);assert.equal(Cvalue('cycle'),Number(run('C.CRAFT_FIRE.cycles.cturret')));
+ const shot=Number(run('C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.cturret.bore)/C.KT_PER_TT'));near(shot,42.88e-9,42.88e-9*1e-9)/* 2026-11-25, later (user「同じ威力と置き換え」): the turret's bore is the one of the same 42.88 kt shot (0.041 m), not 0.12 m at 152 kt */;near(Cvalue('boltTT'),shot,shot*1e-12);assert.equal(Cvalue('cycle'),1);assert.equal(Cvalue('cycle'),Number(run('C.CRAFT_FIRE.cycles.cturret')));
  run('aaReset();var baseNeed=trialCraftGasNeed(trial.turrets[0])');assert.ok(run('baseNeed')>0);
  for(const rate of [1,4]){context.rate=rate;run('aaReset();trial.turrets[0]={...stateFromFit(makeFit("cturret",{id:2,rateHz:rate})),reload:0};var before=trial.energy.E,gasBefore=trial.systemsRuntime.gasSeconds,need=trialCraftGasNeed(trial.turrets[0]);trialGunnery(.01)');
   near(run('trial.turrets[0].cycle'),1/rate,1e-12);assert.equal(run('trial.turrets[0].rule.rateHz'),rate);
