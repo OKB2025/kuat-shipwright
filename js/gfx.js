@@ -666,7 +666,7 @@ function craftWeaponMesh(g,f){
  if(k==='claser'||k==='claserL'||k==='claserH'){
   /* 2026-11-24 (user「航空レーザーは円柱部品で」): a straight cylinder of the gun's bore and length. The bore is 0.6 of the
      outside (the rule the ship guns use where no bore is modelled), so the tube is never drawn thinner than its bore. */
-  const bore=d.gunRule?.boreM;if(bore>0){const ro=bore/1.2;cyl(g,M,o,L*.065,h*.5,0,ro,ro,L*.93,0,B,10);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.5,W*.5,L*.05,0,R,10);cyl(g,M,o,L*.5,h*.5,0,bore/2,bore/2,L*.06,0,D,10);return;}
+  const bore=d.gunRule?.boreM;if(bore>0){const rm=W*.42/* the gun's own box (fitAABB) is 0.84 of its width: the drawn tube stays inside it, at any scale */,ro=Math.min(bore/1.2,rm),rb=Math.min(bore/2,ro*.8);cyl(g,M,o,L*.065,h*.5,0,ro,ro,L*.93,0,B,10);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,rm,rm,L*.05,0,R,10);cyl(g,M,o,L*.5,h*.5,0,rb,rb,L*.06,0,D,10);return;}
   cyl(g,M,o,L*.065,h*.5,0,W*.34,W*.24,L*.93,0,B,8);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
