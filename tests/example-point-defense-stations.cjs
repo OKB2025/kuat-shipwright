@@ -18,11 +18,16 @@ for(const [key,kind,total,groupCount,partCount,shapeCount]of [['mc30c','monCalPD
  // 2026-11-25 (user decision, expectation-changes.md): a laser is its barrels alone and has no feed compartment. Both PD families
  // here are lasers (gunRule.kind), so the case that stated a full charging bank for every PD gun (ratio 1, storedTT = the volley,
  // gunhouse cells used) now states that none of them has a compartment, a charging entry or a charging part.
- test(`${key} PD lasers carry no feed compartment, charging entry or charging part`,()=>{
+ // 2026-11-25 expectation changed (user「0.1秒で15秒間射撃できる量の発射ガス区画を作って」「点防御は1門0.1で約15秒間持続射撃でき、その後リチャージに30秒で」;
+ // docs/benchmarks/gun-rules-2026-11-24/followup-2026-11-25/expectation-changes-2026-11-25.md): later the same day a point-defence laser was given
+ // a firing-gas compartment for its 150 volleys (C.weaponChargeSpec: pd 0.676 m³, monCalPD 0.169 m³ at C.LASER_GAS_TT_M3), so each PD gun now
+ // needs a compartment (C.needsCapacitor true, was false) and has a charging allocation and entry (were undefined). The gas fits inside the
+ // gunhouse, so still no charging part is made. The title was '… PD lasers carry no feed compartment, charging entry or charging part'.
+ test(`${key} PD lasers carry a firing-gas compartment inside the gunhouse with a charging entry, and no charging part`,()=>{
   const s=ship(key);C.syncCompartments(s);const status=C.chargingStatus(s,new Set()),info=C.computeStats(s).chargeInfo||{},banks=C.weaponCapacitors(s);
   assert.equal(C.FITS[kind].gunRule.kind,'laser');
-  for(const f of s.fits.filter(f=>f.k===kind&&/^(?:block|spine|bow|mast|wing)-pd/.test(f.batteryZone||''))){assert.equal(C.needsCapacitor(f),false);assert.equal(status[f.id],undefined,'a laser has no charging allocation');assert.equal(info[f.id],undefined);assert.ok(!banks.some(p=>p.weaponId===f.id||p.weaponIds?.includes(f.id)),'no charging part is made for a laser');}
+  for(const f of s.fits.filter(f=>f.k===kind&&/^(?:block|spine|bow|mast|wing)-pd/.test(f.batteryZone||''))){assert.equal(C.needsCapacitor(f),true);const w=C.weaponChargeSpec(f),r=C.FITS[kind].gunRule;assert.equal(w.gas,true);assert.equal(r.burstVolleys,150);near(w.targetVolume,C.FITS[kind].tt*150/C.LASER_GAS_TT_M3,1e-9);assert.equal(w.targetVolume.toFixed(3),kind==='pd'?'0.676':'0.169');assert.ok(status[f.id],'a point-defence laser has a charging allocation');near(status[f.id].required,w.targetVolume,1e-6);assert.ok(status[f.id].housingVolume>=w.targetVolume,'the gas fits inside the gunhouse');assert.ok(info[f.id],'and a charging entry');assert.ok(!banks.some(p=>p.weaponId===f.id||p.weaponIds?.includes(f.id)),'no charging part is made for a laser');}
   // The ship's other guns keep theirs: every gun that needs a compartment has an entry, and only those.
-  const need=s.fits.filter(f=>C.needsCapacitor(f)&&!f.float);assert.ok(need.length>0);assert.equal(Object.keys(status).map(Number).sort((a,b)=>a-b).join(),need.map(f=>f.id).sort((a,b)=>a-b).join());for(const f of need)assert.notEqual(C.fitSpec(f).gunRule?.kind,'laser');
+  const need=s.fits.filter(f=>C.needsCapacitor(f)&&!f.float);assert.ok(need.length>0);assert.equal(Object.keys(status).map(Number).sort((a,b)=>a-b).join(),need.map(f=>f.id).sort((a,b)=>a-b).join());for(const f of need){const r=C.fitSpec(f).gunRule;assert.ok(r?.kind!=='laser'||r.burstVolleys>1,f.k+': the only lasers with a compartment are the point defence');}/* 2026-11-25: was assert.notEqual(kind,'laser') for every gun with a compartment */
  });
 }

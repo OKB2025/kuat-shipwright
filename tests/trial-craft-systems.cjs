@@ -11,9 +11,13 @@ const trialAim=()=>({point:[10000,0,0],lock:null}),trialDronesStep=()=>{},trialG
 function makeTurret(k='claser'){
  const d=C.FITS[k];return {k,power:d.power,cycle:d.cycle||.5,charge:1,barrels:d.barrels||1,rateRad:1,r:1,yaw:0,el:0,origin:[0,0,0],axis:[0,1,0],fw:[1,0,0],e2:[0,0,1],clear:true,clearDir:[1,0,0],reload:0,ion:!!d.ion,pilot:!!(d.craft&&d.fixed)};
 }
+// 2026-11-25 fixture changed (laser-gas unit; the aircraft laser yield rule, user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」, with the gas
+// unit kept at the 118.28 kt/s of the standard laser before it = C.CRAFT_LASER_UNIT_W): this craft is rated for two medium lasers at one shot a
+// second, which is 2 × FITS.claser.power ÷ CRAFT_LASER_UNIT_W = 2 × 276.29 ÷ 118.28 = 4.67 laser units (laserUnits was 2 while FITS.claser.power
+// was the unit). With the old 2 a medium shot asked 1.17 gas-seconds of the 1 aboard and never fired. The expectations are unchanged.
 function reset(overrides={}){
  notices.length=0;undoStack.length=0;autosaves=0;salvo=null;
- const spec={v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:2,laserGasSeconds:1,...overrides};
+ const spec={v:1,managed:true,crew:1,suitSeats:0,lifeSupportHours:1,laserUnits:2*C.FITS.claser.power/C.CRAFT_LASER_UNIT_W,laserGasSeconds:1,...overrides};
  ship=C.newShip({L:20,W:10,H:5});ship.parts.push({id:1,k:'laserGas',c:[0,0,0],d:1});
  const profile={len:20,grid:{P:1e20},modules:[]};Object.assign(trial,{systemsUnit:{p:profile},on:true,craft:true,spectate:false,paused:false,p:profile,asset:{stats:{craftSystems:spec},geometry:{center:[0,0,0],targetRadius:5,paint:'republic'}},turrets:[makeTurret()],P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],gunMode:'home',fire:true,fireKey:false,fireTap:0,jump:null,battle:null,energy:{E:1e20,cap:1e20},gun:{shots:0,hits:0,kills:0},bolts:[],missiles:[],fx:[],targets:[],rays:{busy:true,last:0}});
  trialCraftSystemsReset();
@@ -26,7 +30,7 @@ run(app.match(/const trialWrap=.*?;/)[0]);
 section('function trialCraftSystemsSpec()', 'function trialReset()');
 section('const TRIAL_PILOT_CYCLE=', 'function trialTurretState(');
 section('function trialSystemsUnit()', 'function trialPowerFactor(');
-section('function trialShotGeometry(', '// Missiles leave');
+section('function trialShotGeometry(', '// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」), defined with trialPilotFiringOrder / gunFiringSequence outside the sections extracted above (js/app.js). */
 section('function trialDurText(', 'function trialHyperUpdate(');
 section('function trialRateBase(', 'function trialMaxRates(');
 run('reset();');

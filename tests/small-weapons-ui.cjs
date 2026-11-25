@@ -30,11 +30,14 @@ test('dedicated PD and aircraft cards show calibrated per-shot units and the rem
  const listed=plain(run('weaponKeys()'));assert.equal(listed.includes('cion'),false);
  // 2026-11-24 gun rules: a laser's shot is its bore's (pd 0.40 m, monCalPD 0.178 m, craft 0.17 / 0.30 / 0.12 m); were 100 kt and the
  // 6 / 72 / 1.2 kt pulses of the old 0.12-0.18 s periods.
- for(const [key,unit,volley]of [['pd','800 kt','1.6 MT'],['monCalPD','133.13 kt','399.38 kt'],['claser','118.28 kt','118.28 kt'],['claserH','436 kt','436 kt'],['cturret','42.88 kt','85.76 kt']]){
+ // 2026-11-25 expectation changed (user「では0.3を800kt、0.05を50ktと扱い0.02まで口径を指定できるように」「面積比例で」; expectation-changes-2026-11-25.md): an aircraft
+ // laser's shot is C.craftLaserKt(bore): claser 0.17 m 276.29 kt (was 118.28 kt), claserH 0.30 m 800 kt (was 436 kt), cturret 0.12 m 152 kt a
+ // barrel, 304 kt a volley (was 42.88 / 85.76 kt). The ship's point defence (pd, monCalPD: C.laserShotKt) is unchanged.
+ for(const [key,unit,volley]of [['pd','800 kt','1.6 MT'],['monCalPD','133.13 kt','399.38 kt'],['claser','276.29 kt','276.29 kt'],['claserH','800 kt','800 kt'],['cturret','152 kt','304 kt']]){
   const html=run('fitBtn('+JSON.stringify(key)+',false,"fit")');assert.ok(html.includes('1発・1砲身 '+unit));assert.ok(html.includes('一斉射 '+volley));
   for(const field of ['name','short','desc','evidence'])assert.doesNotMatch(run('KSI18n.t(C.FITS['+JSON.stringify(key)+']['+JSON.stringify(field)+'])'),/[\u3040-\u30ff\u3400-\u9fff]/,key+' '+field);
  }
- for(const [key,bore]of [['pd',.40],['monCalPD',null],['claser',.17],['claserH',.30],['cturret',.12]]){const bolt=run('C.FITS.'+key+'.boltTT'),rule=bore??run('C.FITS.'+key+'.gunRule.boreM');assert.ok(Math.abs(bolt-C_laser(rule))<=1e-12*bolt,key+' shot of its bore');const preview=run('designWeaponPreviewHTML({k:'+JSON.stringify(key)+'})');assert.ok(preview.includes('data-weapon-stat="output" data-value="'+bolt+'"'));}
+ for(const [key,bore]of [['pd',.40],['monCalPD',null],['claser',.17],['claserH',.30],['cturret',.12]]){const bolt=run('C.FITS.'+key+'.boltTT'),rule=bore??run('C.FITS.'+key+'.gunRule.boreM');assert.ok(Math.abs(bolt-(run('C.FITS.'+key+'.craft')?run('C.craftLaserKt('+rule+')/C.KT_PER_TT')/* 2026-11-25: the aircraft rule, was C.laserShotKt */:C_laser(rule)))<=1e-12*bolt,key+' shot of its bore');const preview=run('designWeaponPreviewHTML({k:'+JSON.stringify(key)+'})');assert.ok(preview.includes('data-weapon-stat="output" data-value="'+bolt+'"'));}
 });
 
 test('the restored native Venator side gun appears once with 70 TT per barrel and a 140 TT volley',()=>{

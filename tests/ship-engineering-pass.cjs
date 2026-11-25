@@ -26,7 +26,10 @@ test('capital engineering enters the shared surface model once and retains its p
  // 2026-11-25 fixture changed: the twelve guns were pd. A laser now has no feed compartment (needsCapacitor false), so it makes no
  // per-turret whole-ship lookup and the fixture no longer exercised what this case measures. They are quad200
  // (a turbolaser with a feed compartment of its own, at the least volume GUN_RULES.feedMinM3). The expectations are unchanged.
- assert.equal(C.needsCapacitor({k:'pd'}),false);assert.equal(C.needsCapacitor({k:'quad200'}),true);assert.equal(C.weaponChargeSpec({k:'quad200'}).targetVolume,C.GUN_RULES.feedMinM3);
+ // 2026-11-25 expectation changed (user「0.1秒で15秒間射撃できる量の発射ガス区画を作って」; expectation-changes-2026-11-25.md): later the same day the
+ // point-defence laser was given a firing-gas compartment, so C.needsCapacitor({k:'pd'}) is true again (was asserted false here). The fixture
+ // keeps the quad200 guns and the expectations below are unchanged.
+ assert.equal(C.needsCapacitor({k:'pd'}),true);assert.equal(C.needsCapacitor({k:'twin6MT'}),false,'a laser that is not point defence has no compartment');assert.equal(C.needsCapacitor({k:'quad200'}),true);assert.equal(C.weaponChargeSpec({k:'quad200'}).targetVolume,C.GUN_RULES.feedMinM3);
  for(let i=0;i<12;i++){const f={id:ship.nextId++,k:'quad200',p:[130+(i%6)*16,40,i<6?-25:25],n:[0,1,0],a:2,ped:0,base:0,low:0,float:false};C.mountFit(ship,f);ship.fits.push(f);}
  delete ship._building;ship.surfaces=C.normalizeSurfaces({mode:'strict',armorOnly:1,legacyArmor:.1,patches:[]});C.syncCompartments(ship);
  context.aggregateCalls=0;const repeated=C.baseComputeStats(ship,{engineeringOnly:true}),oldCalls=context.aggregateCalls;
