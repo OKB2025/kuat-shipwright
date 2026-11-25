@@ -97,8 +97,8 @@ test('a turbolaser feed compartment is never under the least volume, and a compa
  // 1 TT a volley: 20 m³ by the volley, so the least 50 m³, holding 1 TT (not 50 × 0.05 = 2.5 TT).
  const {s,f}=fixture([box(5,1,5)],{tt:1}),spec=C.weaponChargeSpec(f);assert.ok(1/per<least);near(spec.volleyVolume,least);near(spec.targetVolume,least);near(spec.ttPerM3,1/least);let q=status(s,f);near(q.required,least);near(q.externalUsed,25);near(q.internalRequired,least-25);near(q.volume,least);near(q.storedTT,1);near(q.ratio,1);
  // Two volleys still fit the least (40 m³ by the volleys); three need 60 m³, above the least, at the plain 0.05 TT/m³.
- f.chargeSalvos=2;let two=C.weaponChargeSpec(f);near(two.targetVolume,Math.max(least,2/per));near(two.targetVolume,least);near(two.ttPerM3,2/least);q=status(s,f);near(q.volume,least);near(q.storedTT,2);
- f.chargeSalvos=3;let three=C.weaponChargeSpec(f);near(three.targetVolume,3/per);assert.ok(three.targetVolume>least);near(three.ttPerM3,per);near(three.volleyVolume,least);q=status(s,f);near(q.required,3/per);near(q.storedTT,3);
+ f.chargeSalvos=2;let two=C.weaponChargeSpec(f);near(two.targetVolume,Math.max(least,2/per));near(two.targetVolume,least);near(two.ttPerM3,2/least);/* physics review 2026-11-25: one volley's room is its share of the whole at the density the room holds its volleys at, not the least again */near(two.volleyVolume,least/2);q=status(s,f);near(q.volume,least);near(q.storedTT,2);
+ f.chargeSalvos=3;let three=C.weaponChargeSpec(f);near(three.targetVolume,3/per);assert.ok(three.targetVolume>least);near(three.ttPerM3,per);near(three.volleyVolume,1/per);q=status(s,f);near(q.required,3/per);near(q.storedTT,3);
  // The 5 TT fixture gun is above the least: 100 m³ as before.
  const plain5=fixture(),big=C.weaponChargeSpec(plain5.f);near(big.targetVolume,5/per);near(big.ttPerM3,per);
 });
