@@ -1,0 +1,4 @@
+# git diff 520bcf0 HEAD -- data/reference.js (empty = unchanged)
+# reshapeGunBarrels / decodeReference in js/core.js: lines changed between 520bcf0 and HEAD that mention them
+2
+(the 2 matching lines are the Core export list, which names decodeReference; the functions themselves are unchanged)

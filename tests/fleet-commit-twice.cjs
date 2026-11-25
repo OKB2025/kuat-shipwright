@@ -23,3 +23,24 @@ test('committing one plan twice gives the same turn and leaves the plan as it wa
  const two=C.fleetCommit(B),second=state(two.units),frames2=JSON.stringify(two.frames.at(-1));
  assert.equal(second,first,'the second commit plays the same turn');assert.equal(frames2,frames1,'with the same last frame');
 });
+
+// Regression review 2026-11-25: with the corvettes holding (above), the attack movement left this check. Two further plans keep it
+// in: an attack run that nobody is sunk in, and a pair of which one judges it should ram (its state u.ram, like the pass, must be
+// the copy's own: it was shared with the plan, so a commit changed the plan and the second commit began in the middle of the first).
+function attackPlan(keys,gap){
+ const us=keys.map((k,i)=>{const u=C.fleetUnit('ab'[i],k,JSON.parse(JSON.stringify(F.designs[k].p)),i);u.pos=[i*gap,0,0];u.yaw=i?Math.PI:0;return u;});
+ us[0].order={...us[0].order,type:'attack',target:'b',fire:true};us[1].order={...us[1].order,type:'attack',target:'a',fire:true};const B=C.fleetBattle(us);B.seed=7;return B;
+}
+const full=us=>JSON.stringify(us.map(u=>[u.id,u.pos,u.velocity,u.yaw,u.shield,u.energy,u.sec,u.mods,u.dead,u.out,u.pass||null,u.ram||null]));
+for(const [name,keys,gap,ram] of [['an attack run from far apart',['cr90','cr90'],30000,false],['a ship that rams',['hammerhead','gr75'],6000,true]])test('committing twice, '+name+': the same turn, the plan untouched',()=>{
+ const B=attackPlan(keys,gap);C.fleetCommit(B);C.fleetFinish(B);if(ram)assert.equal(C.fleetRamJudge(B.units[0],B.units[1]),true,'the fixture rams');
+ const before=full(B.units),one=C.fleetCommit(B),first=full(one.units);B.phase='plan';assert.equal(full(B.units),before,'the plan is untouched by a commit');
+ if(ram)assert.ok(one.units[0].ram,'the ship was ramming in the turn');assert.ok(one.units.every(u=>!u.dead&&!u.out),'nobody is sunk in the turn');
+ const two=C.fleetCommit(B);assert.equal(full(two.units),first,'the second commit plays the same turn');assert.equal(full(B.units),before);
+});
+// The copy a commit works on owns its ramming state (fleetRamStep changes the phase and the run-out direction in place).
+test('a unit\'s copy owns its ramming state, as it owns its pass',()=>{
+ const B=attackPlan(['hammerhead','gr75'],6000),u=B.units[0];u.ram={target:'b',phase:'out',dir:[1,0,0]};u.pass={target:'b',phase:'in',side:1};
+ const c=C.combatClone(u);assert.notEqual(c.ram,u.ram);assert.notEqual(c.ram.dir,u.ram.dir);assert.equal(JSON.stringify(c.ram),JSON.stringify(u.ram));assert.notEqual(c.pass,u.pass);
+ c.ram.phase='in';c.ram.dir[0]=-1;assert.equal(u.ram.phase,'out');assert.equal(u.ram.dir[0],1);
+});
