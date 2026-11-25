@@ -52,8 +52,9 @@ test('a larger external house reduces the reserved internal depth without increa
 test('turbolasers and ion cannons share compartment accounting while lasers, launchers, craft and tractors remain excluded',()=>{
  for(const k of ['quad500','twin40','ionL','single6MT','twin500MT','quad500MT','sphyrnaTwin500MT'])assert.equal(C.needsCapacitor({k}),true,k);
  for(const k of ['pd','monCalPD','twin6MT','single500MT'])assert.equal(C.FITS[k].gunRule.kind,'laser',k);
- for(const k of ['pd','monCalPD','twin6MT','single500MT','ltl'])assert.equal(C.needsCapacitor({k}),false,k);
- let ruled=0;for(const [k,d]of Object.entries(C.FITS))if(d.gunRule&&!d.craft&&!d.fixed){ruled++;assert.equal(C.needsCapacitor({k}),d.gunRule.kind!=='laser',k+' ('+d.gunRule.kind+')');}assert.ok(ruled>40);
+ // 2026-11-25 expectation changed (user「0.1秒で15秒間射撃できる量の発射ガス区画を作って」): the point-defence lasers have a firing-gas compartment; other lasers have none.
+ for(const k of ['twin6MT','single500MT'])assert.equal(C.needsCapacitor({k}),false,k);for(const k of ['pd','monCalPD','ltl'].filter(k=>C.FITS[k].pointDefense===true))assert.equal(C.needsCapacitor({k}),true,k+' has a gas compartment');
+ let ruled=0;for(const [k,d]of Object.entries(C.FITS))if(d.gunRule&&!d.craft&&!d.fixed){ruled++;assert.equal(C.needsCapacitor({k}),d.gunRule.kind!=='laser'||d.gunRule.burstVolleys>1,k+' ('+d.gunRule.kind+')');}assert.ok(ruled>40);
  for(const k of ['claser','cturret','cmsl','itl','trc'])assert.equal(C.needsCapacitor({k}),false,k);
 });
 
@@ -89,7 +90,7 @@ test('an oversized exterior gunhouse retains the same finite bank and charges on
 
 // 2026-11-25 added (gun rules): the three cases of the new rules, on the same fixture.
 test('a laser has no feed compartment: no bank room, no gunhouse reservation in the hull and no charging entry',()=>{
- const {s,f,key}=fixture([box(10,10,10)],{base:'pd'});assert.equal(C.FITS[key].gunRule.kind,'laser');C.placePart(s,'struct',[50,.5,0],[10,10,1],{form:'box',corner:0},false);assert.equal(C.needsCapacitor(f),false);assert.equal(status(s,f),undefined);assert.equal(C.weaponCapacitors(s).length,0);assert.ok(!C.allOccupied(s).some(p=>p.turretRoom||p.k==='capacitor'),'the embedded house of a laser reserves nothing');const S=C.computeStats(s);assert.equal(S.chargeInfo[f.id],undefined);near(S.chargingTotalVolume,0);
+ const {s,f,key}=fixture([box(10,10,10)],{base:'twin6MT'}/* 2026-11-25 was 'pd', which now has a gas compartment; a laser that is no point defence */);assert.equal(C.FITS[key].gunRule.kind,'laser');C.placePart(s,'struct',[50,.5,0],[10,10,1],{form:'box',corner:0},false);assert.equal(C.needsCapacitor(f),false);assert.equal(status(s,f),undefined);assert.equal(C.weaponCapacitors(s).length,0);assert.ok(!C.allOccupied(s).some(p=>p.turretRoom||p.k==='capacitor'),'the embedded house of a laser reserves nothing');const S=C.computeStats(s);assert.equal(S.chargeInfo[f.id],undefined);near(S.chargingTotalVolume,0);
 });
 
 test('a turbolaser feed compartment is never under the least volume, and a compartment at the least holds its volleys and no more',()=>{
