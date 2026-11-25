@@ -77,7 +77,7 @@ const K = {
   RECON_ELEV: [0, 15, -15],      // ★ 偵察の編隊が向かう上下の角度°（編隊ごとに順番に。高さ方向も探す）
   RECON_OUT_SHARE: 0.45,         // ★ 行きに使う航続の割合（残りは帰りと寄り道）
   // ---- 配置（★ すべてこちらで選んだ。README「配置の決め方」）----
-  PLACE: {friendStart: 48000 * KM, friendGoal: 20000 * KM, enemyDist: [8000 * KM, 40000 * KM], enemyBearing: 60, enemyY: 8000 * KM, hideDist: [3000 * KM, 12000 * KM], hideBearing: 40, hideY: 3000 * KM,
+  PLACE: {friendStart: 48000 * KM, friendGoal: 20000 * KM, enemyDist: [5000 * KM, 25000 * KM], enemyBearing: 60, enemyY: 4000 * KM, hideDist: [3000 * KM, 12000 * KM], hideBearing: 40, hideY: 3000 * KM,
     merchantR: [8000 * KM, 48000 * KM], merchantY: 10000 * KM, noXpdrDist: [2000 * KM, 10000 * KM], noXpdrY: 2000 * KM, rockNearFriend: 11, rockNearDist: 15000 * KM, rockNearY: 3000 * KM, rockY: 10000 * KM},
   RECON_DIVERT: 600 * KM,        // ★ 経路からこの距離までの未識別の光点は見に行く
   RECON_SEARCHED_HOLD: 900,      // ★ 行っても識別できなかった光点を、次に見に行くまでの間 s
@@ -155,6 +155,18 @@ function trackPriority(c) {
 }
 // 同時追跡数：同時交戦数（性能表の aaCh ＝ Core.shipTrackSlots。0 なら ★1）× 2。艦も航空機も同じ式。
 function trackSlots(engage, n = 1) { return Math.max(K.ENGAGE_FLOOR, engage) * K.TRACK_PER_ENGAGE * n; }
+// 偵察に出す機種と編隊を選ぶ（ユーザー 2026-11-25「届く機体が基本偵察機として使われるはずだ」）。機種の名前や役割では選ばない。
+// 入力 stock: [{type, reach（行きに使える距離 m）, speed（巡航 m/s）, count（積んでいる機数）, home（母艦）}]、searchDist: 捜索する距離、flights・size: 編隊の数と機数
+// 規則：捜索する距離まで届く機種だけを使う。届く機種の中では速い機種から ★。届く機種が無ければ、一番遠くまで届く機種で届く範囲だけ捜索する。
+// 1 編隊は同じ母艦の同じ機種。積んでいる機数を超えない。出力 {flights: [{type, home, reach}], reaches: 届いたか, searchDist: 実際に捜索する距離}
+function chooseRecon(stock, searchDist, flights, size) {
+  const left = stock.map(x => ({...x, left: x.count})).filter(x => x.left >= size); if (!left.length) return {flights: [], reaches: false, searchDist: 0};
+  let ok = left.filter(x => x.reach >= searchDist); const reaches = ok.length > 0, best = Math.max(...left.map(x => x.reach));
+  if (!reaches) ok = left.filter(x => x.reach >= best * 0.999);
+  ok.sort((a, b) => b.speed - a.speed || b.reach - a.reach); const out = [];
+  for (let i = 0; i < flights; i++) { const x = ok.find(q => q.left >= size); if (!x) break; x.left -= size; out.push({type: x.type, home: x.home, reach: x.reach}); }
+  return {flights: out, reaches, searchDist: reaches ? searchDist : best};
+}
 // 目標にできる条件：枠を持って追跡中で、位置が使え、敵と印が付いている（確定、または推定を許すなら不審も）。
 function targetable(c, allowPresumed) { return !!c.tracker && (c.id ? c.id.hostile : allowPresumed && c.stage === ST.SUSPECT); }
 
@@ -164,25 +176,26 @@ function targetable(c, allowPresumed) { return !!c.tracker && (c.id ? c.id.hosti
 const plain = x => JSON.parse(JSON.stringify(x)), traitCache = new Map();
 function shipTraits(key) { if (!traitCache.has(key)) { const d = F.designs[key]; if (!d) throw new Error('性能表にない艦: ' + key); const p = plain(d.p), u = C.fleetUnit('t_' + key, key, p, 0); traitCache.set(key, sensingTraits(p, {name: d.name, key, engage: C.shipTrackSlots(u), air: (d.air || []).filter(a => a.count > 0).map(a => ({type: a.type, count: a.count}))})); } return traitCache.get(key); }
 function craftTraits(type) { const k = 'craft:' + type; if (!traitCache.has(k)) { const role = C.FLEET_AIR.roles[type]; if (!role) throw new Error('Core.FLEET_AIR.roles にない航空機: ' + type); const xs = C.buildDesign(role.key), S = C.computeStats(xs), p = C.fleetProfile(S, xs.name, xs); traitCache.set(k, sensingTraits(p, {name: xs.name, key: role.key, type, craft: true, massKg: S.mass * 1000, engage: p.aaCh || 0})); } return traitCache.get(k); }
-function reconRange(tr) { const endurance = tr.fuelJ / Math.max(1, tr.reactorW * K.RECON_LOAD), v = tr.maxSpeed * K.CRUISE; return {speed: v, endurance, range: v * endurance}; }
+function reconRange(tr) { const endurance = tr.fuelJ / Math.max(1, tr.reactorW * K.RECON_LOAD), v = tr.maxSpeed * K.CRUISE; return {speed: v, endurance, range: v * endurance, reach: v * endurance * K.RECON_OUT_SHARE}; }
+const reconTypesOf = keys => [...new Set(keys.flatMap(k => (shipTraits(k).air || []).map(a => a.type)))].filter(t => C.FLEET_AIR.roles[t]);
 
 // ====================================================================================================
 // 場面
 // ====================================================================================================
 const REBEL = ['mc75', 'mc80liberty', 'nebulonb', 'nebulonb', 'cr90'], EMPIRE = ['imperial', 'imperial', 'arquitens', 'gozanti', 'gozanti'], SMALL = ['cr90', 'cr90', 'gozanti', 'gozanti', 'gozanti'];
 const MERCHANT_KEYS = ['gr75', 'gr75', 'gr75', 'reptransport', 'reptransport', 'gozanti', 'gr75', 'lh3210'];
-// recon: {types: 使う機種（母艦の搭載機から、この順に）, flights: 編隊の数, size: 1 編隊の機数, fan: 扇の半角°（360 なら全周）}
+// recon: {flights: 編隊の数, size: 1 編隊の機数, fan: 扇の半角°（360 なら全周）, search: 捜索する距離（母艦から）}。機種は chooseRecon が航続で選ぶ
 const SCENES = {
-  a: {title: '(a) 偵察機あり：4 機 × 6 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{types: ['awing', 'xwing'], flights: 6, size: 4, fan: 120}, {types: ['tie_ln'], flights: 8, size: 4, fan: 360}]},
-  a2x12: {title: '(a) の編隊ちがい：12 機 × 2 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{types: ['awing', 'xwing'], flights: 2, size: 12, fan: 120}, {types: ['tie_ln'], flights: 8, size: 4, fan: 360}]},
-  a12x2: {title: '(a) の編隊ちがい：2 機 × 12 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{types: ['awing', 'xwing'], flights: 12, size: 2, fan: 120}, {types: ['tie_ln'], flights: 8, size: 4, fan: 360}]},
-  b: {title: '(b) 味方は偵察機なし（敵は (a) と同じ）', enemy: EMPIRE, enemyMode: 'patrol', recon: [null, {types: ['tie_ln'], flights: 8, size: 4, fan: 360}]},
-  c: {title: '(c) 敵は小型艦だけ、小惑星のそばで低放射：4 機 × 6 編隊', enemy: SMALL, enemyMode: 'hide', recon: [{types: ['awing', 'xwing'], flights: 6, size: 4, fan: 60}, null]},
-  c2: {title: '(c2) (c) で「浮遊物（推定）」も見に行く', enemy: SMALL, enemyMode: 'hide', investigateQuiet: true, recon: [{types: ['awing', 'xwing'], flights: 6, size: 4, fan: 60}, null]},
-  c2x12: {title: '(c) の編隊ちがい：12 機 × 2 編隊', enemy: SMALL, enemyMode: 'hide', recon: [{types: ['awing', 'xwing'], flights: 2, size: 12, fan: 60}, null]},
-  c12x2: {title: '(c) の編隊ちがい：2 機 × 12 編隊', enemy: SMALL, enemyMode: 'hide', recon: [{types: ['awing', 'xwing'], flights: 12, size: 2, fan: 60}, null]},
-  aLock: {title: '(aLock) (a) で、識別した敵艦に双方がロックを掛ける', lock: true, enemy: EMPIRE, enemyMode: 'patrol', recon: [{types: ['awing', 'xwing'], flights: 6, size: 4, fan: 120}, {types: ['tie_ln'], flights: 8, size: 4, fan: 360}]},
-  cLock: {title: '(cLock) (c) 12 機 × 2 編隊で、識別した敵艦にロックを掛ける', lock: true, enemy: SMALL, enemyMode: 'hide', recon: [{types: ['awing', 'xwing'], flights: 2, size: 12, fan: 60}, null]},
+  a: {title: '(a) 偵察機あり：4 機 × 6 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{flights: 6, size: 4, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
+  a2x12: {title: '(a) の編隊ちがい：12 機 × 2 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{flights: 2, size: 12, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
+  a12x2: {title: '(a) の編隊ちがい：2 機 × 12 編隊', enemy: EMPIRE, enemyMode: 'patrol', recon: [{flights: 12, size: 2, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
+  b: {title: '(b) 味方は偵察機なし（敵は (a) と同じ）', enemy: EMPIRE, enemyMode: 'patrol', recon: [null, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
+  c: {title: '(c) 敵は小型艦だけ、小惑星のそばで低放射：4 機 × 6 編隊', enemy: SMALL, enemyMode: 'hide', recon: [{flights: 6, size: 4, fan: 60, search: 12000 * KM}, null]},
+  c2: {title: '(c2) (c) で「浮遊物（推定）」も見に行く', enemy: SMALL, enemyMode: 'hide', investigateQuiet: true, recon: [{flights: 6, size: 4, fan: 60, search: 12000 * KM}, null]},
+  c2x12: {title: '(c) の編隊ちがい：12 機 × 2 編隊', enemy: SMALL, enemyMode: 'hide', recon: [{flights: 2, size: 12, fan: 60, search: 12000 * KM}, null]},
+  c12x2: {title: '(c) の編隊ちがい：2 機 × 12 編隊', enemy: SMALL, enemyMode: 'hide', recon: [{flights: 12, size: 2, fan: 60, search: 12000 * KM}, null]},
+  aLock: {title: '(aLock) (a) で、識別した敵艦に双方がロックを掛ける', lock: true, enemy: EMPIRE, enemyMode: 'patrol', recon: [{flights: 6, size: 4, fan: 120, search: 15000 * KM}, {flights: 8, size: 4, fan: 360, search: 15000 * KM}]},
+  cLock: {title: '(cLock) (c) 12 機 × 2 編隊で、識別した敵艦にロックを掛ける', lock: true, enemy: SMALL, enemyMode: 'hide', recon: [{flights: 2, size: 12, fan: 60, search: 12000 * KM}, null]},
   d: {title: '(d) 双方とも偵察機なし', enemy: EMPIRE, enemyMode: 'patrol', recon: [null, null]}
 };
 const SIDE_NAME = ['味方（反乱同盟）', '敵（帝国）'];
@@ -214,14 +227,14 @@ function setup(sceneKey, seed) {
   const notes = [];
   for (const side of [0, 1]) { const rc = sc.recon[side]; if (!rc) continue;
     const carriers = ents.filter(e => e.kind === 'ship' && e.side === side), stock = [];
-    for (const type of rc.types) for (const cv of carriers) for (const a of cv.tr.air || []) if (a.type === type) stock.push({type, home: cv, left: a.count});
-    const flights = [];
-    for (let i = 0; i < rc.flights; i++) { const want = rc.types[i % rc.types.length], s = stock.find(x => x.type === want && x.left >= rc.size) || stock.find(x => x.left >= rc.size); if (!s) { notes.push(`${SIDE_NAME[side]}：搭載機が足りず、編隊は ${flights.length} 個`); break; } s.left -= rc.size; flights.push(s); }
+    for (const cv of carriers) for (const a of cv.tr.air || []) if (C.FLEET_AIR.roles[a.type]) { const rr = reconRange(craftTraits(a.type)); stock.push({type: a.type, reach: rr.reach, speed: rr.speed, count: a.count, home: cv}); }
+    const pick = chooseRecon(stock, rc.search, rc.flights, rc.size), flights = pick.flights, by = {}; for (const f of flights) by[f.type] = (by[f.type] || 0) + 1;
+    notes.push(`${SIDE_NAME[side]}の偵察：捜索する距離 ${Math.round(rc.search / KM).toLocaleString('en-US')} km → ${flights.length ? Object.entries(by).map(([t, n]) => `${craftTraits(t).name} ${rc.size} 機 × ${n} 編隊`).join('、') : '出せる機体なし'}${pick.reaches ? '' : `（届く機種が無いので ${Math.round(pick.searchDist / KM).toLocaleString('en-US')} km まで）`}${flights.length < rc.flights ? `（機数が足りず ${rc.flights} 編隊のうち ${flights.length}）` : ''}`);
     flights.forEach((s, i) => { const tr = craftTraits(s.type), rr = reconRange(tr), n = flights.length;
       // 扇形：艦隊の進む向き（味方は惑星の方、敵は全周）を中心に方位を等間隔に割り振り、上下の角度も編隊ごとに変える。
       // 真っすぐ進み、行きに使える航続（またはマップの端）まで行って母艦へ戻る
       const heading = side === 0 ? 180 : angleOf(eCentre), offs = rc.fan >= 360 ? (i + 0.5) * 360 / n - 180 : (n === 1 ? 0 : -rc.fan + i * 2 * rc.fan / (n - 1)), el = K.RECON_ELEV[i % K.RECON_ELEV.length] * Math.PI / 180, bz = (heading + offs) * Math.PI / 180;
-      const dir = [Math.cos(bz) * Math.cos(el), Math.sin(el), Math.sin(bz) * Math.cos(el)]; let out = rr.range * K.RECON_OUT_SHARE;
+      const dir = [Math.cos(bz) * Math.cos(el), Math.sin(el), Math.sin(bz) * Math.cos(el)]; let out = Math.min(rr.reach, pick.searchDist);
       for (; out > 0; out -= 100 * KM) { const q = add(s.home.pos, mul(dir, out)); if (Math.hypot(q[0], q[2]) <= K.MAP_RADIUS && Math.abs(q[1]) <= K.MAP_HALF_HEIGHT) break; }
       const route = [add(s.home.pos, mul(dir, Math.max(out, 100 * KM)))];
       mk({id: (side ? 'B' : 'A') + 'f' + i + '_' + s.type + 'x' + rc.size, kind: 'flight', side, key: tr.key, type: s.type, tr, n: rc.size, pos: s.home.pos.slice(), home: s.home, route, wp: 0, speed: rr.speed, rangeLeft: rr.range * K.RECON_RANGE_USE, state: 'out', searched: new Map()}); });
@@ -419,8 +432,21 @@ function traitsMd(keys, craftTypes) {
   let md = `| 艦・機体 | 全長×幅×高さ m | 反射断面積 m² | 反応炉出力 W | 排熱（出力×${K.WASTE_SHARE}）W | ニュートリノ：赤外の割合 | 質量 kg | 重力波の源 N（等速） | センサー開口 ν／赤外／レーダー | 同時交戦数（性能表） | 同時追跡数 | 最高速度 m/s |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
   const row = tr => `| ${tr.name}${tr.craft ? '（航空機）' : ''} | ${Math.round(tr.len)}×${Math.round(tr.width)}×${Math.round(tr.height)} | ${tr.sigma.toLocaleString('en-US')} | ${tr.reactorW.toExponential(2)} | ${tr.wasteW.toExponential(2)} | ${tr.bandNu.toFixed(2)}：${tr.bandIr.toFixed(2)} | ${tr.massKg.toExponential(2)} | ${gravSource(tr, 0).toExponential(2)} | ${tr.sens.nu}／${tr.sens.ir}／${tr.sens.rad} | ${tr.engage} | ${trackSlots(tr.engage)} | ${Math.round(tr.maxSpeed)} |\n`;
   for (const k of keys) md += row(shipTraits(k)); for (const t of craftTypes) md += row(craftTraits(t));
-  md += `\n偵察機の速度と航続（★ 航続 ＝ 燃料のエネルギー ÷（反応炉出力 × ${K.RECON_LOAD}）× 巡航速度）：\n\n| 機体 | 巡航 m/s（最高×${K.CRUISE}） | 滞空 | 航続 km | 母艦の搭載数（性能表） |\n| --- | --- | --- | --- | --- |\n`;
-  for (const t of craftTypes) { const tr = craftTraits(t), rr = reconRange(tr), stock = [...new Set([...REBEL, ...EMPIRE])].map(k => [shipTraits(k), (shipTraits(k).air || []).find(a => a.type === t)]).filter(x => x[1]).map(x => `${x[0].name} ${x[1].count}`).join('、'); md += `| ${tr.name} | ${Math.round(rr.speed)} | ${hm(rr.endurance)} | ${Math.round(rr.range / KM).toLocaleString('en-US')} | ${stock || '—'} |\n`; }
+  return md;
+}
+// 偵察機の届く距離（★ の見積もりの根拠つき）と、編隊の組み方ごとの捜索できる面積
+function reconMd(craftTypes) {
+  let md = `航続の見積もり ★：滞空 ＝ 燃料のエネルギー（p.fuel.capacityJ）÷（反応炉出力 p.grid.P × ${K.RECON_LOAD}）、巡航 ＝ 最高速度 × ${K.CRUISE}、航続 ＝ 巡航 × 滞空、届く距離（行き）＝ 航続 × ${K.RECON_OUT_SHARE}。\n\n| 機体 | 燃料 J | 反応炉出力 W | 最高速度 m/s | 巡航 m/s | 滞空 | 航続 km | 届く距離 km | 積んでいる艦（機数） |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n`;
+  const kmn = x => Math.round(x / KM).toLocaleString('en-US');
+  for (const t of craftTypes) { const tr = craftTraits(t), rr = reconRange(tr), stock = [...new Set([...REBEL, ...EMPIRE])].map(k => [shipTraits(k), (shipTraits(k).air || []).find(a => a.type === t)]).filter(x => x[1]).map(x => `${x[0].name} ${x[1].count}`).join('、'); md += `| ${tr.name} | ${tr.fuelJ.toExponential(2)} | ${tr.reactorW.toExponential(2)} | ${Math.round(tr.maxSpeed)} | ${Math.round(rr.speed)} | ${hm(rr.endurance)} | ${kmn(rr.range)} | ${kmn(rr.reach)} | ${stock || '—'} |\n`; }
+  md += `\nマップの半径は ${kmn(K.MAP_RADIUS)} km、上下 ${kmn(K.MAP_HALF_HEIGHT)} km。積んでいても Core.FLEET_AIR.roles に無い機種（U ウイング、ラムダ級など）は性能表を作れないので候補に入れていない。\n\n`;
+  // 捜索できる面積：行きの 1 本の帯（長さ ＝ 捜索する距離、幅 ＝ 横一列の幅 ＋ 両側の映る距離）× 編隊の数。帰りは同じ線をなぞるので数えない
+  const solve = f => { let lo = 1, hi = 1e9; if (!(f(lo) >= 1)) return 0; for (let i = 0; i < 60; i++) { const mid = Math.sqrt(lo * hi); if (f(mid) >= 1) lo = mid; else hi = mid; } return lo; };
+  const obs = craftTraits(craftTypes.includes('xwing') ? 'xwing' : craftTypes[0]), det = (tr, emcon) => { const sig = emission(tr, emcon, 1); return solve(r => { const q = bandSNR(sig, tr.sigma, obs.sens, r, true); return Math.max(q.rad, q.nu, q.ir); }); };
+  const tg = [['ISD', det(shipTraits('imperial'), 'normal')], ['CR90', det(shipTraits('cr90'), 'normal')], ['ゴザンティ（低放射）', det(shipTraits('gozanti'), 'low')]], mapArea = Math.PI * K.MAP_RADIUS ** 2;
+  md += `捜索できる面積（${obs.name} が偵察する場合。同じ高さの面で数えた目安。帯の幅 ＝ 横一列の幅（間隔 ${kmn(K.RECON_SPACING)} km）＋ 両側の映る距離。映る距離：${tg.map(x => x[0] + ' ' + kmn(x[1]) + ' km').join('、')}）：\n\n| 編隊 | 捜索する距離 km | 扇の広さ | 目標 | 帯の幅 km | 全編隊の帯の面積 万 km² | 扇の面積に対して | マップの円の面積に対して |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n`;
+  for (const [nf, sz, fan, dist] of [[6, 4, 120, 15000 * KM], [2, 12, 120, 15000 * KM], [12, 2, 120, 15000 * KM], [6, 4, 60, 12000 * KM], [2, 12, 60, 12000 * KM], [12, 2, 60, 12000 * KM]]) for (const [name, r] of tg) { const d = Math.min(dist, reconRange(obs).reach), w = (sz - 1) * K.RECON_SPACING + 2 * r, area = nf * d * w, sector = Math.PI * d * d * (2 * fan / 360);
+    md += `| ${sz} 機 × ${nf} | ${kmn(d)} | 左右 ${fan}° | ${name} | ${kmn(w)} | ${(area / 1e6 / 1e4).toFixed(0)} | ${Math.min(100, 100 * area / sector).toFixed(0)}% | ${(100 * area / mapArea).toFixed(1)}% |\n`; }
   return md;
 }
 // 手段ごとの「映る距離」の早見表（雑音なし、しきい値 SNR 1）
@@ -478,12 +504,12 @@ function mapSvg(r, title) {
     fs.writeFileSync(path.join(dir, 'timeline-seed1.md'), `# ${SCENES[key].title}：接触ごとの時系列（種 1）\n\n時刻は 時:分:秒。「真の姿」は検証の答え合わせ用で、その陣営には見えていない。\n\n## ${SIDE_NAME[0]}から見た接触\n\n${timelineMd(runs[0], 0)}\n## ${SIDE_NAME[1]}から見た接触\n\n${timelineMd(runs[0], 1)}`);
     overall += overallRow(key, runs); detail += sceneSummary(key, runs); figs.push([key, runs[0]]);
     console.log(`${key}: ${RUNS} 回、${((Date.now() - t0) / 1000).toFixed(1)} 秒`); }
-  const usedShips = [...new Set([...REBEL, ...EMPIRE, ...SMALL, ...MERCHANT_KEYS])], usedCraft = ['awing', 'xwing', 'tie_ln'].filter(t => traitCache.has('craft:' + t));
-  const obsList = [shipTraits('mc80liberty'), shipTraits('imperial'), shipTraits('cr90'), ...usedCraft.filter(t => t !== 'xwing').map(craftTraits)];
+  const usedShips = [...new Set([...REBEL, ...EMPIRE, ...SMALL, ...MERCHANT_KEYS])], usedCraft = [...reconTypesOf(REBEL), ...reconTypesOf(EMPIRE)];
+  const obsList = [shipTraits('mc80liberty'), shipTraits('imperial'), shipTraits('cr90'), craftTraits('xwing'), craftTraits('tie_in')];
   const tgts = [['ISD', shipTraits('imperial'), 'normal', 1], ['MC80', shipTraits('mc80liberty'), 'normal', 1], ['ネビュロンB', shipTraits('nebulonb'), 'normal', 1], ['CR90', shipTraits('cr90'), 'normal', 1], ['CR90（低放射）', shipTraits('cr90'), 'low', 1], ['ゴザンティ（低放射）', shipTraits('gozanti'), 'low', 1], ['ルクレハルク級貨物船', shipTraits('lh3210'), 'normal', 1], ['GR-75', shipTraits('gr75'), 'normal', 1], ['小惑星 100 m', rockTraits(100), 'normal', 1], ['小惑星 400 m', rockTraits(400), 'normal', 1], ...usedCraft.slice(0, 1).map(t => [craftTraits(t).name + ' 4 機', craftTraits(t), 'normal', 4])];
   const planetM = K.PLANET_G * K.PLANET_RADIUS ** 2 / 6.674e-11, mc = shipTraits('mc80liberty');
-  const planetMd = `惑星（半径 ${K.PLANET_RADIUS / KM} km）を、縁から入った MC80（惑星の中心から 9,800 km）が見たとき：レーダーの SNR ${bandSNR({nu: 0, ir: 0, em: 0}, Math.PI * K.PLANET_RADIUS ** 2, mc.sens, 9800 * KM - K.PLANET_RADIUS, true).rad.toExponential(2)}（しきい値 1）、重力波の歪みの値 ${gravSNR(planetM * K.PLANET_G, mc.sens.nu, 9800 * KM, 1, 1e12).toExponential(2)}（同じ単位で、ISD が 2,000 km にいるときが約 ${gravSNR(gravSource(shipTraits('imperial'), 0), mc.sens.nu, 2000 * KM, 1, 1e12).toFixed(2)}）。`;
-  summary += `## 全体\n\n${overall}\n## 場面ごと\n\n${detail}## 使った特性（性能表から）\n\n${traitsMd(usedShips, usedCraft)}\n## 手段ごとの映る距離（雑音なし、しきい値 SNR 1）\n\n${rangesMd(obsList, tgts)}\n${planetMd}\n\n## 定数（★ はこちらで選んだ値）\n\n\`\`\`json\n${JSON.stringify({...K, SENS: '(Core.SENS)', EMIT: '(Core.EMIT)', EMCON: '(Core.EMCON)'}, null, 1)}\n\`\`\`\n`;
+  const planetMd = `惑星（半径 ${K.PLANET_RADIUS / KM} km）を、縁から入った MC80（惑星の中心から ${K.PLACE.friendStart / KM} km）が見たとき：レーダーの SNR ${bandSNR({nu: 0, ir: 0, em: 0}, Math.PI * K.PLANET_RADIUS ** 2, mc.sens, K.PLACE.friendStart - K.PLANET_RADIUS, true).rad.toExponential(2)}（しきい値 1）、重力波の歪みの値 ${gravSNR(planetM * K.PLANET_G, mc.sens.nu, K.PLACE.friendStart, 1, 1e12).toExponential(2)}（同じ単位で、ISD が 2,000 km にいるときが約 ${gravSNR(gravSource(shipTraits('imperial'), 0), mc.sens.nu, 2000 * KM, 1, 1e12).toFixed(2)}）。`;
+  summary += `## 全体\n\n${overall}\n## 場面ごと\n\n${detail}## 使った特性（性能表から）\n\n${traitsMd(usedShips, usedCraft)}\n## 偵察機の届く距離と捜索できる面積\n\n${reconMd(usedCraft)}\n## 手段ごとの映る距離（雑音なし、しきい値 SNR 1）\n\n${rangesMd(obsList, tgts)}\n${planetMd}\n\n## 定数（★ はこちらで選んだ値）\n\n\`\`\`json\n${JSON.stringify({...K, SENS: '(Core.SENS)', EMIT: '(Core.EMIT)', EMCON: '(Core.EMCON)'}, null, 1)}\n\`\`\`\n`;
   fs.writeFileSync(path.join(OUT, 'summary.md'), summary);
   if (process.env.KS_NOFIG !== '1') { const {chromium} = require('playwright'), br = await chromium.launch({args: ['--no-sandbox']});
     for (const [key, r] of figs) { const m = mapSvg(r, `${SCENES[key].title}（種 1）`), pg = await br.newPage({viewport: {width: m.w, height: m.h}, deviceScaleFactor: 1}); await pg.setContent(`<html><body style="margin:0;background:#fff">${m.svg}</body></html>`); await pg.screenshot({path: path.join(OUT, `map-${key}.png`)}); await pg.close(); }
