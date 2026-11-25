@@ -15,10 +15,14 @@ for(const [key,kind,total,groupCount,partCount,shapeCount]of [['mc30c','monCalPD
   const repaired=key==='mc30c'?pd:pd.filter(f=>f.batteryZone.startsWith('wing-pd'));
   for(const f of repaired){const up=C.fitUp(f),hit=C.rayEnv(s,C.add(f.p,C.mul(up,1000)),C.mul(up,-1),{structOnly:true});assert.ok(hit,`${key} PD #${f.id} needs a physical native seat`);near(C.dot(C.sub(f.p,hit.p),up),0);}
  });
- test(`${key} reserves the complete requested PD banks without bypassing allocation`,()=>{
-  const s=ship(key);C.syncCompartments(s);const status=C.chargingStatus(s,new Set());
-  for(const f of s.fits.filter(f=>f.k===kind&&/^(?:block|spine|bow|mast|wing)-pd/.test(f.batteryZone||''))){const q=status[f.id];assert.ok(q,'every gun needs a real charging allocation');assert.equal(q.allocationPending,false);assert.equal(q.blocked,false);near(q.ratio,1,1e-9);near(q.volume,q.plannedVolume,1e-6);near(q.storedTT,C.weaponChargeSpec(f).volleyTT,1e-8);// Both authored models contain real closed charging cells; any remainder
-  // is allocated inside the ship by the same ordinary bank allocator.
-  assert.ok(q.housingUsed>0,'the authored gunhouse provides real charging volume');near(q.volume,q.housingUsed+q.internalVolume,1e-6);}
+ // 2026-11-25 (user decision, expectation-changes.md): a laser is its barrels alone and has no feed compartment. Both PD families
+ // here are lasers (gunRule.kind), so the case that stated a full charging bank for every PD gun (ratio 1, storedTT = the volley,
+ // gunhouse cells used) now states that none of them has a compartment, a charging entry or a charging part.
+ test(`${key} PD lasers carry no feed compartment, charging entry or charging part`,()=>{
+  const s=ship(key);C.syncCompartments(s);const status=C.chargingStatus(s,new Set()),info=C.computeStats(s).chargeInfo||{},banks=C.weaponCapacitors(s);
+  assert.equal(C.FITS[kind].gunRule.kind,'laser');
+  for(const f of s.fits.filter(f=>f.k===kind&&/^(?:block|spine|bow|mast|wing)-pd/.test(f.batteryZone||''))){assert.equal(C.needsCapacitor(f),false);assert.equal(status[f.id],undefined,'a laser has no charging allocation');assert.equal(info[f.id],undefined);assert.ok(!banks.some(p=>p.weaponId===f.id||p.weaponIds?.includes(f.id)),'no charging part is made for a laser');}
+  // The ship's other guns keep theirs: every gun that needs a compartment has an entry, and only those.
+  const need=s.fits.filter(f=>C.needsCapacitor(f)&&!f.float);assert.ok(need.length>0);assert.equal(Object.keys(status).map(Number).sort((a,b)=>a-b).join(),need.map(f=>f.id).sort((a,b)=>a-b).join());for(const f of need)assert.notEqual(C.fitSpec(f).gunRule?.kind,'laser');
  });
 }
