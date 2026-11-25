@@ -1,0 +1,95 @@
+
+### line 14  0.4 s  const d=T('deserialize',()=>C.deserialize(raw));
+
+### line 15  10.1 s  T('syncCompartments #1',()=>C.syncCompartments(d));
+    10.07 s  syncCompartmentsRaw:113693
+     4.01 s  allOccupied:111330
+     3.96 s  enginePaths:112115
+     3.89 s  physicalEngineDriveNetwork:114398
+     3.13 s  unpiercedInStruct:112082
+     3.09 s  structuralClipBoundary:111447
+     2.90 s  placementGeometryContains:125922
+     2.73 s  rayBVH:109982
+     2.25 s  insideOriginalEnvelope:113642
+     0.92 s  turretGeometryKey:115371
+     0.77 s  solidSimplifyFlat:128048
+     0.74 s  interiorRegionClearBox:113977
+     0.59 s  weaponCapacitors:115632
+     0.48 s  turretCompartment:115414
+     0.23 s  publicCopyOf:128949
+
+### line 16  0.2 s  T('remount',()=>C.remount(d,{keepFitPose:true}));
+     0.24 s  remount:110571
+
+### line 17  6.7 s  T('syncCompartments #2',()=>C.syncCompartments(d));
+     6.71 s  syncCompartmentsRaw:113693
+     3.62 s  allOccupied:111330
+     3.57 s  enginePaths:112115
+     3.54 s  physicalEngineDriveNetwork:114398
+     2.94 s  unpiercedInStruct:112082
+     2.77 s  placementGeometryContains:125922
+     2.73 s  rayBVH:109982
+     1.91 s  insideOriginalEnvelope:113642
+     1.38 s  structuralClipBoundary:111447
+     0.82 s  turretGeometryKey:115371
+     0.50 s  weaponCapacitors:115632
+     0.40 s  turretCompartment:115414
+     0.34 s  interiorRegionClearBox:113977
+     0.32 s  solidSimplifyFlat:128048
+
+### line 18  0.0 s  T('publicJSON',()=>C.publicJSON(d));
+
+### line 19  0.0 s  T('serialize',()=>C.serialize(d));
+
+### line 20  49.7 s  const S=T('computeStats',()=>C.computeStats(d));
+    20.77 s  surfacePatches:112490
+    18.04 s  armoredMaterialArea:112274
+    17.48 s  surfaceExposedTriangles:112467
+    17.11 s  exposedSurface:111681
+    14.62 s  structuralClipBoundary:111447
+    11.67 s  syncCompartmentsRaw:113693
+    10.40 s  structuralMaterial:111467
+     7.36 s  solidSimplifyFlat:128048
+     6.93 s  placementGeometryContains:125922
+     6.81 s  rayBVH:109982
+     5.70 s  unpiercedInStruct:112082
+     4.67 s  insideOriginalEnvelope:113642
+     4.03 s  allOccupied:111330
+     3.79 s  enginePaths:112115
+     3.72 s  physicalEngineDriveNetwork:114398
+     1.38 s  turretGeometryKey:115371
+
+### line 21  0.8 s  const p=T('fleetProfile',()=>C.fleetProfile(S,d.name,d));
+     0.20 s  enginePaths:112115
+
+### line 22  15.4 s  T('computeStats again (same ship, nothing changed)',()=>C.co
+    10.00 s  structuralMaterial:111467
+     9.87 s  structuralClipBoundary:111447
+     2.09 s  solidSimplifyFlat:128048
+     1.99 s  rayBVH:109982
+     1.97 s  placementGeometryContains:125922
+     0.51 s  turretGeometryKey:115371
+     0.44 s  unpiercedInStruct:112082
+     0.35 s  turretCompartment:115414
+     0.27 s  insideOriginalEnvelope:113642
+     0.25 s  exposedSurface:111681
+
+### line 23  14.3 s  T('fleetGeometry (model + trial)',()=>G.fleetGeometry(d,{var
+    10.34 s  syncCompartmentsRaw:113693
+     4.12 s  enginePaths:112115
+     4.08 s  allOccupied:111330
+     4.01 s  physicalEngineDriveNetwork:114398
+     3.77 s  unpiercedInStruct:112082
+     3.57 s  placementGeometryContains:125922
+     3.40 s  rayBVH:109982
+     2.96 s  structuralClipBoundary:111447
+     2.62 s  insideOriginalEnvelope:113642
+     2.59 s  aviationPublicJSON:128362
+     0.89 s  turretGeometryKey:115371
+     0.85 s  solidSimplifyFlat:128048
+     0.77 s  interiorRegionClearBox:113977
+     0.57 s  weaponCapacitors:115632
+     0.45 s  publicCopyOf:128949
+     0.42 s  turretCompartment:115414
+
+### line 24  0.0 s  T('turretRayContext',()=>C.turretRayContext&&C.turretRayCont
