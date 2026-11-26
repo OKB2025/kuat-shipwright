@@ -22,7 +22,7 @@ section('const TRIAL_PILOT_CYCLE=','// opts.design');
 section('const trialBarrel=','function trialAim(');
 for(const line of app.split('\n'))if(line.startsWith('const TRIAL_PD=')||line.startsWith('const TRIAL_PILOT_HIT=')||line.startsWith('const trialPdColor='))run(line);
 for(const name of ['trialAim','trialGunTarget','trialIntercept','trialThreats','trialPdPick','trialPdBoltHit','trialPilotThreats','trialPilotHit','trialThreatDown','trialAllyOnLine','trialBoxOnLine'])run(fn(name));
-section('function trialShotGeometry(','// Missiles leave');
+section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
 
 test('a capital reticle can explicitly lock hostile aircraft and missiles beyond the pilot range',()=>{

@@ -1,0 +1,72 @@
+total s 113.7
+
+## self time
+ 17.47 s  15.4%  rayBVH:109982
+ 14.71 s  12.9%  (garbage collector):0
+  6.04 s   5.3%  tri:128096
+  5.34 s   4.7%  node:128059
+  4.82 s   4.2%  solidSimplifyFlat:128048
+  4.78 s   4.2%  structuralClipBoundary:111447
+  4.45 s   3.9%  turretGeometryKey:115371
+  4.24 s   3.7%  surfaceExposeTriangle:112448
+  3.89 s   3.4%  surfaceExposureCrossings:112443
+  2.69 s   2.4%  aviationPublicJSON:128362
+  2.62 s   2.3%  coplanarBins:111394
+  2.42 s   2.1%  solidSliceRaw:128091
+  2.40 s   2.1%  interiorRegionClearBox:113977
+  1.59 s   1.4%  solidSliceSegments:128089
+  1.51 s   1.3%  solidSliceIndex:128078
+  1.27 s   1.1%  v3InHull:109601
+  1.24 s   1.1%  publicCopyOf:128949
+  1.21 s   1.1%  hits:112454
+  1.18 s   1.0%  structuralMeshVolume:111387
+  0.99 s   0.9%  (anon):111457
+  0.94 s   0.8%  len:48
+  0.94 s   0.8%  surfaceExposedTriangles:112467
+
+## inclusive time
+113.67 s 100.0%  (root):0
+ 98.93 s  87.0%  (anon):1193
+ 98.93 s  87.0%  wrapModuleLoad:237
+ 98.93 s  87.0%  (anon):1
+ 98.93 s  87.0%  (anon):1731
+ 98.93 s  87.0%  (anon):1878
+ 98.93 s  87.0%  (anon):1490
+ 98.93 s  87.0%  executeUserEntryPoint:157
+ 97.67 s  85.9%  T:12
+ 93.81 s  82.5%  C.<computed>:11
+ 92.65 s  81.5%  withHullCacheScope:109308
+ 65.10 s  57.3%  computeStats:113148
+ 65.03 s  57.2%  (anon):113148
+ 65.03 s  57.2%  withFrozenStructures:112056
+ 55.88 s  49.2%  v3ComputeStats:111880
+ 55.35 s  48.7%  baseComputeStats:110632
+ 49.72 s  43.7%  (anon):20
+ 38.87 s  34.2%  (anon):113692
+ 38.87 s  34.2%  syncCompartments:113692
+ 38.86 s  34.2%  syncCompartmentsRaw:113693
+ 31.92 s  28.1%  structuralClipBoundary:111447
+ 23.16 s  20.4%  solidSliceSegments:128089
+ 23.08 s  20.3%  structuralJoinBoundary:111466
+ 20.79 s  18.3%  surfacePatches:112490
+ 20.40 s  17.9%  structuralMaterial:111467
+ 18.26 s  16.1%  surfaceExposurePlane:112437
+ 18.14 s  16.0%  placementGeometryContains:125922
+ 18.07 s  15.9%  armoredMaterialArea:112274
+ 17.67 s  15.5%  rayBVH:109982
+ 17.48 s  15.4%  surfaceExposedTriangles:112467
+ 17.36 s  15.3%  exposedSurface:111681
+ 17.08 s  15.0%  parity:125922
+ 16.03 s  14.1%  allOccupied:111330
+ 15.98 s  14.1%  unpiercedInStruct:112082
+ 15.67 s  13.8%  enginePaths:112115
+ 15.38 s  13.5%  (anon):22
+ 15.36 s  13.5%  (anon):114397
+ 15.36 s  13.5%  engineDriveRoutes:114397
+ 15.35 s  13.5%  physicalEngineDriveNetwork:114398
+ 14.71 s  12.9%  (garbage collector):0
+ 14.31 s  12.6%  fleetGeometry:3705
+ 14.31 s  12.6%  (anon):23
+ 13.59 s  12.0%  v3InHull:109601
+ 12.32 s  10.8%  (anon):109602
+ 11.74 s  10.3%  insideOriginalEnvelope:113642

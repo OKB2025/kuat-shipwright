@@ -31,7 +31,10 @@ for(const [key,target] of Object.entries(C.CRAFT_INTERIOR_TARGETS))test(`${key}:
  /* 2026-11-24 expectation changed: the V-19 and Z-95 remodels lack landing support once their pylons are launch tubes again
     (17.7/18.7 t, 29.5/30.7 t) and the V-wing remodel as the user drew it (12.4/12.9 t); reported to the user, designs not altered.
     Every other craft example still lands. */
- assert.equal(S.craftSystems.landingReady,!['craft_v19','craft_vwing','craft_z95'].includes(key),'landing support');
+ /* 2026-11-25 expectation changed (user「航空機はこっちで作り直す」: the 16 craft examples are the user's refit designs of 2026-11-25,
+    docs/handoff-2026-11-20/refs/aircraft-refit-16-specs-2026-11-25.csv; expectation-changes-2026-11-25.md): the refit V-19, V-wing and Z-95 have
+    landing support (landingReady true), so every craft example lands. Was: landingReady false for craft_v19, craft_vwing and craft_z95. */
+ assert.equal(S.craftSystems.landingReady,true,'landing support');
  const driveProfile=C.fleetProfile(S,ship.name,ship),drive=C.fleetUnit(key+'-drive',key,driveProfile,0);C.heatInit(drive);C.allocateShipPower(drive,C.fleetSystems(drive),{throttle:1,weapons:0,shields:0},.5,'balanced');assert.ok(drive.propulsion.actualInputW>0&&drive.propulsion.actualThrustN>0&&drive.propulsion.actualAccelMps2>0,'the installed plant powers drive-only flight');for(const source of drive.propulsion.power.sources)assert.ok(source.drawW>=0&&source.drawW<=source.availableW*(1+1e-12),'drive-only power is paid by the finite source');
  const p=C.fleetProfile(S,ship.name,ship),u=C.fleetUnit(key,key,p,0);u.order={...u.order,power:'balanced'};u.maneuver=1;C.heatInit(u);u.ht.t=0;u.ht.last=0;if(u.fo){u.fo.d.fill(1);u.fo.want.fill(1);}
  for(let i=0;i<60;i++){

@@ -86,11 +86,11 @@ test('the load follows the mission: air superiority missiles (radar-guided first
  const load=(k,m)=>plain(C.craftOrdnance(C.buildDesign(k),C.missionLoad(C.buildDesign(k),m)).map(o=>o.kind+'x'+o.n));
  assert.deepEqual(load('craft_xwing','air'),['rmslx6'],'the Rev2 X-wing has a forward targeting sensor');assert.deepEqual(load('craft_xwing','sead'),['rmslx6']);assert.deepEqual(load('craft_xwing','strike'),['ptorpx4']);
  assert.deepEqual(load('craft_tie_ln','air'),['cmslx3'],'the Rev2 TIE/ln has no sensor');/* 2026-11-24 expectation changed (physics review): a craft without a sensor carries no radar-guided missile it could not fire (was: stations alternate cmsl, rmsl) */assert.deepEqual(load('craft_hyena','air'),['cmslx6','cmslx6'],'no sensor: heat-seeking throughout');assert.deepEqual(load('craft_hyena','sead'),['cmslx6','cmslx6'],'nor sensor suppression');
- assert.deepEqual(load('craft_ywing','strike'),['ptorpx4','bombx16']);assert.ok(/レーダー誘導/.test(C.ORDNANCE.rmsl.name),'one missile, radar-guided or passive');
+ /* 2026-11-26 expectation changed (user「爆弾は0.3の球」「爆弾倉の数は増える／爆弾倉のサイズによる」): the same bay holds 64 of the 0.3 m bombs (was 16 of the old body) */assert.deepEqual(load('craft_ywing','strike'),['ptorpx4','bombx64']);assert.ok(/レーダー誘導/.test(C.ORDNANCE.rmsl.name),'one missile, radar-guided or passive');
 });
 test('a strike carries one torpedo and one self-defence missile a tube (user「対艦攻撃も自衛用のミサイルを搭載して魚雷と混載」)',()=>{
  const ord=k=>plain(C.missionOrdnance(C.buildDesign(k),'strike').map(o=>o.kind+'x'+o.n));
  assert.deepEqual(ord('craft_xwing'),['ptorpx2','cmslx2'],'two tubes; the self-defence missile is heat-seeking (「自衛用のミサイルは基本熱源」)');assert.deepEqual(ord('craft_tie_ln'),['ptorpx1','cmslx1'],'one tube; no sensor: heat');
- assert.deepEqual(ord('craft_ywing'),['ptorpx2','cmslx2','bombx16'],'bombs stay in the bay');
+ /* 2026-11-26 expectation changed (same decision as above): 16 -> 64 bombs */assert.deepEqual(ord('craft_ywing'),['ptorpx2','cmslx2','bombx64'],'bombs stay in the bay');
  assert.ok(1/C.LAUNCHER_ROUNDS.torpedo+1/C.LAUNCHER_ROUNDS.missile<=1+1e-9,'a torpedo and a missile fit one tube');
 });

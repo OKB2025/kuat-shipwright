@@ -2003,7 +2003,7 @@ function sci(v) {
   const e = Math.floor(Math.log10(Math.abs(v))), m = v / Math.pow(10, e);
   return m.toFixed(1) + '×10' + String(e).split('').map(c => SUP[c]).join('');
 }
-const fLen = (m) => Math.abs(m) >= 10000 ? (m / 1000).toFixed(1) + ' km' : m.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3}) + ' m';
+const fLen = (m) => !Number.isFinite(m) ? '—'/* 2026-11-26 an example without a length must not stop the page from starting */ : Math.abs(m) >= 10000 ? (m / 1000).toFixed(1) + ' km' : m.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3}) + ' m';
 const fMass = (t) => ja(t) + ' t';
 const fW = (w) => sci(w) + ' W';
 const reactorOutputText = (p) => { const power = C.reactorPower(p); return `${fW(power)} · ${num(power / C.ISD_W, 6)} ISD`; };
@@ -2023,7 +2023,7 @@ const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
 // v24 Craft carry ordnance on pylons (launch tubes retired) and in bomb-bay compartments (an interior part).
-const CRAFT_WEAPONS = ['claserL', 'claser', 'claserH', 'cturret', 'ctorp', 'cmsl', 'cpylon'];/* 2026-11-23 launch tubes are back (user: 「発射管を復活」) */
+const CRAFT_WEAPONS = ['claser'/* 2026-11-25 one laser: its bore, length and rate are set on the gun (user「全て口径を変えるだけの同じものでは？」); a saved light or heavy laser still opens and is edited the same way */, 'cturret', 'ctorp', 'cmsl', 'cpylon'];/* 2026-11-23 launch tubes are back (user: 「発射管を復活」) */
 const craftDesign = () => !!ship && editorCraftDesign();
 const weaponKeys = () => [...new Set((craftDesign() ? [...CRAFT_WEAPONS,...WEAPONS] : [...WEAPONS,...CRAFT_WEAPONS]).map(k=>C.canonicalWeaponKind?.(k)||k))].filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden);
 const weaponReplacementKeys = f => {const keys=weaponKeys();return f&&C.FITS[f.k]&&!keys.includes(f.k)?[f.k,...keys]:keys;};
@@ -4592,7 +4592,7 @@ function fitLinks(f) {
   const out = []; if (tw) out.push({fit: tw, z: true, y: false}); if (vt) out.push({fit: vt, z: false, y: true}); if (vtw && vtw !== tw && vtw !== vt) out.push({fit: vtw, z: true, y: true});
   return out;
 }
-const FIT_SYNC_KEYS = ['paint', 'boreM', 'barrelM', 'rateHz', 'supportLift', 'ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
+const FIT_SYNC_KEYS = ['paint', 'boreM', 'barrelM', 'rateHz', 'nozzle', 'supportLift', 'ped', 'sink', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
 function syncFitTwin(from, to, link) {
   if (to.k !== from.k) { to.k = from.k; for (const k of ['skinAsset', 'mountOffset', 'mountAxis']) if (from[k] === undefined) delete to[k]; }
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
@@ -4631,7 +4631,7 @@ function fitPedestalControls(f = null) {
 // the same kind, size and settings, apart from where it sits.
 const TEMPLATE_SKIP = ['id', 'supportLift', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round'];
 // v21 'scale' is not carried: the player cannot make a turret larger or smaller than its standard.
-const FIT_TEMPLATE_KEYS = ['width', 'boreM', 'barrelM', 'rateHz', 'sink', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
+const FIT_TEMPLATE_KEYS = ['width', 'boreM', 'barrelM', 'rateHz', 'nozzle', 'sink', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'launchYaw', 'launcherCols', 'launcherRows', 'launchRoll', 'launcherEmbedded', 'launcherHeavy', 'launcherColSpacing', 'launcherRowSpacing', 'round', 'batteryCaliber', 'batteryGuns'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
 function activeTemplate(list, k) { const t = st.template; if (!t || t.list !== list || t.k !== k) return null; if (list === 'parts' && (t.equipmentId || null) !== (activeEquipment()?.id || null)) return null; return t; }
 function carryToPlace() {
@@ -4658,19 +4658,20 @@ function carryToPlace() {
 }
 // 2026-11-24 Aircraft lasers are cylinders whose bore, length and rate of fire the player sets (user「航空レーザーは円柱部品でユーザーが
 // 口径と長さと連射速度を決める形に」): the next one placed takes the drawer's settings; a selected one is edited in place.
-function craftLaserOptions(k=curFit()){const g=C.CRAFT_LASER_GEOMETRY?.[k];if(!g)return {};const q=st.craftLaser?.[k]||{};return {boreM:q.boreM??g.bore,barrelM:q.barrelM??g.length,rateHz:q.rateHz??1};}
-function applyCraftLaserOptions(f){if(!f||!C.CRAFT_LASER_GEOMETRY?.[f.k])return;const o=craftLaserOptions(f.k);for(const q of linkedItems('fits',f))Object.assign(q,o);}
+function craftLaserOptions(k=curFit()){const g=C.CRAFT_LASER_GEOMETRY?.[k];if(!g)return {};const q=st.craftLaser?.[k]||{};return {boreM:q.boreM??g.bore,barrelM:q.barrelM??g.length,rateHz:q.rateHz??1,...(q.nozzle==='track'&&C.FITS[k]?.fixed?{nozzle:'track'}:{})};}
+function applyCraftLaserOptions(f){if(!f||!C.CRAFT_LASER_GEOMETRY?.[f.k])return;const o=craftLaserOptions(f.k);for(const q of linkedItems('fits',f)){Object.assign(q,o);if(!o.nozzle)delete q.nozzle;}}
 function craftLaserHTML(part){
- const g=C.CRAFT_LASER_GEOMETRY?.[part?.k];if(!g)return '';const selected=st.tab==='edit'&&st.sel?.list==='fits'&&selItem()?.k===part.k?selItem():null,src=selected||{k:part.k,...craftLaserOptions(part.k)},r=C.craftLaserRule(src);if(!r)return '';
+ const g=C.CRAFT_LASER_GEOMETRY?.[part?.k],Y=C.CRAFT_LASER_YIELD;if(!g)return '';const selected=st.tab==='edit'&&st.sel?.list==='fits'&&selItem()?.k===part.k?selItem():null,src=selected||{k:part.k,...craftLaserOptions(part.k)},r=C.craftLaserRule(src);if(!r)return '';
  const slider=(key,label,min,max,step,v,fmt)=>`<label class="field-label">${esc(T(label))} <output data-claser-out="${key}">${esc(fmt(v))}</output><input type="range" data-claser="${key}" min="${min}" max="${max}" step="${step}" value="${v}"></label>`;
- return `<div class="pgroup" data-craft-laser><h4>${esc(T('レーザー砲身（円柱）'))}</h4>${slider('boreM','口径',.10,.40,.01,r.boreM,v=>num(v,2)+' m')}${slider('barrelM','長さ',.2,10,.05,r.barrelM,v=>num(v,2)+' m')}${slider('rateHz','連射速度',.2,10,.1,r.rateHz,v=>num(v,1)+' 発/秒')}<p class="note" data-claser-summary>${esc(craftLaserSummary(r))}</p><p class="note">${esc(T('正面（機首方向）にだけ向けて取り付けます。1発は口径で、射程は長さで決まります。連射速度を上げると電力・ガス・発熱が増えます。'))}</p></div>`;
+ return `<div class="pgroup" data-craft-laser><h4>${esc(T('レーザー砲身（円柱）'))}</h4>${C.FITS[part.k]?.fixed?`<label class="field-label">${esc(T('ノズル'))}<select data-claser-nozzle><option value=""${r.nozzle?'':' selected'}>${esc(T('そのまま（連射できる）'))}</option><option value="track"${r.nozzle==='track'?' selected':''}>${esc(T('追尾ノズル（Xウイング型）'))}</option></select></label>`:''}${slider('boreM','口径（内径）',Y.minBore,Y.maxBore,.005,r.boreM,v=>num(v,3)+' m')}${slider('barrelM','長さ',.2,10,.05,r.barrelM,v=>num(v,2)+' m')}${slider('rateHz','連射速度',.2,r.nozzle==='track'?C.CRAFT_LASER_NOZZLE.trackHz:10,.1,r.rateHz,v=>num(v,1)+' 発/秒')}<p class="note" data-claser-summary>${esc(craftLaserSummary(r))}</p><p class="note">${esc(T('正面（機首方向）にだけ向けて取り付けます。1発は口径（内径）で、射程は長さで決まります。砲身の外径は口径 ÷ 0.75 です。追尾ノズルはロックオンした標的へ数度だけ向きを変えて当てますが、毎秒1発より速く撃てません。そのままのノズルは連射できますが、速くするほど命中が下がり、電力・ガス・発熱が増えます。'))}</p></div>`;
 }
-function craftLaserSummary(r){const kt=r.shotKt;return `1発 ${kt>=1000?num(kt/1000,2)+' MT':num(kt,0)+' kt'}・射程 ${r.rangeM>=1000?num(r.rangeM/1000,2)+' km':num(r.rangeM,0)+' m'}・定格入力 ${num(kt*r.rateHz,0)} kt/秒（1門）`;}
+function craftLaserSummary(r){const kt=r.shotKt;return `1発 ${kt>=1000?num(kt/1000,2)+' MT':num(kt,0)+' kt'}・射程 ${r.rangeM>=1000?num(r.rangeM/1000,2)+' km':num(r.rangeM,0)+' m'}・定格入力 ${num(kt*r.rateHz,0)} kt/秒（1門）・命中 ${num((r.hitK??1)*100,0)}%${r.nozzle==='track'?'（追尾 ±'+num(r.trackDeg,0)+'°）':''}`;}
 function changeCraftLaser(key,v){
- const k=st.tab==='edit'&&st.sel?.list==='fits'?selItem()?.k:curFit();if(!C.CRAFT_LASER_GEOMETRY?.[k])return;const lim={boreM:[.10,.40],barrelM:[.2,10],rateHz:[.2,10]}[key];if(!lim)return;v=C.clamp(v,lim[0],lim[1]);
+ const k=st.tab==='edit'&&st.sel?.list==='fits'?selItem()?.k:curFit();if(!C.CRAFT_LASER_GEOMETRY?.[k])return;if(key==='nozzle'){const track=v==='track'&&C.FITS[k]?.fixed;if(st.tab==='edit'&&st.sel?.list==='fits'&&selItem()){beginDrag('レーザーのノズルを変更');editSel(f=>{if(track){f.nozzle='track';if(!(f.rateHz<=C.CRAFT_LASER_NOZZLE.trackHz))delete f.rateHz;}else delete f.nozzle;});endDrag?.();touch('fits');scheduleStats(350);}else{st.craftLaser=st.craftLaser||{};const o={...craftLaserOptions(k)};if(track){o.nozzle='track';o.rateHz=Math.min(o.rateHz||1,C.CRAFT_LASER_NOZZLE.trackHz);}else delete o.nozzle;st.craftLaser[k]=o;}renderPanel();if(typeof designUISchedulePreview==='function')designUISchedulePreview();requestDraw();return;}
+ const Y=C.CRAFT_LASER_YIELD,srcNow=st.tab==='edit'&&st.sel?.list==='fits'?selItem():craftLaserOptions(k),lim={boreM:[Y.minBore,Y.maxBore],barrelM:[.2,10],rateHz:[.2,srcNow?.nozzle==='track'?C.CRAFT_LASER_NOZZLE.trackHz:10]}[key];if(!lim)return;v=C.clamp(v,lim[0],lim[1]);
  if(st.tab==='edit'&&st.sel?.list==='fits'&&selItem()){beginDrag('レーザー砲身を調整');editSel(f=>{f[key]=v;});touch('fits');scheduleStats(350);}else{st.craftLaser=st.craftLaser||{};st.craftLaser[k]={...craftLaserOptions(k),[key]:v};}
  const src=st.tab==='edit'&&st.sel?.list==='fits'?selItem():{k,...craftLaserOptions(k)},r=C.craftLaserRule(src),out=document.querySelector(`[data-claser-out="${key}"]`),sum=document.querySelector('[data-claser-summary]');
- if(out)out.textContent=key==='rateHz'?num(v,1)+' 発/秒':num(v,2)+' m';if(sum&&r)sum.textContent=craftLaserSummary(r);if(typeof designUISchedulePreview==='function')designUISchedulePreview();requestDraw();
+ if(out)out.textContent=key==='rateHz'?num(v,1)+' 発/秒':num(v,key==='boreM'?3:2)+' m';if(sum&&r)sum.textContent=craftLaserSummary(r);if(typeof designUISchedulePreview==='function')designUISchedulePreview();requestDraw();
 }
 function applyFitTemplate(f) {
   const t = activeTemplate('fits', f.k); if (!t) return;
@@ -5237,7 +5238,7 @@ function designWeaponPreviewHTML(part){
  const variable=T(stats.kind==='superweapon'?'給電元により変化':stats.kind==='payload'?'搭載弾薬により変化':'条件により変化'),
   row=(key,label,value,format)=>'<div><dt>'+esc(T(label))+'</dt><dd data-weapon-stat="'+key+'" data-value="'+(Number.isFinite(value)?value:'')+'">'+esc(Number.isFinite(value)?format(value):variable)+'</dd></div>';
  const phase=stats.heatBasis==='charging'?'<p class="note">'+esc(T('超兵器の発熱は充電時の値です。発射時の瞬間発熱は含みません。'))+'</p>':'';
- return '<div class="design-weapon-summary"><dl class="design-weapon-stats" data-design-weapon-stats>'+row('output','威力',stats.outputTT,fTT)+row('traverse','旋回速度',stats.traverseDegS,v=>num(v,1)+' °/s')+row('range','射程',stats.rangeM,v=>v>=1000?num(v/1000,1)+' km':num(v,0)+' m')+row('power','最大使用電力量（1秒あたり）',stats.maxPowerW,fW)+row('heat','最大発熱（1秒あたり）',stats.maxHeatW,fW)+'</dl>'+craftLaserHTML(part)+'<p class="note">'+esc(T('威力は1発・1門あたりです。電力と発熱は選択した武装全体の最大値です。'))+'</p>'+phase+'</div>';
+ return '<div class="design-weapon-summary"><dl class="design-weapon-stats" data-design-weapon-stats>'+row('output','威力',stats.outputTT,fTT)+row('traverse','旋回速度',stats.traverseDegS,v=>num(v,1)+' °/s')+row('range','射程',stats.rangeM,v=>v>=1000?num(v/1000,1)+' km':num(v,0)+' m')+row('power','最大使用電力量（1秒あたり）',stats.maxPowerW,fW)+row('heat','最大発熱（1秒あたり）',stats.maxHeatW,fW)+'</dl>'+(typeof st!=='undefined'&&st.tab==='edit'?'':craftLaserHTML(part))/* a placed laser's sliders are their own section at the top of the edit panel (user 2026-11-25「設置後の編集ができない」: they sat inside the closed 取付・配置方式 fold) */+'<p class="note">'+esc(T('威力は1発・1門あたりです。電力と発熱は選択した武装全体の最大値です。'))+'</p>'+phase+'</div>';
 }
 function designUIPlacementHTML(){
  if(st.tab==='mod'&&st.group==='user'&&st.partTool==='place'){const template=userPartFind(st.userPart);return '<section class="design-placement" data-design-placement><canvas class="design-part-preview" id="designPartPreview" aria-label="部品の実形状プレビュー"></canvas><h4>'+esc(template?.name||'ユーザー部品')+'</h4><p class="note">'+esc(template?userPartCounts(template):'配置するユーザー部品を選んでください。')+'</p></section>';}
@@ -5278,6 +5279,7 @@ function designUIPanel(){
     const placement=designUIPlacementHTML();if(placement)panel.insertAdjacentHTML('beforeend','<details data-design-attachment><summary>取付・配置方式</summary>'+placement+'</details>');
     if(st.sel?.list==='parts'&&C.isStructuralPart(selItem())&&!panel.querySelector('[data-design-here]'))panel.insertAdjacentHTML('beforeend','<div class="design-placement-actions"><button type="button" class="btn" data-design-here>ここに構造物を追加</button></div>');
     panel.insertAdjacentHTML('afterbegin',designUISymmetryHTML(true));
+    {const laser=selItem();if(st.sel?.list==='fits'&&laser&&C.CRAFT_LASER_GEOMETRY?.[laser.k])panel.insertAdjacentHTML('afterbegin',craftLaserHTML(laser));}
     const item=selItem();if(st.sel?.list==='parts'&&C.isStructuralPart(item))panel.insertAdjacentHTML('beforeend','<div class="pgroup design-context-tools"><h4>表面・形状の編集</h4><button class="btn sm" data-design-context="armor">装甲</button><button class="btn sm" data-design-context="carve">削る</button><button class="btn sm" data-design-context="paint">塗装・エンブレム</button><button class="btn sm" data-design-context="battery">砲列</button>'+(C.isHullStructure?.(item)?'<button class="btn sm" data-design-context="hull">船体の形状加工</button>':'')+'</div>');
    }
    if(designUIEditSession()){panel.insertAdjacentHTML('afterbegin','<section class="design-edit-session" data-design-edit-session><p role="status" data-design-edit-status></p></section>');designUIEditStatus();}
@@ -6728,7 +6730,10 @@ function craftPaletteGuard(){
  if(st.group!=='weapons'&&st.group!=='bridge'&&!gs.some(g=>g[0]===st.group))st.group=craftDesign()?'craft':'power';
  if(!partOffered(st.part))st.part=paletteParts(st.group)[0]||'struct';
  const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];
- if(paletteShip!==ship){paletteShip=ship;if(craftDesign()){
+ if(paletteShip!==ship){paletteShip=ship;
+  /* 2026-11-26 (user「構造物の新規配置の既定サイズ：船体の大きさに合わせて小さくする」): a new structure's default size is brought down to the design when it is plainly too large for it (longer than 0.6 of the design, or wider or taller than 1.2 of it): 0.3 of its length and beam, 0.1 of its height, as craft designs already did. The 180 x 110 x 60 m default stood on a 150 m ship. */
+  {const plan=C.designEnvelope(ship);if(plan&&[plan.L,plan.W,plan.H].every(v=>v>0)&&(st.structSize[0]>plan.L*.6||st.structSize[1]>plan.W*1.2||st.structSize[2]>plan.H*1.2))st.structSize=[Math.max(.2,+(plan.L*.3).toFixed(2)),Math.max(.2,+(plan.W*.3).toFixed(2)),Math.max(.05,+(plan.H*.1).toFixed(2))];}
+  if(craftDesign()){
   const plan=C.designEnvelope(ship);
   if(st.structSize[0]>plan.L)st.structSize=[Math.max(.2,+(plan.L*.3).toFixed(2)),Math.max(.2,+(plan.W*.3).toFixed(2)),Math.max(.05,+(plan.H*.1).toFixed(2))];
   if(st.roomSize.some((v,i)=>v>[plan.L,plan.W,plan.H][i]))st.roomSize=[plan.L,plan.W,plan.H].map(v=>Math.max(.1,+(v*.25).toFixed(2)));
@@ -6945,7 +6950,7 @@ function bindReference(){
   if(['launcherCols','launcherRows','launchYaw','launchRoll','launcherColSpacing','launcherRowSpacing'].includes(id)){field=id;mode='selected';}else if(/^(new|multi)(LauncherCols|LauncherRows|LaunchYaw|LaunchRoll|LauncherColSpacing|LauncherRowSpacing)$/.test(id||'')){const [,prefix,key]=/^(new|multi)(LauncherCols|LauncherRows|LaunchYaw|LaunchRoll|LauncherColSpacing|LauncherRowSpacing)$/.exec(id);field=key[0].toLowerCase()+key.slice(1);mode=prefix==='new'?'new':'multiple';}else return;
   if(!changeShipLauncher(field,t.value,mode))return;const out=$('#out-'+id);if(out)out.textContent=field==='launchYaw'||field==='launchRoll'?deg(C.clamp(Number(t.value),-180,180)):/Spacing$/.test(field)?launcherSpacingText(Number(t.value)):Math.round(C.clamp(Number(t.value),1,16))+(field==='launcherCols'?' 列':' 段');const subject=mode==='new'?{k:st.fit,launchPitch:st.launchPitch,...shipLauncherPlacementOptions()}:shipLauncherTargets(mode==='multiple')[0]?.fit,summary=$('[data-ship-launcher-summary]');if(subject&&summary)summary.textContent=shipLauncherSummary(subject);
  });
- $('#panel').addEventListener('input',e=>{const key=e.target?.dataset?.claser;if(key)changeCraftLaser(key,+e.target.value);});
+ $('#panel').addEventListener('input',e=>{const key=e.target?.dataset?.claser;if(key)changeCraftLaser(key,+e.target.value);});$('#panel').addEventListener('change',e=>{if(e.target?.matches?.('[data-claser-nozzle]'))changeCraftLaser('nozzle',e.target.value);});
  $('#panel').addEventListener('change',e=>{if(e.target?.dataset?.claser&&typeof dragSnap!=='undefined'&&dragSnap)endDrag();});
  $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||!['chargeDepth','chargeScale','chargeSalvos'].includes(k))return;beginDrag('主砲充電装置を調整');editSel(f=>f[k]=k==='chargeDepth'?C.clamp(v,1,500):k==='chargeSalvos'?Math.round(C.clamp(v,1,20)):C.clamp(v/100,.25,4));touch('fits');scheduleStats(350);const o=$('#out-'+k);if(o)o.textContent=k==='chargeDepth'?fmtM(v):k==='chargeSalvos'?v+' 回分':v+'%';});
 }
@@ -8238,7 +8243,7 @@ function trialCraftSystemsStep(dt){
 }
 function trialCraftLaserUnits(t){
  const f=C.FITS[t.k];if(!f?.craft||!(f.tt>0)||f.store||t.ion)return 0;
- return Math.max(0,t.power||0)/Math.max(1,C.FITS.claser.power);
+ return Math.max(0,t.power||0)/(C.CRAFT_LASER_UNIT_W||Math.max(1,C.FITS.claser.power));
 }
 function trialCraftGasNeed(t,seqN=1){
  const r=trial.systemsRuntime,units=trialCraftLaserUnits(t);
@@ -8282,7 +8287,7 @@ function trialReset(){
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
  const bank=trial.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);trial.energy={E:bank,cap:bank};trial.engF=0;trial.thrustWant=0;trial.mainThrustShare=0;trial.steeringWant=0;trial.power=null;trial.propulsion=null;
  const L=trial.p.len;trialDust();
- for(const t of trial.turrets){t.yaw=0;t.el=0;t.reload=Math.random()*t.cycle;t.clear=false;t.clearDir=null;t.aimed=false;t.arc=true;t.dead=false;t.rot=trialAxisMatrix(t.axis,0,t.rot);}for(const l of trial.launchers)l.dead=false;
+ for(const t of trial.turrets){t.yaw=0;t.el=0;t.reload=Math.random()*t.cycle;t.clear=false;t.clearDir=null;t.aimed=false;t.arc=true;t.dead=false;t.rot=trialAxisMatrix(t.axis,0,t.rot);}trialPilotFiringOrder();for(const l of trial.launchers)l.dead=false;
  trial.targets=[];trial.battle=null;trial.wing=null;if(trial.rts)voyPilotInit();else if(trial.mode==='battle'&&trial.battlePlan){spaceBattleInit(trial.battlePlan);if(trial.battlePlan.targets)trialTargetsBattle();}else if(trial.returnTo==='title')patrolReset();else{trial.mode='trial';trial.battlePlan=null;trialTargetsBattle();}
  escortsInit();
  trial.swSelect='all';trial.swSolo=null;trial.systemsUnit=null;trial.surfaceTurretPoses=new Map();trial.swfx=[];trial.swPend=[];
@@ -8348,7 +8353,7 @@ function trialShotEnergyTT(t){
  if(spec?.fixedPerBarrelEnergy&&spec.boltTT>0&&!spec.store)return spec.boltTT*(t.barrels||spec.barrels||1);
  return t.power*t.cycle*t.charge/TT_J/C.weaponChargeFactor(t.rule?{gunRule:t.rule}:spec);
 }
-function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},roles=C.weaponRoles(spec),band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed),cycle=pilot?(t.rule?.kind==='laser'&&t.cycle>0?t.cycle:TRIAL_PILOT_CYCLE[t.k]||C.CRAFT_FIRE.defaultCycle):t.cycle;return {...t,band,reach:t.rule?.rangeM||spec.gunRule?.rangeM||C.GUN_BANDS[band]?.range||TRIAL_GUN.range/* 2026-11-24 each gun's own range (gun rules) */,costK:(trial.p?.energyModel?.version===1||spec.ion?1:C.COMBAT.bandCost[band]??1)/* physics review 2026-11-25: the bank holds delivered energy (it fills by input ÷ weaponInputFactor, which carries the charge factor), so a shot takes its delivered energy from it, as in the fleet battle */,pd:roles.purePointDefense&&!pilot,pdCapable:roles.pointDefense&&!pilot,dualPurpose:roles.dualPurpose&&!pilot,pilot,cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:pilot?((Math.abs(t.id||0)*.61803398875)%1)*cycle:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
+function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},roles=C.weaponRoles(spec),band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed),cycle=pilot?(t.rule?.kind==='laser'&&t.cycle>0?t.cycle:TRIAL_PILOT_CYCLE[t.k]||C.CRAFT_FIRE.defaultCycle):t.cycle;return {...t,band,reach:t.rule?.rangeM||spec.gunRule?.rangeM||C.GUN_BANDS[band]?.range||TRIAL_GUN.range/* 2026-11-24 each gun's own range (gun rules) */,costK:(trial.p?.energyModel?.version===1||spec.ion?1:C.COMBAT.bandCost[band]??1)/* physics review 2026-11-25: the bank holds delivered energy (it fills by input ÷ weaponInputFactor, which carries the charge factor), so a shot takes its delivered energy from it, as in the fleet battle */,pd:roles.purePointDefense&&!pilot,pdCapable:roles.pointDefense&&!pilot,dualPurpose:roles.dualPurpose&&!pilot,pilot,cycle,...(pilot&&(t.rule||spec.gunRule)?.kind==='laser'?{trackDeg:(t.rule||spec.gunRule).nozzle==='track'?(t.rule||spec.gunRule).trackDeg||0:0,plainRate:(t.rule||spec.gunRule).nozzle==='track'?0:(t.rule||spec.gunRule).rateHz||1}:{}),...(!pilot&&spec.gunRule?.fireS>0?{fireCycle:spec.gunRule.fireS,rechargeS:spec.gunRule.rechargeS,cartridgeFull:spec.gunRule.burstVolleys,cartridge:spec.gunRule.burstVolleys}:{})/* 2026-11-25 (user「点防御は1門0.1で約15秒間持続射撃でき、その後リチャージに30秒で」): the gun fires every fireCycle while its store lasts; cycle is its mean period */,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:pilot?((Math.abs(t.id||0)*.61803398875)%1)*cycle:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
 // opts.design flies another design than the one on the drawing board;
 // opts.battle starts a space battle with that plan; opts.system picks the system.
 async function trialStart(opts={}){
@@ -8672,7 +8677,7 @@ function trialGunnery(dt){
   if(t.mesh)trialPoseTurret(t);
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
-  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t,!t.pilot&&!t.trenchAggregate&&t.barrels>1&&(t.pd||trial.volley!=='salvo')?t.barrels:1)/* rapid fire: one barrel's gas; a salvo: the whole volley's (high review 2026-11-15) */,unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed&&!t.far)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
+  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t,!t.pilot&&!t.trenchAggregate&&t.barrels>1&&(t.pd||trial.volley!=='salvo')?t.barrels:1)/* rapid fire: one barrel's gas; a salvo: the whole volley's (high review 2026-11-15) */,unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed&&!t.far)&&ok&&t.charge>0&&!t.dead&&gasReady&&online&&!(t.rechargeT>0)/* 2026-11-25 a point-defence gun that emptied its store waits out its recharge */;if(t.rechargeT>0)t.rechargeT=Math.max(0,t.rechargeT-dt);
   // Point defence fires on its own at the threat it is tracking.
   t.firing=(t.pd?!!t.pdTarget&&!committed&&!me?.dead&&!me?.out&&!(trial.battle?.result):wantFire)&&t.ready;if(t.firing)demand+=trialShotEnergyTT(t)*TT_J/Math.max(1e-9,t.cycle)*(t.costK??1);t.bd=bd;t.oW=oW;
  }
@@ -8680,6 +8685,7 @@ function trialGunnery(dt){
  for(const t of trial.turrets){
   // v24 A battery holding its fire settles its aim (C.AIM_MODEL); each volley below throws it off again.
   if(C.aimAfter)t.aim=C.aimAfter(t.aim,trial.p,dt,0,trial.aimMotion||0);
+  if(t.pilot){if(t.firing&&!t.wasFiring&&t.seqN>1)t.reload=Math.max(t.reload,t.seq*t.cycle/t.seqN)/* 2026-11-25 the pilot's guns of one interval fire in turn from one end, from the moment the trigger is pressed */;t.wasFiring=t.firing;}
   t.reload=Math.max(t.pilot&&t.firing?-3*t.cycle:t.firing&&t.seqFire?-dt:0,t.reload-dt)/* a mount in rapid fire keeps this frame's remainder only (physics review 2026-11-15: shots were rounded to whole frames; high review: a whole period owed fired every barrel at once after a hold) */;t.starved=false;
   // A main battery holds its fire while one of our own ships is across its line.
   if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held)held++;}else t.held=false;}
@@ -8693,11 +8699,12 @@ function trialGunnery(dt){
    // so the fire per second is unchanged. A salvo still fires every barrel together.
    const seqN=!t.pilot&&!t.trenchAggregate&&(t.pd||!salvo)&&t.barrels>1?t.barrels:1,shotTT=trialShotEnergyTT(t)/seqN,cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+Math.abs(cost)*1e-12<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt,seqN)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
    actualFireW+=cost*TT_J/dt;
-   t.seqFire=!t.pilot&&!t.trenchAggregate&&(t.pd||!salvo);t.reload=t.pilot?t.reload+t.cycle:t.seqFire?t.reload+t.cycle/seqN*(1+Math.random()*(salvo&&!t.pd?.01:.08)):t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));/* rapid fire, single barrel too, carries the remainder; a salvo sets a fresh period */const bd=t.bd,n=seqN>1?1:t.trenchAggregate?Math.max(1,Math.min(8,t.barrels||1)):t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),barrels=seqN>1?1:t.trenchAggregate?Math.max(0,t.aggregateBarrels||0):t.barrels,seqI=seqN>1?(t.seqI=((t.seqI??-1)+1)%seqN):0,sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
+   if(t.cartridgeFull>0){t.cartridge-=1/seqN;if(t.cartridge<=1e-9){t.rechargeT=t.rechargeS||0;t.cartridge=t.cartridgeFull;}}/* 2026-11-25 (user「カートリッジごと交換してる」): the gun fires its cartridge out and then changes it; nothing is refilled while it fires */
+   t.seqFire=!t.pilot&&!t.trenchAggregate&&(t.pd||!salvo);t.reload=t.pilot?t.reload+t.cycle:t.seqFire?t.reload+(t.fireCycle||t.cycle)/seqN*(1+Math.random()*(salvo&&!t.pd?.01:.08)):(t.fireCycle||t.cycle)*(1+Math.random()*(salvo&&!t.pd?.01:.08));/* rapid fire, single barrel too, carries the remainder; a salvo sets a fresh period */const bd=t.bd,n=seqN>1?1:t.trenchAggregate?Math.max(1,Math.min(8,t.barrels||1)):t.authored||C.FITS[t.k]?.fixedPerBarrelEnergy?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),barrels=seqN>1?1:t.trenchAggregate?Math.max(0,t.aggregateBarrels||0):t.barrels,seqI=seqN>1?(t.seqI=((t.seqI??-1)+1)%seqN):0,sc=t.pd?.009:t.pilot&&t.plainRate>1?.0012+.004*(Math.sqrt(t.plainRate)-1)/* 2026-11-25 a plain nozzle fired faster than once a second scatters more (user「上げるほど命中率は下がる」; ★ the figure is ours) */:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialTrackBolt(t,trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g())))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+barrels;for(let i=0;i<n;i++){const off=seqN>1?(seqI/(seqN-1)-.5)*spread:n>1?(i/(n-1)-.5)*spread:0,pos=(seqN>1?muzzles?.[seqI%muzzles.length]:muzzles?.[i])||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:shotTT/n,pd:true,target:t.pdTarget,...(t.trenchAggregate?{shotMultiplicity:barrels/n*(t.charge??1)}:{})});}continue;}
    trial.gun.shots+=barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
-   const pl=t.pilot,hv=t.k==='claserH',hitScale=1,spec0=C.FITS[t.k];sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
+   const pl=t.pilot,hv=(t.boltTT||t.bolt||0)>=3e-7/* 2026-11-26 the heavy laser is no longer a part of its own: a shot of 300 kt or more */,hitScale=1,spec0=C.FITS[t.k];sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
    for(let i=0;i<n;i++){const off=seqN>1?(seqI/(seqN-1)-.5)*spread:n>1?(i/(n-1)-.5)*spread:0,pos=(seqN>1?muzzles?.[seqI%muzzles.length]:muzzles?.[i])||tv.add(base,side,off),control=cellUnit||trial.swSolo,direction=pl?bw:C.gunScatter(trialApply(R,bd),trial.p,C.gunSpreadRange(t.reach||TRIAL_GUN.range,t.ion?'long':C.fitBand(spec0||{}))/* physics review 2026-11-25: the spread of the flown ship's guns by the same range as the battle's (the longer of the gun's reach and its band's) */,control?C.fleetSystems(control).fire:1,Math.random,t.aim);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(direction,spd),trial.V),life:(t.reach||TRIAL_GUN.range)/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl,rule:t.rule||spec0?.gunRule||null,spd,age:0});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
    if(C.aimAfter&&!pl)t.aim=C.aimAfter(t.aim,trial.p,0,1/seqN)/* one barrel is 1/seqN of a volley's kick (physics review 2026-11-15) */;
@@ -9731,7 +9738,8 @@ const trialCanSpawn=()=>!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!
 const trialSpawnJumping=()=>!!trial.jump;
 function trialHudRemount(){const hud=$('#trialHud');if(!hud||!trial.on||trial.spectate)return;
  // The controls being held belong to the elements that go away: their release would never arrive.
- trial.stick={x:0,y:0};trial.fire=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
+ /* 2026-11-26 the spawn card stays open over a remount: the trial's targets arrive a few seconds into the flight and remount the HUD, which closed a card the player had just opened (its buttons went away under the finger) */const spawnOpen=!!$('#thSpawn')&&!$('#thSpawn').hidden;
+ trial.stick={x:0,y:0};trial.fire=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);if(spawnOpen){const c=$('#thSpawn');if(c){c.hidden=false;trialSpawnRender();}}}
 function trialSandboxEnd(){const put=!!trial.battle?.b?.units?.some(u=>u.trialSpawned||u.wing)/* ships or craft put out */;trial.mode='trial';trial.battlePlan=null;trial.hitcam=null;trialReset();trialHudRemount();toast(put?'出した艦を片づけ、公試を再開始しました':'公試を再開始しました');}
 // A stationary target holds still and fires nothing: guns, launchers, superweapons (which Core fires and turns the
 // bow for unless order.sw is false) and automatic point defence.
@@ -9841,7 +9849,7 @@ function trialFlyHomeUnit(){const B=trial.battle,F=trial.fly;return B&&F?.home!=
 function trialFlyAdopt(a,u,kept=null){
  const B=trial.battle,L=a.p.len;trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;
  if(kept?.turrets){trial.turrets=kept.turrets;trial.launchers=kept.launchers||[];for(const l of trial.launchers){l.queue=0;l.pendingCells=[];}}
- else{trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets){t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;t.reload=Math.random()*t.cycle;}
+ else{trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets){t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;t.reload=Math.random()*t.cycle;}trialPilotFiringOrder();
   trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));}
  if(view)view.loadFleet(a.key,a.geometry);/* a redraw rebuild keeps only the flown ship's model */
  const bank=a.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);
@@ -15029,19 +15037,31 @@ function craftVisualGuns(a, c, mode, s) {
  const center = fleet.assets.get(voyCraftModel(a.craft))?.geometry?.center;
  const arcs = explicit ? c.fireArcs : (mode === 'aa' ? c.aa > 0 : (c.gun ?? c.strike) > 0) ? [-1, 1].map(sign => ({fixed: true, dir: [1, 0, 0], up: [0, 1, 0], pos: [L * .45, 0, span * sign], centered: true, k: 'claser', gun: 1, aa: 1})) : [];
  const emptyGas = c.systems?.managed && s?.laserGas === 0, share = mode === 'aa' ? c.systems?.laserAaShare : c.systems?.laserGunShare, usesGas = g => { const d = C.FITS[g.k];return !!(d?.craft && d.tt > 0 && !d.store); };
- return arcs.map((g, i) => ({...g, i})).filter(g => (g[mode] || 0) > 0 && (!emptyGas || (explicit ? !usesGas(g) : (share ?? 1) < 1))).slice(0, 16).map(g => {
+ return gunFiringSequence(arcs.map((g, i) => ({...g, i})).filter(g => (g[mode] || 0) > 0 && (!emptyGas || (explicit ? !usesGas(g) : (share ?? 1) < 1))).slice(0, 16).map(g => {
   const dir = tv.norm(trialApply(frame, g.dir)), up = tv.norm(trialApply(frame, g.up || [0, 1, 0])), pos = g.centered ? tv.add(a.pos, trialApply(frame, g.pos)) : center && g.pos ? tv.add(a.pos, trialApply(frame, tv.sub(g.pos, center))) : tv.add(a.pos, dir, L * .45);
-  return {...g, dir, up, pos, cycle: g.cycle || C.CRAFT_FIRE?.cycles?.[g.k] || C.CRAFT_FIRE?.defaultCycle || .12};
- });
+  return {...g, dir, up, pos, at: g.pos || [0, 0, 0], cycle: (g.rateHz > 0 ? 1 / g.rateHz : 0) || g.cycle || C.CRAFT_FIRE?.cycles?.[g.k] || C.CRAFT_FIRE?.defaultCycle || .12};
+ }));
+}
+// 2026-11-25 (user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」): a pilot's gun with the forked
+// nozzle turns its bolt onto the locked target's lead point when that lies within the nozzle's few degrees of the gun's line.
+function trialTrackBolt(t,dir){if(!t.pilot||!(t.trackDeg>0)||!trial.lead)return dir;const L=tv.len(trial.lead);if(!(L>1))return dir;const want=tv.scale(trial.lead,1/L);return tv.dot(want,dir)>=Math.cos(t.trackDeg*Math.PI/180)?want:dir;}
+function trialPilotFiringOrder(){const guns=(trial.turrets||[]).filter(t=>t.pilot);gunFiringSequence(guns,t=>t.pivot||t.o||[0,0,0]);for(const t of guns)if(t.seqN>1)t.reload=t.seq*t.cycle/t.seqN;}
+// 2026-11-25 (user「複数設置してある同じ射撃速度のレーザーは端から順に射撃していくように。つまり1秒が4門なら…間隔」): guns of one firing
+// interval fire one after another from one end of the craft to the other, a share of the interval apart (four guns of
+// one second: a shot every 0.25 s). The order is by the gun's place across the craft, then up it, then along it.
+function gunFiringSequence(guns, place = g => g.at, cycle = g => g.cycle, set = (g, rank, count) => { g.seq = rank; g.seqN = count; }) {
+ const groups = new Map();for (const g of guns) { const k = Math.round(cycle(g) * 1000);if (!groups.has(k)) groups.set(k, []);groups.get(k).push(g); }
+ for (const list of groups.values()) { const order = list.slice().sort((a, b) => { const p = place(a) || [0, 0, 0], q = place(b) || [0, 0, 0];return p[2] - q[2] || p[1] - q[1] || p[0] - q[0]; });order.forEach((g, i) => set(g, i, order.length)); }
+ return guns;
 }
 // Fixed barrels never turn toward a target. Their sight cone only decides whether a forward stream is warranted.
 function craftVisualGunGate(g, target, radius = 0) {
  const d = tv.sub(target, g.pos), L = tv.len(d);if (!(L > 1)) return false;const h = tv.scale(d, 1 / L);
  return g.fixed ? tv.dot(g.dir, h) >= Math.cos(((C.CRAFT_FIRE?.fixedCone || 8) * Math.PI / 180) + Math.atan2(Math.max(0, radius), L)) : tv.dot(g.up, h) >= -.02;
 }
-function craftGunPulses(a, index, dt, cycle) {
+function craftGunPulses(a, index, dt, cycle, phase) {
  if (!(dt > 0)) return 0;const clocks = a.gunClocks || (a.gunClocks = []);
- let v = clocks[index];if (!Number.isFinite(v)) { const seed = String(a.id ?? a.cid ?? 0);let h = 0;for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;v = ((h % 997) / 997 + index * .61803398875) % 1; }
+ let v = clocks[index];if (!Number.isFinite(v)) { const seed = String(a.id ?? a.cid ?? 0);let h = 0;for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;v = ((h % 997) / 997 + (Number.isFinite(phase) ? 1 - phase : index * .61803398875)) % 1; /* a gun later in the firing order starts further from its next shot */ }
  v += dt / Math.max(.03, cycle);const n = Math.floor(v);clocks[index] = v - n;return Math.min(4, n);
 }
 // A forward shot flashes only when its segment actually crosses the target's hull, never at an arbitrary expiry.
@@ -15065,7 +15085,7 @@ function craftFx(B, cf, fdt, eye, jobs) {
  // Every craft owns staggered barrel clocks: a steady stream at either frame rate, without a burst backlog.
  const guns = (a, c, at, tvel, col, o, gun, mode, s, radius) => {
   if (!(fdt > 0) || B.result || a.gunFxFrame === frame || !near(a.pos)) return;let used = false, fired = false;
-  for (const g of craftVisualGuns(a, c, mode, s)) { if (!craftVisualGunGate(g, at, radius)) continue;used = true;const n = craftGunPulses(a, g.i, fdt, g.cycle);
+  for (const g of craftVisualGuns(a, c, mode, s)) { if (!craftVisualGunGate(g, at, radius)) continue;used = true;const n = craftGunPulses(a, g.i, fdt, g.cycle, g.seqN > 1 ? g.seq / g.seqN : undefined);
    for (let i = 0; i < n; i++) fired = shoot(g.pos, at, tvel, col, {...o, base: a.vel, ...(g.fixed ? {dir: g.dir} : {})}) || fired;
   }
   if (used) a.gunFxFrame = frame;if (fired) pew(a.pos, gun, undefined, craftGunPitch(a.craft));

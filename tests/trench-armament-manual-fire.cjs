@@ -17,7 +17,7 @@ run(`
  }
  function threat(kind='missile'){const q={kind,pos:aimPoint.slice(),vel:[0,0,0],alive:true};trial[kind==='missile'?'foeMissiles':'foeCraft'].push(q);return q;}
 `);
-section('const tv=','function trialProfile(');section('const TRIAL_PILOT_CYCLE=','// opts.design');section('const trialBarrel=','function trialAim(');section('function trialIntercept(','// The enemy a fixed battery');section('const TRIAL_PD=','// Small craft and missiles a pilot');section('function trialShotGeometry(','// Missiles leave');
+section('const tv=','function trialProfile(');section('const TRIAL_PILOT_CYCLE=','// opts.design');section('const trialBarrel=','function trialAim(');section('function trialIntercept(','// The enemy a fixed battery');section('const TRIAL_PD=','// Small craft and missiles a pilot');section('function trialShotGeometry(','// Missiles leave');section('function trialTrackBolt(','// Fixed barrels never turn toward a target.');/* 2026-11-25 fixture changed (no expectation changed): trialGunnery now calls trialTrackBolt (the X-wing nozzle; user「Xウィング型のアンテナっぽいノズルをつけるとロックオン標的に対して数度動いて当てれるようになる」) and the pilot's guns take their order from trialPilotFiringOrder / gunFiringSequence (js/app.js), which lie outside the sections extracted above; this adds those three functions. */
 
 test('real group descriptors fire at most eight manual packets while accounting for every actual barrel and one charged volley',()=>{
  const observed=[];

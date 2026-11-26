@@ -13,7 +13,7 @@ function fixture(){const s=C.newShip({L:100,W:60,H:50,assembly:true},'Shared mis
 test('legacy concussion pods retain the canonical compact aircraft fitting',()=>{
  assert.equal(C.canonicalWeaponKind('msl'),'cmsl');assert.equal(C.FITS.msl,C.FITS.cmsl,'the legacy spelling must not retain a separate large weapon');
  assert.ok(!Object.keys(C.FITS).includes('msl'),'the duplicate ship fitting is not a catalogue entry');
- const d=C.FITS.cmsl;vector([d.fm,d.hm,d.wm],[1.2,.45,.45],1e-12);assert.equal(d.store.slots,6);assert.equal(C.ORDNANCE.cmsl.tt,C.airRound('cmsl').tt);near(C.ORDNANCE.cmsl.tt,Math.PI/4*4*.5*.03,1e-12);
+ const d=C.FITS.cmsl;vector([d.fm,d.hm,d.wm],[1.2,.45,.45],1e-12);assert.equal(d.store.slots,6);assert.equal(C.ORDNANCE.cmsl.tt,C.airRound('cmsl').tt);/* 2026-11-26 expectation changed (user「ミサイルを0.12×0.9」「弾の寸法は威力も変える」): 0.12 m by 0.9 m, half warhead, 0.03 TT a tonne = 0.000153 TT (was 1 m by 4 m: 0.0471 TT) */near(C.ORDNANCE.cmsl.tt,Math.PI/4*.12*.12*.9*.5*.03,1e-12);
  const f=fit(),spec=C.missileLauncherSpec(f);assert.equal(spec.kind,'cmsl');assert.equal(spec.salvo,1);near(spec.cycle,1.2,1e-12);near(spec.tt,C.ORDNANCE.cmsl.tt,1e-12);assert.equal(spec.ammo,6);assert.equal(spec.ammo0,6);
  assert.equal(C.isConcussionLauncher(f),true);assert.equal(C.isConcussionLauncher('msl'),true);assert.equal(C.isConcussionLauncher('itl'),false);
  const b=C.fitAABB(f);assert.ok(Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2])<1.3,'a 12 metre external ship launcher cannot remain behind the shared fitting');

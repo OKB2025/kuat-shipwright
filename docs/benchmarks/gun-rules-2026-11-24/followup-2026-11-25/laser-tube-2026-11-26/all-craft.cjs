@@ -1,0 +1,7 @@
+// every craft example under the tube rule: mass, acceleration, lasers (bore, length, body, mass), warnings. read-only.
+const fs=require('fs'),vm=require('vm'),path=require('path');const root=process.argv[2];const cx=vm.createContext({console:{log(){},warn(){},error(){}}});for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx);const C=vm.runInContext('Core',cx);
+const KEYS=Object.keys(C.SHIP_EXAMPLES).filter(k=>/^craft_/.test(k)),only=process.argv[3];
+console.log('example | mass t | accel G | lasers: kind bore×length → kt, body m, mass t, sink × n | warnings');
+for(const key of KEYS){if(only&&!key.includes(only))continue;try{const ship=C.buildDesign(key),S=C.computeStats(ship);const las=new Map();for(const f of ship.fits)if(C.CRAFT_LASER_GEOMETRY[f.k]){const d=C.fitSpec(f),g=d.gunRule,id=f.k+' '+g.boreM.toFixed(4)+'×'+g.barrelM+' → '+g.shotKt.toFixed(1)+' kt, '+d.wm.toFixed(3)+', '+d.mass.toFixed(4)+' t'+(f.float?' FLOAT':'');las.set(id,(las.get(id)||0)+1);}
+ const W=(S.warnings||[]).filter(w=>w.lv==='bad'||w.lv==='warn').map(w=>w.text.slice(0,60));
+ console.log([key,(S.mass??0).toFixed(3),((S.propulsion?.ratedAccelMps2??0)/C.G0).toFixed(0),[...las].map(([k,n])=>k+' × '+n).join('; '),W.length+(W.length?': '+W.join(' / '):'')].join(' | '));}catch(e){console.log(key+' | ERROR '+String(e.stack||e.message).slice(0,400));}}

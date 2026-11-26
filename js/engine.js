@@ -808,7 +808,7 @@ async function handleBuild(job) {
   let b = null, src = 'built';
   const disk = await diskGet('k:' + job.key);
   if (disk && disk.state) { try { b = JSON.parse(disk.state); if (!disk.caches || !restoreCaches(b, disk.caches)) C.syncCompartments(b); src = 'disk'; } catch (e) { b = null; } }
-  if (!b) { b = await loadExample(job.key); C.syncCompartments(b); C.remount(b, {keepFitPose: true}); C.syncCompartments(b); }
+  if (!b) { b = await loadExample(job.key); C.remount(b, {keepFitPose: true}); C.syncCompartments(b);/* 2026-11-25 (user「区画より先に砲を乗せる形にして」): the guns are mounted first and the compartments derived once; deriving them before as well gave the same ship in every example checked (docs/benchmarks/build-profile-2026-11-25/order-21-examples.md) */ }
   ship = b; shipGen++; hullKey = ''; lastInfo = null; lastOverlap = '';
   const state = settledState = C.publicJSON(ship);
   post({type: 'built', id: job.id, key: job.key, state, ms: now() - t0, src});
@@ -895,7 +895,7 @@ const recShip = (rec) => rec.d || (rec.d = rehydrate(rec.state, rec.paint, rec.c
 // with configured surfaces still gets its profile (its model is centred by it). job.statsOnly: the figures of a
 // design whose model the caller already has. A record holds the built ship (d) only once something needs it.
 function handleCraftPrice(job){
- const d=C.deserialize(job.design);C.syncCompartments(d);C.remount(d,{keepFitPose:true});C.syncCompartments(d);
+ const d=C.deserialize(job.design);C.remount(d, {keepFitPose: true}); C.syncCompartments(d);/* 2026-11-25 (user「区画より先に砲を乗せる形にして」): the guns are mounted first and the compartments derived once; deriving them before as well gave the same ship in every example checked (docs/benchmarks/build-profile-2026-11-25/order-21-examples.md) */
  const stats=C.computeStats(d);post({type:'craftPrice',id:job.id,price:{...C.designCost(stats),costBy:stats.costBy,crewCount:stats.crew,version:C.COST_MODEL.version}});
 }
 // (A plain function: the fleet job itself waits on the disk cache.)
@@ -942,7 +942,7 @@ async function fleetJob(job) {
     }
     if (!rec) {
       const d = job.key ? await loadExample(job.key) : C.deserialize(job.design); if (job.paint) d.paint = job.paint;
-      C.syncCompartments(d); C.remount(d, {keepFitPose: true}); C.syncCompartments(d);
+      C.remount(d, {keepFitPose: true}); C.syncCompartments(d);/* 2026-11-25 (user「区画より先に砲を乗せる形にして」): the guns are mounted first and the compartments derived once; deriving them before as well gave the same ship in every example checked (docs/benchmarks/build-profile-2026-11-25/order-21-examples.md) */
       rec = {d, state: C.publicJSON(d), stats: null, profile: null, serial: null}; src = 'built'; save = true;
     }
     if (!rec.serial) rec.serial = C.serialize(recShip(rec));

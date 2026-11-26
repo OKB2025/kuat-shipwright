@@ -1,0 +1,78 @@
+
+surfacePatches  total 20.77 s in 4 call paths
+     8.57 s  via exposedSurface:111681 <- baseComputeStats:110632 <- v3ComputeStats:111880
+     7.88 s  via exposedSurface:111681 <- armoredMaterialArea:112274 <- baseComputeStats:110632
+     4.31 s  via surfaceReport:112851 <- surfaceStats:112873 <- computeStats:113148
+     0.01 s  via surfaceArmorBudget:112872 <- baseComputeStats:110632 <- v3ComputeStats:111880
+
+structuralClipBoundary  total 14.62 s in 9 call paths
+     9.47 s  via structuralJoinBoundary:111466 <- structuralMaterial:111467 <- baseComputeStats:110632
+     1.60 s  via structuralCoincidentTriangles:111488 <- surfacePatches:112490 <- exposedSurface:111681
+     1.31 s  via interiorUnionRegion:113997 <- clipCompartmentByMesh:113782 <- syncCompartmentsRaw:113693
+     0.64 s  via structuralJoinBoundary:111466 <- engineSupportMaterial:125992 <- baseComputeStats:110632
+     0.51 s  via structuralJoinBoundary:111466 <- turretEnvelopeGeometry:115373 <- turretCompartmentProjection:115396
+     0.44 s  via turretCompartmentProjection:115396 <- turretIntrusions:115421 <- physicalEngineDriveNetwork:114398
+
+structuralMaterial  total 10.40 s in 1 call paths
+    10.40 s  via baseComputeStats:110632 <- v3ComputeStats:111880 <- computeStats:113148
+
+armoredMaterialArea  total 18.04 s in 1 call paths
+    18.04 s  via baseComputeStats:110632 <- v3ComputeStats:111880 <- computeStats:113148
+
+exposedSurface  total 17.11 s in 2 call paths
+     8.86 s  via baseComputeStats:110632 <- v3ComputeStats:111880 <- computeStats:113148
+     8.25 s  via armoredMaterialArea:112274 <- baseComputeStats:110632 <- v3ComputeStats:111880
+
+syncCompartmentsRaw  total 11.67 s in 2 call paths
+     9.65 s  via syncCompartments:113692 <- armoredMaterialArea:112274 <- baseComputeStats:110632
+     2.01 s  via syncCompartments:113692 <- computeStats:113148 <- computeStats:113148
+
+allOccupied  total 4.03 s in 9 call paths
+     3.76 s  via syncCompartmentsRaw:113693 <- syncCompartments:113692 <- armoredMaterialArea:112274
+     0.08 s  via armoredMaterialArea:112274 <- baseComputeStats:110632 <- v3ComputeStats:111880
+     0.05 s  via syncCompartmentsRaw:113693 <- syncCompartments:113692 <- computeStats:113148
+     0.04 s  via parts:127838 <- inspectionTargets:127835 <- warn:129610
+     0.02 s  via fleetModules:123070 <- propulsionProfile:114712 <- engineeringStats:111694
+     0.02 s  via fleetModules:123070 <- propulsionPreview:122957 <- computeStats:113148
+
+enginePaths  total 3.79 s in 11 call paths
+     3.71 s  via allOccupied:111330 <- allOccupied:111330 <- syncCompartmentsRaw:113693
+     0.03 s  via allOccupied:111330 <- allOccupied:111330 <- armoredMaterialArea:112274
+     0.02 s  via allOccupied:111330 <- syncCompartmentsRaw:113693 <- syncCompartments:113692
+     0.02 s  via shipBounds:109477 <- baseComputeStats:110632 <- v3ComputeStats:111880
+     0.01 s  via baseComputeStats:110632 <- v3ComputeStats:111880 <- computeStats:113148
+     0.00 s  via allOccupied:111330 <- fleetModules:123070 <- propulsionProfile:114712
+
+physicalEngineDriveNetwork  total 3.72 s in 2 call paths
+     3.71 s  via engineDriveRoutes:114397 <- enginePaths:112115 <- allOccupied:111330
+     0.01 s  via engineDriveRoutes:114397 <- enginePaths:112115 <- shipBounds:109477
+
+placementGeometryContains  total 6.93 s in 20 call paths
+     3.14 s  via unpiercedInStruct:112082 <- v3InHull:109601 <- insideOriginalEnvelope:113642
+     0.98 s  via inStruct:113637 <- v3InPart:111494 <- unclippedInPart:112119
+     0.95 s  via unpiercedInStruct:112082 <- v3InHull:109601 <- insideExact:114417
+     0.51 s  via unpiercedInStruct:112082 <- insideExact:114417 <- envelope:114454
+     0.35 s  via inHull:112287 <- inEnv:109615 <- baseComputeStats:110632
+     0.24 s  via unpiercedInStruct:112082 <- insideOriginalEnvelope:113642 <- valid:113876
+
+solidSimplifyFlat  total 7.36 s in 11 call paths
+     4.19 s  via solidSliceSegments:128089 <- surfaceExposurePlane:112437 <- surfaceExposedTriangles:112467
+     2.55 s  via solidSliceSegments:128089 <- surfaceExposurePlane:112437 <- structuralClipBoundary:111447
+     0.37 s  via solidSliceSegments:128089 <- surfaceFarVerdict:111426 <- surfaceExposedTriangles:112467
+     0.23 s  via solidSliceSegments:128089 <- surfaceFarVerdict:111426 <- structuralClipBoundary:111447
+     0.01 s  via solidSimplifySegments:128038 <- structuralCoplanarSection:111405 <- structuralClipBoundary:111447
+     0.00 s  via surfaceFarVerdict:111426 <- surfaceExposedTriangles:112467 <- surfacePatches:112490
+
+unpiercedInStruct  total 5.70 s in 21 call paths
+     2.61 s  via v3InHull:109601 <- insideOriginalEnvelope:113642 <- valid:113876
+     0.77 s  via v3InHull:109601 <- insideExact:114417 <- envelope:114454
+     0.55 s  via insideExact:114417 <- envelope:114454 <- coveredAt:114468
+     0.35 s  via insideOriginalEnvelope:113642 <- valid:113876 <- packFlexibleVolume:113864
+     0.20 s  via v3InHull:109601 <- insideOriginalEnvelope:113642 <- volSamples:113670
+     0.18 s  via inStruct:113637 <- v3InPart:111494 <- unclippedInPart:112119
+
+surfaceExposedTriangles  total 17.48 s in 4 call paths
+     7.25 s  via surfacePatches:112490 <- exposedSurface:111681 <- baseComputeStats:110632
+     6.56 s  via surfacePatches:112490 <- exposedSurface:111681 <- armoredMaterialArea:112274
+     3.67 s  via surfacePatches:112490 <- surfaceReport:112851 <- surfaceStats:112873
+     0.00 s  via exposedSurface:111681 <- armoredMaterialArea:112274 <- baseComputeStats:110632

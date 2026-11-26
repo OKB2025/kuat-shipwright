@@ -44,7 +44,7 @@ test('six light weapons use their requested per-barrel energies and native photo
  // was twin200Fast.cycle < twin200.cycle). What stays: both twins charge at the same default-volume rate per shot, and each cycle
  // is its two shots' charge (with the longer barrel's confinement) over that rate.
  for(const k of ['twin200','twin200Fast']){const d=C.FITS[k],r=d.gunRule;near(r.cycle,2*r.shotChargeTT/r.chargeRateTT,1e-9);}
- near(C.FITS.twin200Fast.gunRule.chargeRateTT,C.FITS.twin200.gunRule.chargeRateTT,1e-12);
+ /* 2026-11-26 expectation changed (user「1発ごとに基本は交換／充電にプラスする形で／速射砲系はカートリッジ」「200GT縦2連も速射砲」; docs/benchmarks/gun-rules-2026-11-24/followup-2026-11-25/expectation-changes-2026-11-25.md): chargeRateTT is the average over a cycle that now includes the gas change, so the rapid twin's (40-shot cartridge, then 120 s) is lower: 0.0981 against 0.1698 TT/s. What stays equal is the rate while charging (was chargeRateTT equal) */near(C.FITS.twin200Fast.gunRule.chargeRatePeakTT,C.FITS.twin200.gunRule.chargeRatePeakTT,1e-12);assert.ok(C.FITS.twin200Fast.gunRule.chargeRateTT<C.FITS.twin200.gunRule.chargeRateTT);assert.equal(C.FITS.twin200Fast.gunRule.cartridgeShots,40);
  assert.ok(C.FITS.quad500.fm>C.FITS.quad200.fm,'the photographed medium quad remains physically larger than the light quad');assert.ok(C.FITS.single500.fm<C.FITS.quad500.fm,'the ball single remains compact');
 });
 

@@ -22,7 +22,7 @@ test('equipment installation fees remain when a unit is small and apply to every
     assert.equal(C.partBuildCost(unit, 0), 0);
     assert.ok(C.partBuildCost(unit, 1) > C.partBuildCost(unit, .01));
   }
-  assert.equal(C.fitBuildCost({k: 'claser'}), C.FITS.claser.cost+C.COST_MOUNT_INSTALL.claser);
+  /* 2026-11-26 expectation changed (user「口径 ÷ 0.75の筒の体積から口径分の体積を除く」; followup-2026-11-25/README.md): a fixed laser with no bore of its own is the default tube (0.102 m across the bore, its type's 2.6 m long), whose cost goes by its shot and length, 382.5 (was the type's 400); the installation fee is unchanged */assert.equal(C.fitBuildCost({k: 'claser'}), C.fitSpec({k: 'claser'}).cost+C.COST_MOUNT_INSTALL.claser);assert.ok(Math.abs(C.fitSpec({k: 'claser'}).cost-382.5)<1e-3);
 });
 
 test('engineering and equipment-list quotes have integer categories that sum exactly to their total', () => {

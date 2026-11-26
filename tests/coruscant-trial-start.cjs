@@ -8,7 +8,7 @@ function setup(){
  const trial={sysKey:'coruscant',p:{len:12,wCap:0},turrets:[],launchers:[],mode:'trial'},view=null,TRIAL_GUN={targets:0};
  const spaceCineEnd=()=>{},trialDust=()=>{},escortsInit=()=>{},trialFoilReset=()=>{},trialCraftSystemsReset=()=>{},trialTargetsBattle=()=>{}/* 2026-11-24 fixture: the reset now starts the trial's target battle (static target ships) instead of placing drifting targets */;`);
  run(fn('trialFrame'));
- const a=app.indexOf('const SYSTEMS={};'),b=app.indexOf('function trialDust()',a);assert.ok(a>=0&&b>a);run(app.slice(a,b));run(fn('trialReset'));
+ const a=app.indexOf('const SYSTEMS={};'),b=app.indexOf('function trialDust()',a);assert.ok(a>=0&&b>a);run(app.slice(a,b));run(fn('trialReset'));run(fn('trialPilotFiringOrder'));run(fn('gunFiringSequence'));/* 2026-11-25 fixture changed (no expectation changed): trialReset now calls trialPilotFiringOrder, which uses gunFiringSequence (js/app.js; user「複数設置してある同じ射撃速度のレーザーは端から順に射撃していくように」), so both are extracted with it */
  return {run,C:run('Core')};
 }
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8*Math.max(1,Math.abs(b)),`${a} != ${b}`),plain=x=>JSON.parse(JSON.stringify(x));
