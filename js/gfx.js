@@ -2279,6 +2279,9 @@ function meshOnePart(out,p,ship,opt,glow){
     if(k==='cockpit'&&!p.room){const canopy=C.canopyTriangles?.(p);if(canopy)triangleMesh(out.struct,canopy,opt.coded?color:CANOPY_GLASS,36);else sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
     if(k==='astromech'){const r=p.d/2,u=C.norm(p.dir||[0,1,0]),h=p.d*1.05,base=C.sub(p.c,C.mul(u,h/2)),top=C.add(p.c,C.mul(u,h*.18));axisFrustum(C.isInternal(p)?out.interior:out.struct,base,top,r*.82,r*.82,opt.coded?color:[188,196,204],false);if(!C.isInternal(p))sphere(out.struct,top,r*.8,opt.coded?color:ASTRO_DOME,8,3);return;}
     if(d.shape==='sphere'){sphere(C.isInternal(p)?out.interior:k==='gen'?out.gen:out.shield,p.c,p.d/2,color,8,3);return;}
+    // 2026-11-26 A ring bomb bay is drawn as what it is (user「爆弾倉が円筒型になってなくない？」): a cylinder along its length, as wide as its room, with the
+    // hollow inside the 0.3 m ring of bombs shown at both ends.
+    if(k==='bombBay'&&p.bayRing===true&&Array.isArray(p.room)){const L=p.room[0],R=Math.min(p.room[1],p.room[2])/2,ri=Math.max(0,R-(C.CRAFT_BAY?.cell||.3)),a=C.add(p.c,[-L/2,0,0]),b=C.add(p.c,[L/2,0,0]),dark=Array.isArray(color)?color.map(v=>Math.round(v*.35)):color;axisFrustum(out.interior,a,b,R,R,color,true,false,28);if(ri>.02)axisFrustum(out.interior,C.add(a,[-.01,0,0]),C.add(b,[.01,0,0]),ri,ri,dark,true,false,24);return;}
     if(d.shape==='cube'){if(p.room||p._clip){roomMesh(ship,p,k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,color);}else{const r=p.d/2;boxSolid(k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,C.sub(p.c,[r,r,r]),C.add(p.c,[r,r,r]),color,32);}return;}
     const m=C.partDims(p),u=C.norm(p.dir||(k==='engine'?[-1,0,0]:[1,0,0])),a=C.sub(p.c,C.mul(u,m.l/2)),b=C.add(p.c,C.mul(u,m.l/2));
     if(k==='engine'){engineBell(out,p,a,b,u,color,glow,ship);return;}
