@@ -68,6 +68,21 @@ test('a ring bay: bombs round a 0.3 m ring, a row every 0.3 m of length; it need
 });
 
 // 2026-11-26 (user「魚雷発射機とミサイル発射機は発射管で共通化して、ミサイル発射機のサイズで円筒型」)
+// 2026-11-26 (user「投下装置と爆弾層の間の構造物に爆弾の通り道が出来るようにして」)
+test('the bombs\' way: from a drop device straight to the ring bay through the structure between them; equipment in the way blocks it',()=>{
+ const make=()=>{const s=C.newShip({L:8,W:4,H:3,assembly:true},'way');s.parts=[];s.fits=[];s.nextId=1;C.placePart(s,'struct',[0,1.5,0],[8,4,3],{form:'box'},false);s.parts.push({id:s.nextId++,k:'bombBay',c:[0,2,0],d:1.8,room:[.6,1.8,1.8],corner:0,bayRing:true});const r=C.placeFit(s,'cdrop',[0,0,0],[0,-1,0],0,false);assert.ok(r.fit,r.err);return {s,f:r.fit};};
+ const {s,f}=make(),way=C.bombChute(s,f);assert.ok(way,'a way is found');assert.equal(way.bay,s.parts.find(p=>p.k==='bombBay').id);assert.ok(Math.abs(way.length-1.1)<.02,'from the wall (y 0) to the bay\'s underside (y 1.1): '+way.length);assert.equal(way.r,C.CRAFT_BAY.chuteR);assert.equal(way.blockedBy.length,0);
+ assert.ok(Math.abs(way.from[1])<.02&&Math.abs(way.to[1]-1.1)<.02,'it runs from the device to the bay');assert.equal(C.ringBayDevices(s,s.parts.find(p=>p.k==='bombBay')).length,1);
+ // equipment across the way
+ const blocked=make();blocked.s.parts.push({id:blocked.s.nextId++,k:'gen',c:[0,.55,0],d:.6});const w2=C.bombChute(blocked.s,blocked.f);assert.equal(w2.blockedBy.length,1,'the reactor stands in the way');
+ assert.equal(C.ringBayDevices(blocked.s,blocked.s.parts.find(p=>p.k==='bombBay')).length,0,'a blocked device serves no bay');assert.equal(C.craftStations(blocked.s).filter(st=>st.mount==='bay').length,0);
+ assert.ok(C.computeStats(blocked.s).warnings.some(w=>w.code==='bomb-chute'&&/途中に機材/.test(w.text)),'warned');
+ // equipment beside the way does not block it
+ const beside=make();beside.s.parts.push({id:beside.s.nextId++,k:'gen',c:[2,.55,0],d:.6});assert.equal(C.bombChute(beside.s,beside.f).blockedBy.length,0);
+ // no ring bay within reach
+ const far=make();far.s.parts.find(p=>p.k==='bombBay').c=[0,2,0];far.s.parts.find(p=>p.k==='bombBay').bayRing=false;assert.equal(C.bombChute(far.s,far.f),null,'a straight bay needs no device and gets no way');
+ assert.equal(C.bombChute(s,{k:'ctorp',p:[0,0,0]}),null);assert.equal(C.CRAFT_BAY.chuteMax,3);
+});
 test('one launch tube for torpedoes and missiles, and the smaller pylon; saved fittings keep their bodies',()=>{
  const tube=C.fitSpec({k:'ctorp',id:1,p:[0,0,0],oneRound:true}),old=C.fitSpec({k:'ctorp',id:1,p:[0,0,0]}),m0=C.fitSpec({k:'cmsl',id:1,p:[0,0,0]}),m1=C.fitSpec({k:'cmsl',id:1,p:[0,0,0],oneRound:true});
  assert.deepEqual([tube.fm,tube.wm,tube.hm,tube.mass,tube.tube],[1.2,.24,.24,.23,true]);assert.deepEqual([old.fm,old.wm,old.hm,old.mass],[1.4,.5,.5,1],'a saved torpedo tube');assert.deepEqual([m0.fm,m0.wm,m1.wm,m0.mass],[1.2,.45,.45,.8],'a saved missile launcher stays as it is');

@@ -659,7 +659,7 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
  }
 }
 // v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
-function craftWeaponMesh(g,f){
+function craftWeaponMesh(g,f,ship){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
  if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
  // v24 A fixed laser is a bare barrel (it may be sunk into the hull); no breech housing.
@@ -680,7 +680,7 @@ function craftWeaponMesh(g,f){
  // 2026-11-26 A ring bomb bay's drop device: a low housing on the wall with its chute's mouth.
  // After the TIE/sa's bomb-drop chute (user 2026-11-26「投下装置はTIE/SAの投下装置を参考に組んで」): a collar on the wall, a short round chute standing out of it,
  // its open mouth at the end, and two ribs bracing the chute to the collar. y is out of the wall (down, under a pod).
- if(k==='cdrop'){const r=W*.5;cyl(g,M,o,0,h*.09,0,r,r,h*.18,1,Bd,16);cyl(g,M,o,0,h*.56,0,r*.84,r*.8,h*.76,1,B,16);cyl(g,M,o,0,h*.93,0,r*.88,r*.88,h*.1,1,R,16);cyl(g,M,o,0,h*.985,0,r*.68,r*.68,h*.03,1,D,16);for(const x of [-1,1])box(g,M,o,x*r*.9,h*.3,0,r*.14,h*.5,r*.5,Bd);}
+ if(k==='cdrop'){/* 2026-11-26 the bombs' way through the structure to the ring bay it serves (seen in the X-ray view) */const way=ship?C.bombChute?.(ship,f):null;if(way&&way.length>.02&&!way.blockedBy.length)axisFrustum(g,way.from,way.to,way.r,way.r,FC.dark,true,false,14);const r=W*.5;cyl(g,M,o,0,h*.09,0,r,r,h*.18,1,Bd,16);cyl(g,M,o,0,h*.56,0,r*.84,r*.8,h*.76,1,B,16);cyl(g,M,o,0,h*.93,0,r*.88,r*.88,h*.1,1,R,16);cyl(g,M,o,0,h*.985,0,r*.68,r*.68,h*.03,1,D,16);for(const x of [-1,1])box(g,M,o,x*r*.9,h*.3,0,r*.14,h*.5,r*.5,Bd);}
 }
 // 2026-11-22 Painted shapes and emblems (Core normalizeDecals). Each decal is the part of the hull's and the structures'
 // solid surface inside its rectangle, facing its normal and within half its larger side of its plane, lifted a little
@@ -760,7 +760,7 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
     if(C.FITS[f.k].window)return;
     if(C.isConcussionLauncher(f)){if(!FIT_SKIP_BODY?.has(f.id))concussionLauncherMesh(g,f);return;}
     // v21 Craft weapons sit flush on their mount (no pedestal): barrels and launchers along the bow.
-    if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f);return;}
+    if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f,ship);return;}
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
     // pedestal from below the surface up to the mount
     const ph = fitPedestalHeight(f);
