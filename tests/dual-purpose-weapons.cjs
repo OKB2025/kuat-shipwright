@@ -176,8 +176,12 @@ test('the shared battery is reserved while ON whatever the threat (independent A
  tacticalStep(f);assert.equal(f.u.dualDefense,true,'ON: reserved');assert.ok(f.e.air<8,'the two independent AA points retain their existing role');assert.ok(f.u.pointDefenseLastFire?.spentTT>0,'independent interception pays from its real stored weapon energy');
  f.e.air=0;f.e.pos=[9000,0,0];/* 2026-11-24 fixture changed: a ship's small cell missiles go at a ship only within 10 km (user「小型ミサイルは対小型艦の防空用途と近距離の対艦攻撃」), so the attacker closes to 9 km */f.e.p.msl=80;/* 2026-11-24 fixture changed: the attacker fires from 12 km, beyond the 10 km heat seeker, so it is given an ISD-72x-sized dome (a tracking slot; user「艦の発射機のミサイルは艦の至近まではレーダー誘導のみ（センサーと捕捉枠が必要）」) */f.e.p.modules=[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1,at:.5},{k:'launcher',fit:2,port:'f2',domain:'main',name:'Finite missile cell',size:1,share:1,at:.5,powerConnected:true,stock:6,missileKind:'shipMsl',launcherCells:1,salvo:1,cycle:1.2,tt:25,range:60000,launchPowerW:1e15,muzzle:[10,2,0],launchDir:[1,0,0]},{k:'sensor',name:'ISD-72x-sized dome (test fixture)',size:31527,trackVol:30340,share:1,at:.5,domain:'main'}];f.e.mods=[1,1];f.e.ammo=[0,0];f.e.p.grid.fixed=1e15;f.e.p.grid.fixedLoads=[{id:'f2',port:'f2',domain:'main',weight:1e15}];
  const reserved=tacticalStep(f);assert.equal(f.u.dualDefense,true);assert.equal(gunFrom(reserved,f.u.id),0,'ON with an empty enemy magazine: still no ship fire from the shared battery');
- C.setAutomaticPointDefense(f.u,false);const empty=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(empty,f.u.id)>0);
- f.e.ammo[1]=6;f.e.order.fire=false;const ceased=tacticalStep(f);assert.equal(f.u.dualDefense,false);assert.ok(gunFrom(ceased,f.u.id)>0);
+ // 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): the fire is whole rounds, so one step may fire none (the part of
+ // a round is carried over) or land none (they missed). The battery firing on ships is read as: within a few steps it fires rounds at the ship
+ // (the shot record's `fired`). Was: gun landed > 0 in the very next step, at rate x chance.
+ const firedFrom=(shots,id)=>shots.filter(s=>s.from===id&&!s.flak).reduce((n,s)=>n+(s.fired||0)+(s.gun||0),0),stepsFiring=()=>{let n=0;for(let i=0;i<40&&!(n>0);i++)n+=firedFrom(tacticalStep(f),f.u.id);return n;};
+ C.setAutomaticPointDefense(f.u,false);const empty=stepsFiring();assert.equal(f.u.dualDefense,false);assert.ok(empty>0,'OFF: the shared battery fires rounds at the ship');
+ f.e.ammo[1]=6;f.e.order.fire=false;const ceased=stepsFiring();assert.equal(f.u.dualDefense,false);assert.ok(ceased>0);
 });
 // Physics review 2026-11-15: rapid fire one barrel at a time keeps its rate whatever the frame time (the owed time is
 // carried across frames) and kicks the aim by one barrel's share of a volley.
