@@ -25,7 +25,7 @@ test('OFF stops actual missile interception for both installed PD families witho
   // reach the 5 km the ship target stood at, the target stands inside the gun's range; the missile stays where it was.
   const reach=C.FITS[kind].gunRule.rangeM,f=battle(kind),m=incoming(f);assert.equal(C.FITS[kind].gunRule.kind,'laser');if(reach<=5000)f.e.pos=[reach*.6,0,0];assert.equal(C.setAutomaticPointDefense(f.u,false),true);R.tick(f.w,.25);
   near(m.n,8,kind+' incoming rounds');assert.equal(f.u.dualDefense,false);assert.equal(f.u.aaLeft,undefined,'OFF does not consume an interception channel');
-  assert.ok(f.u.lastShot?.gun>0,kind+' remains an aimed weapon');
+  /* 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): fire is whole rounds, so one step may fire none yet (the part of a round is carried in u.roundAcc) or land none (they missed). The gun firing at the target is read as: rounds fired or landed in this step, or fire carried toward the next round. Was: lastShot.gun > 0 (rate x chance landed every step). */assert.ok((u=>(u.lastShot?.gun||0)+(u.lastShot?.fired||0)+(u.roundAcc?.gun||0)+(u.roundAcc?.ion||0))(f.u)>0,kind+' remains an aimed weapon');
  }
 });
 test('reenabling automatic interception uses the existing unit and resumes actual defence on the next step',()=>{
@@ -43,7 +43,7 @@ test('an OFF incoming threat adds no shot, capacitor debit, generation or weapon
 test('OFF point defence can still deliberately attack a small craft through real charge and thermal paths',()=>{
  const f=battle();C.setAutomaticPointDefense(f.u,false);Object.assign(f.e.p,{len:10,width:7,height:6,craft:true});f.e.pos=[1000,0,0];
  assert.equal(R.orderUnit(f.w,f.u.id,{type:'attack',target:f.e.id}),true);const before=f.u.energy;R.tick(f.w,.25);
- assert.equal(f.u.firingAt,f.e.id);assert.ok(f.u.lastShot?.gun>0);assert.equal(f.u.dualDefense,false);
+ assert.equal(f.u.firingAt,f.e.id);/* 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): fire is whole rounds, so one step may fire none yet (the part of a round is carried in u.roundAcc) or land none (they missed). The gun firing at the target is read as: rounds fired or landed in this step, or fire carried toward the next round. Was: lastShot.gun > 0 (rate x chance landed every step). */assert.ok((u=>(u.lastShot?.gun||0)+(u.lastShot?.fired||0)+(u.roundAcc?.gun||0)+(u.roundAcc?.ion||0))(f.u)>0);assert.equal(f.u.dualDefense,false);
  const charged=(f.u.pw.wpn||0)*.25/C.TT/C.weaponInputFactor(f.u.p);assert.ok(before+charged-f.u.energy>0,'aimed shots spend stored or freshly charged energy');assert.ok(f.u.ht.reactorHeatJ>0,'real reactor generation remains accounted');
 });
 test('raw restored OFF orders ignore stale diversion in both surface and aggregate aimed-fire queries',()=>{
@@ -55,6 +55,6 @@ test('raw restored OFF orders ignore stale diversion in both surface and aggrega
 });
 test('the toggle never turns ordinary tracking cannons into automatic point defence',()=>{
  for(const enabled of [false,true]){
-  const f=battle('triple40'),m=incoming(f);C.setAutomaticPointDefense(f.u,enabled);R.tick(f.w,.25);near(m.n,8,'ordinary gun interception');assert.equal(f.u.dualDefense,false);assert.ok(f.u.lastShot?.gun>0);
+  const f=battle('triple40'),m=incoming(f);C.setAutomaticPointDefense(f.u,enabled);R.tick(f.w,.25);near(m.n,8,'ordinary gun interception');assert.equal(f.u.dualDefense,false);/* 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): fire is whole rounds, so one step may fire none yet (the part of a round is carried in u.roundAcc) or land none (they missed). The gun firing at the target is read as: rounds fired or landed in this step, or fire carried toward the next round. Was: lastShot.gun > 0 (rate x chance landed every step). */assert.ok((u=>(u.lastShot?.gun||0)+(u.lastShot?.fired||0)+(u.roundAcc?.gun||0)+(u.roundAcc?.ion||0))(f.u)>0);
  }
 });

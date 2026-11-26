@@ -33,7 +33,8 @@ test('hidden armor assignments and face identities survive enclosure, reload and
 
 test('a local armor override changes only its own material budget and retains other faces armor',()=>{
  const s=ship();s.armor.hull=.4;const p=box(s),top=faces(s,p).find(q=>q.face==='top'),before=C.computeStats(s);assert.equal(C.setStructureFaceArmor(s,p.id,'top',.7).ok,true);const after=C.computeStats(s);
- for(const q of C.structureArmorFaces(s,p))near(q.thickness,q.face==='top'?.7:.4,q.face+' armor budget');near(after.armorMass-before.armorMass,top.exposedArea*.3*C.K.armorDens,'only the changed face adds armor material');near(after.mass-before.mass,after.armorMass-before.armorMass,'no equipment hardware is created with the override');assertArmorOnly(s);
+ // 2026-11-26 expectation changed (the repulsorlift is carried for the mass without a part: user decision 2026-11-26, C.REPULSORLIFT): after.mass - before.mass was the added armour mass -> the same difference with each design's carried lift mass (S.repulsorlift.mass) taken off first; the lift for the added armour is not equipment hardware.
+ for(const q of C.structureArmorFaces(s,p))near(q.thickness,q.face==='top'?.7:.4,q.face+' armor budget');near(after.armorMass-before.armorMass,top.exposedArea*.3*C.K.armorDens,'only the changed face adds armor material');near((after.mass-after.repulsorlift.mass)-(before.mass-before.repulsorlift.mass),after.armorMass-before.armorMass,'no equipment hardware is created with the override');assertArmorOnly(s);
 });
 
 test('old equipment faces become bare armor while authored armor and manual hardware remain',()=>{

@@ -15,10 +15,12 @@ function battle(salvo=false){
 }
 
 test('an empty laser bank cannot borrow ion energy or change the damage type in the real fleet clock',()=>{
- const f=battle(),shots=C.fleetTick(f.b,.25,{collide:false});assert.ok(shots.some(s=>s.from==='a'&&s.gun>0));
+ const f=battle(),shots=C.fleetTick(f.b,.25,{collide:false});/* 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): fire is whole rounds, so one step may fire none yet (the part of a round is carried in u.roundAcc) or land none (they missed). The gun firing at the target is read as: rounds fired or landed in this step, or fire carried toward the next round. Was: a shot record with gun > 0 (rate x chance landed every step). */assert.ok(shots.some(s=>s.from==='a'&&(s.gun>0||s.fired>0))||(u=>(u.lastShot?.gun||0)+(u.lastShot?.fired||0)+(u.roundAcc?.gun||0)+(u.roundAcc?.ion||0))(f.b.units.find(u=>u.id==='a'))>0);
  assert.equal(f.a.surfaceBanks[101],0);near(10-f.a.surfaceBanks[102],f.a.surfaceLastFire.spent,'only the ion cell pays');
- const hit=f.z.lastShieldHit;assert.ok(hit?.incoming>0);near(hit.onboardHeat/hit.incoming,C.SHIELD_MODEL.ionHeat,'the shield must receive ion-only fire');
- assert.equal(shots.find(s=>s.from==='a').ion,true);
+ // 2026-11-26 (same change): the shield's record is read on the step a round lands, not necessarily the first; the steps go on until one does.
+ let landed=shots;for(let i=0;i<400&&!(f.z.lastShieldHit?.incoming>0);i++)landed=C.fleetTick(f.b,.25,{collide:false});
+ const hit=f.z.lastShieldHit;assert.ok(hit?.incoming>0,'an ion round lands within the steps');near(hit.onboardHeat/hit.incoming,C.SHIELD_MODEL.ionHeat,'the shield must receive ion-only fire');
+ assert.equal(landed.find(s=>s.from==='a').ion,true);assert.equal(f.a.surfaceBanks[101],0,'the empty laser bank stays empty');
 });
 
 test('a strict salvo cannot emit more energy than its actual cell banks spent',()=>{

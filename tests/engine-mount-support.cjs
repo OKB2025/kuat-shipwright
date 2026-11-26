@@ -28,7 +28,8 @@ test('four-sided nozzle roots use a closed twelve-triangle solid on flat and slo
 });
 
 test('the foundation contributes structural mass without changing engine volume or rated power',()=>{
- const row=fixture(),v=C.partVolume(row.engine),rating=row.engine.ratedInputW,g=build(row),S=C.computeStats(row.ship),control=plain(row.ship);control.parts.find(p=>p.id===2).c[0]=-1000;delete control.parts.find(p=>p.id===2).engineMountSupport;const base=C.computeStats(control);near(S.engineSupportVolume,g.volume,1e-4);near(S.engineSupportMass,g.volume*.3,1e-4);near(S.mass-base.mass,S.engineSupportMass,1e-4);near(C.partVolume(row.engine),v);assert.equal(row.engine.ratedInputW,rating);assert.equal(row.engine.machineryId,77);assert.equal(row.engine.reactor,88);
+ // 2026-11-26 expectation changed (the repulsorlift is carried for the mass without a part: user decision 2026-11-26, C.REPULSORLIFT): S.mass - base.mass was S.engineSupportMass -> the same difference with each design's carried lift mass (S.repulsorlift.mass) taken off first; the foundation's own mass is unchanged (volume x .3). Tolerance unchanged.
+ const row=fixture(),v=C.partVolume(row.engine),rating=row.engine.ratedInputW,g=build(row),S=C.computeStats(row.ship),control=plain(row.ship);control.parts.find(p=>p.id===2).c[0]=-1000;delete control.parts.find(p=>p.id===2).engineMountSupport;const base=C.computeStats(control);near(S.engineSupportVolume,g.volume,1e-4);near(S.engineSupportMass,g.volume*.3,1e-4);near((S.mass-S.repulsorlift.mass)-(base.mass-base.repulsorlift.mass),S.engineSupportMass,1e-4);near(C.partVolume(row.engine),v);assert.equal(row.engine.ratedInputW,rating);assert.equal(row.engine.machineryId,77);assert.equal(row.engine.reactor,88);
 });
 
 test('pure geometry reads need no ship and the same engine remains selectable through its foundation',()=>{

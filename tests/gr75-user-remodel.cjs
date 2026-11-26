@@ -9,7 +9,7 @@ const C=vm.runInContext('Core',context),source=JSON.parse(fs.readFileSync(path.j
 const shape=p=>JSON.stringify([p.k,p.form,p.c,p.s,p.d,p.outline,p.label]),seat=f=>JSON.stringify([f.k,f.p,f.a,f.assetYaw||0,f.base||0,f.ped||0]);
 test('the example is the user\'s file: every part and both turrets as saved',()=>{
  const s=C.buildDesign('gr75'),file=C.deserialize(JSON.parse(JSON.stringify(source)));
- assert.equal(s.reference,'gr75');assert.equal(s.parts.length,77);assert.equal(s.parts.length,file.parts.length);
+ /* 2026-11-26 expectation changed (the repulsorlift is carried for the mass without a part: user decision 2026-11-26, C.REPULSORLIFT): the example is the user's file less its repulsorlift parts, which a load takes out. Was 77 parts, the file's count. */const lift=p=>p.k==='repulsor'||p.k==='landingGear',lifts=file.parts.filter(lift).length;assert.equal(s.reference,'gr75');assert.equal(s.parts.filter(lift).length,0,'no repulsorlift part is left');assert.equal(s.parts.length,75,'77 less the two repulsorlift parts');assert.equal(s.parts.length,file.parts.length-lifts,'the stored example agrees');
  assert.equal(JSON.stringify(Array.from(s.parts,shape).sort()),JSON.stringify(Array.from(file.parts,shape).sort()));assert.equal(JSON.stringify(Array.from(s.fits,seat).sort()),JSON.stringify(Array.from(file.fits,seat).sort()));
  assert.equal(s.parts.filter(p=>p.k==='struct').length,54);assert.equal(JSON.stringify(s.hull),JSON.stringify(file.hull));
 });
