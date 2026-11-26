@@ -13074,7 +13074,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        1.9069999762699008,
@@ -13127,7 +13127,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        1.9069999762699008,
@@ -13180,7 +13180,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        1.3369999762699005,
@@ -13233,7 +13233,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        1.3369999762699005,
@@ -27679,7 +27679,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        4.301999961853028,
@@ -27732,7 +27732,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        4.301999961853028,
@@ -53615,7 +53615,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        1.237,
@@ -53668,7 +53668,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        1.237,
@@ -63055,7 +63055,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        0.03199998092651368,
@@ -103254,7 +103254,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        -3.1504998857267204,
@@ -103307,7 +103307,7 @@ const CRAFT_PRICE_CATALOG={
       "launchBlocked": false,
       "salvo": 1,
       "cycle": 1.2,
-      "tt": 0.047123889803846894,
+      "tt": 0.00015268140296446393,
       "ammo0": 6,
       "muzzle": [
        -3.1504998857267204,
@@ -127360,11 +127360,16 @@ function craftSystemsStats(ship,S){
 // warhead's mass at .warheadTTPerT. The figures of that first version (36.56 TT; one air round of 0.0597 TT for torpedo, missile
 // and bomb alike) are replaced by those given with AIR_ROUNDS below, and the table ORDNANCE below takes them (2026-11-19).
 const ORDNANCE_BASIS=Object.freeze({density:1,warheadTTPerT:.03/* user decision 2026-11-19「係数は0.03」: was .02. The whole of a tonne as energy (E=mc²) is 0.0215 TT, so .03 is 1.4 times that: a figure of the game, not of physics */});
-function ordnanceBody(D,L,warheadFraction){const mass=ORDNANCE_BASIS.density*Math.PI/4*D*D*L,warheadMass=mass*warheadFraction;return {dims:[L,D],mass,warheadFraction,warheadMass,tt:warheadMass*ORDNANCE_BASIS.warheadTTPerT};}
+function ordnanceBody(D,L,warheadFraction,ball){const mass=ORDNANCE_BASIS.density*(ball?Math.PI/6*D*D*D/* a sphere of diameter D */:Math.PI/4*D*D*L),warheadMass=mass*warheadFraction;return {dims:[L,D],mass,warheadFraction,warheadMass,tt:warheadMass*ORDNANCE_BASIS.warheadTTPerT};}
 // User decision 2026-11-19「弾頭重量について、魚雷は95%　ミサイルは50%　爆弾は100%　ミサイルと魚雷は1×4、爆弾は2×2で　係数は0.03」:
 //   torpedo 1 m by 4 m, 95% warhead: 3.14 t, 0.0895 TT;  missile 1 m by 4 m, 50%: 3.14 t, 0.0471 TT;  bomb 2 m by 2 m, 100%: 6.28 t, 0.1885 TT.
 // The anti-ship torpedo (7 m by 50 m, 95%) is 1,924 t and 54.84 TT (it was 36.56 TT at .02).
-const SHIP_TORPEDO=Object.freeze(ordnanceBody(7,50,.95)),SHIP_MISSILE=Object.freeze(ordnanceBody(7,50,.5))/* the large missile a heavy launcher can load instead: the torpedo's size, half of it warhead, 28.86 TT */,AIR_ROUNDS=Object.freeze({torpedo:Object.freeze(ordnanceBody(1,4,.95)),missile:Object.freeze(ordnanceBody(1,4,.5)),bomb:Object.freeze(ordnanceBody(2,2,1))}),AIR_ROUND=AIR_ROUNDS.torpedo;
+const SHIP_TORPEDO=Object.freeze(ordnanceBody(7,50,.95)),SHIP_MISSILE=Object.freeze(ordnanceBody(7,50,.5))/* the large missile a heavy launcher can load instead: the torpedo's size, half of it warhead, 28.86 TT */,AIR_ROUNDS=Object.freeze({torpedo:Object.freeze(ordnanceBody(.18,1,.95)),missile:Object.freeze(ordnanceBody(.12,.9,.5)),bomb:Object.freeze(ordnanceBody(.3,.3,1,true))}),AIR_ROUND=AIR_ROUNDS.torpedo;
+// 2026-11-26 (user「ミサイルを0.12×0.9　魚雷を0.18×1　爆弾は0.3の球」「弾の寸法は威力も変える」, after the sizes measured from photographs and a
+// cutaway, docs/benchmarks/gun-rules-2026-11-24/followup-2026-11-25/README.md): the air rounds are a missile 0.12 m by 0.9 m
+// (0.0102 t, 50% warhead, 153 MT), a torpedo 0.18 m by 1 m (0.0254 t, 95%, 725 MT) and a bomb, a ball of 0.3 m (0.0141 t, all
+// warhead, 424 MT). They were 1 m by 4 m (3.14 t; 47.1 and 89.5 GT) and 2 m by 2 m (6.28 t, 188 GT). The table ORDNANCE below
+// now takes its rounds' size and mass from them too: they fit the examples' tubes, so the two no longer differ.
 // The air round of a kind of ordnance: a name with 'torp' is a torpedo, with 'bomb' a bomb, anything else a missile.
 function airRound(kind){const k=String(kind||'');return /bomb/i.test(k)?AIR_ROUNDS.bomb:isTorpedoRound(k)?AIR_ROUNDS.torpedo:AIR_ROUNDS.missile;}
 // User decision 2026-11-19「古い表も揃えて」: the rounds of this table strike as the air rounds above. Each kind's yield is its
@@ -127380,7 +127385,7 @@ function airRound(kind){const k=String(kind||'');return /bomb/i.test(k)?AIR_ROUN
 // .rate is the round's points in a craft's strike rating (craftCombat's strike, the voyage craft table's 160 for an X-wing): a
 // rating the AI and the lists sort craft by, on its own scale with the guns' points, not a yield. It keeps the figures the
 // yields had before (physics review 2026-11-19: with the yields in it, a load's part of the rating rounded away).
-const ordnanceRow=(kind,o)=>{const r=airRound(kind);return Object.freeze({...o,body:Object.freeze({dims:r.dims.slice(),mass:r.mass,warheadMass:r.warheadMass}),tt:r.tt});};
+const ordnanceRow=(kind,o)=>{const r=airRound(kind);o={...o,dims:r.dims.slice(),mass:r.mass}/* 2026-11-26 the round's own size and mass (the rows' figures below are the earlier assumptions, kept for the record) */;return Object.freeze({...o,body:Object.freeze({dims:r.dims.slice(),mass:r.mass,warheadMass:r.warheadMass}),tt:r.tt});};
 const ORDNANCE=Object.freeze(Object.fromEntries(Object.entries({
  ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',dims:[1.3,.3],mass:.12,rate:70,guided:true,speed:1600,desc:'誘導式の対艦魚雷。半分はシールドを抜ける。'},
  itorp:{name:'イオン魚雷',short:'イオン魚雷',dims:[1.3,.3],mass:.12,rate:40,ion:true,guided:true,speed:1600,desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドの許容量を超えた漏出分が接続された電力・電子系統を局所遮断し、大きな過負荷では共通電力網が保護停止する。'},
