@@ -126706,6 +126706,9 @@ function heatWaste(L){const W=HEAT.waste;return {reactor:W.reactor*L.draw,weapon
 // The links are kept for the saved format and the drawing only (heatSolveLinked below is the retired per-path solver).
 function heatSolve(D,cap,L){
  const d=D.map(v=>Math.max(0,v||0)),c=cap.map(v=>Math.max(0,v||0)),sd=d.reduce((a,b)=>a+b,0),sc=c.reduce((a,b)=>a+b,0),moved=Math.min(sd,sc),ks=sd>0?moved/sd:0,kc=sc>0?moved/sc:0;
+ // 2026-11-26 A sink with no limit (Infinity) made the shares NaN (Infinity x 0): sd / Infinity is 0 for every sink. The heat that
+ // moves then goes to the unlimited sinks alone, in equal parts, so that what leaves the sources is what the sinks take.
+ if(!Number.isFinite(sc)){const inf=c.filter(v=>v===Infinity).length;return {flow:(L||[]).map(()=>0),out:d.slice(),used:c.map(v=>v===Infinity?sd/inf:0)};}
  return {flow:(L||[]).map(()=>0),out:d.map(v=>v*ks),used:c.map(v=>v*kc)};
 }
 function heatSolveLinked(D,cap,L){

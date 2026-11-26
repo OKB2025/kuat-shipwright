@@ -11069,4 +11069,30 @@ Object.assign(root.KS_EN.terms,{
  "イオン砲": "Ion Cannon"
 });
 // </ion-rule-2026-11-26>
+// <craft-magazine-bay-2026-11-26> Launchers with magazines, bomb bay forms, the drop device.
+Object.assign(root.KS_EN.terms,{
+ "魚雷発射器": "Torpedo Launcher",
+ "爆弾投下装置": "Bomb Drop Device",
+ "投下装置": "Drop Device",
+ "弾薬庫（発射器の後ろ）": "Magazine (behind the launcher)",
+ "弾薬庫に入れる数": "Rounds in the magazine",
+ "発": "rounds",
+ "発射器 1 発＋弾薬庫": "Launcher 1 round + magazine",
+ "発ぶんのうち、構造物に入るのは": "asked for; room in the structure for",
+ "発ぶん": "rounds",
+ "発射器そのものは1発ぶんです。残りは発射器の真後ろから、構造物の中に自動で作られる弾薬庫に入ります。真後ろの次は左右・上下へ均等に広がり、入らない側のぶんは反対側へ回ります。": "The launcher itself holds one round. The rest go into a magazine made automatically in the structure, starting straight behind the launcher, then spreading evenly to the left, right, above and below; what does not fit on one side goes to the opposite side.",
+ "爆弾倉の形式": "Bomb Bay Form",
+ "形式": "Form",
+ "直列型（下面が投下口）": "Straight (its floor is the hatch)",
+ "円筒型（投下装置を外装で付ける）": "Ring (drop devices fitted outside)",
+ "爆弾": "Bombs",
+ "個": "",
+ "列": "rows",
+ "基": "",
+ "1回の投下で1列": "one row a release:",
+ "直列型は下面がそのまま投下口になり、1回の投下で1列ぶんが落ちます。円筒型は幅 0.3 m の輪に爆弾が並び（1列の数は円周で決まり、長さ 0.3 m ごとに1列増えます）、爆弾倉が接している外壁に付けた爆弾投下装置から、押している間落とし続けます。": "A straight bay's floor is its hatch, and one release drops one row. A ring bay holds bombs round a ring 0.3 m wide (a row's count goes by the circumference; every 0.3 m of length adds a row) and drops them, for as long as the control is held, through bomb drop devices fitted on the outer wall the bay touches.",
+ "円筒型の爆弾倉から爆弾を落とす外装の装置。爆弾倉が接している外壁に取り付ける。1基で毎秒4個を落とし続ける。直列型の爆弾倉は下面がそのまま投下口になるので、この装置は要らない。": "An exterior device that drops bombs from a ring bomb bay. Fit it on the outer wall the bay touches. One device drops four bombs a second for as long as held. A straight bay drops through its own floor and needs none.",
+ "機首方向へ撃つ発射器。発射器そのものは1発ぶんで、残りの弾は発射器の真後ろから構造物の中に自動で作られる弾薬庫に入る（真後ろ、次に左右・上下へ均等に広がり、入らない側のぶんは反対側へ回る）。プロトン魚雷・イオン魚雷・震盪ミサイルを装填できる。": "A launcher firing toward the nose. The launcher itself holds one round; the rest go into a magazine made automatically in the structure, starting straight behind it (then evenly to the left, right, above and below; what does not fit on one side goes to the opposite side). Takes proton torpedoes, ion torpedoes and concussion missiles."
+});
+// </craft-magazine-bay-2026-11-26>
 })(typeof window==="undefined"?globalThis:window);
