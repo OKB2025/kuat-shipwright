@@ -125154,11 +125154,11 @@ const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,re
  kinds:Object.freeze([Object.freeze({kind:'itorp',ion:true,release:4000,range:8000}),Object.freeze({kind:'cmsl',ion:false,release:6000,range:10000}),Object.freeze({kind:'bomb',ion:false,release:700,range:1500})]),aims:Object.freeze(['engine','bridge','weapon','sensor']),
  roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_ywing'/* 2026-11-24 the BTL-A4 example (was craft_btlb) */,job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
 // The rounds a craft of spare lift (t) carries: the kinds in turn while they fit by mass.
-// 2026-11-26 ★ ours, to be confirmed by the user: with the rounds resized (a missile 0.0102 t) the lift alone no longer bounds
-// a load (2 t of spare lift was 120 rounds), so a craft loaded by its lift takes at most what two stock tubes or one stock
-// bay of 2026-11-19 held: 4 torpedoes, 6 missiles, 16 bombs.
-const FLEET_AIR_ROUND_CAP=Object.freeze({torpedo:4,missile:6,bomb:16});
-function fleetAirLoad(liftSpare,kinds=FLEET_AIR.kinds){const out=[],count={torpedo:0,missile:0,bomb:0};let used=0;for(let i=0,miss=0;miss<kinds.length&&out.length<400;i++){const k=kinds[i%kinds.length],r=airRound(k.kind),m=r.mass,type=r===AIR_ROUNDS.bomb?'bomb':r===AIR_ROUNDS.torpedo?'torpedo':'missile';if(used+m<=(liftSpare||0)+1e-9&&count[type]<FLEET_AIR_ROUND_CAP[type]){out.push({kind:k.kind,ion:!!k.ion,release:k.release,range:k.range});used+=m;count[type]++;miss=0;}else miss++;}return out;}
+// 2026-11-26 (user「爆弾倉にしか魚雷、爆弾、ミサイルは入らないのでは？専用発射装置を除いて」): a craft carries rounds only in its bomb bays and
+// its dedicated launchers (its stations); a craft with none carries none. Loading by the spare lift alone is gone (with the
+// rounds resized it gave 120 rounds for 2 t of lift); fleetAirLoad stays for a caller that names the rounds itself.
+function fleetAirLoad(liftSpare,kinds=FLEET_AIR.kinds){const out=[];let used=0;for(let i=0,miss=0;miss<kinds.length&&out.length<400;i++){const k=kinds[i%kinds.length],m=airRound(k.kind).mass;if(used+m<=(liftSpare||0)+1e-9){out.push({kind:k.kind,ion:!!k.ion,release:k.release,range:k.range});used+=m;miss=0;}else miss++;}return out;}
+function fleetAirStationRounds(P,key,mission){const src=Array.isArray(P?.p?.stations)&&P.p.stations.length?{stations:P.p.stations,reference:key}:key;let lift=P?.liftSpare||0;return missionOrdnance(src,mission,unitHasSensor({p:P?.p})).flatMap(o=>Array(o.n).fill(o.kind)).filter(k=>{const m=airRound(k).mass;if(m>lift+1e-9)return false;lift-=m;return true;});}
 // A ship's air control: how many squadrons it directs in the air at once (the strategic map's rule, Rts airCtlCap).
 function fleetAirControl(u){if(!u||u.dead||u.out)return 0;const ms=u.p?.modules||[];let n=0,a=0;for(let i=0;i<ms.length;i++)if(ms[i].k==='bridge'){n++;if(u.mods?.[i]>0)a++;}return Math.max(1,Math.floor((u.p.airCtl??Math.max(1,Math.round((u.p.aaCh??4)/3)))*(n?.5+.5*a/n:1)+1e-6));}
 // wings: [{home:<ship id>,type:<wing type, a key of FLEET_AIR.roles>,count}], in the order they are to go up.
@@ -125194,8 +125194,7 @@ function fleetAirCraft(b,q,home,pos,vel,yaw,x){
  c.pos=pos;c.yaw=yaw;c.velocity=vel;
  // 2026-11-24 the mission is given before launch and decides the load (missionLoad): a bomber strikes; with the fleet's strike on, every
  // other fighter of a squadron goes up for sensor suppression; the rest for air superiority. Within the craft's spare lift.
- const mission=x.bomber?'strike':air.posture?.[home.team]?.strike&&i%2===0&&unitHasSensor({p:P.p})?'sead':'air',spec=k=>FLEET_AIR.kinds[isTorpedoRound(k)?0:/bomb/i.test(k)?2:1],src=Array.isArray(P.p?.stations)&&P.p.stations.length?{stations:P.p.stations,reference:x.key}:x.key/* the craft's stations as its profile holds them (no example is built at run time) */,ord=missionOrdnance(src,mission,unitHasSensor({p:P.p}));
- let lift=P.liftSpare||0;const stores=ord.length?ord.flatMap(o=>Array(o.n).fill(o.kind)).filter(k=>{const m=airRound(k).mass;if(m>lift+1e-9)return false;lift-=m;return true;}).map(k=>({kind:k,ion:!!ORDNANCE[k]?.ion,release:spec(k).release,range:spec(k).range})):fleetAirLoad(P.liftSpare,x.bomber?FLEET_AIR.kinds:[FLEET_AIR.kinds[1]]);
+ const mission=x.bomber?'strike':air.posture?.[home.team]?.strike&&i%2===0&&unitHasSensor({p:P.p})?'sead':'air',spec=k=>FLEET_AIR.kinds[isTorpedoRound(k)?0:/bomb/i.test(k)?2:1],src=Array.isArray(P.p?.stations)&&P.p.stations.length?{stations:P.p.stations,reference:x.key}:x.key/* the craft's stations as its profile holds them (no example is built at run time) */,stores=fleetAirStationRounds(P,x.key,mission).map(k=>({kind:k,ion:!!ORDNANCE[k]?.ion,release:spec(k).release,range:spec(k).range}))/* 2026-11-26 what its bays and launchers hold for the mission, within its spare lift; none without them (it was a load by the lift alone) */;
  c.sortie={home:home.id,type:x.type,key:x.key,bomber:x.bomber,mission,stores,aimAt:FLEET_AIR.aims[(bombers+i)%FLEET_AIR.aims.length],routeN:(bombers+i)%FLEET_AIR.axes,job:null,sead:false};c.sortie.carried=c.sortie.stores.length;
  c.order={...c.order,type:'hold',fire:!x.bomber};b.units.push(c);q.members.push(c.id);air.log.launched[home.team]++;if(typeof fleetPrepareCollision==='function')fleetPrepareCollision([c]);return c;
 }
@@ -125204,7 +125203,7 @@ function fleetAirCraft(b,q,home,pos,vel,yaw,x){
 const FLEET_AIR_FIRST=Object.freeze({rebel:Object.freeze(['empire']),republic:Object.freeze(['cis'])});
 function fleetAirFirst(a,b){const A=FLEET_AIR_FIRST[a]?.includes(b),Z=FLEET_AIR_FIRST[b]?.includes(a);return A||Z?[!!A,!!Z]:null;}
 // The anti-ship ordnance a side's craft carry each, on average (TT a craft): what it has to strike ships with from the air.
-function fleetAirStrikeWeight(air,team){let tt=0,n=0;for(const q of air.squadrons){if(q.team!==team)continue;for(const x of [...q.mix,...(q.queue||[])]){const P=air.profiles[x.key];if(!P)continue;tt+=fleetAirLoad(P.liftSpare,x.bomber?FLEET_AIR.kinds:[FLEET_AIR.kinds[1]]).reduce((s,r)=>s+airRound(r.kind).tt,0);n++;}}return n?tt/n:0;}
+function fleetAirStrikeWeight(air,team){let tt=0,n=0;for(const q of air.squadrons){if(q.team!==team)continue;for(const x of [...q.mix,...(q.queue||[])]){const P=air.profiles[x.key];if(!P)continue;tt+=fleetAirStationRounds(P,x.key,x.bomber?'strike':'air').reduce((s,k)=>s+airRound(k).tt,0);n++;}}return n?tt/n:0;}
 // A squadron that arrives already in the air (it was launched before the jump and came through hyperspace with the fleet): its
 // craft are beside their ship in close order when the battle opens.
 function fleetAirArrive(b,q,home){
