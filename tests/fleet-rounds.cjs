@@ -17,6 +17,13 @@ test('many rounds in one step are drawn together and stay within the count',()=>
  const r=rng(3),u={};let hits=0,n=0;for(let i=0;i<300;i++){const x=C.fleetRounds(u,'gun',4000,.5,.25,1,r);assert.equal(x.n,1000);assert.ok(Number.isInteger(x.hits)&&x.hits>=0&&x.hits<=1000);hits+=x.hits;n+=x.n;}
  assert.ok(Math.abs(hits/n-.5)<.01,'share '+hits/n);assert.ok(C.FLEET_ROUNDS.exact>=32);
 });
+// Physics review 2026-11-26 (FAIL, fixed): few expected hits among many rounds. The mean of the draw is the count x the chance.
+test('many rounds at a small chance: the mean number of hits is rounds x chance',()=>{
+ for(const [n,q,runs] of [[65,.01,200000],[100,.005,200000],[100,.0005,400000],[500,.001,200000],[300,.02,100000],[200,.03,100000],[400,.05,60000],[100,.99,100000],[1000,.9995,100000]]){
+  const r=rng(n*7919+Math.round(q*1e6));let sum=0;for(let i=0;i<runs;i++){const h=C.fleetRoundsDraw(n,q,r);if(!(Number.isInteger(h)&&h>=0&&h<=n))assert.fail('count out of range: '+h);sum+=h;}
+  const mean=sum/runs,want=n*q,sd=Math.sqrt(n*q*(1-q)/runs);assert.ok(Math.abs(mean-want)<=5*sd+want*.004,`${n} rounds at ${q}: mean ${mean} for ${want} (allowed 5 standard errors and 0.4% for the rounding of the normal draw)`);}
+ assert.equal(C.fleetRoundsDraw(80,0,rng(1)),0);assert.equal(C.fleetRoundsDraw(80,1,rng(1)),80);assert.equal(C.FLEET_ROUNDS.normalFrom,10);
+});
 test('guns and ion guns keep separate counts; a ship with no shot size keeps rate x chance',()=>{
  const u={};C.fleetRounds(u,'gun',1,1,.25,1,()=>0);C.fleetRounds(u,'ion',2,1,.25,1,()=>0);assert.ok(Math.abs(u.roundAcc.gun-.25)<1e-12);assert.ok(Math.abs(u.roundAcc.ion-.5)<1e-12);
  const x=C.fleetRounds({},'gun',10,.4,.25,0,()=>0);assert.equal(x.land,4);assert.equal(x.miss,6);
