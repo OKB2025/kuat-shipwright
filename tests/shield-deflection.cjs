@@ -39,7 +39,7 @@ test('missiles and bombs strike the hull, craft lasers meet the field unless fir
  assert.match(src,/if\(amount\.air>0\)combatAdd\(incoming,target,u\.pos,\{sf:amount\.air,hull:amount\.air,shot:FLEET_AIR_GUN_BOLT\},aim,u\.id\)/,'the craft lasers reach the field as shield fire (sf), not as a direct strike');
  assert.match(src,/combatBlastAdd\(incoming\.get\(t\.id\),ord\*hd\/oShot/);
  assert.match(src,/amt = m\.ion \? \{ionDirect: tt\} : \{blastRounds: m\.n \* DMG/);
- assert.match(src,/if\(o\.ionDirect>0\)ionOverloadJ\(u,o\.ionDirect\*TT/);
+ /* 2026-11-26: the call is now made through the ion rule (ION_RULE): aimed rounds first, the rest after; still without the field. Was /if\(o\.ionDirect>0\)ionOverloadJ\(u,o\.ionDirect\*TT/ */assert.match(src,/if\(o\.ionDirect>0&&!u\.dead\)\{const rest=o\.ionRounds\?\.length\?combatIonRounds\(ctx,u,o,o\.ionDirect\*TT\):o\.ionDirect\*TT;if\(rest>0\)ionOverloadJ\(u,rest,\{kind:'ion-ordnance'\},ctx\);\}/);
  assert.match(app,/if\(kind==='bolt'&&trial\.craft\)kind='direct';/);assert.match(app,/m\.ion\?'iontorp':'missile'/);
  const inc=C.combatIncoming();assert.equal(inc.ionDirect,0);
 });

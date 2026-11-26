@@ -51,7 +51,7 @@ test('a hit on an electrically disconnected gun does not inject overload into it
  // into the gun's nominal grid. The case now checks the hit went to heat, and still that the main source did not trip.
  const f=battle(),u=f.a;u.p.modules[0].powerConnected=false;
  C.ionOverload(u,1e8,{fitId:101},{ev:()=>{}});
- assert.equal(u.lastIonHit.scope,'heat');assert.ok(!(u.gridState?.domains?.main?.trip>0),'an unconnected gun cannot trip the main source');
+ /* 2026-11-26: under the ion rule (ION_RULE) the hit spreads over the ship's parts ('parts'); was 'heat' (all of it booked as heat at once). What reaches the ship still ends as heat: at once plus held is what arrived. */assert.equal(u.lastIonHit.scope,'parts');assert.ok(Math.abs(u.lastIonHit.heatJ+u.lastIonHit.storedJ-u.lastIonHit.incomingJ)<=u.lastIonHit.incomingJ*1e-9);assert.ok(!(u.gridState?.domains?.main?.trip>0),'an unconnected gun cannot trip the main source');
 });
 
 test('calculating a tactical turn preview cannot consume live cell charge or advance its protection state',()=>{

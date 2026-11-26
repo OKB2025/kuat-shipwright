@@ -11056,4 +11056,17 @@ Object.assign(root.KS_EN.messages,{
  "後部銃座・上部砲塔などの小型連装レーザー砲塔。既定は口径 0.041 m で2門が各1発43 kt、毎秒1発（一斉射86 kt）。": "A compact twin laser turret for rear or dorsal positions. Default: 0.041 m bore, two barrels of 43 kt a shot each, one shot a second (86 kt a volley)."
 });
 // </gun-rules-2026-11-24-catalog>
+// <ion-rule-2026-11-26> The ion rule and the craft ion gun.
+Object.assign(root.KS_EN.terms,{
+ "イオンエネルギーを照射する。シールドを抜けたイオンは当たった所から周りの機材へ広がり、密度の高い所ほど熱に変わる。残りを溜めた機材は、許容量（給電量で決まる）を超えるとしばらく止まり、溜まった分はやがて艦内の熱になる。": "Fires ion energy. Past the shield, ion spreads from where it lands to the equipment around it, and denser parts turn more of it to heat. Equipment holding more than its allowance (set by the power it takes) stops for a while; what is held ends as heat in the ship.",
+ "プロトン魚雷と同じ弾体のイオン弾頭。弾はシールドを通り、イオンは当たった所から周りの機材へ広がり、密度の高い所ほど熱に変わる。残りを溜めた機材は、許容量（給電量で決まる）を超えるとしばらく止まり、溜まった分はやがて艦内の熱になる。": "An ion warhead on the proton torpedo's body. The round passes the shield; its ion spreads from where it lands to the equipment around it, and denser parts turn more of it to heat. Equipment holding more than its allowance (set by the power it takes) stops for a while; what is held ends as heat in the ship.",
+ "イオン砲（固定式）": "Ion Cannon (Fixed)",
+ "イオン砲塔": "Ion Turret",
+ "イオン充電区画": "Ion Charging Compartment",
+ "なし（レーザー砲）": "None (laser)",
+ "イオン充電区画を 0 より大きくすると、この砲はイオン砲になります。1発は区画に1秒で溜まる量で、毎秒1発です。レーザーガスは使いません。当たったイオンは周りの機材へ広がり、許容量を超えた機材をしばらく止めます。": "With a charging compartment above 0 this gun is an ion cannon. One shot is what the compartment gathers in a second, once a second. It uses no laser gas. Ion that lands spreads to the equipment around it and stops equipment over its allowance for a while.",
+ "20秒ごとに8発のイオン魚雷（1発 10 TT 相当のイオン）。弾はシールドを通り、イオンは当たった所から周りの機材へ広がり、密度の高い所ほど熱に変わる。残りを溜めた機材は、許容量（給電量で決まる）を超えるとしばらく止まり、溜まった分はやがて艦内の熱になる。点防御に迎撃される。射界の制約なし。": "Eight ion torpedoes every 20 s (10 TT of ion each). The rounds pass the shield; the ion spreads from where it lands to the equipment around it, and denser parts turn more of it to heat. Equipment holding more than its allowance (set by the power it takes) stops for a while; what is held ends as heat in the ship. Point defence can intercept them. No firing-arc limits.",
+ "イオン砲": "Ion Cannon"
+});
+// </ion-rule-2026-11-26>
 })(typeof window==="undefined"?globalThis:window);

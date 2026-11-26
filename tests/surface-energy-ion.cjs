@@ -22,7 +22,12 @@ test('ordinary ion redirects 95 percent, debits only five percent and never fill
 });
 
 test('unblocked ordinary ion adds only whole-vessel heat and uses the shared restoration conditions',()=>{
- const u=unit(),health=plain(u.mods);C.ionOverload(u,2,{moduleIndex:2},ctx);close(u.ht.qJ,2*TT);assert.deepEqual(plain(u.mods),health);assert.equal(u.ht.online,false);assert.equal(C.powerFactor(u,'weapon',2),0);assert.equal(C.powerFactor(u,'weapon',3),0);
+ const u=unit(),health=plain(u.mods);C.ionOverload(u,2,{moduleIndex:2},ctx);
+ // 2026-11-26 expectation changed (the ion rule, ION_RULE; user decisions 2026-11-25/26): the ion spreads over the parts, a share is heat at
+ // once and the rest is held and goes to heat at 20 kt/s; parts over their allowance stop and come back. Was: all 2 TT heat at once
+ // (close(u.ht.qJ,2*TT)) and no part touched. Checked now: at once + held = 2 TT; when all has drained the heat is 2 TT; the parts are
+ // as they were once their stop is over.
+ close(u.ht.qJ+C.ionHeldJ(u),2*TT);for(let n=0;n<1e5&&u.ionSt?.q.length;n++)C.ionDrain(u,1e6,ctx);close(u.ht.qJ,2*TT);C.ionRecover(u,{...ctx,time:1e15});assert.deepEqual(plain(u.mods),health);assert.equal(u.ht.online,false);assert.equal(C.powerFactor(u,'weapon',2),0);assert.equal(C.powerFactor(u,'weapon',3),0);
  u.p.crewCapacity=100;u.crew=50;u.ht.qJ=u.ht.capacityJ*.8;C.powerTick(u,300,ctx);assert.equal(u.ht.online,false);close(u.ht.restartWork,.5);C.powerTick(u,300,ctx);assert.equal(u.ht.online,true);close(C.shipHeatOutputFactor(u),.6);assert.deepEqual(plain(u.mods),health);
 });
 
