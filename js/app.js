@@ -2116,7 +2116,7 @@ function sendEngineUpdate() {
   eng.what.clear(); eng.reset = false;
   YardEngineClient.post(msg);
 }
-function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
+function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),...(s._structuralRecord?{structuralMaterial:s._structuralRecord}:{})/* 2026-11-27 the structures' material kept with the design goes to the Worker, which uses it while the key matches */,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
 function enginePending() { return eng.adoptedGen < eng.gen; }
 function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
@@ -2316,7 +2316,7 @@ function onEngineStats(msg) {
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
-  eng.error=null;prevS = S; S = msg.stats;
+  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship)ship._structuralRecord=S.structuralRecord;/* 2026-11-27 kept for saving (C.serialize writes it) */
   if(st.tab==='hull'&&S?.dims){const dimensions=$('#panel [data-actual-dimensions] dd');if(dimensions)dimensions.textContent=S.dims.map(fLen).join(' × ');}
   {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
   renderStrip(); renderSpecTargets();if(designUI.drawer&&designUI.layout==='performance')renderPanel(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
