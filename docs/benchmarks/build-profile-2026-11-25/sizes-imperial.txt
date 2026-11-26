@@ -1,0 +1,54 @@
+
+## profile total 40.4 MB
+  40.30 MB  surface
+  0.04 MB  modules [141]
+  0.04 MB  heat
+  0.02 MB  grid
+  0.02 MB  propulsion
+  0.00 MB  hf
+  0.00 MB  outline
+  0.00 MB  dualPurpose
+  0.00 MB  zT [30]
+  0.00 MB  systems
+
+## profile.surface total 40.3 MB
+  40.25 MB  patches [3510]
+  0.05 MB  mounts [39]
+  0.00 MB  offset [3]
+  0.00 MB  mode
+  0.00 MB  devices [0]
+  0.00 MB  version
+
+## profile.surface.patches[0] (one of 3510) total 0.0 MB
+  0.03 MB  triangles [1935]
+  0.00 MB  polygon [8]
+  0.00 MB  allocation
+  0.00 MB  normal [3]
+  0.00 MB  center [3]
+  0.00 MB  armor
+  0.00 MB  xRange [2]
+  0.00 MB  id
+  0.00 MB  physicalArea
+  0.00 MB  area
+
+## statistics total 48.9 MB
+  48.66 MB  surface
+  0.13 MB  heat
+  0.04 MB  propulsion
+  0.02 MB  info
+  0.02 MB  chargeInfo
+  0.00 MB  fitInfo
+  0.00 MB  fuelPresets
+  0.00 MB  warnings [4]
+  0.00 MB  skin
+  0.00 MB  feedInfo
+
+## statistics.surface total 48.7 MB
+  48.66 MB  patches [3510]
+  0.00 MB  totals
+  0.00 MB  mode
+  0.00 MB  aggregate
+  0.00 MB  orphaned [0]
+  0.00 MB  warnings [0]
+  0.00 MB  version
+exit 0
