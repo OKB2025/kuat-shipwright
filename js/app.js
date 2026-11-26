@@ -6567,10 +6567,36 @@ function signatureHTML(e){
 // The stowed pose in the 3D view, drawn with the live-preview meshes until the next edit.
 function foilPreview(on){
   live.queued=null;st.foilView=on?'stow':null;if(!on){clearPreview();return;}
-  const parts=[];for(const w of ship.parts.filter(C.isFoil)){const P=C.foilPose(ship,w,w.wing.stow);if(P)parts.push(...P.parts);}
-  if(!parts.length){clearPreview();return;}if(!view)return;
-  live.active=true;live.parts=parts;live.fits=[];live.hide.parts=new Set(parts.map(q=>q._poseOf));live.hide.fits=new Set();live.gen=(eng.gen||0)+1;
-  try{const g=Gfx.meshPreview(ship,parts,[],{coded:st.coded});for(const k of ['preview','previewRef','previewFits','previewRefFits'])view.upload(k,g[k]);}catch(e){console.error(e);}
+  const parts = [], fits = [], groups = [], owned = new Set();
+  const sourceFits = new Map(ship.fits.map(f => [f.id, f]));
+  for (const f of C.surfaceDerivedFits(ship)) sourceFits.set(f.id, f);
+  for (const wing of ship.parts.filter(C.isFoil)) {
+    const pose = C.foilPose(ship, wing, wing.wing.stow);
+    if (!pose) continue;
+    parts.push(...pose.parts);
+    const originals = [];
+    for (const fit of pose.fits) {
+      if (owned.has(fit.id) || !sourceFits.has(fit.id)) continue;
+      owned.add(fit.id);
+      fits.push(fit);
+      originals.push(sourceFits.get(fit.id));
+    }
+    if (originals.length) groups.push({wing, fits: originals});
+  }
+  if (!parts.length) { clearPreview(); return; }
+  if (!view) return;
+  live.active = true;
+  live.parts = parts;
+  live.fits = fits;
+  live.hide.parts = new Set(parts.map(q => q._poseOf));
+  live.hide.fits = owned;
+  live.gen = (eng.gen || 0) + 1;
+  try {
+    const g = Gfx.meshPreview(ship, parts, [], {coded: st.coded});
+    const weapons = Gfx.meshFoilFitPreview(ship, groups, 0);
+    for (const key of ['preview', 'previewRef']) view.upload(key, g[key]);
+    for (const key of ['previewFits', 'previewRefFits']) view.upload(key, weapons[key]);
+  } catch (e) { console.error(e); }
   requestDraw();
 }
 function bindWing(){
