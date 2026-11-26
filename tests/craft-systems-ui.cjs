@@ -9,7 +9,7 @@ function setup(){const c=vm.createContext({console});vm.runInContext(`
  const R={craftPrice:()=>({source:'blueprint',total:12000,build:11000,crew:1000,by:{power:11000,crew:1000}})};
  `,c);vm.runInContext(section('const CRAFT_SYSTEM_KEYS=','function renderSpecTargets()'),c);vm.runInContext(section('function voyCraftPriceHTML(','function voySquadronsHTML('),c);return code=>vm.runInContext(code,c);}
 test('systems card exposes endurance and equipment without claiming a TIE has a hyperdrive',()=>{
- const run=setup(),html=run(`craftSystemsHTML({craftSystems:{managed:true,crew:1,suitSeats:1,lifeSupportHours:4,ejectionSeats:1,targetRatio:1,maneuverRatio:1,laserGasSeconds:600,power:12,landingReady:true,navReady:true}})`);
+ const run=setup(),html=run(`craftSystemsHTML({craftSystems:{managed:true,crew:1,suitSeats:1,lifeSupportHours:4,ejectionSeats:1,targetRatio:1,maneuverRatio:1,laserGasSeconds:600,power:12,landingReady:true,landingSupport:14.3,navReady:true}})`);
  assert.match(html,/4\.0 時間/);assert.match(html,/600\.0 秒の連続射撃/);assert.match(html,/ハイパードライブなし/);assert.match(html,/宇宙服で運用/);assert.doesNotMatch(html,/NaN|undefined/);
 });
 test('cockpit seats and suit edits persist through the normal undo transaction',()=>{

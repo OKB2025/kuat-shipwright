@@ -6,7 +6,12 @@
 // 「配置と保存の契約」: exterior propulsion, weapons and command inherit the interference rules).
 const assert=require('node:assert/strict'),fs=require('node:fs'),zlib=require('node:zlib'),path=require('node:path'),{test}=require('node:test');
 const {C}=require('../scripts/update-ship-examples.cjs').loadRuntime(process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'));
-const saved=()=>JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'fixtures/sunk-structure-interference-2026-11-12.json.gz'))).toString('utf8'));
+// 2026-11-26: the fixture's six legacy parts without placement metadata are repulsors, and a saved repulsor is now taken out on load
+// (the repulsorlift is carried for the mass without a part: user decision 2026-11-26, C.REPULSORLIFT). The fixture file is unchanged; it is
+// read here with those six parts as the same shape of another interior kind that has no placement record either (inertial compensators),
+// so the rule this file guards (legacy interior equipment under a sunk structure is not a clash) is still exercised.
+const LEGACY_KIND='inertial';
+const saved=()=>{const o=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(__dirname,'fixtures/sunk-structure-interference-2026-11-12.json.gz'))).toString('utf8'));for(const p of o.parts)if(p.k==='repulsor'){p.k=LEGACY_KIND;delete p.landingEquipment;}return o;};
 const SUNK=[100,101],LEGACY=[90,91,92,93,94,95];
 const statsOf=s=>{const k=C.computeStats({...s,_cache:null});return {mass:k.mass,volume:k.volume};};
 // Same mass and volume up to floating-point noise of the mesh unions (a few kg in 1.3e5 t).
@@ -88,7 +93,7 @@ test('exterior equipment under the structure still clashes (placement-interferen
 
 test('a legacy interior part outside the hull and its structures still clashes with a structure over it',()=>{
  const source=saved().parts.find(p=>p.id===100);
- for(const k of ['repulsor','gen']){
+ for(const k of [LEGACY_KIND/* 2026-11-26 was 'repulsor' (now taken out on load) */,'gen']){
   const raw=without(saved(),[...SUNK,91,92,93,94,95]),q=raw.parts.find(p=>p.id===90);for(const key of Object.keys(q))delete q[key];Object.assign(q,{id:90,k,c:[87.66,14.58,-19.5],d:3});
   const ship=C.deserialize(raw),legacy=ship.parts.find(p=>p.id===90);assert.equal(legacy.placement,undefined);assert.equal(C.inHull(ship,legacy.c),false,k+': centre outside the hull');
   const r=resolveAt(ship,source);assert.equal(r.ok,false,k);assert.equal(r.code,'placement-interference',k+': '+r.code);

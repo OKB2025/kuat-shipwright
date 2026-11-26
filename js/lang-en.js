@@ -11028,6 +11028,8 @@ Object.assign(root.KS_EN.messages,{
  "重力制御装置（前部）": "Gravity Control Unit (Forward)",
  "コアシップ着陸用重力制御装置": "Core Ship Landing Gravity Control Unit",
  "重力制御装置喪失": "Gravity control lost",
+ "リパルサーリフト 支持質量（自動）": "Mass Supported by the Repulsorlift (automatic)",
+ "リパルサーリフト（自動）": "Repulsorlift (automatic)",
  "重力制御装置喪失：撃墜": "Gravity control lost: shot down",
  "艦内に1Gを合成し、艦を重力に抗して支える重力制御装置。支えられる質量は容積で決まり、艦の質量ぶんを積みます。合成した重力の起点は空間にしばらく残るため、動く艦は後ろへ引かれます（重い艦ほど少し強く減速する運動抵抗）。浮揚と接地の支持能力、給電をそれぞれ点検します。": "A gravity control unit that generates 1 G inside the ship and supports the ship against gravity. The mass it can support follows its volume; fit enough for the ship's mass. The origin of the generated gravity lingers in space for a while, so a moving ship is pulled backward (motion resistance: a heavier ship slows a little more strongly). Lift support, ground support and power are checked separately.",
  "小型機を浮かせて地上で支えるリパルサーリフト（着陸・浮上の支持装置）。容積から支えられる質量を算出し、機体の質量に足りるかを確認します。（2026-11-24、旧「着陸脚」）": "A repulsorlift that lifts a small craft and supports it on the ground (the landing and hover support). The mass it can support is calculated from its volume and checked against the craft's mass. (2026-11-24; formerly \"Landing Gear\")",
