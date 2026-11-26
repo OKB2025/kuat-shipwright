@@ -1,0 +1,19 @@
+// The structures' union volume and each structure's share (the volume of it outside the hull and the structures before it in the order) by
+// sampling points: a point is inside a solid when a ray from it crosses the solid's triangles an odd number of times (three rays, majority).
+// Compared with the accumulated union (as before) and the neighbours' way. read-only. usage: node montecarlo.cjs <root> <example key or design .json> [points]
+const fs=require('fs'),zlib=require('zlib'),path=require('path');const root=path.resolve(process.argv[2]),{C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+const k=process.argv[3],N=+process.argv[4]||400000;const read=k=>k.endsWith('.json')?JSON.parse(fs.readFileSync(k,'utf8')):JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples',k,'design.json.gz'))));
+const load=()=>{const j=read(k),s=C.deserialize(j.design||j);C.remount(s,{keepFitPose:true});C.syncCompartments(s);return C.surfaceWorkingShip?C.surfaceWorkingShip(s):s;};
+C.STRUCTURAL_LOCAL.enabled=false;const A=C.structuralMaterial(load());C.STRUCTURAL_LOCAL.enabled=true;const B=C.structuralMaterial(load());
+const solids=[...(A.hull.length?[{id:'hull',T:A.hull}]:[]),...A.entries.map(e=>({id:e.p.id,T:e.T}))];
+const bb=T=>{let b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<T.length;i+=3)for(let a=0;a<3;a++){b[a]=Math.min(b[a],T[i+a]);b[a+3]=Math.max(b[a+3],T[i+a]);}return b;};
+for(const s of solids)s.b=bb(s.T);const dirs=[[.5771,.5779,.5774],[-.6021,.5512,.5778],[.0123,-.7071,.7069]];
+const hits=(T,p,d)=>{let n=0;for(let i=0;i<T.length;i+=9){const ax=T[i],ay=T[i+1],az=T[i+2],e1=[T[i+3]-ax,T[i+4]-ay,T[i+5]-az],e2=[T[i+6]-ax,T[i+7]-ay,T[i+8]-az],h=[d[1]*e2[2]-d[2]*e2[1],d[2]*e2[0]-d[0]*e2[2],d[0]*e2[1]-d[1]*e2[0]],det=e1[0]*h[0]+e1[1]*h[1]+e1[2]*h[2];if(Math.abs(det)<1e-14)continue;const f=1/det,s=[p[0]-ax,p[1]-ay,p[2]-az],u=f*(s[0]*h[0]+s[1]*h[1]+s[2]*h[2]);if(u<0||u>1)continue;const q=[s[1]*e1[2]-s[2]*e1[1],s[2]*e1[0]-s[0]*e1[2],s[0]*e1[1]-s[1]*e1[0]],v=f*(d[0]*q[0]+d[1]*q[1]+d[2]*q[2]);if(v<0||u+v>1)continue;if(f*(e2[0]*q[0]+e2[1]*q[1]+e2[2]*q[2])>0)n++;}return n;};
+const inside=(s,p)=>{const b=s.b;if(p[0]<b[0]||p[0]>b[3]||p[1]<b[1]||p[1]>b[4]||p[2]<b[2]||p[2]>b[5])return false;let v=0;for(const d of dirs)v+=hits(s.T,p,d)&1;return v>=2;};
+const all=bb(Float64Array.from(solids.flatMap(s=>[s.b[0],s.b[1],s.b[2],s.b[3],s.b[4],s.b[5]]))),boxV=(all[3]-all[0])*(all[4]-all[1])*(all[5]-all[2]);
+let seed=12345;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};const share=new Map(solids.map(s=>[s.id,0]));let inU=0;
+for(let i=0;i<N;i++){const p=[all[0]+rnd()*(all[3]-all[0]),all[1]+rnd()*(all[4]-all[1]),all[2]+rnd()*(all[5]-all[2])];for(const s of solids)if(inside(s,p)){share.set(s.id,share.get(s.id)+1);inU++;break;}}
+const mc=x=>x/N*boxV,hullMC=mc(share.get('hull')||0),unionMC=mc(inU),seU=Math.sqrt(inU*(1-inU/N))/N*boxV;
+console.log(k,'points',N,'| union by sampling',unionMC.toPrecision(7),'±',seU.toPrecision(2),'| hull',hullMC.toPrecision(6),'| structures by sampling',(unionMC-hullMC).toPrecision(7),'| accumulated',A.extension.toPrecision(7),'| neighbours',B.extension.toPrecision(7));
+const rows=A.entries.map(e=>{const m=mc(share.get(e.p.id)),se=Math.sqrt(share.get(e.p.id))/N*boxV,a=A.envelopeVolumes.get(e.p.id),b=B.envelopeVolumes.get(e.p.id);return {id:e.p.id,m,se,a,b,da:Math.abs(a-m)/Math.max(se,1e-12),db:Math.abs(b-m)/Math.max(se,1e-12)};}).filter(r=>Math.abs(r.a-r.b)>1e-6*Math.max(r.a,r.b,1e-9)).sort((x,y)=>Math.abs(y.a-y.b)-Math.abs(x.a-x.b)).slice(0,12);
+console.log('structures where the two ways differ (largest 12): id | sampled ± | accumulated (standard errors off) | neighbours (standard errors off)');for(const r of rows)console.log([r.id,r.m.toPrecision(5)+' ± '+r.se.toPrecision(2),r.a.toPrecision(6)+' ('+r.da.toFixed(1)+')',r.b.toPrecision(6)+' ('+r.db.toFixed(1)+')'].join(' | '));
