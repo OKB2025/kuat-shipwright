@@ -2023,7 +2023,7 @@ const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
 // v24 Craft carry ordnance on pylons (launch tubes retired) and in bomb-bay compartments (an interior part).
-const CRAFT_WEAPONS = ['claser'/* 2026-11-25 one laser: its bore, length and rate are set on the gun (user「全て口径を変えるだけの同じものでは？」); a saved light or heavy laser still opens and is edited the same way */, 'cturret', 'ctorp', 'cmsl', 'cpylon', 'cdrop'/* 2026-11-26 the drop device of a ring bomb bay */];/* 2026-11-23 launch tubes are back (user: 「発射管を復活」) */
+const CRAFT_WEAPONS = ['claser'/* 2026-11-25 one laser: its bore, length and rate are set on the gun (user「全て口径を変えるだけの同じものでは？」); a saved light or heavy laser still opens and is edited the same way */, 'cturret', 'ctorp'/* 2026-11-26 the one launch tube, for torpedoes and missiles (user「魚雷発射機とミサイル発射機は発射管で共通化して」); the separate missile launcher cmsl is no longer offered to a craft design, and one already in a design still opens */, 'cpylon', 'cdrop'/* 2026-11-26 the drop device of a ring bomb bay */];/* 2026-11-23 launch tubes are back (user: 「発射管を復活」) */
 const craftDesign = () => !!ship && editorCraftDesign();
 const weaponKeys = () => [...new Set((craftDesign() ? [...CRAFT_WEAPONS,...WEAPONS] : [...WEAPONS,...CRAFT_WEAPONS]).map(k=>C.canonicalWeaponKind?.(k)||k))].filter(k=>C.FITS[k]&&!C.FITS[k].catalogHidden);
 const weaponReplacementKeys = f => {const keys=weaponKeys();return f&&C.FITS[f.k]&&!keys.includes(f.k)?[f.k,...keys]:keys;};

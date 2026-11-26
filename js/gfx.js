@@ -671,6 +671,7 @@ function craftWeaponMesh(g,f){
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
  if(k==='cturret'&&d.ionBoxM3>0){/* 2026-11-26 an ion turret's feed compartment under the mount (the SW-4 kind) */const s=Math.cbrt(d.ionBoxM3);box(g,M,o,0,-s*.5,0,s,s,s,Bd);}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
+ if(k==='ctorp'&&d.tube){/* 2026-11-26 the common launch tube: a cylinder, a collar at each end, the open mouth */const r=W*.5;cyl(g,M,o,0,h*.5,0,r*.92,r*.92,L,0,Bd,14);for(const q of [-.44,.44])cyl(g,M,o,L*q,h*.5,0,r,r,L*.08,0,R,14);cyl(g,M,o,L*.49,h*.5,0,r*.7,r*.7,L*.04,0,D,12);return;}
  if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
  if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
  // v24 A wing pylon is the pylon alone: a slim streamlined blade. Its stores are chosen per squadron in the order

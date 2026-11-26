@@ -11095,4 +11095,8 @@ Object.assign(root.KS_EN.terms,{
  "機首方向へ撃つ発射器。発射器そのものは1発ぶんで、残りの弾は発射器の真後ろから構造物の中に自動で作られる弾薬庫に入る（真後ろ、次に左右・上下へ均等に広がり、入らない側のぶんは反対側へ回る）。プロトン魚雷・イオン魚雷・震盪ミサイルを装填できる。": "A launcher firing toward the nose. The launcher itself holds one round; the rest go into a magazine made automatically in the structure, starting straight behind it (then evenly to the left, right, above and below; what does not fit on one side goes to the opposite side). Takes proton torpedoes, ion torpedoes and concussion missiles."
 });
 // </craft-magazine-bay-2026-11-26>
+Object.assign(root.KS_EN.terms,{
+ "発射管": "Launch Tube",
+ "機首方向へ撃つ円筒の発射管。魚雷とミサイルで共通。発射管そのものは1発ぶんで、残りの弾は発射管の真後ろから構造物の中に自動で作られる弾薬庫に入る（真後ろ、次に左右・上下へ均等に広がり、入らない側のぶんは反対側へ回る）。プロトン魚雷・イオン魚雷・震盪ミサイルを装填できる。": "A cylindrical launch tube firing toward the nose, for torpedoes and missiles alike. The tube itself holds one round; the rest go into a magazine made automatically in the structure, starting straight behind it (then evenly to the left, right, above and below; what does not fit on one side goes to the opposite side). Takes proton torpedoes, ion torpedoes and concussion missiles."
+});/* 2026-11-26 the common launch tube */
 })(typeof window==="undefined"?globalThis:window);
