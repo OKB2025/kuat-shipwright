@@ -699,8 +699,10 @@ function decalSourceTriangles(ship){
 }
 function meshDecals(ship,sources){
  const g=new Geo(64),list=ship.decals||[];if(!list.length)return g;sources=sources||decalSourceTriangles(ship);
+ /* 2026-11-26 (user「塗るのに使った図形、画像を一つ一つ順番を入れ替えられるように」): the list's order is the stacking order. Each decal stands off the surface by its size as before; one that overlaps earlier ones stands a little above the highest of them, so a later decal is in front whatever the sizes (before, the larger decal was always the one on top). */
+ const placed=[],liftOf=d=>{const own=Math.min(.4,Math.max(.02,.01*Math.max(d.w,d.h))),r=Math.hypot(d.w,d.h)/2;let under=0;for(const q of placed)if(C.len(C.sub(q.c,d.c))<q.r+r)under=Math.max(under,q.lift);const lift=under>0?Math.max(own,under+Math.max(.004,.1*own)):own;placed.push({c:d.c,r,lift});return lift;};
  for(const raw of list)for(const d of C.decalInstances(raw)){
-  const f=C.decalFrame(d),hw=d.w/2,hh=d.h/2,depth=Math.max(hw,hh),lift=Math.min(.4,Math.max(.02,.01*Math.max(d.w,d.h))),slot=decalSlot(ship,d),col=d.kind==='image'?[255,255,255]:hex(d.color||'#ffffff'),r=Math.hypot(hw,hh)+depth;
+  const f=C.decalFrame(d),hw=d.w/2,hh=d.h/2,depth=Math.max(hw,hh),lift=liftOf(d),slot=decalSlot(ship,d),col=d.kind==='image'?[255,255,255]:hex(d.color||'#ffffff'),r=Math.hypot(hw,hh)+depth;
   for(const src of sources){
    if(src.box&&[0,1,2].some(i=>d.c[i]+r<src.box[i]||d.c[i]-r>src.box[i+3]))continue;const T=src.tris;
    for(let i=0;i+8<T.length;i+=9){

@@ -11202,6 +11202,7 @@ function decalPanelHTML(){
   <label><input type="checkbox" data-decalmirror ${sel.mirror?'checked':''}> 反対側にも描く（左右対称）</label>
   <div class="xf-grid" data-decal-move>${['前後 X','上下 Y','左右 Z'].map((l,i)=>`<div class="xf-row"><span>${esc(T(l))}</span><button type="button" class="btn sm" data-decalnudge="${i}" data-sign="-1" aria-label="${esc(T(l))} を減らす">−</button><input type="number" step="any" data-decalpos="${i}" value="${+(sel.c[i]||0).toFixed(3)}" aria-label="${esc(T(l))}（m）"><button type="button" class="btn sm" data-decalnudge="${i}" data-sign="1" aria-label="${esc(T(l))} を増やす">＋</button></div>`).join('')}</div>
   <label class="field-label xf-step">${esc(T('刻み（m）'))}<input type="number" min="0.01" step="any" data-decalstep value="${st.decalStep||Math.max(.1,Math.round(Math.max(sel.w,sel.h)*.1*100)/100)}"></label>
+  ${list.length>1?`<div class="seg" role="group" aria-label="重なる順番" data-decal-order><span class="note">重なる順番（${list.findIndex(q=>q.id===sel.id)+1} / ${list.length}。数が大きいほど手前）</span><button type="button" class="btn sm" data-decalorder="bottom" ${list[0].id===sel.id?'disabled':''}>いちばん奥へ</button><button type="button" class="btn sm" data-decalorder="down" ${list[0].id===sel.id?'disabled':''}>奥へ</button><button type="button" class="btn sm" data-decalorder="up" ${list.at(-1).id===sel.id?'disabled':''}>手前へ</button><button type="button" class="btn sm" data-decalorder="top" ${list.at(-1).id===sel.id?'disabled':''}>いちばん手前へ</button></div>`:''}
   <div><button type="button" class="btn sm" data-decalmove>位置を変える</button><button type="button" class="btn sm danger" data-decaldel>削除</button></div></div>`:''}
  </div>`;
 }
@@ -11237,6 +11238,8 @@ function bindDecalPanel(panel){
   else if('decalmove'in d&&decalById(st.decalSel)){st.decalArm={move:st.decalSel};renderPanel();}
   /* 2026-11-24 (user「構造物同様、バーで移動できるように」): − / ＋ move it by the step along X, Y or Z */
   else if(d.decalnudge!=null&&decalById(st.decalSel)){const id=st.decalSel,i=+d.decalnudge,sel=decalById(id),step=st.decalStep||Math.max(.1,Math.round(Math.max(sel.w,sel.h)*.1*100)/100),sign=+d.sign||1;mutate('塗装・エンブレムを移動',()=>{const q=decalById(id);q.c=q.c.slice();q.c[i]=C.clamp(q.c[i]+sign*step,-C.DESIGN_LIMITS.coordinate,C.DESIGN_LIMITS.coordinate);},'decals');renderPanel();}
+  /* 2026-11-26 (user「塗るのに使った図形、画像を一つ一つ順番を入れ替えられるように」): the list's order is the stacking order (later is in front); the buttons move the chosen one within it */
+  else if(d.decalorder&&decalById(st.decalSel)){const id=st.decalSel,how=d.decalorder;mutate('塗装・エンブレムの重なる順番',()=>{const L=ship.decals,i=L.findIndex(q=>q.id===id);if(i<0)return;const [q]=L.splice(i,1),j=how==='top'?L.length:how==='bottom'?0:how==='up'?Math.min(L.length,i+1):Math.max(0,i-1);L.splice(j,0,q);},'decals');renderPanel();}
   else if('decaldel'in d&&decalById(st.decalSel)){const id=st.decalSel;mutate('塗装・エンブレムを削除',()=>{ship.decals=ship.decals.filter(q=>q.id!==id);const used=new Set(ship.decals.map(q=>q.image).filter(Boolean));for(const k of Object.keys(ship.decalImages||{}))if(!used.has(k))delete ship.decalImages[k];if(!ship.decals.length){delete ship.decals;delete ship.decalImages;}},'decals');st.decalSel=null;renderPanel();}
  });
  panel.addEventListener('change',e=>{const t=e.target;if(!t.closest?.('[data-decal-panel]'))return;const sel=decalById(st.decalSel);
