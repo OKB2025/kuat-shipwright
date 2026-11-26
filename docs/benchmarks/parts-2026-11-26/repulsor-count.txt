@@ -1,0 +1,48 @@
+example | mass t | support t | ratio | parts repulsor / landingGear | short?
+venator | 1.2017e+7 | 3.6419e+6 | 0.30 | 6 / 0 | SHORT
+imperial | 5.2106e+7 | 1.1172e+7 | 0.21 | 1 / 0 | SHORT
+imperial2 | 5.1970e+7 | 1.1172e+7 | 0.21 | 1 / 0 | SHORT
+acclamator | 2.6820e+6 | 2.5466e+6 | 0.95 | 6 / 0 | SHORT
+arquitens | 4.9096e+5 | 1.2601e+5 | 0.26 | 2 / 0 | SHORT
+cr90 | 53266 | 13672 | 0.26 | 2 / 0 | SHORT
+craft_arc170 | 42.828 | 49.757 | 1.16 | 1 / 5 | 
+craft_awing | 12.415 | 15.143 | 1.22 | 0 / 4 | 
+craft_btlb | 74.263 | 83.035 | 1.12 | 0 / 4 | 
+craft_hyena | 24.348 | 30.570 | 1.26 | 0 / 12 | 
+craft_tie_in | 13.644 | 21.618 | 1.58 | 0 / 3 | 
+craft_tie_ln | 13.210 | 16.564 | 1.25 | 0 / 3 | 
+craft_tie_sa | 43.566 | 69.866 | 1.60 | 0 / 3 | 
+craft_v19 | 16.763 | 20.706 | 1.24 | 0 / 21 | 
+craft_vulture | 7.4119 | 11.774 | 1.59 | 0 / 6 | 
+craft_vwing | 8.8018 | 13.830 | 1.57 | 0 / 21 | 
+craft_xwing | 29.675 | 38.471 | 1.30 | 0 / 8 | 
+craft_z95 | 28.121 | 31.007 | 1.10 | 0 / 4 | 
+craft_tie_d | 17.186 | 27.714 | 1.61 | 0 / 3 | 
+craft_ywing | 54.487 | 62.080 | 1.14 | 0 / 4 | 
+craft_tie_avenger | 24.157 | 46.429 | 1.92 | 0 / 6 | 
+craft_bwing | 18.552 | 24.831 | 1.34 | 0 / 2 | 
+craft_tri | 8.3162 | 16.471 | 1.98 | 0 / 2 | 
+dreadnaught | 1.5756e+6 | 4.0440e+5 | 0.26 | 2 / 0 | SHORT
+gozanti | 5734.9 | 1472.0 | 0.26 | 2 / 0 | SHORT
+gr75 | 12833 | 3758.4 | 0.29 | 2 / 0 | SHORT
+hammerhead | 49785 | 12778 | 0.26 | 2 / 0 | SHORT
+heraklon | 2.3552e+5 | 60303 | 0.26 | 17 / 0 | SHORT
+lucrehulk | 5.7370e+8 | 1.7955e+8 | 0.31 | 3 / 0 | SHORT
+lh3210 | 5.6763e+8 | 1.7831e+8 | 0.31 | 3 / 0 | SHORT
+mandator2 | 2.0292e+9 | 5.2200e+8 | 0.26 | 2 / 0 | SHORT
+executor | 1.0118e+10 | 2.5935e+9 | 0.26 | 1 / 0 | SHORT
+mc30c | 2.0759e+5 | 53282 | 0.26 | 2 / 0 | SHORT
+mc75 | 8.7779e+6 | 2.2530e+6 | 0.26 | 2 / 0 | SHORT
+mc80home | 1.3024e+7 | 3.3427e+6 | 0.26 | 2 / 0 | SHORT
+mc80liberty | 1.1578e+7 | 2.9718e+6 | 0.26 | 2 / 0 | SHORT
+munificent | 5.3509e+6 | 1.3734e+6 | 0.26 | 71 / 0 | SHORT
+nebulonb | 2.2679e+5 | 58147 | 0.26 | 2 / 0 | SHORT
+onager | 1.9108e+7 | 4.9037e+6 | 0.26 | 2 / 0 | SHORT
+deathstar | 1.0926e+15 | 2.8041e+14 | 0.26 | 2 / 0 | SHORT
+providence | 8.4486e+6 | 2.1685e+6 | 0.26 | 2 / 0 | SHORT
+providenceDn | 8.0679e+7 | 2.0707e+7 | 0.26 | 2 / 0 | SHORT
+recusant | 4.1311e+6 | 1.0602e+6 | 0.26 | 2 / 0 | SHORT
+recusantDn | 3.7554e+7 | 9.6387e+6 | 0.26 | 2 / 0 | SHORT
+reptransport | 9057.1 | 2324.7 | 0.26 | 2 / 0 | SHORT
+subjugator | 4.1830e+8 | 1.0678e+8 | 0.26 | 2 / 0 | SHORT
+done

@@ -29,7 +29,7 @@ test('actual power states distinguish a local trip from a shared grid trip and t
  for(const status of [states.powered,states.tripped]){for(const domain of status.domains)translated(domain.state);for(const local of status.local){translated(local.state);translated(local.name);}}
  for(const text of ['main：共通電力網が過負荷で保護遮断','表面機材：局所イオン遮断','電力網の保護を解除・再起動','イオンパルス：阻止 2 TT・漏出 0.5 TT'])translated(text);
  assert.match(translated(run('C.PARTS.hion.desc')),/Performance coefficients are game assumptions/);
- for(const expression of ['C.FITS.itl.desc','C.ORDNANCE.itorp.desc'])assert.match(translated(run(expression)),/shared-grid protection/);
+ for(const expression of ['C.FITS.itl.desc','C.ORDNANCE.itorp.desc'])/* 2026-11-26 expectation changed (the ion rule, ION_RULE): the descriptions no longer speak of a local trip and shared-grid protection (was /shared-grid protection/); they say the ion spreads and stops equipment over its allowance */assert.match(translated(run(expression)),/stops for a while/);
 });
 
 test('the actual battle HUD distinguishes destruction, power cuts, heat, ion trips, recharge, crew and shield accounting',()=>{

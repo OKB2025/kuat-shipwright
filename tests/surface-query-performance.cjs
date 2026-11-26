@@ -51,7 +51,7 @@ test('self-occlusion uses actual geometry and rechecks target direction and repl
 test('repeated fire queries immediately reflect physical damage, ion heat, crew and heat changes',()=>{
  const {u,fire}=armed(),ctx={time:0,rand:()=>.9,ev(){},out(){},sunk(){}};assert.equal(fire(),1);
  u.mods[0]=0;assert.equal(fire(),0);u.mods[0]=1;assert.equal(fire(),1);
- const trip=C.ionOverload(u,2,{moduleIndex:0},ctx);assert.equal(trip.scope,'heat');assert.equal(fire(),0);u.ht.qJ=.8*u.ht.capacityJ;u.p.crewCapacity=20;C.powerTick(u,300,ctx);C.powerTick(u,300,ctx);assert.equal(fire(),1);
+ const trip=C.ionOverload(u,2,{moduleIndex:0},ctx);/* 2026-11-26 expectation changed (the ion rule, ION_RULE): the hit spreads over the parts ('parts'); was 'heat' (all of it heat at once) */assert.equal(trip.scope,'parts');assert.equal(fire(),0);u.ht.qJ=.8*u.ht.capacityJ;u.p.crewCapacity=20;C.powerTick(u,300,ctx);C.powerTick(u,300,ctx);assert.equal(fire(),1);
  u.crew=0;assert.equal(fire(),0);u.crew=20;assert.equal(fire(),1);
  const H=C.heatProfile(u.p),i=H.src.findIndex(s=>s.k==='weapon'&&s.m?.includes(0));assert.ok(i>=0);u.ht.md[i]=3;assert.equal(fire(),0);u.ht.md[i]=0;u.ht.lm[i]=1;assert.equal(fire(),1);
 });

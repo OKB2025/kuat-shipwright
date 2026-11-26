@@ -618,7 +618,7 @@ function concussionLauncherMesh(g,f){
  // The body remains the aircraft's compact twin-mouth launch tube. Only the
  // hinge frame changes; supports stay in the fixed mounting frame.
  box(g,M,p.bodyCenter,0,0,0,L,h,W,FC.body);
- for(const z of [-W*.22,W*.22])cyl(g,M,p.bodyCenter,L*.49,0,z,W*.18,W*.18,L*.04,0,FC.dark,10);
+ if(f.oneRound===true)cyl(g,M,p.bodyCenter,L*.49,0,0,W*.34,W*.34,L*.04,0,FC.dark,10);/* 2026-11-26 a launcher of one round has one mouth */else for(const z of [-W*.22,W*.22])cyl(g,M,p.bodyCenter,L*.49,0,z,W*.18,W*.18,L*.04,0,FC.dark,10);
  if(Math.abs(p.pitchDeg)>1e-9){
   const B=[...p.baseFrame.fw,...p.baseFrame.up,...p.baseFrame.rt],t=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,p.baseOrigin),p.baseFrame.up),height=Math.max(0,pivotY-t);
   box(g,B,p.baseOrigin,0,t/2,0,L*.5,t,W*1.35,FC.ped);
@@ -659,21 +659,28 @@ function shipLauncherMesh(g,f,p=C.launcherGeometry(f)){
  }
 }
 // v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
-function craftWeaponMesh(g,f){
+function craftWeaponMesh(g,f,ship){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
  if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
  // v24 A fixed laser is a bare barrel (it may be sunk into the hull); no breech housing.
  if(k==='claser'||k==='claserL'||k==='claserH'){
   /* 2026-11-24 (user「航空レーザーは円柱部品で」): a straight cylinder of the gun's bore and length. */
+  if(d.ionBoxM3>0){/* 2026-11-26 an ion gun's charging compartment (the SW-7a kind): a cylinder behind the barrel on the barrel's line (user「充電区画は円筒になるようにして」), 2.5 times as long as it is across (★ ours), of the compartment's volume, with a collar at each end */const dia=Math.cbrt(4*d.ionBoxM3/(2.5*Math.PI)),len=2.5*dia,r=dia/2,cx=-L*.4-len*.5;cyl(g,M,o,cx,h*.5,0,r,r,len,0,Bd,16);for(const q of [-.46,.46])cyl(g,M,o,cx+len*q,h*.5,0,r*1.06,r*1.06,len*.06,0,R,16);}
   const bore=d.gunRule?.boreM;if(bore>0){const rm=W*(d.laserTube&&d.fixed?.5/* 2026-11-26 the gun's body is the tube itself (bore ÷ 0.75 across) */:.42)/* the gun's own box (fitAABB) is 0.84 of its width: the drawn tube stays inside it, at any scale */,ro=Math.min(bore*(C.CRAFT_LASER_YIELD?.outerK||1/.75)/2,rm)/* 2026-11-25 (user「外径＝口径 ÷ 0.75で」): the bore is the inside diameter, the tube bore ÷ 0.75 across (it was bore ÷ 0.6, then the bore itself) */,rc=Math.min(rm,ro*1.3)/* the three collars, a little proud of the tube */,rb=Math.min(bore/2,ro*.9)/* the muzzle's hole: the bore */;cyl(g,M,o,L*.065,h*.5,0,ro,ro,L*.93,0,B,10);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,rc,rc,L*.05,0,R,10);cyl(g,M,o,L*.5,h*.5,0,rb,rb,L*.06,0,D,10);if(d.gunRule.nozzle==='track'){/* 2026-11-25 the X-wing's forked nozzle: a bar across the muzzle and two prongs ahead of it */const pl=Math.max(.12,ro*3.2),off=ro*1.9,pr=Math.max(.008,ro*.24);cyl(g,M,o,L*.53,h*.5,0,pr,pr,off*2,2,R,6);for(const zz of [-off,off])cyl(g,M,o,L*.53+pl/2,h*.5,zz,pr,pr,pl,0,R,6);}return;}
   cyl(g,M,o,L*.065,h*.5,0,W*.34,W*.24,L*.93,0,B,8);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
+ if(k==='cturret'&&d.ionBoxM3>0){/* 2026-11-26 an ion turret's feed compartment under the mount (the SW-4 kind): an upright cylinder as tall as it is across (★ ours), of the compartment's volume */const dia=Math.cbrt(4*d.ionBoxM3/Math.PI),r=dia/2;cyl(g,M,o,0,-dia*.5,0,r,r,dia,1,Bd,16);}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
+ if(k==='ctorp'&&d.tube){/* 2026-11-26 the common launch tube: a cylinder, a collar at each end, the open mouth */const r=W*.5;cyl(g,M,o,0,h*.5,0,r*.92,r*.92,L,0,Bd,14);for(const q of [-.44,.44])cyl(g,M,o,L*q,h*.5,0,r,r,L*.08,0,R,14);cyl(g,M,o,L*.49,h*.5,0,r*.7,r*.7,L*.04,0,D,12);return;}
  if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
  if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
  // v24 A wing pylon is the pylon alone: a slim streamlined blade. Its stores are chosen per squadron in the order
  // of battle and are not part of the design.
  if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,L*.46,h*.5,0,L*.08,h*.7,W*.8,D);}
+ // 2026-11-26 A ring bomb bay's drop device: a low housing on the wall with its chute's mouth.
+ // After the TIE/sa's bomb-drop chute (user 2026-11-26「投下装置はTIE/SAの投下装置を参考に組んで」): a collar on the wall, a short round chute standing out of it,
+ // its open mouth at the end, and two ribs bracing the chute to the collar. y is out of the wall (down, under a pod).
+ if(k==='cdrop'){/* 2026-11-26 the bombs' way through the structure to the ring bay it serves (seen in the X-ray view) */const way=ship?C.bombChute?.(ship,f):null;if(way&&way.length>.02&&!way.blockedBy.length)axisFrustum(g,way.from,way.to,way.r,way.r,FC.dark,true,false,14);const r=W*.5;cyl(g,M,o,0,h*.09,0,r,r,h*.18,1,Bd,16);cyl(g,M,o,0,h*.56,0,r*.84,r*.8,h*.76,1,B,16);cyl(g,M,o,0,h*.93,0,r*.88,r*.88,h*.1,1,R,16);cyl(g,M,o,0,h*.985,0,r*.68,r*.68,h*.03,1,D,16);for(const x of [-1,1])box(g,M,o,x*r*.9,h*.3,0,r*.14,h*.5,r*.5,Bd);}
 }
 // 2026-11-22 Painted shapes and emblems (Core normalizeDecals). Each decal is the part of the hull's and the structures'
 // solid surface inside its rectangle, facing its normal and within half its larger side of its plane, lifted a little
@@ -699,8 +706,10 @@ function decalSourceTriangles(ship){
 }
 function meshDecals(ship,sources){
  const g=new Geo(64),list=ship.decals||[];if(!list.length)return g;sources=sources||decalSourceTriangles(ship);
+ /* 2026-11-26 (user「塗るのに使った図形、画像を一つ一つ順番を入れ替えられるように」): the list's order is the stacking order. Each decal stands off the surface by its size as before; one that overlaps earlier ones stands a little above the highest of them, so a later decal is in front whatever the sizes (before, the larger decal was always the one on top). */
+ const placed=[],liftOf=d=>{const own=Math.min(.4,Math.max(.02,.01*Math.max(d.w,d.h))),r=Math.hypot(d.w,d.h)/2;let under=0;for(const q of placed)if(C.len(C.sub(q.c,d.c))<q.r+r)under=Math.max(under,q.lift);const lift=under>0?Math.max(own,under+Math.max(.004,.1*own)):own;placed.push({c:d.c,r,lift});return lift;};
  for(const raw of list)for(const d of C.decalInstances(raw)){
-  const f=C.decalFrame(d),hw=d.w/2,hh=d.h/2,depth=Math.max(hw,hh),lift=Math.min(.4,Math.max(.02,.01*Math.max(d.w,d.h))),slot=decalSlot(ship,d),col=d.kind==='image'?[255,255,255]:hex(d.color||'#ffffff'),r=Math.hypot(hw,hh)+depth;
+  const f=C.decalFrame(d),hw=d.w/2,hh=d.h/2,depth=Math.max(hw,hh),lift=liftOf(d),slot=decalSlot(ship,d),col=d.kind==='image'?[255,255,255]:hex(d.color||'#ffffff'),r=Math.hypot(hw,hh)+depth;
   for(const src of sources){
    if(src.box&&[0,1,2].some(i=>d.c[i]+r<src.box[i]||d.c[i]-r>src.box[i+3]))continue;const T=src.tris;
    for(let i=0;i+8<T.length;i+=9){
@@ -751,7 +760,7 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
     if(C.FITS[f.k].window)return;
     if(C.isConcussionLauncher(f)){if(!FIT_SKIP_BODY?.has(f.id))concussionLauncherMesh(g,f);return;}
     // v21 Craft weapons sit flush on their mount (no pedestal): barrels and launchers along the bow.
-    if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f);return;}
+    if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f,ship);return;}
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
     // pedestal from below the surface up to the mount
     const ph = fitPedestalHeight(f);
@@ -2183,6 +2192,12 @@ function triangleMesh(g,T,col,scale=48,alpha=255){
     const k=g.n;g.v(ax,ay,az,nx,ny,nz,ax/scale,(ay+az)/scale,col,alpha);g.v(bx,by,bz,nx,ny,nz,bx/scale,(by+bz)/scale,col,alpha);g.v(cx,cy,cz,nx,ny,nz,cx/scale,(cy+cz)/scale,col,alpha);g.tri(k,k+1,k+2);
   }
 }
+// A flat ring (inner radius ri, outer ro) at o, facing along n.
+function ringCap(g,o,n,ri,ro,col,segments){
+  const f=C.frameAxis(n),N=segments||24,base=g.n;g.room((N+1)*2,N*6);
+  for(let i=0;i<=N;i++){const t=i/N*Math.PI*2,c=Math.cos(t),s=Math.sin(t),at=r=>C.add(o,C.add(C.mul(f.v,c*r),C.mul(f.w,s*r)));g.v(...at(ri),...f.u,i/N*4,0,col,255);g.v(...at(ro),...f.u,i/N*4,(ro-ri)/64,col,255);}
+  for(let i=0;i<N;i++){const a=base+i*2,b=a+1,c=a+2,d=a+3;g.tri(a,b,d);g.tri(a,d,c);g.tri(a,d,b);g.tri(a,c,d);}
+}
 function axisFrustum(g,a,b,r0,r1,col,caps=true,inward=false,segments){
   const delta=C.sub(b,a),l=C.len(delta);if(!(l>1e-9)||!(r0>0||r1>0))return;
   const f=C.frameAxis(delta),N=segments||radialSegments(Math.max(r0,r1)),circle=roundCircle(N),base=g.n,p=(o,r,i)=>C.add(o,C.add(C.mul(f.v,circle[i][0]*r),C.mul(f.w,circle[i][1]*r)));
@@ -2270,6 +2285,9 @@ function meshOnePart(out,p,ship,opt,glow){
     if(k==='cockpit'&&!p.room){const canopy=C.canopyTriangles?.(p);if(canopy)triangleMesh(out.struct,canopy,opt.coded?color:CANOPY_GLASS,36);else sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
     if(k==='astromech'){const r=p.d/2,u=C.norm(p.dir||[0,1,0]),h=p.d*1.05,base=C.sub(p.c,C.mul(u,h/2)),top=C.add(p.c,C.mul(u,h*.18));axisFrustum(C.isInternal(p)?out.interior:out.struct,base,top,r*.82,r*.82,opt.coded?color:[188,196,204],false);if(!C.isInternal(p))sphere(out.struct,top,r*.8,opt.coded?color:ASTRO_DOME,8,3);return;}
     if(d.shape==='sphere'){sphere(C.isInternal(p)?out.interior:k==='gen'?out.gen:out.shield,p.c,p.d/2,color,8,3);return;}
+    // 2026-11-26 A ring bomb bay is drawn as what it is (user「爆弾倉が円筒型になってなくない？」): a cylinder along its length, as wide as its room, with the
+    // hollow inside the 0.3 m ring of bombs shown at both ends.
+    if(k==='bombBay'&&p.bayRing===true&&Array.isArray(p.room)){const L=p.room[0],R=Math.min(p.room[1],p.room[2])/2,ri=Math.max(0,R-(C.CRAFT_BAY?.cell||.3)),a=C.add(p.c,[-L/2,0,0]),b=C.add(p.c,[L/2,0,0]),dark=Array.isArray(color)?color.map(v=>Math.round(v*.6)):color;if(ri>.02){/* the ring alone: its outer wall, its inner wall facing the hollow, and a flat ring at each end; the middle is open (user「真ん中は空き空間じゃないの？」) */axisFrustum(out.interior,a,b,R,R,color,false,false,32);axisFrustum(out.interior,a,b,ri,ri,dark,false,true,32);ringCap(out.interior,a,[-1,0,0],ri,R,color,32);ringCap(out.interior,b,[1,0,0],ri,R,color,32);}else axisFrustum(out.interior,a,b,R,R,color,true,false,28);return;}
     if(d.shape==='cube'){if(p.room||p._clip){roomMesh(ship,p,k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,color);}else{const r=p.d/2;boxSolid(k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,C.sub(p.c,[r,r,r]),C.add(p.c,[r,r,r]),color,32);}return;}
     const m=C.partDims(p),u=C.norm(p.dir||(k==='engine'?[-1,0,0]:[1,0,0])),a=C.sub(p.c,C.mul(u,m.l/2)),b=C.add(p.c,C.mul(u,m.l/2));
     if(k==='engine'){engineBell(out,p,a,b,u,color,glow,ship);return;}

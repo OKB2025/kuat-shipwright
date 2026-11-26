@@ -93,7 +93,9 @@ test('crew survival and loss totals translate actual tallies with their dynamic 
 test('computed system warnings translate complete sentences and retain engineering figures', () => {
   // v24 The navigation shortage has its own code (it applies to ships too).
   const warnings = run('fixture().warnings.filter(w=>w.code==="craft-systems"||w.code==="navigation").map(w=>w.text)');
-  assert.equal(warnings.length, 7, 'exercise each shortage warning from the engineering model');
+  // 2026-11-26: was 7. The seventh was「リパルサーリフトの支持質量が不足しています…」; the repulsorlift is now carried for the mass without a part
+  // (user decision 2026-11-26, C.REPULSORLIFT), so it cannot be short and the warning no longer exists.
+  assert.equal(warnings.length, 6, 'exercise each shortage warning from the engineering model');
   for (const source of warnings) {
     const output = translated(source);
     assert.deepEqual(output.match(/\d+(?:\.\d+)?/g), source.match(/\d+(?:\.\d+)?/g), source);

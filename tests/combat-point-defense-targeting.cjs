@@ -46,7 +46,7 @@ test('the real RTS missile step leaves missiles alone when only ordinary guns ar
   // (it stood at 5 km for every gun); the missile stays where it was. A gun this short-ranged is a laser or one of those turbolasers.
   const reach=C.FITS[k].gunRule.rangeM,f=battle(k),m=incoming(f);assert.ok(reach>0,k);if(reach<=5000){assert.ok(C.FITS[k].gunRule.kind==='laser'||C.GUN_RULES.turbolaserShot[k]>0,k);f.e.pos=[reach*.6,0,0];}R.tick(f.w,.25);
   assert.equal(m.n,8,k+' does not silently use ordinary barrels for defence');assert.equal(f.u.dualDefense,false,k);
-  assert.ok(f.u.lastShot?.gun>0,k+' continues shooting its ordinary ship target');
+  /* 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): read as rounds fired or landed in this step, or fire carried toward the next round; was lastShot.gun > 0 */assert.ok((u=>(u.lastShot?.gun||0)+(u.lastShot?.fired||0)+(u.roundAcc?.gun||0)+(u.roundAcc?.ion||0))(f.u)>0,k+' continues shooting its ordinary ship target');
  }
 });
 
@@ -60,7 +60,7 @@ test('dedicated point defence still intercepts in the same real RTS missile step
 test('normal guns can explicitly target a small craft unit through the ordinary attack order and electrical/thermal path',()=>{
  const f=battle('triple40');Object.assign(f.e.p,{len:10,width:7,height:6,craft:true});f.e.pos=[1000,0,0];
  const initial=f.u.energy;assert.equal(R.orderUnit(f.w,f.u.id,{type:'attack',target:f.e.id}),true);R.tick(f.w,.25);
- assert.equal(f.u.firingAt,f.e.id);assert.ok(f.u.lastShot?.gun>0,'normal aimed fire reaches the small target using the existing hit model');assert.equal(f.u.dualDefense,false);
+ assert.equal(f.u.firingAt,f.e.id);/* 2026-11-26 expectation changed (user「命中する砲弾のみを1発1発シミュレーションする」, C.fleetRounds): fire is whole rounds, so one step may fire none yet (the part of a round is carried in u.roundAcc) or land none (they missed). The gun firing at the target is read as: rounds fired or landed in this step, or fire carried toward the next round. Was: lastShot.gun > 0 (rate x chance landed every step). */assert.ok((u=>(u.lastShot?.gun||0)+(u.lastShot?.fired||0)+(u.roundAcc?.gun||0)+(u.roundAcc?.ion||0))(f.u)>0,'normal aimed fire reaches the small target using the existing hit model');assert.equal(f.u.dualDefense,false);
  assert.ok((f.u.pw?.wpn||0)>0,'the existing power network funds weapon charging');assert.ok(f.u.fuelState.generatedElectricalJ>0,'actual generation consumes installed reactants');
  const drawn=(f.u.pw.wpn||0)*.25/C.TT/C.weaponInputFactor(f.u.p);assert.ok(initial+drawn-f.u.energy>0,'firing spends stored or newly charged weapon energy');
  const h=f.u.ht,weaponHeat=(h.e.weapon||0)+(f.u.p.heat?.src||[]).reduce((sum,source,i)=>sum+(source.k==='weapon'?h.sourceGenerationW?.[i]||0:0),0);

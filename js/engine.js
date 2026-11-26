@@ -320,11 +320,15 @@ function geometryPass(job, flags) {
 // v13 LOAD The public state a build has just derived the ship to: when the editor sends that same state back to
 // open it, the compartments and mounts are already settled and are not derived a second time (2–3 s for an ISD).
 let settledState = null;
+// 2026-11-26 A state that still carries the retired repulsorlift parts (a design that did not come through C.deserialize) has them taken
+// out here as a load does, so the Worker's figures are those of a loaded design (tests/structure-refusal-recheck-worker.cjs: the Worker's mass
+// was the parts' mass above a cold load's).
+const retiredOut = state => C.migrateRetiredRepulsorlift ? C.migrateRetiredRepulsorlift(state) : state;
 function applyState(job) {
   shipGen++;
   if (job.reset || !ship) {
-    if (!(ship && C.publicJSON(ship) === job.state)) { ship = JSON.parse(job.state); hullKey = ''; authoringKey = null; lastInfo = null; lastOverlap = ''; settledState = null; }
-  } else { C.patchShip(ship, JSON.parse(job.state)); settledState = null; }
+    if (!(ship && C.publicJSON(ship) === job.state)) { ship = retiredOut(JSON.parse(job.state)); hullKey = ''; authoringKey = null; lastInfo = null; lastOverlap = ''; settledState = null; }
+  } else { C.patchShip(ship, retiredOut(JSON.parse(job.state))); settledState = null; }
 }
 async function deriveState(job) {
   const what = new Set(job.what || []);

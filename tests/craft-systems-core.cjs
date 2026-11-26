@@ -33,7 +33,7 @@ test('equipment warnings link to a real part or a valid catalogue item in the ed
 });
 test('new equipment contributes mass, cost, hotel power and heat exactly once',()=>{
  const s=fixture(),before=C.computeStats(s);add(s,'navComputer',.02);const after=C.computeStats(s),delta=C.craftSystemsPower(s,after.info)-C.craftSystemsPower(fixture(),before.info);
- assert.ok(after.mass>before.mass);assert.ok(after.cost>before.cost);assert.ok(delta>0);assert.ok(Math.abs((after.draw.hotel-before.draw.hotel)-delta)<delta*1e-12);assert.ok(Math.abs(after.draw.systems-delta)<delta*1e-12);
+ assert.ok(after.mass>before.mass);assert.ok(after.cost>before.cost);assert.ok(delta>0);/* 2026-11-26: the systems demand also holds the repulsorlift carried for the mass (C.REPULSORLIFT, no part), and the new equipment's mass raises it a little; both are counted here. Was: hotel difference = delta and systems = delta, to 1e-12. */const liftDelta=after.repulsorlift.power-before.repulsorlift.power;assert.ok(liftDelta>0);assert.ok(Math.abs((after.draw.hotel-before.draw.hotel)-delta-liftDelta)<delta*1e-9);assert.ok(Math.abs(after.draw.systems-before.draw.systems-delta-liftDelta)<delta*1e-9);
  assert.ok(after.heat.net.src.some(x=>x.k==='hotel'));const a=after.accuracy;C.craftSystemsStats(s,after);assert.equal(after.accuracy,a);
 });
 test('systems metadata survives a blueprint snapshot and rejects nonfinite capacities',()=>{

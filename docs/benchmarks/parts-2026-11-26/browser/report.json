@@ -1,0 +1,107 @@
+{
+ "errors": [],
+ "steps": [
+  {
+   "step": "open craft_tie_sa",
+   "seconds": 27.221,
+   "name": "TIE/sa Bomber",
+   "parts": 130,
+   "liftParts": 0,
+   "mass": 43.00895049266988,
+   "support": 47.30984554193687,
+   "lift": {
+    "total": 42.9085913889894,
+    "volume": 0.15733150175962782,
+    "mass": 0.055066025615869735,
+    "cost": 3500.1573315017595,
+    "power": 157331501759627.8,
+    "support": 47.199450527888345
+   },
+   "canLand": false,
+   "landing": true,
+   "stations": "[{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":2},\"count\":1},{\"fit\":\"cbomb\",\"mount\":\"bay\",\"store\":{\"mount\":\"bay\",\"box\":[4.2,1.8,2.1]},\"count\":1}]",
+   "floating": 0,
+   "warnings": []
+  },
+  {
+   "step": "ion compartment on an X-wing laser",
+   "before": {
+    "tt": 1.3647999999999996e-7,
+    "ion": 0,
+    "mass": 0.2126391758148873,
+    "slider": true,
+    "max": "2"
+   },
+   "after": {
+    "box": 1,
+    "tt": 0,
+    "ionKt": 2593.1860904263585,
+    "mass": 0.6626391758148873,
+    "name": "イオン砲（固定式）",
+    "out": "1.00 m³",
+    "summary": "Ion Cannon：1発 2.59 MT・毎秒1発",
+    "ionArcs": true
+   }
+  },
+  {
+   "step": "magazine of an X-wing launch tube",
+   "mag0": {
+    "group": true,
+    "value": "1",
+    "note": "Launcher 1 round + magazine 1 rounds"
+   },
+   "mag1": {
+    "magazine": 4,
+    "want": 4,
+    "got": 2,
+    "note": "Launcher 1 round + magazine 2 rounds（4 asked for; room in the structure for 2 rounds）",
+    "stations": "[{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":3},\"count\":1},{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":2},\"count\":1}]",
+    "warn": [
+     "発射器の弾薬庫が構造物の中に入りきりません（4 発ぶんのうち 2 発ぶん）。入らないぶんの弾は積めません。"
+    ]
+   }
+  },
+  {
+   "step": "save and reload",
+   "savedBox": 1,
+   "savedMagazine": 4,
+   "loadedBox": 1,
+   "loadedMagazine": 4,
+   "liftPartsSaved": 0,
+   "second": true
+  },
+  {
+   "step": "undo twice",
+   "box": 1,
+   "magazine": null
+  },
+  {
+   "step": "bomb bay form on the Y-wing",
+   "b0": {
+    "group": true,
+    "options": [
+     "row:Straight (its floor is the hatch)",
+     "ring:Ring (drop devices fitted outside)"
+    ],
+    "note": "Bombs 64 / one row a release: 8 "
+   },
+   "b1": {
+    "bayRing": true,
+    "note": "Bombs 32 (8 rows × 4 ) / Drop Device 0 ",
+    "warn": [
+     "bomb-bay-device"
+    ],
+    "bayStations": 0
+   }
+  },
+  {
+   "step": "catalogue",
+   "partsOffered": "repulsor:false landingGear:false",
+   "tubeName": "発射管",
+   "drop": true
+  }
+ ],
+ "mode": "worker",
+ "titleExamples": 0,
+ "status": "OK"
+}

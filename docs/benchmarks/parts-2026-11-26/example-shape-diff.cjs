@@ -1,0 +1,10 @@
+// The examples' structures and fittings before and after, matched by what they are and where (not by id): what really differs. read-only.
+// usage: node example-shape-diff.cjs <dir of old data/examples> <dir of new data/examples>
+const fs=require('fs'),zlib=require('zlib'),path=require('path');const [A,B]=process.argv.slice(2);const load=f=>{const j=JSON.parse(zlib.gunzipSync(fs.readFileSync(f)));return j.design||j;};
+const r=v=>typeof v==='number'?+v.toFixed(2):Array.isArray(v)?v.map(r):v,lift=p=>p.k==='repulsor'||p.k==='landingGear',shape=p=>p.k==='struct'||p.k==='wing'||p.k==='solarPanel'||p.form;
+const sigP=p=>JSON.stringify([p.k,p.form||'',r(p.c||[]),r(p.s||p.room||p.d||0),r(p.yaw||0),r(p.pitch||0),r(p.roll||0),p.label||'']),sigF=f=>JSON.stringify([f.k,r(f.p||[]),r(f.n||[]),f.a??'',r(f.scale||1),r(f.sink||0)]);
+const multi=(xa,xb,sig)=>{const m=new Map();for(const p of xa){const s=sig(p);m.set(s,(m.get(s)||0)+1);}const onlyB=[];for(const q of xb){const s=sig(q);if(m.get(s)>0)m.set(s,m.get(s)-1);else onlyB.push(s);}const onlyA=[];for(const [s,n] of m)for(let i=0;i<n;i++)onlyA.push(s);return {onlyA,onlyB};};
+let total=0;for(const k of fs.readdirSync(B).filter(k=>fs.existsSync(path.join(B,k,'design.json.gz'))&&fs.existsSync(path.join(A,k,'design.json.gz')))){const a=load(path.join(A,k,'design.json.gz')),b=load(path.join(B,k,'design.json.gz'));
+ const S=multi(a.parts.filter(p=>shape(p)&&!lift(p)),b.parts.filter(p=>shape(p)&&!lift(p)),sigP),F=multi(a.fits||[],b.fits||[],sigF),n=S.onlyA.length+S.onlyB.length+F.onlyA.length+F.onlyB.length;total+=n;
+ if(n){console.log(k+': structures only before '+S.onlyA.length+', only after '+S.onlyB.length+'; fittings only before '+F.onlyA.length+', only after '+F.onlyB.length);for(const [t,l] of [['  structure before',S.onlyA],['  structure after ',S.onlyB],['  fitting before',F.onlyA],['  fitting after ',F.onlyB]])for(const s of l.slice(0,4))console.log(t+' '+s.slice(0,170));}}
+console.log('examples compared; structures and fittings that differ in kind, form, place, size or angle (to 0.01): '+total);

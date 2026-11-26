@@ -11028,6 +11028,8 @@ Object.assign(root.KS_EN.messages,{
  "重力制御装置（前部）": "Gravity Control Unit (Forward)",
  "コアシップ着陸用重力制御装置": "Core Ship Landing Gravity Control Unit",
  "重力制御装置喪失": "Gravity control lost",
+ "リパルサーリフト 支持質量（自動）": "Mass Supported by the Repulsorlift (automatic)",
+ "リパルサーリフト（自動）": "Repulsorlift (automatic)",
  "重力制御装置喪失：撃墜": "Gravity control lost: shot down",
  "艦内に1Gを合成し、艦を重力に抗して支える重力制御装置。支えられる質量は容積で決まり、艦の質量ぶんを積みます。合成した重力の起点は空間にしばらく残るため、動く艦は後ろへ引かれます（重い艦ほど少し強く減速する運動抵抗）。浮揚と接地の支持能力、給電をそれぞれ点検します。": "A gravity control unit that generates 1 G inside the ship and supports the ship against gravity. The mass it can support follows its volume; fit enough for the ship's mass. The origin of the generated gravity lingers in space for a while, so a moving ship is pulled backward (motion resistance: a heavier ship slows a little more strongly). Lift support, ground support and power are checked separately.",
  "小型機を浮かせて地上で支えるリパルサーリフト（着陸・浮上の支持装置）。容積から支えられる質量を算出し、機体の質量に足りるかを確認します。（2026-11-24、旧「着陸脚」）": "A repulsorlift that lifts a small craft and supports it on the ground (the landing and hover support). The mass it can support is calculated from its volume and checked against the craft's mass. (2026-11-24; formerly \"Landing Gear\")",
@@ -11054,4 +11056,47 @@ Object.assign(root.KS_EN.messages,{
  "後部銃座・上部砲塔などの小型連装レーザー砲塔。既定は口径 0.041 m で2門が各1発43 kt、毎秒1発（一斉射86 kt）。": "A compact twin laser turret for rear or dorsal positions. Default: 0.041 m bore, two barrels of 43 kt a shot each, one shot a second (86 kt a volley)."
 });
 // </gun-rules-2026-11-24-catalog>
+// <ion-rule-2026-11-26> The ion rule and the craft ion gun.
+Object.assign(root.KS_EN.terms,{
+ "イオンエネルギーを照射する。シールドを抜けたイオンは当たった所から周りの機材へ広がり、密度の高い所ほど熱に変わる。残りを溜めた機材は、許容量（給電量で決まる）を超えるとしばらく止まり、溜まった分はやがて艦内の熱になる。": "Fires ion energy. Past the shield, ion spreads from where it lands to the equipment around it, and denser parts turn more of it to heat. Equipment holding more than its allowance (set by the power it takes) stops for a while; what is held ends as heat in the ship.",
+ "プロトン魚雷と同じ弾体のイオン弾頭。弾はシールドを通り、イオンは当たった所から周りの機材へ広がり、密度の高い所ほど熱に変わる。残りを溜めた機材は、許容量（給電量で決まる）を超えるとしばらく止まり、溜まった分はやがて艦内の熱になる。": "An ion warhead on the proton torpedo's body. The round passes the shield; its ion spreads from where it lands to the equipment around it, and denser parts turn more of it to heat. Equipment holding more than its allowance (set by the power it takes) stops for a while; what is held ends as heat in the ship.",
+ "イオン砲（固定式）": "Ion Cannon (Fixed)",
+ "イオン砲塔": "Ion Turret",
+ "イオン充電区画": "Ion Charging Compartment",
+ "なし（レーザー砲）": "None (laser)",
+ "イオン充電区画を 0 より大きくすると、この砲はイオン砲になります。1発は区画に1秒で溜まる量で、毎秒1発です。レーザーガスは使いません。当たったイオンは周りの機材へ広がり、許容量を超えた機材をしばらく止めます。": "With a charging compartment above 0 this gun is an ion cannon. One shot is what the compartment gathers in a second, once a second. It uses no laser gas. Ion that lands spreads to the equipment around it and stops equipment over its allowance for a while.",
+ "20秒ごとに8発のイオン魚雷（1発 10 TT 相当のイオン）。弾はシールドを通り、イオンは当たった所から周りの機材へ広がり、密度の高い所ほど熱に変わる。残りを溜めた機材は、許容量（給電量で決まる）を超えるとしばらく止まり、溜まった分はやがて艦内の熱になる。点防御に迎撃される。射界の制約なし。": "Eight ion torpedoes every 20 s (10 TT of ion each). The rounds pass the shield; the ion spreads from where it lands to the equipment around it, and denser parts turn more of it to heat. Equipment holding more than its allowance (set by the power it takes) stops for a while; what is held ends as heat in the ship. Point defence can intercept them. No firing-arc limits.",
+ "イオン砲": "Ion Cannon"
+});
+// </ion-rule-2026-11-26>
+// <craft-magazine-bay-2026-11-26> Launchers with magazines, bomb bay forms, the drop device.
+Object.assign(root.KS_EN.terms,{
+ "魚雷発射器": "Torpedo Launcher",
+ "爆弾投下装置": "Bomb Drop Device",
+ "投下装置": "Drop Device",
+ "弾薬庫（発射器の後ろ）": "Magazine (behind the launcher)",
+ "弾薬庫に入れる数": "Rounds in the magazine",
+ "発": "rounds",
+ "発射器 1 発＋弾薬庫": "Launcher 1 round + magazine",
+ "発ぶんのうち、構造物に入るのは": "asked for; room in the structure for",
+ "発ぶん": "rounds",
+ "発射器そのものは1発ぶんです。残りは発射器の真後ろから、構造物の中に自動で作られる弾薬庫に入ります。真後ろの次は左右・上下へ均等に広がり、入らない側のぶんは反対側へ回ります。": "The launcher itself holds one round. The rest go into a magazine made automatically in the structure, starting straight behind the launcher, then spreading evenly to the left, right, above and below; what does not fit on one side goes to the opposite side.",
+ "爆弾倉の形式": "Bomb Bay Form",
+ "形式": "Form",
+ "直列型（下面が投下口）": "Straight (its floor is the hatch)",
+ "円筒型（投下装置を外装で付ける）": "Ring (drop devices fitted outside)",
+ "爆弾": "Bombs",
+ "個": "",
+ "列": "rows",
+ "基": "",
+ "1回の投下で1列": "one row a release:",
+ "直列型は下面がそのまま投下口になり、1回の投下で1列ぶんが落ちます。円筒型は幅 0.3 m の輪に爆弾が並び（1列の数は円周で決まり、長さ 0.3 m ごとに1列増えます）、爆弾倉が接している外壁に付けた爆弾投下装置から、押している間落とし続けます。": "A straight bay's floor is its hatch, and one release drops one row. A ring bay holds bombs round a ring 0.3 m wide (a row's count goes by the circumference; every 0.3 m of length adds a row) and drops them, for as long as the control is held, through bomb drop devices fitted on the outer wall the bay touches.",
+ "円筒型の爆弾倉から爆弾を落とす外装の装置。爆弾倉が接している外壁に取り付ける。1基で毎秒4個を落とし続ける。直列型の爆弾倉は下面がそのまま投下口になるので、この装置は要らない。": "An exterior device that drops bombs from a ring bomb bay. Fit it on the outer wall the bay touches. One device drops four bombs a second for as long as held. A straight bay drops through its own floor and needs none.",
+ "機首方向へ撃つ発射器。発射器そのものは1発ぶんで、残りの弾は発射器の真後ろから構造物の中に自動で作られる弾薬庫に入る（真後ろ、次に左右・上下へ均等に広がり、入らない側のぶんは反対側へ回る）。プロトン魚雷・イオン魚雷・震盪ミサイルを装填できる。": "A launcher firing toward the nose. The launcher itself holds one round; the rest go into a magazine made automatically in the structure, starting straight behind it (then evenly to the left, right, above and below; what does not fit on one side goes to the opposite side). Takes proton torpedoes, ion torpedoes and concussion missiles."
+});
+// </craft-magazine-bay-2026-11-26>
+Object.assign(root.KS_EN.terms,{
+ "発射管": "Launch Tube",
+ "機首方向へ撃つ円筒の発射管。魚雷とミサイルで共通。発射管そのものは1発ぶんで、残りの弾は発射管の真後ろから構造物の中に自動で作られる弾薬庫に入る（真後ろ、次に左右・上下へ均等に広がり、入らない側のぶんは反対側へ回る）。プロトン魚雷・イオン魚雷・震盪ミサイルを装填できる。": "A cylindrical launch tube firing toward the nose, for torpedoes and missiles alike. The tube itself holds one round; the rest go into a magazine made automatically in the structure, starting straight behind it (then evenly to the left, right, above and below; what does not fit on one side goes to the opposite side). Takes proton torpedoes, ion torpedoes and concussion missiles."
+});/* 2026-11-26 the common launch tube */
 })(typeof window==="undefined"?globalThis:window);

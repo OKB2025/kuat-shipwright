@@ -59,3 +59,16 @@ test('a painted gun and a painted equipment part take their colour; the alpha by
  o.fits.find(q=>q.id===f.id).paint='red';assert.equal(C.deserialize(o).fits.find(q=>q.id===f.id).paint,undefined,'a malformed gun colour is dropped');
  const e=s.parts.find(p=>p.k==='engine');e.paint='#30c060';const o2=plain(C.serialize(s));assert.equal(C.deserialize(o2).parts.find(p=>p.id===e.id).paint,'#30c060');
 });
+
+// 2026-11-26 (user「塗るのに使った図形、画像を一つ一つ順番を入れ替えられるように」): the list's order is the stacking order.
+// A decal that overlaps earlier ones is drawn above them whatever the sizes (before, the larger one stood higher off the
+// surface and so was always on top); decals that do not overlap keep the height their size gives. The order is saved.
+test('decals stack in the order of the list, and the order survives a save and a load',()=>{
+ const flat={hull:{assembly:true},parts:[]},src=[{tris:Float64Array.from([-50,0,-50, -50,0,50, 50,0,50,  -50,0,-50, 50,0,50, 50,0,-50]),box:null}];
+ const heights=decals=>{const g=G.meshDecals({...flat,decals},src),by=new Map();for(let i=0;i<g.n;i++){const col=[g.col[i*4],g.col[i*4+1],g.col[i*4+2]].join(','),y=g.pos[i*3+1];by.set(col,Math.max(by.get(col)??-Infinity,y));}return by;};
+ const big={id:1,kind:'rect',c:[0,0,0],n:[0,1,0],w:30,h:30,rot:0,color:'#ff0000'},small={id:2,kind:'circle',c:[2,0,1],n:[0,1,0],w:4,h:4,rot:0,color:'#00ff00'},away={id:3,kind:'rect',c:[40,0,40],n:[0,1,0],w:4,h:4,rot:0,color:'#0000ff'};
+ const a=heights([big,small,away]);assert.ok(a.get('0,255,0')>a.get('255,0,0'),`the small one, later in the list, is above the large one: ${a.get('0,255,0')} against ${a.get('255,0,0')}`);
+ const b=heights([small,big,away]);assert.ok(b.get('255,0,0')>b.get('0,255,0'),`moved behind it, it is below: ${b.get('0,255,0')} against ${b.get('255,0,0')}`);
+ assert.ok(Math.abs(a.get('0,0,255')-Math.max(.02,.01*4))<1e-9&&Math.abs(b.get('0,0,255')-a.get('0,0,255'))<1e-12,'a decal that overlaps nothing keeps the height of its size: '+a.get('0,0,255'));
+ const o=raw();o.decals=[small,big,away].map(d=>({...d,c:[d.c[0]+60,d.c[1]+20,d.c[2]]}));const s=C.deserialize(o),back=C.deserialize(plain(C.serialize(s)));assert.deepEqual(plain(back.decals.map(d=>d.id)),[2,1,3],'the saved order is kept');
+});

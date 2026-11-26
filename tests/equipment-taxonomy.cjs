@@ -10,35 +10,18 @@ test('catalogue consolidation preserves the saved legacy equipment kinds',()=>{
  assert.equal(C.placementCapability({k:'shield'}).space,'interior');
 });
 
-// 2026-11-24 (user: the craft part landingGear is the craft's repulsorlift, listed again as リパルサーリフト): it keeps its ground support and
-// now also holds the craft up by its volume, at the same support per m3 as the ship's gravity control (the part `repulsor`). Was: no lift support.
-test('unmarked landing gear retains mechanical support and lifts as a repulsorlift of its volume',()=>{
- const ref=model({k:'repulsor'}),lift=C.computeStats(ref).repulsorSupport/C.partVolume(ref.parts.find(p=>p.k==='repulsor'));assert.ok(lift>0,'the gravity control part supports mass by its volume');
- for(const ship of [model({k:'landingGear'}),restored(model({k:'landingGear'}))]){
-  const part=ship.parts.find(p=>p.k==='landingGear'),stats=C.computeStats(ship);
-  near(C.partVolume(part),1,'legacy gear volume');near(stats.craftSystems.landingSupport,300,'legacy mechanical support');near(stats.repulsorSupport,lift*C.partVolume(part),'the same lift per m3 as the repulsor part');
-  assert.equal(part.landingEquipment,undefined);
+// 2026-11-26 (user: 「リパルサーリフトは質量分搭載されてるという想定でリパルサーリフトの部品自体を無くせない？」「自動で足す／機体も無くす」): the saved kinds
+// `repulsor` and `landingGear` are taken out on load and the lift is carried for the mass (C.REPULSORLIFT; tests/ship-repulsorlift.cjs).
+// Three tests stood here until then: an unmarked landing gear gave 300 t of landing support a cubic metre and 70 t of lift; an unmarked
+// repulsor gave 70 t of lift a cubic metre and no landing support; a repulsor marked landingEquipment gave both and drew 1e15 W a cubic
+// metre. Those figures belonged to the parts and went with them.
+test('saved repulsors and landing gear are taken out on load and the design is carried for its mass',()=>{
+ for(const part of [{k:'landingGear'},{k:'repulsor'},{k:'repulsor',landingEquipment:true}]){
+  const ship=restored(model(part)),stats=C.computeStats(ship),bare=C.computeStats(restored(model({k:'inertial'})));
+  assert.equal(ship.parts.filter(p=>p.k==='repulsor'||p.k==='landingGear').length,0,part.k+' is gone after load');
+  near(stats.repulsorSupport,stats.mass*C.REPULSORLIFT.margin,'support by mass');near(stats.craftSystems.landingSupport,stats.mass*C.REPULSORLIFT.margin,'the systems row says the same');assert.equal(stats.craftSystems.landingReady,true);
+  assert.ok(stats.mass<bare.mass,'and the part\'s own mass is not in the design');
  }
-});
-
-test('unmarked repulsors retain their original lift support without acquiring mechanical landing support',()=>{
- for(const ship of [model({k:'repulsor'}),restored(model({k:'repulsor'}))]){
-  const part=ship.parts.find(p=>p.k==='repulsor'),volume=C.partVolume(part),stats=C.computeStats(ship);
-  near(volume,Math.PI*.375,'legacy repulsor volume');near(stats.repulsorSupport,volume*70,'legacy lift support');near(stats.craftSystems.landingSupport,0,'no implicit mechanical upgrade');
-  assert.equal(part.landingEquipment,undefined);
- }
-});
-
-test('opted-in landing equipment combines the existing functions and existing power demand once',()=>{
- const legacy=model({k:'repulsor'}),combined=model({k:'repulsor',landingEquipment:true});
- const base=C.computeStats(legacy),stats=C.computeStats(combined),volume=C.partVolume(combined.parts[1]);
- near(stats.repulsorSupport,volume*70,'existing repulsor coefficient');near(stats.craftSystems.landingSupport,volume*300,'existing landing-gear coefficient');
- near(C.craftSystemsPower(combined)-C.craftSystemsPower(legacy),volume*1e15,'added existing landing-gear power');
- near(stats.draw.systems-base.draw.systems,volume*1e15,'power enters the shared systems demand');near(stats.draw.hotel-base.draw.hotel,volume*1e15,'power enters the shared hotel demand');
- near(stats.mass,base.mass,'catalogue integration does not alter legacy density');
- const copy=restored(combined),after=C.computeStats(copy);
- assert.equal(copy.parts.find(p=>p.k==='repulsor').landingEquipment,true);
- near(after.repulsorSupport,stats.repulsorSupport,'saved lift support');near(after.craftSystems.landingSupport,stats.craftSystems.landingSupport,'saved landing support');
 });
 
 // v24 Cockpits are fixed crew seats (one person each); an old cockpit's look becomes a canopy structure.
@@ -73,9 +56,8 @@ test('new shield placement keeps its fixed dimensions and validates actual inter
 test('equipment replacement offers the unified catalogue while retaining an existing hidden legacy kind',()=>{
  const modern={k:'command',c:[0,0,0],d:1},options=Array.from(C.replacementOptions(modern));
  assert.ok(options.includes('firecontrol'),'combined fire control remains available');
- // 2026-11-24: landingGear is back in the catalogue as リパルサーリフト, so it is an ordinary replacement choice; the other two stay hidden.
- assert.ok(options.includes('landingGear'),'the craft repulsorlift (landingGear) is offered');assert.equal(C.PARTS.landingGear.name,'リパルサーリフト');
- for(const kind of ['targetComputer','vls'])assert.ok(!options.includes(kind),kind+' is not offered as a new replacement');
+ // 2026-11-26: landingGear is hidden again (the repulsorlift is no part any more). Was (2026-11-24): offered as リパルサーリフト.
+ for(const kind of ['landingGear','repulsor','targetComputer','vls'])assert.ok(!options.includes(kind),kind+' is not offered as a new replacement');
  for(const kind of ['landingGear','targetComputer']){
   const legacy={k:kind,c:[0,0,0],d:1},before=C.publicJSON(legacy),choices=Array.from(C.replacementOptions(legacy));
   assert.ok(choices.includes(kind),'existing '+kind+' remains editable without conversion');

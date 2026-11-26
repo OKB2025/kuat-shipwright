@@ -1,0 +1,13 @@
+const fs=require('fs'),path=require('path'),{chromium}=require('playwright');const out=__dirname,url=process.argv[2];
+(async()=>{const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:1280,height:800},deviceScaleFactor:2});const report={errors:[]};page.on('pageerror',e=>report.errors.push('pageerror: '+String(e.message).slice(0,300)));
+ const settled=()=>page.waitForFunction(()=>{const Y=window.__yard;return Y&&Y.eng&&!Y.eng.error&&Y.eng.adoptedGen>=Y.eng.gen&&Y.eng.geoGen>=Y.eng.gen&&Y.eng.statsGen>=Y.eng.gen&&!!Y.stats;},null,{timeout:300000});
+ const frame=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+ try{await page.goto(url);await page.waitForFunction(()=>!!window.__yard,null,{timeout:120000});await page.evaluate(()=>window.__yard.title.hide());
+  report.built=await page.evaluate(()=>{const Y=window.__yard,C=Y.C,s=C.newShip({L:6,W:4,H:3,assembly:true},'爆弾の通り道');s.parts=[];s.fits=[];s.nextId=1;s.shipClass='starfighter';C.placePart(s,'struct',[0,1.5,0],[6,4,3],{form:'box'},false);
+   s.parts.push({id:s.nextId++,k:'bombBay',c:[0,2,0],d:1.8,room:[.9,1.8,1.8],corner:0,bayRing:true,label:'円筒型の爆弾倉'});const r=C.placeFit(s,'cdrop',[0,0,0],[0,-1,0],0,false),r2=C.placeFit(s,'ctorp',[2,3,0],[0,1,0],0,false,{oneRound:true});if(r2.fit)r2.fit.magazine=5;
+   Y.setShip(s);return {drop:!!r.fit,tube:!!r2.fit,way:C.bombChute(s,r.fit)};});
+  await settled();await frame();report.stations=await page.evaluate(()=>JSON.stringify(window.__yard.C.craftStations(window.__yard.ship,window.__yard.stats)));report.warn=await page.evaluate(()=>(window.__yard.stats.warnings||[]).filter(w=>/bomb|magazine/.test(w.code||'')).map(w=>w.code));
+  const xr=await page.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(b=>/X-ray|X線|透視/.test(b.textContent));if(b){b.click();return b.textContent.trim();}return null;});report.xray=xr;await frame();await page.waitForTimeout(800);
+  for(const [name,cam] of [['way-xray-side',{th:1.25,ph:1.72,r:9,target:[0,.9,0]}],['way-xray-end',{th:.35,ph:1.45,r:8,target:[0,1.2,0]}]]){await page.evaluate(c=>{const Y=window.__yard,v=Y.view();Object.assign(v.cam,c);Y.draw();},cam);await frame();await page.waitForTimeout(900);await frame();await page.screenshot({path:path.join(out,name+'.png'),clip:{x:0,y:90,width:1280,height:640}});}
+  report.status=report.errors.length?'ERRORS':'OK';}catch(e){report.status='FAILED';report.failure=String(e.stack||e).slice(0,1200);}
+ fs.writeFileSync(path.join(out,'way-report.json'),JSON.stringify(report,null,1));console.log(JSON.stringify(report,null,1).slice(0,2500));await browser.close();})();
