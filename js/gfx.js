@@ -618,7 +618,7 @@ function concussionLauncherMesh(g,f){
  // The body remains the aircraft's compact twin-mouth launch tube. Only the
  // hinge frame changes; supports stay in the fixed mounting frame.
  box(g,M,p.bodyCenter,0,0,0,L,h,W,FC.body);
- for(const z of [-W*.22,W*.22])cyl(g,M,p.bodyCenter,L*.49,0,z,W*.18,W*.18,L*.04,0,FC.dark,10);
+ if(f.oneRound===true)cyl(g,M,p.bodyCenter,L*.49,0,0,W*.34,W*.34,L*.04,0,FC.dark,10);/* 2026-11-26 a launcher of one round has one mouth */else for(const z of [-W*.22,W*.22])cyl(g,M,p.bodyCenter,L*.49,0,z,W*.18,W*.18,L*.04,0,FC.dark,10);
  if(Math.abs(p.pitchDeg)>1e-9){
   const B=[...p.baseFrame.fw,...p.baseFrame.up,...p.baseFrame.rt],t=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,p.baseOrigin),p.baseFrame.up),height=Math.max(0,pivotY-t);
   box(g,B,p.baseOrigin,0,t/2,0,L*.5,t,W*1.35,FC.ped);
@@ -677,7 +677,9 @@ function craftWeaponMesh(g,f){
  // of battle and are not part of the design.
  if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,L*.46,h*.5,0,L*.08,h*.7,W*.8,D);}
  // 2026-11-26 A ring bomb bay's drop device: a low housing on the wall with its chute's mouth.
- if(k==='cdrop'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,0,h*.02,0,L*.7,h*.06,W*.6,D);}
+ // After the TIE/sa's bomb-drop chute (user 2026-11-26「投下装置はTIE/SAの投下装置を参考に組んで」): a collar on the wall, a short round chute standing out of it,
+ // its open mouth at the end, and two ribs bracing the chute to the collar. y is out of the wall (down, under a pod).
+ if(k==='cdrop'){const r=W*.5;cyl(g,M,o,0,h*.09,0,r,r,h*.18,1,Bd,16);cyl(g,M,o,0,h*.56,0,r*.84,r*.8,h*.76,1,B,16);cyl(g,M,o,0,h*.93,0,r*.88,r*.88,h*.1,1,R,16);cyl(g,M,o,0,h*.985,0,r*.68,r*.68,h*.03,1,D,16);for(const x of [-1,1])box(g,M,o,x*r*.9,h*.3,0,r*.14,h*.5,r*.5,Bd);}
 }
 // 2026-11-22 Painted shapes and emblems (Core normalizeDecals). Each decal is the part of the hull's and the structures'
 // solid surface inside its rectangle, facing its normal and within half its larger side of its plane, lifted a little

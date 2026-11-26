@@ -11,7 +11,7 @@ const plain=x=>JSON.parse(JSON.stringify(x));
 function slab(zHalf=2,at=[2,2,0],sink=0){const s=C.newShip({L:8,W:2*zHalf,H:2,assembly:true},'magazine');s.parts=[];s.fits=[];s.nextId=1;C.placePart(s,'struct',[0,1,0],[8,2*zHalf,2],{form:'box'},false);if(sink){/* a tube inside the structure, as the examples' sunk tubes are saved: its point is sink metres under the top face */const f={id:s.nextId++,k:'ctorp',p:[at[0],at[1]-sink,at[2]],n:[0,1,0],a:2/* mounted on a face that looks up, firing along +x */,ped:0,base:0,low:0,localMount:true,frameForward:[1,0,0],placement:{modelVersion:1,mode:'direct'}};s.fits.push(f);return {s,f};}const r=C.placeFit(s,'ctorp',at,[0,1,0],0,false);assert.ok(r.fit,r.err);return {s,f:r.fit};}
 const cellsOf=m=>m.cells.map(c=>c.i+','+c.j);
 
-test('the figures',()=>{assert.equal(C.CRAFT_BAY.cell,.3);assert.equal(C.FITS.cdrop.dropPerS,4);assert.deepEqual(plain(C.CRAFT_LAUNCHER_SLIM),{wm:.3,hm:.3,mass:.36});assert.equal(C.FITS.ctorp.store.slots,1);});
+test('the figures',()=>{assert.equal(C.CRAFT_BAY.cell,.3);assert.equal(C.FITS.cdrop.dropPerS,4);assert.deepEqual(plain(C.CRAFT_SLIM),{ctorp:{wm:.3,hm:.3,mass:.36},cmsl:{wm:.24,hm:.24,mass:.23},cpylon:{fm:.6,wm:.08,hm:.12,mass:.0075}});assert.deepEqual([C.FITS.cdrop.fm,C.FITS.cdrop.wm,C.FITS.cdrop.hm],[.5,.5,.45]);assert.equal(C.FITS.ctorp.store.slots,1);});
 
 test('a launcher holds its one round and its magazine\'s; one saved before the rule asks for what its tube held',()=>{
  const {s,f}=slab();assert.equal(f.magazine,undefined);assert.equal(C.craftMagazineWant(f),C.LAUNCHER_ROUNDS.torpedo-1);assert.equal(C.craftMagazineWant({k:'cmsl'}),C.LAUNCHER_ROUNDS.missile-1);
@@ -65,6 +65,16 @@ test('a ring bay: bombs round a 0.3 m ring, a row every 0.3 m of length; it need
  const r=C.placeFit(s,'cdrop',[0,0,0],[0,-1,0],0,false);assert.ok(r.fit,r.err);const st=C.craftStations(s).filter(x=>x.mount==='bay');assert.equal(st.length,1);assert.equal(st[0].store.ring,true);assert.equal(st[0].store.devices,1);
  assert.ok(!C.computeStats(s).warnings.some(w=>w.code==='bomb-bay-device'));
  const back=C.deserialize(plain(C.serialize(s)));assert.equal(back.parts.find(p=>p.k==='bombBay').bayRing,true,'the form is saved');
+});
+
+test('a missile launcher and a pylon placed from now on have the smaller bodies; saved ones keep theirs',()=>{
+ const m=C.fitSpec({k:'cmsl',id:1,p:[0,0,0],oneRound:true}),m0=C.fitSpec({k:'cmsl',id:1,p:[0,0,0]});assert.equal(m.wm,.24);assert.equal(m.hm,.24);assert.equal(m.fm,m0.fm,'the length stays');assert.equal(m.mass,.23);assert.equal(m0.wm,.45);assert.equal(m0.mass,.8);
+ const y=C.fitSpec({k:'cpylon',id:2,p:[0,0,0],oneRound:true}),y0=C.fitSpec({k:'cpylon',id:2,p:[0,0,0]});assert.deepEqual([y.fm,y.wm,y.hm,y.mass],[.6,.08,.12,.0075]);assert.deepEqual([y0.fm,y0.wm,y0.hm,y0.mass],[1.2,.16,.2,.05]);
+ // placed by the editor's call with the option the editor passes
+ const s=C.newShip({L:8,W:4,H:2,assembly:true},'slim');s.parts=[];s.fits=[];s.nextId=1;C.placePart(s,'struct',[0,1,0],[8,4,2],{form:'box'},false);
+ for(const k of ['ctorp','cmsl','cpylon']){const r=C.placeFit(s,k,[k==='cpylon'?-2:2,k==='cpylon'?0:2,k==='cmsl'?1:k==='ctorp'?-1:0],[0,k==='cpylon'?-1:1,0],0,false,{oneRound:true});assert.ok(r.fit,k+': '+r.err);assert.equal(r.fit.oneRound,true,k);assert.equal(!!r.fit.float,false,k+' is seated');}
+ const back=C.deserialize(plain(C.serialize(s)));for(const k of ['ctorp','cmsl','cpylon'])assert.equal(back.fits.find(f=>f.k===k).oneRound,true,k+' saved');
+ assert.equal(C.fitSpec({k:'claser',id:9,p:[0,0,0],oneRound:true}).wm,C.fitSpec({k:'claser',id:9,p:[0,0,0]}).wm,'other fittings are not changed by the mark');
 });
 
 test('the pylon: one missile, one torpedo or three bombs',()=>{const st=C.FITS.cpylon.store;assert.equal(C.storeCapacity(st,'cmsl'),1);assert.equal(C.storeCapacity(st,'rmsl'),1);assert.equal(C.storeCapacity(st,'ptorp'),1);assert.equal(C.storeCapacity(st,'bomb'),3);assert.deepEqual(plain(C.STORE_DEFAULT.cpylon),['cmsl',1]);});
