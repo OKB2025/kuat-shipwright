@@ -2939,7 +2939,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[5784673272194721000,[[\"main\",5784673272194721000,[[10,2892336636097360400],[11,2892336636097360400]]]],[[10,\"reactor\",28,\"p28\",\"main\",0.5522884449434761,0.5],[11,\"reactor\",29,\"p29\",\"main\",0.5522884449434761,0.5]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1239.0912496182664,
     "heat": {
      "v": 5,
@@ -14742,7 +14742,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1521094037827878000,[[\"main\",1521094037827878000,[[6,1521094037827878000]]]],[[6,\"reactor\",14,\"p14\",\"main\",0.2904512048425587,1]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 2483.948788522659,
     "heat": {
      "v": 5,
@@ -18974,7 +18974,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[8594243632326115000,[[\"main\",8594243632326115000,[[7,3428495957650179000],[8,3428495957650179000],[11,1737251717025757400]]]],[[7,\"reactor\",12,\"p12\",\"main\",0.6546674675810014,0.3989293420487107],[8,\"reactor\",13,\"p13\",\"main\",0.6546674675810014,0.3989293420487107],[11,\"reactor\",16,\"p16\",\"main\",0.33172627186514064,0.20214131590257856]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1268.8335235880343,
     "heat": {
      "v": 5,
@@ -30646,7 +30646,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1428195414365622300,[[\"main\",1428195414365622300,[[12,575702331503895500],[13,575676266736903600],[18,138408408062411630],[19,138408408062411630]]]],[[12,\"reactor\",17,\"p17\",\"main\",0.10992971615006615,0.4030977313840569],[13,\"reactor\",18,\"p18\",\"main\",0.10992473911196826,0.40307948124354415],[18,\"reactor\",23,\"p23\",\"main\",0.026428930679049167,0.09691139368619948],[19,\"reactor\",24,\"p24\",\"main\",0.026428930679049167,0.09691139368619948]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1067.9431159957458,
     "heat": {
      "v": 5,
@@ -39299,7 +39299,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2154992084400223200,[[\"main\",2154992084400223200,[[42,25794834030720270],[43,25794834030720270],[8,2103402416338782700]]]],[[8,\"reactor\",252,\"p252\",\"main\",0.40164233827828616,1],[42,\"dissipator\",100,\"p100\",\"main\",3.4393155002323974,0.4548947704448637],[43,\"dissipator\",120,\"p120\",\"main\",3.4393155001186537,0.45489477042981963]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 2031.2888063549112,
     "heat": {
      "v": 5,
@@ -44602,7 +44602,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1527331405560930300,[[\"main\",1527331405560930300,[[34,30285964800000000],[35,30285964800000000],[4,1466759475960930300]]]],[[4,\"reactor\",252,\"p252\",\"main\",0.28007608103931014,1],[34,\"dissipator\",100,\"p100\",\"main\",4.038124633679271,0.4610625009789848],[35,\"dissipator\",120,\"p120\",\"main\",4.0381246336792715,0.46106250097898493]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1961.0773052211666,
     "heat": {
      "v": 5,
@@ -49328,7 +49328,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[3307233913275126000,[[\"main\",3307233913275126000,[[36,27468571124384332],[37,27468571124384332],[4,3252296771026357000]]]],[[4,\"reactor\",14,\"p14\",\"main\",0.6210224300130092,1],[36,\"dissipator\",11,\"p11\",\"main\",3.6624729765766553,0.44987644470919724],[37,\"dissipator\",12,\"p12\",\"main\",3.662472976576657,0.44987644470919746]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1122.105333277678,
     "heat": {
      "v": 5,
@@ -56490,7 +56490,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[2430738832223872500,[[\"main\",2430738832223872500,[[5,1190404396194598100],[6,1190402470268395000],[7,49931965760879096]]]],[[5,\"reactor\",16,\"p16\",\"main\",0.2273063877223113,0.48972945197304574],[6,\"reactor\",17,\"p17\",\"main\",0.22730601996885738,0.4897286596517245],[7,\"reactor\",18,\"p18\",\"main\",0.009534453002073902,0.02054188837522975]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 2278.699885660647,
     "heat": {
      "v": 5,
@@ -64845,7 +64845,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[852758487242507000,[[\"main\",852758487242507000,[[11,388634163702980350],[33,232062161769763260],[34,232062161769763260]]]],[[11,\"reactor\",16,\"p16\",\"main\",0.0742092587856714,0.4557376672493449],[33,\"reactor\",99,\"p99\",\"main\",0.044312010176995764,0.2721311663753275],[34,\"reactor\",100,\"p100\",\"main\",0.044312010176995764,0.2721311663753275]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1907.9530687577696,
     "heat": {
      "v": 5,
@@ -72439,7 +72439,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[1181773227047436000,[[\"main\",1181773227047436000,[[4,15880243126629582],[5,55768364854042800],[6,30277652671067000],[7,36524051023467990],[8,36524051023467990],[19,503399626878437760],[20,503399237470323000]]]],[[4,\"reactor\",15,\"p15\",\"main\",0.003032314659459767,0.013437639949167803],[5,\"reactor\",16,\"p16\",\"main\",0.010648906879608091,0.047190411474607105],[6,\"reactor\",17,\"p17\",\"main\",0.005781483905277819,0.025620526830442115],[7,\"reactor\",18,\"p18\",\"main\",0.0069742266826883625,0.030906141878607577],[8,\"reactor\",19,\"p19\",\"main\",0.0069742266826883625,0.030906141878607577],[19,\"reactor\",32,\"p32\",\"main\",0.09612359558842853,0.42596973375013797],[20,\"reactor\",33,\"p33\",\"main\",0.09612352123138466,0.42596940423842977]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 2551.086905314261,
     "heat": {
      "v": 5,
@@ -87907,7 +87907,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[3072263302848790500,[[\"main\",3072263302848790500,[[6,3072263302848790500]]]],[[6,\"reactor\",30,\"p30\",\"main\",0.6908752507563813,1]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1733.3650529331137,
     "heat": {
      "v": 5,
@@ -94825,7 +94825,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[6879989535407693000,[[\"main\",6879989535407693000,[[6,2592292036018238000],[7,2592292036018238000],[10,1695405463371217200]]]],[[6,\"reactor\",12,\"p12\",\"main\",0.4949952642247267,0.376787206241677],[7,\"reactor\",13,\"p13\",\"main\",0.4949952642247267,0.376787206241677],[10,\"reactor\",16,\"p16\",\"main\",0.3237357765441118,0.246425587516646]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1279.73147463391,
     "heat": {
      "v": 5,
@@ -105181,7 +105181,7 @@ const CRAFT_PRICE_CATALOG={
      "accelerationLimitBasis": "structural",
      "sourceBudgetKey": "[3567103144275819500,[[\"main\",3567103144275819500,[[4,1783551572137909800],[5,1783551572137909800]]]],[[4,\"reactor\",21,\"p21\",\"main\",0.3405671774021606,0.5],[5,\"reactor\",22,\"p22\",\"main\",0.3405671774021606,0.5]]]"
     },
-    "profileVersion": 29,
+    "profileVersion": 30,
     "maxSpeed": 1594.509781157363,
     "heat": {
      "v": 5,
@@ -116443,6 +116443,14 @@ const GUN_RULES=Object.freeze({
  // fireS × (burstS + rechargeS) ÷ burstS = 0.3 s: what it keeps up for ever); the trial fires the bursts and waits out
  // the change. Its store holds one cartridge of volleys.
  pointDefense:Object.freeze({fireS:.1,burstS:15,rechargeS:30}),
+ // 2026-11-26 Firing gas of a turbolaser (user「ターボレーザーも固有のガスの交換時間を…作りたい」「1発ごとに基本は交換　充電にプラスする形で
+ // 速射砲系はカートリッジ」「1 発ごとの交換の秒数：基準を 1.0 秒」): after each shot a barrel changes its gas, baseS at the least bore
+ // (0.45 m) and in proportion to the bore, and that time is added to the shot's charging time. A rapid-fire gun carries a
+ // cartridge instead (user「1TT ラビットファイアは全体で80発分持つ」「300GTと200GTは40発分を持つ」「200GT縦2連も速射砲」): it fires that many
+ // shots (the whole turret's) at its charging rate, then changes the cartridge, which takes as long as changing the gas of
+ // those shots one by one (user's choice: 「発数 × 1 発ぶんの交換」). A gun's cycle and power are the mean ones over fire and
+ // change. Ion guns are as they were (★ ours: the decision names turbolasers).
+ gas:Object.freeze({baseS:1,cartridge:Object.freeze({quad1Rapid:80,munTwin:40,twin200:40})}),
  turbolaser:Object.freeze({minKt:1e3,minBore:.45,coilBase:1,coilK:.5,hold0:860,holdA:25300,holdX:4.51,fadeM:171,chargeLen:19.0,chargePerM3:.06313782219884272,heat:.05}),
  ion:Object.freeze({chargePerM3:.00062}),
  monCalRatio:Object.freeze({monCal200Triple:1.45,monCal200:1.75,monCal150Ion:1.5,monCal80:1.55,monCal34:1.0}),
@@ -116504,9 +116512,9 @@ function applyGunRules(){
    // bore)², each at least 1 (★ the two factors are ours: the length short in proportion, the bore by its area, as the
    // compression ratio is). The feed compartment grows by the same factor (weaponChargeSpec). It was: no hold at all.
    const coilShortK=kind==='ion'?1:Math.max(1,least/Math.max(1e-6,length)),boreShortK=kind==='ion'||!(drawn>0)?1:Math.max(1,(R.minBore/drawn)**2),feedK=coilShortK*boreShortK,holdM=turbolaserHoldM(kt,bore,Math.max(length,kind==='ion'?length:least));
-   const c=length/R.chargeLen,shotCharge=bolt*(1+c)*feedK,defaultVolume=bolt*n/CHARGE_TT_M3,rate=kind==='ion'?GUN_RULES.ion.chargePerM3*(d.fm*d.wm*d.hm+defaultVolume):R.chargePerM3*defaultVolume*feedK,interval=shotCharge/rate,over=(1+c)*feedK-1;
-   rule={kind,boreM:bore,...(drawn>0&&drawn<bore?{drawnBoreM:drawn}:{}),barrelM:length,leastCoilM:least,shotKt:kt,holdM,rangeM:kind==='ion'?holdM:holdM+R.fadeM*Math.log(Math.max(1,kt/R.minKt)),shotChargeTT:shotCharge,chargeRateTT:rate,intervalS:interval,cycle:interval*n,heatFrac:R.heat*over/(1+over),...(feedK>1?{feedK,coilShortK,boreShortK}:{})};
-   d.cycle=rule.cycle;d.power=rate*TT;
+   const c=length/R.chargeLen,shotCharge=bolt*(1+c)*feedK,defaultVolume=bolt*n/CHARGE_TT_M3,rate=kind==='ion'?GUN_RULES.ion.chargePerM3*(d.fm*d.wm*d.hm+defaultVolume):R.chargePerM3*defaultVolume*feedK,chargeInterval=shotCharge/rate,gasS=kind==='turbolaser'?GUN_RULES.gas.baseS*bore/R.minBore:0,shots=kind==='turbolaser'?GUN_RULES.gas.cartridge[k]||0:0,interval=shots>0?chargeInterval+gasS/* a cartridge gun: N shots at the charge time, then N gas changes one after another */:chargeInterval+gasS/n/* each barrel's own period is its charge time (n turret shots) plus its gas change; the turret's shots come n to that period */,meanRate=shotCharge/interval,over=(1+c)*feedK-1;
+   rule={kind,boreM:bore,...(drawn>0&&drawn<bore?{drawnBoreM:drawn}:{}),barrelM:length,leastCoilM:least,shotKt:kt,holdM,rangeM:kind==='ion'?holdM:holdM+R.fadeM*Math.log(Math.max(1,kt/R.minKt)),shotChargeTT:shotCharge,chargeRateTT:meanRate,intervalS:interval,cycle:interval*n,...(gasS>0?{gasS,chargeIntervalS:chargeInterval,chargeRatePeakTT:rate}:{}),...(shots>0?{cartridgeShots:shots,fireS:chargeInterval*n,burstVolleys:shots/n,burstS:shots*chargeInterval,rechargeS:shots*gasS}:{}),heatFrac:R.heat*over/(1+over),...(feedK>1?{feedK,coilShortK,boreShortK}:{})};
+   d.cycle=rule.cycle;d.power=meanRate*TT;
   }
   d.gunRule=Object.freeze(rule);d.gunLegacy=legacy;
   const label=GUN_RULE_LABELS[k];if(label)Object.assign(d,label);
@@ -123179,7 +123187,7 @@ function referenceSpeedProfile(profile,key){
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
 // Physical nozzle foundations now contribute their real material and thermal
 // mass. Saved combat figures need rebuilding without changing engine ratings.
-const FLEET_PROFILE_VERSION=29;/* 29 (2026-11-25): an aircraft laser's shot is 50 kt at a 0.05 m bore and 800 kt at 0.30 m by the bore's area (bores from 0.02 m), with two nozzles; a point-defence gun fires every 0.1 s a barrel for 15 s, then changes its gas cartridge in 30 s (mean period 0.3 s, a cartridge of 150 volleys, a gas compartment of that size); the aircraft are the user's refit of 2026-11-25; the example craft's lasers fire every 0.25 s (the A-wing 0.1 s; wing-tip guns of the X-wing, TIE/in and TIE/D 1 s), a placed laser's own rate sets its firing period.  28 (2026-11-25): the CR-90's and the Sphyrna's guns are turbolasers (100 MT, 200 GT, 200 MT), a barrel or bore under the least pays in charge and feed (feedK), a laser has no feed compartment and a turbolaser's is at least 50 m³; 27 (2026-11-24): gun rules (each gun's range, hold and fade in gunBandRules / ionRules and on surface mounts, charge-time cycles, laser shots by bore), weaponWaste (firing heat 5% of compression), one shield curve by generator volume, mass and thrust turning, aircraft lasers by bore, barrel and rate; 26 (2026-11-24): a ship profile carries trackModel 1 and its tracking slots as aaCh (1 per 5,000 m³ of sensor volume outside the structure, the anti-air channels too), a craft profile carries its stations for the mission load at launch; a profile made before it kept the stored aaCh without the sensor rule and is rebuilt (regression review 2026-11-24). 25 (2026-11-18, PR #117): weapon efficiency .75 → .95 and weapon heat share .25 → .05 (docs/weapon-heat-share.md). A craft record or profile made before it carries eta .75 and is rebuilt (regression review: saved craft records are judged by this number alone). 24 (2026-11-15, PR #107): heat model - no hull-skin cooling, converters charged for the heat converted, wing coefficient curve, heat paths without a capacity limit. A craft record or profile made before it is rebuilt. */
+const FLEET_PROFILE_VERSION=30;/* 30 (2026-11-26): a turbolaser changes its gas after each shot (1 s at a 0.45 m bore, by the bore, added to the charge) and the rapid-fire guns fire a cartridge; the air rounds are a 0.12 x 0.9 m missile, a 0.18 x 1 m torpedo and a 0.3 m ball bomb with the yields of those bodies. 29 (2026-11-25): an aircraft laser's shot is 50 kt at a 0.05 m bore and 800 kt at 0.30 m by the bore's area (bores from 0.02 m), with two nozzles; a point-defence gun fires every 0.1 s a barrel for 15 s, then changes its gas cartridge in 30 s (mean period 0.3 s, a cartridge of 150 volleys, a gas compartment of that size); the aircraft are the user's refit of 2026-11-25; the example craft's lasers fire every 0.25 s (the A-wing 0.1 s; wing-tip guns of the X-wing, TIE/in and TIE/D 1 s), a placed laser's own rate sets its firing period.  28 (2026-11-25): the CR-90's and the Sphyrna's guns are turbolasers (100 MT, 200 GT, 200 MT), a barrel or bore under the least pays in charge and feed (feedK), a laser has no feed compartment and a turbolaser's is at least 50 m³; 27 (2026-11-24): gun rules (each gun's range, hold and fade in gunBandRules / ionRules and on surface mounts, charge-time cycles, laser shots by bore), weaponWaste (firing heat 5% of compression), one shield curve by generator volume, mass and thrust turning, aircraft lasers by bore, barrel and rate; 26 (2026-11-24): a ship profile carries trackModel 1 and its tracking slots as aaCh (1 per 5,000 m³ of sensor volume outside the structure, the anti-air channels too), a craft profile carries its stations for the mission load at launch; a profile made before it kept the stored aaCh without the sensor rule and is rebuilt (regression review 2026-11-24). 25 (2026-11-18, PR #117): weapon efficiency .75 → .95 and weapon heat share .25 → .05 (docs/weapon-heat-share.md). A craft record or profile made before it carries eta .75 and is rebuilt (regression review: saved craft records are judged by this number alone). 24 (2026-11-15, PR #107): heat model - no hull-skin cooling, converters charged for the heat converted, wing coefficient curve, heat paths without a capacity limit. A craft record or profile made before it is rebuilt. */
 // Calculation-model version of everything derived from a saved design: statistics,
 // fleet and combat profiles, catalogue rows (data/fleet.js, data/examples/<key>/combat.json)
 // and the engine's derived-data cache. Examples are ordinary saved designs; their stored
@@ -123191,7 +123199,7 @@ const FLEET_PROFILE_VERSION=29;/* 29 (2026-11-25): an aircraft laser's shot is 5
 // statistics read, and the tables they use. Then regenerate the stored rows
 // (scripts/refresh-examples.cjs). tests/example-profile-version.cjs recomputes small
 // examples and fails when a bump was forgotten. See docs/prepared-examples.md.
-const EXAMPLE_PROFILE_VERSION=12/* 2026-11-25: the example craft's laser firing intervals.  2026-11-25: the corvettes' turbolasers, feedK, no feed compartment for a laser, the least feed compartment of 50 m³; 10: 2026-11-24: gun rules, the shield curve, the gravity-control labels and the craft lasers' measured barrels; 9: 2026-11-23: refit systems take whole rooms where they fit, an overlapping structure no longer lifts a turret (supportLift keeps the older lift), a room fitted into the ship obstructs fire with the boxes it was cut to, and a trench's battery made a wall battery keeps the trench's packing. */ /* 2026-11-22: every cut of an example is baked into the structures it reaches (bakeAllCuts; a hull keeps its hull material and stores its shape), and an armed trench becomes a wall battery. Was 7: */;void 7/* 2026-11-21 (next PR): a room crossing the ship's boundary is clipped by joining its faces with the hull's and the structures' (clipCompartmentByMesh) instead of the marching-tetrahedra rebuild, so clipped rooms keep slightly more volume (the grid lost corners; up to a few % on a room). Was 6: */;void 6/* 2026-11-21: hangar hatches open where the compartment overlaps the skin, through its whole depth (user decision; no measured opening for a bay that does not reach the skin), and the builder adds two more rounds of systems volume only when the usual ones fall short (the two Recusants rebuilt); older saved designs load differently (the body they name is dropped; a weapon is re-seated from its own pose; the support-only pass does not ask about interference), which changes syncCompartments/remount results; the Mandator II on the user's second model. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
+const EXAMPLE_PROFILE_VERSION=13/* 2026-11-26: turbolaser gas change, air rounds resized. 2026-11-25: the example craft's laser firing intervals.  2026-11-25: the corvettes' turbolasers, feedK, no feed compartment for a laser, the least feed compartment of 50 m³; 10: 2026-11-24: gun rules, the shield curve, the gravity-control labels and the craft lasers' measured barrels; 9: 2026-11-23: refit systems take whole rooms where they fit, an overlapping structure no longer lifts a turret (supportLift keeps the older lift), a room fitted into the ship obstructs fire with the boxes it was cut to, and a trench's battery made a wall battery keeps the trench's packing. */ /* 2026-11-22: every cut of an example is baked into the structures it reaches (bakeAllCuts; a hull keeps its hull material and stores its shape), and an armed trench becomes a wall battery. Was 7: */;void 7/* 2026-11-21 (next PR): a room crossing the ship's boundary is clipped by joining its faces with the hull's and the structures' (clipCompartmentByMesh) instead of the marching-tetrahedra rebuild, so clipped rooms keep slightly more volume (the grid lost corners; up to a few % on a room). Was 6: */;void 6/* 2026-11-21: hangar hatches open where the compartment overlaps the skin, through its whole depth (user decision; no measured opening for a bay that does not reach the skin), and the builder adds two more rounds of systems volume only when the usual ones fall short (the two Recusants rebuilt); older saved designs load differently (the body they name is dropped; a weapon is re-seated from its own pose; the support-only pass does not ask about interference), which changes syncCompartments/remount results; the Mandator II on the user's second model. Was 5: */;void 5/* 2026-11-20: repulsorlifts for every ship's mass, the stated air control, hangar mouths four times as fast; 4 (2026-11-19): v30 damage, the air rounds' yields in the launchers, m.panel in the profile */;/* 3: 2026-11-17 the hyperdrive charge holds the entry burst (jumpChargeJ/S, grid.Jspare), hangar mouths carry their bay's size (bs), turret supports are round. 2: 2026-11-14 one kind of structure (no light structures, plates as face armour), wing density = structure, every overlap counted once, weapons on ungrounded structures idle */
 let profileModelKeyMemo=null;
 // The key also holds, without a manual bump, every other model version the statistics and profiles read and
 // a hash of the part and fitting tables (mass, power, heat, ... values) and of the craft price catalogue (its
@@ -125146,7 +125154,11 @@ const FLEET_AIR=Object.freeze({squad:12,every:3,interceptPer:2,escortShare:.5,re
  kinds:Object.freeze([Object.freeze({kind:'itorp',ion:true,release:4000,range:8000}),Object.freeze({kind:'cmsl',ion:false,release:6000,range:10000}),Object.freeze({kind:'bomb',ion:false,release:700,range:1500})]),aims:Object.freeze(['engine','bridge','weapon','sensor']),
  roles:Object.freeze({xwing:{key:'craft_xwing',job:'fighter'},awing:{key:'craft_awing',job:'fighter'},ywing:{key:'craft_ywing'/* 2026-11-24 the BTL-A4 example (was craft_btlb) */,job:'bomber'},tie_ln:{key:'craft_tie_ln',job:'fighter'},tie_in:{key:'craft_tie_in',job:'fighter'},tie_sa:{key:'craft_tie_sa',job:'bomber'}})});
 // The rounds a craft of spare lift (t) carries: the kinds in turn while they fit by mass.
-function fleetAirLoad(liftSpare,kinds=FLEET_AIR.kinds){const out=[];let used=0;for(let i=0,miss=0;miss<kinds.length&&out.length<400;i++){const k=kinds[i%kinds.length],m=airRound(k.kind).mass;if(used+m<=(liftSpare||0)+1e-9){out.push({kind:k.kind,ion:!!k.ion,release:k.release,range:k.range});used+=m;miss=0;}else miss++;}return out;}
+// 2026-11-26 ★ ours, to be confirmed by the user: with the rounds resized (a missile 0.0102 t) the lift alone no longer bounds
+// a load (2 t of spare lift was 120 rounds), so a craft loaded by its lift takes at most what two stock tubes or one stock
+// bay of 2026-11-19 held: 4 torpedoes, 6 missiles, 16 bombs.
+const FLEET_AIR_ROUND_CAP=Object.freeze({torpedo:4,missile:6,bomb:16});
+function fleetAirLoad(liftSpare,kinds=FLEET_AIR.kinds){const out=[],count={torpedo:0,missile:0,bomb:0};let used=0;for(let i=0,miss=0;miss<kinds.length&&out.length<400;i++){const k=kinds[i%kinds.length],r=airRound(k.kind),m=r.mass,type=r===AIR_ROUNDS.bomb?'bomb':r===AIR_ROUNDS.torpedo?'torpedo':'missile';if(used+m<=(liftSpare||0)+1e-9&&count[type]<FLEET_AIR_ROUND_CAP[type]){out.push({kind:k.kind,ion:!!k.ion,release:k.release,range:k.range});used+=m;count[type]++;miss=0;}else miss++;}return out;}
 // A ship's air control: how many squadrons it directs in the air at once (the strategic map's rule, Rts airCtlCap).
 function fleetAirControl(u){if(!u||u.dead||u.out)return 0;const ms=u.p?.modules||[];let n=0,a=0;for(let i=0;i<ms.length;i++)if(ms[i].k==='bridge'){n++;if(u.mods?.[i]>0)a++;}return Math.max(1,Math.floor((u.p.airCtl??Math.max(1,Math.round((u.p.aaCh??4)/3)))*(n?.5+.5*a/n:1)+1e-6));}
 // wings: [{home:<ship id>,type:<wing type, a key of FLEET_AIR.roles>,count}], in the order they are to go up.
