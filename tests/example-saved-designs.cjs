@@ -129,7 +129,7 @@ test('the model key changes with the Rts craft tables',()=>{
  const runtime=()=>require('../scripts/update-ship-examples.cjs').loadRuntime(root);
  // 2026-11-24 expectation changed: the BTL-A4 Y-wing is now a modelled example (craft_ywing) whose figures come from its design,
  // not the table, so the table change is made on the B-wing, which is still table-only.
- const plain=runtime(),changed=runtime();assert.ok(changed.R?.CRAFT?.bwing,'Rts.CRAFT.bwing');
- changed.R.CRAFT.bwing.aa=(changed.R.CRAFT.bwing.aa||0)+2;
+ /* 2026-11-26 test changed: the B-wing is a modelled example now too (the user's design), so the table change is made on the U-wing, which is still table-only */const plain=runtime(),changed=runtime();assert.ok(changed.R?.CRAFT?.uwing,'Rts.CRAFT.uwing');
+ changed.R.CRAFT.uwing.aa=(changed.R.CRAFT.uwing.aa||0)+2;
  assert.notEqual(changed.C.profileModelKey(),plain.C.profileModelKey());
 });
