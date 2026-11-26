@@ -676,6 +676,8 @@ function craftWeaponMesh(g,f){
  // v24 A wing pylon is the pylon alone: a slim streamlined blade. Its stores are chosen per squadron in the order
  // of battle and are not part of the design.
  if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,L*.46,h*.5,0,L*.08,h*.7,W*.8,D);}
+ // 2026-11-26 A ring bomb bay's drop device: a low housing on the wall with its chute's mouth.
+ if(k==='cdrop'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,0,h*.02,0,L*.7,h*.06,W*.6,D);}
 }
 // 2026-11-22 Painted shapes and emblems (Core normalizeDecals). Each decal is the part of the hull's and the structures'
 // solid surface inside its rectangle, facing its normal and within half its larger side of its plane, lifted a little
