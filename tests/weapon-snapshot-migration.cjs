@@ -54,7 +54,7 @@ test('an embarked model refreshes cached combat output when its retired weapon c
   // defence twin the anti-air rating is calibrated on (deriveAntiAir: traverse x barrels / cycle = 6) now has the mean period 0.3 s (was 1 s), so the
   // coefficient is 0.3 times what it was and oct40 rates 2.179405854 x 0.3 = 0.653821756 against craft (was 2.179405854): 6 + 0.65 + 320 rounds to 327.
   assert.equal(C.FITS.pd.cycle, .1 * (15 + 30) / 15);
-  assert.equal(GUN, 327); assert.ok(Math.abs(C.FITS.oct40.aa - 2.179405854 * .3) < 1e-6);
+  /* 2026-11-26 expectation changed 327 -> 326 (user「1発ごとに基本は交換／充電にプラスする形で」; expectation-changes-2026-11-25.md): the octuple's cycle now includes its gas change (4.885 s), so it rates 0.211971605 against craft (was 0.653821756): 6 + 0.21 + 320 rounds to 326 */assert.equal(GUN, 326); assert.ok(Math.abs(C.FITS.oct40.aa - .211971605) < 1e-6);
   assert.equal(snapshot.craft.gun, GUN, 'six base points, the current octuple 320 TT battery and its traverse-based anti-air');
   assert.equal(snapshot.craft.strike, GUN);
   assert.equal(snapshot.craft.fireArcs[0].k, 'oct40');
@@ -76,7 +76,7 @@ test('engine transport retains a pending combat refresh after weapon ids become 
   assert.equal(transported.weaponProfileVersion, 0, 'transport must retain evidence that cached stats need rebuilding');
   assert.equal(transported.craft.fireArcs[0].k, 'oct40');
   const snapshot = C.cleanDesignCraft(transported);
-  assert.equal(snapshot.craft.gun, 327/* 2026-11-25 expectation changed 328 -> 327 (point defence's mean period 0.3 s; see the first test). 2026-11-24: 327 -> 328 */);
+  assert.equal(snapshot.craft.gun, 326/* 2026-11-26 expectation changed 327 -> 326 (the octuple's cycle includes its gas change; see the first test). 2026-11-25 expectation changed 328 -> 327 (point defence's mean period 0.3 s; see the first test). 2026-11-24: 327 -> 328 */);
   assert.equal(snapshot.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);
   const saved = JSON.parse(C.publicJSON(snapshot));
   assert.equal(saved.weaponProfileVersion, C.WEAPON_PROFILE_VERSION);

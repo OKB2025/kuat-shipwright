@@ -136,7 +136,7 @@ test('fleet airGun per craft equals the RTS squadron energy per second for a cus
  assert.ok(R.CRAFT.arc170);near(one({type:'arc170'}),rts('arc170')+R.squadLaserEnergy({craft:'arc170',pos:[0,0,0],h:[1,0,0],laserGas:100},[-1000,0,0],1),'arc170 ahead and astern');
  // 2026-11-24 expectation changed: the BTL-A4 Y-wing is now a modelled example (craft_ywing, its own fire-arc snapshot), so the
  // table-only estimate is checked on the B-wing, which still has no example.
- near(one({type:'bwing'}),Math.max(1,Math.round(R.CRAFT.bwing.aa*2))*perSecond('claser')/* 2026-11-24 gun rules: was 50 kt/s */,'table-only bwing: round(aa × 2) medium lasers as the RTS estimates');near(one({type:'bwing'}),rts('bwing'),'bwing');/* was eta2, taken out of the catalogue 2026-11-16 */
+ /* 2026-11-26 expectation changed: the B-wing is a modelled example now (the user's design, craft_bwing), so the table-only estimate is checked on the U-wing, which has none; the B-wing is checked as the modelled types are *//* the types left without an example are transports, which take no part in a fleet battle (no airGun), so the estimate is checked on the RTS side alone */near(rts('uwing'),Math.max(1,Math.round(R.CRAFT.uwing.aa*2))*perSecond('claser')/* 2026-11-24 gun rules: was 50 kt/s */,'table-only uwing: round(aa × 2) medium lasers as the RTS estimates');assert.ok(R.CRAFT.bwing);near(one({type:'bwing'}),rts('bwing'),'bwing');/* was eta2, taken out of the catalogue 2026-11-16 */
  near(one({type:'tie_adv'}),C.FLEET_AIR_GUN_DEFAULT,'a type neither table knows is a standard fighter');
 });
 

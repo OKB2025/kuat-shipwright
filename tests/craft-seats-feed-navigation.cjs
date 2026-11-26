@@ -38,10 +38,10 @@ test('droid brains have one size and a droid-flown craft cannot jump',()=>{
 });
 test('a fixed laser is a bare barrel that may sink into the hull while its muzzle is clear',()=>{
  const s=box(),top=[6,3.5,0],n=[0,1,0];
- const shallow=C.placeFit(s,'claser',top,n,0,false,{sink:.1});assert.ok(shallow.fit,shallow.err);near(shallow.fit.sink,.1);
- near(C.fitOrigin(shallow.fit)[1],top[1]-.1,1e-6);assert.equal(C.craftMuzzleBlocked(s,shallow.fit),false);
+ /* 2026-11-26 expectation changed (user「口径 ÷ 0.75の筒の体積から口径分の体積を除く」): the laser's body is the drawn tube, 0.136 m across at the default bore (was 0.32 m), so a sink of 0.1 m now buries its muzzle; the shallow sink is 0.05 m (was 0.1) */const shallow=C.placeFit(s,'claser',top,n,0,false,{sink:.05});assert.ok(shallow.fit,shallow.err);near(shallow.fit.sink,.05);
+ near(C.fitOrigin(shallow.fit)[1],top[1]-.05,1e-6);assert.equal(C.craftMuzzleBlocked(s,shallow.fit),false);
  const b=C.fitAABB(shallow.fit);assert.ok(b[4]-b[1]<C.FITS.claser.wm*.9,'no breech housing above the barrel');
  const t=C.newShip({L:12,W:6,H:4,assembly:true},'Blocked');C.placePart(t,'struct',[6,2,0],[8,3,3],{form:'box'});C.placePart(t,'struct',[9.5,3.4,0],[1,1,1],{form:'box'});
  const blocked=C.placeFit(t,'claser',[7.6,3.5,0],n,0,false,{sink:.3});assert.match(blocked.err||'',/発射口/);
- const loaded=C.deserialize(plain(C.serialize(s)));near(loaded.fits[0].sink,.1);
+ const loaded=C.deserialize(plain(C.serialize(s)));near(loaded.fits[0].sink,.05);
 });
