@@ -74,13 +74,6 @@
     "blueprintSha256": "1eaf97c2cf12152483e5f0fcc007319e22202323f5ab67230f74b8168264cdb7"
    }
   },
-  "craft_mb22m": {
-   "design": {
-    "sha256": "c4ce3832bb7a4d25e0205bb0a149a7c543abf79619239709f3c11eada99e919c",
-    "jsonSha256": "d2a1aa2f38f68fb26967925b52bf4ef1d4782ecaefbc67429194b220764ca53c",
-    "blueprintSha256": "0c9291eec33efd3df68b68a65a901e9a4ee9be9fedaf1c891a52bd97b887d54d"
-   }
-  },
   "craft_tie_avenger": {
    "design": {
     "sha256": "c760b36777e1d11921b3fc8c80457bf4994b3465e4fe05a7f0424750910489d6",
