@@ -171,3 +171,12 @@
 | `heat-running` 5 | この PR の変更による（ガス交換） | 砲の平均の給電が下がり（MC80 の砲の要求 7.0 → 2.2 倍）、被弾の熱で絞る効果が 10% → 5.7% になった。規則どおりの動きで、しきい値 0.9 が古い。期待値の変更は物理レビューの後に行う |
 | `reference-sublight-speeds` 4 | この PR の変更による（弾の寸法） | 魚雷の質量が 0.12 → 0.0254 t になり、テストが丸めた値（0.051 t）から計算し直す速度と 1e-5 ずれる。テスト側の計算の丸めの問題 |
 | `fleet-air-restraint` 4・13、`mandator-example-refit` 2・5、`reference-sublight-speeds` 9、`tie-ln-solar-wing` 5 | 変更前（`d95d6d6`、main）から同じ失敗 | 今回は触っていない |
+
+## 2026-11-26：修正後の全テスト（575 本）
+
+結果は `tests-final-2026-11-26.tsv`。作例を作り直した後の木で実行（生成物の検査 3 つ＝マニフェスト、作例ファイルと性能表、機体の価格表は通過）。失敗 169 本（前回の実行 173 本、`d95d6d6` 168 本）。
+
+- `d95d6d6` より悪いのは 7 本で、すべて上の表の「失敗のまま残すもの」：`fighter-interiors`（8 件）、`fighter-air-superiority` 8、`fleet-air-restraint` 10（4・13 は変更前から）、`craft-pylons-bomb-bay` 1、`heat-running` 5、`reference-sublight-speeds` 4（9 は変更前から）、`mandator-example-refit` 2・5（main でも同じ値で失敗。`d95d6d6` では別の形で失敗していた）。
+- 前回の実行より悪くなったものは無い。
+- `d95d6d6` では失敗していて今回通ったもの：`fleet-loadout-separation`、`lowered-bays-capacity`、`placement-early-pick`。
+- 作り直した生成物（`data/examples`、`data/fleet.js`、マニフェスト）は、記録のコミットに一緒に入った（作り直しの完了後、`git add -A` で拾われたため。専用のコミットにはなっていない）。
