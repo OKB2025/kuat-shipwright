@@ -9735,7 +9735,8 @@ const trialCanSpawn=()=>!trial.rts&&!trial.pat&&!trial.spectate&&trial.returnTo!
 const trialSpawnJumping=()=>!!trial.jump;
 function trialHudRemount(){const hud=$('#trialHud');if(!hud||!trial.on||trial.spectate)return;
  // The controls being held belong to the elements that go away: their release would never arrive.
- trial.stick={x:0,y:0};trial.fire=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
+ /* 2026-11-26 the spawn card stays open over a remount: the trial's targets arrive a few seconds into the flight and remount the HUD, which closed a card the player had just opened (its buttons went away under the finger) */const spawnOpen=!!$('#thSpawn')&&!$('#thSpawn').hidden;
+ trial.stick={x:0,y:0};trial.fire=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);if(spawnOpen){const c=$('#thSpawn');if(c){c.hidden=false;trialSpawnRender();}}}
 function trialSandboxEnd(){const put=!!trial.battle?.b?.units?.some(u=>u.trialSpawned||u.wing)/* ships or craft put out */;trial.mode='trial';trial.battlePlan=null;trial.hitcam=null;trialReset();trialHudRemount();toast(put?'出した艦を片づけ、公試を再開始しました':'公試を再開始しました');}
 // A stationary target holds still and fires nothing: guns, launchers, superweapons (which Core fires and turns the
 // bow for unless order.sw is false) and automatic point defence.
