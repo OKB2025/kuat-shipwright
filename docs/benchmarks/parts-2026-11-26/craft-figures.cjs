@@ -1,0 +1,5 @@
+// Every craft example's figures in one tree: mass, price, rated acceleration, warnings that are not notes. read-only (the stored designs are loaded as the game loads them).
+// usage: node craft-figures.cjs <root>   (run on two trees and put the outputs side by side)
+const fs=require('fs'),zlib=require('zlib'),path=require('path');const root=path.resolve(process.argv[2]),{C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
+for(const k of fs.readdirSync(path.join(root,'data/examples')).filter(k=>k.startsWith('craft_'))){try{const j=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples',k,'design.json.gz')))),s=C.deserialize(j.design||j);C.remount(s,{keepFitPose:true});C.syncCompartments(s);const S=C.computeStats(s);
+ console.log([k,S.mass.toFixed(3),Math.round(S.cost),((S.propulsion?.ratedAccelMps2||0)/C.G0).toFixed(0),s.fits.filter(f=>f.float).length,S.warnings.filter(w=>w.lv==='bad'||w.lv==='warn').map(w=>(w.code||'-')).join(',')].join('\t'));}catch(e){console.log(k+'\tERROR '+String(e.message).slice(0,80));}}
