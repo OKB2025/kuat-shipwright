@@ -1,29 +1,29 @@
 ## craft_bwing — A/SF-01 Bウイング（エンドア仕様） (9 s)
 example: {"name":"A/SF-01 Bウイング","side":"反乱同盟","role":"爆撃機","craftType":"bwing","length":16.9,"source":"docs/handoff-2026-11-20/refs/bwing-2026-11-26.json"}
-mass t: 19.6308 (design file: 19.4243)
-acceleration G: 2363 (design file: 2390)
-cost: 162892 (design file: 162817)
+mass t: 21.3659 (design file: 19.4243)
+acceleration G: 2153 (design file: 2390)
+cost: 163434 (design file: 162817)
 size m: [null,null,null] parts 185 (file 185) fits 8 (file 8)
-  laser 26 claserH file bore 0.12 m → bore 0.0409 m, 42.9 kt, barrel 2.24 m, 4 /s — R-9X 重レーザー砲（開口120 mm）
-  laser 28 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 1.19 m, 4 /s — 主翼端 SW-7a 位置・軽レーザー代用（開口100 mm）
-  laser 64 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 0.44 m, 4 /s — 操縦ポッド 72式連装オートブラスター（開口50 mm）
-  laser 66 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 0.44 m, 4 /s — 操縦ポッド 72式連装オートブラスター（開口50 mm）
-  laser 86 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 1.52 m, 4 /s — 右 Sフォイル先端 SW-7a 位置・軽レーザー代用（開口100 mm）
-  laser 96 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 1.52 m, 4 /s — 左 Sフォイル先端 SW-7a 位置・軽レーザー代用（開口100 mm）
+  laser 26 claserH file bore 0.12 m → bore 0.1200 m, 152.0 kt, barrel 2.24 m, 4 /s — R-9X 重レーザー砲（開口120 mm）
+  laser 28 claserL file bore 0.1 m → bore 0.1000 m, 114.3 kt, barrel 1.19 m, 4 /s — 主翼端 SW-7a 位置・軽レーザー代用（開口100 mm）
+  laser 64 claserL file bore 0.1 m → bore 0.0500 m, 50.0 kt, barrel 0.44 m, 4 /s — 操縦ポッド 72式連装オートブラスター（開口50 mm）
+  laser 66 claserL file bore 0.1 m → bore 0.0500 m, 50.0 kt, barrel 0.44 m, 4 /s — 操縦ポッド 72式連装オートブラスター（開口50 mm）
+  laser 86 claserL file bore 0.1 m → bore 0.1000 m, 114.3 kt, barrel 1.52 m, 4 /s — 右 Sフォイル先端 SW-7a 位置・軽レーザー代用（開口100 mm）
+  laser 96 claserL file bore 0.1 m → bore 0.1000 m, 114.3 kt, barrel 1.52 m, 4 /s — 左 Sフォイル先端 SW-7a 位置・軽レーザー代用（開口100 mm）
   ctorp 160 (file ctorp) 主翼端兵装ポッド MG9 魚雷発射管
   ctorp 167 (file ctorp) 操縦ポッドと機関の間の短翼 MG9 魚雷発射管
 ordnance: ["ptorpx4"]; strike ["ptorpx2","cmslx2"]; air ["rmslx6"]
 warnings 1: :構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。
 ## craft_tri — ドロイド・トライファイター（独立星系連合） (11 s)
 example: {"name":"ドロイド・トライファイター","side":"独立星系連合","role":"戦闘機","craftType":"tri","length":5.4,"source":"docs/handoff-2026-11-20/refs/tri-fighter-2026-11-26.json"}
-mass t: 8.9901 (design file: 8.8527)
-acceleration G: 3540 (design file: 3600)
-cost: 99083 (design file: 99026)
+mass t: 9.2621 (design file: 8.8527)
+acceleration G: 3426 (design file: 3600)
+cost: 99179 (design file: 99026)
 size m: [null,null,null] parts 146 (file 146) fits 6 (file 6)
-  laser 44 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 0.809676 m, 4 /s — 上翼端・固定軽レーザー（開口40 mm）
-  laser 77 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 0.809676 m, 4 /s — 右下翼端・固定軽レーザー（開口40 mm）
-  laser 110 claserL file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 0.809676 m, 4 /s — 左下翼端・固定軽レーザー（開口40 mm）
-  laser 113 claser file bore 0.1 m → bore 0.0200 m, 32.0 kt, barrel 1.12455 m, 4 /s — 中央固定・中レーザー（開口85 mm）
+  laser 44 claserL file bore 0.1 m → bore 0.0400 m, 42.3 kt, barrel 0.809676 m, 4 /s — 上翼端・固定軽レーザー（開口40 mm）
+  laser 77 claserL file bore 0.1 m → bore 0.0400 m, 42.3 kt, barrel 0.809676 m, 4 /s — 右下翼端・固定軽レーザー（開口40 mm）
+  laser 110 claserL file bore 0.1 m → bore 0.0400 m, 42.3 kt, barrel 0.809676 m, 4 /s — 左下翼端・固定軽レーザー（開口40 mm）
+  laser 113 claser file bore 0.1 m → bore 0.0850 m, 90.5 kt, barrel 1.12455 m, 4 /s — 中央固定・中レーザー（開口85 mm）
   cmsl 115 (file cmsl) 機腹・多目的発射管（震盪ミサイル）
   cmsl 117 (file cmsl) 機腹・多目的発射管（震盪ミサイル）
 ordnance: ["cmslx6"]; strike ["ptorpx2","cmslx2"]; air ["cmslx6"]
