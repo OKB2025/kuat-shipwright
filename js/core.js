@@ -114897,7 +114897,7 @@ function decodeReference(id){
    else if(k!==1&&b._neckFrom!=null&&x>=b._neckFrom-tol){const dy=a.c[1]+pos[v*3+1]*a.size[1]-b.root[1],dz=a.c[2]+pos[v*3+2]*a.size[2]-b.root[2],r=Math.hypot(dy,dz),R=b._neckThin*k;if(r>=b._neckThin*(1-1e-3)&&r<R){pos[v*3+1]=(b.root[1]+dy*R/r-a.c[1])/a.size[1];pos[v*3+2]=(b.root[2]+dz*R/r-a.c[2])/a.size[2];}}
    /* longer by its first plain length of shaft only: every ring past where it leaves the housing (the band, the bore's floor,
       the muzzle collar) moves forward by the added length and keeps its modelled size */
-   if(ka!==1&&(b._stretchFrom==null?x>front+tol:x>b._stretchFrom+tol||x>front+tol&&(()=>{const r=Math.hypot(a.c[1]+pos[v*3+1]*a.size[1]-b.root[1],a.c[2]+pos[v*3+2]*a.size[2]-b.root[2]);return x>=b._stretchFrom-tol?r>b.shaftRadiusM*1.02/* the muzzle collar's first ring, at the taper's end */:r<=b.boreRadiusM*1.02/* the bore's floor */;})()))pos[v*3]=(x+(b._sourceReach??0)*(ka-1)-a.c[0])/a.size[0];}}}
+   if(ka!==1&&(b._stretchFrom==null?x>front+tol:x>b._stretchFrom+tol||x>front+tol&&(()=>{const r=Math.hypot(a.c[1]+pos[v*3+1]*a.size[1]-b.root[1],a.c[2]+pos[v*3+2]*a.size[2]-b.root[2]);return x>=b._stretchFrom-tol?r>b.shaftRadiusM*1.02/* the muzzle collar's first ring, at the taper's end */:r<=b.boreRadiusM*1.02/* the bore's floor */;})()))pos[v*3]=((ka<1?front+(x-front)*ka/* a shortened barrel: every ring outside the housing keeps its place in proportion (a shift would fold the first rings back into the housing) */:x+(b._sourceReach??0)*(ka-1))-a.c[0])/a.size[0];}}}
  a._decoded={pos,uv,idx};return a._decoded;
 }
 STRUCT_SHAPES.reference='参照モデル構造物';
@@ -116540,11 +116540,11 @@ const GUN_RULE_LABELS={
 // The turbolasers drawn below the 0.45 m least bore are thickened to it (user 2026-11-24, 0.6 of the outer diameter where no bore is
 // modelled), and the Mon Calamari ball guns' exposed barrels drawn out to the user's drawings (exposed barrel ÷ ball diameter:
 // 200TT triple 1.45, single 1.75, 150TT ion 1.5, 80TT 1.55, 34TT 1.0). The barrel records follow the drawn shape.
-function reshapeGunBarrels(id,{radius=1,exposedTarget=null,neckFill=false}={}){const a=REFERENCE_ASSETS[id];if(!a||a._reshaped)return;a._reshaped=true;
+function reshapeGunBarrels(id,{radius=1,exposedTarget=null,neckFill=false,fullScale=null/* 2026-11-26 the whole barrel (root to muzzle) to this share of its length; under 1 the part outside the housing is drawn in towards it */}={}){const a=REFERENCE_ASSETS[id];if(!a||a._reshaped)return;a._reshaped=true;
  const b0=a.barrelCenters?.[0];if(!b0)return;const front0=b0.exposedStartX??b0.root[0],
   /* reference review 2026-11-25: the drawing's ratio is the barrel seen past the ball's outline in the side view (centre + radius),
      not past exposedStartX, which lies inside the ball; the added length still goes into the shaft from exposedStartX on */
-  exit0=a.sphereRadiusM>0&&Array.isArray(a.sphereCenterM)?a.sphereCenterM[0]+a.sphereRadiusM:front0,ka=exposedTarget>0?Math.max(1,(exit0+exposedTarget-front0)/Math.max(1e-6,b0.muzzle[0]-front0)):1;
+  exit0=a.sphereRadiusM>0&&Array.isArray(a.sphereCenterM)?a.sphereCenterM[0]+a.sphereRadiusM:front0,ka=fullScale>0&&fullScale!==1?Math.max(.05,(b0.root[0]+(b0.muzzle[0]-b0.root[0])*fullScale-front0)/Math.max(1e-6,b0.muzzle[0]-front0)):exposedTarget>0?Math.max(1,(exit0+exposedTarget-front0)/Math.max(1e-6,b0.muzzle[0]-front0)):1;
  if(radius!==1)a.barrelRadiusScale=radius;if(ka!==1)a.barrelExposedScale=ka;
  for(const b of a.barrelCenters){const front=b.exposedStartX??b.root[0];b._sourceFront=front;b._sourceReach=b.muzzle[0]-front;/* a tapered barrel keeps its taper: the length is added to the straight tube past the taper's end */if(b.taperEndXM>front&&b.shaftRadiusM>0&&b.boreRadiusM>0)b._stretchFrom=b.taperEndXM;if(neckFill&&radius!==1)b._neckFill=true;if(radius!==1){if(b.outerRadiusM>0)b.outerRadiusM*=radius;if(b.boreRadiusM>0)b.boreRadiusM*=radius;}
   if(ka!==1){b.muzzle=[front+(b.muzzle[0]-front)*ka,b.muzzle[1],b.muzzle[2]];if(b.fullLengthM>0)b.fullLengthM=Math.hypot(...b.muzzle.map((v,i)=>v-b.root[i]));if(b.photoVisibleReachM>0)b.photoVisibleReachM=b.muzzle[0]-front;}}
@@ -116552,6 +116552,7 @@ function reshapeGunBarrels(id,{radius=1,exposedTarget=null,neckFill=false}={}){c
  /* the reshaped barrels may reach past the model's box: the fit's box (referenceFitAABB) takes the drawn extent */
  const d=decodeReference(id);if(d){const lo=[-.5,-.5,-.5],hi=[.5,.5,.5];for(let i=0;i<d.pos.length;i+=3)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],d.pos[i+k]);hi[k]=Math.max(hi[k],d.pos[i+k]);}a.drawnExtent=[lo,hi];}}
 reshapeGunBarrels('pd_twin_side_laser',{radius:.20/.1155,neckFill:true});
+reshapeGunBarrels('cis_rapid_quad1',{fullScale:.5});/* 2026-11-26 (user「1TTのラビット砲は砲身を今の1/2に」): 29 m from root to muzzle becomes 14.5 m */
 {const MC={moncal_single34:1.0,moncal_single80:1.55,moncal_single200:1.75,moncal_triple200:1.45,moncal_single150_ion:1.5},MCK={moncal_single34:'monCal34',moncal_single80:'monCal80',moncal_single200:'monCal200',moncal_triple200:'monCal200Triple',moncal_single150_ion:'monCal150Ion'};
  for(const id of ['light_quad200','light_twin200','light_single200','light_twin200_fast','moncal_single34','moncal_single80','moncal_single200','moncal_triple200','moncal_single150_ion']){const a=REFERENCE_ASSETS[id],b=a?.barrelCenters?.[0];if(!b)continue;
   const ion=id==='moncal_single150_ion',bore=b.boreRadiusM>0?2*b.boreRadiusM:b.outerRadiusM>0?2*b.outerRadiusM*.6:null,radius=!ion&&bore>0&&bore<.45?.45/bore:1,d=MCK[id]?FITS[MCK[id]]:null;
