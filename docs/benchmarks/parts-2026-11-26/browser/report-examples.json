@@ -1,0 +1,147 @@
+{
+ "errors": [],
+ "steps": [
+  {
+   "step": "open craft_xwing",
+   "seconds": 11.196,
+   "name": "T-65B Xウイング",
+   "parts": 140,
+   "liftParts": 0,
+   "mass": 29.40302547618117,
+   "support": 32.34332802379929,
+   "lift": {
+    "total": 28.649534349966373,
+    "volume": 0.10504829261654337,
+    "mass": 0.03676690241579018,
+    "cost": 3500.1050482926166,
+    "power": 105048292616543.38,
+    "support": 31.514487784963013
+   },
+   "canLand": false,
+   "landing": true,
+   "stations": "[{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":2},\"count\":2}]",
+   "floating": 0,
+   "warnings": [
+    "reactant-supply: 反応物供給能力 85%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。"
+   ]
+  },
+  {
+   "step": "open craft_ywing",
+   "seconds": 26.873,
+   "name": "BTL-A4 Y-wing (Rebel Alliance)",
+   "parts": 149,
+   "liftParts": 0,
+   "mass": 54.117524755590715,
+   "support": 59.52927723114979,
+   "lift": {
+    "total": 54.062964507115,
+    "volume": 0.19823086985942168,
+    "mass": 0.06938080445079758,
+    "cost": 3500.1982308698593,
+    "power": 198230869859421.7,
+    "support": 59.4692609578265
+   },
+   "canLand": false,
+   "landing": true,
+   "stations": "[{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":2},\"count\":2},{\"fit\":\"cbomb\",\"mount\":\"bay\",\"store\":{\"mount\":\"bay\",\"box\":[2.4,1.2,0.7]},\"count\":1}]",
+   "floating": 2,
+   "warnings": [
+    ": 取り付け面を失った装備が 2 基あります。",
+    "heat: 給電経路のない設備が 6 系統あります（断線）。",
+    "heat: 接続できない熱輸送路が 24 本あります（相手の設備がありません）。"
+   ]
+  },
+  {
+   "step": "open cr90",
+   "seconds": 18.578,
+   "name": "CR-90",
+   "parts": 51,
+   "liftParts": 0,
+   "mass": 53266.414114086845,
+   "support": 58593.05552549553,
+   "lift": {
+    "total": 53266.414114086845,
+    "volume": 195.3101850849851,
+    "mass": 68.35856477974478,
+    "cost": 3695.3101850849853,
+    "power": 195310185084985120,
+    "support": 58593.05552549553
+   },
+   "canLand": false,
+   "landing": true,
+   "stations": "[]",
+   "floating": 0,
+   "warnings": [
+    ": 生命維持・シールド・機関への給電が不足しています（稼働率 89%）。",
+    ": シールドが目標強度の 89% です。発生器の容量と給電を確認してください。"
+   ]
+  },
+  {
+   "step": "open imperial",
+   "seconds": 110.274,
+   "name": "インペリアルI級",
+   "parts": 179,
+   "liftParts": 0,
+   "mass": 52133237.909262724,
+   "support": 57346561.700189,
+   "lift": {
+    "total": 52133237.909262724,
+    "volume": 191155.2056672967,
+    "mass": 66904.32198355383,
+    "cost": 194655.2056672967,
+    "power": 191155205667296670000,
+    "support": 57346561.700189
+   },
+   "canLand": false,
+   "landing": true,
+   "stations": "[]",
+   "floating": 0,
+   "warnings": [
+    "command-room: 航行・艦隊指揮区画 #723 は外殻内の容積が不足しています（有効 94%）。",
+    "heat: 戦闘負荷で熱エネルギー変換装置への給電が 5.03e21 W 不足し、その分の熱を変換できません。"
+   ]
+  },
+  {
+   "step": "ion compartment on an X-wing laser",
+   "before": {
+    "tt": 1.3647999999999996e-7,
+    "ion": 0,
+    "mass": 0.2126391758148873,
+    "slider": true,
+    "max": "2"
+   },
+   "after": {
+    "box": 1,
+    "tt": 0,
+    "ionKt": 2593.1860904263585,
+    "mass": 0.6626391758148873,
+    "name": "イオン砲（固定式）",
+    "out": "1.00 m³",
+    "summary": "Ion Cannon：1発 2.59 MT・毎秒1発",
+    "ionArcs": true
+   }
+  },
+  {
+   "step": "magazine of an X-wing launch tube",
+   "mag0": {
+    "group": true,
+    "value": "1",
+    "note": "Launcher 1 round + magazine 1 rounds"
+   },
+   "mag1": {
+    "magazine": 4,
+    "want": 4,
+    "got": 2,
+    "note": "Launcher 1 round + magazine 2 rounds（4 asked for; room in the structure for 2 rounds）",
+    "stations": "[{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":3},\"count\":1},{\"fit\":\"ctorp\",\"mount\":\"tube\",\"store\":{\"mount\":\"tube\",\"slots\":1,\"bore\":0.32,\"len\":1.4,\"craftTube\":true,\"rounds\":2},\"count\":1}]",
+    "warn": [
+     "発射器の弾薬庫が構造物の中に入りきりません（4 発ぶんのうち 2 発ぶん）。入らないぶんの弾は積めません。"
+    ]
+   }
+  }
+ ],
+ "mode": "worker",
+ "titleExamples": 0,
+ "status": "FAILED",
+ "failure": "page.evaluate: Error: 航宙艦設計局 v2/v3 の設計図を選んでください\n    at v3Deserialize (blob:http://127.0.0.1:8765/1e5474ab-b5eb-4bbb-85f1-1e1597bfb16c:109150:65)\n    at Object.deserialize (blob:http://127.0.0.1:8765/1e5474ab-b5eb-4bbb-85f1-1e1597bfb16c:110732:11)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:98)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /home/user/kuat-shipwright/docs/benchmarks/parts-2026-11-26/browser/check.cjs:25:58"
+}

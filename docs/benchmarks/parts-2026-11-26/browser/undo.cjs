@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');const url=process.argv[2];
+(async()=>{const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:1280,height:800}});
+ const settled=()=>page.waitForFunction(()=>{const Y=window.__yard;return Y&&Y.eng&&!Y.eng.error&&Y.eng.adoptedGen>=Y.eng.gen&&Y.eng.geoGen>=Y.eng.gen&&Y.eng.statsGen>=Y.eng.gen&&!!Y.stats;},null,{timeout:400000});
+ await page.goto(url);await page.waitForFunction(()=>!!window.__yard,null,{timeout:120000});await page.evaluate(()=>window.__yard.title.hide());await page.evaluate(k=>window.__yard.openExample(k),'craft_xwing');await settled();
+ const id=await page.evaluate(()=>window.__yard.ship.fits.find(f=>f.k==='claser').id);
+ await page.evaluate(id=>{const Y=window.__yard;Y.designUI.space=Y.C.FITS.claser.placement?.space||Y.designUI.space;Object.assign(Y.st,{tab:'edit',editTool:'select',sel:{list:'fits',id}});Y.designUI.info={source:Y.ship,list:'fits',id};Y.renderPanel();},id);await page.waitForTimeout(200);await page.evaluate(()=>document.querySelector('[data-design-info-edit]')?.click());await page.waitForTimeout(400);
+ const get=()=>page.evaluate(id=>{const f=window.__yard.ship.fits.find(f=>f.id===id);return {bore:f.boreM,box:f.ionBoxM3??null};},id);const out=[['start',await get()]];
+ const set=async(k,v)=>{await page.evaluate(([k,v])=>{const e=document.querySelector(`#panel [data-claser="${k}"]`);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));},[k,v]);await page.waitForTimeout(700);await settled();};
+ const undoBtn=await page.evaluate(()=>{const b=[...document.querySelectorAll('button')].filter(b=>/undo|元に戻/i.test((b.title||'')+(b.getAttribute('aria-label')||'')+(b.id||'')+(b.dataset.act||'')));return b.map(x=>(x.id||'')+'|'+(x.title||'')+'|'+(x.getAttribute('aria-label')||'')+'|'+x.disabled);});out.push(['undo buttons',undoBtn]);
+ const undo=async()=>{await page.keyboard.press('Control+z');await page.waitForTimeout(700);await settled();};
+ await set('boreM','0.2');out.push(['bore 0.2',await get()]);await undo();out.push(['undo (ctrl+z)',await get()]);
+ await set('ionBoxM3','1');out.push(['box 1',await get()]);await undo();out.push(['undo (ctrl+z)',await get()]);
+ console.log(JSON.stringify(out));await browser.close();})();
