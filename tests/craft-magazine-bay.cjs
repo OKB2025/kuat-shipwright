@@ -68,6 +68,18 @@ test('a ring bay: bombs round a 0.3 m ring, a row every 0.3 m of length; it need
 });
 
 // 2026-11-26 (user「魚雷発射機とミサイル発射機は発射管で共通化して、ミサイル発射機のサイズで円筒型」)
+// 2026-11-26 The TIE/sa pod's form (user「TIE/SAの武装ポットは円周に爆弾倉を備えて、中にの中心にミサイル発射器を置いて周りに弾薬庫を広げてる形」)
+test('the inside of a ring bay is free: equipment and magazine cells within the hollow do not clash with the bay',()=>{
+ const bay={id:5,k:'bombBay',c:[0,1.5,0],d:1.8,room:[.9,1.8,1.8],corner:0,bayRing:true};/* hollow radius 0.9 - 0.3 = 0.6 m */
+ assert.equal(C.ringBayHollowHoldsBox(bay,[-2,1.3,-.2,2,1.7,.2]),true,'a box on the axis, running out of both ends');assert.equal(C.ringBayHollowHoldsBox(bay,[-.2,1.3,.3,.2,1.7,.7]),false,'a box reaching into the ring of bombs');assert.equal(C.ringBayHollowHoldsBox({...bay,bayRing:false},[-2,1.3,-.2,2,1.7,.2]),false,'a straight bay has no hollow');
+ const inside={id:6,k:'gen',c:[0,1.5,0],d:.5},across={id:7,k:'gen',c:[0,1.5,.7],d:.5};assert.equal(C.overlapParts(bay,inside),false,'a small reactor on the axis');assert.equal(C.overlapParts(inside,bay),false);assert.equal(C.overlapParts(bay,across),true,'one in the ring clashes');
+ assert.equal(C.overlapParts({...bay,bayRing:undefined},inside),true,'the same place in a straight bay clashes');
+ // a launch tube on the axis ahead of the bay: its magazine cells go through the hollow
+ const s=C.newShip({L:8,W:4,H:3,assembly:true},'pod');s.parts=[];s.fits=[];s.nextId=1;C.placePart(s,'struct',[0,1.5,0],[8,4,3],{form:'box'},false);s.parts.push({...bay,id:s.nextId++});
+ const f={id:s.nextId++,k:'ctorp',p:[1.6,1.38,0],n:[0,1,0],a:2,ped:0,base:0,low:0,localMount:true,frameForward:[1,0,0],oneRound:true,magazine:3,placement:{modelVersion:1,mode:'direct'}};s.fits.push(f);
+ const m=C.craftMagazine(s,f,[]);assert.equal(m.got,3,'the three cells fit inside the hollow: '+m.cells.map(c=>c.i+','+c.j));for(const c of m.cells)assert.ok(C.ringBayHollowHoldsBox(s.parts.find(p=>p.k==='bombBay'),c.b)||c.b[3]<-.45||c.b[0]>.45,'each cell is in the hollow or clear of the bay');
+});
+
 // 2026-11-26 (user「投下装置と爆弾層の間の構造物に爆弾の通り道が出来るようにして」)
 test('the bombs\' way: from a drop device straight to the ring bay through the structure between them; equipment in the way blocks it',()=>{
  const make=()=>{const s=C.newShip({L:8,W:4,H:3,assembly:true},'way');s.parts=[];s.fits=[];s.nextId=1;C.placePart(s,'struct',[0,1.5,0],[8,4,3],{form:'box'},false);s.parts.push({id:s.nextId++,k:'bombBay',c:[0,2,0],d:1.8,room:[.6,1.8,1.8],corner:0,bayRing:true});const r=C.placeFit(s,'cdrop',[0,0,0],[0,-1,0],0,false);assert.ok(r.fit,r.err);return {s,f:r.fit};};
