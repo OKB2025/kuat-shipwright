@@ -10,7 +10,7 @@ const fs=require('fs'),path=require('path'),{chromium}=require('playwright');con
   await settled();await frame();await page.waitForTimeout(1500);await frame();report.warnings=await page.evaluate(()=>(window.__yard.stats.warnings||[]).map(w=>w.code+': '+w.text.slice(0,60)));report.stations=await page.evaluate(()=>window.__yard.C.craftStations(window.__yard.ship,window.__yard.stats));
   await page.screenshot({path:path.join(out,'parts-default.png')});
   report.cam=await page.evaluate(()=>JSON.stringify(window.__yard.view().cam).slice(0,400));
-  for(const [name,cam] of [['parts-close',{th:.55,ph:.95,r:7.5,target:[2.2,2.2,0]}],['parts-front',{th:1.35,ph:1.25,r:6.5,target:[2.2,2.2,0]}]]){await page.evaluate(c=>{const Y=window.__yard,v=Y.view();Object.assign(v.cam,c);Y.draw();},cam);await frame();await page.waitForTimeout(700);await frame();await page.screenshot({path:path.join(out,name+'.png'),clip:{x:0,y:90,width:1280,height:640}});}
+  for(const [name,cam] of [['parts-close',{th:.55,ph:.95,r:7.5,target:[2.2,2.2,0]}],['ion-close',{th:.2,ph:1.0,r:5.5,target:[1.2,2.2,2.4]}]]){await page.evaluate(c=>{const Y=window.__yard,v=Y.view();Object.assign(v.cam,c);Y.draw();},cam);await frame();await page.waitForTimeout(700);await frame();await page.screenshot({path:path.join(out,name+'.png'),clip:{x:0,y:90,width:1280,height:640}});}
   
   report.status=report.errors.length?'ERRORS':'OK';}catch(e){report.status='FAILED';report.failure=String(e.stack||e).slice(0,1200);try{await page.screenshot({path:path.join(out,'failed.png')});}catch{}}
  fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,1));console.log(JSON.stringify(report,null,1).slice(0,5000));await browser.close();})();
