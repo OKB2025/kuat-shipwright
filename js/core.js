@@ -27452,6 +27452,4056 @@ const CRAFT_PRICE_CATALOG={
     }
    ]
   },
+  "bwing": {
+   "reference": "craft_bwing",
+   "signature": "1e1tpp2",
+   "build": 162892,
+   "crew": 1000,
+   "total": 163892,
+   "by": {
+    "hull": 28,
+    "armor": 4,
+    "power": 12117,
+    "drive": 68071,
+    "defense": 13501,
+    "command": 17502,
+    "weapons": 37168,
+    "systems": 14501,
+    "crew": 1000
+   },
+   "detailed": true,
+   "systems": {
+    "v": 1,
+    "managed": true,
+    "power": 15960826880876150,
+    "crew": 1,
+    "suitSeats": 0,
+    "lifeSupportCapacity": 1,
+    "lifeSupportHours": 9.855269999999997,
+    "ejectionSeats": 1,
+    "ejectionCoverage": 1,
+    "ejectionSurvival": 0.9,
+    "navCapacity": 1.331,
+    "navDemand": 0.4947380279648087,
+    "navReady": true,
+    "targetDemand": 8,
+    "targetCapacity": 9.398843750000001,
+    "targetRatio": 1,
+    "fireK": 1,
+    "maneuverSupport": 23.627668592711384,
+    "maneuverRatio": 1,
+    "turnK": 1,
+    "laserUnits": 6.8610077781535335,
+    "laserGunShare": 1,
+    "laserAaShare": 1,
+    "laserGasSeconds": 11.805845820189276,
+    "landingSupport": 106.41775579885476,
+    "landingRatio": 1,
+    "landingReady": true
+   },
+   "heat": {
+    "up": 0,
+    "upS": 0,
+    "down": 0.01,
+    "T": 1.6
+   },
+   "powerProfile": {
+    "name": "A/SF-01 Bウイング（エンドア仕様）",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 26,
+      "name": "レーザー砲",
+      "w": 0.580608,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.50000004288,
+      "weaponPowerW": 717639680000000,
+      "shotW": 1.7152e-7,
+      "bolt": 4.288e-8,
+      "stock": 0,
+      "at": 0.741,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.93,
+      "z": -0.05,
+      "r": 0.2,
+      "share": 0.09090909535206596,
+      "domain": "main",
+      "port": "f26",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 28,
+      "name": "レーザー砲",
+      "w": 0.2851602768754658,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.649,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.94,
+      "z": 0.05,
+      "r": 0.125,
+      "share": 0.18181818092958682,
+      "domain": "main",
+      "port": "f28",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 64,
+      "name": "レーザー砲",
+      "w": 0.10543741329849156,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.726,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.87,
+      "z": -0.04,
+      "r": 0.046,
+      "share": 0.18181818092958682,
+      "domain": "main",
+      "port": "f64",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 66,
+      "name": "レーザー砲",
+      "w": 0.10543741329849156,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.726,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.87,
+      "z": 0.04,
+      "r": 0.046,
+      "share": 0.18181818092958682,
+      "domain": "main",
+      "port": "f66",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 86,
+      "name": "レーザー砲",
+      "w": 0.36423833684933443,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.72,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.21,
+      "z": 0.94,
+      "r": 0.159,
+      "share": 0.18181818092958682,
+      "domain": "main",
+      "port": "f86",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 96,
+      "name": "レーザー砲",
+      "w": 0.36423833684933443,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.72,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.21,
+      "z": -0.94,
+      "r": 0.159,
+      "share": 0.18181818092958682,
+      "domain": "main",
+      "port": "f96",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 160,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "weaponPowerW": 1000000000000000,
+      "shotW": 0,
+      "bolt": 0,
+      "stock": 0,
+      "at": 0.673,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.91,
+      "z": 0,
+      "r": 0.147,
+      "share": 0,
+      "domain": "main",
+      "port": "f160",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 167,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "weaponPowerW": 1000000000000000,
+      "shotW": 0,
+      "bolt": 0,
+      "stock": 0,
+      "at": 0.65,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.62,
+      "z": 0,
+      "r": 0.147,
+      "share": 0,
+      "domain": "main",
+      "port": "f167",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "JZ-5g7 系統・中央反応炉",
+      "w": 0.42849813927115454,
+      "hits": 1,
+      "crew": 0.00005609877865751479,
+      "size": 0.28049389328757396,
+      "at": 0.453,
+      "part": 133,
+      "y": 0.34,
+      "z": 0,
+      "r": 0.069,
+      "share": 1,
+      "domain": "main",
+      "port": "p133",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "クワデックス・カイロマスター噴射口",
+      "w": 0.2568067960294011,
+      "hits": 1,
+      "crew": 0.00005205587611071752,
+      "size": 0.13013969027679378,
+      "at": 0.168,
+      "part": 135,
+      "y": 0.29,
+      "z": -0.15,
+      "r": 0.053,
+      "share": 0.06790820165537999,
+      "domain": "main",
+      "port": "p135",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "クワデックス・カイロマスター噴射口",
+      "w": 0.2568067960294011,
+      "hits": 1,
+      "crew": 0.00005205587611071752,
+      "size": 0.13013969027679378,
+      "at": 0.168,
+      "part": 137,
+      "y": 0.29,
+      "z": 0.15,
+      "r": 0.053,
+      "share": 0.06790820165537999,
+      "domain": "main",
+      "port": "p137",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "クワデックス・カイロマスター噴射口",
+      "w": 0.2568067960294011,
+      "hits": 1,
+      "crew": 0.00005205587611071752,
+      "size": 0.13013969027679378,
+      "at": 0.168,
+      "part": 139,
+      "y": 0.4,
+      "z": -0.15,
+      "r": 0.053,
+      "share": 0.06790820165537999,
+      "domain": "main",
+      "port": "p139",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "クワデックス・カイロマスター噴射口",
+      "w": 0.2568067960294011,
+      "hits": 1,
+      "crew": 0.00005205587611071752,
+      "size": 0.13013969027679378,
+      "at": 0.168,
+      "part": 141,
+      "y": 0.4,
+      "z": 0.15,
+      "r": 0.053,
+      "share": 0.06790820165537999,
+      "domain": "main",
+      "port": "p141",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ジャイロ搭乗席",
+      "w": 0.948668997453099,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9240001932978569,
+      "at": 0.315,
+      "part": 142,
+      "y": 0.88,
+      "z": 0,
+      "r": 0.102,
+      "share": 0.6045513800415582,
+      "domain": "main",
+      "port": "p142",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "サープレックス Zr-41 シールド",
+      "w": 0.1965129282734214,
+      "hits": 1,
+      "crew": 0.000034845498516066795,
+      "size": 0.087113746290167,
+      "at": 0.472,
+      "part": 143,
+      "y": 0.58,
+      "z": 0,
+      "r": 0.046,
+      "share": 1,
+      "domain": "main",
+      "port": "p143",
+      "powerConnected": true
+     },
+     {
+      "k": "hyper",
+      "name": "HYd-997 ハイパードライブ",
+      "w": 0.17306456001723214,
+      "hits": 1,
+      "crew": 0.000021598991255041346,
+      "size": 0.07199663751680449,
+      "at": 0.453,
+      "part": 144,
+      "y": 0.67,
+      "z": 0,
+      "r": 0.044,
+      "share": 1,
+      "domain": "main",
+      "port": "p144",
+      "powerConnected": true
+     },
+     {
+      "k": "sensor",
+      "name": "ファブリテック ANv-9q センサー",
+      "w": 0.06652206233123421,
+      "hits": 1,
+      "crew": 0.000003431456935761012,
+      "size": 0.01715728467880506,
+      "at": 0.516,
+      "part": 145,
+      "y": -0.18,
+      "z": 0,
+      "r": 0.027,
+      "share": 1,
+      "domain": "main",
+      "port": "p145",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ANq 3.6 照準計算機",
+      "w": 0.11222500000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03759537500000001,
+      "at": 0.615,
+      "part": 146,
+      "y": 0.88,
+      "z": 0,
+      "r": 0.035,
+      "share": 0.024597760914215835,
+      "domain": "main",
+      "port": "p146",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "LpM-549 航法計算機",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.25,
+      "part": 147,
+      "y": 0.88,
+      "z": 0.16,
+      "r": 0.023,
+      "share": 0.006966733493536642,
+      "domain": "main",
+      "port": "p147",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持",
+      "w": 0.11902499999999999,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04106362499999999,
+      "at": 0.21,
+      "part": 148,
+      "y": 0.88,
+      "z": -0.16,
+      "r": 0.036,
+      "share": 0.026866954512915906,
+      "domain": "main",
+      "port": "p148",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "脱出装置",
+      "w": 0.081225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.023149124999999996,
+      "at": 0.292,
+      "part": 149,
+      "y": 0.79,
+      "z": 0,
+      "r": 0.03,
+      "share": 0.015145922659989331,
+      "domain": "main",
+      "port": "p149",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償器",
+      "w": 0.1610724582553414,
+      "hits": 1,
+      "crew": 0.000012928910406583436,
+      "size": 0.06464455203291718,
+      "at": 0.6,
+      "part": 150,
+      "y": 0.51,
+      "z": 0,
+      "r": 0.042,
+      "share": 0.042295394987077045,
+      "domain": "main",
+      "port": "p150",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物移送ポンプ",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0.000004390400000000002,
+      "size": 0.021952000000000006,
+      "at": 0.522,
+      "part": 151,
+      "y": 0.26,
+      "z": 0,
+      "r": 0.029,
+      "share": 0.014362672206059017,
+      "domain": "main",
+      "port": "p151",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽",
+      "w": 0.09000000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.027,
+      "at": 0.562,
+      "part": 152,
+      "y": 0.38,
+      "z": 0.16,
+      "r": 0.031,
+      "share": 0.017665458708254072,
+      "domain": "main",
+      "port": "p152",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "主反応物タンク",
+      "w": 0.1731388534366844,
+      "hits": 1,
+      "crew": 0.000014408600546424227,
+      "size": 0.07204300273212114,
+      "at": 0.631,
+      "part": 153,
+      "y": 0.36,
+      "z": 0,
+      "r": 0.044,
+      "share": 1,
+      "domain": "main",
+      "port": "p153",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機関側面の熱変換装置",
+      "w": 0.2401,
+      "hits": 1,
+      "crew": 0.00000588245,
+      "size": 0.11764899999999999,
+      "at": 0.447,
+      "part": 154,
+      "y": 0.34,
+      "z": -0.21,
+      "r": 0.051,
+      "share": 0.051880631579056966,
+      "domain": "main",
+      "port": "p154",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "中央リパルサー着地機構",
+      "w": 0.4726754332644245,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.1768917823393544,
+      "at": 0.585,
+      "part": 155,
+      "y": 0.27,
+      "z": -0.17,
+      "r": 0.059,
+      "share": 0.11573609173130858,
+      "domain": "main",
+      "port": "p155",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御ノズル",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.004096000000000001,
+      "at": 0.342,
+      "part": 156,
+      "y": 0.51,
+      "z": -0.06,
+      "r": 0.017,
+      "share": 0.0026799155136669884,
+      "turnSupport": 0.004096000000000001,
+      "domain": "main",
+      "port": "p156",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御ノズル",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.004096000000000001,
+      "at": 0.692,
+      "part": 157,
+      "y": 0.35,
+      "z": -0.16,
+      "r": 0.017,
+      "share": 0.0026799155136669884,
+      "turnSupport": 0.004096000000000001,
+      "domain": "main",
+      "port": "p157",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御ノズル",
+      "w": 0.03221691313977082,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0031476685927113814,
+      "at": 0.378,
+      "part": 158,
+      "y": 0.71,
+      "z": -0.06,
+      "r": 0.015,
+      "share": 0.0020594447982152262,
+      "turnSupport": 0.0031476685927113814,
+      "domain": "main",
+      "port": "p158",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "機関側面の熱変換装置",
+      "w": 0.2401,
+      "hits": 1,
+      "crew": 0.00000588245,
+      "size": 0.11764899999999999,
+      "at": 0.447,
+      "part": 161,
+      "y": 0.34,
+      "z": 0.21,
+      "r": 0.051,
+      "share": 0.051880631579056966,
+      "domain": "main",
+      "port": "p161",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "中央リパルサー着地機構",
+      "w": 0.4743525486054902,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.17783407032349474,
+      "at": 0.585,
+      "part": 162,
+      "y": 0.27,
+      "z": 0.17,
+      "r": 0.059,
+      "share": 0.11635260837853507,
+      "domain": "main",
+      "port": "p162",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御ノズル",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.004096000000000001,
+      "at": 0.342,
+      "part": 163,
+      "y": 0.51,
+      "z": 0.06,
+      "r": 0.017,
+      "share": 0.0026799155136669884,
+      "turnSupport": 0.004096000000000001,
+      "domain": "main",
+      "port": "p163",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御ノズル",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.004096000000000001,
+      "at": 0.692,
+      "part": 164,
+      "y": 0.35,
+      "z": 0.16,
+      "r": 0.017,
+      "share": 0.0026799155136669884,
+      "turnSupport": 0.004096000000000001,
+      "domain": "main",
+      "port": "p164",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御ノズル",
+      "w": 0.025600000000000008,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.004096000000000001,
+      "at": 0.378,
+      "part": 165,
+      "y": 0.71,
+      "z": 0.06,
+      "r": 0.017,
+      "share": 0.0026799155136669884,
+      "turnSupport": 0.004096000000000001,
+      "domain": "main",
+      "port": "p165",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4956616095335107,
+      "hits": 1,
+      "crew": 0.00006979236575508942,
+      "size": 0.34896182877544707,
+      "at": 0.304,
+      "part": -135,
+      "machineryOwner": 135,
+      "y": 0.29,
+      "z": -0.15,
+      "r": 0.074,
+      "share": 0.18209179834462003,
+      "domain": "main",
+      "port": "p135",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4956616095335107,
+      "hits": 1,
+      "crew": 0.00006979236575508942,
+      "size": 0.34896182877544707,
+      "at": 0.304,
+      "part": -137,
+      "machineryOwner": 137,
+      "y": 0.29,
+      "z": 0.15,
+      "r": 0.074,
+      "share": 0.18209179834462003,
+      "domain": "main",
+      "port": "p137",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4956616095335107,
+      "hits": 1,
+      "crew": 0.00006979236575508942,
+      "size": 0.34896182877544707,
+      "at": 0.304,
+      "part": -139,
+      "machineryOwner": 139,
+      "y": 0.4,
+      "z": -0.15,
+      "r": 0.074,
+      "share": 0.18209179834462003,
+      "domain": "main",
+      "port": "p139",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4956616095335107,
+      "hits": 1,
+      "crew": 0.00006979236575508942,
+      "size": 0.34896182877544707,
+      "at": 0.304,
+      "part": -141,
+      "machineryOwner": 141,
+      "y": 0.4,
+      "z": 0.15,
+      "r": 0.074,
+      "share": 0.18209179834462003,
+      "domain": "main",
+      "port": "p141",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右 Sフォイル",
+      "w": 2.590090911581202,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0161941744101226,
+      "at": 0.469,
+      "part": 83,
+      "ext": 1,
+      "y": 0.19,
+      "z": 0.56,
+      "r": 0.105,
+      "share": 0.4481193684209431,
+      "domain": "main",
+      "port": "p83",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "左 Sフォイル",
+      "w": 2.590090911581202,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0161941744101226,
+      "at": 0.469,
+      "part": 93,
+      "ext": 1,
+      "y": 0.19,
+      "z": -0.56,
+      "r": 0.105,
+      "share": 0.4481193684209431,
+      "domain": "main",
+      "port": "p93",
+      "powerConnected": true
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.404531327882838,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.428853875450695,
+      "at": 0.184,
+      "y": 0.56,
+      "z": 0.01,
+      "r": 0.172,
+      "share": 0.14471629359708488,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.7804764644417411,
+      "hits": 1,
+      "crew": 0,
+      "size": 11.868691141045927,
+      "at": 0.371,
+      "y": 0.27,
+      "z": 0,
+      "r": 0.2,
+      "share": 0.38781884435190006,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.829985172376911,
+      "hits": 1,
+      "crew": 0,
+      "size": 13.01573243252956,
+      "at": 0.588,
+      "y": 0.27,
+      "z": 0,
+      "r": 0.2,
+      "share": 0.42529932326913067,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.1777920382030136,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.2904214529190874,
+      "at": 0.806,
+      "y": 0.35,
+      "z": 0,
+      "r": 0.114,
+      "share": 0.042165538781884435,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 10.879294871722513,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.95
+    },
+    "D": 0.00021120855672945033,
+    "shieldBuffer": 0.012175613410587035,
+    "wCap": 0,
+    "fuel": {
+     "version": 1,
+     "capacityKnown": true,
+     "volumeM3": 0.07204300273212114,
+     "massKg": 18.010750683030285,
+     "capacityJ": 1.1956881776226343e+22,
+     "specificEnergyJPerKg": 663874703872954500000,
+     "basis": "installed-reactant-volume"
+    },
+    "crewCapacity": 1,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 4.7671999335289,
+    "width": 7.300000190734863,
+    "height": 16.90000057220459,
+    "foils": [
+     {
+      "id": 83,
+      "n": "右 Sフォイル",
+      "T": 1.6,
+      "sec": -1,
+      "jam": 0.485
+     },
+     {
+      "id": 93,
+      "n": "左 Sフォイル",
+      "T": 1.6,
+      "sec": -1,
+      "jam": 0.485
+     }
+    ],
+    "referencePhysicalRevision": {
+     "key": "craft_bwing",
+     "version": 1
+    },
+    "grid": {
+     "P": 1468947560255881000,
+     "fixed": 26788007892084800,
+     "cooling": 5590140140413750,
+     "De": 1468947560255881000,
+     "Ds": 883696601356020200,
+     "Dw": 5395399680000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 1468947560255881000,
+       "reactors": [
+        8
+       ],
+       "sources": [
+        {
+         "moduleIndex": 8,
+         "P": 1468947560255881000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "hotel",
+       "cap": 21163553182313436,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>hotel",
+       "model": "source-distance",
+       "lengthM": 1.0111874208078342,
+       "efficiency": 0.9999898881769167
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p154",
+       "cap": 4620961872582419,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>p154",
+       "model": "source-distance",
+       "lengthM": 0.7811529939774922,
+       "efficiency": 0.9999921885005701
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p161",
+       "cap": 4620961872582419,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>p161",
+       "model": "source-distance",
+       "lengthM": 0.7811529939774922,
+       "efficiency": 0.9999921885005701
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p83",
+       "cap": 64806929879949.17,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>p83",
+       "model": "source-distance",
+       "lengthM": 2.4310965509415703,
+       "efficiency": 0.9999756893299997
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p93",
+       "cap": 64806929879949.17,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>p93",
+       "model": "source-distance",
+       "lengthM": 2.4310965509415703,
+       "efficiency": 0.9999756893299997
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p151",
+       "cap": 1059893387583552.4,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>p151",
+       "model": "source-distance",
+       "lengthM": 0.7200694410957877,
+       "efficiency": 0.999992799331514
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p153",
+       "cap": 1059893387583552.4,
+       "auto": true,
+       "ok": true,
+       "routeId": "p133>p153",
+       "model": "source-distance",
+       "lengthM": 0.8649277426467485,
+       "efficiency": 0.9999913507599785
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p142",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p142",
+       "model": "source-distance",
+       "lengthM": 4.617412695438865,
+       "efficiency": 0.9999538269390542
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p143",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p143",
+       "model": "source-distance",
+       "lengthM": 2.0319940944796073,
+       "efficiency": 0.9999796802655038
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p144",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p144",
+       "model": "source-distance",
+       "lengthM": 2.81,
+       "efficiency": 0.9999719003948013
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p145",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p145",
+       "model": "source-distance",
+       "lengthM": 4.36033255612459,
+       "efficiency": 0.99995639762505
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p146",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p146",
+       "model": "source-distance",
+       "lengthM": 4.634414741906469,
+       "efficiency": 0.9999536569264543
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p147",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p147",
+       "model": "source-distance",
+       "lengthM": 4.746514510669909,
+       "efficiency": 0.9999525359813455
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p148",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p148",
+       "model": "source-distance",
+       "lengthM": 4.7516944346201395,
+       "efficiency": 0.999952484184566
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p149",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p149",
+       "model": "source-distance",
+       "lengthM": 3.896832046675864,
+       "efficiency": 0.9999610324387884
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p150",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p150",
+       "model": "source-distance",
+       "lengthM": 1.6191355718407276,
+       "efficiency": 0.9999838087753609
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p152",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p152",
+       "model": "source-distance",
+       "lengthM": 0.8539906322671227,
+       "efficiency": 0.9999914601301422
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p155",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p155",
+       "model": "source-distance",
+       "lengthM": 1.0576861538282516,
+       "efficiency": 0.9999894231943965
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p156",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p156",
+       "model": "source-distance",
+       "lengthM": 1.540843924607551,
+       "efficiency": 0.9999845916794633
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p157",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p157",
+       "model": "source-distance",
+       "lengthM": 1.284678948220138,
+       "efficiency": 0.9999871532930374
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p158",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p158",
+       "model": "source-distance",
+       "lengthM": 3.14839641722576,
+       "efficiency": 0.9999685165314426
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p162",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p162",
+       "model": "source-distance",
+       "lengthM": 1.0576861538282516,
+       "efficiency": 0.9999894231943965
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p163",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p163",
+       "model": "source-distance",
+       "lengthM": 1.540843924607551,
+       "efficiency": 0.9999845916794633
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p164",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p164",
+       "model": "source-distance",
+       "lengthM": 1.284678948220138,
+       "efficiency": 0.9999871532930374
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p165",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>p165",
+       "model": "source-distance",
+       "lengthM": 3.14839641722576,
+       "efficiency": 0.9999685165314426
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f26",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f26",
+       "model": "source-distance",
+       "lengthM": 10.819000663647268,
+       "efficiency": 0.9998918158456912
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f28",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f28",
+       "model": "source-distance",
+       "lengthM": 10.83184305647012,
+       "efficiency": 0.9998916874356647
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f64",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f64",
+       "model": "source-distance",
+       "lengthM": 4.7010566897241315,
+       "efficiency": 0.9999529905380822
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f66",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f66",
+       "model": "source-distance",
+       "lengthM": 4.7010566897241315,
+       "efficiency": 0.9999529905380822
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f86",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f86",
+       "model": "source-distance",
+       "lengthM": 3.81862658556712,
+       "efficiency": 0.9999618144632305
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f96",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f96",
+       "model": "source-distance",
+       "lengthM": 3.81862658556712,
+       "efficiency": 0.9999618144632305
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f160",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f160",
+       "model": "source-distance",
+       "lengthM": 10.572271515620471,
+       "efficiency": 0.9998942828732931
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "f167",
+       "cap": 1468947560255881000,
+       "auto": false,
+       "ok": true,
+       "routeId": "p133>f167",
+       "model": "source-distance",
+       "lengthM": 2.5310719073151597,
+       "efficiency": 0.9999746896012404
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p135",
+       "cap": 253377653304212600,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p133>p135",
+       "groupCap": 2056526584358233000,
+       "routeId": "p133>p135",
+       "model": "source-distance",
+       "lengthM": 0.9902524930541706,
+       "efficiency": 0.9999900975240993
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p137",
+       "cap": 253377653304212600,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p133>p137",
+       "groupCap": 2056526584358233000,
+       "routeId": "p133>p137",
+       "model": "source-distance",
+       "lengthM": 0.9902524930541706,
+       "efficiency": 0.9999900975240993
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p139",
+       "cap": 253377812883091330,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p133>p139",
+       "groupCap": 2056526584358233000,
+       "routeId": "p133>p139",
+       "model": "source-distance",
+       "lengthM": 1.0532331175955303,
+       "efficiency": 0.9999894677242889
+      },
+      {
+       "kind": "power",
+       "from": "p133",
+       "to": "p141",
+       "cap": 253377812883091330,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p133>p141",
+       "groupCap": 2056526584358233000,
+       "routeId": "p133>p141",
+       "model": "source-distance",
+       "lengthM": 1.0532331175955303,
+       "efficiency": 0.9999894677242889
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "p145",
+       "port": "p145",
+       "weight": 34314569357610.117,
+       "domain": "main"
+      },
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 21163553182313436,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": [
+      {
+       "id": "p154",
+       "port": "p154",
+       "weight": 4620961872582419,
+       "domain": "main"
+      },
+      {
+       "id": "p161",
+       "port": "p161",
+       "weight": 4620961872582419,
+       "domain": "main"
+      },
+      {
+       "id": "p83",
+       "port": "p83",
+       "weight": 64806929879949.17,
+       "domain": "main"
+      },
+      {
+       "id": "p93",
+       "port": "p93",
+       "weight": 64806929879949.17,
+       "domain": "main"
+      }
+     ]
+    },
+    "propulsion": {
+     "version": 1,
+     "inputModelVersion": 2,
+     "architectureVersion": 2,
+     "cores": [
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 135,
+       "machineryId": 135,
+       "coreId": 135,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377653304212600,
+       "cost": 17.111578355211293,
+       "powerNode": "p135",
+       "heatNode": "p135",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "machineryModuleIndex": 35,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980,
+       "transmissionRouteIds": [
+        "p133>p135"
+       ]
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 137,
+       "machineryId": 137,
+       "coreId": 137,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377653304212600,
+       "cost": 17.111578355211293,
+       "powerNode": "p137",
+       "heatNode": "p137",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 10,
+       "machineryModuleIndex": 36,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980,
+       "transmissionRouteIds": [
+        "p133>p137"
+       ]
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 139,
+       "machineryId": 139,
+       "coreId": 139,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377812883091330,
+       "cost": 17.111617303843587,
+       "powerNode": "p139",
+       "heatNode": "p139",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 11,
+       "machineryModuleIndex": 37,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980,
+       "transmissionRouteIds": [
+        "p133>p139"
+       ]
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 141,
+       "machineryId": 141,
+       "coreId": 141,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377812883091330,
+       "cost": 17.111617303843587,
+       "powerNode": "p141",
+       "heatNode": "p141",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 12,
+       "machineryModuleIndex": 38,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980,
+       "transmissionRouteIds": [
+        "p133>p141"
+       ]
+      }
+     ],
+     "engines": [
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 135,
+       "machineryId": 135,
+       "coreId": 135,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377653304212600,
+       "cost": 17.111578355211293,
+       "powerNode": "p135",
+       "heatNode": "p135",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "coreModuleIndex": 9,
+       "machineryModuleIndex": 35,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 250072346022074300000,
+       "shaftCapacityW": 250072346022074300000,
+       "ratedShaftCapacityW": 250072346022074300000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 137,
+       "machineryId": 137,
+       "coreId": 137,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377653304212600,
+       "cost": 17.111578355211293,
+       "powerNode": "p137",
+       "heatNode": "p137",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 10,
+       "coreModuleIndex": 10,
+       "machineryModuleIndex": 36,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 250072346022074300000,
+       "shaftCapacityW": 250072346022074300000,
+       "ratedShaftCapacityW": 250072346022074300000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 139,
+       "machineryId": 139,
+       "coreId": 139,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377812883091330,
+       "cost": 17.111617303843587,
+       "powerNode": "p139",
+       "heatNode": "p139",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 11,
+       "coreModuleIndex": 11,
+       "machineryModuleIndex": 37,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 250072346022074300000,
+       "shaftCapacityW": 250072346022074300000,
+       "ratedShaftCapacityW": 250072346022074300000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 118647021783652000,
+       "densityFactor": 3.0952052950272253,
+       "efficiency": 0.9120340222724259,
+       "wasteFraction": 0.08796597772757409,
+       "profileWattsPerNewton": 2174270739.979217,
+       "shaftWattsPerNewton": 2065557202.980256,
+       "wattsPerNewton": 2264780866.215615,
+       "ratedShaftPowerW": 334932537971859460,
+       "ratedWasteHeatW": 32304352092110780,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 19630.781729088558,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 1468947560255881000,
+       "sourceInputLimitW": 1468947560255881000,
+       "sourceIds": [
+        "p133"
+       ],
+       "allocationWeight": 0.34896182877544707,
+       "id": 141,
+       "machineryId": 141,
+       "coreId": 141,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 367236890063970240,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 162151180.0731577,
+       "effectiveMachineryVolumeM3": 0.34896182877544707,
+       "machineryVolumeM3": 0.34896182877544707,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.02,
+       "machineryRadiusM": 0.33,
+       "machineryDiameterM": 0.66,
+       "machineryOffsetM": 0.14,
+       "maxInputW": 1468947560255881000,
+       "maxRatedInputW": 1468947560255881000,
+       "inputDensityWPerM3": 1052369800309256700,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 253377812883091330,
+       "cost": 17.111617303843587,
+       "powerNode": "p141",
+       "heatNode": "p141",
+       "reactorId": 133,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 12,
+       "coreModuleIndex": 12,
+       "machineryModuleIndex": 38,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 250072346022074300000,
+       "shaftCapacityW": 250072346022074300000,
+       "ratedShaftCapacityW": 250072346022074300000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 253375144238106980
+      }
+     ],
+     "massKg": 19630.781729088558,
+     "ratedThrustN": 454815163.06687075,
+     "ratedAccelMps2": 23168.469261360762,
+     "structuralAccelerationLimitMps2": 5490800.886577547,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 23168.469261360762,
+     "conversionModelVersion": 1,
+     "conversionMassKg": 19630.781729088558,
+     "accelerationLimitBasis": "structural",
+     "sourceBudgetKey": "[1468947560255881000,[[\"main\",1468947560255881000,[[8,1468947560255881000]]]],[[8,\"reactor\",133,\"p133\",\"main\",0.28049389328757396,1]]]"
+    },
+    "profileVersion": 30,
+    "maxSpeed": 1152.596969606332,
+    "heat": {
+     "v": 5,
+     "mode": "strict",
+     "capacityModel": "whole-ship-mass",
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p133",
+       "n": "JZ-5g7 系統・中央反応炉 #133",
+       "g": "high",
+       "sh": 1,
+       "m": [
+        8
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p143",
+       "n": "シールド（前部区画）",
+       "g": "high",
+       "sh": 1,
+       "m": [
+        14
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p135",
+       "n": "クワデックス・カイロマスター噴射口 #135",
+       "g": "high",
+       "sh": 0.25,
+       "m": [
+        9,
+        35
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p137",
+       "n": "クワデックス・カイロマスター噴射口 #137",
+       "g": "high",
+       "sh": 0.25,
+       "m": [
+        10,
+        36
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p139",
+       "n": "クワデックス・カイロマスター噴射口 #139",
+       "g": "high",
+       "sh": 0.25,
+       "m": [
+        11,
+        37
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p141",
+       "n": "クワデックス・カイロマスター噴射口 #141",
+       "g": "high",
+       "sh": 0.25,
+       "m": [
+        12,
+        38
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f26",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 1,
+       "m": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "p145",
+       "n": "ファブリテック ANv-9q センサー #145",
+       "g": "low",
+       "sh": 0.00161879,
+       "m": [
+        16
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 0.998381,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>hotel",
+       "n": "送電損失 p133>hotel",
+       "g": "high",
+       "sh": 0.00613852,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>hotel"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p154",
+       "n": "送電損失 p133>p154",
+       "g": "high",
+       "sh": 0.000820647,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p154"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p161",
+       "n": "送電損失 p133>p161",
+       "g": "high",
+       "sh": 0.000820647,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p161"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p83",
+       "n": "送電損失 p133>p83",
+       "g": "high",
+       "sh": 0.0000358191,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p83"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p93",
+       "n": "送電損失 p133>p93",
+       "g": "high",
+       "sh": 0.0000358191,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p93"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p151",
+       "n": "送電損失 p133>p151",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p151"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p153",
+       "n": "送電損失 p133>p153",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p153"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p142",
+       "n": "送電損失 p133>p142",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p142"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p143",
+       "n": "送電損失 p133>p143",
+       "g": "high",
+       "sh": 0.772622,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p143"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p144",
+       "n": "送電損失 p133>p144",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p144"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p145",
+       "n": "送電損失 p133>p145",
+       "g": "high",
+       "sh": 0.0000429194,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p145"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p146",
+       "n": "送電損失 p133>p146",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p146"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p147",
+       "n": "送電損失 p133>p147",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p147"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p148",
+       "n": "送電損失 p133>p148",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p148"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p149",
+       "n": "送電損失 p133>p149",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p149"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p150",
+       "n": "送電損失 p133>p150",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p150"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p152",
+       "n": "送電損失 p133>p152",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p152"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p155",
+       "n": "送電損失 p133>p155",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p155"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p156",
+       "n": "送電損失 p133>p156",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p156"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p157",
+       "n": "送電損失 p133>p157",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p157"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p158",
+       "n": "送電損失 p133>p158",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p158"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p162",
+       "n": "送電損失 p133>p162",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p162"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p163",
+       "n": "送電損失 p133>p163",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p163"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p164",
+       "n": "送電損失 p133>p164",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p164"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p165",
+       "n": "送電損失 p133>p165",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p165"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f26",
+       "n": "送電損失 p133>f26",
+       "g": "high",
+       "sh": 0.00278402,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f26"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f28",
+       "n": "送電損失 p133>f28",
+       "g": "high",
+       "sh": 0.0020801,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f28"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f64",
+       "n": "送電損失 p133>f64",
+       "g": "high",
+       "sh": 0.000902741,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f64"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f66",
+       "n": "送電損失 p133>f66",
+       "g": "high",
+       "sh": 0.000902741,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f66"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f86",
+       "n": "送電損失 p133>f86",
+       "g": "high",
+       "sh": 0.000733285,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f86"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f96",
+       "n": "送電損失 p133>f96",
+       "g": "high",
+       "sh": 0.000733285,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f96"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f160",
+       "n": "送電損失 p133>f160",
+       "g": "high",
+       "sh": 0.00379094,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f160"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>f167",
+       "n": "送電損失 p133>f167",
+       "g": "high",
+       "sh": 0.00090754,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>f167"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p135",
+       "n": "送電損失 p133>p135",
+       "g": "high",
+       "sh": 0.0500699,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p135"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p137",
+       "n": "送電損失 p133>p137",
+       "g": "high",
+       "sh": 0.0500699,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p137"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p139",
+       "n": "送電損失 p133>p139",
+       "g": "high",
+       "sh": 0.0532544,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p139"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p133>p141",
+       "n": "送電損失 p133>p141",
+       "g": "high",
+       "sh": 0.0532544,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p133>p141"
+      }
+     ],
+     "dis": [
+      {
+       "id": "p154",
+       "n": "機関側面の熱変換装置 #154",
+       "k": "hdis",
+       "g": "all",
+       "cap": 308064124838827970,
+       "m": 25,
+       "sec": 1,
+       "src": -1,
+       "power": 4620961872582419
+      },
+      {
+       "id": "p161",
+       "n": "機関側面の熱変換装置 #161",
+       "k": "hdis",
+       "g": "all",
+       "cap": 308064124838827970,
+       "m": 30,
+       "sec": 1,
+       "src": -1,
+       "power": 4620961872582419
+      },
+      {
+       "id": "p83",
+       "n": "右 Sフォイル #83",
+       "k": "wing",
+       "g": "all",
+       "cap": 12961385975989834,
+       "m": 39,
+       "sec": 2,
+       "src": -1,
+       "fo": 0,
+       "cs": 0.35,
+       "sh": 0.6,
+       "power": 64806929879949.17
+      },
+      {
+       "id": "p93",
+       "n": "左 Sフォイル #93",
+       "k": "wing",
+       "g": "all",
+       "cap": 12961385975989834,
+       "m": 40,
+       "sec": 2,
+       "src": -1,
+       "fo": 1,
+       "cs": 0.35,
+       "sh": 0.6,
+       "power": 64806929879949.17
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 5136408173037086000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 5136408173037086000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 5136408173037086000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 5136408173037086000,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 9,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 13,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 13,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 13,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 13,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 14,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 14,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 14,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 14,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 15,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 15,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 15,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 15,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 16,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 16,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 16,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 16,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 17,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 18,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 18,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 18,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 18,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 19,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 19,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 2
+      },
+      {
+       "s": 19,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 19,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 20,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 20,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 20,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 20,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 21,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 23,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 23,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 23,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 23,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 24,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 24,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 24,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 25,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 25,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 25,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 25,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 26,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 26,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 26,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 26,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 27,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 27,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 27,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 27,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 28,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 29,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 29,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 29,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 30,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 30,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 30,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 30,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 3
+      },
+      {
+       "s": 31,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 31,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 31,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 31,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 32,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 33,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 34,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 35,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 36,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 37,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 38,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 39,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 40,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 41,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 4
+      },
+      {
+       "s": 42,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 42,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 42,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 42,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 43,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 43,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 43,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 43,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 44,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 44,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 44,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 44,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 45,
+       "d": 0,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 45,
+       "d": 1,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 45,
+       "d": 2,
+       "cap": 642051021629635700,
+       "sec": 1
+      },
+      {
+       "s": 45,
+       "d": 3,
+       "cap": 642051021629635700,
+       "sec": 1
+      }
+     ]
+    },
+    "speedReference": {
+     "version": 1,
+     "key": "bwing",
+     "status": "published",
+     "mglt": 91,
+     "model": "A/SF-01 B-wing starfighter",
+     "scope": "class",
+     "continuity": "canon",
+     "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+    },
+    "mglt": 57.6298484803166,
+    "motionResistance": {
+     "version": 4,
+     "model": "global-mass-power-law",
+     "referenceMassKg": 8081.389573510918,
+     "referenceAccelMps2": 78.43562250542563,
+     "referenceSpeedMps": 2000,
+     "referenceRatePerS": 0.039217811252712814,
+     "referenceLargeMassKg": 11800135063.56654,
+     "referenceLargeAccelMps2": 58.300013265990806,
+     "referenceLargeSpeedMps": 1000,
+     "referenceLargeRatePerS": 0.058300013265990804,
+     "massExponent": 0.027932203529655846
+    }
+   },
+   "fireArcs": [
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      3.7444,
+      -9.6112,
+      -0.17
+     ],
+     "k": "claserH",
+     "gun": 0.09090909313057847,
+     "aa": 0.09090909090909091,
+     "cycle": 1,
+     "boreM": 0.04085747585611883,
+     "barrelM": 2.24,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      2.777,
+      -9.680169361147403,
+      0.19
+     ],
+     "k": "claserL",
+     "gun": 0.1818181813738843,
+     "aa": 0.18181818181818182,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 1.19,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      2.773,
+      5.624830638852596,
+      -0.13
+     ],
+     "k": "claserL",
+     "gun": 0.1818181813738843,
+     "aa": 0.18181818181818182,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 0.44,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      2.773,
+      5.624830638852596,
+      0.13
+     ],
+     "k": "claserL",
+     "gun": 0.1818181813738843,
+     "aa": 0.18181818181818182,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 0.44,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      3.282,
+      -0.07516936114740462,
+      3.43
+     ],
+     "k": "claserL",
+     "gun": 0.1818181813738843,
+     "aa": 0.18181818181818182,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 1.52,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      3.282,
+      -0.07516936114740462,
+      -3.43
+     ],
+     "k": "claserL",
+     "gun": 0.1818181813738843,
+     "aa": 0.18181818181818182,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 1.52,
+     "rateHz": 4
+    }
+   ]
+  },
   "hyena": {
    "reference": "craft_hyena",
    "signature": "1bcqibo",
@@ -53478,6 +57528,3411 @@ const CRAFT_PRICE_CATALOG={
      "cycle": 1,
      "boreM": 0.10230347012687305,
      "barrelM": 1,
+     "rateHz": 4
+    }
+   ]
+  },
+  "tri": {
+   "reference": "craft_tri",
+   "signature": "1duc0gc",
+   "build": 99083,
+   "crew": 0,
+   "total": 99083,
+   "by": {
+    "hull": 9,
+    "armor": 1,
+    "power": 13948,
+    "drive": 34541,
+    "command": 13500,
+    "weapons": 25083,
+    "systems": 12001
+   },
+   "detailed": true,
+   "systems": {
+    "v": 1,
+    "managed": true,
+    "power": 11456734000000002,
+    "crew": 0,
+    "suitSeats": 0,
+    "lifeSupportCapacity": 0,
+    "lifeSupportHours": null,
+    "ejectionSeats": 0,
+    "ejectionCoverage": 0,
+    "ejectionSurvival": 0,
+    "navCapacity": 0.8573750000000001,
+    "navDemand": 0,
+    "navReady": false,
+    "targetDemand": 6,
+    "targetCapacity": 6.75,
+    "targetRatio": 1,
+    "fireK": 1,
+    "maneuverSupport": 10.976000000000003,
+    "maneuverRatio": 1,
+    "turnK": 1,
+    "laserUnits": 4.328711531958065,
+    "laserGunShare": 1,
+    "laserAaShare": 1,
+    "laserGasSeconds": 12.180991875000002,
+    "landingSupport": 70.5894,
+    "landingRatio": 1,
+    "landingReady": true
+   },
+   "heat": {
+    "up": 0,
+    "upS": 0,
+    "down": 0.01,
+    "T": 0
+   },
+   "powerProfile": {
+    "name": "ドロイド・トライファイター（独立星系連合）",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 44,
+      "name": "レーザー砲",
+      "w": 0.1940230523860669,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.916,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.57,
+      "z": 0,
+      "r": 0.075,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f44",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 77,
+      "name": "レーザー砲",
+      "w": 0.1940230523860669,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.916,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.44,
+      "z": 0.53,
+      "r": 0.075,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f77",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 110,
+      "name": "レーザー砲",
+      "w": 0.1940230523860669,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.916,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.44,
+      "z": -0.52,
+      "r": 0.075,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f110",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 113,
+      "name": "レーザー砲",
+      "w": 0.26947646164731515,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.000000032,
+      "weaponPowerW": 535551999999999.94,
+      "shotW": 1.28e-7,
+      "bolt": 3.2e-8,
+      "stock": 0,
+      "at": 0.796,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.21,
+      "z": 0,
+      "r": 0.104,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f113",
+      "powerConnected": true
+     },
+     {
+      "k": "launcher",
+      "fit": 115,
+      "name": "ミサイル発射管",
+      "w": 1.0368000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 1,
+      "stock": 6,
+      "mount": "ext",
+      "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        0.7237022118730545,
+        -1.248311578631401,
+        -0.25989044164657593
+       ],
+       [
+        0.7237022118730545,
+        -1.248311578631401,
+        -0.457890441646576
+       ]
+      ],
+      "launchBlocked": false,
+      "salvo": 1,
+      "cycle": 1.2,
+      "tt": 0.00015268140296446393,
+      "ammo0": 6,
+      "muzzle": [
+       0.7237022118730545,
+       -1.248311578631401,
+       -0.35889044164657596
+      ],
+      "launchDir": [
+       1,
+       0,
+       0
+      ],
+      "launchPowerW": 1000000000000000,
+      "at": 0.521,
+      "pd": false,
+      "dualPurpose": false,
+      "y": -0.69,
+      "z": -0.21,
+      "r": 0.111,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f115",
+      "powerConnected": true
+     },
+     {
+      "k": "launcher",
+      "fit": 117,
+      "name": "ミサイル発射管",
+      "w": 1.0368000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 1,
+      "stock": 6,
+      "mount": "ext",
+      "missileKind": "cmsl",
+      "launcherCells": 1,
+      "ammoPerCell": 6,
+      "missileRange": 10000,
+      "launchMuzzles": [
+       [
+        0.7237022118730545,
+        -1.248311578631401,
+        0.46908955835342414
+       ],
+       [
+        0.7237022118730545,
+        -1.248311578631401,
+        0.2710895583534241
+       ]
+      ],
+      "launchBlocked": false,
+      "salvo": 1,
+      "cycle": 1.2,
+      "tt": 0.00015268140296446393,
+      "ammo0": 6,
+      "muzzle": [
+       0.7237022118730545,
+       -1.248311578631401,
+       0.3700895583534241
+      ],
+      "launchDir": [
+       1,
+       0,
+       0
+      ],
+      "launchPowerW": 1000000000000000,
+      "at": 0.521,
+      "pd": false,
+      "dualPurpose": false,
+      "y": -0.69,
+      "z": 0.21,
+      "r": 0.111,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f117",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "中央の単一イオン化反応炉",
+      "w": 0.26629383692961367,
+      "hits": 1,
+      "crew": 0.000027483476564785492,
+      "size": 0.13741738282392746,
+      "at": 0.437,
+      "part": 118,
+      "y": -0.16,
+      "z": 0,
+      "r": 0.048,
+      "share": 1,
+      "domain": "main",
+      "port": "p118",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "上 イオン推進器",
+      "w": 0.19460083335474943,
+      "hits": 1,
+      "crew": 0.000034338161189530143,
+      "size": 0.08584540297382535,
+      "at": 0.046,
+      "part": 119,
+      "y": 0.42,
+      "z": 0,
+      "r": 0.041,
+      "share": 0.07283234308742413,
+      "domain": "main",
+      "port": "p119",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右下 イオン推進器",
+      "w": 0.19460083335474943,
+      "hits": 1,
+      "crew": 0.000034338161189530143,
+      "size": 0.08584540297382535,
+      "at": 0.046,
+      "part": 120,
+      "y": -0.45,
+      "z": 0.45,
+      "r": 0.041,
+      "share": 0.07283234308742413,
+      "domain": "main",
+      "port": "p120",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "左下 イオン推進器",
+      "w": 0.19460083335474943,
+      "hits": 1,
+      "crew": 0.000034338161189530143,
+      "size": 0.08584540297382535,
+      "at": 0.046,
+      "part": 121,
+      "y": -0.45,
+      "z": -0.45,
+      "r": 0.041,
+      "share": 0.07283234308742413,
+      "domain": "main",
+      "port": "p121",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "自律型ドロイド脳",
+      "w": 0.11560000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03930400000000001,
+      "at": 0.623,
+      "part": 122,
+      "y": -0.11,
+      "z": 0,
+      "r": 0.031,
+      "share": 0.10516243818831464,
+      "domain": "main",
+      "port": "p122",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法演算器",
+      "w": 0.03610000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0068590000000000005,
+      "at": 0.558,
+      "part": 123,
+      "y": 0.14,
+      "z": 0.18,
+      "r": 0.018,
+      "share": 0.018352054842602532,
+      "domain": "main",
+      "port": "p123",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "光学ターゲットスキャナー",
+      "w": 0.09000000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.027,
+      "at": 0.706,
+      "part": 124,
+      "y": -0.14,
+      "z": 0.08,
+      "r": 0.028,
+      "share": 0.0722416504957382,
+      "domain": "main",
+      "port": "p124",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償",
+      "w": 0.09381020595065243,
+      "hits": 1,
+      "crew": 0.000005746522742130109,
+      "size": 0.028732613710650542,
+      "at": 0.502,
+      "part": 125,
+      "y": 0.16,
+      "z": -0.14,
+      "r": 0.028,
+      "share": 0.07687746064866194,
+      "domain": "main",
+      "port": "p125",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "燃料タンク",
+      "w": 0.11587948360664022,
+      "hits": 1,
+      "crew": 0.000007889324551327367,
+      "size": 0.03944662275663684,
+      "at": 0.296,
+      "part": 126,
+      "y": -0.16,
+      "z": 0,
+      "r": 0.032,
+      "share": 1,
+      "domain": "main",
+      "port": "p126",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "反応物供給装置",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0.0000016000000000000006,
+      "size": 0.008000000000000002,
+      "at": 0.354,
+      "part": 127,
+      "y": -0.04,
+      "z": 0,
+      "r": 0.019,
+      "share": 0.021404933480218734,
+      "domain": "main",
+      "port": "p127",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス貯槽",
+      "w": 0.06760000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.56,
+      "part": 128,
+      "y": -0.14,
+      "z": -0.35,
+      "r": 0.024,
+      "share": 0.04702663885604055,
+      "domain": "main",
+      "port": "p128",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "中枢左右・熱エネルギー変換器",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0.0000010976000000000005,
+      "size": 0.021952000000000006,
+      "at": 0.444,
+      "part": 129,
+      "y": -0.13,
+      "z": -0.37,
+      "r": 0.026,
+      "share": 0.006412690799444491,
+      "domain": "main",
+      "port": "p129",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "機腹着陸支持器",
+      "w": 0.2401,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.11764899999999999,
+      "at": 0.531,
+      "part": 130,
+      "y": -0.45,
+      "z": -0.16,
+      "r": 0.045,
+      "share": 0.3147836273767816,
+      "domain": "main",
+      "port": "p130",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ドロイド姿勢スラスター",
+      "w": 0.019600000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0027440000000000008,
+      "at": 0.392,
+      "part": 131,
+      "y": 0.08,
+      "z": -0.33,
+      "r": 0.013,
+      "share": 0.007341892183715026,
+      "turnSupport": 0.0027440000000000008,
+      "domain": "main",
+      "port": "p131",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ドロイド姿勢スラスター",
+      "w": 0.019600000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0027440000000000008,
+      "at": 0.577,
+      "part": 132,
+      "y": 0.08,
+      "z": -0.33,
+      "r": 0.013,
+      "share": 0.007341892183715026,
+      "turnSupport": 0.0027440000000000008,
+      "domain": "main",
+      "port": "p132",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "中枢左右・熱エネルギー変換器",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0.0000010976000000000005,
+      "size": 0.021952000000000006,
+      "at": 0.444,
+      "part": 133,
+      "y": -0.13,
+      "z": 0.37,
+      "r": 0.026,
+      "share": 0.006412690799444491,
+      "domain": "main",
+      "port": "p133",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "機腹着陸支持器",
+      "w": 0.2401,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.11764899999999999,
+      "at": 0.531,
+      "part": 134,
+      "y": -0.45,
+      "z": 0.17,
+      "r": 0.045,
+      "share": 0.3147836273767816,
+      "domain": "main",
+      "port": "p134",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ドロイド姿勢スラスター",
+      "w": 0.019600000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0027440000000000008,
+      "at": 0.392,
+      "part": 135,
+      "y": 0.08,
+      "z": 0.34,
+      "r": 0.013,
+      "share": 0.007341892183715026,
+      "turnSupport": 0.0027440000000000008,
+      "domain": "main",
+      "port": "p135",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ドロイド姿勢スラスター",
+      "w": 0.019600000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0027440000000000008,
+      "at": 0.577,
+      "part": 136,
+      "y": 0.08,
+      "z": 0.34,
+      "r": 0.013,
+      "share": 0.007341892183715026,
+      "turnSupport": 0.0027440000000000008,
+      "domain": "main",
+      "port": "p136",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4551292634067726,
+      "hits": 1,
+      "crew": 0.00006140901565091068,
+      "size": 0.3070450782545534,
+      "at": 0.186,
+      "part": -119,
+      "machineryOwner": 119,
+      "y": 0.42,
+      "z": 0,
+      "r": 0.062,
+      "share": 0.2605009902459092,
+      "domain": "main",
+      "port": "p119",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4551292634067726,
+      "hits": 1,
+      "crew": 0.00006140901565091068,
+      "size": 0.3070450782545534,
+      "at": 0.186,
+      "part": -120,
+      "machineryOwner": 120,
+      "y": -0.45,
+      "z": 0.45,
+      "r": 0.062,
+      "share": 0.2605009902459092,
+      "domain": "main",
+      "port": "p120",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4551292634067726,
+      "hits": 1,
+      "crew": 0.00006140901565091068,
+      "size": 0.3070450782545534,
+      "at": 0.186,
+      "part": -121,
+      "machineryOwner": 121,
+      "y": -0.45,
+      "z": -0.45,
+      "r": 0.062,
+      "share": 0.2605009902459092,
+      "domain": "main",
+      "port": "p121",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上・コリコイド式弓形翼",
+      "w": 2.293660481583668,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.1264364519284087,
+      "at": 0.507,
+      "part": 13,
+      "ext": 1,
+      "y": 0.69,
+      "z": 0,
+      "r": 0.096,
+      "share": 0.32905833962464476,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右下・コリコイド式弓形翼",
+      "w": 2.2844851909687605,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.1264359721444739,
+      "at": 0.507,
+      "part": 46,
+      "ext": 1,
+      "y": -0.66,
+      "z": 0.71,
+      "r": 0.096,
+      "share": 0.32905819946857584,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "左下・コリコイド式弓形翼",
+      "w": 2.2936592719130027,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.1264355608089753,
+      "at": 0.507,
+      "part": 79,
+      "ext": 1,
+      "y": -0.66,
+      "z": -0.7,
+      "r": 0.096,
+      "share": 0.3290580793078904,
+      "domain": "main",
+      "port": "p79",
+      "powerConnected": true
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.2574397439248021,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.2484151532043732,
+      "at": 0.175,
+      "y": -0.13,
+      "z": 0,
+      "r": 0.121,
+      "share": 0.19459671104150353,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.40168681110271387,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.382222961242058,
+      "at": 0.381,
+      "y": -0.16,
+      "z": 0,
+      "r": 0.152,
+      "share": 0.3792743409031584,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.37925437187975525,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.020305029136726,
+      "at": 0.605,
+      "y": -0.15,
+      "z": 0,
+      "r": 0.147,
+      "share": 0.34795092665100497,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.14016568831150367,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.903286838879557,
+      "at": 0.804,
+      "y": -0.17,
+      "z": 0,
+      "r": 0.09,
+      "share": 0.07817802140433307,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 8.679222597156715,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.95
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "fuel": {
+     "version": 1,
+     "capacityKnown": true,
+     "volumeM3": 0.03944662275663684,
+     "massKg": 9.861655689159209,
+     "capacityJ": 3.230196737194306e+21,
+     "specificEnergyJPerKg": 327551157636259800000,
+     "basis": "installed-reactant-volume"
+    },
+    "crewCapacity": 0,
+    "crewNeed": 0,
+    "crewMax": 0,
+    "hp": 1,
+    "len": 5.399933248758316,
+    "width": 3.4498575925827026,
+    "height": 2.9739305078983307,
+    "referencePhysicalRevision": {
+     "key": "craft_tri",
+     "version": 1
+    },
+    "grid": {
+     "P": 719655343900847500,
+     "fixed": 15427551886643922,
+     "cooling": 574243895596569.9,
+     "De": 719655343900847500,
+     "Ds": 0,
+     "Dw": 2142207999999999.8,
+     "domains": [
+      {
+       "id": "main",
+       "P": 719655343900847500,
+       "reactors": [
+        6
+       ],
+       "sources": [
+        {
+         "moduleIndex": 6,
+         "P": 719655343900847500
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "hotel",
+       "cap": 14853307991047352,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>hotel",
+       "model": "source-distance",
+       "lengthM": 0.7590883632522634,
+       "efficiency": 0.9999924091451782
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p129",
+       "cap": 862220291094096,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p129",
+       "model": "source-distance",
+       "lengthM": 0.6381111156752013,
+       "efficiency": 0.9999936189092025
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p133",
+       "cap": 862220291094096,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p133",
+       "model": "source-distance",
+       "lengthM": 0.6381111156752013,
+       "efficiency": 0.9999936189092025
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p13",
+       "cap": 35373299894352.88,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p13",
+       "model": "source-distance",
+       "lengthM": 1.322779331762506,
+       "efficiency": 0.9999867722941692
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p46",
+       "cap": 34369122998153.62,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p46",
+       "model": "source-distance",
+       "lengthM": 1.4681496536323253,
+       "efficiency": 0.9999853186112363
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p79",
+       "cap": 34054718180320.42,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p79",
+       "model": "source-distance",
+       "lengthM": 1.470141392111943,
+       "efficiency": 0.9999852986941441
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p126",
+       "cap": 990220532736490.1,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p126",
+       "model": "source-distance",
+       "lengthM": 0.7646940000000002,
+       "efficiency": 0.9999923530892377
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p127",
+       "cap": 990220532736490.1,
+       "auto": true,
+       "ok": true,
+       "routeId": "p118>p127",
+       "model": "source-distance",
+       "lengthM": 0.48449771144970344,
+       "efficiency": 0.9999951550346224
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p122",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p122",
+       "model": "source-distance",
+       "lengthM": 1.003294434176852,
+       "efficiency": 0.9999899671059881
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p123",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p123",
+       "model": "source-distance",
+       "lengthM": 0.8517757742041036,
+       "efficiency": 0.999991482278534
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p124",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p124",
+       "model": "source-distance",
+       "lengthM": 1.4573933182755603,
+       "efficiency": 0.9999854261730164
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p125",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p125",
+       "model": "source-distance",
+       "lengthM": 0.6397656361467454,
+       "efficiency": 0.9999936023641035
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p128",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p128",
+       "model": "source-distance",
+       "lengthM": 0.8977428239113082,
+       "efficiency": 0.9999910226120579
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p130",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p130",
+       "model": "source-distance",
+       "lengthM": 0.72033200881211,
+       "efficiency": 0.9999927967058557
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p131",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p131",
+       "model": "source-distance",
+       "lengthM": 0.7153829238254155,
+       "efficiency": 0.9999928461963503
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p132",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p132",
+       "model": "source-distance",
+       "lengthM": 1.0090837998165711,
+       "efficiency": 0.9999899092129142
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p134",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p134",
+       "model": "source-distance",
+       "lengthM": 0.72033200881211,
+       "efficiency": 0.9999927967058557
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p135",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p135",
+       "model": "source-distance",
+       "lengthM": 0.7153829238254155,
+       "efficiency": 0.9999928461963503
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p136",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>p136",
+       "model": "source-distance",
+       "lengthM": 1.0090837998165711,
+       "efficiency": 0.9999899092129142
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "f44",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>f44",
+       "model": "source-distance",
+       "lengthM": 2.798731281480235,
+       "efficiency": 0.9999720130788264
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "f77",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>f77",
+       "model": "source-distance",
+       "lengthM": 2.766998781339811,
+       "efficiency": 0.9999723303949972
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "f110",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>f110",
+       "model": "source-distance",
+       "lengthM": 2.766998781339811,
+       "efficiency": 0.9999723303949972
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "f113",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>f113",
+       "model": "source-distance",
+       "lengthM": 1.9371149459715207,
+       "efficiency": 0.9999806290381598
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "f115",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>f115",
+       "model": "source-distance",
+       "lengthM": 0.975405552834307,
+       "efficiency": 0.9999902459920423
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "f117",
+       "cap": 719655343900847500,
+       "auto": false,
+       "ok": true,
+       "routeId": "p118>f117",
+       "model": "source-distance",
+       "lengthM": 0.975405552834307,
+       "efficiency": 0.9999902459920423
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p119",
+       "cap": 215085755474718200,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p118>p119",
+       "groupCap": 1007517481461186400,
+       "routeId": "p118>p119",
+       "model": "source-distance",
+       "lengthM": 1.6049452511994178,
+       "efficiency": 0.9999839506762798
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p120",
+       "cap": 215085786745980770,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p118>p120",
+       "groupCap": 1007517481461186400,
+       "routeId": "p118>p120",
+       "model": "source-distance",
+       "lengthM": 1.619484224362671,
+       "efficiency": 0.9999838052888921
+      },
+      {
+       "kind": "power",
+       "from": "p118",
+       "to": "p121",
+       "cap": 215085786745980770,
+       "auto": true,
+       "ok": true,
+       "capacityGroup": "p118>p121",
+       "groupCap": 1007517481461186400,
+       "routeId": "p118>p121",
+       "model": "source-distance",
+       "lengthM": 1.619484224362671,
+       "efficiency": 0.9999838052888921
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 12853307991047352,
+       "domain": "main"
+      },
+      {
+       "id": "f115",
+       "port": "f115",
+       "domain": "main",
+       "weight": 1000000000000000
+      },
+      {
+       "id": "f117",
+       "port": "f117",
+       "domain": "main",
+       "weight": 1000000000000000
+      }
+     ],
+     "coolingLoads": [
+      {
+       "id": "p129",
+       "port": "p129",
+       "weight": 862220291094096,
+       "domain": "main"
+      },
+      {
+       "id": "p133",
+       "port": "p133",
+       "weight": 862220291094096,
+       "domain": "main"
+      },
+      {
+       "id": "p13",
+       "port": "p13",
+       "weight": 35373299894352.88,
+       "domain": "main"
+      },
+      {
+       "id": "p46",
+       "port": "p46",
+       "weight": 34369122998153.62,
+       "domain": "main"
+      },
+      {
+       "id": "p79",
+       "port": "p79",
+       "weight": 34054718180320.42,
+       "domain": "main"
+      }
+     ]
+    },
+    "propulsion": {
+     "version": 1,
+     "inputModelVersion": 2,
+     "architectureVersion": 2,
+     "cores": [
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 104395326606548140,
+       "densityFactor": 2.297853001961576,
+       "efficiency": 0.9242066460373738,
+       "wasteFraction": 0.07579335396262621,
+       "profileWattsPerNewton": 2020162386.8351548,
+       "shaftWattsPerNewton": 1919154267.493397,
+       "wattsPerNewton": 2076542379.046892,
+       "ratedShaftPowerW": 221703417229825020,
+       "ratedWasteHeatW": 18181697403790810,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 8990.091908634924,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 719655343900847500,
+       "sourceInputLimitW": 719655343900847500,
+       "sourceIds": [
+        "p118"
+       ],
+       "allocationWeight": 0.30704507825455335,
+       "id": 119,
+       "machineryId": 119,
+       "coreId": 119,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 239885114633615840,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 115521415.33644992,
+       "effectiveMachineryVolumeM3": 0.30704507825455335,
+       "machineryVolumeM3": 0.30704507825455335,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.2032685,
+       "machineryRadiusM": 0.285,
+       "machineryDiameterM": 0.57,
+       "machineryOffsetM": 0.157437,
+       "maxInputW": 719655343900847500,
+       "maxRatedInputW": 719655343900847500,
+       "inputDensityWPerM3": 781270020666935900,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 215085755474718200,
+       "cost": 13.20120480129909,
+       "powerNode": "p119",
+       "heatNode": "p119",
+       "reactorId": 118,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 7,
+       "machineryModuleIndex": 25,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 215082303493801000,
+       "transmissionRouteIds": [
+        "p118>p119"
+       ]
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 104395326606548140,
+       "densityFactor": 2.297853001961576,
+       "efficiency": 0.9242066460373738,
+       "wasteFraction": 0.07579335396262621,
+       "profileWattsPerNewton": 2020162386.8351548,
+       "shaftWattsPerNewton": 1919154267.493397,
+       "wattsPerNewton": 2076542379.046892,
+       "ratedShaftPowerW": 221703417229825020,
+       "ratedWasteHeatW": 18181697403790810,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 8990.091908634924,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 719655343900847500,
+       "sourceInputLimitW": 719655343900847500,
+       "sourceIds": [
+        "p118"
+       ],
+       "allocationWeight": 0.30704507825455335,
+       "id": 120,
+       "machineryId": 120,
+       "coreId": 120,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 239885114633615840,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 115521415.33644992,
+       "effectiveMachineryVolumeM3": 0.30704507825455335,
+       "machineryVolumeM3": 0.30704507825455335,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.2032685,
+       "machineryRadiusM": 0.285,
+       "machineryDiameterM": 0.57,
+       "machineryOffsetM": 0.157437,
+       "maxInputW": 719655343900847500,
+       "maxRatedInputW": 719655343900847500,
+       "inputDensityWPerM3": 781270020666935900,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 215085786745980770,
+       "cost": 13.201211935346032,
+       "powerNode": "p120",
+       "heatNode": "p120",
+       "reactorId": 118,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 8,
+       "machineryModuleIndex": 26,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 215082303493801000,
+       "transmissionRouteIds": [
+        "p118>p120"
+       ]
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 104395326606548140,
+       "densityFactor": 2.297853001961576,
+       "efficiency": 0.9242066460373738,
+       "wasteFraction": 0.07579335396262621,
+       "profileWattsPerNewton": 2020162386.8351548,
+       "shaftWattsPerNewton": 1919154267.493397,
+       "wattsPerNewton": 2076542379.046892,
+       "ratedShaftPowerW": 221703417229825020,
+       "ratedWasteHeatW": 18181697403790810,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 8990.091908634924,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 719655343900847500,
+       "sourceInputLimitW": 719655343900847500,
+       "sourceIds": [
+        "p118"
+       ],
+       "allocationWeight": 0.30704507825455335,
+       "id": 121,
+       "machineryId": 121,
+       "coreId": 121,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 239885114633615840,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 115521415.33644992,
+       "effectiveMachineryVolumeM3": 0.30704507825455335,
+       "machineryVolumeM3": 0.30704507825455335,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.2032685,
+       "machineryRadiusM": 0.285,
+       "machineryDiameterM": 0.57,
+       "machineryOffsetM": 0.157437,
+       "maxInputW": 719655343900847500,
+       "maxRatedInputW": 719655343900847500,
+       "inputDensityWPerM3": 781270020666935900,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 215085786745980770,
+       "cost": 13.201211935346032,
+       "powerNode": "p121",
+       "heatNode": "p121",
+       "reactorId": 118,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "machineryModuleIndex": 27,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 215082303493801000,
+       "transmissionRouteIds": [
+        "p118>p121"
+       ]
+      }
+     ],
+     "engines": [
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 104395326606548140,
+       "densityFactor": 2.297853001961576,
+       "efficiency": 0.9242066460373738,
+       "wasteFraction": 0.07579335396262621,
+       "profileWattsPerNewton": 2020162386.8351548,
+       "shaftWattsPerNewton": 1919154267.493397,
+       "wattsPerNewton": 2076542379.046892,
+       "ratedShaftPowerW": 221703417229825020,
+       "ratedWasteHeatW": 18181697403790810,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 8990.091908634924,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 719655343900847500,
+       "sourceInputLimitW": 719655343900847500,
+       "sourceIds": [
+        "p118"
+       ],
+       "allocationWeight": 0.30704507825455335,
+       "id": 119,
+       "machineryId": 119,
+       "coreId": 119,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 239885114633615840,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 115521415.33644992,
+       "effectiveMachineryVolumeM3": 0.30704507825455335,
+       "machineryVolumeM3": 0.30704507825455335,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.2032685,
+       "machineryRadiusM": 0.285,
+       "machineryDiameterM": 0.57,
+       "machineryOffsetM": 0.157437,
+       "maxInputW": 719655343900847500,
+       "maxRatedInputW": 719655343900847500,
+       "inputDensityWPerM3": 781270020666935900,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 215085755474718200,
+       "cost": 13.20120480129909,
+       "powerNode": "p119",
+       "heatNode": "p119",
+       "reactorId": 118,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 7,
+       "coreModuleIndex": 7,
+       "machineryModuleIndex": 25,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 178996797690103960000,
+       "shaftCapacityW": 178996797690103960000,
+       "ratedShaftCapacityW": 178996797690103960000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 215082303493801000
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 104395326606548140,
+       "densityFactor": 2.297853001961576,
+       "efficiency": 0.9242066460373738,
+       "wasteFraction": 0.07579335396262621,
+       "profileWattsPerNewton": 2020162386.8351548,
+       "shaftWattsPerNewton": 1919154267.493397,
+       "wattsPerNewton": 2076542379.046892,
+       "ratedShaftPowerW": 221703417229825020,
+       "ratedWasteHeatW": 18181697403790810,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 8990.091908634924,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 719655343900847500,
+       "sourceInputLimitW": 719655343900847500,
+       "sourceIds": [
+        "p118"
+       ],
+       "allocationWeight": 0.30704507825455335,
+       "id": 120,
+       "machineryId": 120,
+       "coreId": 120,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 239885114633615840,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 115521415.33644992,
+       "effectiveMachineryVolumeM3": 0.30704507825455335,
+       "machineryVolumeM3": 0.30704507825455335,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.2032685,
+       "machineryRadiusM": 0.285,
+       "machineryDiameterM": 0.57,
+       "machineryOffsetM": 0.157437,
+       "maxInputW": 719655343900847500,
+       "maxRatedInputW": 719655343900847500,
+       "inputDensityWPerM3": 781270020666935900,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 215085786745980770,
+       "cost": 13.201211935346032,
+       "powerNode": "p120",
+       "heatNode": "p120",
+       "reactorId": 118,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 8,
+       "coreModuleIndex": 8,
+       "machineryModuleIndex": 26,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 178996797690103960000,
+       "shaftCapacityW": 178996797690103960000,
+       "ratedShaftCapacityW": 178996797690103960000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 215082303493801000
+      },
+      {
+       "thermalModelVersion": 2,
+       "normalInputW": 104395326606548140,
+       "densityFactor": 2.297853001961576,
+       "efficiency": 0.9242066460373738,
+       "wasteFraction": 0.07579335396262621,
+       "profileWattsPerNewton": 2020162386.8351548,
+       "shaftWattsPerNewton": 1919154267.493397,
+       "wattsPerNewton": 2076542379.046892,
+       "ratedShaftPowerW": 221703417229825020,
+       "ratedWasteHeatW": 18181697403790810,
+       "thermalStoreJ": 0,
+       "conversionModelVersion": 1,
+       "conversionMassKg": 8990.091908634924,
+       "driveModelVersion": 5,
+       "version": 1,
+       "inputModelVersion": 2,
+       "inputLimitModel": "reactor-supply",
+       "availableInputW": 719655343900847500,
+       "sourceInputLimitW": 719655343900847500,
+       "sourceIds": [
+        "p118"
+       ],
+       "allocationWeight": 0.30704507825455335,
+       "id": 121,
+       "machineryId": 121,
+       "coreId": 121,
+       "entityKind": "engine",
+       "integrated": true,
+       "legacyShared": false,
+       "ratedInputW": 239885114633615840,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "ratedThrustN": 115521415.33644992,
+       "effectiveMachineryVolumeM3": 0.30704507825455335,
+       "machineryVolumeM3": 0.30704507825455335,
+       "machineryShape": "cylinder",
+       "machineryLengthM": 1.2032685,
+       "machineryRadiusM": 0.285,
+       "machineryDiameterM": 0.57,
+       "machineryOffsetM": 0.157437,
+       "maxInputW": 719655343900847500,
+       "maxRatedInputW": 719655343900847500,
+       "inputDensityWPerM3": 781270020666935900,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "costBasisInputW": 215085786745980770,
+       "cost": 13.201211935346032,
+       "powerNode": "p121",
+       "heatNode": "p121",
+       "reactorId": 118,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "coreModuleIndex": 9,
+       "machineryModuleIndex": 27,
+       "shaftModuleIndices": [],
+       "nozzleShaftCapacityW": 178996797690103960000,
+       "shaftCapacityW": 178996797690103960000,
+       "ratedShaftCapacityW": 178996797690103960000,
+       "shaftRouteId": null,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 215082303493801000
+      }
+     ],
+     "massKg": 8990.091908634924,
+     "ratedThrustN": 312084722.2982167,
+     "ratedAccelMps2": 34714.29719182975,
+     "structuralAccelerationLimitMps2": 5324499.446568528,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 34714.29719182975,
+     "conversionModelVersion": 1,
+     "conversionMassKg": 8990.091908634924,
+     "accelerationLimitBasis": "structural",
+     "sourceBudgetKey": "[719655343900847500,[[\"main\",719655343900847500,[[6,719655343900847500]]]],[[6,\"reactor\",118,\"p118\",\"main\",0.13741738282392746,1]]]"
+    },
+    "profileVersion": 30,
+    "maxSpeed": 1765.07178135071,
+    "heat": {
+     "v": 5,
+     "mode": "strict",
+     "capacityModel": "whole-ship-mass",
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p118",
+       "n": "中央の単一イオン化反応炉 #118",
+       "g": "high",
+       "sh": 1,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p119",
+       "n": "上 イオン推進器 #119",
+       "g": "high",
+       "sh": 0.333333,
+       "m": [
+        7,
+        25
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p120",
+       "n": "右下 イオン推進器 #120",
+       "g": "high",
+       "sh": 0.333333,
+       "m": [
+        8,
+        26
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p121",
+       "n": "左下 イオン推進器 #121",
+       "g": "high",
+       "sh": 0.333333,
+       "m": [
+        9,
+        27
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f44",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.517166,
+       "m": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f115",
+       "n": "武装（前部区画）",
+       "g": "high",
+       "sh": 0.482834,
+       "m": [
+        4,
+        5
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>hotel",
+       "n": "送電損失 p118>hotel",
+       "g": "high",
+       "sh": 0.0106493,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>hotel"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p129",
+       "n": "送電損失 p118>p129",
+       "g": "high",
+       "sh": 0.000336059,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p129"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p133",
+       "n": "送電損失 p118>p133",
+       "g": "high",
+       "sh": 0.000336059,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p133"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p13",
+       "n": "送電損失 p118>p13",
+       "g": "high",
+       "sh": 0.0000285802,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p13"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p46",
+       "n": "送電損失 p118>p46",
+       "g": "high",
+       "sh": 0.0000308206,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p46"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p79",
+       "n": "送電損失 p118>p79",
+       "g": "high",
+       "sh": 0.0000305801,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p79"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p126",
+       "n": "送電損失 p118>p126",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p126"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p127",
+       "n": "送電損失 p118>p127",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p127"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p122",
+       "n": "送電損失 p118>p122",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p122"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p123",
+       "n": "送電損失 p118>p123",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p123"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p124",
+       "n": "送電損失 p118>p124",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p124"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p125",
+       "n": "送電損失 p118>p125",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p125"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p128",
+       "n": "送電損失 p118>p128",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p128"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p130",
+       "n": "送電損失 p118>p130",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p130"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p131",
+       "n": "送電損失 p118>p131",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p131"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p132",
+       "n": "送電損失 p118>p132",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p132"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p134",
+       "n": "送電損失 p118>p134",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p134"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p135",
+       "n": "送電損失 p118>p135",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p135"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p136",
+       "n": "送電損失 p118>p136",
+       "g": "high",
+       "sh": 0,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p136"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>f44",
+       "n": "送電損失 p118>f44",
+       "g": "high",
+       "sh": 0.000915201,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>f44"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>f77",
+       "n": "送電損失 p118>f77",
+       "g": "high",
+       "sh": 0.000904824,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>f77"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>f110",
+       "n": "送電損失 p118>f110",
+       "g": "high",
+       "sh": 0.000904824,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>f110"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>f113",
+       "n": "送電損失 p118>f113",
+       "g": "high",
+       "sh": 0.000633445,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>f113"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>f115",
+       "n": "送電損失 p118>f115",
+       "g": "high",
+       "sh": 0.000595573,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>f115"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>f117",
+       "n": "送電損失 p118>f117",
+       "g": "high",
+       "sh": 0.000595573,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>f117"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p119",
+       "n": "送電損失 p118>p119",
+       "g": "high",
+       "sh": 0.326044,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p119"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p120",
+       "n": "送電損失 p118>p120",
+       "g": "high",
+       "sh": 0.328998,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p120"
+      },
+      {
+       "k": "feed",
+       "id": "feed:p118>p121",
+       "n": "送電損失 p118>p121",
+       "g": "high",
+       "sh": 0.328998,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1,
+       "routeId": "p118>p121"
+      }
+     ],
+     "dis": [
+      {
+       "id": "p129",
+       "n": "中枢左右・熱エネルギー変換器 #129",
+       "k": "hdis",
+       "g": "all",
+       "cap": 57481352739606400,
+       "m": 17,
+       "sec": 1,
+       "src": -1,
+       "power": 862220291094096
+      },
+      {
+       "id": "p133",
+       "n": "中枢左右・熱エネルギー変換器 #133",
+       "k": "hdis",
+       "g": "all",
+       "cap": 57481352739606400,
+       "m": 21,
+       "sec": 1,
+       "src": -1,
+       "power": 862220291094096
+      },
+      {
+       "id": "p13",
+       "n": "上・コリコイド式弓形翼 #13",
+       "k": "wing",
+       "g": "all",
+       "cap": 7074659978870576,
+       "m": 28,
+       "sec": 2,
+       "src": -1,
+       "power": 35373299894352.88
+      },
+      {
+       "id": "p46",
+       "n": "右下・コリコイド式弓形翼 #46",
+       "k": "wing",
+       "g": "all",
+       "cap": 6873824599630724,
+       "m": 29,
+       "sec": 2,
+       "src": -1,
+       "power": 34369122998153.62
+      },
+      {
+       "id": "p79",
+       "n": "左下・コリコイド式弓形翼 #79",
+       "k": "wing",
+       "g": "all",
+       "cap": 6810943636064084,
+       "m": 30,
+       "sec": 2,
+       "src": -1,
+       "power": 34054718180320.42
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 542888534775112700,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 542888534775112700,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 542888534775112700,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 542888534775112700,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 542888534775112700,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 271444267387556350,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 271444267387556350,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 271444267387556350,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 271444267387556350,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 271444267387556350,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 8,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 9,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 10,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 12,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 12,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 12,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 13,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 13,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 13,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 13,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 13,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 14,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 14,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 14,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 14,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 14,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 15,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 15,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 15,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 3
+      },
+      {
+       "s": 15,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 3
+      },
+      {
+       "s": 15,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 3
+      },
+      {
+       "s": 16,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 16,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 16,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 16,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 16,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 17,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 17,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 18,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 18,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 18,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 18,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 18,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 19,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 19,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 19,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 19,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 19,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 20,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 20,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 20,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 20,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 20,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 21,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 21,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 22,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 22,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 22,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 23,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 23,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 23,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 23,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 23,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 24,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 24,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 25,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 25,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 25,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 25,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 25,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 26,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 26,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 27,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 28,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 29,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 4
+      },
+      {
+       "s": 30,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 30,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 30,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 30,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 30,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 31,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 31,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 31,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 31,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 31,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 2
+      },
+      {
+       "s": 32,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 32,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 33,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 0,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 1,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 2,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 3,
+       "cap": 135722133693778180,
+       "sec": 1
+      },
+      {
+       "s": 34,
+       "d": 4,
+       "cap": 135722133693778180,
+       "sec": 1
+      }
+     ]
+    },
+    "speedReference": {
+     "version": 1,
+     "key": "tri",
+     "status": "published",
+     "mglt": 125,
+     "model": "Droid tri-fighter",
+     "scope": "class",
+     "continuity": "canon",
+     "source": "https://starwars.fandom.com/wiki/Megalight_per_hour"
+    },
+    "mglt": 88.2535890675355,
+    "motionResistance": {
+     "version": 4,
+     "model": "global-mass-power-law",
+     "referenceMassKg": 8081.389573510918,
+     "referenceAccelMps2": 78.43562250542563,
+     "referenceSpeedMps": 2000,
+     "referenceRatePerS": 0.039217811252712814,
+     "referenceLargeMassKg": 11800135063.56654,
+     "referenceLargeAccelMps2": 58.300013265990806,
+     "referenceLargeSpeedMps": 1000,
+     "referenceLargeRatePerS": 0.058300013265990804,
+     "massExponent": 0.027932203529655846
+    }
+   },
+   "fireArcs": [
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      5.055966,
+      2.8098306388525955,
+      0
+     ],
+     "k": "claserL",
+     "gun": 0.25,
+     "aa": 0.25,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 0.809676,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      5.055966,
+      1.3098306388525958,
+      0.9018788555011146
+     ],
+     "k": "claserL",
+     "gun": 0.25,
+     "aa": 0.25,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 0.809676,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      5.055966,
+      1.3098306388525958,
+      -0.9018788555011146
+     ],
+     "k": "claserL",
+     "gun": 0.25,
+     "aa": 0.25,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 0.809676,
+     "rateHz": 4
+    },
+    {
+     "fixed": true,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": [
+      0,
+      1,
+      0
+     ],
+     "pos": [
+      4.567109499999999,
+      1.6548306388525955,
+      0
+     ],
+     "k": "claser",
+     "gun": 0.25,
+     "aa": 0.25,
+     "cycle": 1,
+     "boreM": 0.02,
+     "barrelM": 1.12455,
      "rateHz": 4
     }
    ]
@@ -111957,7 +119412,7 @@ function bridgeLooseStructures(ship){
 const EXAMPLE_CLASS_NAMES=Object.freeze({"acclamator": "アクラメイター級", "arquitens": "アークワイテンス級", "cr90": "CR-90", "dreadnaught": "ドレッドノート級", "executor": "エグゼクター級", "gozanti": "ゴザンティ級", "gr75": "GR-75", "hammerhead": "スフィルナ級", "heraklon": "ヘラクロン級", "imperial": "インペリアルI級", "imperial2": "インペリアルII級", "lh3210": "LH-3210", "lucrehulk": "ルクレハルク級", "mandator2": "マンデイターII級", "mc30c": "MC-30C", "mc75": "MC-75", "mc80home": "MC-80A", "mc80liberty": "MC-80", "munificent": "ミュニフィセント級", "nebulonb": "ネビュロン-B", "onager": "オナガー級", "providence": "プロヴィデンス級", "providenceDn": "プロヴィデンス級ドレッドノート", "recusant": "レキューザント級", "recusantDn": "レキューザント級ドレッドノート", "subjugator": "サブジュゲイター級", "venator": "ヴェネター級"});
 function buildDesign(key){
  const previousLauncherBuild=stockShipLauncherBuild,previousSupportLift=legacySupportLiftBuild;stockShipLauncherBuild=!SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_');legacySupportLiftBuild=true;/* the builders were authored under the older turret lift */try{
-  const finish=s=>{if(EXAMPLE_CLASS_NAMES[key])s.name=EXAMPLE_CLASS_NAMES[key];{const ex=CRAFT_LASER_EXAMPLES[key];if(ex)for(const f of s.fits||[])if(ex[f.k]){f.boreM=ex[f.k][0];f.barrelM=ex[f.k][1];}}/* 2026-11-24 the example craft's measured barrels */if(/^craft_/.test(key))for(const f of s.fits||[])if(CRAFT_LASER_GEOMETRY[f.k]&&f.boreM>0&&!(CRAFT_LASER_EXAMPLES[key]?.[f.k]))f.boreM=craftLaserBoreOf20261124(f.boreM);/* 2026-11-25 the example craft are the user's refit, whose lasers carry their own firing intervals; their bores were set under the rule of 2026-11-24 and are replaced by the bores of the same shot (user「同じ威力と置き換え」) */seatIsdCommandAssets(s);dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);if(!s._craftRemodel)settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key]&&!s._craftRemodel)installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
+  const finish=s=>{if(EXAMPLE_CLASS_NAMES[key])s.name=EXAMPLE_CLASS_NAMES[key];{const ex=CRAFT_LASER_EXAMPLES[key];if(ex)for(const f of s.fits||[])if(ex[f.k]){f.boreM=ex[f.k][0];f.barrelM=ex[f.k][1];}}/* 2026-11-24 the example craft's measured barrels */if(/^craft_/.test(key))for(const f of s.fits||[])if(CRAFT_LASER_GEOMETRY[f.k]&&f.boreM>0&&!(CRAFT_LASER_EXAMPLES[key]?.[f.k]))f.boreM=craftLaserBoreOf20261124(f.boreM);/* 2026-11-25 the example craft are the user's refit, whose lasers carry their own firing intervals; their bores were set under the rule of 2026-11-24 and are replaced by the bores of the same shot (user「同じ威力と置き換え」) */seatIsdCommandAssets(s);dedicateAeroParts(s);s.hullLocked=true;if(EXAMPLE_AIR_CONTROL[key]!=null)s.airControl=EXAMPLE_AIR_CONTROL[key];if(SHIP_EXAMPLES[key]?.craft||isCraft(s)){convertCraftOrdnance(s);if(!s._craftRemodel)settleUncutRooms(s,['cockpit'],null);settleUncutRooms(s,['bombBay'],p=>bombBayOpen(s,p));}if(CRAFT_SYSTEM_RECIPES[key]&&!s._craftRemodel)installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);let out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);if(MONCAL_ENGINE_LAYOUTS[key])ensurePrimaryHull(out);if(SHIP_SYSTEM_REFIT_KEYS.includes(key))out=refitShipSystems(out,key);ensurePrimaryHull(out);/* 2026-11-26 a design the user provided is taken as it is: no strut is added to it (reference-fidelity-rules.md; the B-wing's wing markings stand on its wing, which this pass does not count as a support, and got five 1 m struts, 2.9 t) */if(!(s._craftRemodel||out._craftRemodel))bridgeLooseStructures(out);if(PLAIN_SKIN_EXAMPLES.has(key))for(const p of out.parts)if(p.k==='struct')p.skin='plain';const version=SHIP_EXAMPLES[key]?.physicalRevision;if(Number.isSafeInteger(version)&&version>0)out._referencePhysicalRevision={key,version};convertArmorPlates(out);/* 2026-11-22 the example's cuts are baked, as a cut confirmed in the editor is */if((out.solidCuts||[]).length||out.parts.some(p=>isHullStructure(p)&&p.hullData?.solidCuts?.length)){const r=bakeAllCuts(out);if(!r.ok)throw new Error(key+': 削りを焼き込めません '+JSON.stringify(r.failed));}return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -118373,10 +125828,10 @@ registerShipExample({key:'craft_z95',physicalRevision:1,name:'Z-95 ヘッドハ�
 // TIE/in and A-wing examples are built from them as they are, and the TIE/D is a new example. They carry their own systems,
 // reactors and stores, so neither the interior refit (refitCraftInterior, CRAFT_REACTOR_SCALE) nor the craft system recipe
 // (installCraftSystems) runs on them, and their cockpits stay where the designer put them.
-const CRAFT_REMODEL_KEYS=Object.freeze({craft_xwing:'xwing',craft_tie_ln:'tie_ln',craft_tie_in:'tie_in',craft_awing:'awing',craft_tie_d:'tie_d',/* 2026-11-24 (the user's remodels of the other craft) */craft_arc170:'arc170',craft_btlb:'btlb',craft_tie_sa:'tie_sa',craft_hyena:'hyena',craft_vwing:'vwing',craft_vulture:'vulture',craft_v19:'v19',craft_z95:'z95',craft_ywing:'ywing',/* 2026-11-25 new in the user's refit */craft_tie_avenger:'tie_avenger'});/* 2026-11-26 the MB-22M Shrike of that refit was taken out again (user「MB-22M は削除で」) */
-const CRAFT_REMODEL_SOURCE=Object.freeze({xwing:'x-wing-remodel-rev3-2026-11-25.json',tie_ln:'tie-ln-remodel-rev3-2026-11-25.json',tie_in:'tie-in-remodel-rev3-2026-11-25.json',awing:'a-wing-remodel-rev3-2026-11-25.json',tie_d:'tie-d-remodel-rev3-2026-11-25.json',arc170:'arc170-remodel-rev3-2026-11-25.json',ywing:'btl-a4-remodel-rev3-2026-11-25.json',tie_sa:'tie-sa-remodel-rev3-2026-11-25.json',btlb:'btlb-remodel-rev3-2026-11-25.json',hyena:'hyena-remodel-rev4-2026-11-25.json',vwing:'vwing-remodel-rev3-2026-11-25.json',vulture:'vulture-remodel-rev4-2026-11-25.json',v19:'v19-remodel-rev3-2026-11-25.json',z95:'z95-remodel-rev3-2026-11-25.json',tie_avenger:'tie-avenger-prototype-2026-11-25.json'})/* 2026-11-25 the user's refit of all fourteen and two new craft (KUAT_16_Aircraft_Refit.zip: 「航空機はこっちで作り直す」); earlier files stay in the refs folder */;
+const CRAFT_REMODEL_KEYS=Object.freeze({craft_xwing:'xwing',craft_tie_ln:'tie_ln',craft_tie_in:'tie_in',craft_awing:'awing',craft_tie_d:'tie_d',/* 2026-11-24 (the user's remodels of the other craft) */craft_arc170:'arc170',craft_btlb:'btlb',craft_tie_sa:'tie_sa',craft_hyena:'hyena',craft_vwing:'vwing',craft_vulture:'vulture',craft_v19:'v19',craft_z95:'z95',craft_ywing:'ywing',/* 2026-11-25 new in the user's refit */craft_tie_avenger:'tie_avenger',/* 2026-11-26 two more of the user's designs, for craft types that had none (A_SF_01_B_Wing.json, Droid_Tri_Fighter.json) */craft_bwing:'bwing',craft_tri:'tri'});/* 2026-11-26 the MB-22M Shrike of that refit was taken out again (user「MB-22M は削除で」) */
+const CRAFT_REMODEL_SOURCE=Object.freeze({xwing:'x-wing-remodel-rev3-2026-11-25.json',tie_ln:'tie-ln-remodel-rev3-2026-11-25.json',tie_in:'tie-in-remodel-rev3-2026-11-25.json',awing:'a-wing-remodel-rev3-2026-11-25.json',tie_d:'tie-d-remodel-rev3-2026-11-25.json',arc170:'arc170-remodel-rev3-2026-11-25.json',ywing:'btl-a4-remodel-rev3-2026-11-25.json',tie_sa:'tie-sa-remodel-rev3-2026-11-25.json',btlb:'btlb-remodel-rev3-2026-11-25.json',hyena:'hyena-remodel-rev4-2026-11-25.json',vwing:'vwing-remodel-rev3-2026-11-25.json',vulture:'vulture-remodel-rev4-2026-11-25.json',v19:'v19-remodel-rev3-2026-11-25.json',z95:'z95-remodel-rev3-2026-11-25.json',tie_avenger:'tie-avenger-prototype-2026-11-25.json',bwing:'bwing-2026-11-26.json',tri:'tri-fighter-2026-11-26.json'})/* 2026-11-25 the user's refit of all fourteen and two new craft (KUAT_16_Aircraft_Refit.zip: 「航空機はこっちで作り直す」); earlier files stay in the refs folder */;
 const CRAFT_REMODEL_TUBE_NOTE=Object.freeze({tie_d:'翼のパイロン 2 基は発射管に変えた（ユーザー「TIE/Dも発射機に変更して」）。取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',xwing:'発射管の中に置かれたパイロンは発射管にし、発射管の構造物の中へ沈めた。',tie_ln:'発射管の中に置かれたパイロンは発射管にし、発射管の構造物の中へ沈めた。',tie_in:'発射管の中に置かれたパイロンは発射管にし、発射管の構造物の中へ沈めた。',awing:'発射管の中に置かれたパイロンは発射管にし、発射管の構造物の中へ沈めた。',arc170:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',btlb:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',tie_sa:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',hyena:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',vulture:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',v19:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',z95:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。',ywing:'元の発射管の位置のパイロンは発射管に戻し、取り付いて口が開いたまま、機体の外へ出る部分が最も少ない位置へ法線方向に動かした。'});
-const CRAFT_REMODEL_NEW=Object.freeze({tie_avenger:{name:'TIE アヴェンジャー試作機',side:'銀河帝国',role:'制宙戦闘機'},tie_d:{name:'TIE/D ディフェンダー',side:'銀河帝国',role:'制宙戦闘機',length:9.2},ywing:{name:'BTL-A4 Yウイング',side:'反乱同盟',role:'爆撃機',designCredit:{title:'BTL-B Y-Wing',author:'A308 Digital',license:'CC BY 4.0',source:'https://sketchfab.com/3d-models/btl-b-y-wing-102aab8967174476b264d69e979f9d70'}/* the design's credits (the loader drops them; fidelity review 2026-11-24) */,length:23.4/* the remodel's measured length (check.log 23.4 m, as the BTL-B), not CRAFT_TYPES.ywing's 16.24 (fidelity review 2026-11-24) */}});
+const CRAFT_REMODEL_NEW=Object.freeze({bwing:{name:'A/SF-01 Bウイング',side:'反乱同盟',role:'爆撃機',length:16.9},tri:{name:'ドロイド・トライファイター',side:'独立星系連合',role:'戦闘機',length:5.4},tie_avenger:{name:'TIE アヴェンジャー試作機',side:'銀河帝国',role:'制宙戦闘機'},tie_d:{name:'TIE/D ディフェンダー',side:'銀河帝国',role:'制宙戦闘機',length:9.2},ywing:{name:'BTL-A4 Yウイング',side:'反乱同盟',role:'爆撃機',designCredit:{title:'BTL-B Y-Wing',author:'A308 Digital',license:'CC BY 4.0',source:'https://sketchfab.com/3d-models/btl-b-y-wing-102aab8967174476b264d69e979f9d70'}/* the design's credits (the loader drops them; fidelity review 2026-11-24) */,length:23.4/* the remodel's measured length (check.log 23.4 m, as the BTL-B), not CRAFT_TYPES.ywing's 16.24 (fidelity review 2026-11-24) */}});
 function craftRemodelDesign(key){
  const id=CRAFT_REMODEL_KEYS[key];if(typeof CRAFT_REMODEL!=='object'||!CRAFT_REMODEL?.[id])throw new Error(key+': 航空機のリモデル設計がありません');
  const ship=deserialize(JSON.parse(JSON.stringify(CRAFT_REMODEL[id])));ship.reference=key;ship._craftInteriorRefit=true;ship._craftRemodel=true;return ship;
