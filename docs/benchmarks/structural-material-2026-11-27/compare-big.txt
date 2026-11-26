@@ -1,0 +1,3 @@
+design | structures | path used | old s | new s | total old m3 | total new m3 | relative difference of the total | largest difference of one structure (m3; relative to its own volume) | structures over 1e-6 relative
+imperial | 122 | neighbours | 11.1 | 29.4 | 20781567.60 | 20777028.24 | 2.18e-4 | 3.15e+3; 3.28e-2 | 61
+venator | 194 | neighbours | 18.1 | 12.4 | 3071917.997 | 3243402.156 | 5.58e-2 | 1.14e+5; 7.71e-1 | 157
