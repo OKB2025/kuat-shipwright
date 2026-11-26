@@ -105,3 +105,26 @@
 | `strategic-ai` | 0/7/0（447 秒） | 時間切れ | 0/7/0（463 秒、1 本だけで実行） | |
 
 走らせていないもの：`craft-cost-parity`（2 分で打ち切り。変更前 479 秒）、`fleet-loadout-separation`・`example-figures-regression`（変更前から 700 秒で時間切れ）、`hull-outer-surface-contact`（変更前 521 秒で失敗 1 件、`168700c` は 900 秒で時間切れ）、`lowered-bays-capacity`（作り直し待ちのため走らせ直していない。`168700c` の記録は 1/1/1）。
+
+## 2026-11-26 に足したぶん（ガス交換・カートリッジ・弾の寸法・ラピッドファイア砲の砲身）
+
+砲・弾に関係するテスト 54 本を `8c452d6` の手前で 1 本ずつ実行し（作例は作り直す前）、前回（`tests-d95d6d6.tsv`）は通っていて今回落ちた 9 本を切り分けた。
+
+| テスト | 旧 | 新 | 根拠 |
+| --- | --- | --- | --- |
+| `light-turret-family` | 上下 2 連装速射の `chargeRateTT` ＝ 高角 2 連装と同じ（0.1698 TT/秒） | 充電中の速さ（`chargeRatePeakTT`）が同じ。平均（`chargeRateTT`）は速射のほうが低い（0.0981）。カートリッジ 40 発 | 「1発ごとに基本は交換／充電にプラスする形で／速射砲系はカートリッジ」「200GT縦2連も速射砲」 |
+| `weapon-shot-calibration` | ターボレーザーの `chargeRateTT` ＝ 給電の速さの式 | `chargeRatePeakTT` ＝ 同じ式。`chargeRateTT × cycle` ＝ 砲身数 × 1 発の充電 | 同上（平均と充電中を分けた） |
+| `ion-power-cut` | 魚雷 0.0895／ミサイル 0.0471／爆弾 0.1885 TT、表の寸法は旧（長さ 1.3 m 以下・0.2 t 未満） | 0.000725／0.000153／0.000424 TT、表の寸法・質量は弾そのもの | 「ミサイルを0.12×0.9 魚雷を0.18×1 爆弾は0.3の球」「弾の寸法は威力も変える」 |
+| `missile-launcher-geometry` | ミサイル 0.0471 TT（1 m × 4 m） | 0.000153 TT（0.12 m × 0.9 m） | 同上 |
+| `missile-seekers-torpedo-flight` | Y ウイングの爆弾 16 発 | 64 発 | 「爆弾倉の数は増える／爆弾倉のサイズによる」 |
+| `point-defense-minimum-render` | 作り替える型は 9 つ。作り替え関数を署名の全文で探す | ラピッドファイア砲を加えて 10。関数は名前と引数の終わりで探す（検査コードの変更） | 「1TTのラビット砲は砲身を今の1/2に」 |
+
+期待値ではなく実装を直したもの：
+
+- `moncal-turret-models`・`authored-render-budget`：砲身を縮めたラピッドファイア砲で、砲口のくぼみの記録（`muzzleRecessM`）が元の深さのままだった（描いた形は 2.35 → 1.41 m）。記録を描いた形に合わせた（`reshapeGunBarrels`）。
+
+古い生成物が原因で、作り直しのあとに確かめるもの：
+
+- `craft-as-ships`（点防御が機体に当たらない）：`data/fleet.js` の性能表の版が古いと、自動防御用の読み替えで点防御が外れる（`automaticDefenseProfile`）。
+- `lowered-bays-capacity`（オナガー級の収容 0 機）：点防御に新しく付いたコンデンサーが、作り直す前の保存設計では格納庫の位置（479, 61, ±174）に置かれて「重なり」になる。Worker と同じ読み込み順（`remount` → `syncCompartments`）では 18 機。
+- `placement-early-pick` は単独で実行すると 12 本とも通った（前回の失敗は再現せず）。

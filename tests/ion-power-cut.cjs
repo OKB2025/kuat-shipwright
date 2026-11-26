@@ -30,8 +30,8 @@ test('a cut shorter than the step takes its share of the step; no cut takes noth
  assert.equal(free.a.ionPowerLossJ||0,0);assert.equal(free.a.ionKeep,1);
 });
 test('the old ordnance table carries the air rounds; stations hold as many as before',()=>{
- for(const [k,o] of Object.entries(C.ORDNANCE)){const r=C.airRound(k);assert.equal(o.tt,r.tt,k);assert.equal(o.body.mass,r.mass,k);assert.deepEqual([...o.body.dims],[...r.dims],k);assert.ok(o.dims[0]<=1.3&&o.mass<.2,k+': the size and mass its stations were measured for stay');}
- assert.ok(Math.abs(C.ORDNANCE.ptorp.tt-.0895)<1e-4);assert.ok(Math.abs(C.ORDNANCE.cmsl.tt-.0471)<1e-4);assert.ok(Math.abs(C.ORDNANCE.bomb.tt-.1885)<1e-4);
+ for(const [k,o] of Object.entries(C.ORDNANCE)){const r=C.airRound(k);assert.equal(o.tt,r.tt,k);assert.equal(o.body.mass,r.mass,k);assert.deepEqual([...o.body.dims],[...r.dims],k);/* 2026-11-26 expectation changed (user「ミサイルを0.12×0.9 魚雷を0.18×1 爆弾は0.3の球」「弾の寸法は威力も変える」): the table's own size and mass are the round's now (was: the old station size, dims[0] <= 1.3 and mass < 0.2 t, apart from the air round) */assert.deepEqual([...o.dims],[...r.dims],k);assert.equal(o.mass,r.mass,k);}
+ /* 2026-11-26 expectation changed (same decision): yields by the new bodies. torpedo 0.0895 -> 0.000725 TT (725 MT), missile 0.0471 -> 0.000153 TT (153 MT), bomb 0.1885 -> 0.000424 TT (424 MT) */assert.ok(Math.abs(C.ORDNANCE.ptorp.tt-7.252e-4)<1e-6);assert.ok(Math.abs(C.ORDNANCE.cmsl.tt-1.527e-4)<1e-6);assert.ok(Math.abs(C.ORDNANCE.bomb.tt-4.241e-4)<1e-6);
  assert.equal(C.ORDNANCE.itorp.ion,true);
  const n=k=>C.craftOrdnance(k).map(o=>o.kind+'x'+o.n).join(',');
  /* 2026-11-24 expectation changed: an aircraft's tube holds 2 torpedoes or 3 missiles (user「魚雷は発射機あたりに2発、ミサイルは発射機あたりに3発」): X-wing 6 → 4, Y-wing 8 → 4, TIE/sa 4 → 2, A-wing 12 → 6 */assert.equal(n('xwing'),'ptorpx4');assert.equal(n('ywing'),'ptorpx4');/* 2026-11-23 expectation changed: the TIE/sa's launch tube is back with its canon 4 rounds (user: 「発射管を復活」; v24 pylon: 3) */assert.equal(n('tie_sa'),'ptorpx2,bombx8');assert.equal(n('awing'),'cmslx6');
