@@ -1,0 +1,287 @@
+{
+ "errors": [
+  "console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED"
+ ],
+ "steps": [
+  {
+   "step": "open craft_bwing",
+   "seconds": 10.195,
+   "name": "A/SF-01 Bウイング（エンドア仕様）",
+   "mass": 18.551870538392162,
+   "accelG": 2513.2604901170985,
+   "fits": [
+    {
+     "id": 26,
+     "k": "claser",
+     "bore": 0.12,
+     "len": 2.24,
+     "float": false,
+     "kt": 152,
+     "massT": 0.15566214607418985
+    },
+    {
+     "id": 28,
+     "k": "claser",
+     "bore": 0.1,
+     "len": 1.19,
+     "float": false,
+     "kt": 114.2857142857143,
+     "massT": 0.0574274410429954
+    },
+    {
+     "id": 64,
+     "k": "claser",
+     "bore": 0.05,
+     "len": 0.44,
+     "float": false,
+     "kt": 50,
+     "massT": 0.005308418919940752
+    },
+    {
+     "id": 66,
+     "k": "claser",
+     "bore": 0.05,
+     "len": 0.44,
+     "float": false,
+     "kt": 50,
+     "massT": 0.005308418919940752
+    },
+    {
+     "id": 86,
+     "k": "claser",
+     "bore": 0.1,
+     "len": 1.52,
+     "sink": 0.06666666666666667,
+     "float": false,
+     "kt": 114.2857142857143,
+     "massT": 0.07335269780281767
+    },
+    {
+     "id": 96,
+     "k": "claser",
+     "bore": 0.1,
+     "len": 1.52,
+     "sink": 0.06666666666666667,
+     "float": false,
+     "kt": 114.2857142857143,
+     "massT": 0.07335269780281767
+    },
+    {
+     "id": 160,
+     "k": "ctorp",
+     "float": false,
+     "kt": null,
+     "massT": 1
+    },
+    {
+     "id": 167,
+     "k": "ctorp",
+     "float": false,
+     "kt": null,
+     "massT": 1
+    }
+   ],
+   "warnings": [],
+   "laserRuleSaved": 2
+  },
+  {
+   "step": "open craft_tri",
+   "seconds": 11.915,
+   "name": "ドロイド・トライファイター（独立星系連合）",
+   "mass": 8.31619401988064,
+   "accelG": 3854.895665741249,
+   "fits": [
+    {
+     "id": 44,
+     "k": "claser",
+     "bore": 0.04,
+     "len": 0.809676,
+     "float": false,
+     "kt": 42.285714285714285,
+     "massT": 0.006251780941704652
+    },
+    {
+     "id": 77,
+     "k": "claser",
+     "bore": 0.04,
+     "len": 0.809676,
+     "float": false,
+     "kt": 42.285714285714285,
+     "massT": 0.006251780941704652
+    },
+    {
+     "id": 110,
+     "k": "claser",
+     "bore": 0.04,
+     "len": 0.809676,
+     "float": false,
+     "kt": 42.285714285714285,
+     "massT": 0.006251780941704652
+    },
+    {
+     "id": 113,
+     "k": "claser",
+     "bore": 0.085,
+     "len": 1.12455,
+     "float": false,
+     "kt": 90.5,
+     "massT": 0.03920930321511816
+    },
+    {
+     "id": 115,
+     "k": "cmsl",
+     "float": false,
+     "kt": null,
+     "massT": 0.8
+    },
+    {
+     "id": 117,
+     "k": "cmsl",
+     "float": false,
+     "kt": null,
+     "massT": 0.8
+    }
+   ],
+   "warnings": [],
+   "laserRuleSaved": 2
+  },
+  {
+   "step": "open craft_xwing",
+   "seconds": 5.857,
+   "name": "T-65B Xウイング",
+   "mass": 29.67462838675415,
+   "accelG": 4514.910881390641,
+   "fits": [
+    {
+     "id": 42,
+     "k": "claser",
+     "bore": 0.1122021984336017,
+     "len": 3.5,
+     "float": false,
+     "kt": 136.47999999999996,
+     "massT": 0.2126391758148873
+    },
+    {
+     "id": 43,
+     "k": "claser",
+     "bore": 0.1122021984336017,
+     "len": 3.5,
+     "float": false,
+     "kt": 136.47999999999996,
+     "massT": 0.2126391758148873
+    },
+    {
+     "id": 44,
+     "k": "claser",
+     "bore": 0.1122021984336017,
+     "len": 3.5,
+     "float": false,
+     "kt": 136.47999999999996,
+     "massT": 0.2126391758148873
+    },
+    {
+     "id": 45,
+     "k": "claser",
+     "bore": 0.1122021984336017,
+     "len": 3.5,
+     "float": false,
+     "kt": 136.47999999999996,
+     "massT": 0.2126391758148873
+    },
+    {
+     "id": 46,
+     "k": "ctorp",
+     "float": false,
+     "kt": null,
+     "massT": 1
+    },
+    {
+     "id": 47,
+     "k": "ctorp",
+     "float": false,
+     "kt": null,
+     "massT": 1
+    }
+   ],
+   "warnings": [
+    "反応物供給能力 85%。炉の出力は供給できる分までに下がります。反応物供給設備を追加してください。"
+   ],
+   "laserRuleSaved": 2
+  },
+  {
+   "step": "select a laser",
+   "space": "exterior",
+   "uiSpace": "exterior",
+   "info": true,
+   "editBtn": true,
+   "session": false
+  },
+  {
+   "step": "state",
+   "fleetMode": "design",
+   "trial": false,
+   "tab": "edit",
+   "titleVisible": false,
+   "info": "Fixed Laser Cannon (2)\nClose\nType\nFixed Laser Cannon\nID\n#42\nDimensions\n3.500 × 0.150 × 0.150 m\nPosition XYZ (m)\n5.945 / 3.244 / 5.500\nPower\n5.7×10¹⁴ W\nFull Salvo\n136.48 kt\n\nLatest confirmed values\n\nEdit\nDuplicate\nDelete\nMulti",
+   "designOpen": false,
+   "hullLocked": true
+  },
+  {
+   "step": "edit panel of an X-wing laser",
+   "fit": 42,
+   "hasGroup": true,
+   "sliders": [
+    {
+     "key": "boreM",
+     "min": "0.02",
+     "max": "0.4",
+     "value": "0.11"
+    },
+    {
+     "key": "barrelM",
+     "min": "0.2",
+     "max": "10",
+     "value": "3.5"
+    },
+    {
+     "key": "rateHz",
+     "min": "0.2",
+     "max": "10",
+     "value": "1"
+    }
+   ],
+   "nozzle": [
+    ":Plain (can fire faster)",
+    "track:Tracking nozzle (X-wing type)"
+   ],
+   "summary": "Shot 136 kt · Range 2.40 km · Rated input 136 kt/s (per barrel) · Hits 100%",
+   "groupIndex": 0
+  },
+  {
+   "step": "slider bore 0.2 m then the tracking nozzle",
+   "massBefore": 29.67462838675415,
+   "bore": 0.2,
+   "kt": 371.4285714285715,
+   "gunMassT": 0.6756169534470048,
+   "bodyM": 0.26666666666666666,
+   "mass": 30.623644324899264,
+   "float": false,
+   "nozzle": "track",
+   "rateHz": 1,
+   "trackDeg": 3,
+   "rateMax": "1"
+  },
+  {
+   "step": "saved design",
+   "json": {
+    "craftLaserRule": 2,
+    "kinds": [
+     "claser",
+     "ctorp"
+    ]
+   }
+  }
+ ],
+ "mode": "inline",
+ "status": "ERRORS"
+}

@@ -2003,7 +2003,7 @@ function sci(v) {
   const e = Math.floor(Math.log10(Math.abs(v))), m = v / Math.pow(10, e);
   return m.toFixed(1) + '×10' + String(e).split('').map(c => SUP[c]).join('');
 }
-const fLen = (m) => Math.abs(m) >= 10000 ? (m / 1000).toFixed(1) + ' km' : m.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3}) + ' m';
+const fLen = (m) => !Number.isFinite(m) ? '—'/* 2026-11-26 an example without a length must not stop the page from starting */ : Math.abs(m) >= 10000 ? (m / 1000).toFixed(1) + ' km' : m.toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:3}) + ' m';
 const fMass = (t) => ja(t) + ' t';
 const fW = (w) => sci(w) + ' W';
 const reactorOutputText = (p) => { const power = C.reactorPower(p); return `${fW(power)} · ${num(power / C.ISD_W, 6)} ISD`; };
