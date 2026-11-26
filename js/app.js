@@ -6730,7 +6730,10 @@ function craftPaletteGuard(){
  if(st.group!=='weapons'&&st.group!=='bridge'&&!gs.some(g=>g[0]===st.group))st.group=craftDesign()?'craft':'power';
  if(!partOffered(st.part))st.part=paletteParts(st.group)[0]||'struct';
  const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];
- if(paletteShip!==ship){paletteShip=ship;if(craftDesign()){
+ if(paletteShip!==ship){paletteShip=ship;
+  /* 2026-11-26 (user「構造物の新規配置の既定サイズ：船体の大きさに合わせて小さくする」): a new structure's default size is brought down to the design when it is plainly too large for it (longer than 0.6 of the design, or wider or taller than 1.2 of it): 0.3 of its length and beam, 0.1 of its height, as craft designs already did. The 180 x 110 x 60 m default stood on a 150 m ship. */
+  {const plan=C.designEnvelope(ship);if(plan&&[plan.L,plan.W,plan.H].every(v=>v>0)&&(st.structSize[0]>plan.L*.6||st.structSize[1]>plan.W*1.2||st.structSize[2]>plan.H*1.2))st.structSize=[Math.max(.2,+(plan.L*.3).toFixed(2)),Math.max(.2,+(plan.W*.3).toFixed(2)),Math.max(.05,+(plan.H*.1).toFixed(2))];}
+  if(craftDesign()){
   const plan=C.designEnvelope(ship);
   if(st.structSize[0]>plan.L)st.structSize=[Math.max(.2,+(plan.L*.3).toFixed(2)),Math.max(.2,+(plan.W*.3).toFixed(2)),Math.max(.05,+(plan.H*.1).toFixed(2))];
   if(st.roomSize.some((v,i)=>v>[plan.L,plan.W,plan.H][i]))st.roomSize=[plan.L,plan.W,plan.H].map(v=>Math.max(.1,+(v*.25).toFixed(2)));
