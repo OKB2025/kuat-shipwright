@@ -108712,15 +108712,19 @@ function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepIn
  }return changed?buf.slice(0,size):T;
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
+function structuralSameTriangles(a,b){if(a===b)return true;if(!a||!b||a.length!==b.length)return false;for(let i=0;i<a.length;i++){const x=a[i],y=b[i];if(x===y)continue;if(typeof x==='number'||typeof y==='number'||!x||!y)return false;if(!structuralSameTriangles(x,y))return false;}return true;}
 function structuralMaterial(ship){
  const bulk=p=>isStructuralPart(p)&&!p.plate,g=hullMaterialGeometry(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(p=>isShapePart(p)&&!isHullStructure(p)).slice().sort(structuralMaterialOrder),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
- if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
+ // 2026-11-26 The same triangles in a new array are the same shape (measured on the Imperial class: after the first calculation 74 structures'
+ // material triangles are held in new arrays with the same contents, and the whole union, 10 s, was worked out again on the second). Arrays are
+ // compared by their contents when they are not the same array.
+ if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&structuralSameTriangles(e.T,old.entries[i].T)&&e.bulk===old.entries[i].bulk))return old;
  // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
  // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
  // full) with every step's volume, and a later computation of the same ship (or its surface working copy) resumes
  // from the last stored step before the first changed entry. Resuming replays the same values in the same order.
  const owner=ship._surfaceSource||ship,prior=STRUCTURAL_PREFIX.owner===owner?STRUCTURAL_PREFIX:null;let same=0;
- if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&entries[same].T===prior.entries[same].T&&entries[same].bulk===prior.entries[same].bulk)same++;
+ if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&structuralSameTriangles(entries[same].T,prior.entries[same].T)&&entries[same].bulk===prior.entries[same].bulk)same++;
  // v24 Checkpoints, step 0 included, start from the prior hull boundary: reuse them only for the same hull
  // (a resized hull used to resume from the old hull's boundary and volume).
  let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior&&prior.hull===hull)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
