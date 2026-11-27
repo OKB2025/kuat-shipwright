@@ -93,3 +93,14 @@ test('a disabled round coasts: it keeps its speed and no longer speeds up (the f
   const m={id:'d',sys,side:1,from:e.id,target:u.id,n:1,tt:1,kind:'cmsl',unguided:true,...(disabled?{pdDisabled:true}:{}),pos:[15000,8000,0],vel:[-1,0,0],s:220,life:20,range:60000,traveled:0};w.missiles.push(m);for(let i=0;i<4;i++)R.tick(w,.25);return m.s;};
  assert.equal(rts(true),220,'strategic battle: the disabled round keeps 220 m/s');assert.ok(rts(false)>220,'an unguided round with its motor still speeds up');
 });
+// 2026-11-27 physics review: a torpedo's slowing stands for its propellant, so a disabled torpedo coasts too; and the round's life,
+// reckoned for powered flight, is stretched to the end of its reach so that coasting slower it is not lost short of it.
+test('a disabled torpedo no longer slows, and a disabled round\'s life reaches the end of its range',()=>{
+ const F=vm.runInContext('YardFleetData',cx).designs;
+ const torp=disabled=>{const a=C.fleetUnit('a','cr90',copy(F.cr90.p),0),t=C.fleetUnit('t','cr90',copy(F.cr90.p),1);for(const u of [a,t]){u.velocity=[0,0,0];u.order={...u.order,type:'hold',fire:false};}a.pos=[0,0,0];t.pos=[0,80000,0];
+  const b=C.fleetBattle([a,t],true);b.seed=1;const m={id:'m1',salvo:'s',team:0,from:'a',target:'t',n:1,tt:1,kind:'ptorp',torp:true,inertial:true,torpLen:50,ion:false,range:400000,traveled:0,pos:[100,0,0],vel:[1200,0,0],s:1200,life:60,launchClearance:0,launchDir:[1,0,0],unguided:true,...(disabled?{pdDisabled:true}:{})};
+  b.missiles=[m];for(let i=0;i<8;i++)C.fleetTick(b,.25,{});return m.s;};
+ assert.equal(torp(true),1200,'the disabled torpedo keeps 1,200 m/s');assert.ok(torp(false)<1200,'a torpedo whose propellant is whole still slows');
+ const m={n:1,s:400,range:30000,traveled:5000,life:3};C.pointDefenseRoundHits(m,1,()=>0);assert.equal(m.pdDisabled,true);assert.equal(m.life,25000/400,'life to the end of its reach at 400 m/s');
+ const q={n:1,s:2600,range:30000,traveled:0,life:20};C.pointDefenseRoundHits(q,1,()=>0);assert.equal(q.life,20,'never shortened');
+});
