@@ -4772,7 +4772,7 @@ function bind() {
     else if (d.hsize) { mutate('格納庫の大きさ', () => editSel(it => { it.d = +d.hsize; }), 'parts'); renderPanel(); }
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
     else if ('desel' in d) { selClear(); xfReset(); renderPanel(); }
-    else if ('partpaintclear' in d) { const id = d.partpaintId; if (id != null) mutate('塗色を標準に戻す', () => { const r = ship.parts.find(x => x.id === +id); if (r) delete r.paint; }, 'parts'); else mutate('部品の色を標準に戻す', () => editSel(p => { delete p.paint; }), 'parts'); renderPanel(); }
+    else if ('partpaintclear' in d) { const id = d.partpaintId; if (id != null) mutate('塗色を標準に戻す', () => paintPartById(id, null), 'parts'); else mutate('部品の色を標準に戻す', () => editSel(p => { delete p.paint; }), 'parts'); renderPanel(); }
     else if ('fitsupportlower' in d) { mutate('砲を取り付け面に据え直す', () => editSel(f => { delete f.supportLift; }), 'fits'); renderPanel(); }
     else if ('fitpaintclear' in d) { mutate('砲の色を標準に戻す', () => editSel(f => { delete f.paint; }), 'fits'); renderPanel(); }
     else if ('fitpair' in d) { st.fitPairEdit = st.fitPairEdit === false; renderPanel(); refreshOverlay(); }
@@ -6823,6 +6823,9 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
 // 2026-11-27 user「船体構造物にも構造物と同じ塗色が出来るように」: the hull structure takes the structure's paint colour too. The control names
 // its part (data-partpaint-id) so it paints the hull shown in the hull tab whatever else is selected.
 function structPaintHTML(p){const hull=!!C.isHullStructure?.(p);return `<div class="pgroup" data-struct-color><h4>${hull?'船体構造物の塗色':'構造物の塗色'}</h4><label>${hull?'船体構造物の塗色':'構造物の塗色'} <input type="color" data-partpaint data-partpaint-id="${p.id}" value="${p.paint||'#ced2d6'}"></label>${p.paint?`<button type="button" class="btn sm ghost" data-partpaintclear data-partpaint-id="${p.id}">標準の色に戻す</button>`:''}<p class="note">${hull?'構造物と同じく、この船体構造物の外板の色を変えます。艦全体の外板スキン（無塗装・暗色など）より優先します。':'この構造物の外板の色です。'}</p></div>`;}
+// The named part's paint (null: back to standard) and, with mirroring on, its twin's, as editSel does (regression review 2026-11-27: a
+// hull structure can be mirrored, hullMirrorZ); a part that may not be edited is left alone.
+function paintPartById(id,value){const r=ship.parts.find(x=>x.id===+id);if(!r||typeof designEntityEditable==='function'&&!designEntityEditable('parts',r))return;const tw=st.mirror?twinOfItem('parts',r):null;for(const q of [r,tw])if(q){if(value)q.paint=String(value).toLowerCase();else delete q.paint;}}
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
   html+=cockpitEquipmentHTML(p);
@@ -6879,7 +6882,7 @@ function bindRealism(){
     if(t.dataset.station!=null){const i=+t.dataset.station,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v)||j>7)return;let switched=false;mutate('船体断面を調整',()=>{const a=ensureStations();if(j>=4)switched=deckSection(a);for(const row of a){while(row.length<Math.max(6,j+1))row.push(row.length===3?0:row.length===4?hullEditorProfile().deckWidth??.52:row.length===5?hullEditorProfile().keelWidth??0:row.length===6?hullEditorProfile().belt??.13:hullEditorProfile().chineHeight??.5);}a[i][j]=j===0?C.clamp(v,a[i-1][0]+.002,a[i+1][0]-.002):C.clamp(v,[0,.005,.005,-.5,0,0,.02,.2][j],[1,1.5,1.5,.8,.98,.98,.98,.8][j]);C.normalizeBow(hullEditorProfile());},'hull');if(switched)toast('甲板・船底の幅を使うため、断面を「装甲楔形」に切り替えました');renderPanel();}
     if('autofit'in t.dataset){mutate('区画の自動統合',()=>editSel(p=>p.autoFit=t.checked),'parts');renderPanel();}
     if('partlabel'in t.dataset){mutate('区画名',()=>editSel(p=>p.label=t.value.slice(0,80)),'none');renderPanel();}
-    if('partpaint'in t.dataset){const id=t.dataset.partpaintId;if(id!=null){const q=ship.parts.find(x=>x.id===+id);if(q)mutate(C.isHullStructure?.(q)?'船体構造物の塗色':'構造物の色',()=>{const r=ship.parts.find(x=>x.id===+id);if(r)r.paint=t.value.toLowerCase();},'parts');}else mutate(selItem()?.k==='struct'?'構造物の色':'部品の色',()=>editSel(p=>p.paint=t.value),'parts');renderPanel();}
+    if('partpaint'in t.dataset){const id=t.dataset.partpaintId;if(id!=null){const q=ship.parts.find(x=>x.id===+id);if(q)mutate(C.isHullStructure?.(q)?'船体構造物の塗色':'構造物の色',()=>paintPartById(id,t.value),'parts');}else mutate(selItem()?.k==='struct'?'構造物の色':'部品の色',()=>editSel(p=>p.paint=t.value),'parts');renderPanel();}
     if('fitpaint'in t.dataset){mutate('砲の色',()=>editSel(f=>f.paint=t.value.toLowerCase()),'fits');renderPanel();}
   });
   if(typeof bindDecalPanel==='function')bindDecalPanel($('#panel'));

@@ -20,4 +20,11 @@
   - 変更前：(89.7, 95.4, 101.5)
   - 赤にした後：(98, 39.9, 43.1)
 - 元に戻す（Ctrl+Z）・やり直し（Ctrl+Y）、保存形式での往復、「標準の色に戻す」も確認した。
-- 未確認：Worker モードでの表示（この確認では `YardEngineClient.mode` が `inline` だった）。参照モデルの外板を持つ船体（作例艦）での表示。
+- Worker モードでも同じ結果になった（`result-worker.json`。`mode: worker`）。
+  - 最初の確認が inline だったのは、core.js を変えたあとソースのマニフェストが古く、ページがソースを検証できなかったため（コンソール「engine worker unavailable, running inline: source snapshot unavailable」）。
+  - `node scripts/update-asset-manifest.cjs` で更新したあとは Worker で動いた。
+- 回帰レビュー（2026-11-27）の指摘を反映した。
+  - 船体構造物は鏡像にできる（`hullMirrorZ`）ので、左右対称がオンのときは双子も塗る（`paintPartById`、通常の構造物の `editSel` と同じ扱い）。
+  - 編集できない部品は塗らない。色は小文字で保存する。
+  - テストは `tests/hull-structure-paint.cjs` の 5 番。
+- 未確認：参照モデルの外板を持つ船体での表示。作例艦で、船体構造物の参照外板（`hullData.hullSkin.enabled`）を使うものは 0 件だった（data/examples を全件調べた）。塗らない場合の色は、`refTone` の既定値（WHITE）と同じで、今までと変わらない。
