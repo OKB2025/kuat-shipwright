@@ -1,0 +1,3 @@
+tie_ln | TIE/ln 制宙戦闘機 | mass 8.146 (user 11.651) | G 4000 (user 4000, target 4000) | cost 76569 (user 80498) | length 7.24 | float 0 | stations  | magazine  | warn  | 4 s
+tie_in | TIE/in インターセプター | mass 6.914 (user 11.67) | G 4200 (user 4200, target 4200) | cost 108842 (user 110297) | length 7.45 | float 0 | stations cpylon×2 | magazine  | warn  | 5 s
+hyena | ハイエナ級ドロイド爆撃機 | mass 21.686 (user 21.706) | G 2250 (user 2250, target 2250) | cost 172848 (user 172848) | length 12.42 | float 0 | stations ctorp×2[3] ctorp×2[4] cbomb×1 | magazine 29:2/2(user 2) 30:2/2(user 2) 31:3/3(user 3) 32:3/3(user 3) | warn  | 4 s
