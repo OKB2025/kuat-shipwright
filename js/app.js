@@ -2112,11 +2112,11 @@ function sendEngineUpdate() {
   eng.scheduled = false;
   if (!eng.ready || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
-  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
+  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), ...(ship._structuralRecord?{structuralRecord: ship._structuralRecord}:{}), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
   eng.what.clear(); eng.reset = false;
   YardEngineClient.post(msg);
 }
-function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),...(s._structuralRecord?{structuralMaterial:s._structuralRecord}:{})/* 2026-11-27 the structures' material kept with the design goes to the Worker, which uses it while the key matches */,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
+function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),structuralMaterial:undefined/* 2026-11-27 the structures' material record goes beside the state (msg.structuralRecord), never in it: the state is compared as public JSON (regression review) */,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
 function enginePending() { return eng.adoptedGen < eng.gen; }
 function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
