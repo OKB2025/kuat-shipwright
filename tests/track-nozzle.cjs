@@ -29,3 +29,12 @@ test('the TIE Avenger example: its sixteen wing lasers fire three shots a second
  const heavy=rest.filter(f=>/多角形ハブ/.test(host.get(f.host)?.label||'')),nose=rest.filter(f=>!heavy.includes(f));assert.equal(heavy.length,2);for(const f of heavy){assert.equal(f.boreM,.15);assert.equal(C.fitSpec(f).gunRule.rateHz,2);}
  assert.equal(nose.length,2);for(const f of nose)assert.equal(C.fitSpec(f).gunRule.rateHz,4);
 });
+// 2026-11-27 user「イオン砲はノズルの対象外で」: an ion gun carries no tracking nozzle (mass, price, rule, drawing), even where its design asks for
+// one (the B-wing's three SW-7a ion cannons do); the B-wing example's mass and price are those of the user's table again (17.302 t, 167 446).
+test('an ion gun has no tracking nozzle: the B-wing\'s ion cannons ask for one and carry none',()=>{
+ const g={k:'claser',id:1,p:[0,0,0],boreM:.15,barrelM:3.5,ionBoxM3:.08},a=C.fitSpec({...g,nozzle:'track'}),b=C.fitSpec(g);
+ assert.equal(C.trackNozzleOn({...g,nozzle:'track'}),false);assert.equal(a.gunRule?.nozzle,undefined);assert.equal(a.mass,b.mass);assert.equal(a.cost,b.cost);
+ const s=C.buildDesign('craft_bwing'),ion=s.fits.filter(f=>f.nozzle==='track');assert.equal(ion.length,3,'the design asks for it on three ion cannons');assert.ok(ion.every(f=>f.ionBoxM3>0&&!C.trackNozzleOn(f)));
+ const S=C.computeStats(s);assert.equal(+S.mass.toFixed(3),17.302);assert.equal(Math.round(S.cost),167446);
+ assert.equal(C.trackNozzleOn({k:'claser',boreM:.12,nozzle:'track'}),true,'a fixed laser keeps it');
+});
