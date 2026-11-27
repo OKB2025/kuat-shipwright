@@ -253,7 +253,7 @@ const CRAFT_PRICE_CATALOG={
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "6bp9cn",
+   "signature": "4cecsn",
    "build": 203510,
    "crew": 2000,
    "total": 205510,
@@ -12096,7 +12096,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "xw34ia",
+   "signature": "cc7oqa",
    "build": 152572,
    "crew": 1000,
    "total": 153572,
@@ -15057,7 +15057,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "7lvwxh",
+   "signature": "1ig3bi1",
    "build": 201606,
    "crew": 2000,
    "total": 203606,
@@ -26456,7 +26456,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "bwing": {
    "reference": "craft_bwing",
-   "signature": "l7ao7f",
+   "signature": "2ye9zz",
    "build": 167446,
    "crew": 1000,
    "total": 168446,
@@ -30400,7 +30400,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "yhr1ho",
+   "signature": "1iniw0a",
    "build": 172848,
    "crew": 0,
    "total": 172848,
@@ -39164,7 +39164,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "ht0nex",
+   "signature": "b3hgy4",
    "build": 110297,
    "crew": 1000,
    "total": 111297,
@@ -42971,7 +42971,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "tn9chv",
+   "signature": "sxskjh",
    "build": 80498,
    "crew": 1000,
    "total": 81498,
@@ -45722,7 +45722,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "uj8j7z",
+   "signature": "1rynxm4",
    "build": 100681,
    "crew": 1000,
    "total": 101681,
@@ -51027,7 +51027,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tri": {
    "reference": "craft_tri",
-   "signature": "1cc2ewm",
+   "signature": "y1vd5x",
    "build": 103241,
    "crew": 0,
    "total": 103241,
@@ -54230,7 +54230,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "uwing": {
    "reference": "craft_uwing",
-   "signature": "196h5g0",
+   "signature": "1v2e2qo",
    "build": 136198,
    "crew": 2000,
    "total": 138198,
@@ -58294,7 +58294,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1xo51xu",
+   "signature": "1kez4p3",
    "build": 146233,
    "crew": 1000,
    "total": 147233,
@@ -65673,7 +65673,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "4p5afq",
+   "signature": "1p079k1",
    "build": 142600,
    "crew": 0,
    "total": 142600,
@@ -70983,7 +70983,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "qudar7",
+   "signature": "1lqcr4q",
    "build": 238449,
    "crew": 1000,
    "total": 239449,
@@ -85241,7 +85241,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "3aez09",
+   "signature": "1i99y11",
    "build": 186931,
    "crew": 1000,
    "total": 187931,
@@ -91582,7 +91582,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "ywing": {
    "reference": "craft_ywing",
-   "signature": "vrmzul",
+   "signature": "p0bb1a",
    "build": 196406,
    "crew": 1000,
    "total": 197406,
@@ -103086,7 +103086,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "13pyz2u",
+   "signature": "1uv2pw7",
    "build": 145834,
    "crew": 1000,
    "total": 146834,
