@@ -117236,7 +117236,7 @@ function craftRemodelDesign(key){
   ship.parts=ship.parts.filter(p=>!gone.has(p.id));for(const p of ship.parts)if(gone.has(p.tw))delete p.tw;if(Array.isArray(ship.links))ship.links=ship.links.filter(l=>!gone.has(+String(l.from).slice(1))&&!gone.has(+String(l.to).slice(1)));if(Array.isArray(ship.groups))for(const g of ship.groups)if(Array.isArray(g.parts))g.parts=g.parts.filter(i=>!gone.has(i));syncCompartments(ship);}
  // 2026-11-27 (user「TIEアヴェンジャーの翼部レーザーの発射速度は全部1秒3発にして」): the sixteen lasers along the wings' leading edges fire three shots a
  // second (the design had one). They are found by their mounts (the leading-edge gun boxes and edge spars); the guns on the hubs keep their own rate.
- if(id==='tie_avenger'){const host=new Map(ship.parts.map(p=>[p.id,p])),wing=ship.fits.filter(f=>f.k==='claser'&&/前縁|縁桁/.test(host.get(f.host)?.label||''));if(wing.length!==16)throw new Error(key+': 翼のレーザーが 16 門ではありません（'+wing.length+'）');for(const f of wing)f.rateHz=3;}
+ if(id==='tie_avenger'){const host=new Map(ship.parts.map(p=>[p.id,p])),wing=ship.fits.filter(f=>f.k==='claser'&&/前縁|縁桁/.test(host.get(f.host)?.label||''));if(wing.length!==16)throw new Error(key+': 翼のレーザーが 16 門ではありません（'+wing.length+'）');for(const f of wing)f.rateHz=3;const heavy=ship.fits.filter(f=>f.k==='claser'&&/多角形ハブ/.test(host.get(f.host)?.label||''));if(heavy.length!==2)throw new Error(key+': ハブの重レーザーが 2 門ではありません（'+heavy.length+'）');for(const f of heavy)f.rateHz=2/* 2026-11-27 user「重レーザーは毎秒2発で」: the two 0.15 m guns on the outer hubs (were 4 a second); the two under the nose keep 4 */;}
  return ship;
 }
 for(const [key,id] of Object.entries(CRAFT_REMODEL_KEYS)){

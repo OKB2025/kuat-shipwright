@@ -18,8 +18,11 @@ test('the X-wing example: its twelve nozzle structures give way to the part, who
 });
 test('the gun\'s outline reaches over its nozzle',()=>{const f={k:'claser',id:1,p:[0,0,0],a:0,boreM:.12,barrelM:3.5,nozzle:'track'},g={...f};delete g.nozzle;const A=C.craftFitBounds(f),B=C.craftFitBounds(g);assert.ok(A[3]>B[3]+1,'ahead');assert.ok(A[4]-A[1]>B[4]-B[1],'the fork is taller than the tube');});
 
-// 2026-11-27 (user「TIEアヴェンジャーの翼部レーザーの発射速度は全部1秒3発にして」)
-test('the TIE Avenger example: its sixteen wing lasers fire three shots a second; the guns on the hubs and under the nose keep theirs',()=>{
+// 2026-11-27 (user「TIEアヴェンジャーの翼部レーザーの発射速度は全部1秒3発にして」「重レーザーは毎秒2発で」)
+test('the TIE Avenger example: its sixteen wing lasers fire three shots a second; the two heavy guns on the hubs fire two, the guns under the nose keep four',()=>{
  const s=C.buildDesign('craft_tie_avenger'),host=new Map(s.parts.map(p=>[p.id,p])),wing=s.fits.filter(f=>f.k==='claser'&&/前縁|縁桁/.test(host.get(f.host)?.label||'')),rest=s.fits.filter(f=>f.k==='claser'&&!wing.includes(f));
- assert.equal(wing.length,16);for(const f of wing)assert.equal(C.fitSpec(f).gunRule.rateHz,3);assert.equal(rest.length,4);for(const f of rest)assert.equal(f.rateHz,4);
+ assert.equal(wing.length,16);for(const f of wing)assert.equal(C.fitSpec(f).gunRule.rateHz,3);assert.equal(rest.length,4);
+ /* 2026-11-27 expectation changed (user「重レーザーは毎秒2発で」): the two heavy guns on the hubs fire 2 a second (were 4 like the nose guns) */
+ const heavy=rest.filter(f=>/多角形ハブ/.test(host.get(f.host)?.label||'')),nose=rest.filter(f=>!heavy.includes(f));assert.equal(heavy.length,2);for(const f of heavy){assert.equal(f.boreM,.15);assert.equal(C.fitSpec(f).gunRule.rateHz,2);}
+ assert.equal(nose.length,2);for(const f of nose)assert.equal(C.fitSpec(f).gunRule.rateHz,4);
 });
