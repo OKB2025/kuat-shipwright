@@ -22,8 +22,8 @@ test('a nearby rear target cannot be hit while a native missile is still clearin
  assert.ok(missile.pos[0]>missile.launchOrigin[0]&&missile.pos[1]>missile.launchOrigin[1]);
  for(let i=0;i<2;i++){assert.equal(t.hp,hp);assert.equal(C.fleetIntegrity(t),integrity);assert.equal(u.dmgDone,0);assert.equal(missile.hit,undefined);R.battleTick(w,u.sys,.1);missile=w.missiles.find(m=>m.from===u.id);assert.ok(missile);assert.ok(missile.launchClearance>0);}
  assert.equal(t.hp,hp);assert.equal(C.fleetIntegrity(t),integrity);assert.equal(u.dmgDone,0);
- let cleared=false;for(let i=0;i<40&&!u.dmgDone;i++){R.battleTick(w,u.sys,.1);missile=w.missiles.find(m=>m.from===u.id)||launched;if(!(missile.launchClearance>0)){cleared=true;assert.ok(missile.vel[0]<0,'the cleared missile homes back toward its rear target');}}
- assert.ok(cleared,'the physical exit phase ends before homing');assert.ok(u.dmgDone>0,'the cleared missile can eventually reach the target');assert.equal(u.ammo[1],5,'homing does not launch or restore extra rounds');
+ let cleared=false,back=false,lastX=C.norm(missile.vel)[0];for(let i=0;i<40&&!u.dmgDone;i++){R.battleTick(w,u.sys,.1);missile=w.missiles.find(m=>m.from===u.id)||launched;const x=C.norm(missile.vel)[0];if(!(missile.launchClearance>0)){cleared=true;if(x<lastX-1e-6)back=true;}lastX=x;}
+ assert.ok(cleared,'the physical exit phase ends before homing');assert.ok(back,'the cleared missile turns back toward its rear target');/* 2026-11-27 expectation changed (docs/missile-design-spec-2026-11-27.md, stage 2): was that its velocity points back (vel[0] < 0) in every step after clearing. A designed round turns at its lateral acceleration (450 m/s² for the missile preset), so it comes round over several steps; the target, 250 m behind, is within its 300 m burst reach before it has turned past 90°. Now: after clearing it turns toward the target (its heading's x falls) */assert.ok(u.dmgDone>0,'the cleared missile can eventually reach the target');assert.equal(u.ammo[1],5,'homing does not launch or restore extra rounds');
 });
 
 test('legacy ion missiles without a clearance flag retain their immediate close-range impact',()=>{
