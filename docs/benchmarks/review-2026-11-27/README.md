@@ -47,3 +47,20 @@
 - 同じページで試験を終えてから始め直すと、2 回目は艦隊戦の経路になります。`origin/main` でも同じでした（`restart-check.cjs`）。
 - `fleet-battle-determinism` は、変更前も変更後も基準と一致しません（tick 0 から）。
 - `ship-launcher-core` の 1 件は、変更前から「発射 0 発」で失敗しています。
+
+## 追加の確認（レビュー 2 回目のあと）
+
+- テストの実行結果：`tests-c35f8c18.txt`（22 件すべて成功）。対象は track-nozzle、craft-remodel-source、machinery-own-reactor、structural-record、placement-hull-section-faces、missile-single-release。
+- コミットの対応：`commits.txt`。32f766b0 → 2ba3d2d0 の差分は文書だけです。接触の修正のあとで作り直して変わった作例の設計は、TIE アヴェンジャー（発射速度）と X ウイング（S フォイルのメンバー一覧）の 2 つだけで、艦の作例は変わっていません。
+- 浮いた構造物の判定：面数上限を超える船体形の構造物も、船体から離せば浮きと判定されます（`tests/placement-hull-section-faces.cjs` 3）。
+- TIE アヴェンジャーの発射速度は、設計画面の性能値（computeStats）には出ず、艦隊戦の性能（fleetProfile）に出ます。
+
+  | 項目 | 例（翼 3、重 2、機首 4 発/秒） | 全門 4 発/秒 |
+  | --- | --- | --- |
+  | grid.Dw（兵装の電力需要） | 2.70e16 W | 3.32e16 W |
+  | gunRateBest | 2.41e-6 | 3.47e-6 |
+  | systems.laserGasSeconds | 15.7 s | 11.1 s |
+  | rc（兵装の給電の充足率） | 1 | 1 |
+
+  兵装に使える電力（weaponBudget）は 1.13e18 W なので、どちらの場合も給電は足ります。
+- 構造材の記録の版：構造材の量を計算する方法（structuralJoinBoundary、structuralMeshVolume など）を変えたときは、`STRUCTURAL_RECORD_VERSION` を上げる必要があります。上げないと、古い記録が鍵の一致で使われ続けます。
