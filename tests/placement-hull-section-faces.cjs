@@ -15,3 +15,9 @@ test('placing a hull-form structure of more faces than the exact check takes suc
  const raw=saved();for(const p of raw.parts)if(p.placement){delete p.placement.repairRequired;delete p.placement.repairReason;}const s=C.deserialize(raw);
  for(const id of [2,5]){const p=s.parts.find(q=>q.id===id);assert.ok(C.structTriangles(p).length/9>4000,'fixture: over the check');const r=C.solvePlacement(s,{...JSON.parse(C.publicJSON(p)),placement:p.placement},{...p.placement});assert.equal(r.ok,true,id+': '+(r.code||'')+' '+(r.error||''));}
 });
+// Reference-fidelity review 2026-11-27: not refusing a hull-form structure for its face count does not make a floating one grounded.
+test('the same hull-form structure moved clear of the hull is still shown floating',()=>{
+ const raw=saved();for(const p of raw.parts)if(p.placement){delete p.placement.repairRequired;delete p.placement.repairReason;}
+ const q=raw.parts.find(p=>p.id===2);q.c=[q.c[0],-600,q.c[2]];if(q.placement?.requestedGeometry)q.placement.requestedGeometry.c=q.c.slice();
+ const s=C.deserialize(raw),S=C.computeStats(s);assert.ok(S.warnings.some(w=>w.code==='ungrounded'),'floating structure reported: '+S.warnings.map(w=>w.text).join(' / '));
+});
