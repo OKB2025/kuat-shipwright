@@ -28,7 +28,9 @@ function designOnlyKeys(C,data){const ships=new Set(exampleKeys(C,data));return 
 const keepPose=(C,key)=>C.isCraftRemodel?.(key)?{keepFitPose:true}:undefined;
 function generateBlueprint(C,key){
  if(!C.DESIGNS[key])throw new Error('Unknown example design: '+key);
- const build=()=>{const ship=C.buildDesign(key);C.syncCompartments(ship);C.remount(ship,keepPose(C,key));C.syncCompartments(ship);return C.serialize(ship);};
+ // 2026-11-27 (save-format review) the figures are worked out once before saving, so the design carries the structures' material record
+ // (structuralMaterial) as a catalogue ship's does and opens without working it out again (was: craft examples were saved without it).
+ const build=()=>{const ship=C.buildDesign(key);C.syncCompartments(ship);C.remount(ship,keepPose(C,key));C.syncCompartments(ship);if(typeof C.computeStats==='function')C.computeStats(ship);return C.serialize(ship);};
  return typeof C.withFrozenStructures==='function'?C.withFrozenStructures(build):build();
 }
 // The catalogue describes choices; exact surface meshes stay in worker-built

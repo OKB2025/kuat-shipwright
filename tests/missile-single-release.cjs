@@ -50,7 +50,10 @@ function pdTick(rounds,{channels=4,seeds=12}={}){const per=[];for(let seed=1;see
  const w=R.createWorld({region:'kuat',seed,sensors:false,designs:[{key:'own',name:'Own',p:copy(pdShip),info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:copy(pdShip),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]});
  const [u,e]=[...w.units.values()],sys=u.sys;for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}
  for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[9000,0,0],yaw:x===u?0:Math.PI,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;u.p.aaCh=channels;
- const ms=rounds.map((q,k)=>({id:'m'+k,sys,side:1,from:e.id,target:u.id,vel:[-220,0,0],s:220,life:45,...q}));w.missiles.push(...ms);R.tick(w,.25);per.push(ms.map(m=>m.downed||0));}
+ const ms=rounds.map((q,k)=>({id:'m'+k,sys,side:1,from:e.id,target:u.id,vel:[-220,0,0],s:220,life:45,...q}));w.missiles.push(...ms);
+ // the interception each round is given this tick: a single round's expected hits (recorded where the RTS draws them), a packet's rounds downed
+ const given=new Map(),draw=C.pointDefenseRoundHits;C.pointDefenseRoundHits=(m,e,rand)=>{given.set(m,(given.get(m)||0)+e);return draw(m,e,rand);};try{R.tick(w,.25);}finally{C.pointDefenseRoundHits=draw;}
+ per.push(ms.map(m=>m.n===1||given.has(m)?given.get(m)||0:m.downed||0));}
  return per[0].map((_,k)=>per.reduce((n,row)=>n+row[k],0));}
 const sum=a=>a.reduce((n,v)=>n+v,0),close=x=>({pos:[x,0,0]});
 test('close in, point defence takes rounds on its own: with no channel at all it still engages a round at 1 km, not one at 4 km',()=>{
@@ -59,7 +62,21 @@ test('close in, point defence takes rounds on its own: with no channel at all it
 test('farther out each round takes a channel: two channels engage the two nearest of four rounds',()=>{
  const d=pdTick([3000,3200,3400,3600].map(x=>({n:1,...close(x)})),{channels:2});assert.ok(d[0]>0&&d[1]>0,JSON.stringify(d));assert.equal(d[2],0);assert.equal(d[3],0);
 });
-test('the output is shared: eight single rounds close in lose about as much in all as one packet of eight there',()=>{
- const packet=sum(pdTick([{n:8,...close(1000)}])),single=sum(pdTick(Array.from({length:8},(_,k)=>({n:1,...close(1000+k*10)}))));
- assert.ok(packet>0);assert.ok(Math.abs(single/packet-1)<.2,`single ${single} vs packet ${packet}`);
+// 2026-11-27 user「被弾したらその場で爆発して誘導が切れた状態で慣性で突っ込んでくる。2発目が当たると消滅」: a single round takes whole hits; the first
+// disables it (no guidance, it flies straight on), the second destroys it. A packet of several rounds keeps the fraction model.
+test('a single round: the first hit disables it, the second destroys it',()=>{
+ const m={n:1},one=()=>0;assert.equal(C.pointDefenseRoundHits(m,1,one),0);assert.equal(m.pdDisabled,true);assert.equal(m.unguided,true);assert.equal(m.n,1,'still flying');
+ assert.equal(C.pointDefenseRoundHits(m,1,one),1);assert.equal(m.n,0,'the second hit destroys it');
+ const q={n:1};assert.equal(C.pointDefenseRoundHits(q,2,one),1,'two hits at once');assert.equal(q.n,0);
+ const r={n:1};assert.equal(C.pointDefenseRoundHits(r,.3,()=>.5),0);assert.equal(r.pdDisabled,undefined,'0.3 of a hit with a draw of 0.5: no hit');assert.equal(C.pointDefenseRoundHits(r,.3,()=>.2),0);assert.equal(r.pdDisabled,true,'a draw under 0.3: a hit');
+});
+test('the output is shared: eight single rounds close in are given about as many hits in all as one packet of eight loses rounds',()=>{
+ const packet=sum(pdTick([{n:8,...close(1000)}],{seeds:24})),single=sum(pdTick(Array.from({length:8},(_,k)=>({n:1,...close(1000+k*10)})),{seeds:24}));
+ assert.ok(packet>0);assert.ok(Math.abs(single/packet-1)<.2,`single ${single} expected hits vs packet ${packet} rounds`);
+});
+test('in the strategic battle a disabled round flies straight on: off its target\'s line it misses, on it it still strikes',()=>{
+ const strike=(pos,vel)=>{const w=R.createWorld({region:'kuat',seed:3,sensors:false,designs:[{key:'own',name:'Own',p:copy(pdShip),info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:copy(pdShip),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]});
+  const [u,e]=[...w.units.values()],sys=u.sys;for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[20000,0,0],yaw:0,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:false,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;C.setAutomaticPointDefense(u,false);
+  const m={id:'d',sys,side:1,from:e.id,target:u.id,n:1,tt:1,pdDisabled:true,unguided:true,pos,vel,s:2600,top:2600,life:20,range:60000,traveled:0};w.missiles.push(m);const hp=u.hp;for(let i=0;i<40&&m.n>0&&m.life>0;i++)R.tick(w,.25);return {hit:u.hp<hp||!!m.hit,m};};
+ assert.equal(strike([5000,3000,0],[-1,0,0]).hit,false,'flying past 3 km off its line, it does not turn');assert.equal(strike([5000,0,0],[-1,0,0]).hit,true,'on its line it still strikes');
 });

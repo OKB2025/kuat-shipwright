@@ -2316,7 +2316,7 @@ function onEngineStats(msg) {
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
-  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship)ship._structuralRecord=S.structuralRecord;/* 2026-11-27 kept for saving (C.serialize writes it) */
+  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship){const changed=ship._structuralRecord?.key!==S.structuralRecord.key;ship._structuralRecord=S.structuralRecord;if(changed&&typeof autosave==='function')autosave()/* save-format review 2026-11-27: the autosave made before these figures came carried no record; saved again with it */;}/* 2026-11-27 kept for saving (C.serialize writes it) */
   if(st.tab==='hull'&&S?.dims){const dimensions=$('#panel [data-actual-dimensions] dd');if(dimensions)dimensions.textContent=S.dims.map(fLen).join(' × ');}
   {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
   renderStrip(); renderSpecTargets();if(designUI.drawer&&designUI.layout==='performance')renderPanel(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
@@ -4000,6 +4000,9 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
 };
 let saveT = 0;
+// The key of the design being worked on: its saved form less the structures' material record, which the figures add when they arrive
+// (save-format review 2026-11-27: the key changed with the record alone, and a request made before them was refused).
+function draftDesignKey(data){const{structuralMaterial,...rest}=data||{};return 'draft-'+fleetHash(JSON.stringify(rest));}
 function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return;const session=typeof designUIEditSession==='function'?designUIEditSession():null; LS.set('yard.draft3', snap(true)); LS.set('yard.draft3.meta', JSON.stringify({name: session?.design.name||ship.name, L: session?.length??autosaveShipLength(), savedAt: Date.now()})); }, 1200); }
 async function pack(obj) {
   const json = JSON.stringify(obj);
@@ -10918,7 +10921,7 @@ async function fleetAssetLoad(source,opts={}){
  if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}}
  else if(cached)return cached.stats||opts.lite?cached:fleetAssetStats(cached);
  let payload=null,key=source,alias=null;
- if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
+ if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key=draftDesignKey(data);payload={design:data};}
  // An embarked design is a snapshot, independent of the current draft or the source save.
  else if(Rts.CRAFT[source]?.blueprint){payload={design:Rts.CRAFT[source].blueprint};}
  else if(source.startsWith('save:')){
@@ -10929,7 +10932,7 @@ async function fleetAssetLoad(source,opts={}){
   key='save:'+rec.id+'-'+rec.savedAt;if(source!==key)alias=source;
   if(!fleet.assets.has(key))payload={design:await unpack(rec.data)};
  }
- else if(source.startsWith('draft-')){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);if('draft-'+fleetHash(JSON.stringify(data))!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
+ else if(source.startsWith('draft-')){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);if(draftDesignKey(data)!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
  // v21.2 An example in another side's paint ('arquitens#republic'): the same design, repainted.
  else if(/^[A-Za-z0-9_]+#(republic|neutral|dark|cis)$/.test(source)){if(!fleet.assets.has(key)){const [k0,paint]=source.split('#');payload={key:k0,paint};}}
  else if(!fleet.assets.has(key))payload={key:source};

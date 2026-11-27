@@ -21,6 +21,13 @@ test('any change of the geometry works the material out again; a record with ano
  for(const bad of [{v:99,key:'x',steps:[1,2,3]},{v:1,key:'x',steps:[1,-2,3]},{v:1,key:'x',steps:'no'},null])assert.equal(C.cleanStructuralRecord(bad),null);
  assert.equal(C.cleanStructuralRecord({v:C.STRUCTURAL_RECORD_VERSION,key:'k',steps:[1,2]}).steps.length,2);
 });
+// Save-format review 2026-11-27: version 1 fed the words straight into FNV, so two sign flips, or a coordinate doubled, could keep the key.
+test('the key tells apart two sign flips and a doubled coordinate (version 2)',()=>{
+ const T=[1,2,3,4,5,6,7,8,9],k=t=>C.structuralRecordKey([],[{p:{id:1},T:t,bulk:true}]);assert.equal(C.STRUCTURAL_RECORD_VERSION,2);
+ const flip=T.slice();flip[0]=-flip[0];flip[4]=-flip[4];assert.notEqual(k(flip),k(T),'two sign flips');assert.notEqual(k(T.map(v=>v*2)),k(T),'doubled');
+ const swapped=T.map((v,i)=>i%3===2?-v:v);assert.notEqual(C.structuralRecordKey(swapped,[{p:{id:1},T,bulk:true}]),C.structuralRecordKey(T,[{p:{id:1},T:swapped,bulk:true}]),'the hull and a part mirrored in turn');
+ assert.equal(C.cleanStructuralRecord({v:1,key:'1:1:x',steps:[1]}),null,'a version 1 record is not used');
+});
 test('the key follows the triangles, the ids and the order',()=>{
  const T=[0,0,0,1,0,0,0,1,0],e=(id,t,bulk=true)=>({p:{id},T:t,bulk});const k=C.structuralRecordKey([],[e(1,T),e(2,T)]);
  assert.equal(C.structuralRecordKey([],[e(1,T.slice()),e(2,T.slice())]),k,'the same contents give the same key');assert.notEqual(C.structuralRecordKey([],[e(2,T),e(1,T)]),k,'order');assert.notEqual(C.structuralRecordKey([],[e(1,T),e(2,[...T.slice(0,8),1e-9])]),k,'a coordinate');assert.notEqual(C.structuralRecordKey(T,[e(1,T),e(2,T)]),k,'the hull');assert.notEqual(C.structuralRecordKey([],[e(1,T),e(2,T,false)]),k,'kind');
