@@ -64,3 +64,23 @@
 
   兵装に使える電力（weaponBudget）は 1.13e18 W なので、どちらの場合も給電は足ります。
 - 構造材の記録の版：構造材の量を計算する方法（structuralJoinBoundary、structuralMeshVolume など）を変えたときは、`STRUCTURAL_RECORD_VERSION` を上げる必要があります。上げないと、古い記録が鍵の一致で使われ続けます。
+
+## レビュー 3 回目のあと（76359164 → eebfb401）
+
+- 再生成：`refresh-examples.cjs --jobs 3` は全件成功。`update-asset-manifest.cjs --check`・`example-files.cjs --check`・`update-craft-costs.cjs --check` はすべて 0。機体価格表は署名だけが変わり、価格は同じ。
+- 射撃規律の閾値（`CRAFT_GUN_SOLUTION.minHit` 0.2、★当方の仮定）の感度：`minhit-sensitivity.txt`。X ウイング同士の 6 戦で、閾値 0（射程内なら撃つ）は 2 機撃墜、0.1〜0.4 はどれも 6 機撃墜でガスが残る。
+- 保存形式と非同期処理の追加レビュー（regression の求めによる、high）：
+
+  | 項目 | 判定 | 要点 |
+  | --- | --- | --- |
+  | 古い世代の Worker 結果 | PASS | `msg.gen < eng.gen` で記録の代入より前に捨てる。古い記録が届いても鍵が合わず計算し直す |
+  | 鍵の衝突・不一致 | PASS | Undo/Redo・複製・作例・v1・記録なしの保存とも、誤った記録は使われない |
+  | autosave の再呼び出し | PASS | ループしない。下書きに記録が載るまでは結果のたびに 1 回保存し直す（1.2 s でまとめる） |
+  | Worker なしの経路 | PASS（エンジン側）／UNVERIFIED（ブラウザ） | node の connectInline で同じ結果。ブラウザで Worker を止めた確認はしていない |
+  | 保存の互換性 | PASS | origin/main の保存は候補で計算される。候補の保存は origin/main で開け、記録は落ちる |
+
+  残る注意（どれも誤った値にはならない、または利用者が自分の設計を手で書き換えた場合だけ）：
+  - 鍵が正しいまま値だけを書き換えた記録は、そのまま使われる（上限は部品の体積だけ）。
+  - 計算方法を変えたときに `STRUCTURAL_RECORD_VERSION` を上げるのは手作業で、忘れても検出する検査はない。
+  - 記録で開いた設計は途中結果のキャッシュを持たないので、最初の編集で全構造物の結合を計算し直す（遅さが開く時から最初の編集へ移る）。
+  - 公試のモデルと Worker の結果キャッシュの鍵に記録が入るので、記録の有無でキャッシュが外れる（値は同じ）。
