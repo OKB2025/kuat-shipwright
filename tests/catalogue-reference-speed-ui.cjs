@@ -49,7 +49,7 @@ test('current example notes translate nozzle ownership and published speed witho
  // describes the measured solar panels; it is checked for its English text only (the remodel notes test below).
  // 2026-11-24 expectation changed: the ARC-170, BTL-B and Hyena (and the other remaining craft) are now the user's remodels too;
  // their notes no longer carry the published-speed sentence and are checked as remodel notes.
- const remodels=['craft_tie_ln','craft_xwing','craft_tie_in','craft_awing','craft_tie_d','craft_arc170','craft_btlb','craft_hyena','craft_tie_sa','craft_vwing','craft_vulture','craft_v19','craft_z95','craft_ywing'];
+ const remodels=['craft_tie_ln','craft_xwing','craft_tie_in','craft_awing','craft_tie_d','craft_arc170','craft_btlb','craft_hyena','craft_tie_sa','craft_vwing','craft_vulture','craft_v19','craft_z95','craft_ywing','craft_tie_avenger','craft_bwing','craft_tri','craft_uwing'/* 2026-11-27 every craft of the user's refit (CRAFT_REMODEL_SOURCE); the notes are translated through templates on the design date */];
  const keys=['mc30c','mc75','mc80home','mc80liberty','subjugator',...remodels],notes={};
  for(const key of keys){const source=run('C.SHIP_EXAMPLES['+JSON.stringify(key)+'].note');notes[key]=run('KSI18n.t('+JSON.stringify(source)+')');assert.doesNotMatch(notes[key],/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u,key);assert.equal(run('C.SHIP_EXAMPLES['+JSON.stringify(key)+'].note'),source);}
  for(const [key,count] of [['mc80home','ten'],['mc80liberty','nine'],['mc75','Twelve']])assert.match(notes[key],new RegExp(count+' propulsion nozzles.*two integrated propulsion engines'));

@@ -104,9 +104,10 @@ test('legacy types without a blueprint expose an estimated equipment list using 
   } finally {delete R.CRAFT.estimateFixture;}
 });
 
-test('table-only U-wing systems come from its estimated equipment list and have finite consumables', () => {
-  const craft = R.CRAFT.uwing, systems = craft.systems;
-  assert.equal(craft.systemsSource, 'estimate');assert.equal(R.craftPrice('uwing').source, 'estimate');
+test('table-only LAAT systems come from its estimated equipment list and have finite consumables', () => {
+  /* 2026-11-27 expectation changed (the user's refit of the craft, KUAT_18_Aircraft_Refit.zip, now the examples' sources: tests/craft-remodel-source.cjs): the U-wing is a modelled example now (its systems come from its design, 'blueprint'); the table-only case is the LAAT/i, a transport still on the table */
+  const craft = R.CRAFT.laat, systems = craft.systems;
+  assert.equal(craft.systemsSource, 'estimate');assert.equal(R.craftPrice('laat').source, 'estimate');assert.equal(R.CRAFT.uwing.systemsSource,'blueprint','the U-wing is modelled');
   assert.ok(systems.managed);assert.ok(systems.lifeSupportHours > 0 && Number.isFinite(systems.lifeSupportHours));
   assert.ok(systems.laserGasSeconds > 0 && Number.isFinite(systems.laserGasSeconds));
   const squad = {id: 'uwing', craft: 'uwing', n: 2, state: 'out', ldg: []};R.rearmSquad(squad);squad.dogfight = 10;
