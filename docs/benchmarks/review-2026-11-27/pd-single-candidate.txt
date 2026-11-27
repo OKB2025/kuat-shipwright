@@ -1,0 +1,2 @@
+{"dt":0.25,"rounds":72,"disabled":63,"destroyed":66,"struck":6,"struckAfterDisabled":0,"stepsDisabledToDestroyed":{"min":1,"max":12,"mean":3.05}}
+{"dt":0.1,"rounds":72,"disabled":59,"destroyed":53,"struck":19,"struckAfterDisabled":8,"stepsDisabledToDestroyed":{"min":1,"max":31,"mean":7.16}}

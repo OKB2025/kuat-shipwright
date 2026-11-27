@@ -1,0 +1,4 @@
+not ok 8 - a stock ship's full charge is 10 s of Dj plus the kinetic energy at 0.5c of its mass, its load and its tow
+  error: 'imperial scale: 7.301333104765315e+26 vs 7.992e+26'
+# pass 15
+# fail 1

@@ -2316,7 +2316,7 @@ function onEngineStats(msg) {
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
-  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship){const changed=ship._structuralRecord?.key!==S.structuralRecord.key;ship._structuralRecord=S.structuralRecord;if(changed&&typeof autosave==='function')autosave()/* save-format review 2026-11-27: the autosave made before these figures came carried no record; saved again with it */;}/* 2026-11-27 kept for saving (C.serialize writes it) */
+  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship){const changed=ship._structuralRecord?.key!==S.structuralRecord.key||autosavedRecordKey!==S.structuralRecord.key/* also when the last draft was written without it (opened, then saved before the figures came) */;ship._structuralRecord=S.structuralRecord;if(changed&&typeof autosave==='function')autosave()/* save-format review 2026-11-27: the autosave made before these figures came carried no record; saved again with it */;}/* 2026-11-27 kept for saving (C.serialize writes it) */
   if(st.tab==='hull'&&S?.dims){const dimensions=$('#panel [data-actual-dimensions] dd');if(dimensions)dimensions.textContent=S.dims.map(fLen).join(' × ');}
   {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
   renderStrip(); renderSpecTargets();if(designUI.drawer&&designUI.layout==='performance')renderPanel(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
@@ -4003,7 +4003,8 @@ let saveT = 0;
 // The key of the design being worked on: its saved form less the structures' material record, which the figures add when they arrive
 // (save-format review 2026-11-27: the key changed with the record alone, and a request made before them was refused).
 function draftDesignKey(data){const{structuralMaterial,...rest}=data||{};return 'draft-'+fleetHash(JSON.stringify(rest));}
-function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return;const session=typeof designUIEditSession==='function'?designUIEditSession():null; LS.set('yard.draft3', snap(true)); LS.set('yard.draft3.meta', JSON.stringify({name: session?.design.name||ship.name, L: session?.length??autosaveShipLength(), savedAt: Date.now()})); }, 1200); }
+let autosavedRecordKey=null;
+function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return;const session=typeof designUIEditSession==='function'?designUIEditSession():null; const draft=snap(true);autosavedRecordKey=/"structuralMaterial":\{"v":\d+,"key":"([^"]+)"/.exec(draft)?.[1]||null/* the record the draft really holds: one saved before the Worker's figures (designUISavedDesign's plain copy) has none (regression check 2026-11-27) */; LS.set('yard.draft3', draft); LS.set('yard.draft3.meta', JSON.stringify({name: session?.design.name||ship.name, L: session?.length??autosaveShipLength(), savedAt: Date.now()})); }, 1200); }
 async function pack(obj) {
   const json = JSON.stringify(obj);
   if (typeof CompressionStream === 'function') {

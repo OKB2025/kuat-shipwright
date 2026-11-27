@@ -48,7 +48,7 @@ test('a loadout in the other order keeps its bombs in the bay against the tube s
  const L=C.craftLoadout(C.buildDesign('craft_tie_sa'));assert.deepEqual(plain(L.stations.map(s=>s.mount)),['tube','bay']);
  const got=plain(C.craftOrdnance(C.buildDesign('craft_tie_sa'),[{k:'bomb',n:8},{k:'ptorp',n:3}]));assert.equal(got.find(x=>x.kind==='bomb')?.mount,'bay');assert.equal(got.find(x=>x.kind==='ptorp')?.mount,'tube');
 });
-test('the refit BTL-B carries its canon proton bombs on its pylons: two a pylon, eight in all, with its twelve torpedoes',()=>{
+test('the refit BTL-B carries its canon proton bombs on its pylons: three a pylon, twelve in all (the user loadout table), with its twelve torpedoes',()=>{
  const s=C.buildDesign('craft_btlb'),L=C.craftLoadout(s);assert.equal(L.canon,true);assert.deepEqual(plain(L.stations.map(x=>x.mount)),['tube','wing','wing']);assert.ok(!s.parts.some(p=>p.k==='bombBay'),'no bomb bay');
- const got=plain(C.craftOrdnance(s,L.load));assert.equal(got.filter(x=>x.kind==='bomb').reduce((n,x)=>n+x.n,0),8);assert.ok(got.filter(x=>x.kind==='bomb').every(x=>x.mount==='wing'));assert.equal(got.find(x=>x.kind==='ptorp')?.n,12);
+ const got=plain(C.craftOrdnance(s,L.load));assert.equal(got.filter(x=>x.kind==='bomb').reduce((n,x)=>n+x.n,0),12)/* 2026-11-27 was 8 (two a pylon, the TIE/sa's count): the user's 任務装填.csv gives the BTL-B 各3発 on each of its four pylons (reference-fidelity review 2026-11-27) */;assert.ok(got.filter(x=>x.kind==='bomb').every(x=>x.mount==='wing'));assert.equal(got.find(x=>x.kind==='ptorp')?.n,12);
 });
