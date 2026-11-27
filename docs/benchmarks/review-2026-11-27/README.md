@@ -114,6 +114,7 @@
 - **全テスト**
   - eebfb401 で 587 件を実行した。基準の TSV に対して新たに失敗したのは 4 件で、3 件は上のとおり直した。
   - `hull-outer-surface-contact` は単独で実行すると、origin/main・候補とも 4/4 で成功する。並列実行中に SIGKILL されていた。
+  - 修正後の cf5d348a（以降はテストと記録だけの変更）でもう一度 587 件を実行した。失敗は 165 件で、すべて基準の失敗一覧（166 件）に含まれる。新しい失敗は 0 件。基準で失敗していた `fighter-interiors` は成功した。
 - **再生成**
   - 作例と性能表は変化なし。
   - `update-asset-manifest.cjs --check`・`example-files.cjs --check`・`update-craft-costs.cjs --check` はすべて 0（`refresh-1127s`）。
