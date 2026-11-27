@@ -1,0 +1,28 @@
+== X-wing
+user design (12 structures, + nozzle part) mass 27.87176 t | cost 194931 | power 2630159440834984400 | heat {"capacityJ":866513475070197500,"massKg":27137.060382,"qAllowJPerKg":31931000000000,"sources":60,"disCap":1038379909151780500,"builtin":0} | bad/warn 0
+example (nozzle part, no structures)     mass 27.769 t | cost 194931 | power 2630159440834984400 | heat {"capacityJ":863360368551255300,"massKg":27038.312879,"qAllowJPerKg":31931000000000,"sources":60,"disCap":1038379909151780500,"builtin":0} | bad/warn 0
+nozzles [{"id":42,"bore":0.12,"mass":0.0256892,"cost":2000},{"id":43,"bore":0.12,"mass":0.0256892,"cost":2000},{"id":44,"bore":0.12,"mass":0.0256892,"cost":2000},{"id":45,"bore":0.12,"mass":0.0256892,"cost":2000}] total 0.1027568
+user design less the nozzle parts (the user table figure) 27.76901 | example - that -0.000006 t
+structural material: user design {"extension":24.809246,"entries":111} example {"extension":24.659333,"entries":99}
+== B-wing
+example                                  mass 17.30234 t | cost 167446 | power 1418639453112417000 | heat {"capacityJ":549607549282655100,"massKg":17212.350045,"qAllowJPerKg":31931000000000,"sources":51,"disCap":571033615058790300,"builtin":0} | bad/warn 0
+nozzles [] total mass 0 cost 0 | user table 17.302 t, 167446
+== TIE Avenger
+example {"2":2,"3":16,"4":2}             mass 21.72888 t | cost 224799 | power 5519604291280773000 | heat {"capacityJ":693287980664703500,"massKg":21712.066038,"qAllowJPerKg":31931000000000,"sources":97,"disCap":2623038954323978000,"builtin":0} | bad/warn 0
+all lasers at 4 a second {"4":20}        mass 21.72888 t | cost 224799 | power 5519604291280773000 | heat {"capacityJ":693287980664703500,"massKg":21712.066038,"qAllowJPerKg":31931000000000,"sources":97,"disCap":2623038954323978000,"builtin":0} | bad/warn 0
+ alpha [
+  8.670882539682538e-7,
+  4.801269841269839e-7,
+  3.2641650793650786e-7,
+  7.692736507936506e-7,
+  6.181765079365078e-7,
+  7.7055746031746e-7
+] alphaTot 0.000001 weaponBudget 1126375863616312800 autoPower 0 warnings: 
+ alpha [
+  8.670882539682538e-7,
+  4.801269841269839e-7,
+  3.2641650793650786e-7,
+  7.692736507936506e-7,
+  6.181765079365078e-7,
+  7.7055746031746e-7
+] alphaTot 0.000001 weaponBudget 1126375863616312800 autoPower 0 warnings: 

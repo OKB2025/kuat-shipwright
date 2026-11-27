@@ -1,0 +1,135 @@
+{
+ "errors": [],
+ "steps": [
+  {
+   "step": "open craft_xwing",
+   "seconds": 15.535,
+   "name": "T-65B Xウイング",
+   "mass": 27.768999606596882,
+   "cost": 194931,
+   "float": 0,
+   "warnings": [],
+   "savedRecord": true,
+   "fromRecord": true,
+   "recordMs": 98,
+   "firstEditFromRecord": false,
+   "firstEditMs": 3643,
+   "muzzles": [
+    [
+     9.145,
+     3.227315013534661,
+     5.496843252670017
+    ],
+    [
+     9.145,
+     3.227315013534661,
+     -5.496843252670017
+    ],
+    [
+     9.145,
+     0.27668498646533884,
+     5.496843252670017
+    ],
+    [
+     9.145,
+     0.27668498646533884,
+     -5.496843252670017
+    ]
+   ]
+  },
+  {
+   "step": "open craft_bwing",
+   "seconds": 16.387,
+   "name": "A/SF-01 Bウイング（エンドア仕様）",
+   "mass": 17.3023438945511,
+   "cost": 167446,
+   "float": 0,
+   "warnings": [],
+   "savedRecord": true,
+   "fromRecord": true,
+   "recordMs": 31,
+   "firstEditFromRecord": false,
+   "firstEditMs": 5077,
+   "muzzles": [
+    [
+     3.3720000000000003,
+     -9.79,
+     0.19
+    ],
+    [
+     4.042,
+     -0.185,
+     3.43
+    ],
+    [
+     4.042,
+     -0.185,
+     -3.43
+    ]
+   ]
+  },
+  {
+   "step": "open craft_tie_avenger",
+   "seconds": 138.032,
+   "name": "TIE Avenger Prototype",
+   "mass": 21.72887681204846,
+   "cost": 224799,
+   "float": 0,
+   "warnings": [],
+   "savedRecord": true,
+   "fromRecord": true,
+   "recordMs": 743,
+   "firstEditFromRecord": false,
+   "firstEditMs": 45971,
+   "muzzles": []
+  },
+  {
+   "step": "two missile orders, 2 by 2 cells",
+   "battle": false,
+   "firstOrderAt": 0,
+   "secondOrderAt": 2,
+   "launches": [
+    {
+     "t": 0.05,
+     "rounds": 1,
+     "cell": 0
+    },
+    {
+     "t": 0.3,
+     "rounds": 1,
+     "cell": 1
+    },
+    {
+     "t": 0.6,
+     "rounds": 1,
+     "cell": 2
+    },
+    {
+     "t": 0.9,
+     "rounds": 1,
+     "cell": 3
+    },
+    {
+     "t": 2.05,
+     "rounds": 1,
+     "cell": 0
+    },
+    {
+     "t": 2.3,
+     "rounds": 1,
+     "cell": 1
+    },
+    {
+     "t": 2.6,
+     "rounds": 1,
+     "cell": 2
+    },
+    {
+     "t": 2.9,
+     "rounds": 1,
+     "cell": 3
+    }
+   ]
+  }
+ ]
+}

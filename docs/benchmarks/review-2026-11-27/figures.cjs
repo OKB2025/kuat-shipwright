@@ -4,7 +4,7 @@
 const path=require('path'),fs=require('fs'),root=path.resolve(process.argv[2]||'.'),{C}=require(path.join(root,'scripts/update-ship-examples.cjs')).loadRuntime(root);
 const raw=f=>C.deserialize(JSON.parse(fs.readFileSync(path.join(root,'docs/handoff-2026-11-20/refs',f),'utf8'))),n=(x,d=4)=>Number.isFinite(x)?+x.toFixed(d):x;
 const row=(label,S)=>console.log(label.padEnd(40),'mass',n(S.mass,5),'t | cost',Math.round(S.cost),'| power',n(S.power,6),'| heat',JSON.stringify(S.heat&&typeof S.heat==='object'?Object.fromEntries(Object.entries(S.heat).filter(([k,v])=>typeof v==='number').slice(0,6).map(([k,v])=>[k,n(v,6)])):S.heat),'| bad/warn',S.warnings.filter(w=>w.lv==='bad'||w.lv==='warn').length);
-const nozzles=s=>s.fits.filter(f=>f.nozzle==='track').map(f=>({id:f.id,bore:f.boreM,mass:n(C.trackNozzleMass(f.boreM),7),cost:Math.round(C.trackNozzleCost(f.boreM))}));
+const nozzles=s=>s.fits.filter(f=>C.trackNozzleOn?C.trackNozzleOn(f):f.nozzle==='track').map(f=>({id:f.id,bore:f.boreM,mass:n(C.trackNozzleMass(f.boreM),7),cost:Math.round(C.trackNozzleCost(f.boreM))}));
 console.log('== X-wing');const xr=raw('xwing-refit-2026-11-27.json'),xe=C.buildDesign('craft_xwing'),XR=C.computeStats(xr),XE=C.computeStats(xe),xn=nozzles(xe),xm=xn.reduce((a,q)=>a+q.mass,0);
 row('user design (12 structures, + nozzle part)',XR);row('example (nozzle part, no structures)',XE);console.log('nozzles',JSON.stringify(xn),'total',n(xm,7));
 console.log('user design less the nozzle parts (the user table figure)',n(XR.mass-xm,5),'| example - that',n(XE.mass-(XR.mass-xm),6),'t');
