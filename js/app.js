@@ -4772,7 +4772,7 @@ function bind() {
     else if (d.hsize) { mutate('格納庫の大きさ', () => editSel(it => { it.d = +d.hsize; }), 'parts'); renderPanel(); }
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
     else if ('desel' in d) { selClear(); xfReset(); renderPanel(); }
-    else if ('partpaintclear' in d) { mutate('部品の色を標準に戻す', () => editSel(p => { delete p.paint; }), 'parts'); renderPanel(); }
+    else if ('partpaintclear' in d) { const id = d.partpaintId; if (id != null) mutate('塗色を標準に戻す', () => { const r = ship.parts.find(x => x.id === +id); if (r) delete r.paint; }, 'parts'); else mutate('部品の色を標準に戻す', () => editSel(p => { delete p.paint; }), 'parts'); renderPanel(); }
     else if ('fitsupportlower' in d) { mutate('砲を取り付け面に据え直す', () => editSel(f => { delete f.supportLift; }), 'fits'); renderPanel(); }
     else if ('fitpaintclear' in d) { mutate('砲の色を標準に戻す', () => editSel(f => { delete f.paint; }), 'fits'); renderPanel(); }
     else if ('fitpair' in d) { st.fitPairEdit = st.fitPairEdit === false; renderPanel(); refreshOverlay(); }
@@ -6800,7 +6800,7 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
   v3RenderPanel();if(!ship)return;const panel=$('#panel');
   if(st.tab==='hull'){
     const hp=hullEditorProfile(),hullPart=hullEditorPart();
-    if(hullPart)panel.insertAdjacentHTML('afterbegin',basePartEditor());
+    if(hullPart)panel.insertAdjacentHTML('afterbegin',basePartEditor()+structPaintHTML(hullPart));
     if(!hullPart)panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><h4>船体の組立</h4><label><input type="checkbox" data-assembly ${hp.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。完成艦の予定寸法と配置範囲は、船体寸法を変えても保持します。</p><label><input type="checkbox" data-corehull ${hp.core?'checked':''}> 船体をコア船体にする</label><p class="note">ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。完成艦の全長・全幅・全高は、この設定によらず構造物・装備を含めた全体で計算します。</p></div>`);
     const rows=hp.stations||C.planStations(hp).map(t=>C.profileAt(hp,t)),deckOK=hp.sec!=='ellipse';
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（下のチェックで解除できます）。上の列で断面を選び、「＋」で次の断面との間に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p>${stationEditorHTML(rows,deckOK)}<label class="check"><input type="checkbox" data-bowlink ${hp.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${hp.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}</div><div class="pgroup"><h4>甲板・舷側帯・艦尾位置</h4><div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((hp.deckWidth??.52)*100),0,98,1,Math.round((hp.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((hp.keelWidth??0)*100),0,95,1,Math.round((hp.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((hp.start||0)*1000)/10,0,60,.1,Math.round((hp.start||0)*hp.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((hp.chineHeight??.5)*100),20,80,1,Math.round((hp.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((hp.belt??.13)*100),2,45,1,Math.round((hp.belt??.13)*100)+'%')}</div></div>`);
@@ -6820,6 +6820,9 @@ function renderPanelContent(){if(st.tab==='hull'&&!nativeRender)selectInitialHul
 }
 // 2026-11-22 Equipment and guns take a colour of their own, as structures do (user: 「船体、パーツ、砲も構造物同様色を変えれるように」).
 // No value means the standard colour of the kind; 「標準の色に戻す」 removes it.
+// 2026-11-27 user「船体構造物にも構造物と同じ塗色が出来るように」: the hull structure takes the structure's paint colour too. The control names
+// its part (data-partpaint-id) so it paints the hull shown in the hull tab whatever else is selected.
+function structPaintHTML(p){const hull=!!C.isHullStructure?.(p);return `<div class="pgroup" data-struct-color><h4>${hull?'船体構造物の塗色':'構造物の塗色'}</h4><label>${hull?'船体構造物の塗色':'構造物の塗色'} <input type="color" data-partpaint data-partpaint-id="${p.id}" value="${p.paint||'#ced2d6'}"></label>${p.paint?`<button type="button" class="btn sm ghost" data-partpaintclear data-partpaint-id="${p.id}">標準の色に戻す</button>`:''}<p class="note">${hull?'構造物と同じく、この船体構造物の外板の色を変えます。艦全体の外板スキン（無塗装・暗色など）より優先します。':'この構造物の外板の色です。'}</p></div>`;}
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
   html+=cockpitEquipmentHTML(p);
@@ -6876,7 +6879,7 @@ function bindRealism(){
     if(t.dataset.station!=null){const i=+t.dataset.station,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v)||j>7)return;let switched=false;mutate('船体断面を調整',()=>{const a=ensureStations();if(j>=4)switched=deckSection(a);for(const row of a){while(row.length<Math.max(6,j+1))row.push(row.length===3?0:row.length===4?hullEditorProfile().deckWidth??.52:row.length===5?hullEditorProfile().keelWidth??0:row.length===6?hullEditorProfile().belt??.13:hullEditorProfile().chineHeight??.5);}a[i][j]=j===0?C.clamp(v,a[i-1][0]+.002,a[i+1][0]-.002):C.clamp(v,[0,.005,.005,-.5,0,0,.02,.2][j],[1,1.5,1.5,.8,.98,.98,.98,.8][j]);C.normalizeBow(hullEditorProfile());},'hull');if(switched)toast('甲板・船底の幅を使うため、断面を「装甲楔形」に切り替えました');renderPanel();}
     if('autofit'in t.dataset){mutate('区画の自動統合',()=>editSel(p=>p.autoFit=t.checked),'parts');renderPanel();}
     if('partlabel'in t.dataset){mutate('区画名',()=>editSel(p=>p.label=t.value.slice(0,80)),'none');renderPanel();}
-    if('partpaint'in t.dataset){mutate(selItem()?.k==='struct'?'構造物の色':'部品の色',()=>editSel(p=>p.paint=t.value),'parts');renderPanel();}
+    if('partpaint'in t.dataset){const id=t.dataset.partpaintId;if(id!=null){const q=ship.parts.find(x=>x.id===+id);if(q)mutate(C.isHullStructure?.(q)?'船体構造物の塗色':'構造物の色',()=>{const r=ship.parts.find(x=>x.id===+id);if(r)r.paint=t.value.toLowerCase();},'parts');}else mutate(selItem()?.k==='struct'?'構造物の色':'部品の色',()=>editSel(p=>p.paint=t.value),'parts');renderPanel();}
     if('fitpaint'in t.dataset){mutate('砲の色',()=>editSel(f=>f.paint=t.value.toLowerCase()),'fits');renderPanel();}
   });
   if(typeof bindDecalPanel==='function')bindDecalPanel($('#panel'));
