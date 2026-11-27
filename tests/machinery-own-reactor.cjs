@@ -4,7 +4,7 @@ const path=require('node:path'),assert=require('node:assert/strict'),{test}=requ
 const {C}=require('../scripts/update-ship-examples.cjs').loadRuntime(process.env.KS_TEST_ROOT||path.resolve(__dirname,'..'));
 test('a route past its reactor\'s centre overlaps it; one that only starts inside does not',()=>{
  const reactor={id:1,k:'aux',c:[0,0,0],d:1};
- /* the routes stand in as round parts: only their boxes are read */const through={id:-2,k:'aux',c:[0,0,0],d:2},edge={id:-3,k:'aux',c:[.9,0,0],d:1};
+ /* the routes stand in as long boxes, as a machinery route is: only their boxes are read */const through={id:-2,k:'struct',form:'box',c:[0,0,0],s:[2,.4,.4]},edge={id:-3,k:'struct',form:'box',c:[.9,0,0],s:[1,.4,.4]};
  const box=q=>C.partAABB(q);assert.ok(box(through)[0]<0&&box(through)[3]>0,'fixture: the first route spans the centre');assert.ok(box(edge)[0]>0&&box(edge)[0]<.5,'fixture: the second starts inside, short of the centre');
  assert.equal(C.machineryPastReactorCentre(through,reactor),true);assert.equal(C.machineryPastReactorCentre(edge,reactor),false);
 });
