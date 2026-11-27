@@ -968,7 +968,7 @@ async function fleetJob(job) {
     // Prefer the completed disk bundle even when this design is open in the
     // editor: repacking its native graph/catalogue would repeat expensive work.
     if (!rec && djson && ship && lastStats?.profile && lastStats.gen === shipGen && JSON.stringify(C.serialize(ship)) === djson) {
-      try { const state = C.publicJSON(ship), caches = packCaches(ship, {runtime: true}); rec = {d: rehydrate(state, null, caches), state, caches, stats: lastStats.S, profile: lastStats.profile, serial: job.design}; src = 'editor'; save = true; } catch (e) { rec = null; }
+      try { const state = C.publicJSON(ship), caches = packCaches(ship, {runtime: true}); rec = {d: ship/* 2026-11-27 (the trial of an Imperial on an iPhone): the editor's own ship, not a second copy rebuilt from its packed caches; nothing here edits it (the model works on a render clone where doors move) and the editor waits while the trial loads. The copy doubled the worker's ship for the whole trial (trialHold) */, state, caches, stats: lastStats.S, profile: lastStats.profile, serial: job.design}; src = 'editor'; save = true; } catch (e) { rec = null; }
     }
     if (!rec) {
       const d = job.key ? await loadExample(job.key) : C.deserialize(job.design); if (job.paint) d.paint = job.paint;
