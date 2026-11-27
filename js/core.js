@@ -84445,7 +84445,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1nzdgn",
+   "signature": "1pxt1z",
    "build": 194931,
    "crew": 1000,
    "total": 195931,
@@ -124636,7 +124636,12 @@ function placementValidateSolid(part){
  if(!Array.isArray(part.c)||part.c.length!==3||!part.c.every(Number.isFinite)||part.s&&(!Array.isArray(part.s)||part.s.length!==3||!part.s.every(v=>Number.isFinite(v)&&v>0)))return placementFailure('geometry-dimensions','形状の位置と寸法を有限の正しい値で指定してください');
  const T=placementTriangles(part);if(!T?.length||Array.from(T).some(v=>!Number.isFinite(v)))return placementFailure('geometry-invalid','形状の座標が不正です');
  const b=solidMeshBounds(T),eps=placementEpsilon(T),minimum=Math.max(eps*4,Math.max(...[0,1,2].map(i=>b[i+3]-b[i]))*PLACEMENT_TOLERANCES.minThicknessRelative);if([0,1,2].some(i=>b[i+3]-b[i]<minimum))return placementFailure('minimum-thickness','最小厚みを満たさない形状です',{minimumThickness:minimum});
- return placementConformingSolid(T);
+ // 2026-11-27 user「接触バグが再発生」: a hull-form structure's solid is made by the hull builder and closed by construction; one of more faces
+ // than the exact check takes (4000; a cruiser hull section has 6 000 to 13 000) is not refused for that alone. Was: every placement of such a
+ // structure, and the load of its saved state, failed with geometry-complex, and it was shown not grounded while it overlapped the hull.
+ const conforming=placementConformingSolid(T);
+ if(!conforming.ok&&conforming.code==='geometry-complex'&&part.k==='struct'&&part.form==='hull')return {ok:true,unverifiedFaces:true};
+ return conforming;
 }
 function placementLocalNormal(p,n){return localStruct({...p,c:[0,0,0]},n);}
 function placementWorldNormal(p,n){return norm(worldStruct({...p,c:[0,0,0]},n));}
