@@ -51,3 +51,18 @@ test('the strategic battle: the same thrust and the same turn limit (lateral acc
  for(let i=0;i<40;i++)R.tick(w,.25);assert.ok(Math.abs(m.s-200-rd.accelDv)<1e-6,`${m.s}`);
  const {w:w2,m:q}=rtsRound({rd:{...C.roundFlightState(rd),ctl:50}});for(let i=0;i<6;i++)R.tick(w2,.25);assert.equal(q.ctlOut,true,'its control propellant spent, it flies straight');assert.equal(q.unguided,true);
 });
+test('physics review 2026-11-27: the main propellant burns in 1.74 s whatever the share (the acceleration grows as the round lightens)',()=>{
+ for(const share of [.25,.75]){const rd=C.roundDesign(.12,.9,{warhead:.95-share,control:.05,accel:share}),{b}=duel(),m=round(rd,{unguided:true});b.missiles=[m];
+  for(let i=0;i<6;i++)C.fleetTick(b,.25,{});assert.ok(m.s<200+rd.accelDv-1,`at 1.5 s still burning (${share}): ${m.s}`);C.fleetTick(b,.25,{});assert.ok(Math.abs(m.s-200-rd.accelDv)<1e-6,`burnt out by 1.75 s (${share}): ${m.s}`);}
+});
+test('physics review 2026-11-27: clearing the tube keeps the launch velocity\'s way, the ship\'s velocity with it (fleet and strategic battle)',()=>{
+ const {a,t,b}=duel();a.velocity=[600,0,0];const m=C.shipMissileRelease(b,a,t,{n:1,tt:1,kind:'cmsl',range:10000,muzzle:[0,0,0],axis:[0,1,0],module:0});
+ const w0=m.vel.map(x=>x/len(m.vel));assert.ok(m.launchClearance>0,'a native launcher clears its tube');m.unguided=true;C.fleetTick(b,.25,{});const w1=m.vel.map(x=>x/len(m.vel));
+ assert.ok(Math.abs(w0[0]*w1[0]+w0[1]*w1[1]+w0[2]*w1[2]-1)<1e-9,`way kept: ${w0} → ${w1}`);
+ const {w,m:q}=rtsRound({rd:C.roundFlightState(C.roundDesignOfKind('cmsl')),vel:[600,200,0],s:Math.hypot(600,200),launchDir:[0,1,0],launchClearance:.35,launchOrigin:[150000,0,0],unguided:true});R.tick(w,.25);
+ assert.ok(Math.abs(q.vel[1]/q.vel[0]-1/3)<1e-9,`strategic battle: ${q.vel}`);
+});
+test('regression review 2026-11-27: in the strategic battle a torpedo that slows to its stop in the step its path meets the target still strikes',()=>{
+ const {w,m}=rtsRound({kind:'ptorp',torp:true,inertial:true,torpLen:1.3,rd:C.roundFlightState(C.roundDesignOfKind('ptorp')),pos:[150,0,0],vel:[-100.05,0,0],s:100.05,range:400000,unguided:true});
+ const u=[...w.units.values()][0];u.pos=[0,0,0];R.tick(w,.25);assert.ok(m.s<100,'it slowed past its stop this step');assert.ok(m.hit>0,'and still struck');
+});

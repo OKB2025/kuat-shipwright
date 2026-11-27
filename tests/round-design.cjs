@@ -19,3 +19,6 @@ test('a core\'s density is held between iron and tungsten; none means no core',(
  const n=C.roundDesign(1,4,{warhead:.5,control:.1,core:.4,coreDensity:'none'});assert.equal(n.design.core,0);assert.equal(n.coreMass,0);});
 test('lateral acceleration is proportional to the control share: 50% gives the old missile\'s 900 m/s²',()=>{
  near(C.roundDesign(.12,.9,{warhead:.5,control:.5}).latAccel,900);});
+test('physics review 2026-11-27: control taken from a dense core is solved for the lighter round (5%, not more); no body, no design',()=>{
+ const t=C.roundDesign(.12,.9,{core:1,coreDensity:'tungsten'});near(t.controlShare,.05,1e-9);near(t.design.control+t.design.core,1);
+ assert.equal(C.roundDesign(0,1,{}),null);assert.equal(C.roundDesign(1,NaN,{}),null);});
