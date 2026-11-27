@@ -329,6 +329,9 @@ function applyState(job) {
   if (job.reset || !ship) {
     if (!(ship && C.publicJSON(ship) === job.state)) { ship = retiredOut(JSON.parse(job.state)); hullKey = ''; authoringKey = null; lastInfo = null; lastOverlap = ''; settledState = null; }
   } else { C.patchShip(ship, retiredOut(JSON.parse(job.state))); settledState = null; }
+  // 2026-11-27 the structures' material record comes beside the state and is kept private (its own, made here, wins); C.structuralMaterial
+  // uses it only while its key matches the shapes.
+  if (job.structuralRecord && !ship._structuralRecord) ship._structuralRecord = job.structuralRecord;
 }
 async function deriveState(job) {
   const what = new Set(job.what || []);

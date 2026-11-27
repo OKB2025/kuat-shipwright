@@ -666,7 +666,7 @@ function craftWeaponMesh(g,f,ship){
  if(k==='claser'||k==='claserL'||k==='claserH'){
   /* 2026-11-24 (user「航空レーザーは円柱部品で」): a straight cylinder of the gun's bore and length. */
   if(d.ionBoxM3>0){/* 2026-11-26 an ion gun's charging compartment (the SW-7a kind): a cylinder behind the barrel on the barrel's line (user「充電区画は円筒になるようにして」), 2.5 times as long as it is across (★ ours), of the compartment's volume, with a collar at each end */const dia=Math.cbrt(4*d.ionBoxM3/(2.5*Math.PI)),len=2.5*dia,r=dia/2,cx=-L*.4-len*.5;cyl(g,M,o,cx,h*.5,0,r,r,len,0,Bd,16);for(const q of [-.46,.46])cyl(g,M,o,cx+len*q,h*.5,0,r*1.06,r*1.06,len*.06,0,R,16);}
-  const bore=d.gunRule?.boreM;if(bore>0){const rm=W*(d.laserTube&&d.fixed?.5/* 2026-11-26 the gun's body is the tube itself (bore ÷ 0.75 across) */:.42)/* the gun's own box (fitAABB) is 0.84 of its width: the drawn tube stays inside it, at any scale */,ro=Math.min(bore*(C.CRAFT_LASER_YIELD?.outerK||1/.75)/2,rm)/* 2026-11-25 (user「外径＝口径 ÷ 0.75で」): the bore is the inside diameter, the tube bore ÷ 0.75 across (it was bore ÷ 0.6, then the bore itself) */,rc=Math.min(rm,ro*1.3)/* the three collars, a little proud of the tube */,rb=Math.min(bore/2,ro*.9)/* the muzzle's hole: the bore */;cyl(g,M,o,L*.065,h*.5,0,ro,ro,L*.93,0,B,10);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,rc,rc,L*.05,0,R,10);cyl(g,M,o,L*.5,h*.5,0,rb,rb,L*.06,0,D,10);if(d.gunRule.nozzle==='track'){/* 2026-11-25 the X-wing's forked nozzle: a bar across the muzzle and two prongs ahead of it */const pl=Math.max(.12,ro*3.2),off=ro*1.9,pr=Math.max(.008,ro*.24);cyl(g,M,o,L*.53,h*.5,0,pr,pr,off*2,2,R,6);for(const zz of [-off,off])cyl(g,M,o,L*.53+pl/2,h*.5,zz,pr,pr,pl,0,R,6);}return;}
+  const bore=d.gunRule?.boreM;if(bore>0){const rm=W*(d.laserTube&&d.fixed?.5/* 2026-11-26 the gun's body is the tube itself (bore ÷ 0.75 across) */:.42)/* the gun's own box (fitAABB) is 0.84 of its width: the drawn tube stays inside it, at any scale */,ro=Math.min(bore*(C.CRAFT_LASER_YIELD?.outerK||1/.75)/2,rm)/* 2026-11-25 (user「外径＝口径 ÷ 0.75で」): the bore is the inside diameter, the tube bore ÷ 0.75 across (it was bore ÷ 0.6, then the bore itself) */,rc=Math.min(rm,ro*1.3)/* the three collars, a little proud of the tube */,rb=Math.min(bore/2,ro*.9)/* the muzzle's hole: the bore */;cyl(g,M,o,L*.065,h*.5,0,ro,ro,L*.93,0,B,10);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,rc,rc,L*.05,0,R,10);cyl(g,M,o,L*.5,h*.5,0,rb,rb,L*.06,0,D,10);if(d.gunRule.nozzle==='track'){/* 2026-11-27 the tracking nozzle part: the user's X-wing nozzle (collar, suppressor, antenna) at this bore (C.trackNozzlePieces), drawn as the structures it was made of, carried into the gun's frame */const fr=C.fitFrameOf(f),lean=ship?C.trackNozzleLean(ship,f):0;for(const q of C.trackNozzlePieces(f,lean)){let T;try{T=C.structTriangles(q);}catch(e){continue;}if(!T?.length)continue;const W2=new Float32Array(T.length);for(let i=0;i<T.length;i+=3){const x=T[i],y=T[i+1],z=T[i+2];for(let a=0;a<3;a++)W2[i+a]=o[a]+fr.fw[a]*x+fr.up[a]*y+fr.rt[a]*z;}triangleMesh(g,W2,q.paint?hex(q.paint):R);}}return;}
   cyl(g,M,o,L*.065,h*.5,0,W*.34,W*.24,L*.93,0,B,8);for(const q of [-.3,.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
  if(k==='cturret'&&d.ionBoxM3>0){/* 2026-11-26 an ion turret's feed compartment under the mount (the SW-4 kind): an upright cylinder as tall as it is across (★ ours), of the compartment's volume */const dia=Math.cbrt(4*d.ionBoxM3/Math.PI),r=dia/2;cyl(g,M,o,0,-dia*.5,0,r,r,dia,1,Bd,16);}
@@ -3692,6 +3692,25 @@ function foilTransform(foil,d){
  const direction=v=>mat3Point(rot,v),point=v=>C.add(pivot,direction(C.sub(v,pivot)));
  return {rot,point,direction};
 }
+// Rotate the original fitting geometry about the same hinge as the trial model.
+function meshFoilFitPreview(ship, groups, fraction) {
+  const previewFits = new Geo(64), previewRefFits = new Geo(64);
+  for (const {wing, fits} of groups) {
+    const frame = C.foilFrame(ship, wing);
+    const pose = foilTransform({...wing.wing, pivot: frame.pv, sg: frame.sg}, fraction);
+    const batches = [[previewFits, meshFits(ship, null, null, fits)],
+                     [previewRefFits, meshReferenceFits(ship, null, fits)]];
+    for (const [target, geometry] of batches) {
+      const first = target.n * 3;
+      appendGeo(target, geometry);
+      for (let i = first; i < target.n * 3; i += 3) {
+        target.pos.set(pose.point(target.pos.subarray(i, i + 3)), i);
+        target.nor.set(pose.direction(target.nor.subarray(i, i + 3)).map(Math.round), i);
+      }
+    }
+  }
+  return {previewFits, previewRefFits};
+}
 function fleetTurretList(asset,unit){
  if(unit.turrets)return unit.turrets;if(!asset.surfaceTurrets)return [];
  return (asset.turrets||[]).filter(t=>t.mesh).flatMap(t=>{const foil=asset.foils?.find(f=>f.id===t.foilId),X=foil?foilTransform(foil,unit.foils?.[foil.id]):null,part=(mesh,pivot)=>({mesh,pivot:X?X.point(pivot):pivot,restPivot:pivot,rot:X?X.rot:MAT3_I});return t.bodyMesh?[part(t.bodyMesh,t.bodyPivot),part(t.mesh,t.pivot)]:[part(t.mesh,t.pivot)];});
@@ -4023,7 +4042,7 @@ class CompatRenderer {
   if(this._surfaceSelection!==this.surfaceSelection)this.setSurfaceSelection(this.surfaceShip,this.surfaceSelection||[]);
   const image=ctx.createImageData(w,h),pixels=image.data,depth=new Float32Array(w*h);depth.fill(Infinity);
   for(let y=0;y<h;y++){const t=y/h;for(let x=0;x<w;x++){const k=(y*w+x)*4;pixels[k]=Math.round(10-4*t);pixels[k+1]=Math.round(17-5*t);pixels[k+2]=Math.round(25-7*t);pixels[k+3]=255;}}
-  this._frame={w,h,m,pixels,depth};this.portColor=opt.lights==='off'?null:SHIP_LIGHTS[opt.lights]||SHIP_LIGHTS.white;
+  this._frame={w,h,m,pixels,depth,hidden:opt.fleet?null:opt.hidden};this.portColor=opt.lights==='off'?null:SHIP_LIGHTS[opt.lights]||SHIP_LIGHTS.white;
   const external=['hull','struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar','fits','refFits','hatchOpen','hatchRay','preview','previewRef','previewFits','previewRefFits'];
   const inside=['plant','refPlant','interior'];
   if(opt.fleet){const eye=this.eye(),focal=h/(2*Math.tan((this.cam.fov||.72)/2)),shell=new Set(['hull','struct','plate','surfaceArmor','refHull','refStruct']);this.lodSkipped=0;for(const unit of opt.fleet){
@@ -4057,13 +4076,19 @@ class CompatRenderer {
   if(!g?.ni)return;const colScale=REFERENCE_SHADED.has(name)||name==='refEngine'?2:1;const {w,h,m,pixels,depth}=this._frame,off=transform?.off||this.off,center=transform?.center||[0,0,0],R=transform?.rot||yawMatrix(transform?.yaw||0),M=m.VP;
   const projected=new Float32Array(g.n*4);
   for(let i=0;i<g.n;i++){const ax=g.pos[i*3]-center[0],ay=g.pos[i*3+1]-center[1],az=g.pos[i*3+2]-center[2],x=R[0]*ax+R[3]*ay+R[6]*az+off[0],y=R[1]*ax+R[4]*ay+R[7]*az+off[1],z=R[2]*ax+R[5]*ay+R[8]*az+off[2];const cw=M[3]*x+M[7]*y+M[11]*z+M[15],k=i*4;projected[k]=((M[0]*x+M[4]*y+M[8]*z+M[12])/cw+1)*w*.5;projected[k+1]=(1-(M[1]*x+M[5]*y+M[9]*z+M[13])/cw)*h*.5;projected[k+2]=(M[2]*x+M[6]*y+M[10]*z+M[14])/cw;projected[k+3]=cw;}
+  const hidden = this._frame.hidden?.[name];
+  let interval = 0;
   for(let t=0;t<g.ni;t+=3){
+   if (hidden) {
+    while (interval < hidden.length && t >= hidden[interval][0] + hidden[interval][1]) interval++;
+    if (interval < hidden.length && t >= hidden[interval][0]) continue;
+   }
    const a=g.idx[t],b=g.idx[t+1],c=g.idx[t+2],ai=a*4,bi=b*4,ci=c*4;
    if(projected[ai+3]<=0||projected[bi+3]<=0||projected[ci+3]<=0)continue;
    if(clip&&[0,1,2].some(ax=>g.pos[a*3+ax]>clip[ax]&&g.pos[b*3+ax]>clip[ax]&&g.pos[c*3+ax]>clip[ax]))continue;
    const ax=projected[ai],ay=projected[ai+1],bx=projected[bi],by=projected[bi+1],cx=projected[ci],cy=projected[ci+1];
    const det=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);if(!Number.isFinite(det)||Math.abs(det)<.001)continue;
-   if(!clip&&alpha===1&&det>0&&!['fits','refFits','hatchRay'].includes(name))continue;
+   if(!clip&&alpha===1&&det>0&&!['fits','refFits','previewFits','previewRefFits','hatchRay'].includes(name))continue;
    const x0=Math.max(0,Math.floor(Math.min(ax,bx,cx))),x1=Math.min(w-1,Math.ceil(Math.max(ax,bx,cx))),y0=Math.max(0,Math.floor(Math.min(ay,by,cy))),y1=Math.min(h-1,Math.ceil(Math.max(ay,by,cy)));if(x1<x0||y1<y0)continue;
    const nx=(g.nor[a*3]+g.nor[b*3]+g.nor[c*3])/381,ny=(g.nor[a*3+1]+g.nor[b*3+1]+g.nor[c*3+1])/381,nz=(g.nor[a*3+2]+g.nor[b*3+2]+g.nor[c*3+2])/381;
    // Normals follow the same full ship/turret rotation as the vertices.
@@ -4090,6 +4115,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, meshDecals, DECAL_ATLAS, clearPreviewCache, symmetryPlaneLines, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh, meshStructures};
+return {meshFoilFitPreview, meshPreview, meshDecals, DECAL_ATLAS, clearPreviewCache, symmetryPlaneLines, publishPlacementDraftPreview, isHiddenEngineFeed, rayFit, turretRenderAsset, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, thinArmorLights, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines, structureSurfaceCandidates, placementSurfaceCandidates, placementDiagnosticLines, placementGhostMesh, placementFittingMesh, meshStructures};
 })();
 

@@ -1,0 +1,19 @@
+﻿機体,レーザー門数,イオン砲門数,既定搭載品,JSON
+ARC-170 Starfighter,4,0,プロトン魚雷×4,ARC_170.json
+RZ-1 Aウィング,2,0,プロトン魚雷×4,A_Wing_Remodel.json
+BTL-A4 Y-wing (Rebel Alliance),2,2,プロトン魚雷×4、震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2,BTL_A4.json
+BTL-B Y-wing,2,2,プロトン魚雷×4、震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2,BTL_B.json
+クローン Z-95 ヘッドハンター,2,0,プロトン魚雷×4,Clone_Z_95_Remodel.json
+ハイエナ級ドロイド爆撃機,4,0,プロトン魚雷×4、プロトン魚雷×4、プロトン爆弾×4,Hyena_Bomber_Remodel.json
+TIE Avenger Prototype,20,0,震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2、震盪ミサイル（熱源誘導）×2,TIE_Avenger_Prototype.json
+TIE/D,6,2,プロトン魚雷×4,TIE_D.json
+TIE/in インターセプター,6,0,震盪ミサイル（熱源誘導）×2,TIE_IN_Remodel.json
+TIE/ln 制宙戦闘機,2,0,なし,TIE_LN_Remodel.json
+TIE/sa Bomber,2,0,プロトン魚雷×4、プロトン爆弾×8,TIE_SA.json
+V-19 トレント迎撃戦闘機,2,0,プロトン魚雷×4,V_19_Torrent_Remodel.json
+アルファ3 ニンバス級 Vウイング,4,0,なし,V_Wing_Remodel.json
+ヴァルチャー級ドロイド・スターファイター,4,0,プロトン魚雷×4、プロトン魚雷×2,Vulture_Droid_Remodel.json
+T-65B Xウイング,4,0,プロトン魚雷×6,X_Wing_Remodel.json
+A/SF-01 Bウイング（エンドア仕様）,3,3,プロトン魚雷×6,A_SF_01_B_Wing.json
+ドロイド・トライファイター（独立星系連合）,4,0,プロトン魚雷×4,Droid_Tri_Fighter.json
+UT-60D Uウイング・スターファイター／支援艇,2,0,なし,U_Wing.json

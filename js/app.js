@@ -2112,11 +2112,11 @@ function sendEngineUpdate() {
   eng.scheduled = false;
   if (!eng.ready || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
-  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
+  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), ...(ship._structuralRecord?{structuralRecord: ship._structuralRecord}:{}), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
   eng.what.clear(); eng.reset = false;
   YardEngineClient.post(msg);
 }
-function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
+function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),structuralMaterial:undefined/* 2026-11-27 the structures' material record goes beside the state (msg.structuralRecord), never in it: the state is compared as public JSON (regression review) */,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
 function enginePending() { return eng.adoptedGen < eng.gen; }
 function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
@@ -2316,7 +2316,7 @@ function onEngineStats(msg) {
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
-  eng.error=null;prevS = S; S = msg.stats;
+  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship){const changed=ship._structuralRecord?.key!==S.structuralRecord.key||autosavedRecordKey!==S.structuralRecord.key/* also when the last draft was written without it (opened, then saved before the figures came) */;ship._structuralRecord=S.structuralRecord;if(changed&&typeof autosave==='function')autosave()/* save-format review 2026-11-27: the autosave made before these figures came carried no record; saved again with it */;}/* 2026-11-27 kept for saving (C.serialize writes it) */
   if(st.tab==='hull'&&S?.dims){const dimensions=$('#panel [data-actual-dimensions] dd');if(dimensions)dimensions.textContent=S.dims.map(fLen).join(' × ');}
   {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
   renderStrip(); renderSpecTargets();if(designUI.drawer&&designUI.layout==='performance')renderPanel(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
@@ -4000,7 +4000,11 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
 };
 let saveT = 0;
-function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return;const session=typeof designUIEditSession==='function'?designUIEditSession():null; LS.set('yard.draft3', snap(true)); LS.set('yard.draft3.meta', JSON.stringify({name: session?.design.name||ship.name, L: session?.length??autosaveShipLength(), savedAt: Date.now()})); }, 1200); }
+// The key of the design being worked on: its saved form less the structures' material record, which the figures add when they arrive
+// (save-format review 2026-11-27: the key changed with the record alone, and a request made before them was refused).
+function draftDesignKey(data){const{structuralMaterial,...rest}=data||{};return 'draft-'+fleetHash(JSON.stringify(rest));}
+let autosavedRecordKey=null;
+function autosave() { clearTimeout(saveT); saveT = setTimeout(() => { if (!ship) return;const session=typeof designUIEditSession==='function'?designUIEditSession():null; const draft=snap(true);autosavedRecordKey=/"structuralMaterial":\{"v":\d+,"key":"([^"]+)"/.exec(draft)?.[1]||null/* the record the draft really holds: one saved before the Worker's figures (designUISavedDesign's plain copy) has none (regression check 2026-11-27) */; LS.set('yard.draft3', draft); LS.set('yard.draft3.meta', JSON.stringify({name: session?.design.name||ship.name, L: session?.length??autosaveShipLength(), savedAt: Date.now()})); }, 1200); }
 async function pack(obj) {
   const json = JSON.stringify(obj);
   if (typeof CompressionStream === 'function') {
@@ -4667,7 +4671,7 @@ function bombBayFormHTML(p){const ring=p.bayRing===true,box=C.bombBayBox?C.bombB
 function craftLaserHTML(part){
  const g=C.CRAFT_LASER_GEOMETRY?.[part?.k],Y=C.CRAFT_LASER_YIELD;if(!g)return '';const selected=st.tab==='edit'&&st.sel?.list==='fits'&&selItem()?.k===part.k?selItem():null,src=selected||{k:part.k,...craftLaserOptions(part.k)},r=C.craftLaserRule(src);if(!r)return '';
  const slider=(key,label,min,max,step,v,fmt)=>`<label class="field-label">${esc(T(label))} <output data-claser-out="${key}">${esc(fmt(v))}</output><input type="range" data-claser="${key}" min="${min}" max="${max}" step="${step}" value="${v}"></label>`;
- return `<div class="pgroup" data-craft-laser><h4>${esc(T('レーザー砲身（円柱）'))}</h4>${C.FITS[part.k]?.fixed?`<label class="field-label">${esc(T('ノズル'))}<select data-claser-nozzle><option value=""${r.nozzle?'':' selected'}>${esc(T('そのまま（連射できる）'))}</option><option value="track"${r.nozzle==='track'?' selected':''}>${esc(T('追尾ノズル（Xウイング型）'))}</option></select></label>`:''}${slider('boreM','口径（内径）',Y.minBore,Y.maxBore,.005,r.boreM,v=>num(v,3)+' m')}${slider('barrelM','長さ',.2,10,.05,r.barrelM,v=>num(v,2)+' m')}${slider('rateHz','連射速度',.2,r.nozzle==='track'?C.CRAFT_LASER_NOZZLE.trackHz:10,.1,r.rateHz,v=>num(v,1)+' 発/秒')}${C.CRAFT_ION?slider('ionBoxM3','イオン充電区画',0,C.CRAFT_ION.maxBoxM3,.05,src.ionBoxM3>0?src.ionBoxM3:0,craftIonBoxText):''}<p class="note" data-claser-summary>${esc(src.ionBoxM3>0?craftIonSummary(src):craftLaserSummary(r))}</p>${C.CRAFT_ION?`<p class="note">${esc(T('イオン充電区画を 0 より大きくすると、この砲はイオン砲になります。1発は区画に1秒で溜まる量で、毎秒1発です。レーザーガスは使いません。当たったイオンは周りの機材へ広がり、許容量を超えた機材をしばらく止めます。'))}</p>`:''}<p class="note">${esc(T('正面（機首方向）にだけ向けて取り付けます。1発は口径（内径）で、射程は長さで決まります。砲身の外径は口径 ÷ 0.75 です。追尾ノズルはロックオンした標的へ数度だけ向きを変えて当てますが、毎秒1発より速く撃てません。そのままのノズルは連射できますが、速くするほど命中が下がり、電力・ガス・発熱が増えます。'))}</p></div>`;
+ return `<div class="pgroup" data-craft-laser><h4>${esc(T('レーザー砲身（円柱）'))}</h4>${C.FITS[part.k]?.fixed&&!(src.ionBoxM3>0)/* 2026-11-27 user「イオン砲はノズルの対象外で」 */?`<label class="field-label">${esc(T('ノズル'))}<select data-claser-nozzle><option value=""${r.nozzle?'':' selected'}>${esc(T('そのまま（連射できる）'))}</option><option value="track"${r.nozzle==='track'?' selected':''}>${esc(T('追尾ノズル（Xウイング型）'))}</option></select></label>`:''}${slider('boreM','口径（内径）',Y.minBore,Y.maxBore,.005,r.boreM,v=>num(v,3)+' m')}${slider('barrelM','長さ',.2,10,.05,r.barrelM,v=>num(v,2)+' m')}${slider('rateHz','連射速度',.2,r.nozzle==='track'?C.CRAFT_LASER_NOZZLE.trackHz:10,.1,r.rateHz,v=>num(v,1)+' 発/秒')}${C.CRAFT_ION?slider('ionBoxM3','イオン充電区画',0,C.CRAFT_ION.maxBoxM3,.05,src.ionBoxM3>0?src.ionBoxM3:0,craftIonBoxText):''}<p class="note" data-claser-summary>${esc(src.ionBoxM3>0?craftIonSummary(src):craftLaserSummary(r))}</p>${C.CRAFT_ION?`<p class="note">${esc(T('イオン充電区画を 0 より大きくすると、この砲はイオン砲になります。1発は区画に1秒で溜まる量で、毎秒1発です。レーザーガスは使いません。当たったイオンは周りの機材へ広がり、許容量を超えた機材をしばらく止めます。'))}</p>`:''}<p class="note">${esc(T('正面（機首方向）にだけ向けて取り付けます。1発は口径（内径）で、射程は長さで決まります。砲身の外径は口径 ÷ 0.75 です。追尾ノズルはロックオンした標的へ数度だけ向きを変えて当てますが、毎秒1発より速く撃てません。そのままのノズルは連射できますが、速くするほど命中が下がり、電力・ガス・発熱が増えます。'))}</p></div>`;
 }
 function craftIonBoxText(v){return v>0?num(v,2)+' m³':T('なし（レーザー砲）');}
 function craftIonSummary(src){const kt=C.craftIonShotTT(src.ionBoxM3)*1e9;return `${T('イオン砲')}：1発 ${kt>=1000?num(kt/1000,2)+' MT':num(kt,0)+' kt'}・毎秒1発`;}
@@ -6567,10 +6571,36 @@ function signatureHTML(e){
 // The stowed pose in the 3D view, drawn with the live-preview meshes until the next edit.
 function foilPreview(on){
   live.queued=null;st.foilView=on?'stow':null;if(!on){clearPreview();return;}
-  const parts=[];for(const w of ship.parts.filter(C.isFoil)){const P=C.foilPose(ship,w,w.wing.stow);if(P)parts.push(...P.parts);}
-  if(!parts.length){clearPreview();return;}if(!view)return;
-  live.active=true;live.parts=parts;live.fits=[];live.hide.parts=new Set(parts.map(q=>q._poseOf));live.hide.fits=new Set();live.gen=(eng.gen||0)+1;
-  try{const g=Gfx.meshPreview(ship,parts,[],{coded:st.coded});for(const k of ['preview','previewRef','previewFits','previewRefFits'])view.upload(k,g[k]);}catch(e){console.error(e);}
+  const parts = [], fits = [], groups = [], owned = new Set();
+  const sourceFits = new Map(ship.fits.map(f => [f.id, f]));
+  for (const f of C.surfaceDerivedFits(ship)) sourceFits.set(f.id, f);
+  for (const wing of ship.parts.filter(C.isFoil)) {
+    const pose = C.foilPose(ship, wing, wing.wing.stow);
+    if (!pose) continue;
+    parts.push(...pose.parts);
+    const originals = [];
+    for (const fit of pose.fits) {
+      if (owned.has(fit.id) || !sourceFits.has(fit.id)) continue;
+      owned.add(fit.id);
+      fits.push(fit);
+      originals.push(sourceFits.get(fit.id));
+    }
+    if (originals.length) groups.push({wing, fits: originals});
+  }
+  if (!parts.length) { clearPreview(); return; }
+  if (!view) return;
+  live.active = true;
+  live.parts = parts;
+  live.fits = fits;
+  live.hide.parts = new Set(parts.map(q => q._poseOf));
+  live.hide.fits = owned;
+  live.gen = (eng.gen || 0) + 1;
+  try {
+    const g = Gfx.meshPreview(ship, parts, [], {coded: st.coded});
+    const weapons = Gfx.meshFoilFitPreview(ship, groups, 0);
+    for (const key of ['preview', 'previewRef']) view.upload(key, g[key]);
+    for (const key of ['previewFits', 'previewRefFits']) view.upload(key, weapons[key]);
+  } catch (e) { console.error(e); }
   requestDraw();
 }
 function bindWing(){
@@ -8785,10 +8815,10 @@ function trialMissiles(dt,lock){
  const R=trial.R,center=trial.asset.geometry.center,inRange=l=>!lock?.alive||tv.len(tv.sub(lock.pos,trial.P))<=shipReach(l);
  if(trial.mslOrder){trial.mslOrder=false;let n=0;for(const l of trial.launchers)if(l.reload<=0&&!(l.queue>0)&&!l.blocked&&inRange(l)&&trialLauncherPowered(l)&&spaceAmmo(l,false,l.kind==='shipMsl'?1:l.salvo||1)){
   if(l.kind==='shipMsl'){l.pendingCells=trialMissileCells(l).map((count,cell)=>count>0?cell:-1).filter(cell=>cell>=0);l.queue=l.pendingCells.length;}else l.queue=l.salvo;
-  l.reload=l.cycle;n++;
+  l.reload=l.cycle;l.next=0/* 2026-11-27 the order's first round leaves at once; the gap after a launcher's last round does not carry over */;n++;
  }if(!n&&trial.launchers.length)toast(trial.launchers.every(l=>l.dead)?'ミサイル発射管はすべて破壊されています':trial.launchers.every(l=>!inRange(l))?'目標はミサイルの射程外です':trial.launchers.every(l=>!trialLauncherPowered(l))?'ミサイル発射装置に給電されていません':'ミサイルは装填中か残弾がありません');}
- for(const l of trial.launchers){l.reload=Math.max(0,l.reload-dt);if(!(l.queue>0)||l.blocked||!trialLauncherPowered(l))continue;if(!inRange(l)){l.queue=0;l.pendingCells=[];continue;}if((l.next-=dt)>0)continue;
-  const ship=l.kind==='shipMsl',cells=ship?trialMissileCells(l):null,count=ship?l.queue:1;l.next=ship?0:TRIAL_MSL.ripple;
+ for(const l of trial.launchers){l.reload=Math.max(0,l.reload-dt);if(!(l.queue>0)||l.blocked||!trialLauncherPowered(l))continue;if(!inRange(l)){l.queue=0;l.pendingCells=[];continue;}if((l.next-=dt)>1e-9)continue;
+  const ship=l.kind==='shipMsl',cells=ship?trialMissileCells(l):null,count=1;l.next+=ship?l.cycle/Math.max(1,cells.filter(n=>n>0).length):l.cycle/Math.max(1,l.salvo||1)/* 2026-11-27 user「ミサイルは基本1発ずつ発射されるように」: one round at a time as in the fleet's launch step: a cell launcher's each loaded cell once over its cycle (was every cell at once), another launcher cycle/salvo apart (was TRIAL_MSL.ripple); the remainder carries over (physics review: it was dropped, so a gap rounded up to whole steps) */;
   for(let i=0;i<count;i++){
    const cell=ship?l.pendingCells?.shift()??i:0;if(ship&&!(cells[cell]>0)){l.queue--;continue;}
    if(!spaceAmmo(l,true,1)){l.queue=0;break;}l.queue--;if(ship)cells[cell]--;
@@ -10892,7 +10922,7 @@ async function fleetAssetLoad(source,opts={}){
  if(cached?.p?.catalogOnly){for(const [key,a]of fleet.assets)if(a===cached){fleet.assets.delete(key);view?.fleetCache?.delete(key);C.setHullRadial?.(key,null);}}
  else if(cached)return cached.stats||opts.lite?cached:fleetAssetStats(cached);
  let payload=null,key=source,alias=null;
- if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
+ if(source==='current'){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);key=draftDesignKey(data);payload={design:data};}
  // An embarked design is a snapshot, independent of the current draft or the source save.
  else if(Rts.CRAFT[source]?.blueprint){payload={design:Rts.CRAFT[source].blueprint};}
  else if(source.startsWith('save:')){
@@ -10903,7 +10933,7 @@ async function fleetAssetLoad(source,opts={}){
   key='save:'+rec.id+'-'+rec.savedAt;if(source!==key)alias=source;
   if(!fleet.assets.has(key))payload={design:await unpack(rec.data)};
  }
- else if(source.startsWith('draft-')){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);if('draft-'+fleetHash(JSON.stringify(data))!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
+ else if(source.startsWith('draft-')){if(!ship)throw new Error('設計中の艦がありません');const data=C.serialize(ship);if(draftDesignKey(data)!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
  // v21.2 An example in another side's paint ('arquitens#republic'): the same design, repainted.
  else if(/^[A-Za-z0-9_]+#(republic|neutral|dark|cis)$/.test(source)){if(!fleet.assets.has(key)){const [k0,paint]=source.split('#');payload={key:k0,paint};}}
  else if(!fleet.assets.has(key))payload={key:source};

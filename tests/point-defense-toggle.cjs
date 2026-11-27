@@ -17,7 +17,7 @@ function battle(kind='pd'){
  for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[5000,0,0],yaw:x===u?0:Math.PI,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'}});
  e.manual=true;return {w,u,e,sys};
 }
-function incoming(f){const m={id:'incoming',sys:f.sys,side:1,from:f.e.id,target:f.u.id,n:8,pos:[4500,0,0],vel:[-220,0,0],s:220,life:45};f.w.missiles.push(m);return m;}
+function incoming(f,pos=[4500,0,0]){const m={id:'incoming',sys:f.sys,side:1,from:f.e.id,target:f.u.id,n:8,pos,vel:[-220,0,0],s:220,life:45};f.w.missiles.push(m);return m;}
 
 test('OFF stops actual missile interception for both installed PD families without silencing aimed ship fire',()=>{
  for(const kind of ['pd','monCalPD']){
@@ -29,8 +29,8 @@ test('OFF stops actual missile interception for both installed PD families witho
  }
 });
 test('reenabling automatic interception uses the existing unit and resumes actual defence on the next step',()=>{
- const f=battle(),m=incoming(f);C.setAutomaticPointDefense(f.u,false);f.u.order.fire=false;R.tick(f.w,.25);near(m.n,8,'disabled interception');
- C.setAutomaticPointDefense(f.u,true);R.tick(f.w,.25);assert.ok(m.n<8&&m.n>0);assert.equal(f.u.dualDefense,true);assert.ok(f.u.aaLeft<Math.max(1,f.u.p.aaCh))/* 2026-11-24 expectation changed: a ship without sensor domes has 0 tracking channels and keeps the one close-in channel (user「対空交戦枠もセンサー外容積で」) */;
+ const f=battle(),m=incoming(f,[1000,0,0])/* 2026-11-27 expectation changed (user「点防御は点防御で近い目標を勝手に処理する(枠に関係ない)ので撃ち漏らしはその担当になる」): the round comes in at 1 km, within close range, where point defence takes it on its own without a channel (was 4.5 km, taken with the close-in channel; the check that a channel was used is now that none was) */;C.setAutomaticPointDefense(f.u,false);f.u.order.fire=false;R.tick(f.w,.25);near(m.n,8,'disabled interception');
+ C.setAutomaticPointDefense(f.u,true);R.tick(f.w,.25);assert.ok(m.n<8&&m.n>0);assert.equal(f.u.dualDefense,true);assert.ok(!(f.u.aaLeft<Math.max(1,f.u.p.aaCh)),'close in, no channel is taken')/* 2026-11-24 expectation changed: a ship without sensor domes has 0 tracking channels and keeps the one close-in channel (user「対空交戦枠もセンサー外容積で」) */;
 });
 test('an OFF incoming threat adds no shot, capacitor debit, generation or weapon heat over the same idle ship',()=>{
  const plain=battle(),threatened=battle();for(const f of [plain,threatened]){C.setAutomaticPointDefense(f.u,false);f.u.order.fire=false;}incoming(threatened);

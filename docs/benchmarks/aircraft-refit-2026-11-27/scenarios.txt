@@ -1,0 +1,19 @@
+== TIE_SA_満載シナリオ.json | read: yes | TIE/sa 兵装確認（ミサイル8・爆弾210）
+  TIE/sa Bomber | asked cmsl×8 bomb×210 | kept by the scenario reader cmsl×8 bomb×210 | held to the stations cmsl×8 bomb×210
+== Y_Wing_外装爆弾シナリオ.json | read: yes | Yウイング2型・魚雷と外装爆弾
+  BTL-B Y-wing | asked ptorp×6 bomb×3 bomb×3 | kept by the scenario reader ptorp×6 bomb×3 bomb×3 | held to the stations ptorp×6 bomb×3 bomb×3
+  BTL-A4 Y-wing (Rebel Alliance) | asked ptorp×4 bomb×3 bomb×3 | kept by the scenario reader ptorp×4 bomb×3 bomb×3 | held to the stations ptorp×4 bomb×3 bomb×3
+== 発射管搭載13機_予備弾庫満載シナリオ.json | read: yes | 発射管搭載13機・後方予備弾庫満載
+  RZ-1 Aウィング | asked cmsl×4 | kept by the scenario reader cmsl×4 | held to the stations cmsl×4
+  A/SF-01 Bウイング（エンドア仕様） | asked ptorp×6 | kept by the scenario reader ptorp×6 | held to the stations ptorp×6
+  T-65B Xウイング | asked ptorp×3 | kept by the scenario reader ptorp×3 | held to the stations ptorp×3
+  BTL-A4 Y-wing (Rebel Alliance) | asked ptorp×5 bomb×3 bomb×3 | kept by the scenario reader ptorp×5 bomb×3 bomb×3 | held to the stations ptorp×5 bomb×3 bomb×3
+  ARC-170 Starfighter | asked ptorp×3 | kept by the scenario reader ptorp×3 | held to the stations ptorp×3
+  BTL-B Y-wing | asked ptorp×7 bomb×3 bomb×3 | kept by the scenario reader ptorp×7 bomb×3 bomb×3 | held to the stations ptorp×7 bomb×3 bomb×3
+  V-19 トレント迎撃戦闘機 | asked cmsl×3 | kept by the scenario reader cmsl×3 | held to the stations cmsl×3
+  クローン Z-95 ヘッドハンター | asked ptorp×8 | kept by the scenario reader ptorp×8 | held to the stations ptorp×8
+  TIE/D | asked cmsl×4 | kept by the scenario reader cmsl×4 | held to the stations cmsl×4
+  TIE/sa Bomber | asked cmsl×8 bomb×210 | kept by the scenario reader cmsl×8 bomb×210 | held to the stations cmsl×8 bomb×210
+  ハイエナ級ドロイド爆撃機 | asked ptorp×3 cmsl×4 bomb×4 | kept by the scenario reader ptorp×3 cmsl×4 bomb×4 | held to the stations ptorp×3 cmsl×4 bomb×4
+  ドロイド・トライファイター（独立星系連合） | asked cmsl×3 | kept by the scenario reader cmsl×3 | held to the stations cmsl×3
+  ヴァルチャー級ドロイド・スターファイター | asked etorp×3 cmsl×4 | kept by the scenario reader etorp×3 cmsl×4 | held to the stations etorp×3 cmsl×4

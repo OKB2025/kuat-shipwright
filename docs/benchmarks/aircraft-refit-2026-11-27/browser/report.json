@@ -1,0 +1,36 @@
+{
+ "errors": [],
+ "steps": [
+  {
+   "step": "open craft_uwing",
+   "seconds": 38.491,
+   "name": "UT-60D Uウイング・スターファイター／支援艇",
+   "mass": 80.4761082666312,
+   "float": 0,
+   "foils": 2,
+   "warnings": []
+  },
+  {
+   "step": "open craft_xwing",
+   "seconds": 10.976,
+   "name": "T-65B Xウイング",
+   "mass": 27.766247813630986,
+   "float": 0,
+   "foils": 4,
+   "warnings": []
+  },
+  {
+   "step": "S-foil preview (key O)",
+   "foilView": "stow",
+   "previewFits": 3264,
+   "preview": 37542,
+   "liveFits": null
+  },
+  {
+   "step": "open craft_tie_avenger",
+   "seconds": 97.157,
+   "mass": 21.72887681204846
+  }
+ ],
+ "status": "OK"
+}

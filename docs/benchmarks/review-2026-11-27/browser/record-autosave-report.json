@@ -1,0 +1,68 @@
+{
+ "errors": [],
+ "steps": [
+  {
+   "label": "opened",
+   "shipRecordKey": "2:30:0oxjp7517m6juh",
+   "draftRecordKey": "2:30:0oxjp7517m6juh",
+   "draftHasRecord": true,
+   "draftStructX": 4.20093316916558,
+   "shipStructX": 4.20093316916558,
+   "recordFitsShip": true
+  },
+  {
+   "label": "moved, figures in",
+   "shipRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftHasRecord": true,
+   "draftStructX": 4.25093316916558,
+   "shipStructX": 4.25093316916558,
+   "recordFitsShip": true
+  },
+  {
+   "label": "reloaded after move",
+   "shipRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftRecordKey": null,
+   "draftHasRecord": false,
+   "draftStructX": 4.25093316916558,
+   "shipStructX": 4.25093316916558,
+   "recordFitsShip": true
+  },
+  {
+   "label": "after Ctrl+Z (history may be gone after the reload)",
+   "shipRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftHasRecord": true,
+   "draftStructX": 4.25093316916558,
+   "shipStructX": 4.25093316916558,
+   "recordFitsShip": true
+  },
+  {
+   "label": "moved again",
+   "shipRecordKey": "2:30:14cx57h1285qdi",
+   "draftRecordKey": "2:30:14cx57h1285qdi",
+   "draftHasRecord": true,
+   "draftStructX": 4.30093316916558,
+   "shipStructX": 4.30093316916558,
+   "recordFitsShip": true
+  },
+  {
+   "label": "Ctrl+Z, figures in",
+   "shipRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftHasRecord": true,
+   "draftStructX": 4.25093316916558,
+   "shipStructX": 4.25093316916558,
+   "recordFitsShip": true
+  },
+  {
+   "label": "reloaded after undo",
+   "shipRecordKey": "2:30:0jvg7gw1y1wgqv",
+   "draftRecordKey": null,
+   "draftHasRecord": false,
+   "draftStructX": 4.25093316916558,
+   "shipStructX": 4.25093316916558,
+   "recordFitsShip": true
+  }
+ ]
+}

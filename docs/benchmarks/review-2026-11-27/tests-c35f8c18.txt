@@ -1,0 +1,26 @@
+commit c35f8c18 (2026-11-27T04:51:33Z)
+ok 1 - every craft example source file is held unchanged
+ok 2 - a route past its reactor's centre overlaps it; one that only starts inside does not
+ok 3 - the TIE/ln design of 2026-11-27 reports its drives in its reactor; the user's fixed design, the example now, does not
+ok 4 - a four-cell launcher releases one round at a time, cycle/loaded cells apart, from alternating cells
+ok 5 - rounds per second are unchanged: four rounds per 1.2 s cycle, and one in a single coarse step
+ok 6 - a non-native tube releases one round every cycle/salvo seconds (was 8 rounds in one packet every 20 s)
+ok 7 - with one loaded cell of four the launcher fires once a cycle, not four times as fast
+ok 8 - close in, point defence takes rounds on its own: with no channel at all it still engages a round at 1 km, not one at 4 km
+ok 9 - farther out each round takes a channel: two channels engage the two nearest of four rounds
+ok 10 - the output is shared: eight single rounds close in lose about as much in all as one packet of eight there
+ok 11 - the design as saved, with the refusals the earlier placement wrote, loads with every structure grounded
+ok 12 - placing a hull-form structure of more faces than the exact check takes succeeds
+ok 13 - the same hull-form structure moved clear of the hull is still shown floating
+ok 14 - a computed design carries the record into its save, and a reload uses it with the same figures
+ok 15 - any change of the geometry works the material out again; a record with another key, or a malformed one, is not used
+ok 16 - the key follows the triangles, the ids and the order
+ok 17 - the Worker takes the record beside the state, uses it, and keeps it out of the public state it sends back
+ok 18 - mass and price: the X-wing structures' mass at 0.12 m by the cube of the bore; the price by its square
+ok 19 - the X-wing example: its twelve nozzle structures give way to the part, whose pieces are where the structures were, at the same size and lean
+ok 20 - the gun's outline reaches over its nozzle
+ok 21 - the TIE Avenger example: its sixteen wing lasers fire three shots a second; the two heavy guns on the hubs fire two, the guns under the nose keep four
+ok 22 - an ion gun has no tracking nozzle: the B-wing's ion cannons ask for one and carry none
+# tests 22
+# pass 22
+# fail 0

@@ -7,7 +7,7 @@ const C=vm.runInContext('Core',cx),plain=x=>JSON.parse(JSON.stringify(x));
 const prof=k=>{const s=C.buildDesign(k),S=C.computeStats(s);return plain(C.fleetProfile(S,s.name,s));};
 test('systems and fittings within a panel part are that panel\'s',()=>{
  const p=prof('craft_tie_in'),m=p.modules,panels=m.filter(x=>x.panel).map(x=>x.part);assert.deepEqual(panels,[100,120]);
- assert.equal(m.filter(x=>x.k==='weapon'&&x.panelOwner!=null).length,4,'the four wing guns');assert.equal(m.filter(x=>x.k==='weapon'&&x.panelOwner==null).length,3,'the two chin guns and the torpedo tube stay with the pod');
+ /* 2026-11-27 expectation changed (the user's refit of the craft, KUAT_18_Aircraft_Refit.zip, now the examples' sources: tests/craft-remodel-source.cjs): the user's fixed TIE/in has no torpedo tube; its two pylons stand on the wing panels (was 4 on the panels, 3 with the pod) */assert.equal(m.filter(x=>x.k==='weapon'&&x.panelOwner!=null).length,6,'the four wing guns and the two pylons');assert.equal(m.filter(x=>x.k==='weapon'&&x.panelOwner==null).length,2,'the two chin guns stay with the pod');
  assert.equal(m.filter(x=>x.turnSupport&&x.panelOwner!=null).length,4,'the four wing thrusters');
  const x=prof('craft_xwing');assert.equal(x.modules.some(q=>q.panelOwner!=null),false,'a craft without panels has none');
 });

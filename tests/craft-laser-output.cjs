@@ -41,7 +41,7 @@ test('per-shot energy is the per-second output times the firing period, barrel b
 });
 
 test('a craft type sums every laser barrel of its fire-arc snapshot at its defined rate',()=>{
- const E=C.CRAFT_PRICE_CATALOG.entries,MEASURED={xwing:{claser:.18},arc170:{claser:.20},z95:{claser:.10}};
+ const E=C.CRAFT_PRICE_CATALOG.entries,MEASURED={xwing:{claser:.12}/* 2026-11-27 expectation changed (the user's refit of the craft, now the examples' sources: tests/craft-remodel-source.cjs): the refit X-wing's guns state a 0.12 m bore (was the measured 0.18 m) */,arc170:{}/* 2026-11-27 the user's refit states every bore (was .20) */,z95:{claser:.0692}/* 2026-11-27 the user's refit states it (was .10) */};
  // 2026-11-25 expectation changed in this test, the rule only (the craft named below and their bores / gun counts / rates are NOT
  // re-confirmed: they read the stored price catalogue, which is being rebuilt for the user's 16 refits):
  //  - yield: C.craftLaserKt(bore) where it was C.laserShotKt(bore) (user「では0.3を800kt、0.05を50ktと扱い…」「面積比例で」);
@@ -51,19 +51,19 @@ test('a craft type sums every laser barrel of its fire-arc snapshot at its defin
  const hitK=hz=>hz>1?1/Math.sqrt(hz):1;near(C.craftLaserHitK(4),.5,'four shots a second land half');near(C.craftLaserHitK(1),1);near(C.craftLaserHitK(4,'track'),1);
  // 2026-11-24 (gun rules) the X-wing, ARC-170 and Z-95 examples carry their measured barrels (CRAFT_LASER_EXAMPLES: X-wing 0.18 m
  // × 3.5 m, ARC-170 0.20 m × 2.04 m, Z-95 0.10 m × 1.04 m; user table), which craftLaserRate maps onto the type's snapshot.
- near(C.craftLaserRate('xwing'),4*C.craftLaserKt(C.craftLaserBoreOf20261124(.18))*KT,'X-wing: four medium lasers of its measured 0.18 m bore');
- near(C.craftLaserRate('z95'),2*C.craftLaserKt(C.craftLaserBoreOf20261124(.10))*KT/* 32 kt at the least bore 0.02 m (the old 20 kt cannot be had) */,'Z-95: two lasers of its measured 0.10 m bore, one shot a second (the user\'s refit of 2026-11-25 keeps its guns at 1.00 s)');
+ /* 2026-11-27 expectation changed (the user's refit X-wing states a 0.12 m bore with the tracking nozzle; was the measured 0.18 m) */near(C.craftLaserRate('xwing'),4*C.craftLaserKt(.12)*KT,'X-wing: four lasers of the 0.12 m bore its design states');
+ /* 2026-11-27 expectation changed (the user's refit Z-95 states a 0.0692 m bore at one shot a second; was the measured 0.10 m) */near(C.craftLaserRate('z95'),2*C.craftLaserKt(.0692)*KT,'Z-95: two lasers of the 0.0692 m bore its design states, one shot a second');
  for(const [type,entry]of Object.entries(E)){if(!Array.isArray(entry.fireArcs))continue;
   // 2026-11-24 expectation changed (gun rules): an example with measured barrels (MEASURED, the user's table) fires the shot of its bore.
-  const expected=entry.fireArcs.reduce((n,a)=>{const d=C.FITS[a.k],bore=MEASURED[type]?.[a.k];return n+(d?.craft&&d.tt>0&&!d.store?d.barrels*(bore||a.boreM>0?C.craftLaserKt(a.boreM>0?a.boreM:bore)*KT:d.barrelTTs)*(hz=>hz*hitK(hz))(a.nozzle==='track'&&d.fixed?Math.min(1,a.rateHz>0?a.rateHz:1):a.rateHz>0?a.rateHz:1)/* 2026-11-25 expectation changed (user: the example craft fire every 0.25 s, the A-wing 0.1 s, wing-tip guns of the X-wing, TIE/in and TIE/D 1 s): each arc at its own rate */:0);},0);near(C.craftLaserRate(type),expected,type);}
+  const expected=entry.fireArcs.reduce((n,a)=>{const d=C.FITS[a.k],bore=MEASURED[type]?.[a.k];return n+(d?.craft&&d.tt>0&&!d.store&&!(a.ionBoxM3>0)/* 2026-11-27 expectation changed: an ion gun fires no laser (core, as before); the user's refit BTL-B turret is an ion gun now */?d.barrels*(bore||a.boreM>0?C.craftLaserKt(a.boreM>0?a.boreM:bore)*KT:d.barrelTTs)*(hz=>hz*hitK(hz))(a.nozzle==='track'&&d.fixed?Math.min(1,a.rateHz>0?a.rateHz:1):a.rateHz>0?a.rateHz:1)/* 2026-11-25 expectation changed (user: the example craft fire every 0.25 s, the A-wing 0.1 s, wing-tip guns of the X-wing, TIE/in and TIE/D 1 s): each arc at its own rate */:0);},0);near(C.craftLaserRate(type),expected,type);}
  // 2026-11-24 expectation changed: medium / light per second are now shotTT('claser') / shotTT('claserL') (were 50 / 10 kt/s).
  // 2026-11-25 expectation changed (user「TIE/in、TIE/d、Xウィングの翼端以外は基本1門0.25で」): four shots a second a gun (was one), so 4 × the old figures below.
- near(C.craftLaserRate('tie_ln'),2*perSecond('claser')*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'TIE/ln: two medium lasers, 0.25 s apart, half of them landing (2026-11-25: 946 → 1105 kt/s)');
+ near(C.craftLaserRate('tie_ln'),2*C.craftLaserKt(.10)*KT*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz)/* 2026-11-27 expectation changed (the user's refit of the craft, now the examples' sources: tests/craft-remodel-source.cjs): the user's fixed TIE/ln states a 0.10 m bore for its two lasers (was the standard medium laser) */,'TIE/ln: two medium lasers, 0.25 s apart, half of them landing (2026-11-25: 946 → 1105 kt/s)');
  // 2026-11-24 expectation changed: the ARC-170 example is the user's remodel, armed with two medium and two light fixed lasers
  // (claser #39/#40, claserL #41/#42) where the old example had two heavy lasers and two light twin turrets (2*400+2*2*10).
  // 2026-11-24 (gun rules) its medium pair has the measured 0.20 m bore; the light lasers keep 0.12 m.
- near(C.craftLaserRate('arc170'),(2*C.craftLaserKt(C.craftLaserBoreOf20261124(.20))*KT+2*perSecond('claserL'))*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'ARC-170: two measured 0.20 m medium and two light fixed lasers, 0.25 s apart');
- near(C.craftLaserRate('vwing'),2*2*perSecond('cturret')*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'V-wing: two light twin turrets, 0.25 s apart');
+ /* 2026-11-27 expectation changed (the user's refit ARC-170 states its bores: two of 0.1032 m and two of 0.0536 m; was two measured 0.20 m medium and two light) */near(C.craftLaserRate('arc170'),(2*C.craftLaserKt(.1032)+2*C.craftLaserKt(.0536))*KT*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'ARC-170: the four lasers of the bores its design states, 0.25 s apart');
+ /* 2026-11-27 expectation changed (the user's refit V-wing states a 0.1125 m bore for its two twin turrets; was the light turret's own shot) */near(C.craftLaserRate('vwing'),2*C.FITS.cturret.barrels*C.craftLaserKt(.1125)*KT*C.CRAFT_LASER_RATE.hz*hitK(C.CRAFT_LASER_RATE.hz),'V-wing: two twin turrets of the 0.1125 m bore its design states, 0.25 s apart');
  assert.equal(C.craftLaserRate('no-such-craft'),null);assert.equal(C.craftLaserRate(undefined),null);
  near(C.FLEET_AIR_GUN_DEFAULT,2*perSecond('claser'),'unknown types fly as a standard two-medium-laser fighter');
 });
@@ -76,7 +76,7 @@ test('fleet profile per-craft air attack averages the deployable combat craft by
  near(p.airGun,(24*C.craftLaserRate('tie_ln')+6*C.craftLaserRate('arc170')+2*C.FLEET_AIR_GUN_DEFAULT)/32,'mixed wing average');
  // 2026-11-25 expectation changed (user「ノズルそのままは発射速度を上げられるが上げるほど命中率は下がるしガスも使う」and the yield rule): two 276.29 kt
  // lasers 0.25 s apart land 2 × 4 × 0.5 × 276.29 = 1105 kt/s (was 2 × 4 × 118.28 = 946 kt/s). Reads the stored price catalogue (being rebuilt).
- near(C.craftLaserRate('tie_ln'),2*perSecond('claser')*C.CRAFT_LASER_RATE.hz*C.craftLaserHitK(C.CRAFT_LASER_RATE.hz),'TIE/ln two medium lasers, 0.25 s apart (2026-11-25 expectation changed: was one shot a second)');
+ near(C.craftLaserRate('tie_ln'),2*C.craftLaserKt(.10)*KT*C.CRAFT_LASER_RATE.hz*C.craftLaserHitK(C.CRAFT_LASER_RATE.hz)/* 2026-11-27 expectation changed (the user's refit of the craft, now the examples' sources: tests/craft-remodel-source.cjs): 0.10 m bore, as above */,'TIE/ln two medium lasers, 0.25 s apart (2026-11-25 expectation changed: was one shot a second)');
  assert.equal(C.fleetProfile({...S,aviation:{wings:[]}},'Empty').airGun,undefined,'no combat craft, no airGun');
 });
 
@@ -136,7 +136,7 @@ test('fleet airGun per craft equals the RTS squadron energy per second for a cus
  assert.ok(R.CRAFT.arc170);near(one({type:'arc170'}),rts('arc170')+R.squadLaserEnergy({craft:'arc170',pos:[0,0,0],h:[1,0,0],laserGas:100},[-1000,0,0],1),'arc170 ahead and astern');
  // 2026-11-24 expectation changed: the BTL-A4 Y-wing is now a modelled example (craft_ywing, its own fire-arc snapshot), so the
  // table-only estimate is checked on the B-wing, which still has no example.
- /* 2026-11-26 expectation changed: the B-wing is a modelled example now (the user's design, craft_bwing), so the table-only estimate is checked on the U-wing, which has none; the B-wing is checked as the modelled types are *//* the types left without an example are transports, which take no part in a fleet battle (no airGun), so the estimate is checked on the RTS side alone */near(rts('uwing'),Math.max(1,Math.round(R.CRAFT.uwing.aa*2))*perSecond('claser')/* 2026-11-24 gun rules: was 50 kt/s */,'table-only uwing: round(aa × 2) medium lasers as the RTS estimates');assert.ok(R.CRAFT.bwing);near(one({type:'bwing'}),rts('bwing'),'bwing');/* was eta2, taken out of the catalogue 2026-11-16 */
+ /* 2026-11-26 expectation changed: the B-wing is a modelled example now (the user's design, craft_bwing), so the table-only estimate is checked on the U-wing, which has none; the B-wing is checked as the modelled types are *//* the types left without an example are transports, which take no part in a fleet battle (no airGun), so the estimate is checked on the RTS side alone *//* 2026-11-27 expectation changed (the user's refit of the craft, now the examples' sources: tests/craft-remodel-source.cjs): the U-wing is a modelled example now; the table-only estimate is checked on the LAAT/i, a transport still on the table */near(rts('laat'),Math.max(1,Math.round(R.CRAFT.laat.aa*2))*perSecond('claser')/* 2026-11-24 gun rules: was 50 kt/s */,'table-only laat: round(aa × 2) medium lasers as the RTS estimates');assert.ok(R.CRAFT.bwing);near(one({type:'bwing'}),rts('bwing'),'bwing');/* was eta2, taken out of the catalogue 2026-11-16 */
  near(one({type:'tie_adv'}),C.FLEET_AIR_GUN_DEFAULT,'a type neither table knows is a standard fighter');
 });
 
@@ -152,8 +152,8 @@ test('a version-1 design craft snapshot with aircraft lasers is rebuilt once wit
  near(rebuilt.craft.systems.laserUnits,forced.craft.systems.laserUnits,'laser units');// 2026-11-25 expectation changed (aircraft laser yield and the kept gas unit; user「では0.3を800kt、0.05を50ktと扱い…」, the gas unit stays the
  // 118.28 kt/s of the standard laser before the rule changed = C.CRAFT_LASER_UNIT_KT): laser units = output ÷ 118.28 kt/s, so two
  // 276.29 kt lasers at four shots a second are 2 × 4 × 276.29 ÷ 118.28 = 18.69 units (was 8 = 2 × 4, when a 0.17 m laser was one unit).
- near(rebuilt.craft.systems.laserUnits,2*C.CRAFT_LASER_RATE.hz*C.craftLaserKt(C.CRAFT_LASER_GEOMETRY.claser.bore)/C.CRAFT_LASER_UNIT_KT,'two medium lasers firing every 0.25 s are 8 laser units of 118.28 kt/s (18.69 between the two decisions of 2026-11-25)');assert.equal(C.CRAFT_LASER_UNIT_KT,118.28);near(C.CRAFT_LASER_UNIT_W,118.28*KT*C.TT,'the unit in watts');
+ near(rebuilt.craft.systems.laserUnits,2*C.CRAFT_LASER_RATE.hz*C.craftLaserKt(.10)/C.CRAFT_LASER_UNIT_KT/* 2026-11-27 expectation changed (the user's refit of the craft, now the examples' sources: tests/craft-remodel-source.cjs): 0.10 m bore: 7.73 units (was the standard bore's) */,'two medium lasers firing every 0.25 s are 8 laser units of 118.28 kt/s (18.69 between the two decisions of 2026-11-25)');assert.equal(C.CRAFT_LASER_UNIT_KT,118.28);near(C.CRAFT_LASER_UNIT_W,118.28*KT*C.TT,'the unit in watts');
  const weaponW=q=>(q.craft.powerProfile.modules||[]).reduce((n,m)=>n+(m.weaponPowerW||0),0);// 2026-11-23 expectation changed: the TIE/ln example is the user's remodel, which also carries a torpedo tube (its 1e15 W draw).
- near(weaponW(rebuilt),2*C.FITS.claser.power*C.CRAFT_LASER_RATE.hz+C.FITS.ctorp.pw,'weapon power is two medium lasers at four shots a second and the torpedo tube (2026-11-25 expectation changed: was one shot a second)');
+ near(weaponW(rebuilt),2*C.craftLaserKt(.10)*KT*C.TT*C.CRAFT_LASER_RATE.hz/* 2026-11-27 expectation changed (the user's refit of the craft, now the examples' sources: tests/craft-remodel-source.cjs): two 0.10 m lasers at four shots a second; the user's fixed TIE/ln has no torpedo tube (was the standard laser's power and the tube's 1e15 W) */,'weapon power is two medium lasers at four shots a second and the torpedo tube (2026-11-25 expectation changed: was one shot a second)');
  assert.equal(C.cleanDesignCraft(fresh).weaponProfileVersion,C.WEAPON_PROFILE_VERSION);
 });

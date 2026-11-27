@@ -1,0 +1,53 @@
+acclamator	parts 64->64	fits 28->28	.structuralMaterial.v .structuralMaterial.key
+arquitens	parts 106->106	fits 17->17	.structuralMaterial.v .structuralMaterial.key
+bc	parts 12->12	fits 39->39	.structuralMaterial
+carrier	parts 64->64	fits 27->27	.structuralMaterial
+cr90	parts 51->51	fits 6->6	.structuralMaterial.v .structuralMaterial.key
+craft_arc170	parts 132->132	fits 6->6	.structuralMaterial
+craft_awing	parts 91->91	fits 4->4	.structuralMaterial
+craft_btlb	parts 135->135	fits 9->9	.structuralMaterial
+craft_bwing	parts 171->171	fits 8->8	.structuralMaterial
+craft_hyena	parts 85->85	fits 8->8	.structuralMaterial
+craft_tie_avenger	parts 394->394	fits 32->32	.structuralMaterial
+craft_tie_d	parts 85->85	fits 10->10	.structuralMaterial
+craft_tie_in	parts 65->65	fits 8->8	.structuralMaterial
+craft_tie_ln	parts 47->47	fits 2->2	.structuralMaterial
+craft_tie_sa	parts 128->128	fits 4->4	.structuralMaterial
+craft_tri	parts 138->138	fits 6->6	.structuralMaterial
+craft_uwing	parts 215->215	fits 2->2	.structuralMaterial
+craft_v19	parts 86->86	fits 4->4	.structuralMaterial
+craft_vulture	parts 75->75	fits 7->7	.structuralMaterial
+craft_vwing	parts 78->78	fits 2->2	.structuralMaterial
+craft_xwing	parts 136->136	fits 6->6	.structuralMaterial
+craft_ywing	parts 150->150	fits 10->10	.structuralMaterial
+craft_z95	parts 89->89	fits 4->4	.structuralMaterial
+deathstar	parts 162->162	fits 276->276	.structuralMaterial.v .structuralMaterial.key
+destroyer	parts 32->32	fits 27->27	.structuralMaterial
+dreadnaught	parts 73->73	fits 40->40	.structuralMaterial.v .structuralMaterial.key
+executor	parts 119->119	fits 2045->2045	.structuralMaterial.v .structuralMaterial.key
+frigate	parts 9->9	fits 10->10	.structuralMaterial
+gozanti	parts 56->56	fits 2->2	.structuralMaterial.v .structuralMaterial.key
+gr75	parts 75->75	fits 2->2	.structuralMaterial.v .structuralMaterial.key
+hammerhead	parts 27->27	fits 3->3	.structuralMaterial.v .structuralMaterial.key
+heavy	parts 37->37	fits 35->35	.structuralMaterial
+heraklon	parts 52->52	fits 0->0	.structuralMaterial.v .structuralMaterial.key
+imperial	parts 179->179	fits 50->50	.structuralMaterial.v .structuralMaterial.key
+imperial2	parts 171->171	fits 50->50	.structuralMaterial.v .structuralMaterial.key
+lh3210	parts 234->234	fits 8->8	.structuralMaterial.v .structuralMaterial.key
+lucrehulk	parts 234->234	fits 54->54	.structuralMaterial.v .structuralMaterial.key
+mandator2	parts 432->432	fits 194->194	.structuralMaterial.v .structuralMaterial.key
+mc30c	parts 114->114	fits 34->34	.structuralMaterial.v .structuralMaterial.key
+mc75	parts 49->49	fits 66->66	.structuralMaterial.v .structuralMaterial.key
+mc80home	parts 90->90	fits 107->107	.structuralMaterial.v .structuralMaterial.key
+mc80liberty	parts 110->110	fits 106->106	.structuralMaterial.v .structuralMaterial.key
+munificent	parts 182->182	fits 79->79	.structuralMaterial.v .structuralMaterial.key
+nebulonb	parts 78->78	fits 10->10	.structuralMaterial.v .structuralMaterial.key
+onager	parts 88->88	fits 54->54	.structuralMaterial.v .structuralMaterial.key
+providence	parts 116->116	fits 113->113	.structuralMaterial.v .structuralMaterial.key
+providenceDn	parts 122->122	fits 119->119	.structuralMaterial.v .structuralMaterial.key
+recusant	parts 181->181	fits 66->66	.structuralMaterial.v .structuralMaterial.key
+recusantDn	parts 178->178	fits 125->125	.structuralMaterial.v .structuralMaterial.key
+reptransport	parts 26->26	fits 1->1	.structuralMaterial.v .structuralMaterial.key
+sample	parts 103->103	fits 31->31	.structuralMaterial
+subjugator	parts 115->115	fits 1151->1151	.structuralMaterial.v .structuralMaterial.key
+venator	parts 263->263	fits 58->58	.structuralMaterial.v .structuralMaterial.key

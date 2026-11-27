@@ -130,7 +130,7 @@ test('the reactor heat of charging is governed: a hotter ship charges slower, no
 test('design statistics: the charge is the jump field plus the burst at the design mass, filled from the whole spare (A-wing; a TIE/ln has no drive)',()=>{
  const {S,p}=saved('craft_awing');assert.equal(S.jumpOK,true);assert.equal(S.wingMass||0,0,'no wing conduits on this design');
  near(S.jumpChargeJ,10*S.draw.jump+KE*S.mass*1000,1e-9,'jumpChargeJ');near(S.jumpChargeJ,C.hyperChargeNeedJ(p),1e-9,'the same as the fleet profile needs');
- near(S.jumpChargeS,S.jumpChargeJ/S.jumpSpareW,1e-12,'from the whole spare');assert.ok(S.draw.jump<S.jumpSpareW,'Dj is under the spare, so the old rule gave 10 s');assert.ok(S.jumpChargeS>100,`now ${S.jumpChargeS} s`);
+ near(S.jumpChargeS,S.jumpChargeJ/S.jumpSpareW,1e-12,'from the whole spare');assert.ok(S.draw.jump<S.jumpSpareW,'Dj is under the spare, so the old rule gave 10 s');/* 2026-11-27 expectation changed (the user's refit A-wing has more spare power: about 95 s; was over 100 s): the point is that it is far over the old rule's 10 s */assert.ok(S.jumpChargeS>10*5,`now ${S.jumpChargeS} s`);
  const tie=saved('craft_tie_ln');assert.equal(tie.S.jumpOK,false);assert.equal(tie.S.jumpChargeJ,0);assert.equal(tie.S.jumpChargeS,null);assert.equal(C.hyperChargeNeedJ(tie.p),0);
 });
 test('design statistics count the whole design mass in the charge, wing conduits and actuators included, as the fleet profile does (X-wing)',()=>{

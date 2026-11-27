@@ -1,0 +1,16 @@
+// Browser check for the aircraft refit (2026-11-27): the X-wing's S-foil preview with the user's patch (the guns on the wings turn with
+// them), the U-wing example, and the time the TIE Avenger example takes to open. Writes screenshots and report.json next to this script.
+const fs=require('fs'),path=require('path'),{chromium}=require('playwright');const out=__dirname,url=process.argv[2];
+(async()=>{const browser=await chromium.launch(),page=await browser.newPage({viewport:{width:1280,height:800},deviceScaleFactor:1});const report={errors:[],steps:[]};page.on('pageerror',e=>report.errors.push('pageerror: '+String(e.message).slice(0,300)));page.on('console',m=>{if(m.type()==='error'&&!/ERR_TUNNEL|Failed to load resource/.test(m.text()))report.errors.push('console: '+m.text().slice(0,300));});
+ const settled=()=>page.waitForFunction(()=>{const Y=window.__yard;return Y&&Y.eng&&!Y.eng.error&&Y.eng.adoptedGen>=Y.eng.gen&&Y.eng.geoGen>=Y.eng.gen&&Y.eng.statsGen>=Y.eng.gen&&!!Y.stats;},null,{timeout:600000});
+ const frame=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+ try{await page.goto(url);await page.waitForFunction(()=>!!window.__yard,null,{timeout:120000});await page.evaluate(()=>window.__yard.title.hide());
+  for(const key of ['craft_uwing','craft_xwing']){const t0=Date.now();await page.evaluate(k=>window.__yard.openExample(k),key);await settled();await frame();report.steps.push({step:'open '+key,seconds:(Date.now()-t0)/1000,...await page.evaluate(()=>{const Y=window.__yard,S=Y.stats;return{name:Y.ship.name,mass:S.mass,float:Y.ship.fits.filter(f=>f.float).length,foils:Y.ship.parts.filter(Y.C.isFoil).length,warnings:(S.warnings||[]).filter(w=>w.lv==='bad'||w.lv==='warn').map(w=>w.code||w.text.slice(0,40))};})});await page.screenshot({path:path.join(out,key+'.png')});}
+  // the X-wing's S-foils: the same key the editor uses toggles the stowed pose
+  await page.evaluate(()=>{const v=window.__yard.view();Object.assign(v.cam,{th:1.2,ph:1.15,r:24,target:[6.5,1.2,0]});window.__yard.draw();});await frame();await page.waitForTimeout(500);await page.screenshot({path:path.join(out,'xwing-foils-open.png')});
+  await page.keyboard.press('KeyO');await page.waitForTimeout(800);await frame();await page.waitForTimeout(500);
+  report.steps.push({step:'S-foil preview (key O)',...await page.evaluate(()=>{const Y=window.__yard,v=Y.view(),n=k=>v.meshes?.[k]?.n??v.meshes?.[k]?.count??null;return{foilView:Y.st.foilView,previewFits:n('previewFits'),preview:n('preview'),liveFits:Y.trial?null:undefined};})});
+  await page.screenshot({path:path.join(out,'xwing-foils-stowed.png')});
+  const t0=Date.now();await page.evaluate(k=>window.__yard.openExample(k),'craft_tie_avenger');await settled();report.steps.push({step:'open craft_tie_avenger',seconds:(Date.now()-t0)/1000,mass:await page.evaluate(()=>window.__yard.stats.mass)});await page.screenshot({path:path.join(out,'craft_tie_avenger.png')});
+  report.status=report.errors.length?'ERRORS':'OK';}catch(e){report.status='FAILED';report.failure=String(e.stack||e).slice(0,1500);try{await page.screenshot({path:path.join(out,'failed.png')});}catch{}}
+ fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,1));console.log(JSON.stringify(report,null,1).slice(0,4000));await browser.close();})();

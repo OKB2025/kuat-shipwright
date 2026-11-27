@@ -34,14 +34,21 @@ test('a bomb bay must lie wholly inside the structures with its floor on the low
  const S=C.computeStats(s);assert.ok(S.warnings.some(w=>w.code==='bomb-bay'));assert.equal(C.craftStations(s,S).length,0);
 });
 // 2026-11-23 expectation changed: the stock craft carry their tubes again.
+// 2026-11-27: the BTL-B's canon stations are its tubes and pylons (the refit has no bay; CRAFT_LOADOUT.btlb changed to match).
 test('stock craft carry their canon loads in tubes and bays',()=>{
  for(const [key,type] of [['craft_xwing','xwing'],['craft_btlb','btlb'],['craft_tie_sa','tie_sa']]){
   const s=C.buildDesign(key),S=C.computeStats(s),L=C.craftLoadout(s);assert.equal(L.canon,true,key);assert.ok(!s.fits.some(f=>f.k==='cbomb'),key);assert.ok(s.fits.some(f=>f.k==='ctorp'),key);
   assert.equal(C.craftStations(s,S).length,C.CRAFT_LOADOUT[type].st.length,key);
  }
 });
-// 2026-11-23 (regression review): a loadout chosen for the BTL-B's old [bomb bay, pylon] stations keeps its bombs in the bay.
-test('an old [bay, pylon] loadout keeps its bombs in the bay against the tube stations',()=>{
- const L=C.craftLoadout(C.buildDesign('craft_btlb'));assert.deepEqual(plain(L.stations.map(s=>s.mount)),['tube','bay']);
- const got=plain(C.craftOrdnance(C.buildDesign('craft_btlb'),[{k:'bomb',n:8},{k:'ptorp',n:3}]));assert.equal(got.find(x=>x.kind==='bomb')?.mount,'bay');assert.equal(got.find(x=>x.kind==='ptorp')?.mount,'tube');
+// 2026-11-23 (regression review): a loadout chosen in the other order of a [tube, bay] craft keeps its bombs in the bay.
+// 2026-11-27 test changed (user「Y-wingの爆弾倉は設定資料を見ても見当たらないのでパイロンで代用した」): the refit BTL-B has no bomb bay (its bombs go
+// on four pylons, below), so the case is checked on the TIE/sa, whose [tube, bay] stations stand (was the BTL-B).
+test('a loadout in the other order keeps its bombs in the bay against the tube station',()=>{
+ const L=C.craftLoadout(C.buildDesign('craft_tie_sa'));assert.deepEqual(plain(L.stations.map(s=>s.mount)),['tube','bay']);
+ const got=plain(C.craftOrdnance(C.buildDesign('craft_tie_sa'),[{k:'bomb',n:8},{k:'ptorp',n:3}]));assert.equal(got.find(x=>x.kind==='bomb')?.mount,'bay');assert.equal(got.find(x=>x.kind==='ptorp')?.mount,'tube');
+});
+test('the refit BTL-B carries its canon proton bombs on its pylons: three a pylon, twelve in all (the user loadout table), with its twelve torpedoes',()=>{
+ const s=C.buildDesign('craft_btlb'),L=C.craftLoadout(s);assert.equal(L.canon,true);assert.deepEqual(plain(L.stations.map(x=>x.mount)),['tube','wing','wing']);assert.ok(!s.parts.some(p=>p.k==='bombBay'),'no bomb bay');
+ const got=plain(C.craftOrdnance(s,L.load));assert.equal(got.filter(x=>x.kind==='bomb').reduce((n,x)=>n+x.n,0),12)/* 2026-11-27 was 8 (two a pylon, the TIE/sa's count): the user's 任務装填.csv gives the BTL-B 各3発 on each of its four pylons (reference-fidelity review 2026-11-27) */;assert.ok(got.filter(x=>x.kind==='bomb').every(x=>x.mount==='wing'));assert.equal(got.find(x=>x.kind==='ptorp')?.n,12);
 });

@@ -1,0 +1,18 @@
+== git log --oneline 32f766b0..2ba3d2d0
+2ba3d2d0 レビュー対応の記録とブラウザ確認の証拠（2026-11-27）
+== git diff --stat 32f766b0 2ba3d2d0 (documents only)
+ docs/benchmarks/review-2026-11-27/README.md        |  49 ++++++++
+ .../review-2026-11-27/browser/craft_bwing.png      | Bin 0 -> 1034114 bytes
+ .../browser/craft_tie_avenger.png                  | Bin 0 -> 1060586 bytes
+ .../browser/craft_xwing-muzzle.png                 | Bin 0 -> 997619 bytes
+ .../review-2026-11-27/browser/craft_xwing.png      | Bin 0 -> 1082512 bytes
+ .../review-2026-11-27/browser/report.json          | 135 +++++++++++++++++++++
+ .../review-2026-11-27/browser/xwing-foils-open.png | Bin 0 -> 1047366 bytes
+ .../browser/xwing-foils-stowed-muzzle.png          | Bin 0 -> 1002909 bytes
+ .../browser/xwing-foils-stowed.png                 | Bin 0 -> 1052864 bytes
+ .../review-2026-11-27/figures-32f766b0.txt         |  28 +++++
+ docs/benchmarks/review-2026-11-27/figures.cjs      |   2 +-
+ 11 files changed, 213 insertions(+), 1 deletion(-)
+== design files changed by the regeneration after the contact fix (e7d56e40 -> 32f766b0)
+ data/examples/craft_tie_avenger/design.json.gz | Bin 67990 -> 67993 bytes
+ data/examples/craft_xwing/design.json.gz       | Bin 19513 -> 19483 bytes
