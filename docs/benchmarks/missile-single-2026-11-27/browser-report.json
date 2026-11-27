@@ -1,0 +1,126 @@
+{
+ "errors": [],
+ "launches": [],
+ "single": {
+  "info": [
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "cells": 1,
+    "ammo": 6
+   },
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "cells": 1,
+    "ammo": 6
+   },
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "cells": 1,
+    "ammo": 6
+   },
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "cells": 1,
+    "ammo": 6
+   }
+  ],
+  "launches": [
+   {
+    "t": 0,
+    "rounds": 4
+   }
+  ],
+  "after": [
+   {
+    "reload": 0,
+    "queue": 0
+   },
+   {
+    "reload": 0,
+    "queue": 0
+   },
+   {
+    "reload": 0,
+    "queue": 0
+   },
+   {
+    "reload": 0,
+    "queue": 0
+   }
+  ],
+  "toast": "Example layout opened. All compartments are editable."
+ },
+ "four": {
+  "info": [
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "salvo": 4,
+    "ammo": 24
+   },
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "salvo": 4,
+    "ammo": 24
+   },
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "salvo": 4,
+    "ammo": 24
+   },
+   {
+    "kind": "shipMsl",
+    "cycle": 1.2,
+    "salvo": 4,
+    "ammo": 24
+   }
+  ],
+  "launches": [
+   {
+    "t": 0,
+    "rounds": 1,
+    "cell": 0
+   },
+   {
+    "t": 0.35,
+    "rounds": 1,
+    "cell": 1
+   },
+   {
+    "t": 0.7,
+    "rounds": 1,
+    "cell": 2
+   },
+   {
+    "t": 1.05,
+    "rounds": 1,
+    "cell": 3
+   }
+  ],
+  "after": [
+   {
+    "reload": 0,
+    "queue": 0
+   },
+   {
+    "reload": 0,
+    "queue": 0
+   },
+   {
+    "reload": 0,
+    "queue": 0
+   },
+   {
+    "reload": 0,
+    "queue": 0
+   }
+  ],
+  "toast": "Example layout opened. All compartments are editable."
+ }
+}

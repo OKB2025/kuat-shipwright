@@ -8811,7 +8811,7 @@ function trialMissiles(dt,lock){
  const R=trial.R,center=trial.asset.geometry.center,inRange=l=>!lock?.alive||tv.len(tv.sub(lock.pos,trial.P))<=shipReach(l);
  if(trial.mslOrder){trial.mslOrder=false;let n=0;for(const l of trial.launchers)if(l.reload<=0&&!(l.queue>0)&&!l.blocked&&inRange(l)&&trialLauncherPowered(l)&&spaceAmmo(l,false,l.kind==='shipMsl'?1:l.salvo||1)){
   if(l.kind==='shipMsl'){l.pendingCells=trialMissileCells(l).map((count,cell)=>count>0?cell:-1).filter(cell=>cell>=0);l.queue=l.pendingCells.length;}else l.queue=l.salvo;
-  l.reload=l.cycle;n++;
+  l.reload=l.cycle;l.next=0/* 2026-11-27 the order's first round leaves at once; the gap after a launcher's last round does not carry over */;n++;
  }if(!n&&trial.launchers.length)toast(trial.launchers.every(l=>l.dead)?'ミサイル発射管はすべて破壊されています':trial.launchers.every(l=>!inRange(l))?'目標はミサイルの射程外です':trial.launchers.every(l=>!trialLauncherPowered(l))?'ミサイル発射装置に給電されていません':'ミサイルは装填中か残弾がありません');}
  for(const l of trial.launchers){l.reload=Math.max(0,l.reload-dt);if(!(l.queue>0)||l.blocked||!trialLauncherPowered(l))continue;if(!inRange(l)){l.queue=0;l.pendingCells=[];continue;}if((l.next-=dt)>0)continue;
   const ship=l.kind==='shipMsl',cells=ship?trialMissileCells(l):null,count=1;l.next=ship?l.cycle/Math.max(1,cells.length)/* 2026-11-27 user「ミサイルは基本1発ずつ発射されるように」: a cell launcher's rounds leave one at a time over its cycle (was every cell at once) */:TRIAL_MSL.ripple;
