@@ -5713,6 +5713,11 @@ function start(hot) {
   window.__yard = {veObject: () => veObject(), designUI, designUIOpen: w => designUIOpen(w), designUIArm: () => designUIArm(), designUIClose: k => designUIClose(k), tool: () => tool(), get ship() { return ship; }, editorAuthoringReady: () => !!ship && ship.parts.filter(p=>C.isHullStructure(p)).every(editorOwnedHullReady), get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
+  // 2026-11-27 (the trial of an Imperial or Venator dropped back to the title on an iPhone): measured in the browser, the background
+  // preparation built an example in a second worker (up to 710 MB) while the editor's own worker computed the opened design (947 MB),
+  // and started again while the trial was loading (trial.busy, not yet trial.on). It now also waits while the trial loads and while the
+  // editor's figures or model are still being worked out, so two heavy calculations never run side by side.
+  const preloadBusy=()=>eng.waiting||eng.uploading||trial.on||trial.busy||eng.gen>0&&(eng.statsGen<eng.gen||eng.geoGen<eng.gen)||fleet.mode!=='design'||!!voy.w&&!titleVisible();
   engineStart.then(async mode => {
     engineHello(mode); boot?.step('engine', 'done'); titleStatus();
     let downloads=null,preparation=null;
@@ -5724,7 +5729,7 @@ function start(hot) {
       // the user's finished saved designs are prepared in the background like the examples (first, as they are the ones the
       // user fields). The engine's build cache is per release, so without this each update rebuilt them when first fielded.
       const savedItems=await savedDesignPreloadItems().catch(()=>[]);
-      window.KSPreload=KSAssetCache.createPreloader({keys:[...savedItems,...EXAMPLES.map(e=>e.key)],createWorker:()=>boot.createBackgroundWorker(),busy:()=>eng.waiting||eng.uploading||trial.on||fleet.mode!=='design'||!!voy.w&&!titleVisible(),onProgress:s=>{
+      window.KSPreload=KSAssetCache.createPreloader({keys:[...savedItems,...EXAMPLES.map(e=>e.key)],createWorker:()=>boot.createBackgroundWorker(),busy:()=>preloadBusy(),onProgress:s=>{
         preparation=s;window.dispatchEvent(new CustomEvent('ks-preload-progress',{detail:s}));preparationStatus();
       }});
     }
