@@ -1,0 +1,27 @@
+### END deserialize 0.5s rss 350
+### END remount 0.6s rss 361
+### END syncCompartments 12.4s rss 600
+### END computeStats 67.9s rss 1243
+### END fleetProfile 0.8s rss 1252
+### END fleetGeometry 21.5s rss 1189
+### maxRSS 1284 MB
+deserialize: peak heap before collections 234 MB (committed)
+remount: peak heap before collections 244 MB (committed)
+syncCompartments: peak heap before collections 436 MB (committed)
+computeStats: peak heap before collections 979 MB (committed)
+fleetProfile: peak heap before collections 554 MB (committed)
+fleetGeometry: peak heap before collections 672 MB (committed)
+--- without the closed-door copy (experiment only, not applied)
+### END deserialize 0.5s rss 350
+### END remount 0.6s rss 362
+### END syncCompartments 12.3s rss 596
+### END computeStats 39.4s rss 1080
+### END fleetProfile 0.8s rss 1092
+### END fleetGeometry 22.4s rss 1102
+### maxRSS 1125 MB
+deserialize: peak heap before collections 236 MB (committed)
+remount: peak heap before collections 245 MB (committed)
+syncCompartments: peak heap before collections 430 MB (committed)
+computeStats: peak heap before collections 855 MB (committed)
+fleetProfile: peak heap before collections 497 MB (committed)
+fleetGeometry: peak heap before collections 606 MB (committed)
