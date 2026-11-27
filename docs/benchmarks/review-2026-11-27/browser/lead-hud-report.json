@@ -1,0 +1,27 @@
+{
+ "errors": [],
+ "steps": [
+  {
+   "cam": "cockpit",
+   "mode": "cockpit",
+   "lock": true,
+   "lead": true,
+   "leadElements": 1,
+   "hidden": false,
+   "transform": "translate(640px, 400.1px) rotate(45deg)",
+   "cockpitClass": true,
+   "dist": 9053
+  },
+  {
+   "cam": "ship",
+   "mode": "ship",
+   "lock": false,
+   "lead": false,
+   "leadElements": 1,
+   "hidden": true,
+   "transform": "translate(640px, 367.5px) rotate(45deg)",
+   "cockpitClass": false,
+   "dist": 9053
+  }
+ ]
+}

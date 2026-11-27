@@ -8898,18 +8898,8 @@ function trialCockpitEye(){
  return {pos:trialApply(trial.R,tv.sub(k.pos,g.center)),near:k.near,kind:k.kind};
 }
 // From the cockpit: the canopy shading, and a mark where the nose points while the head is turned.
-// 2026-11-27 user「ガンの命中予測が出るHUDをコクピットシート搭載の艦艇に入れ込もう」: a ship with a cockpit seat shows the gun's lead mark,
-// where its bolts (TRIAL_GUN.boltSpeed, the speed Core's hit chance assumes) meet the locked target holding its course; brighter inside
-// the guns' reach.
-function trialLeadHud(hud){
- const n=hud.querySelector('[data-th="lead"]');if(!n)return;const lock=trial.aim?.lock,seat=!!trial.asset?.geometry?.eyes?.cockpit;
- let ok=false;if(seat&&lock?.alive&&!trial.spectate&&!trial.cine&&!trial.battle?.me?.dead){const rel=tv.sub(lock.pos,trial.P),relV=tv.sub(lock.vel||[0,0,0],trial.V||[0,0,0]),t=trialIntercept(rel,relV,TRIAL_GUN.boltSpeed);
-  if(t>0){const p=view.project(tv.add(rel,relV,t)),hr=hud.getBoundingClientRect(),x=p[0]-hr.left,y=p[1]-hr.top;ok=p[2]>-1&&p[2]<1&&x>=0&&y>=0&&x<=hr.width&&y<=hr.height;
-   if(ok){n.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;const reach=C.fleetReach?C.fleetReach(trial.p):TRIAL_GUN.range,inside=tv.len(rel)<=reach;if(n.classList.contains('in')!==inside)n.classList.toggle('in',inside);}}}
- if(n.hidden===ok)n.hidden=!ok;
-}
 function trialCockpitHud(){
- const hud=$('#trialHud');if(!hud||!view)return;trialLeadHud(hud);const e=trialCockpitEye();if(hud.classList.contains('th-cockpit')!==!!e)hud.classList.toggle('th-cockpit',!!e);
+ const hud=$('#trialHud');if(!hud||!view)return;const e=trialCockpitEye();if(hud.classList.contains('th-cockpit')!==!!e)hud.classList.toggle('th-cockpit',!!e);
  const n=hud.querySelector('[data-th="nose"]');if(!n)return;if(!e){if(!n.hidden)n.hidden=true;return;}
  const p=view.project(tv.add(e.pos,trialCol(trial.R,0),5000)),hr=hud.getBoundingClientRect(),x=p[0]-hr.left,y=p[1]-hr.top,ok=p[2]>-1&&p[2]<1&&Math.hypot(x-hr.width/2,y-hr.height/2)>12;
  if(n.hidden===ok)n.hidden=!ok;if(ok)n.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
@@ -9159,7 +9149,7 @@ function trialHudHTML(){
  <div class="th-flash" data-th="flash" aria-hidden="true"></div>${trial.mode==='battle'||trial.pat?'<div class="th-cine" aria-hidden="true"><i class="bar top"></i><i class="bar bot"></i><b>敵艦隊　ハイパースペースより出現</b></div>':''}<div class="th-hit" data-th="hit" aria-hidden="true"></div>
  <p class="th-records" data-th="records"></p><p class="th-warn" data-th="warn" hidden></p><p class="th-hyper" data-th="hyper" hidden aria-live="polite"></p>
  ${trial.mode==='battle'||trial.pat?'<div class="th-card th-self" data-th="self"></div><div class="th-hitcam" data-th="hitcam" hidden><canvas></canvas></div>':''}<div class="th-result" data-th="result" hidden></div>
- <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i><i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
+ <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="pd-auto" aria-pressed="${trialDefenseEnabled()}" aria-label="点防御の自動迎撃">${trialDefenseEnabled()?'自動迎撃 ON':'自動迎撃 OFF'}</button><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
  <div class="th-left" data-th-left><div class="th-card th-pad"><label class="th-throttle-control"><span>スロットル</span><input type="range" data-th-throttle min="0" max="100" step="0.1" value="${trialThrottleCommand()*100}" aria-label="スロットル出力（0%から100%）" orient="vertical"><button type="button" class="th-btn" data-trial-cmd="idle">出力0%</button></label><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div><div class="th-load" data-th-load role="meter" aria-label="炉心負荷" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" title="炉心負荷（使用中の電力÷現在の発電可能出力・全反応炉）"><div class="th-load-bar"><i data-th="loadbar"></i><b class="th-load-full"></b></div><small data-th="load">炉心 —</small></div><div class="th-load th-heatg" data-th-heat role="meter" aria-label="蓄熱" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="th-load-bar"><i data-th="heatbar"></i></div><small data-th="heat">蓄熱 —</small></div><b class="th-dmid" data-th="tele">出力0%</b></div>
