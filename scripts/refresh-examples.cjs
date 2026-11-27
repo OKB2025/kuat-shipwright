@@ -41,8 +41,13 @@ function worker(root,key,out){
  // the profile and the display statistics, from the same measurement as its row, so the game's worker can fly or fight it without the
  // performance calculation (user「公試だけでなく艦隊戦も読み込めるように」).
  if(G.exampleKeys(C,data).includes(key)){G.generateEntry(C,R,key,data.designs[key],sources,{onBuilt:b=>{blueprint=b.blueprint;}});
-  let measured=null;entry=G.compactCatalogEntry(G.generateEntryFromBlueprint(C,R,key,JSON.parse(JSON.stringify(blueprint)),data.designs[key],sources,{onBuilt:b=>{measured=b;}}));entry.model={...entry.model,blueprintSha256:F.sha(F.stable(blueprint))};
-  if(measured?.profile?.surface)prepared={format:'ks-example-prepared',v:1,key,modelKey:C.profileModelKey(),displayKey:E.displayProjectionHash(),blueprintSha256:entry.model.blueprintSha256,surface:measured.profile.surface,displayStats:E.statsOut(measured.stats,measured.ship)};}
+  entry=G.compactCatalogEntry(G.generateEntryFromBlueprint(C,R,key,JSON.parse(JSON.stringify(blueprint)),data.designs[key],sources));entry.model={...entry.model,blueprintSha256:F.sha(F.stable(blueprint))};
+  // The prepared figures are worked out by the game worker's own steps for an example (js/engine.js handleFleet: deserialize the
+  // saved design, remount keeping the fit pose, derive the compartments, then computeStats, fleetProfile and statsOut). The row's
+  // steps (generateMeasuredEntry) derive the compartments twice and gave an Imperial-class a different exposed share in one
+  // module (0.081 against 0.071), so the whole profile is stored from the worker's steps and stands for the computation.
+  if(entry.model.surface){const d=C.deserialize(JSON.parse(JSON.stringify(blueprint)));C.remount(d,{keepFitPose:true});C.syncCompartments(d);const S=C.computeStats(d),p=C.fleetProfile(S,d.name,d);
+   prepared={format:'ks-example-prepared',v:2,key,modelKey:C.profileModelKey(),displayKey:E.displayProjectionHash(),blueprintSha256:entry.model.blueprintSha256,profile:p,displayStats:E.statsOut(S,d)};}}
  else blueprint=G.generateBlueprint(C,key);
  if(G.stable(sources)!==G.stable(G.sourceHashes(root)))throw Error('Model sources changed while building '+key);
  fs.writeFileSync(path.join(out,key+'.blueprint.json'),JSON.stringify(blueprint));

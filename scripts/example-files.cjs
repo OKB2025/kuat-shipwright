@@ -6,8 +6,8 @@
 //                                       price) computed from that design under the calculation model
 //                                       named in row.model (profileVersion, costVersion, costSignature,
 //                                       exampleProfileVersion) and bound to it by row.model.blueprintSha256
-//   data/examples/<key>/prepared.json.gz  catalogue ships with surface sections only (2026-11-27): the surface part of the
-//                                       profile and the display statistics, computed from the same design, so the game's
+//   data/examples/<key>/prepared.json.gz  catalogue ships with surface sections only (2026-11-27): the whole profile and the
+//                                       display statistics, worked out by the worker's own steps, so the game's
 //                                       worker need not run the performance calculation to fly or fight the example
 //                                       (js/engine.js loadPreparedFigures; bound to the row's model key and design checksum)
 //   data/examples/manifest.json         per example and per side: the SHA-256 of the file bytes (and of

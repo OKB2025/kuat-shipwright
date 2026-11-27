@@ -810,8 +810,8 @@ async function loadExample(key){
 
 // 2026-11-27 (user「公試だけでなく艦隊戦も読み込めるように」, after the trial of an Imperial or Venator dropped back to the title on an
 // iPhone: the performance calculation took the worker to about 1 GB): an example with surface sections has its prepared figures in
-// data/examples/<key>/prepared.json.gz (scripts/refresh-examples.cjs): the surface part of its profile and its display statistics,
-// computed from the same saved design. They stand for the calculation only while the file's model key, display projection and
+// data/examples/<key>/prepared.json.gz (scripts/refresh-examples.cjs): its whole profile and its display statistics, worked out from
+// the saved design by this worker's own steps. They stand for the calculation only while the file's model key, display projection and
 // design checksum are the current ones (the catalogue row's rule); otherwise the figures are computed as before. null when absent.
 // JSON has no Infinity or NaN (a heat preset's limitSeconds is Infinity): the file writes them as {"$num":"Infinity"}.
 const PREPARED_NUMBERS={Infinity:Infinity,'-Infinity':-Infinity,NaN:NaN};
@@ -826,7 +826,7 @@ async function loadPreparedFigures(key){
   const raw=await new Response(gz.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
   if(await sha256Hex(raw)!==asset.jsonSha256)throw Error('figures checksum mismatch');
   const f=JSON.parse(new TextDecoder().decode(raw),preparedReviver);
-  if(f?.format!=='ks-example-prepared'||f.modelKey!==C.profileModelKey()||f.displayKey!==displayProjectionHash()||f.blueprintSha256!==row.model?.blueprintSha256||!f.surface||!f.displayStats)return null;
+  if(f?.format!=='ks-example-prepared'||f.v!==2||f.modelKey!==C.profileModelKey()||f.displayKey!==displayProjectionHash()||f.blueprintSha256!==row.model?.blueprintSha256||!f.profile?.surface||!f.displayStats)return null;
   return f;
  }catch(error){console.warn('prepared figures unavailable: '+key+' ('+(error?.message||error)+')');return null;}
 }
@@ -988,7 +988,7 @@ async function fleetJob(job) {
   // profile while the row's whole model key is the current one; otherwise the figures are computed as for any design. The
   // row leaves out the surface meshes, so a surface design (or a repainted example) computes its own.
   let exampleProfile = false;
-  if (!rec.profile && job.key && !job.paint && rec.surfaces && !job.lite) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey === C.profileModelKey() && row.model.surface) { const f = await loadPreparedFigures(job.key); if (f) { const {catalogOnly, ...p} = row.p; rec.profile = {...p, surface: f.surface}; rec.displayStats = f.displayStats; rec.stats = null; exampleProfile = 'prepared'; save = true; } } }
+  if (!rec.profile && job.key && !job.paint && rec.surfaces && !job.lite) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey === C.profileModelKey() && row.model.surface) { const f = await loadPreparedFigures(job.key); if (f) { rec.profile = f.profile; rec.displayStats = f.displayStats; rec.stats = null; exampleProfile = 'prepared'; save = true; } } }
   if (!rec.profile && job.key && !job.paint && !rec.surfaces) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey && !row.model.surface && row.model.modelKey === C.profileModelKey()) { const {catalogOnly, ...p} = row.p; rec.profile = p; exampleProfile = true; } }
   const lite = !!job.lite && !rec.surfaces;
   // Figures and profile: the derived-data cache (design content + model key) before computing them.
