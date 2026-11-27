@@ -30,19 +30,24 @@ function parse(args){
 function worker(root,key,out){
  // Test hook (tests/refresh-examples-atomic.cjs): the listed examples fail on purpose.
  if(String(process.env.KS_REFRESH_FAIL_KEYS||'').split(',').includes(key))throw Error('forced failure for '+key);
- const sources=G.sourceHashes(root),{C,R,data}=G.loadRuntime(root);let blueprint=null,entry=null;
+ const sources=G.sourceHashes(root),{C,R,data,E}=G.loadRuntime(root,{engine:true});let blueprint=null,entry=null,prepared=null;
  // The saved design is made by the authoring tool; a catalogue ship's row is then computed from that saved design
  // loaded back (deserialize and the ordinary load steps), the path the game takes, so the stored figures equal
  // what the game computes for the design it opens (2026-11-12: the in-memory build differed by up to 5e-4 on
  // six ships). The row names the saved design by the stable hash of the file written here.
  // The design is serialized after the authoring build's own statistics run, as before (generateBlueprint alone
  // gives a different venator design), so the stored designs do not change; the row is then computed again from it.
+ // 2026-11-27 a ship with surface sections also gets its prepared figures (example-files.cjs prepared.json.gz): the surface part of
+ // the profile and the display statistics, from the same measurement as its row, so the game's worker can fly or fight it without the
+ // performance calculation (user「公試だけでなく艦隊戦も読み込めるように」).
  if(G.exampleKeys(C,data).includes(key)){G.generateEntry(C,R,key,data.designs[key],sources,{onBuilt:b=>{blueprint=b.blueprint;}});
-  entry=G.compactCatalogEntry(G.generateEntryFromBlueprint(C,R,key,JSON.parse(JSON.stringify(blueprint)),data.designs[key],sources));entry.model={...entry.model,blueprintSha256:F.sha(F.stable(blueprint))};}
+  let measured=null;entry=G.compactCatalogEntry(G.generateEntryFromBlueprint(C,R,key,JSON.parse(JSON.stringify(blueprint)),data.designs[key],sources,{onBuilt:b=>{measured=b;}}));entry.model={...entry.model,blueprintSha256:F.sha(F.stable(blueprint))};
+  if(measured?.profile?.surface)prepared={format:'ks-example-prepared',v:1,key,modelKey:C.profileModelKey(),displayKey:E.displayProjectionHash(),blueprintSha256:entry.model.blueprintSha256,surface:measured.profile.surface,displayStats:E.statsOut(measured.stats,measured.ship)};}
  else blueprint=G.generateBlueprint(C,key);
  if(G.stable(sources)!==G.stable(G.sourceHashes(root)))throw Error('Model sources changed while building '+key);
  fs.writeFileSync(path.join(out,key+'.blueprint.json'),JSON.stringify(blueprint));
  fs.writeFileSync(path.join(out,key+'.row.json'),JSON.stringify({entry,sources}));
+ if(prepared)fs.writeFileSync(path.join(out,key+'.prepared.json'),JSON.stringify(prepared,E.preparedReplacer));
 }
 function run(root,key,out){return new Promise(resolve=>{const started=Date.now(),child=spawn(process.execPath,['--max-old-space-size=4096',__filename,'--worker',key,'--out',out],{cwd:root,stdio:['ignore','ignore','pipe']});let err='';child.stderr.on('data',d=>{err+=d;});child.on('close',code=>resolve({key,code,err:err.trim().split('\n').slice(-3).join(' '),ms:Date.now()-started}));});}
 async function main(){
@@ -55,7 +60,8 @@ async function main(){
   if(r.code!==0){failed.push(key+': '+r.err);console.error(`${key} failed: ${r.err}`);continue;}
   const {entry}=JSON.parse(fs.readFileSync(path.join(out,key+'.row.json'),'utf8')),raw=fs.readFileSync(path.join(out,key+'.blueprint.json'));
   if(entry&&F.sha(F.stable(JSON.parse(raw.toString('utf8'))))!==entry.model.blueprintSha256){failed.push(key+': Blueprint does not match its catalogue row');console.error(`${key} failed: blueprint does not match its row`);continue;}
-  built.push({key,entry,raw,ms:r.ms});console.log(`${key.padEnd(14)} built ${Math.round(r.ms/1000)} s`);}};
+  const pf=path.join(out,key+'.prepared.json'),preparedRaw=fs.existsSync(pf)?fs.readFileSync(pf):entry?null:undefined;
+  built.push({key,entry,raw,preparedRaw,ms:r.ms});console.log(`${key.padEnd(14)} built ${Math.round(r.ms/1000)} s`);}};
  // Audit 2026-11-16: nothing is written until every selected example has built and the model sources are unchanged.
  // Writing each example as it finished left data/examples rewritten without data/fleet.js and the manifest when a
  // later example failed (the stored files and their hashes then disagreed). On a failure the repository is untouched.
@@ -63,8 +69,8 @@ async function main(){
  try{await Promise.all(Array.from({length:Math.min(o.jobs,order.length)},lane));}finally{fs.rmSync(out,{recursive:true,force:true});}
  if(G.stable(sources)!==G.stable(G.sourceHashes(root)))throw Error('Model sources changed during the refresh; nothing was written. Run it again once they are stable');
  if(failed.length)throw Error('Failed (nothing was written): '+failed.join(' | '));
- for(const {key,entry,raw,ms} of built.sort((a,b)=>order.indexOf(a.key)-order.indexOf(b.key))){const changed=F.storeShip(root,manifest,key,{row:entry,blueprintRaw:raw});
-  report.push({key,...changed,seconds:Math.round(ms/1000)});console.log(`${key.padEnd(14)} design ${changed.design.padEnd(9)} combat ${String(changed.combat||'-').padEnd(9)}`);}
+ for(const {key,entry,raw,preparedRaw,ms} of built.sort((a,b)=>order.indexOf(a.key)-order.indexOf(b.key))){const changed=F.storeShip(root,manifest,key,{row:entry,blueprintRaw:raw,preparedRaw});
+  report.push({key,...changed,seconds:Math.round(ms/1000)});console.log(`${key.padEnd(14)} design ${changed.design.padEnd(9)} combat ${String(changed.combat||'-').padEnd(9)} prepared ${String(changed.prepared||'-')}`);}
  manifest.built=new Date().toISOString().slice(0,10);F.writeManifest(root,manifest);F.assemble(root);
  console.log(`Refreshed ${report.length} examples: ${report.filter(r=>r.design==='updated').length} design and ${report.filter(r=>r.combat==='updated').length} combat files rewritten, the rest unchanged`);
 }

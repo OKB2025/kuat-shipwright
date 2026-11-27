@@ -808,6 +808,29 @@ async function loadExample(key){
  }catch(error){throw Object.assign(new Error('作例の設計ファイルを読み込めません：'+key+'（'+(error?.message||error)+'）'),{code:'example-unreadable'});}
 }
 
+// 2026-11-27 (user「公試だけでなく艦隊戦も読み込めるように」, after the trial of an Imperial or Venator dropped back to the title on an
+// iPhone: the performance calculation took the worker to about 1 GB): an example with surface sections has its prepared figures in
+// data/examples/<key>/prepared.json.gz (scripts/refresh-examples.cjs): the surface part of its profile and its display statistics,
+// computed from the same saved design. They stand for the calculation only while the file's model key, display projection and
+// design checksum are the current ones (the catalogue row's rule); otherwise the figures are computed as before. null when absent.
+// JSON has no Infinity or NaN (a heat preset's limitSeconds is Infinity): the file writes them as {"$num":"Infinity"}.
+const PREPARED_NUMBERS={Infinity:Infinity,'-Infinity':-Infinity,NaN:NaN};
+function preparedReviver(k,v){return v&&typeof v==='object'&&!Array.isArray(v)&&typeof v.$num==='string'&&Object.keys(v).length===1&&Object.hasOwn(PREPARED_NUMBERS,v.$num)?PREPARED_NUMBERS[v.$num]:v;}
+function preparedReplacer(k,v){return typeof v==='number'&&!Number.isFinite(v)?{$num:String(v)}:v;}
+function preparedAsset(key){const row=exampleRow(key),a=row?.model?.preparedFigures;return a&&typeof a.url==='string'&&/^[a-f0-9]{64}$/.test(a.jsonSha256||'')?a:null;}
+async function loadPreparedFigures(key){
+ const row=exampleRow(key),asset=preparedAsset(key);if(!row||!asset)return null;
+ try{
+  let gz=await exampleBytes(asset);if(!(gz instanceof Blob))gz=new Blob([gz]);
+  if(asset.sha256&&typeof KSAssetCache==='undefined'&&await sha256Hex(await gz.arrayBuffer())!==asset.sha256)throw Error('file checksum mismatch');
+  const raw=await new Response(gz.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  if(await sha256Hex(raw)!==asset.jsonSha256)throw Error('figures checksum mismatch');
+  const f=JSON.parse(new TextDecoder().decode(raw),preparedReviver);
+  if(f?.format!=='ks-example-prepared'||f.modelKey!==C.profileModelKey()||f.displayKey!==displayProjectionHash()||f.blueprintSha256!==row.model?.blueprintSha256||!f.surface||!f.displayStats)return null;
+  return f;
+ }catch(error){console.warn('prepared figures unavailable: '+key+' ('+(error?.message||error)+')');return null;}
+}
+
 async function handleBuild(job) {
   const t0 = now();
   // Completed records restore native caches too. Older public-state-only
@@ -965,10 +988,11 @@ async function fleetJob(job) {
   // profile while the row's whole model key is the current one; otherwise the figures are computed as for any design. The
   // row leaves out the surface meshes, so a surface design (or a repainted example) computes its own.
   let exampleProfile = false;
+  if (!rec.profile && job.key && !job.paint && rec.surfaces && !job.lite) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey === C.profileModelKey() && row.model.surface) { const f = await loadPreparedFigures(job.key); if (f) { const {catalogOnly, ...p} = row.p; rec.profile = {...p, surface: f.surface}; rec.displayStats = f.displayStats; rec.stats = null; exampleProfile = 'prepared'; save = true; } } }
   if (!rec.profile && job.key && !job.paint && !rec.surfaces) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey && !row.model.surface && row.model.modelKey === C.profileModelKey()) { const {catalogOnly, ...p} = row.p; rec.profile = p; exampleProfile = true; } }
   const lite = !!job.lite && !rec.surfaces;
   // Figures and profile: the derived-data cache (design content + model key) before computing them.
-  let derived = null, profileSrc = lite ? null : 'record';
+  let derived = null, profileSrc = lite ? null : exampleProfile === 'prepared' ? 'prepared' : 'record';
   if (!lite && (!rec.profile || !rec.stats && !rec.displayStats)) {
     const id = await derivedId(job, djson), hit = await derivedGet(id);
     if (hit) { rec.profile = hit.profile; rec.displayStats = hit.displayStats; rec.stats = null; save = true; profileSrc = 'derived'; }
@@ -1109,7 +1133,7 @@ function connectInline(deliver) {
 }
 // Read-only diagnostic for tests: each kept fleet record's counted size, its size measured now and whether it holds a profile.
 function fleetRecordSizes() { return [...new Set(fleetBuilt.values())].map(r => ({bytes: r.bytes || 0, profile: !!r.profile, measured: cacheBytes({state: r.state, caches: r.caches, profile: r.profile, displayStats: r.displayStats, serial: r.serial})})); }
-return {listenWorker, connectInline, packCaches, disk: DISK, fleetRecordSizes, abandoned, loadExample, derived: DERIVED};
+return {listenWorker, connectInline, packCaches, disk: DISK, fleetRecordSizes, abandoned, loadExample, derived: DERIVED, statsOut, displayProjectionHash, loadPreparedFigures, preparedReplacer, preparedReviver};
 })();
 if (typeof self !== 'undefined' && typeof window === 'undefined' && typeof importScripts === 'function' && self.__ksWorker) YardEngine.listenWorker(self);
 
@@ -1161,13 +1185,27 @@ async function start(src, opts = {}) {
   readyResolve(mode);
   return mode;
 }
+// 2026-11-27 (the trial of an Imperial or Venator on an iPhone: the worker's calculation reached about 1 GB and the tab was ended):
+// a crashed worker is replaced by a fresh worker, not by the inline engine. The inline engine runs on the page itself, so the same
+// heavy job asked again would build the same peak beside the page's own memory. Messages sent while the new worker starts wait
+// for it. Only when restarting fails (or after ENGINE_RESTARTS restarts) does the inline engine take over, as before.
+const ENGINE_RESTARTS = 2;
+let restarts = 0;
 function fail() {
-  // A crashed worker hands over to the inline engine; pending requests fail.
   try { worker?.terminate(); } catch (e) {}
   placementFail(new Error('engine restarted'));
-  inline();
   for (const [id, w] of waiting) w.reject(new Error('engine restarted'));
   waiting.clear();
+  const factory = globalThis.KSBoot?.createBackgroundWorker;
+  if (restarts < ENGINE_RESTARTS && (factory || sources)) {
+    restarts++; worker = null; const queue = []; send = (m, tr) => queue.push([m, tr]);
+    Promise.resolve().then(() => factory ? factory.call(globalThis.KSBoot) : bootWorker(sources)).then(w => {
+      w.onmessage = (e) => dispatch(e.data);
+      w.onerror = (e) => { e.preventDefault?.(); console.error('engine worker failed', e.message); fail(); };
+      worker = w; mode = 'worker'; placementUnavailable = false; send = (m, tr) => w.postMessage(m, tr || []);
+      for (const [m, tr] of queue) w.postMessage(m, tr || []);
+    }).catch(e => { console.warn('engine worker restart failed, running inline:', e?.message); inline(); for (const [m, tr] of queue) send(m, tr); });
+  } else inline();
   const h = handlers.restart; if (h) h();
 }
 function placementFail(error) {
