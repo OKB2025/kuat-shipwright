@@ -126441,7 +126441,7 @@ const CRAFT_LOADOUT=Object.freeze({
  ywing:{st:[['ctorp',2]],load:[['ptorp',4]],src:'MG7 プロトン魚雷発射管2基。弾倉は当初6発、のちに4発（Wookieepedia「BTL Y-wing starfighter」）。同盟軍の改装機は計8発（Rebel Starfighters Owners\' Workshop Manual。Wikipedia「Y-wing」）',
   // canon alternative: ion torpedoes, as Gold Squadron at Scarif
   alt:[{name:'イオン魚雷（スカリフの戦い）',load:[['itorp',4]],src:'スカリフの戦いでゴールド中隊の Y ウイングがイオン魚雷でインペリアル級スター・デストロイヤー「パーセキューター」を無力化（ローグ・ワン、2016。Wookieepedia「Ion torpedo」）'}]},
- btlb:{st:[['ctorp',2],['cbomb',1]],load:[['ptorp',6],['bomb',8]],mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾の数は記載がなく、TIE/sa の主兵装庫と同じ8発'},
+ btlb:{st:[['ctorp',2],['cpylon',2],['cpylon',2]]/* 2026-11-27 user「Y-wingの爆弾倉は設定資料を見ても見当たらないのでパイロンで代用した」: the refit carries its bombs on four pylons (was a bomb bay, cbomb) */,load:[['ptorp',6],['bomb',2],['bomb',2]]/* the eight proton bombs, two a pylon */,mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾の数は記載がなく、TIE/sa の主兵装庫と同じ8発'},
  bwing:{st:[['ctorp',2]],load:[['ptorp',3]],src:'プロトン魚雷発射管2基（Wikipedia「List of Star Wars starfighters」の諸元）。弾数は記載がなく、各3発（X ウイングの MG7 と同じ）'},
  tie_sa:{st:[['ctorp',1],['cbomb',1]],load:[['ptorp',4],['bomb',8]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
  arc170:{st:[['ctorp',1]],load:[['ptorp',6]],mass:34.5,src:'プロトン魚雷6発（Dougherty ほか 2020, pp. 82–83。Wikipedia「List of Star Wars starfighters」）'},
