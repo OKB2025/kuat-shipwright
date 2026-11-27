@@ -1,0 +1,13 @@
+42 段付きカラー stowed max vertex gap 2.86e-6
+42 磁気フラッシュバックサプレッサー stowed max vertex gap 5.13e-6
+42 アンテナ型発射ノズル stowed max vertex gap 2.14e-6
+43 段付きカラー stowed max vertex gap 2.86e-6
+43 磁気フラッシュバックサプレッサー stowed max vertex gap 5.13e-6
+43 アンテナ型発射ノズル stowed max vertex gap 2.14e-6
+44 段付きカラー stowed max vertex gap 2.81e-6
+44 磁気フラッシュバックサプレッサー stowed max vertex gap 5.14e-6
+44 アンテナ型発射ノズル stowed max vertex gap 2.13e-6
+45 段付きカラー stowed max vertex gap 2.81e-6
+45 磁気フラッシュバックサプレッサー stowed max vertex gap 5.14e-6
+45 アンテナ型発射ノズル stowed max vertex gap 2.13e-6
+pieces 12 worst 0.000005135316540367929

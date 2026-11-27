@@ -38,3 +38,15 @@ test('an ion gun has no tracking nozzle: the B-wing\'s ion cannons ask for one a
  const S=C.computeStats(s);assert.equal(+S.mass.toFixed(3),17.302);assert.equal(Math.round(S.cost),167446);
  assert.equal(C.trackNozzleOn({k:'claser',boreM:.12,nozzle:'track'}),true,'a fixed laser keeps it');
 });
+// 2026-11-27 (reference-fidelity review): stowed, the nozzle goes with the gun: the pieces, in the posed gun's frame (its posed normal), sit on
+// the user's three nozzle structures turned with the foil to its stow angle (foilAt), every vertex within 1e-4 m.
+test('stowed, each X-wing nozzle sits on the user\'s nozzle structures turned with the foil',()=>{
+ const raw=require(path.join(root,'docs/handoff-2026-11-20/refs/xwing-refit-2026-11-27.json')),u=C.deserialize(JSON.parse(JSON.stringify(raw))),s=C.buildDesign('craft_xwing');
+ const pts=T=>{const r=[];for(let i=0;i<T.length;i+=3)r.push([T[i],T[i+1],T[i+2]]);return r;},far=(X,Y)=>Math.max(...X.map(x=>Math.min(...Y.map(y=>Math.hypot(x[0]-y[0],x[1]-y[1],x[2]-y[2])))));let n=0;
+ for(const wing of s.parts.filter(C.isFoil)){const pose=C.foilPose(s,wing,wing.wing.stow),uw=u.parts.find(p=>p.id===wing.id),uframe=C.foilFrame(u,uw);
+  for(const pf of pose.fits){const f0=s.fits.find(f=>f.id===(pf._poseOf??pf.id));if(f0?.nozzle!=='track')continue;const o=C.fitOrigin(pf),f00=C.fitFrameOf(f0),up=C.norm(pf.n),fw=f00.fw,r0=C.norm(C.cross(fw,up)),sg=Math.sign(C.dot(r0,f00.rt))||1,rt=r0.map(v=>v*sg);
+   for(const q of C.trackNozzlePieces(pf,C.trackNozzleLean(s,f0))){const T=C.structTriangles(q),W=[];for(let i=0;i<T.length;i+=3)W.push([0,1,2].map(a=>o[a]+fw[a]*T[i]+up[a]*T[i+1]+rt[a]*T[i+2]));
+    const side=(f0.p[2]>0?'右舷':'左舷')+(f0.p[1]>2?'上翼':'下翼'),orig=u.parts.find(p=>(p.label||'').startsWith(side)&&(p.label||'').includes(q.name)),Q=pts(C.structTriangles(orig)).map(v=>C.foilAt(uframe,uw,v,0));
+    assert.ok(far(W,Q)<1e-4&&far(Q,W)<1e-4,f0.id+' '+q.name+' stowed: '+far(W,Q)+' / '+far(Q,W));n++;}}}
+ assert.equal(n,12);
+});
