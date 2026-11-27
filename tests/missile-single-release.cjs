@@ -40,20 +40,26 @@ test('with one loaded cell of four the launcher fires once a cycle, not four tim
  const shots=run(u,.05,60),times=shots.map(q=>q.t);assert.equal(shots.length,3);assert.ok(shots.every(q=>q.cell===1));
  for(let k=1;k<times.length;k++)assert.ok(Math.abs(times[k]-times[k-1]-1.2)<.05+1e-9,`gap ${times[k]-times[k-1]}`);
 });
-// Physics review 2026-11-27: one launcher's volley of single rounds is one target for point defence, as the salvo it replaced was: in the
-// strategic battle a defender engages the volley once a tick with channels for the whole volley, and the kill is shared by its rounds.
-test('point defence takes as much of a volley of eight single rounds as of the salvo of eight it replaced',()=>{
- const {R}=vm.runInContext('({R:Rts})',cx),copy=v=>JSON.parse(JSON.stringify(v));
- const ship=C.newShip({L:500,W:300,H:160,plan:'rect',sec:'rect'},'PD');ship.parts=[{id:1,k:'gen',d:100,c:[250,80,0]},{id:3,k:'fuel',d:40,c:[100,80,0]},{id:4,k:'pump',d:21,c:[250,80,-75]}];
- ship.fits=[{id:2,k:'pd',p:[250,160,0],a:2,ped:0,base:0,low:0,float:false}];ship.nextId=5;const p=C.fleetProfile(C.computeStats(ship),ship.name,ship);
- const downed=rounds=>{let total=0;for(let seed=1;seed<=12;seed++){
-  const w=R.createWorld({region:'kuat',seed,sensors:false,designs:[{key:'own',name:'Own',p:copy(p),info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:copy(p),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]});
-  const [u,e]=[...w.units.values()],sys=u.sys;for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}
-  for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[5000,0,0],yaw:x===u?0:Math.PI,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;u.p.aaCh=4/* four fire-control channels, the default */;
-  const ms=rounds(sys,u,e);w.missiles.push(...ms);R.tick(w,.25);total+=ms.reduce((n,m)=>n+(m.downed||0),0);}return total;};
- const m=(sys,u,e,o)=>({sys,side:1,from:e.id,target:u.id,pos:[4500,0,0],vel:[-220,0,0],s:220,life:45,...o});
- const salvo=downed((sys,u,e)=>[m(sys,u,e,{id:'s',n:8})]),volley=downed((sys,u,e)=>Array.from({length:8},(_,k)=>m(sys,u,e,{id:'v'+k,n:1,volley:e.id+'#1:1',pos:[4500+k*10,0,0]})));
- const loose=downed((sys,u,e)=>Array.from({length:8},(_,k)=>m(sys,u,e,{id:'l'+k,n:1,pos:[4500+k*10,0,0]})));
- assert.ok(salvo>0,'the salvo is engaged');assert.ok(Math.abs(volley/salvo-1)<.15,`volley ${volley} vs salvo ${salvo}`);
- assert.ok(loose>volley*1.15,`eight loose rounds, each its own target, are taken harder (${loose} vs ${volley}): the case the volley id prevents`);
+// 2026-11-27 user「長距離迎撃に関してはその通りでいい。点防御は点防御で近い目標を勝手に処理する(枠に関係ない)ので撃ち漏らしはその担当になる」: in the
+// strategic battle each round is its own target; within ANTI_AIR.close of the hull point defence takes it on its own, without a channel;
+// farther out a round needs a channel; the defender's output for the tick is shared over what it engages.
+const {R}=vm.runInContext('({R:Rts})',cx),copy=v=>JSON.parse(JSON.stringify(v));
+const pdShip=(()=>{const ship=C.newShip({L:500,W:300,H:160,plan:'rect',sec:'rect'},'PD');ship.parts=[{id:1,k:'gen',d:100,c:[250,80,0]},{id:3,k:'fuel',d:40,c:[100,80,0]},{id:4,k:'pump',d:21,c:[250,80,-75]}];
+ ship.fits=[{id:2,k:'pd',p:[250,160,0],a:2,ped:0,base:0,low:0,float:false}];ship.nextId=5;return C.fleetProfile(C.computeStats(ship),ship.name,ship);})();
+function pdTick(rounds,{channels=4,seeds=12}={}){const per=[];for(let seed=1;seed<=seeds;seed++){
+ const w=R.createWorld({region:'kuat',seed,sensors:false,designs:[{key:'own',name:'Own',p:copy(pdShip),info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:copy(pdShip),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]});
+ const [u,e]=[...w.units.values()],sys=u.sys;for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}
+ for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[9000,0,0],yaw:x===u?0:Math.PI,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:true,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;u.p.aaCh=channels;
+ const ms=rounds.map((q,k)=>({id:'m'+k,sys,side:1,from:e.id,target:u.id,vel:[-220,0,0],s:220,life:45,...q}));w.missiles.push(...ms);R.tick(w,.25);per.push(ms.map(m=>m.downed||0));}
+ return per[0].map((_,k)=>per.reduce((n,row)=>n+row[k],0));}
+const sum=a=>a.reduce((n,v)=>n+v,0),close=x=>({pos:[x,0,0]});
+test('close in, point defence takes rounds on its own: with no channel at all it still engages a round at 1 km, not one at 4 km',()=>{
+ const [near]=pdTick([{n:1,...close(1000)}],{channels:0}),[far]=pdTick([{n:1,...close(4000)}],{channels:0});assert.ok(near>0,'close round engaged without a channel');assert.equal(far,0,'a far round needs a channel');
+});
+test('farther out each round takes a channel: two channels engage the two nearest of four rounds',()=>{
+ const d=pdTick([3000,3200,3400,3600].map(x=>({n:1,...close(x)})),{channels:2});assert.ok(d[0]>0&&d[1]>0,JSON.stringify(d));assert.equal(d[2],0);assert.equal(d[3],0);
+});
+test('the output is shared: eight single rounds close in lose about as much in all as one packet of eight there',()=>{
+ const packet=sum(pdTick([{n:8,...close(1000)}])),single=sum(pdTick(Array.from({length:8},(_,k)=>({n:1,...close(1000+k*10)}))));
+ assert.ok(packet>0);assert.ok(Math.abs(single/packet-1)<.2,`single ${single} vs packet ${packet}`);
 });
