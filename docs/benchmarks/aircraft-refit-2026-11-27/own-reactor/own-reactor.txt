@@ -1,0 +1,10 @@
+bc route -1 reactor gen#6 axis 0 overlap along axis 8.48 reactor size 520.00 share 0.02 route past the reactor centre no route through both faces no
+craft_hyena route -19 reactor aux#17 axis 2 overlap along axis 0.56 reactor size 0.90 share 0.63 route past the reactor centre yes route through both faces no
+craft_hyena route -20 reactor aux#18 axis 2 overlap along axis 0.56 reactor size 0.90 share 0.63 route past the reactor centre yes route through both faces no
+craft_hyena route -21 reactor gen#23 axis 1 overlap along axis 0.35 reactor size 0.35 share 1.00 route past the reactor centre yes route through both faces yes
+craft_hyena route -22 reactor gen#24 axis 1 overlap along axis 0.35 reactor size 0.35 share 1.00 route past the reactor centre yes route through both faces yes
+craft_tie_in route -253 reactor aux#252 axis 0 overlap along axis 0.76 reactor size 0.76 share 1.00 route past the reactor centre yes route through both faces yes
+craft_tie_in route -254 reactor aux#252 axis 0 overlap along axis 0.76 reactor size 0.76 share 1.00 route past the reactor centre yes route through both faces yes
+craft_tie_ln route -253 reactor aux#252 axis 0 overlap along axis 0.72 reactor size 0.72 share 1.00 route past the reactor centre yes route through both faces yes
+craft_tie_ln route -254 reactor aux#252 axis 0 overlap along axis 0.72 reactor size 0.72 share 1.00 route past the reactor centre yes route through both faces yes
+heavy route -1 reactor gen#6 axis 0 overlap along axis 2.85 reactor size 250.00 share 0.01 route past the reactor centre no route through both faces no
