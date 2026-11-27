@@ -122319,19 +122319,24 @@ function fleetMissileStep(u,dt,active=false,options={}){
   const distance=typeof options.distance==='function'?options.distance(m,i):options.distance,shipMode=!m.torp&&options.missileMode?options.missileMode(m,i):undefined,reach=shipMode==='radar'?(m.heavy?SHIP_MSL_GUIDE.radarRange:Math.min(range,SHIP_MSL_GUIDE.heatRange)):shipMode==='heat'?Math.min(range,SHIP_MSL_GUIDE.heatRange):range/* 2026-11-24 (physics review) radar-guided to 50 km for a large missile, else within the seeker's 10 km (was the larger of 60 km and 50 km) */,ready=active&&(distance==null||distance<=reach)&&powered(i)&&(m.torp||!options.missileMode||options.missileMode(m,i)!=null)/* 2026-11-24 a ship's missile goes only radar-guided with a slot free or heat-seeking within its seeker's reach */,ammo=Math.max(0,Number.isFinite(u.ammo?.[i])?u.ammo[i]:0),previous=Number.isFinite(u.launcherT[i])?Math.max(0,u.launcherT[i]):native?0:Math.max(0,u.mslT||0);
   if(m.missileKind==='shipMsl'){
    const cells=missileCellAmmo(u,i);if(!ready||!(ammo>0)){u.launcherT[i]=Math.max(0,previous-dt);continue;}
-   let timer=previous-dt,volleys=0;while(timer<=1e-9&&cells.some(n=>n>0)){
-    for(let cell=0;cell<cells.length;cell++)if(cells[cell]>0){cells[cell]--;u.ammo[i]--;out.push({module:i,cell,n:1,tt,range,ion:!!m.ion,kind:m.missileKind,...(m.torp?{torp:true}:{}),muzzle:m.launchMuzzles?.[cell]||m.muzzle,axis:m.launchDir});}
-    timer+=cycle;if(++volleys>=6)break;
+   // 2026-11-27 user「ミサイルは基本1発ずつ発射されるように」: a cell launcher releases one round at a time, from the fullest cell,
+   // every cycle/cells seconds (the same rounds per second as the earlier all-cells volley every cycle; was every cell at once).
+   const gap=cycle/Math.max(1,cells.length);let timer=previous-dt,shots=0;while(timer<=1e-9&&cells.some(n=>n>0)){
+    let cell=0;for(let j=1;j<cells.length;j++)if(cells[j]>cells[cell])cell=j;
+    cells[cell]--;u.ammo[i]--;out.push({module:i,cell,n:1,tt,range,ion:!!m.ion,kind:m.missileKind,...(m.torp?{torp:true}:{}),muzzle:m.launchMuzzles?.[cell]||m.muzzle,axis:m.launchDir});
+    timer+=gap;if(++shots>=6*cells.length)break;
    }u.launcherT[i]=Math.max(0,timer);continue;
   }
   if(!native&&options.legacyContinuous){
    u.launcherT[i]=Math.max(0,previous-dt);if(!ready||!(ammo>0))continue;
    const n=Math.min(ammo,8/20*dt);u.ammo[i]=ammo-n;out.push({module:i,n,tt,range,ion:!!m.ion,kind:m.ion?'itorp':'legacy',muzzle:m.muzzle,axis:m.launchDir});continue;
   }
-  if(!ready||ammo<salvo){u.launcherT[i]=Math.max(0,previous-dt);continue;}
-  let timer=previous-dt;const salvos=timer<=1e-9?Math.min(Math.floor(ammo/salvo),Math.floor((-timer+1e-9)/cycle)+1):0,n=salvos*salvo,remaining=ammo-n;timer+=salvos*cycle;
-  u.launcherT[i]=Math.max(0,timer);if(!(n>0))continue;u.ammo[i]=remaining;
-  out.push({module:i,n,tt,range,ion:!!m.ion,kind:native?m.missileKind:m.ion?'itorp':'legacy',...(m.torp?{torp:true}:{}),muzzle:m.muzzle,axis:m.launchDir});
+  // 2026-11-27 user「ミサイルは基本1発ずつ発射されるように」: one round per launch, every cycle/salvo seconds (the same rounds per
+  // second as the earlier salvo of `salvo` rounds every cycle; was the whole salvo in one packet).
+  if(!ready||ammo<1){u.launcherT[i]=Math.max(0,previous-dt);continue;}
+  const gap=cycle/salvo;let timer=previous-dt;const n=timer<=1e-9?Math.min(Math.floor(ammo),Math.floor((-timer+1e-9)/gap)+1,6*salvo):0;timer+=n*gap;
+  u.launcherT[i]=Math.max(0,timer);if(!(n>0))continue;u.ammo[i]=ammo-n;
+  for(let k=0;k<n;k++)out.push({module:i,n:1,tt,range,ion:!!m.ion,kind:native?m.missileKind:m.ion?'itorp':'legacy',...(m.torp?{torp:true}:{}),muzzle:m.muzzle,axis:m.launchDir});
  }
  if(out.length&&u.pw){u.pw.activeWeaponFire=true;u.pw.activeCombatPower=true;}return out;
 }
