@@ -71,7 +71,7 @@ test('zero generation and a lost electronics grant block new orders without spen
 test('power lost during a ripple pauses pending shots and resumes without double consumption',()=>{
  const {run}=setup({salvo:3});run('fire()');assert.equal(run('trial.gun.missiles'),1);assert.equal(run('launcher.queue'),2);assert.equal(run('unit.ammo[0]'),5);
  run("unit.propulsion.power.granted['fixed:f7']=0;trialMissiles(10,null)");assert.equal(run('trial.gun.missiles'),1);assert.equal(run('launcher.queue'),2);assert.equal(run('unit.ammo[0]'),5);
- run("unit.propulsion.power.granted['fixed:f7']=1;trialMissiles(.15,null);trialMissiles(.15,null)");assert.equal(run('trial.gun.missiles'),3);assert.equal(run('launcher.queue'),0);assert.equal(run('unit.ammo[0]'),3);
+ run("unit.propulsion.power.granted['fixed:f7']=1;trialMissiles(.4,null);trialMissiles(.4,null)")/* 2026-11-27 expectation changed (user「ミサイルは基本1発ずつ発射されるように」): the trial spaces a launcher's rounds cycle/salvo apart as the fleet does (1.2/3 = 0.4 s; was the trial's own 0.14 s ripple, so two steps of 0.15 s were enough) */;assert.equal(run('trial.gun.missiles'),3);assert.equal(run('launcher.queue'),0);assert.equal(run('unit.ammo[0]'),3);
 });
 
 test('the exact pitched tube axis survives ship rotation and the initial missile boost',()=>{

@@ -19,7 +19,7 @@ function battle(k){
  e.manual=true;
  return {w,u,e,sys};
 }
-function incoming(f){const missile={id:'incoming',sys:f.sys,side:1,from:f.e.id,target:f.u.id,n:8,pos:[4500,0,0],vel:[-220,0,0],s:220,life:45};f.w.missiles.push(missile);return missile;}
+function incoming(f,pos=[4500,0,0]){const missile={id:'incoming',sys:f.sys,side:1,from:f.e.id,target:f.u.id,n:8,pos,vel:[-220,0,0],s:220,life:45};f.w.missiles.push(missile);return missile;}
 
 test('only the actual twin and spherical point-defence definitions automatically intercept',()=>{
  for(const k of ['pd','monCalPD'])assert.equal(C.weaponRoles(C.FITS[k]).pointDefense,true,k);
@@ -53,7 +53,7 @@ test('the real RTS missile step leaves missiles alone when only ordinary guns ar
 test('dedicated point defence still intercepts in the same real RTS missile step',()=>{
  for(const k of ['pd','monCalPD']){
   const {S,p}=installedProfile(k);assert.ok(S.aa>0&&p.dualPurpose?.aa>0);assert.ok(p.modules.some(m=>m.fit===2&&m.pd));
-  const f=battle(k),m=incoming(f);R.tick(f.w,.25);assert.equal(f.u.dualDefense,true,k);assert.ok(m.n<8&&m.n>0,k+' retains its normal interception effect');
+  const f=battle(k),m=incoming(f,[1000,0,0])/* 2026-11-27 expectation changed (user「点防御は点防御で近い目標を勝手に処理する(枠に関係ない)ので撃ち漏らしはその担当になる」): the round comes in at 1 km, within close range: this ship has no tracking channel, and farther out a round needs one (was 4.5 km, taken with the close-in channel every ship kept) */;R.tick(f.w,.25);assert.equal(f.u.dualDefense,true,k);assert.ok(m.n<8&&m.n>0,k+' retains its normal interception effect');
  }
 });
 

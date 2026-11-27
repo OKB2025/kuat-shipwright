@@ -28,5 +28,5 @@ test('a nearby rear target cannot be hit while a native missile is still clearin
 
 test('legacy ion missiles without a clearance flag retain their immediate close-range impact',()=>{
  const {w,u}=battle(false);R.battleTick(w,u.sys,.1);
- assert.equal(u.ammo[1],52,'the legacy tube retains its eight-round salvo');assert.ok(u.dmgDone>0);assert.equal(w.missiles.filter(m=>m.from===u.id).length,0,'undefined clearance cannot delay old guided missiles');
+ /* 2026-11-27 expectation changed (user「ミサイルは基本1発ずつ発射されるように」): the legacy tube releases one round a launch, 20/8 s apart (was its eight-round salvo, ammo 52) */assert.equal(u.ammo[1],59,'the legacy tube releases one round');assert.ok(u.dmgDone>0);assert.equal(w.missiles.filter(m=>m.from===u.id).length,0,'undefined clearance cannot delay old guided missiles');
 });
