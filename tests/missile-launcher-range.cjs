@@ -37,7 +37,7 @@ test('ship cell salvos use their own physical muzzles and preserve six salvos an
 
 
 test('ship launchers keep per-cell ammunition and fire a partial final volley from loaded cells only',()=>{
- const u=unit('shipMsl',3);power(u);const first=C.fleetMissileStep(u,.1,true,{distance:20000});assert.equal(first.length,3);assert.deepEqual(plain(u.launcherCellAmmo[1]),[5,5,5]);
+ const u=unit('shipMsl',3);power(u);const first=C.fleetMissileStep(u,.1,true,{distance:20000});/* 2026-11-27 expectation changed (user「ミサイルは基本1発ずつ発射されるように」): one round in the first step from the first cell (was 3, one from every cell; cells [5,5,5]) */assert.equal(first.length,1);assert.deepEqual(plain(u.launcherCellAmmo[1]),[5,6,6]);
  u.launcherCellAmmo[1]=[0,2,1];u.ammo[1]=3;let rest=[];for(let i=0;i<40;i++){power(u);rest.push(...C.fleetMissileStep(u,.1,true,{distance:20000}));}
  assert.equal(rest.length,3);assert.deepEqual(plain(rest.map(q=>q.muzzle[2]).sort()),[1,1,2]);assert.deepEqual(plain(u.launcherCellAmmo[1]),[0,0,0]);assert.equal(u.ammo[1],0);
 });

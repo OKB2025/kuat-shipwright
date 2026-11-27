@@ -46,13 +46,13 @@ test('equal simulated time preserves native launch counts across step sizes',()=
 });
 
 test('legacy ion tubes retain eight rounds per twenty seconds at 10 TT',()=>{
- const u=unit(false),first=advance(u,.25,1);assert.equal(first.length,1);assert.equal(first[0].n,8);assert.equal(first[0].tt,10);assert.equal(first[0].ion,true);
- assert.equal(u.ammo[1],112);assert.equal(advance(u,.25,75).length,0);
+ const u=unit(false),first=advance(u,.25,1);/* 2026-11-27 expectation changed (user「ミサイルは基本1発ずつ発射されるように」): a round every 20/8 s, one at a time (was 8 rounds in one packet, ammo 112, then none for 20 s); still eight rounds per twenty seconds */assert.equal(first.length,1);assert.equal(first[0].n,1);assert.equal(first[0].tt,10);assert.equal(first[0].ion,true);
+ assert.equal(u.ammo[1],119);const rest=advance(u,.25,75);assert.equal(rest.length,7);assert.ok(rest.every(q=>q.n===1));assert.equal(u.ammo[1],112);
 });
 
 test('native concussion and legacy ion tubes retain independent cadence and warheads',()=>{
  const u=unit();u.p.modules.push({...profile(false).modules[1],fit:3,port:'f3'});u.mods.push(1);u.ammo.push(120);
- const first=advance(u,.25,1);assert.equal(first.find(q=>q.kind==='cmsl').n,1);assert.equal(first.find(q=>q.ion).n,8);assert.equal(first.find(q=>q.ion).tt,10);
+ const first=advance(u,.25,1);assert.equal(first.find(q=>q.kind==='cmsl').n,1);/* 2026-11-27 expectation changed (user「ミサイルは基本1発ずつ発射されるように」): the ion tube's first launch is one round (was 8) */assert.equal(first.find(q=>q.ion).n,1);assert.equal(first.find(q=>q.ion).tt,10);
  const next=advance(u,.25,5);assert.equal(next.filter(q=>q.ion).length,0);assert.equal(next.filter(q=>q.kind==='cmsl').reduce((n,q)=>n+q.n,0),1);
 });
 
