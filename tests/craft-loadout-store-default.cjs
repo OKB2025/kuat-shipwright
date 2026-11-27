@@ -28,3 +28,10 @@ test('a saved craft snapshot keeps each ship launcher station at 6 rounds per ce
  // A forged store is not kept: slots must be a multiple of 6 within 6…1536.
  const bad=JSON.parse(JSON.stringify(snap));bad.craft.stations[0].store.slots=25;assert.equal(C.cleanDesignCraft(bad).craft.stations[0].store,undefined);
 });
+// 2026-11-27 user「揃える」: a canon loadout's mass is its type's example design (the craft price catalog's measured mass), not the
+// pre-refit figure the table carried (expectation changed: BTL-B was 52.3 t, X-wing 22.5 t, Vulture 8.9 t).
+test('a canon loadout carries its example design\'s mass: BTL-B 76.19 t, X-wing 27.77 t, and the Y-wing and B-wing now have one',()=>{
+ const m=t=>C.craftLoadout('craft_'+t).mass,kg=t=>C.CRAFT_PRICE_CATALOG.entries[t].powerProfile.propulsion.massKg/1000;
+ assert.ok(Math.abs(m('btlb')-76.19)<.01,String(m('btlb')));assert.ok(Math.abs(m('xwing')-27.77)<.01,String(m('xwing')));
+ for(const t of ['xwing','awing','ywing','btlb','bwing','tie_sa','arc170','z95','v19','hyena','vulture'])assert.equal(m(t),kg(t),t);
+});

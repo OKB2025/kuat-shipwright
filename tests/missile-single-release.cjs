@@ -80,3 +80,16 @@ test('in the strategic battle a disabled round flies straight on: off its target
   const m={id:'d',sys,side:1,from:e.id,target:u.id,n:1,tt:1,pdDisabled:true,unguided:true,pos,vel,s:2600,top:2600,life:20,range:60000,traveled:0};w.missiles.push(m);const hp=u.hp;for(let i=0;i<40&&m.n>0&&m.life>0;i++)R.tick(w,.25);return {hit:u.hp<hp||!!m.hit,m};};
  assert.equal(strike([5000,3000,0],[-1,0,0]).hit,false,'flying past 3 km off its line, it does not turn');assert.equal(strike([5000,0,0],[-1,0,0]).hit,true,'on its line it still strikes');
 });
+// 2026-11-27 user「推進剤が爆発して弾頭だけ飛んでくる」: point defence's first hit blows the round's propellant; the warhead keeps the speed it
+// had and coasts straight on (no thrust: it no longer speeds up), the 3D fleet battle and the strategic battle alike.
+test('a disabled round coasts: it keeps its speed and no longer speeds up (the fleet battle and the strategic battle)',()=>{
+ const F=vm.runInContext('YardFleetData',cx).designs;
+ const fleet=disabled=>{const a=C.fleetUnit('a','cr90',copy(F.cr90.p),0),t=C.fleetUnit('t','cr90',copy(F.cr90.p),1);for(const u of [a,t]){u.velocity=[0,0,0];u.order={...u.order,type:'hold',fire:false};}a.pos=[0,0,0];t.pos=[0,60000,0];
+  const b=C.fleetBattle([a,t],true);b.seed=1;const m={id:'m1',salvo:'s',team:0,from:'a',target:'t',n:1,tt:1,kind:'cmsl',ion:false,range:400000,traveled:0,pos:[100,0,0],vel:[220,0,0],s:220,life:60,launchClearance:0,launchDir:[1,0,0],unguided:true,...(disabled?{pdDisabled:true}:{})};
+  b.missiles=[m];for(let i=0;i<8;i++)C.fleetTick(b,.25,{});return m.s;};
+ assert.equal(fleet(true),220,'fleet battle: the disabled round keeps 220 m/s');assert.ok(fleet(false)>220,'an unguided round with its motor still speeds up');
+ const rts=disabled=>{const w=R.createWorld({region:'kuat',seed:3,sensors:false,designs:[{key:'own',name:'Own',p:copy(pdShip),info:{capital:false,sensor:1}},{key:'enemy',name:'Enemy',p:copy(pdShip),info:{capital:false,sensor:1}}],sides:[{faction:'rebel',ai:false},{faction:'empire',ai:false}],fleets:[[{design:'own',air:[],ground:[],troops:0}],[{design:'enemy',air:[],ground:[],troops:0}]]});
+  const [u,e]=[...w.units.values()],sys=u.sys;for(const g of w.groups.values()){g.sys=sys;g.inbound=null;g.order={type:'hold'};}for(const x of [u,e])Object.assign(x,{sys,pos:x===u?[0,0,0]:[20000,0,0],yaw:0,velocity:[0,0,0],warp:null,jump:null,order:{type:'hold',fire:false,power:'balanced',aim:'auto',volley:'stream'}});e.manual=true;C.setAutomaticPointDefense(u,false);
+  const m={id:'d',sys,side:1,from:e.id,target:u.id,n:1,tt:1,kind:'cmsl',unguided:true,...(disabled?{pdDisabled:true}:{}),pos:[15000,8000,0],vel:[-1,0,0],s:220,life:20,range:60000,traveled:0};w.missiles.push(m);for(let i=0;i<4;i++)R.tick(w,.25);return m.s;};
+ assert.equal(rts(true),220,'strategic battle: the disabled round keeps 220 m/s');assert.ok(rts(false)>220,'an unguided round with its motor still speeds up');
+});

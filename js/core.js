@@ -123807,8 +123807,8 @@ function shipMissileMode(b,u,t,distance){if(craftUnit(u)||!t)return null;const t
 function shipMissileModeFor(mode,m,distance){return !m.heavy&&mode==='radar'&&distance>SHIP_MSL_GUIDE.heatRange?null:mode;}
 // A launch packet put into the battle as a round (b.missiles), the fleet's ships and the flown ship alike.
 // 2026-11-27 user「被弾したらその場で爆発して誘導が切れた状態で慣性で突っ込んでくる。2発目が当たると消滅」: a single round (n = 1) is not worn
-// down by point defence: its share of the interception (the expected hits) is drawn as whole hits; the first disables it (its guidance is
-// gone and it flies straight on, striking its own target only if its straight path still meets it), the second destroys it. Returns the rounds destroyed (0 or 1).
+// down by point defence: its share of the interception (the expected hits) is drawn as whole hits; the first disables it (its propellant blows:
+// guidance and thrust are gone and the warhead coasts straight on at its speed, with its full warhead, striking its own target only if its straight path still meets it), the second destroys it. Returns the rounds destroyed (0 or 1).
 // A packet of several rounds (an older launch, a craft group) keeps the fraction model.
 function pointDefenseRoundHits(m,expected,rand){if(!(expected>0)||!(m.n>0))return 0;const whole=Math.floor(expected);let hits=whole+(rand()<expected-whole?1:0);
  while(hits-->0){if(!m.pdDisabled){m.pdDisabled=true;m.unguided=true;continue;}m.n=0;return 1;}return 0;}
@@ -123976,7 +123976,8 @@ function fleetMissilesFly(b,alive,incoming,dt,DMG,pdStep,sys){
    if(m.traveled>=m.range||!(m.life>0)){const seg0=sub(m.pos,from),sl0=dot(seg0,seg0),k0=sl0>0?clamp(dot(sub(t.pos,from),seg0)/sl0,0,1):0;if(!(len(sub(t.pos,add(from,mul(seg0,k0))))<Math.max(300,t.p.len*.4))){m.life=0;m.n=0;m.lost='spent';continue;}}
    const seg=sub(m.pos,from),sl=dot(seg,seg),k=sl>0?clamp(dot(sub(t.pos,from),seg)/sl,0,1):0;if(len(sub(t.pos,add(from,mul(seg,k))))<Math.max(craftUnit(t)?MISSILE_FLIGHT.craftFuse:300,t.p.len*.4))arrived.push({m,t,from});continue;}
   const from=m.pos,flightDt=Math.min(dt,m.life);
-  if(m.profile){const P=m.profile;if(P.torp)m.s=Math.max(Math.sqrt(2*P.dec*Math.max(0,m.range-m.traveled)),Math.min(m.range-m.traveled,P.dec*flightDt*flightDt)/Math.max(1e-6,flightDt))/* even deceleration to a stop at the reach: v = √(2·a·left) */;else if(m.traveled<ROUND_TRIAL.boost*m.range)m.s=Math.min(P.top,m.s+MISSILE_FLIGHT.accel*flightDt);else{if(P.dec==null){const left=Math.max(1,m.range-m.traveled),end=ROUND_TRIAL.endSpeed*m.s;P.dec=Math.max(0,(m.s*m.s-end*end)/(2*left));P.end=end;}m.s=Math.max(P.end,m.s-P.dec*flightDt);}}
+  if(m.pdDisabled){/* 2026-11-27 user「推進剤が爆発して弾頭だけ飛んでくる」: point defence's first hit blew its propellant; the warhead coasts at the speed it had (no thrust, no guidance) */}
+  else if(m.profile){const P=m.profile;if(P.torp)m.s=Math.max(Math.sqrt(2*P.dec*Math.max(0,m.range-m.traveled)),Math.min(m.range-m.traveled,P.dec*flightDt*flightDt)/Math.max(1e-6,flightDt))/* even deceleration to a stop at the reach: v = √(2·a·left) */;else if(m.traveled<ROUND_TRIAL.boost*m.range)m.s=Math.min(P.top,m.s+MISSILE_FLIGHT.accel*flightDt);else{if(P.dec==null){const left=Math.max(1,m.range-m.traveled),end=ROUND_TRIAL.endSpeed*m.s;P.dec=Math.max(0,(m.s*m.s-end*end)/(2*left));P.end=end;}m.s=Math.max(P.end,m.s-P.dec*flightDt);}}
   else if(m.inertial){/* torpedo: no motor; it loses speed in advance() and on turning below */}
   else m.s=Math.min(roundSpeed(m),m.s+MISSILE_FLIGHT.accel*flightDt);
   // 2026-11-24 a ship's missile: radar-guided while its ship lives and holds a tracking slot (to the end at a ship; at a craft it hands
@@ -126431,33 +126432,35 @@ function convertCraftOrdnance(ship){
 }
 const stationStore=st=>st?.store||FITS[st?.fit]?.store||null;
 // Canon loadouts by craft type (the voyage's craft keys): the stations the type has and what each carries.
-// st: [fitting, count]; load: [kind, rounds per station]; mass: the measured example's mass (t), for handling.
+// st: [fitting, count]; load: [kind, rounds per station]. 2026-11-27 user「揃える」: a type's mass is its example design's (the craft price
+// catalog's measured mass, craftLoadoutMass), not a figure written here (they were the pre-refit masses, e.g. the BTL-B's 52.3 t against 76.19 t).
 // 2026-11-23 The craft launch tubes are back (user: 「発射管を復活」), and with them the tube loads of canon (v24 had held them
 // to a pylon's 3 torpedoes). Bomb bays stay interior compartments (station 'cbomb', mount 'bay').
 // 2026-11-24 the loads below are clamped to LAUNCHER_ROUNDS a tube (normalizeLoad): an X-wing carries 2 torpedoes a tube, an A-wing 3
 // missiles; the sources quote the canonical figures.
 const CRAFT_LOADOUT=Object.freeze({
- xwing:{st:[['ctorp',2]],load:[['ptorp',3]],mass:22.5,src:'プロトン魚雷発射管2基・各3発（Star Wars: Rebel Starfighters Owners\' Workshop Manual, 2019。Wikipedia「X-wing fighter」）'},
- awing:{st:[['cmsl',2]],load:[['cmsl',6]],mass:10.2,src:'震盪ミサイル発射管2基・計12発（Wikipedia「A-wing」諸元。Wookieepedia：Dymek HM-6 各6発）'},
+ xwing:{st:[['ctorp',2]],load:[['ptorp',3]],src:'プロトン魚雷発射管2基・各3発（Star Wars: Rebel Starfighters Owners\' Workshop Manual, 2019。Wikipedia「X-wing fighter」）'},
+ awing:{st:[['cmsl',2]],load:[['cmsl',6]],src:'震盪ミサイル発射管2基・計12発（Wikipedia「A-wing」諸元。Wookieepedia：Dymek HM-6 各6発）'},
  ywing:{st:[['ctorp',2]],load:[['ptorp',4]],src:'MG7 プロトン魚雷発射管2基。弾倉は当初6発、のちに4発（Wookieepedia「BTL Y-wing starfighter」）。同盟軍の改装機は計8発（Rebel Starfighters Owners\' Workshop Manual。Wikipedia「Y-wing」）',
   // canon alternative: ion torpedoes, as Gold Squadron at Scarif
   alt:[{name:'イオン魚雷（スカリフの戦い）',load:[['itorp',4]],src:'スカリフの戦いでゴールド中隊の Y ウイングがイオン魚雷でインペリアル級スター・デストロイヤー「パーセキューター」を無力化（ローグ・ワン、2016。Wookieepedia「Ion torpedo」）'}]},
- btlb:{st:[['ctorp',2],['cpylon',2],['cpylon',2]]/* 2026-11-27 user「Y-wingの爆弾倉は設定資料を見ても見当たらないのでパイロンで代用した」: the refit carries its bombs on four pylons (was a bomb bay, cbomb) */,load:[['ptorp',6],['bomb',3],['bomb',3]]/* the twelve proton bombs, three a pylon: the user's loadout table (docs/handoff-2026-11-20/refs/aircraft-refit-2026-11-27/任務装填/任務装填.csv, BTL-B「パイロン2（2基） プロトン爆弾 各3発 ／ パイロン3（2基） プロトン爆弾 各3発」) */,mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾は外装パイロン4基に各3発、計12発（利用者の改装設計と任務装填表。改装機に爆弾倉はない）'},
+ btlb:{st:[['ctorp',2],['cpylon',2],['cpylon',2]]/* 2026-11-27 user「Y-wingの爆弾倉は設定資料を見ても見当たらないのでパイロンで代用した」: the refit carries its bombs on four pylons (was a bomb bay, cbomb) */,load:[['ptorp',6],['bomb',3],['bomb',3]]/* the twelve proton bombs, three a pylon: the user's loadout table (docs/handoff-2026-11-20/refs/aircraft-refit-2026-11-27/任務装填/任務装填.csv, BTL-B「パイロン2（2基） プロトン爆弾 各3発 ／ パイロン3（2基） プロトン爆弾 各3発」) */,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾は外装パイロン4基に各3発、計12発（利用者の改装設計と任務装填表。改装機に爆弾倉はない）'},
  bwing:{st:[['ctorp',2]],load:[['ptorp',3]],src:'プロトン魚雷発射管2基（Wikipedia「List of Star Wars starfighters」の諸元）。弾数は記載がなく、各3発（X ウイングの MG7 と同じ）'},
- tie_sa:{st:[['ctorp',1],['cbomb',1]],load:[['ptorp',4],['bomb',8]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
- arc170:{st:[['ctorp',1]],load:[['ptorp',6]],mass:34.5,src:'プロトン魚雷6発（Dougherty ほか 2020, pp. 82–83。Wikipedia「List of Star Wars starfighters」）'},
- z95:{st:[['cmsl',2]],load:[['cmsl',6]],mass:19.2,src:'震盪ミサイル発射管（Before the Awakening。Wookieepedia「Z-95 Headhunter」）。弾数は記載がなく、各6発（A ウイングの HM-6 と同じ）'},
- v19:{st:[['cmsl',2]],load:[['cmsl',6]],mass:12.9,src:'震盪ミサイル発射管2基（Star Wars: On the Front Lines, 2017・StarWars.com Databank）。弾数は記載がなく、各6発'},
- hyena:{st:[['ctorp',2],['cmsl',2]],load:[['ptorp',3],['cmsl',6]],mass:29.1,src:'プロトン魚雷・震盪ミサイル・爆弾（精密爆撃用の下向き光学センサー。StarWars.com Databank）。数は記載がなく、標準の弾倉（魚雷各3・ミサイル各6・爆弾8）'},/* v24: its bomb bay has no room to be placed */
- vulture:{st:[['ctorp',2],['cmsl',1]],load:[['etorp',2],['cmsl',2]],mass:8.9,src:'胴体にエネルギー魚雷発射管2基（StarWars.com Databank「Vulture Droid」）。弾数は記載がなく各2発。バズ・ドロイド・ミサイルは震盪ミサイル2発で代用'}
+ tie_sa:{st:[['ctorp',1],['cbomb',1]],load:[['ptorp',4],['bomb',8]],src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
+ arc170:{st:[['ctorp',1]],load:[['ptorp',6]],src:'プロトン魚雷6発（Dougherty ほか 2020, pp. 82–83。Wikipedia「List of Star Wars starfighters」）'},
+ z95:{st:[['cmsl',2]],load:[['cmsl',6]],src:'震盪ミサイル発射管（Before the Awakening。Wookieepedia「Z-95 Headhunter」）。弾数は記載がなく、各6発（A ウイングの HM-6 と同じ）'},
+ v19:{st:[['cmsl',2]],load:[['cmsl',6]],src:'震盪ミサイル発射管2基（Star Wars: On the Front Lines, 2017・StarWars.com Databank）。弾数は記載がなく、各6発'},
+ hyena:{st:[['ctorp',2],['cmsl',2]],load:[['ptorp',3],['cmsl',6]],src:'プロトン魚雷・震盪ミサイル・爆弾（精密爆撃用の下向き光学センサー。StarWars.com Databank）。数は記載がなく、標準の弾倉（魚雷各3・ミサイル各6・爆弾8）'},/* v24: its bomb bay has no room to be placed */
+ vulture:{st:[['ctorp',2],['cmsl',1]],load:[['etorp',2],['cmsl',2]],src:'胴体にエネルギー魚雷発射管2基（StarWars.com Databank「Vulture Droid」）。弾数は記載がなく各2発。バズ・ドロイド・ミサイルは震盪ミサイル2発で代用'}
 });
 // The craft type an example stands for (its own craftType, else its key without the craft_ prefix).
+const craftLoadoutMass=t=>{const kg=CRAFT_PRICE_CATALOG.entries?.[t]?.powerProfile?.propulsion?.massKg;return kg>0?kg/1000:undefined;};
 const craftTypeOf=key=>{if(typeof key!=='string')return null;if(CRAFT_LOADOUT[key]||CRAFT_TYPES[key])return key;const t=SHIP_EXAMPLES[key]?.craftType||key.replace(/^craft_/,'');return CRAFT_LOADOUT[t]||CRAFT_TYPES[t]?t:null;};
 const loadPairs=a=>(a||[]).map(([k,n])=>({k,n}));
 // A loadout: the stations and what each carries by default (canon for a known type, else STORE_DEFAULT).
 function craftLoadout(x){
  if(x==null)return null;
- if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count])=>({fit,mount:FITS[fit].store.mount,count})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
+ if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count])=>({fit,mount:FITS[fit].store.mount,count})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:craftLoadoutMass(t),alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
  if(Array.isArray(x.fits)){const stations=craftStations(x),t=craftTypeOf(x.reference),c=t&&CRAFT_LOADOUT[t],same=c&&c.st.length===stations.length&&c.st.every(([fit,n],i)=>stations[i].fit===fit&&stations[i].count===n);
   return {stations,load:same?loadPairs(c.load):stations.map(st=>({k:storeDefault(st.fit,stationStore(st))[0],n:storeDefault(st.fit,stationStore(st))[1]})),canon:!!same,type:t,src:same?c.src:'',mass:null};}
  // 2026-11-24 (regression review) stations taken from a fleet profile with the craft's example key as reference read their canon
@@ -132040,7 +132043,7 @@ function battleTick(w, sys, dt) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
   m.range=Number.isFinite(m.range)&&m.range>0?m.range:C.missileRange(m);m.traveled=Math.max(0,m.traveled||0);
   if(!(m.life>0)||m.traveled>=m.range){m.life=0;m.n=0;continue;}
-  const from=m.pos,flightDt=Math.min(dt,m.life);m.s=m.top?m.top:Math.min(C.roundSpeed(m),m.s+650*flightDt);
+  const from=m.pos,flightDt=Math.min(dt,m.life);if(!m.pdDisabled)m.s=m.top?m.top:Math.min(C.roundSpeed(m),m.s+650*flightDt)/* 2026-11-27 a round whose propellant point defence blew coasts at its speed (user「推進剤が爆発して弾頭だけ飛んでくる」) */;
   const advance=(velocity,seconds)=>{const distance=len(velocity)*seconds,remaining=Math.max(0,m.range-m.traveled),travel=Math.min(distance,remaining);if(distance>0)m.pos=add(m.pos,velocity,seconds*travel/distance);m.traveled=Math.min(m.range,m.traveled+travel);};
   // A physical tube/VLS clears its mount along the actual barrel axis before homing.
   const clear=Math.min(flightDt,Math.max(0,m.launchClearance||0));if(clear>0){m.vel=scale(m.launchDir,m.s);advance(m.vel,clear);m.launchClearance=Math.max(0,m.launchClearance-clear);}
