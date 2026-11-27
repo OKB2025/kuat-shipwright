@@ -11,10 +11,13 @@ test('mass and price: the X-wing structures\' mass at 0.12 m by the cube of the 
 });
 test('the X-wing example: its twelve nozzle structures give way to the part, whose pieces are where the structures were, at the same size and lean',()=>{
  const raw=require(path.join(root,'docs/handoff-2026-11-20/refs/xwing-refit-2026-11-27.json')),u=C.deserialize(JSON.parse(JSON.stringify(raw))),s=C.buildDesign('craft_xwing');
- assert.equal(u.parts.length-s.parts.length,12);assert.ok(!s.parts.some(p=>/段付きカラー|フラッシュバックサプレッサー|アンテナ型発射ノズル/.test(p.label||'')));
+ assert.equal(u.parts.length-s.parts.length,12);{const ids=new Set(s.parts.map(p=>p.id));for(const p of s.parts)for(const i of p.wing?.members?.parts||[])assert.ok(ids.has(i),'a foil member '+i+' that is gone');}assert.ok(!s.parts.some(p=>/段付きカラー|フラッシュバックサプレッサー|アンテナ型発射ノズル/.test(p.label||'')));
  for(const f of s.fits.filter(f=>f.nozzle==='track')){const o=C.fitOrigin(f),fr=C.fitFrameOf(f);for(const q of C.trackNozzlePieces(f,C.trackNozzleLean(s,f))){const T=C.structTriangles(q),W=[];for(let i=0;i<T.length;i+=3)for(let a=0;a<3;a++)W.push(o[a]+fr.fw[a]*T[i]+fr.up[a]*T[i+1]+fr.rt[a]*T[i+2]);
   const side=(f.p[2]>0?'右舷':'左舷')+(f.p[1]>2?'上翼':'下翼'),orig=u.parts.find(p=>(p.label||'').startsWith(side)&&(p.label||'').includes(q.name)),a=bb(C.structTriangles(orig)),b=bb(W);
-  assert.ok(a.every((v,i)=>Math.abs(v-b[i])<1e-4),f.id+' '+q.name+': '+a+' / '+b);}}
+  assert.ok(a.every((v,i)=>Math.abs(v-b[i])<1e-4),f.id+' '+q.name+': '+a+' / '+b);
+  // 2026-11-27 (reference-fidelity review) each vertex near one of the structure's, both ways: a box alone does not tell a lean of +13° from -13°
+  const pts=T=>{const r=[];for(let i=0;i<T.length;i+=3)r.push([T[i],T[i+1],T[i+2]]);return r;},P=pts(W),Q=pts(C.structTriangles(orig)),far=(X,Y)=>Math.max(...X.map(x=>Math.min(...Y.map(y=>Math.hypot(x[0]-y[0],x[1]-y[1],x[2]-y[2])))));
+  assert.ok(far(P,Q)<1e-4&&far(Q,P)<1e-4,f.id+' '+q.name+': vertices '+far(P,Q)+' / '+far(Q,P));}}
 });
 test('the gun\'s outline reaches over its nozzle',()=>{const f={k:'claser',id:1,p:[0,0,0],a:0,boreM:.12,barrelM:3.5,nozzle:'track'},g={...f};delete g.nozzle;const A=C.craftFitBounds(f),B=C.craftFitBounds(g);assert.ok(A[3]>B[3]+1,'ahead');assert.ok(A[4]-A[1]>B[4]-B[1],'the fork is taller than the tube');});
 

@@ -17,7 +17,7 @@ test('any change of the geometry works the material out again; a record with ano
  const s=design();C.computeStats(s);const o=plain(C.serialize(s));
  const moved=plain(o);moved.parts.find(p=>p.k==='struct').c[0]+=1;const fresh=plain(moved);delete fresh.structuralMaterial;
  const M=C.computeStats(load(moved)),F=C.computeStats(load(fresh));assert.equal(pick(M),pick(F),'a moved structure: as if there were no record');
- const wrong=plain(o);wrong.structuralMaterial.steps=wrong.structuralMaterial.steps.map(v=>v*2);wrong.structuralMaterial.key='1:3:zzzz';assert.equal(pick(C.computeStats(load(wrong))),pick(C.computeStats(load(fresh.parts?o:o))),'another key: ignored');
+ const wrong=plain(o);wrong.structuralMaterial.steps=wrong.structuralMaterial.steps.map(v=>v*2);wrong.structuralMaterial.key='1:3:zzzz';assert.equal(pick(C.computeStats(load(wrong))),pick(C.computeStats(load((({structuralMaterial,...rest})=>rest)(o))))/* 2026-11-27 (physics review) compared with the same design without a record (was the design with its right record) */,'another key: ignored');
  for(const bad of [{v:99,key:'x',steps:[1,2,3]},{v:1,key:'x',steps:[1,-2,3]},{v:1,key:'x',steps:'no'},null])assert.equal(C.cleanStructuralRecord(bad),null);
  assert.equal(C.cleanStructuralRecord({v:C.STRUCTURAL_RECORD_VERSION,key:'k',steps:[1,2]}).steps.length,2);
 });
