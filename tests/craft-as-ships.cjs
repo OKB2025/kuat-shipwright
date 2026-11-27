@@ -78,3 +78,13 @@ test('nothing carries a durability figure: what destroys a module or a section f
  const e=1e-6,A=C.holeArea(e),thin=C.boreLayer(e,1,A,.4,10,1e9),dense=C.boreLayer(e,1,A,7.8,10,1e9);assert.ok(dense.left<thin.left,'density decides how far it gets');assert.ok(C.holeArea(1)>C.holeArea(1e-6)*1e3,'a bigger shot bores a wider hole');
  const cap=C.boreLayer(1,1,C.holeArea(1),1,10,50);assert.ok(Math.abs(cap.volume-50)<1e-9&&cap.left>0,'the layer is the limit');
 });
+// 2026-11-27 user「現代戦闘機の機関砲と同じで、当たる時に撃つようにして」: a fleet-flown craft fires its guns only when its solution lands at
+// least CRAFT_GUN_SOLUTION.minHit of its bolts; it holds them otherwise and keeps its gas. Firing whenever in reach, the refit X-wing spent its
+// gas before it hit the refit TIE/ln (seed 5: no kill in ten minutes).
+test('a fleet-flown craft fires only on a firing solution and so keeps gas to finish the fight',()=>{
+ assert.ok(C.CRAFT_GUN_SOLUTION.minHit>0&&C.CRAFT_GUN_SOLUTION.minHit<1);
+ const duel=(seed,min)=>{const keep=C.CRAFT_GUN_SOLUTION.minHit;C.CRAFT_GUN_SOLUTION.minHit=min;try{const x=craft('x','craft_xwing',0),f=craft('f','craft_tie_ln',1);f.pos=[6000,0,0];f.yaw=Math.PI;f.order={...f.order,type:'hold',fire:false};x.order={...x.order,type:'attack',target:'f',fire:true};
+  const B=C.fleetBattle([x,f],true);B.seed=seed;let at=null,held=0,fired=0;tick(B,600,{},t=>{if(x.gunSolution!=null){if(x.gunSolution>=min)fired++;else held++;}if(f.dead){at=t;return false;}});return {at,gas:x.laserGas,held,fired};}finally{C.CRAFT_GUN_SOLUTION.minHit=keep;}};
+ const kills=[1,2,3,4,5,6].map(s=>duel(s,C.CRAFT_GUN_SOLUTION.minHit));assert.ok(kills.every(r=>r.at!=null&&r.gas>0),JSON.stringify(kills));assert.ok(kills.every(r=>r.held>0&&r.fired>0),'it both held and fired');
+ const old=duel(5,0);assert.equal(old.at,null,'firing whenever in reach (the rule before), seed 5 runs dry without a kill');assert.equal(old.gas,0);
+});
