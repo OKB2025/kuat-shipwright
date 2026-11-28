@@ -1,0 +1,6 @@
+{"key":"craft_xwing","volume":0.33303814281195154,"old_kt":286.6406764906783,"new_kt":2149.8050736800865,"rounds":["rmsl","rmsl","rmsl","rmsl","rmsl","rmsl"]}
+{"key":"craft_awing","volume":0.10193002084327203,"old_kt":27.19229790712159,"new_kt":248.27799863368853,"rounds":["cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl"]}
+{"key":"craft_tie_ln","volume":0,"old_kt":0,"new_kt":0,"rounds":[]}
+{"key":"craft_tie_in","volume":0,"old_kt":0,"new_kt":0,"rounds":["cmsl","cmsl"]}
+{"key":"craft_tie_d","volume":0.35681790480452386,"old_kt":328.793510216694,"new_kt":2437.8555947514856,"rounds":["rmsl","rmsl","rmsl","rmsl","rmsl","rmsl","rmsl","rmsl"]}
+{"key":"craft_tie_avenger","volume":0.2581546167222097,"old_kt":172.69949665065252,"new_kt":1351.23365171405,"rounds":["cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl","cmsl"]}
