@@ -33,3 +33,21 @@
 - その後の編集（艦名を変える）も、新しい Worker で計算された。
 - 公試は始まり、タイトルには戻らなかった（`browser-worker-crash-trial.png`）。
 - ページのエラーは 0 件。コンソールに出たのは、意図して起こした `engine worker failed crash test (out of memory)` の 1 件だけ。
+
+## 作例の性能値は変わっていないか（物理レビュー、2026-11-28）
+
+`tests/example-figures-regression.cjs` は、記録してある基準の値（`tests/helpers/example-figures.json`）が古い。このため、変更前（790afd4a）でもこの版でも、どの作例も一致しない。さらに大きい艦は、時間切れかメモリ不足で止まる。このテストでは、「この変更で性能値が変わっていない」ことを確かめられない。
+
+### 変更前とこの版を直接比べた
+
+- 方法：`scripts/figures-digest-of.cjs` で 40 隻それぞれの性能値の要約を作り、`scripts/figures-digest-compare.cjs` で比べた。
+  - 要約は、テストと同じ `buildDesign` → `syncCompartments` → `remount` → `syncCompartments` → `computeStats` → `figuresDigest` で作る。
+  - 作ったのは、変更前（790afd4a）とこの版（8eaccd62）の両方。
+- 結果（`figures-790afd4a-vs-8eaccd62.tsv`）：40 隻すべて同じ（`figuresDiff` が空）。
+- 計算の時間：デススター級とマンデイター II 級は各 25〜30 分かかった。大きい艦は、1 隻ずつ 11 GB のヒープで計算した。
+
+### 同梱した計算済みの数字
+
+- 方法：`scripts/prepared-vs-computed.cjs` で、表面の区画を持つ 29 隻すべてを確かめた。
+  - Worker が計算済みの数字を読めないようにして計算させ（`profileSrc: computed`）、その結果を同梱の数字と全項目で比べた。
+- 結果（`prepared-vs-computed-all.jsonl`）：29 隻すべてで、数値の相対差の最大は 0、数値以外の差は 0。

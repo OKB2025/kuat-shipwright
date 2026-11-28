@@ -1,0 +1,10 @@
+// Is a prepared figures file what the game's worker computes for the example? usage: node compare.cjs <root> <key> <prepared.json>
+const fs=require('fs'),path=require('path'),vm=require('vm');const root=process.argv[2],key=process.argv[3],file=process.argv[4];
+const cx=vm.createContext({console:{log(){},warn(){},error:console.error},setTimeout,clearTimeout,setInterval,clearInterval,structuredClone,performance,URL,Blob,Response,TextDecoder,TextEncoder,DecompressionStream,crypto:globalThis.crypto,KS_READ_ASSET:u=>{if(/prepared\.json\.gz$/.test(u))throw Error("forced compute");return new Blob([fs.readFileSync(path.join(root,u))]);}});
+for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js','js/engine.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const {E}=vm.runInContext('({E:YardEngine})',cx);const msgs=[];const scope={postMessage(m){msgs.push(m);}};E.listenWorker(scope);
+const prepared=JSON.parse(fs.readFileSync(file,'utf8'),E.preparedReviver);
+let maxRel=0,maxAt='',num=0;const diff=(a,b,p,out)=>{if(Object.is(a,b))return;if(typeof a==='number'&&typeof b==='number'){num++;const r=Math.abs(a-b)/Math.max(1e-9,Math.abs(a),Math.abs(b));if(r>maxRel){maxRel=r;maxAt=p+' '+a+' vs '+b;}return;}if(typeof a!==typeof b||a===null||b===null||typeof a!=='object'){out.push(p+': '+String(a).slice(0,40)+' vs '+String(b).slice(0,40));return;}const ks=new Set([...Object.keys(a),...Object.keys(b)]);for(const k of ks){if(a[k]===undefined&&b[k]===undefined)continue;diff(a[k],b[k],p+'.'+k,out);}};
+(async()=>{scope.onmessage({data:{type:'fleet',id:1,key,trial:true}});while(!msgs.some(m=>m.id===1))await new Promise(r=>setTimeout(r,200));const m=msgs.find(m=>m.id===1);
+ const out1=[],out2=[];diff(m.profile,prepared.profile,'profile',out1);diff(m.stats,prepared.displayStats,'displayStats',out2);
+ console.log(JSON.stringify({key,profileSrc:m.profileSrc,nonNumericDiffs:out1.length+out2.length,first:[...out1,...out2].slice(0,12),numericDiffs:num,maxRel,maxAt}));process.exit(0);})();
