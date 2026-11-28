@@ -35,3 +35,9 @@ test('prepared figures of another model key are not used: the figures are comput
  const U=worker({tamper:b=>Buffer.concat([b,Buffer.from([0])])});const u=await U.fleet({key:'cr90',trial:true});assert.equal(u.profileSrc,'computed');
  const {E}=worker(),f=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,'data/examples/cr90/prepared.json.gz'))),E.preparedReviver);assert.equal(f.displayStats.heat?.presets?.combat?.limitSeconds,Infinity,'Infinity survives the file');
 });
+// 2026-11-28 (regression review): the fleet battle asks for an example by name with lite:true (js/app.js fleetAssetLoad); a surface
+// ship is never served lite, so that request uses the prepared figures too, as does the page's statsOnly request after it.
+test('the fleet battle request (lite) and its statsOnly request use the prepared figures',async()=>{
+ const A=worker(),r=await A.fleet({key:'cr90',lite:true});assert.equal(r.type,'fleet');assert.equal(r.profileSrc,'prepared');assert.equal(A.computed(),0,'no performance calculation');assert.ok(r.profile?.surface?.patches?.length>0&&r.stats);
+ const B=worker(),s=await B.fleet({key:'cr90',lite:false,statsOnly:true});assert.equal(s.profileSrc,'prepared');assert.equal(B.computed(),0);assert.ok(s.profile&&s.stats);
+});

@@ -988,7 +988,7 @@ async function fleetJob(job) {
   // profile while the row's whole model key is the current one; otherwise the figures are computed as for any design. The
   // row leaves out the surface meshes, so a surface design (or a repainted example) computes its own.
   let exampleProfile = false;
-  if (!rec.profile && job.key && !job.paint && rec.surfaces && !job.lite) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey === C.profileModelKey() && row.model.surface) { const f = await loadPreparedFigures(job.key); if (f) { rec.profile = f.profile; rec.displayStats = f.displayStats; rec.stats = null; exampleProfile = 'prepared'; save = true; } } }
+  if (!rec.profile && job.key && !job.paint && rec.surfaces) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey === C.profileModelKey() && row.model.surface) { const f = await loadPreparedFigures(job.key); if (f) { rec.profile = f.profile; rec.displayStats = f.displayStats; rec.stats = null; exampleProfile = 'prepared'; save = true; } } }
   if (!rec.profile && job.key && !job.paint && !rec.surfaces) { const row = exampleRow(job.key); if (row?.p && row.model?.modelKey && !row.model.surface && row.model.modelKey === C.profileModelKey()) { const {catalogOnly, ...p} = row.p; rec.profile = p; exampleProfile = true; } }
   const lite = !!job.lite && !rec.surfaces;
   // Figures and profile: the derived-data cache (design content + model key) before computing them.
@@ -1191,20 +1191,22 @@ async function start(src, opts = {}) {
 // for it. Only when restarting fails (or after ENGINE_RESTARTS restarts) does the inline engine take over, as before.
 const ENGINE_RESTARTS = 2;
 let restarts = 0;
+let restarting = false;
 function fail() {
+  if (restarting) return;
   try { worker?.terminate(); } catch (e) {}
   placementFail(new Error('engine restarted'));
   for (const [id, w] of waiting) w.reject(new Error('engine restarted'));
   waiting.clear();
   const factory = globalThis.KSBoot?.createBackgroundWorker;
   if (restarts < ENGINE_RESTARTS && (factory || sources)) {
-    restarts++; worker = null; const queue = []; send = (m, tr) => queue.push([m, tr]);
+    restarts++; restarting = true; worker = null; const queue = []; send = (m, tr) => queue.push([m, tr]);
     Promise.resolve().then(() => factory ? factory.call(globalThis.KSBoot) : bootWorker(sources)).then(w => {
       w.onmessage = (e) => dispatch(e.data);
       w.onerror = (e) => { e.preventDefault?.(); console.error('engine worker failed', e.message); fail(); };
-      worker = w; mode = 'worker'; placementUnavailable = false; send = (m, tr) => w.postMessage(m, tr || []);
+      restarting = false; worker = w; mode = 'worker'; placementUnavailable = false; send = (m, tr) => w.postMessage(m, tr || []);
       for (const [m, tr] of queue) w.postMessage(m, tr || []);
-    }).catch(e => { console.warn('engine worker restart failed, running inline:', e?.message); inline(); for (const [m, tr] of queue) send(m, tr); });
+    }).catch(e => { restarting = false; console.warn('engine worker restart failed, running inline:', e?.message); inline(); for (const [m, tr] of queue) send(m, tr); });
   } else inline();
   const h = handlers.restart; if (h) h();
 }

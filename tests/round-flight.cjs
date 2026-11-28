@@ -48,20 +48,28 @@ test('the strategic battle: the same thrust and the same turn limit (lateral acc
  const rd=C.roundDesignOfKind('cmsl'),{w,m}=rtsRound({rd:C.roundFlightState(rd)});
  const v0=[...m.vel];R.tick(w,.25);const turned=Math.acos((v0[0]*m.vel[0]+v0[1]*m.vel[1])/(len(v0)*len(m.vel)));
  assert.ok(Math.abs(turned-rd.latAccel/m.s*.25)<1e-6,`turned ${turned} at ${m.s} m/s (lateral ${rd.latAccel} m/s²)`);
- for(let i=0;i<40;i++)R.tick(w,.25);assert.ok(Math.abs(m.s-200-rd.accelDv)<1e-6,`${m.s}`);
+ for(let i=0;i<40;i++)R.tick(w,.25);/* 2026-11-28 (physics review; user「弾体の向き・姿勢変更は無料」) the motor pushes along the body, which points at the target while the velocity still turns: the whole Δv is delivered, the speed is at most 200 m/s + Δv (was exactly 200 + Δv, the thrust along the velocity) */assert.equal(m.rd.acc,0,'all its main propellant burnt');assert.ok(m.s<=200+rd.accelDv+1e-6&&m.s>rd.accelDv-200,`${m.s}`);
  const {w:w2,m:q}=rtsRound({rd:{...C.roundFlightState(rd),ctl:50}});for(let i=0;i<6;i++)R.tick(w2,.25);assert.equal(q.ctlOut,true,'its control propellant spent, it flies straight');assert.equal(q.unguided,true);
 });
 test('physics review 2026-11-27: the main propellant burns in 1.74 s whatever the share (the acceleration grows as the round lightens)',()=>{
  for(const share of [.25,.75]){const rd=C.roundDesign(.12,.9,{warhead:.95-share,control:.05,accel:share}),{b}=duel(),m=round(rd,{unguided:true});b.missiles=[m];
   for(let i=0;i<6;i++)C.fleetTick(b,.25,{});assert.ok(m.s<200+rd.accelDv-1,`at 1.5 s still burning (${share}): ${m.s}`);C.fleetTick(b,.25,{});assert.ok(Math.abs(m.s-200-rd.accelDv)<1e-6,`burnt out by 1.75 s (${share}): ${m.s}`);}
 });
-test('physics review 2026-11-27: clearing the tube keeps the launch velocity\'s way, the ship\'s velocity with it (fleet and strategic battle)',()=>{
+// 2026-11-28 (physics review; user「弾体の向き・姿勢変更は無料」): was「clearing the tube keeps the launch velocity's way」(the thrust lay along the
+// velocity). The motor pushes along the body, the launcher's axis while it clears its tube: the ship's velocity stays, the Δv goes along the launcher.
+test('physics review 2026-11-28: while it clears its tube the motor pushes along the launcher, the ship\'s velocity kept (fleet and strategic battle)',()=>{
  const {a,t,b}=duel();a.velocity=[600,0,0];const m=C.shipMissileRelease(b,a,t,{n:1,tt:1,kind:'cmsl',range:10000,muzzle:[0,0,0],axis:[0,1,0],module:0});
- const w0=m.vel.map(x=>x/len(m.vel));assert.ok(m.launchClearance>0,'a native launcher clears its tube');m.unguided=true;C.fleetTick(b,.25,{});const w1=m.vel.map(x=>x/len(m.vel));
- assert.ok(Math.abs(w0[0]*w1[0]+w0[1]*w1[1]+w0[2]*w1[2]-1)<1e-9,`way kept: ${w0} → ${w1}`);
- const {w,m:q}=rtsRound({rd:C.roundFlightState(C.roundDesignOfKind('cmsl')),vel:[600,200,0],s:Math.hypot(600,200),launchDir:[0,1,0],launchClearance:.35,launchOrigin:[150000,0,0],unguided:true});R.tick(w,.25);
- assert.ok(Math.abs(q.vel[1]/q.vel[0]-1/3)<1e-9,`strategic battle: ${q.vel}`);
+ assert.ok(m.launchClearance>0,'a native launcher clears its tube');assert.deepEqual([...m.hd],[0,1,0]);m.unguided=true;const v0=[...m.vel];C.fleetTick(b,.25,{});
+ assert.ok(Math.abs(m.vel[0]-v0[0])<1e-9&&Math.abs(m.vel[2]-v0[2])<1e-9,`the ship's velocity kept: ${m.vel}`);assert.ok(m.vel[1]>v0[1]+1,'the Δv along the launcher');
+ const {w,m:q}=rtsRound({rd:C.roundFlightState(C.roundDesignOfKind('cmsl')),hd:[0,1,0],vel:[600,200,0],s:Math.hypot(600,200),launchDir:[0,1,0],launchClearance:.35,launchOrigin:[150000,0,0],unguided:true});R.tick(w,.25);
+ assert.ok(Math.abs(q.vel[0]-600)<1e-9&&q.vel[1]>201,`strategic battle: ${q.vel}`);
 });
+// A rear launcher on a fast ship: the round still drives back along its launcher, toward the target behind.
+test('physics review 2026-11-28: a rear launcher of a ship at 600 m/s: the motor drives the round back, against the ship\'s way',()=>{
+ const {a,t,b}=duel();a.velocity=[600,0,0];const m=C.shipMissileRelease(b,a,t,{n:1,tt:1,kind:'cmsl',range:10000,muzzle:[0,0,0],axis:[-1,0,0],module:0});
+ t.pos=[-20000,0,0];t.velocity=[0,0,0];assert.ok(m.vel[0]>0,'it leaves going forward at 400 m/s');for(let i=0;i<8;i++)C.fleetTick(b,.25,{});assert.ok(m.vel[0]<-500,`the motor turned it back: ${m.vel}`);
+});
+
 test('regression review 2026-11-27: in the strategic battle a torpedo that slows to its stop in the step its path meets the target still strikes',()=>{
  const {w,m}=rtsRound({kind:'ptorp',torp:true,inertial:true,torpLen:1.3,rd:C.roundFlightState(C.roundDesignOfKind('ptorp')),pos:[150,0,0],vel:[-100.05,0,0],s:100.05,range:400000,unguided:true});
  const u=[...w.units.values()][0];u.pos=[0,0,0];R.tick(w,.25);assert.ok(m.s<100,'it slowed past its stop this step');assert.ok(m.hit>0,'and still struck');

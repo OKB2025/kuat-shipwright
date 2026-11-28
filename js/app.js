@@ -2354,6 +2354,8 @@ function engineHello(mode) {
   YardEngineClient.on('structureGeometry', onEngineStructureGeometry);
   YardEngineClient.on('stats', onEngineStats);
   YardEngineClient.on('error', onEngineError);
+  // 2026-11-28 (regression review): a restarted engine (a fresh worker, or the inline engine) holds no design; the whole design is sent again.
+  YardEngineClient.on('restart', () => { eng.waiting = false; eng.scheduled = false; eng.reset = true; eng.what.add('all'); eng.sentGen = eng.gen - 1; kickEngine(); engineStatus(); });
   kickEngine(); engineStatus();
 }
 // ---------- live preview ----------
