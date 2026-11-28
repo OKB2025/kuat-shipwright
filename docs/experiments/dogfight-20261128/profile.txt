@@ -1,0 +1,4 @@
+craft_tie_ln [] undefined undefined
+craft_tie_in ["cmsl","cmsl"] undefined undefined
+craft_tie_d ["rmsl","rmsl","rmsl","rmsl","rmsl","rmsl","rmsl","rmsl"] undefined undefined
+craft_xwing ["rmsl","rmsl","rmsl","rmsl","rmsl","rmsl"] undefined undefined
