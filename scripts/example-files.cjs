@@ -28,7 +28,7 @@ const stable=value=>JSON.stringify(value,(key,item)=>item&&typeof item==='object
 const designPath=key=>DIRECTORY+'/'+key+'/design.json.gz',combatPath=key=>DIRECTORY+'/'+key+'/combat.json',preparedPath=key=>DIRECTORY+'/'+key+'/prepared.json.gz';
 // The combat file holds the row without the design's location (the manifest and the assembly add it).
 // sourceSha256 is dropped as well: rows are not tied to source-file hashes.
-function combatRow(row){const {sourceSha256,preparedBlueprint,...model}=row.model||{};return {...row,model};}
+function combatRow(row){const {sourceSha256,preparedBlueprint,preparedFigures,...model}=row.model||{};return {...row,model};}
 function combatBytes(row){return JSON.stringify(combatRow(row))+'\n';}
 // mtime 0 keeps the archive bytes stable for the same design.
 function designBytes(raw){return zlib.gzipSync(raw,{level:9,mtime:0});}
@@ -51,6 +51,7 @@ function storeShip(root,manifest,key,{row,blueprintRaw,preparedRaw}){
   if(!same){fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,designBytes(raw));}result.prepared=same?'unchanged':'updated';
   entry.prepared={sha256:sha(fs.readFileSync(file)),jsonSha256};}
  else if(row&&preparedRaw===null){const file=path.join(root,preparedPath(key));if(fs.existsSync(file)){fs.rmSync(file);result.prepared='removed';}delete entry.prepared;}
+ if(result.prepared===null)delete result.prepared;
  return result;
 }
 function loadFleet(root){const cx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(root,FLEET),'utf8'),cx);return vm.runInContext('YardFleetData',cx);}
