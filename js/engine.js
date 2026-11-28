@@ -332,6 +332,7 @@ function applyState(job) {
   // 2026-11-27 the structures' material record comes beside the state and is kept private (its own, made here, wins); C.structuralMaterial
   // uses it only while its key matches the shapes.
   if (job.structuralRecord && !ship._structuralRecord) ship._structuralRecord = job.structuralRecord;
+  if (job.armoredRecord && !ship._armoredRecord) ship._armoredRecord = job.armoredRecord;/* 2026-11-28 the closed-door armoured area, likewise (C.armoredMaterialArea uses it only while its key matches) */
 }
 async function deriveState(job) {
   const what = new Set(job.what || []);
@@ -491,7 +492,7 @@ async function handleUpdate(job) {
   const placementDraftStatus = typeof C.placementDraftStatus === 'function' ? C.placementDraftStatus(ship) : {ok: true, ready: true, pending: [], failed: []};
   const profile = placementDraftStatus.ok ? C.fleetProfile(S, ship.name, ship) : null;
   lastStats = {S, profile, gen: shipGen};
-  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), profile, provisional: !placementDraftStatus.ok, placementDraftStatus, statsMs};
+  const msg = {type: 'stats', gen: job.gen, stats: statsOut(S,ship), armoredRecord: C.cleanArmoredRecord((ship._surfaceSource||ship)._armoredRecord)/* 2026-11-28 the closed-door armoured area, kept with the design by the editor (beside the figures, not in them) */, profile, provisional: !placementDraftStatus.ok, placementDraftStatus, statsMs};
   const transfer = [];
   if (overlapSig(S.info) !== lastOverlap) {
     const m = meshPartsRanged(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation});

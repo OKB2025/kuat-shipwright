@@ -2112,11 +2112,11 @@ function sendEngineUpdate() {
   eng.scheduled = false;
   if (!eng.ready || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
-  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), ...(ship._structuralRecord?{structuralRecord: ship._structuralRecord}:{}), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
+  const msg = {type: 'update', designId: ship.saveId, gen: eng.gen, reset: eng.reset, state: engineShipState(ship), ...(ship._structuralRecord?{structuralRecord: ship._structuralRecord}:{}),...(ship._armoredRecord?{armoredRecord: ship._armoredRecord}:{})/* 2026-11-28 the closed-door armoured area, beside the state as the structures' material */, what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true, structureFirst: true}};
   eng.what.clear(); eng.reset = false;
   YardEngineClient.post(msg);
 }
-function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),structuralMaterial:undefined/* 2026-11-27 the structures' material record goes beside the state (msg.structuralRecord), never in it: the state is compared as public JSON (regression review) */,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
+function engineShipState(s) { return JSON.stringify({...s,...(s.surfaces?{surfaces:{...s.surfaces,legacyArmor:s.surfaces.legacyArmor??s.armor?.hull??0}}:{}),armoredMaterial:undefined,structuralMaterial:undefined/* 2026-11-27 the structures' material record goes beside the state (msg.structuralRecord), never in it: the state is compared as public JSON (regression review) */,saveId:undefined},(key,value)=>key.startsWith('_')?undefined:value); }
 function enginePending() { return eng.adoptedGen < eng.gen; }
 function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
@@ -2316,7 +2316,7 @@ function onEngineStats(msg) {
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
-  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship){const changed=ship._structuralRecord?.key!==S.structuralRecord.key||autosavedRecordKey!==S.structuralRecord.key/* also when the last draft was written without it (opened, then saved before the figures came) */;ship._structuralRecord=S.structuralRecord;if(changed&&typeof autosave==='function')autosave()/* save-format review 2026-11-27: the autosave made before these figures came carried no record; saved again with it */;}/* 2026-11-27 kept for saving (C.serialize writes it) */
+  eng.error=null;prevS = S; S = msg.stats;if(S?.structuralRecord&&ship){const changed=ship._structuralRecord?.key!==S.structuralRecord.key||autosavedRecordKey!==S.structuralRecord.key/* also when the last draft was written without it (opened, then saved before the figures came) */;ship._structuralRecord=S.structuralRecord;if(changed&&typeof autosave==='function')autosave()/* save-format review 2026-11-27: the autosave made before these figures came carried no record; saved again with it */;}if(msg.armoredRecord&&ship){const changed=ship._armoredRecord?.key!==msg.armoredRecord.key;ship._armoredRecord=msg.armoredRecord;if(changed&&typeof autosave==='function')autosave();}/* 2026-11-28 the closed-door armoured area, kept for saving as the structures' material *//* 2026-11-27 kept for saving (C.serialize writes it) */
   if(st.tab==='hull'&&S?.dims){const dimensions=$('#panel [data-actual-dimensions] dd');if(dimensions)dimensions.textContent=S.dims.map(fLen).join(' × ');}
   {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
   renderStrip(); renderSpecTargets();if(designUI.drawer&&designUI.layout==='performance')renderPanel(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
