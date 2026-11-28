@@ -40,10 +40,10 @@
 
 ### 変更前とこの版を直接比べた
 
-- 方法：`scripts/figures-digest-of.cjs` で 40 隻それぞれの性能値の要約を作り、`scripts/figures-digest-compare.cjs` で比べた。
+- 方法：`scripts/figures-digest-of.cjs` で 41 隻それぞれの性能値の要約を作り、`scripts/figures-digest-compare.cjs` で比べた。
   - 要約は、テストと同じ `buildDesign` → `syncCompartments` → `remount` → `syncCompartments` → `computeStats` → `figuresDigest` で作る。
   - 作ったのは、変更前（790afd4a）とこの版（8eaccd62）の両方。
-- 結果（`figures-790afd4a-vs-8eaccd62.tsv`）：40 隻すべて同じ（`figuresDiff` が空）。
+- 結果（`figures-790afd4a-vs-8eaccd62.tsv`）：41 隻すべて同じ（`figuresDiff` が空）。
 - 計算の時間：デススター級とマンデイター II 級は各 25〜30 分かかった。大きい艦は、1 隻ずつ 11 GB のヒープで計算した。
 
 ### 同梱した計算済みの数字
