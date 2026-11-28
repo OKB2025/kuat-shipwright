@@ -74,3 +74,8 @@ test('regression review 2026-11-27: in the strategic battle a torpedo that slows
  const {w,m}=rtsRound({kind:'ptorp',torp:true,inertial:true,torpLen:1.3,rd:C.roundFlightState(C.roundDesignOfKind('ptorp')),pos:[150,0,0],vel:[-100.05,0,0],s:100.05,range:400000,unguided:true});
  const u=[...w.units.values()][0];u.pos=[0,0,0];R.tick(w,.25);assert.ok(m.s<100,'it slowed past its stop this step');assert.ok(m.hit>0,'and still struck');
 });
+// 2026-11-28 (physics review): a craft's round has its launcher's heading; a heading of no length falls back to the launcher's axis.
+test('physics review 2026-11-28: a craft-launched round pushes along the craft\'s launcher; a zero heading falls back',()=>{
+ const {a,t,b}=duel();const m={id:'z',rd:C.roundFlightState(C.roundDesignOfKind('cmsl')),hd:[0,0,0],launchDir:[0,1,0],vel:[600,0,0],s:600};C.roundThrustStep(m,.25);
+ assert.ok(m.vel[1]>1&&Math.abs(m.vel[0]-600)<1e-9,`fell back to the launcher: ${m.vel}`);void a;void t;void b;
+});
