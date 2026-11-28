@@ -1,0 +1,2 @@
+{"key":"imperial","trial":true,"type":"fleet","error":null,"seconds":104,"peakRSS_MB":1094,"maxRSS_MB":1201,"profileSrc":"computed","src":"built","profileMB":40.4,"statsMB":7.7,"surfacePatches":3504,"hasStats":true}
+{"key":"venator","trial":true,"type":"fleet","error":null,"seconds":85.5,"peakRSS_MB":1102,"maxRSS_MB":1183,"profileSrc":"computed","src":"built","profileMB":53.5,"statsMB":12.1,"surfacePatches":5581,"hasStats":true}

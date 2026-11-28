@@ -12,10 +12,10 @@ const plain=value=>JSON.parse(JSON.stringify(value));
 const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 const stable=value=>JSON.stringify(value,(key,item)=>item&&typeof item==='object'&&!Array.isArray(item)?Object.fromEntries(Object.keys(item).sort().map(name=>[name,item[name]])):item);
 function sourceHashes(root){return Object.fromEntries(SOURCE_FILES.map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));}
-function loadRuntime(root){
- const context=vm.createContext({console,performance});
- for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
- return vm.runInContext('({C:Core,R:Rts,data:YardFleetData})',context);
+function loadRuntime(root,{engine=false}={}){
+ const context=vm.createContext({console,performance,...(engine?{setTimeout,clearTimeout,structuredClone,URL}:{})});
+ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js',...(engine?['js/gfx.js','js/engine.js']:[])])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+ return vm.runInContext(engine?'({C:Core,R:Rts,data:YardFleetData,E:YardEngine})':'({C:Core,R:Rts,data:YardFleetData})',context);
 }
 function exampleKeys(C,data){return Object.keys(data.designs).filter(key=>C.DESIGNS[key]&&!C.SHIP_EXAMPLES[key]?.craft&&!key.startsWith('craft_')).sort();}
 // Every other design the game offers as an example (craft, the older sample designs): stored as a saved

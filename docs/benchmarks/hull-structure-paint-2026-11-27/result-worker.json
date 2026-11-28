@@ -1,0 +1,35 @@
+{
+ "errs": [],
+ "cons": [],
+ "mode": "worker",
+ "before": [
+  89.7,
+  95.4,
+  101.5
+ ],
+ "control": {
+  "html": "<label>船体構造物の塗色 <input type=\"color\" data-partpaint=\"\" data-partpaint-id=\"1\" value=\"#ced2d6\" style=\"\"></label>",
+  "tab": "edit"
+ },
+ "painted": "#ff2020",
+ "after": [
+  98,
+  39.9,
+  43.1
+ ],
+ "clearButton": true,
+ "undone": null,
+ "afterUndo": [
+  89.7,
+  95.4,
+  101.5
+ ],
+ "redone": "#ff2020",
+ "roundtrip": "#ff2020",
+ "cleared": null,
+ "afterClear": [
+  89.7,
+  95.4,
+  101.5
+ ]
+}

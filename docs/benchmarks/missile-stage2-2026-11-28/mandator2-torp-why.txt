@@ -1,0 +1,5 @@
+{"seed":1,"firstLaunch":0.25,"targetGoneAt":104.25,"why":"dead","targetHp":0,"torpsInFlight":72,"nearestKm":23.3,"medianKm":24.4,"speed":133}
+{"seed":2,"firstLaunch":0.25,"targetGoneAt":104,"why":"dead","targetHp":0,"torpsInFlight":72,"nearestKm":23.3,"medianKm":24.3,"speed":133}
+{"seed":3,"firstLaunch":0.25,"targetGoneAt":104,"why":"dead","targetHp":0,"torpsInFlight":72,"nearestKm":23.3,"medianKm":24.5,"speed":133}
+{"seed":4,"firstLaunch":0.25,"targetGoneAt":104.25,"why":"dead","targetHp":0,"torpsInFlight":72,"nearestKm":23.3,"medianKm":24.4,"speed":133}
+{"seed":5,"firstLaunch":0.25,"targetGoneAt":104.25,"why":"dead","targetHp":0,"torpsInFlight":72,"nearestKm":23.3,"medianKm":24.4,"speed":134}
