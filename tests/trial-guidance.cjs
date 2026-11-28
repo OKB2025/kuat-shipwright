@@ -40,13 +40,15 @@ test('KS_TURN_VECTOR: a light craft reverses faster when its thrust is pointed o
  assert.equal(mass.aoa,false,'the plain model has no angle of attack');assert.equal(vec.aoa,true);assert.ok(vec.t<mass.t,`reversed in ${vec.t} s against ${mass.t} s`);
 });
 
-test('KS_MISSILE_EVADE: a craft with a round closing on it turns onto the beam (off by default)',()=>{
+// 2026-11-28 (user「ミサイルを避ける動きと照準された時の反応と同じく本体にも入れて」): was「off by default」; the evasion is the game's rule now,
+// and a simulator switches it off with KS_MISSILE_EVADE=false.
+test('KS_MISSILE_EVADE: a craft with a round closing on it turns onto the beam (on by default, off with the switch false)',()=>{
  const setup=flags=>{const C=runtime(flags),s=C.buildDesign('craft_tie_ln'),p=JSON.parse(JSON.stringify(C.fleetProfile(C.computeStats(s),s.name,s))),u=C.fleetUnit('a','craft_tie_ln',p,0),e=C.fleetUnit('e','craft_tie_ln',p,1);
   u.pos=[0,0,0];u.yaw=0;u.velocity=[300,0,0];e.pos=[20000,0,0];e.yaw=Math.PI;e.velocity=[0,0,0];const B=C.fleetBattle([u,e],true);u.order={type:'move',point:[20000,0,0],dash:true};
   B.missiles=[{id:'m1',salvo:'s',team:1,from:'e',target:'a',n:1,tt:.05,kind:'cmsl',ion:false,range:10000,traveled:0,pos:[-2500,0,0],vel:[2600,0,0],s:2600,life:10,launchClearance:0,launchDir:[1,0,0]}];
   C.fleetTick(B,.25);return B.units.find(x=>x.id==='a');};
- assert.ok(!setup({}).evading,'no evasion without the switch');
- const u=setup({KS_MISSILE_EVADE:true});assert.equal(u.evading,true);const f=u.att?.f||[Math.cos(u.yaw),0,Math.sin(u.yaw)];assert.ok(Math.abs(f[0])<.999,'the nose leaves the line of the round');
+ assert.ok(!setup({KS_MISSILE_EVADE:false}).evading,'no evasion with the switch off');
+ const u=setup({});assert.equal(u.evading,true);const f=u.att?.f||[Math.cos(u.yaw),0,Math.sin(u.yaw)];assert.ok(Math.abs(f[0])<.999,'the nose leaves the line of the round');
 });
 
 // 2026-11-23 KS_ROUND_PROFILE / KS_MISSILE_LOCK (user: 「ミサイルは当たるまで敵をカーソル内に…」「魚雷は…減速を続けて最大到達距離で停止、爆発」).
