@@ -1,0 +1,147 @@
+{
+ "key": "cr90",
+ "stages": [
+  {
+   "s": "editor ready",
+   "t": 22.693,
+   "mode": "worker",
+   "gen": 1,
+   "sentGen": 1,
+   "statsGen": 1,
+   "geoGen": 1,
+   "waiting": false,
+   "workers": [
+    {
+     "n": 0,
+     "updates": 1
+    },
+    {
+     "n": 1,
+     "updates": 0
+    }
+   ],
+   "mass": 53266.414114086845
+  },
+  {
+   "s": "crashed worker 0",
+   "t": 22.727,
+   "mode": "worker",
+   "gen": 1,
+   "sentGen": 1,
+   "statsGen": 1,
+   "geoGen": 1,
+   "waiting": true,
+   "workers": [
+    {
+     "n": 0,
+     "updates": 1
+    },
+    {
+     "n": 1,
+     "updates": 0
+    },
+    {
+     "n": 2,
+     "updates": 0
+    }
+   ],
+   "mass": 53266.414114086845
+  },
+  {
+   "s": "after restart: idle",
+   "t": 29.076,
+   "mode": "worker",
+   "gen": 1,
+   "sentGen": 1,
+   "statsGen": 1,
+   "geoGen": 1,
+   "waiting": false,
+   "workers": [
+    {
+     "n": 0,
+     "updates": 1
+    },
+    {
+     "n": 1,
+     "updates": 0
+    },
+    {
+     "n": 2,
+     "updates": 1
+    }
+   ],
+   "mass": 53266.414114086845
+  },
+  {
+   "s": "edit computed",
+   "t": 38.205,
+   "mode": "worker",
+   "gen": 2,
+   "sentGen": 2,
+   "statsGen": 2,
+   "geoGen": 2,
+   "waiting": false,
+   "workers": [
+    {
+     "n": 0,
+     "updates": 1
+    },
+    {
+     "n": 1,
+     "updates": 0
+    },
+    {
+     "n": 2,
+     "updates": 2
+    },
+    {
+     "n": 3,
+     "updates": 0
+    }
+   ],
+   "mass": 53266.414114086845,
+   "massBefore": 53266.414114086845
+  },
+  {
+   "s": "trial",
+   "t": 43.826,
+   "trialOn": true,
+   "titleShown": false,
+   "mode": "worker",
+   "gen": 2,
+   "sentGen": 2,
+   "statsGen": 2,
+   "geoGen": 2,
+   "waiting": false,
+   "workers": [
+    {
+     "n": 0,
+     "updates": 1
+    },
+    {
+     "n": 1,
+     "updates": 0
+    },
+    {
+     "n": 2,
+     "updates": 2
+    },
+    {
+     "n": 3,
+     "updates": 0
+    },
+    {
+     "n": 4,
+     "updates": 0
+    }
+   ],
+   "mass": 53266.414114086845
+  }
+ ],
+ "errors": [],
+ "console": [
+  "error: engine worker failed crash test (out of memory)"
+ ],
+ "trialOn": true,
+ "titleShown": false
+}

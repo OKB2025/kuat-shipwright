@@ -1,0 +1,5 @@
+mc75 vs imperial at 9 km, 5 seeds: launched 360, hit 335 (93.1%), downed 25, spent 0, target gone 0, in flight at end 0; mean time to hit 6.3 s, mean speed at hit 1500 m/s
+mandator2 vs imperial at 40 km, 5 seeds: launched 360, hit 56 (15.6%), downed 8, spent 0, target gone 296, in flight at end 0; mean time to hit 25.5 s, mean speed at hit 1500 m/s
+mandator2-torp vs imperial at 40 km, 5 seeds: launched 360, hit 56 (15.6%), downed 35, spent 0, target gone 269, in flight at end 0; mean time to hit 60.5 s, mean speed at hit 528 m/s
+providence vs venator at 9 km, 5 seeds: launched 1020, hit 1008 (98.8%), downed 12, spent 0, target gone 0, in flight at end 0; mean time to hit 6.3 s, mean speed at hit 1500 m/s
+arquitens vs cr90 at 9 km, 5 seeds: launched 120, hit 120 (100.0%), downed 0, spent 0, target gone 0, in flight at end 0; mean time to hit 5.0 s, mean speed at hit 1500 m/s

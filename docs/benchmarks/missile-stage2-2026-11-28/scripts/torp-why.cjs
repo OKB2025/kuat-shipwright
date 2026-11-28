@@ -1,0 +1,9 @@
+// mandator2 with torpedo launchers against an Imperial at 40 km: when the target goes, and where the torpedoes then are.
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');const root=process.argv[2],cx=vm.createContext({console:{log(){},warn(){},error:console.error}});
+for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const C=vm.runInContext('Core',cx),F=vm.runInContext('YardFleetData',cx).designs,copy=x=>JSON.parse(JSON.stringify(x));
+for(let seed=1;seed<=5;seed++){const pa=copy(F.mandator2.p);for(const m of pa.modules)if(m.k==='launcher')m.torp=true;
+ const a=C.fleetUnit('a','mandator2',pa,0),t=C.fleetUnit('t','imperial',copy(F.imperial.p),1);a.pos=[0,0,0];t.pos=[40000,0,(seed-3)*500];a.yaw=0;t.yaw=Math.PI;a.velocity=[0,0,0];t.velocity=[0,0,0];
+ a.order={...a.order,type:'attack',target:'t',fire:true};t.order={...t.order,type:'attack',target:'a',fire:true};const b=C.fleetBattle([a,t],true);b.seed=seed;let first=null,gone=null,snap=null,why='';
+ for(let s=0;s<1440;s++){C.fleetTick(b,.25,{});const ms=(b.missiles||[]).filter(m=>m.from==='a'&&m.n>0);if(ms.length&&first==null)first=b.time;if(gone==null&&(t.dead||t.out||!C.fleetEffective(t))){gone=b.time;why=t.dead?'dead':t.out?'out':'not effective';snap=ms.map(m=>({d:Math.round(C.len(C.sub(t.pos,m.pos))),s:Math.round(m.s)}));}if(gone!=null&&!(b.missiles||[]).some(m=>m.from==='a'&&m.n>0))break;}
+ const ds=snap?snap.map(x=>x.d).sort((x,y)=>x-y):[];console.log(JSON.stringify({seed,firstLaunch:first,targetGoneAt:gone,why,targetHp:Math.round(t.hp||0),torpsInFlight:ds.length,nearestKm:ds.length?+(ds[0]/1000).toFixed(1):null,medianKm:ds.length?+(ds[ds.length>>1]/1000).toFixed(1):null,speed:snap?.[0]?.s??null}));}
